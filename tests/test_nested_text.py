@@ -1126,6 +1126,7 @@ def test_v2_duty_cycle_includes_wrong_world_initialization():
 
 
 def test_v2_amended_scoring_and_stop_policy_are_explicit():
+    module = runner_module()
     config = json.loads((ROOT / "configs" / "nested_text_nl1_v2.json").read_text())
     assert config["generation"]["scoring_version"] == "replica.nested_text.scoring.v2.1"
     assert config["generation"]["sentence_stop"]["version"] == (
@@ -1133,3 +1134,7 @@ def test_v2_amended_scoring_and_stop_policy_are_explicit():
     assert config["workload"]["id"] == "nl1_v2_development_196_attempts_v2_1"
     assert config["workload"]["wrong_world_initialization_cost_required"] is True
     assert "after all corrected development gates pass" in config["workload"]["sealed_final_access"]
+    with pytest.raises(module.RunnerError, match="stop-policy version"):
+        drifted = copy.deepcopy(config)
+        drifted["generation"]["sentence_stop"]["version"] = "other"
+        module.validate_v2_config(drifted)

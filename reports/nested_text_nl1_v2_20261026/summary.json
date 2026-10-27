@@ -4,7 +4,9 @@
   "status": "benchmark_engineering_pass_learning_rejected",
   "protocol": "configs/nested_text_nl1_v2.json",
   "episodes": "data/nested_text_nl1_v2_20261026/manifest.json",
-  "scoring_version": "replica.nested_text.scoring.v2",
+  "scoring_version": "replica.nested_text.scoring.v2.1",
+  "stop_policy_version": "replica.nested_text.sentence_stop.v1",
+  "config_sha256": "1e9eb440f5179857f631a071c123231c3db924a1aa257829f6f963ed25417178",
   "initialization": {
     "primary": {
       "run": "runs/nested_text_nl1_v2_20261026/init_primary",
@@ -32,8 +34,9 @@
     }
   },
   "development": {
-    "selected_run": "runs/nested_text_nl1_v2_20261026/p_only_dev02",
+    "selected_run": "runs/nested_text_nl1_v2_20261026/p_only_dev03",
     "preserved_truncation_diagnostic": "runs/nested_text_nl1_v2_20261026/p_only_dev01",
+    "preserved_first_sentence_stop_result": "runs/nested_text_nl1_v2_20261026/p_only_dev02",
     "scoring_attempts": 196,
     "requests_audited": 196,
     "audit_complete": true,
@@ -80,16 +83,24 @@
     "replay_calls": 0,
     "response_supervised_tokens": 0,
     "latency_p95_ms": {
-      "plastic_read": 46.64383316412568,
-      "session_prepare": 61.58545799553394,
-      "generation_finalize": 1386.4920837804675,
-      "release": 0.0832919031381607,
-      "total": 1484.173791948706
+      "plastic_read": 45.49820767715573,
+      "session_prepare": 60.57649990543723,
+      "generation_finalize": 1383.8761248625815,
+      "release": 0.08716713637113571,
+      "total": 1483.7936670519412
     },
     "duty_cycle": 0.0,
-    "evaluation_end_to_end_seconds": 177.39516670862213,
+    "learning_update_seconds": 0.0,
     "teaching_end_to_end_seconds": 4.418514917138964,
-    "peak_driver_bytes": 11815763968,
+    "wrong_world_learning_update_seconds": 0.0,
+    "wrong_world_teaching_end_to_end_seconds": 4.065679499879479,
+    "evaluation_end_to_end_seconds": 178.6563762081787,
+    "duty_cycle_formula": "(learning_update_seconds + wrong_world_learning_update_seconds) / (teaching_end_to_end_seconds + wrong_world_teaching_end_to_end_seconds + evaluation_end_to_end_seconds)",
+    "duty_cycle_source": {
+      "primary": "runs/nested_text_nl1_v2_20261026/init_primary/cost.json",
+      "wrong_world": "runs/nested_text_nl1_v2_20261026/init_wrong_world/cost.json"
+    },
+    "peak_driver_bytes": 10767433728,
     "peak_swap_growth_bytes": 0,
     "minimum_observed_free_percent": 76.0,
     "guard_stop_reason": null,
@@ -103,31 +114,31 @@
       "stop_token": 167,
       "token_budget": 29
     },
-    "dev02_stop_reasons": {
+    "dev02_and_dev03_stop_reasons": {
       "sentence_complete": 188,
       "token_budget": 8
     },
     "dev01_retention": 0.375,
-    "dev02_retention": 0.625,
+    "dev02_and_dev03_retention": 0.625,
     "replay_retention": 0.5,
-    "interpretation": "The first complete-sentence stop prevents later rambling from invalidating a complete answer. It changes generation/stop behavior, not weights or learned capability. Different output text explains the 3/8, 4/8 and 5/8 measurements."
+    "interpretation": "The first complete-sentence stop prevents later rambling from invalidating a complete answer. It changes generation/stop behavior, not weights or learned capability. Different output text explains the 3/8, 4/8 and 5/8 measurements. Dev03 adds explicit version/config identity and complete wrong-world workload accounting; it does not change the dev02 result."
   },
   "verification": {
     "scorer_tests": 44,
     "runner_and_scorer_tests": 86,
     "adapter_session_fast_port_tests": 53,
     "matched_migration_tests": 26,
-    "related_total_tests": 120,
+    "combined_corrected_tests": 168,
     "raw_evidence": [
-      "runs/nested_text_nl1_v2_20261026/p_only_dev02/gates/dev.json",
-      "runs/nested_text_nl1_v2_20261026/p_only_dev02/phase_work.json",
-      "runs/nested_text_nl1_v2_20261026/p_only_dev02/request_audit.json",
-      "runs/nested_text_nl1_v2_20261026/p_only_dev02/cost.json",
-      "runs/nested_text_nl1_v2_20261026/p_only_dev02.guard.json"
+      "runs/nested_text_nl1_v2_20261026/p_only_dev03/gates/dev.json",
+      "runs/nested_text_nl1_v2_20261026/p_only_dev03/phase_work.json",
+      "runs/nested_text_nl1_v2_20261026/p_only_dev03/request_audit.json",
+      "runs/nested_text_nl1_v2_20261026/p_only_dev03/cost.json",
+      "runs/nested_text_nl1_v2_20261026/p_only_dev03.guard.json"
     ]
   },
   "disposition": {
-    "implemented": "one-expert constant routing, v2 scoring/stop metadata, sentence completion, full phase accounting and minimal fixture correction",
+    "implemented": "one-expert constant routing, v2.1 scoring/stop metadata, sentence completion, manifest enforcement, complete workload duty accounting and minimal fixture correction",
     "executed": "zero-update initialization and complete 196-attempt development evaluation",
     "capability_qualified": false,
     "behavioral_training_admitted": false,

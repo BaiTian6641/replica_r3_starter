@@ -218,6 +218,8 @@ def validate_v2_config(config: Mapping[str, Any]) -> None:
              "v2 stop tokens differ from the scoring contract")
     _require(generation.get("sentence_stop", {}).get("enabled") is True,
              "v2 requires the declared first-sentence completion stop")
+    _require(generation["sentence_stop"].get("version") == STOP_POLICY_VERSION,
+             "v2 stop-policy version differs")
     _require(generation.get("scoring_version") == SCORING_VERSION,
              "v2 generation/scoring versions differ")
     _require(generation.get("token_budget_credit") is False

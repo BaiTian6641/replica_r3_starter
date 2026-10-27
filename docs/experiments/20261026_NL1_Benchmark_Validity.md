@@ -45,7 +45,7 @@ routing. The v1 16-expert prompt hash remains a negative control.
 ### Response grammar and stopping
 
 `src/replica_lab/nested_text_scoring.py` implements
-`replica.nested_text.scoring.v2`:
+`replica.nested_text.scoring.v2.1`:
 
 - Bare expected answers are accepted with optional terminal punctuation and
   Markdown emphasis.
@@ -84,12 +84,17 @@ of learned improvement.
 
 The declared development workload contains 196 attempts: 60 taught primary, 60
 preteach primary, 16 shuffled, 16 reset-P, 16 spine-absent, 12 wrong-world-P and
-16 wrong-world-on-primary. Sealed-final access is not part of the workload.
+16 wrong-world-on-primary. Sealed-final access is not part of the development workload; after all corrected development gates pass, one read-only heldout evaluation is admitted once.
 
 The duty ratio is:
 
-$$\frac{\text{learning update seconds}}
-{\text{teaching end-to-end seconds + evaluation end-to-end seconds}}$$
+$$\frac{\text{primary + wrong-world learning update seconds}}
+{\text{primary + wrong-world init + evaluation end-to-end seconds}}$$
+
+The numerator includes learning updates in both worlds. The denominator includes
+primary and wrong-world initialization, sensing, request preparation,
+generation, scoring, checkpoint/export and reporting. It does not include idle
+time added merely to make the ratio smaller.
 
 End-to-end time includes model/protocol initialization, sensing, request
 preparation, generation/finalization, scoring, checkpoint/export and reporting.
@@ -102,20 +107,22 @@ separately counts plastic feature prompts, session-sense prompts, generation
 prefill, decode positions, actual forward/backward calls and response-supervised
 tokens. Replay count is zero for this baseline.
 
-## 3. Native initialization and dev02
+## 3. Native initialization and dev03
 
 Both one-expert null banks initialized with zero learning events, zero updates,
 null reads and distinct world protocol hashes. Each P-only file is 3,148,851
 bytes; each full checkpoint is 3,413,679 bytes. Primary and wrong-world
 initialization used one exclusive MPS worker and no downloads or base saves.
 
-The selected [dev02 summary](../../reports/nested_text_nl1_v2_20261026/summary.json)
-contains all 196 source-free attempts and 196/196 audits. It stopped before
-held-out with the same four quality failures as dev01: new-instance, gain over
-preteach, unaffected and correction. Duty, warm-latency, checkpoint and P-only
-cost gates pass. `dev01` remains the truncation diagnostic.
+The selected [dev03 summary](../../reports/nested_text_nl1_v2_20261026/summary.json)
+contains all 196 source-free attempts and 196/196 audits, with
+`replica.nested_text.scoring.v2.1`, `sentence_stop.v1` and config hash
+`1e9eb440…`. It stopped before held-out with the same four quality failures as
+dev01: new-instance, gain over preteach, unaffected and correction. Duty,
+warm-latency, checkpoint and P-only cost gates pass. `dev01` remains the
+truncation diagnostic and `dev02` the first sentence-stop result.
 
-| Metric | dev01 | dev02 with sentence stop |
+| Metric | dev01 | dev03 with sentence stop |
 |---|---:|---:|
 | Sentence completions | 0 | 188 |
 | EOS/im_end completions | 167 | 0 |
@@ -132,15 +139,13 @@ improvement in weights or capability. The sentence stop prevents later rambling
 from invalidating a complete answer; it does not make an incorrect or ambiguous
 answer correct. New-instance, correction and unaffected accuracy remain zero.
 
-Dev02 records 4,368 positions in each of plastic feature sensing, session
+Dev03 records 4,368 positions in each of plastic feature sensing, session
 sensing and generation prefill, plus 65,214 decode positions. Backward and
 replay calls are zero; response-supervised tokens are zero. The guard reports
-11,815,763,968 peak sampled driver bytes, zero swap growth and 76% minimum host
+10,767,433,728 peak sampled driver bytes, zero swap growth and 76% minimum host
 free memory. Evaluation end-to-end is 177.40 s; guard wall time is 180.03 s.
 
-Verification is 44 scorer tests, 86 runner/scorer tests, 120 related
-scorer/adapter/nested tests, 53 adapter/session/fast-port tests and 26 matched
-migration tests. Independent review of the corrected benchmark is recorded
+Verification is 44 scorer tests, 168 corrected suites, 53 adapter/session/fast-port tests and 26 matched migration tests. Independent review of the corrected benchmark is recorded below when complete.
 below when complete.
 
  ## 4. Commands and current disposition

@@ -163,6 +163,8 @@ def score_response(expected: str, output: str, *, candidate_answers: Iterable[st
             return ResponseScore(False, "other_candidate", expected_norm, output_norm)
     return ResponseScore(True, "correct", expected_norm, output_norm)
 
-
+__all__ = [
+    "DEFAULT_MAX_NEW_TOKENS", "GenerationResult", "ResponseScore",
     "SCORING_VERSION", "STOP_POLICY_VERSION", "STOP_TOKENS", "finalize_generation",
     "score_response", "is_truncated_stop_reason", "sentence_complete_text",
+]
