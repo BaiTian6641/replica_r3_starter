@@ -1,10 +1,10 @@
 # Vision learning curve protocol — training-only 0/1/2/4/7
 
-**Status: predeclared at `f67b4ed`; amended at `26b353c` and `2f0d0d9`.
-Attempts 01–03 failed before a complete curve; attempt 04 is pending.** This is a
-bounded first-order training diagnostic, not a source-disjoint fine-tuning
-pilot, generalization test, V0 run or capability claim. Development, held-out
-and semantic-audit data remain sealed.
+**Status: executed at `2f0d0d9`; final decision `curve_no_optimization_progress`.
+Development, held-out and V0 remain closed.** This is a bounded first-order
+training diagnostic, not a source-disjoint fine-tuning pilot, generalization
+test, V0 run or capability claim. Development, held-out and semantic-audit data
+remain sealed.
 
 ## Why a new measurement is required
 
@@ -149,3 +149,58 @@ The declared native command is:
 The CPU contract suite passes **37 tests**. It covers config and pin drift,
 readout invariants, all T3 clauses, every decision status and the unchanged
 historical gradient failure behavior.
+
+## Native result
+
+Attempt 04 completed all seven updates and all five readouts. Engineering and
+access checks pass: 30 backward calls, seven optimizer steps, one model load,
+490 generations, 490 teacher-forced cells, 1,470 scoring forwards, zero
+checkpoint/extension writes and zero downloads. The guard completed in 862.51
+seconds with peak sampled driver 12,029,247,488 bytes, zero swap growth and 74%
+minimum observed host free memory. The stop report's data-plus-report total is
+4,061,064 bytes, below the 64 MiB cap.
+
+| Prefix | Answer correct NLL | Caption correct NLL | Mean answer-prefill gold rank | Empty decoded responses |
+|---:|---:|---:|---:|---:|
+| 0 | 10.704499 | 9.773421 | 21,413.57 | 0 |
+| 1 | 11.741904 | 13.448152 | 27,081.50 | 13 |
+| 2 | 8.396319 | 7.109048 | 5,845.86 | 14 |
+| 4 | 5.263936 | 4.999400 | 524.57 | 20 |
+| 7 | 3.704158 | 2.963564 | 103.43 | 0 |
+
+T1 passes: answer and caption NLL fall by 65.40% and 69.68%, respectively. T3
+passes because the mean gold rank falls to 0.00483 of its prefix-0 value. The
+other conversion criteria do not pass: correct accuracy and prefill gold
+accuracy remain 0/14, and caption token-F1 gain is 0.02781 (<0.10).
+
+T2 fails. Both role NLLs increase at prefix 1: answer 10.704499→11.741904 and
+caption 9.773421→13.448152. Therefore the terminal decision is
+`curve_no_optimization_progress`, not `curve_optimization_only_no_conversion`.
+The prefix-1 increase is the reason for the disposition; the later descent and
+gold-rank improvement do not erase it. No longer budget, development, held-out,
+V0 or retry is authorized by this result.
+
+The prefix-7 endpoint context is also negative: answer correct accuracy and
+prefill gold accuracy are 0/14, caption semantic F1 is 0, and only two unique
+answer texts remain. Those endpoint gates were not used as the curve decision.
+
+Independent CPU replay of `validate_curve_readouts`,
+`curve_trajectory_report` and `curve_decision` reproduces every T1/T2/T3 value
+and the terminal status with no violations. The 37-test curve suite and the
+unchanged historical failure behavior remain separate evidence.
+
+## Preserved attempts and artifacts
+
+| Attempt | Outcome |
+|---|---|
+| 01 | Baseline interpreter lacks Pillow; zero updates/readouts |
+| 02 | Overlay reaches prefix 0; missing digest-import alias, zero updates/readouts |
+| 03 | One update/readout; 13 empty decoded cells trigger the historical nonempty-text rule; 443.7 s |
+| 04 | Complete five-prefix curve; `curve_no_optimization_progress`; 862.5 s |
+
+Raw reports, prefix readouts, training trace, backward probes, guard logs and
+profile samples are under `runs/vision_learnability_curve_v1_20261026*` and
+`reports/vision_learnability_curve_v1_20261026*`. The completed receipt is
+`runs/vision_learnability_curve_v1_20261026_attempt04/report.json`; its summary
+is `reports/vision_learnability_curve_v1_20261026/summary.json`. No historical
+failure was rewritten.

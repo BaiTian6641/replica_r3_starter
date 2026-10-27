@@ -50,6 +50,12 @@ and the unchanged 50 GiB / 512 MiB / 15% guard.
   decision is `stopped_before_dev_heldout_v0`; no further vision job follows.
   Ablation/gradient peaks are 11,951,472,640 and 12,037,570,560 sampled driver
   bytes with zero swap growth. The focused suite passes 78 tests.
+- [Vision learning curve](docs/experiments/20261026_Vision_Learnability_Curve.md)
+  (`2f0d0d9`) completes all five readouts with 65.40%/69.68% NLL reductions
+  and gold-rank conversion, but prefix 1 raises both losses, so T2 fails and
+  the final decision is `curve_no_optimization_progress`. The 37-test curve
+  suite and independent trajectory replay pass; development, held-out and new
+  V0 remain closed.
 - [Standalone NL0](docs/experiments/20261026_Nested_Learning_NL0.md)
   (`88c46e4`) remains the reviewed 28-test software/math qualification for
   selected-expert updates, associative recurrence, causal observations and

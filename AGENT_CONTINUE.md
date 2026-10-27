@@ -60,8 +60,11 @@ generations and reduces six answer-gap rows while full-patch baseline identity
 matches. The separate fresh-projector gradient arm then completes seven updates
 and exactly 30 backward calls with all six tensors changing, but answers are
 0/14, caption semantic F1 is zero and all nine answer gates fail. Engineering
-passes; train-fit learnability is rejected. Development, held-out and new V0
-alignment remain closed; no further vision job is authorized by this result.
+passes; train-fit learnability is rejected. The new [five-prefix curve](docs/experiments/20261026_Vision_Learnability_Curve.md)
+confirms 65.40%/69.68% NLL reductions and gold-rank conversion, but prefix 1
+increases both losses, so T2 fails and the terminal decision is
+`curve_no_optimization_progress`. Development, held-out and new V0 alignment
+remain closed; no further vision job is authorized by this result.
 
 The clean-clone suite at `6684af8` passed **2,274 tests plus 21 subtests**,
 with 40 explicit skips in 335.27 s; see

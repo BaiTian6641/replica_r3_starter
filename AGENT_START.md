@@ -16,6 +16,10 @@ utility evidence. The [vision learnability diagnostic](docs/experiments/20261026
 observes spatial contribution in the read-only ablation, but the seven-update
 gradient arm fails all answer gates and stops before development, held-out and
 new V0 alignment work. Historical interface-only V0 remains unchanged.
+The new [five-prefix curve](docs/experiments/20261026_Vision_Learnability_Curve.md)
+reduces answer/caption NLL by 65.40%/69.68% and improves gold rank, but prefix 1
+raises both losses, so T2 fails and the final decision is
+`curve_no_optimization_progress`. No further vision job is authorized.
 The [real-image tranche](docs/experiments/20261026_Real_Image_Tranche.md) is
 admitted for local input validation only, and
 [memory bank value](docs/experiments/20261026_Memory_Bank_Value.md) remains the
