@@ -827,20 +827,27 @@ class NestedTextLearner:
         reuses those detached inference helpers as its training graph.
         """
         def response_gradients(expert):
-            read = self.differentiable_plastic_read(prompt_ids, prompt_mask)
+            device = self._adapter_device()
+            train_prompt_ids = prompt_ids.to(device)
+            train_prompt_mask = prompt_mask.to(device)
+            train_input_ids = input_ids.to(device)
+            train_attention_mask = attention_mask.to(device)
+            train_response_mask = response_mask.to(device)
+            read = self.differentiable_plastic_read(
+                train_prompt_ids, train_prompt_mask)
             task = TaskGraph(task_id=f"response-ce:{event.event_id}",
                              goal=event.event_id, revision=0)
-            labels = input_ids.clone()
-            labels[~response_mask] = -100
+            labels = train_input_ids.clone()
+            labels[~train_response_mask] = -100
             with session.training_request(
-                    prompt_ids=prompt_ids, prompt_mask=prompt_mask,
+                    prompt_ids=train_prompt_ids, prompt_mask=train_prompt_mask,
                     query=task.goal, scope=scope, task=task,
                     enabled_ports=(), core_impl="none",
                     enabled_branches=("plastic",), plastic=read,
                     identity=None, identity_enabled=False) as request:
                 output = session.forward(
-                    request, input_ids, labels=labels,
-                    attention_mask=attention_mask)
+                    request, train_input_ids, labels=labels,
+                    attention_mask=train_attention_mask)
                 _require(output.loss is not None and output.loss.requires_grad,
                          "response CE must retain an autograd path")
                 gradients = torch.autograd.grad(output.loss, tuple(expert.parameters()))

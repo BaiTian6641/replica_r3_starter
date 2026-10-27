@@ -923,6 +923,25 @@ def test_v2_mode_dispatch_enforces_allowed_native_modes():
         module.validate_v2_config(v1)
 
 
+def test_behavioral_reference_admits_response_ce_and_fit_gate():
+    module = runner_module()
+    config = json.loads((ROOT / "configs" /
+                         "nested_text_behavioral_reference_v1.json").read_text())
+    module.validate_run_mode(config, "teach")
+    module.validate_run_mode(config, "fit-eval")
+    module.validate_v2_config(config)
+    assert config["transaction"]["response_only_labels"] is True
+    assert config["workload"]["fit_eval_attempts"] == 28
+    bad_objective = {**config, "transaction": {
+        **config["transaction"], "objective": "detached_local_feature_alignment"}}
+    with pytest.raises(module.RunnerError, match="response objective"):
+        module.validate_v2_config(bad_objective)
+    bad_fit = {**config, "training": {
+        **config["training"], "fit_eval_required": False}}
+    with pytest.raises(module.RunnerError, match="fit evaluation"):
+        module.validate_v2_config(bad_fit)
+
+
 def test_v2_protocol_binds_constant_single_expert():
     module = runner_module()
     config = json.loads((ROOT / "configs" / "nested_text_nl1_v2.json").read_text())

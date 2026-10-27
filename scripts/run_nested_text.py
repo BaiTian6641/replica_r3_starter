@@ -67,10 +67,10 @@ from replica_lab.nested_text_scoring import (SCORING_VERSION, STOP_POLICY_VERSIO
                                              STOP_TOKENS, finalize_generation,
                                              score_response, is_truncated_stop_reason,
                                              sentence_complete_text)
-
 PROMPT_FORM = "replica.nested_text.run.v1"
-CONFIG_FORMAT_V1 = "replica.nested_text.nl1.v1"
+CONFIG_FORMAT_BEHAVIORAL = "replica.nested_text.behavioral_reference.v1"
 CONFIG_FORMAT_V2 = "replica.nested_text.nl1.v2"
+CONFIG_FORMAT_V1 = "replica.nested_text.nl1.v1"
 MANIFEST_FORMATS = frozenset({
     "replica.nested_text.episode_manifest.v1",
     "replica.nested_text.episode_manifest.v2",
@@ -150,8 +150,6 @@ def load_episode_manifest(directory: Path) -> dict:
         _require(_sha256_file(path) == digest,
                  f"episode file digest differs: {name}")
     return manifest
-
-
 def validate_episode_binding(args, config: Mapping[str, Any], manifest: Mapping[str, Any]) -> None:
     episodes = config["episodes"]
     expected_root = (ROOT / episodes["root"]).resolve()
@@ -164,21 +162,20 @@ def validate_episode_binding(args, config: Mapping[str, Any], manifest: Mapping[
              "v2 requires the corrected schema-v2 episode manifest")
 
 
+def is_v2(config: Mapping[str, Any]) -> bool:
+    return config_format(config) in (CONFIG_FORMAT_V2, CONFIG_FORMAT_BEHAVIORAL)
 def config_format(config: Mapping[str, Any]) -> str:
     value = config.get("format")
-    _require(value in (CONFIG_FORMAT_V1, CONFIG_FORMAT_V2),
+    _require(value in (CONFIG_FORMAT_V1, CONFIG_FORMAT_V2,
+                       CONFIG_FORMAT_BEHAVIORAL),
              "unsupported nested-text protocol")
     return str(value)
 
 
-def is_v2(config: Mapping[str, Any]) -> bool:
-    return config_format(config) == CONFIG_FORMAT_V2
 
 def version_metadata(args) -> dict:
     return {"config_sha256": _sha256_file(args.protocol),
             "stop_policy_version": STOP_POLICY_VERSION}
-
-
 
 
 def validate_run_mode(config: Mapping[str, Any], mode: str) -> None:
@@ -196,8 +193,8 @@ def validate_run_mode(config: Mapping[str, Any], mode: str) -> None:
 
 def validate_v2_config(config: Mapping[str, Any]) -> None:
     """Validate the additive v2 bindings the runner relies on."""
-    _require(config_format(config) == CONFIG_FORMAT_V2,
-             "v2 validation requires the v2 protocol")
+    _require(is_v2(config),
+             "v2 protocol or behavioral reference required")
     bank = config["bank"]
     routing = config["routing"]
     _require(int(bank["experts"]) == 1,
@@ -230,8 +227,21 @@ def validate_v2_config(config: Mapping[str, Any]) -> None:
     _require(sum(int(value) for value in attempts.values())
              == int(workload["scoring_attempts"]),
              "v2 workload attempts do not sum to the declared total")
-    _require(int(workload["teaching_events_for_this_baseline"]) == 0,
-             "this v2 baseline performs no teaching events")
+    if config.get("training_admitted"):
+        _require(int(workload["teaching_events_for_this_baseline"]) > 0,
+                 "admitted training requires teaching events")
+        if config_format(config) == CONFIG_FORMAT_BEHAVIORAL:
+            _require(config["transaction"].get("objective")
+                     == "verified_response_cross_entropy_through_frozen_decoder",
+                     "behavioral reference requires the declared response objective")
+            _require(config["transaction"].get("response_only_labels") is True,
+                     "behavioral reference requires response-only labels")
+            _require(config["training"].get("fit_eval_required") is True
+                     and int(workload["fit_eval_attempts"]) > 0,
+                     "behavioral reference requires a fit evaluation gate")
+    else:
+        _require(int(workload["teaching_events_for_this_baseline"]) == 0,
+                 "this v2 baseline performs no teaching events")
 
 
 def load_rows(directory: Path, manifest: Mapping[str, Any], role: str) -> list[dict]:
@@ -1209,6 +1219,307 @@ def run_teach(args, config: dict) -> int:
     return 0
 
 
+def run_response_teach(args, config: dict) -> int:
+    """Bounded response-CE teaching with complete phase and position accounting."""
+    output: Path = args.output
+    _require(is_v2(config), "response-CE teaching requires the behavioral protocol")
+    _require(config.get("training_admitted") is True,
+             "response-CE training requires an admitted protocol")
+    _require(config["transaction"]["objective_admitted_for_this_protocol"] is True
+             and config["transaction"]["external_gradient_transaction"] is True,
+             "the protocol must admit the response-CE gradient transaction")
+    _require(config["transaction"].get("objective")
+             == "verified_response_cross_entropy_through_frozen_decoder",
+             "response-CE teaching requires the declared response objective")
+    validate_v2_config(config)
+    manifest = load_episode_manifest(args.episodes)
+    validate_episode_binding(args, config, manifest)
+    world_uid = (manifest["primary_world"] if args.world_role == "primary"
+                 else manifest["wrong_world"])
+    if args.world_role == "wrong_world":
+        parent_path = (args.wrong_world_parent_checkpoint
+                       or config["training"]["wrong_world_parent_checkpoint"])
+    else:
+        parent_path = (args.parent_checkpoint
+                       or config["training"]["parent_checkpoint"])
+    _require(parent_path is not None,
+             "the behavioral reference requires a parent checkpoint")
+    started_total = time.perf_counter()
+    with exclusive_mps_worker(ROOT):
+        adapter, tokenizer, lock = load_local_mps(
+            args.model_path, args.model_lock)
+        protocol = protocol_for_world(
+            config, lock, hidden_size=adapter.base.config.hidden_size,
+            world_uid=world_uid)
+        adapter.install_plastic(protocol.plastic_spec)
+        _require(adapter.plastic_read_digest() == protocol.read_path_sha256,
+                 "adapter read path differs from the protocol")
+        personality = PersonalityIdentity.default()
+        observer = Observer() if args.observer else None
+        spine = Observer() if args.spine else None
+        bank, coordinator, controller = build_learning_owners(
+            protocol, config, personality=personality,
+            observer=observer, spine=spine)
+        learner = NestedTextLearner(
+            adapter, bank=bank, protocol=protocol, controller=controller,
+            coordinator=coordinator, personality=personality,
+            tokenizer_sha256=protocol.tokenizer_sha256)
+        payload = torch.load(parent_path, map_location="cpu", weights_only=True)
+        _require(payload.get("format") == "replica.nested_text.checkpoint.v1",
+                 "parent is not a nested-text full checkpoint")
+        _require(TextProtocol.from_dict(payload["text"]["protocol"]) == protocol,
+                 "parent checkpoint protocol differs from the behavioral protocol")
+        learner.load_checkpoint(payload)
+        order = TextAccessOrder()
+        order.access("teaching")
+        stamp_before = adapter.parameter_stamp()
+        episodes = episodes_for_teaching(
+            args.episodes, manifest, tokenizer, protocol,
+            max_prompt_tokens=args.max_prompt_tokens,
+            max_response_tokens=args.max_response_tokens,
+            limit=args.max_events)
+        _require(episodes, "no eligible teaching episodes")
+        update_limit = int(config["training"][
+            "wrong_world_max_updates" if args.world_role == "wrong_world"
+            else "max_updates"])
+        _require(len(episodes) <= update_limit,
+                 f"response-CE episodes exceed declared update bound {update_limit}")
+        (output / "teach").mkdir(parents=True, exist_ok=True)
+        session = MemorySession(adapter, tokenizer,
+                                RecordLedger(output / "teach" / "ledger.sqlite"))
+        scope = empty_scope(protocol)
+        transactions, observations = [], []
+        started = time.perf_counter()
+        update_seconds = 0.0
+        for episode in episodes:
+            update_started = time.perf_counter()
+            outcome = learner.learn_event_response_ce(
+                session, episode.event, scope=scope,
+                prompt_ids=episode.prompt_ids, prompt_mask=episode.prompt_mask,
+                input_ids=episode.input_ids,
+                attention_mask=episode.attention_mask,
+                response_mask=episode.response_mask)
+            update_seconds += time.perf_counter() - update_started
+            transactions.append(outcome.to_dict())
+            observations.append({"event_id": outcome.event_id,
+                                 "chunk": outcome.chunk.to_dict()})
+        wall = time.perf_counter() - started
+        stamp_after = adapter.parameter_stamp()
+        _require(stamp_before == stamp_after,
+                 "native theta parameter stamp changed during response-CE learning")
+        _write_jsonl(output / "transactions.jsonl", transactions)
+        _write_jsonl(output / "observations.jsonl", observations)
+        _write_json(output / "protocol.json", protocol.to_dict())
+        checkpoint_started = time.perf_counter()
+        checkpoint = learner.save_checkpoint(output / "full_checkpoint.pt")
+        checkpoint_seconds = time.perf_counter() - checkpoint_started
+        p_only_started = time.perf_counter()
+        p_only_path = learner.save_p_only(output / "p_only" / "state.pt")
+        p_only_seconds = time.perf_counter() - p_only_started
+        p_only = torch.load(p_only_path, map_location="cpu", weights_only=True)
+        _write_json(output / "p_only" / "manifest.json", {
+            "format": P_ONLY_FORMAT,
+            "bytes": p_only_path.stat().st_size,
+            "sha256": _sha256_file(p_only_path),
+            "keys": sorted(p_only),
+            "forbidden_absent": not any(
+                key in p_only for key in ("optimizer", "dedup", "clock",
+                                          "revision", "coordinator",
+                                          "observations", "moments", "sources")),
+            "source_inputs": 0,
+        })
+        _write_json(output / "parameter_audit.json", {
+            "theta_stamp_unchanged": stamp_before == stamp_after,
+            "plastic_parameters": [
+                f"expert_{index}.{name}"
+                for index in range(bank.expert_count)
+                for name, _ in bank.expert(index).named_parameters()],
+            "plastic_parameter_count": sum(
+                1 for expert in bank.experts for _ in expert.parameters()),
+            "read_path_trainable_parameters": 0,
+            "expert_steps": list(bank.expert_steps),
+        })
+        _write_json(output / "identity.json", {
+            "personality_before": personality.to_dict(),
+            "personality_after": learner.personality.to_dict(),
+            "stable": personality == learner.personality,
+            "observer_reports": len(observer.reports) if observer else 0,
+            "spine_reports": len(spine.reports) if spine else 0,
+        })
+        _write_json(output / "access_order.json", order.snapshot())
+        prompt_positions = sum(int(episode.prompt_ids.shape[1]) for episode in episodes)
+        full_positions = sum(int(episode.input_ids.shape[1]) for episode in episodes)
+        supervised = sum(int(episode.response_mask.sum()) for episode in episodes)
+        events = len(episodes)
+        forward_calls = {
+            "prompt_features": 2 * events,
+            "differentiable_read": events,
+            "session_sense": events,
+            "response_ce": events,
+            "total": 5 * events,
+        }
+        end_to_end = time.perf_counter() - started_total
+        cost = {
+            "events": events,
+            "eligible_events": int(learner.accounting["eligible_events"]),
+            "optimizer_steps": int(learner.accounting["optimizer_steps"]),
+            "feature_vectors": int(learner.accounting["feature_vectors"]),
+            "response_tokens": int(learner.accounting["response_tokens"]),
+            "response_supervised_tokens": supervised,
+            "processed_positions": 3 * prompt_positions + full_positions,
+            "plastic_feature_prompt_positions": prompt_positions,
+            "session_sense_prompt_positions": prompt_positions,
+            "response_ce_positions": full_positions,
+            "forward_calls": forward_calls,
+            "backward_calls": events,
+            "response_ce_backward_calls": events,
+            "replay_calls": 0,
+            "wall_seconds": wall,
+            "update_seconds": update_seconds,
+            "learning_update_seconds": update_seconds,
+            "duty_cycle": (update_seconds / wall) if wall > 0 else None,
+            "end_to_end_seconds": end_to_end,
+            "teaching_end_to_end_seconds": end_to_end,
+            "checkpoint_seconds": checkpoint_seconds,
+            "p_only_seconds": p_only_seconds,
+            "protocol_sha256": protocol.protocol_sha256,
+            "peak_driver_bytes": peak_driver_bytes(),
+            "checkpoint_bytes": checkpoint.stat().st_size,
+            "p_only_bytes": p_only_path.stat().st_size,
+            "model_loads": 1, "tokenizer_loads": 1,
+            "teacher_requests": events,
+            "scoring_version": SCORING_VERSION,
+            **version_metadata(args),
+        }
+        _write_json(output / "cost.json", cost)
+        _write_json(output / "run.json", {
+            "format": PROMPT_FORM, "mode": "teach", "status": "completed",
+            "world_uid": world_uid, "protocol_sha256": protocol.protocol_sha256,
+            "episodes_manifest_sha256": _sha256_file(
+                args.episodes / "manifest.json"),
+            "checkpoint": str(checkpoint), "p_only": str(p_only_path),
+            "objective": config["transaction"]["objective"],
+            "updates": events, "learning_events": events,
+            "descriptive_only": True, "promotion": False,
+            "non_claims": ["bounded response-CE reference only",
+                           "no utility, capability or heldout claim",
+                           "single seed is descriptive only"],
+        })
+    return 0
+
+
+def run_fit_eval(args, config: dict) -> int:
+    """Evaluate teaching-fit rows with v2 scoring and full phase accounting."""
+    output: Path = args.output
+    _require(is_v2(config), "fit evaluation requires the behavioral protocol")
+    validate_v2_config(config)
+    manifest = load_episode_manifest(args.episodes)
+    validate_episode_binding(args, config, manifest)
+    state = torch.load(args.p_state, map_location="cpu", weights_only=True)
+    _require(isinstance(state, Mapping) and set(state) == P_ONLY_KEYS,
+             "P-only state must contain exactly the declared weights/binding keys")
+    evaluation_started = time.perf_counter()
+    with exclusive_mps_worker(ROOT):
+        adapter, tokenizer, lock = load_local_mps(
+            args.model_path, args.model_lock)
+        protocol = protocol_for_world(
+            config, lock, hidden_size=adapter.base.config.hidden_size,
+            world_uid=manifest["primary_world"])
+        adapter.install_plastic(protocol.plastic_spec)
+        validate_p_only_payload(state, protocol=protocol)
+        learner = build_read_only_learner(protocol, config, adapter, state)
+        (output / "fit").mkdir(parents=True, exist_ok=True)
+        session = MemorySession(adapter, tokenizer,
+                                RecordLedger(output / "fit" / "ledger.sqlite"))
+        episodes = episodes_for_teaching(
+            args.episodes, manifest, tokenizer, protocol,
+            max_prompt_tokens=args.max_prompt_tokens,
+            max_response_tokens=args.max_response_tokens,
+            limit=args.max_events)
+        candidates = candidate_answers_for(args.episodes, manifest)
+        latency_rows, work_rows = [], []
+        score = score_episodes_v2(
+            learner, session, episodes, route_mode=None,
+            max_new_tokens=int(config["generation"]["max_new_tokens"]),
+            stop_tokens=tuple(int(token) for token in config["generation"]["stop_tokens"]),
+            label="fit", candidate_answers=candidates,
+            latency_rows=latency_rows, work_rows=work_rows)
+        attempts = len(episodes)
+        required_attempts = int(config["workload"]["fit_eval_attempts"])
+        _require(attempts == required_attempts,
+                 f"fit workload requires {required_attempts} attempts; measured {attempts}")
+        audits = [item["request_audit"] for item in score["results"]
+                  if item.get("request_audit")]
+        source_free = len(audits) == attempts and all(
+            audit["sources_present"] is False
+            and audit["memory_spans"] == 0
+            and audit["selection_records"] == 0
+            and audit["ledger_records"] == 0
+            and audit["controller_constructed"] is False
+            and audit["coordinator_constructed"] is False
+            and audit["updates_enabled"] is False
+            for audit in audits)
+        _require(source_free, "fit request constructed a source-bearing state")
+        fit_accuracy = float(score["accuracy"])
+        failures = ([] if fit_accuracy >= float(config["gates"]["fit"]["min_accuracy"])
+                    else ["min_fit_accuracy"])
+        latency_summary = summarize_latency(latency_rows)
+        work_totals = sum_phase_work(work_rows)
+        cost = {
+            "fit_accuracy": fit_accuracy,
+            "scoring_attempts": attempts,
+            "generated_tokens": work_totals["generated_ids"],
+            "evaluation_end_to_end_seconds": time.perf_counter() - evaluation_started,
+            "peak_driver_bytes": peak_driver_bytes(),
+            "latency_ms": latency_summary,
+            "work": work_totals,
+            "scoring_version": SCORING_VERSION,
+            **version_metadata(args),
+        }
+        _write_json(output / "request_audit.json", {
+            "requests_audited": len(audits), "scoring_attempts": attempts,
+            "audit_complete": len(audits) == attempts,
+            "source_free": source_free,
+            "controller_constructed": False, "coordinator_constructed": False,
+            "updates_enabled": False, "moments_loaded": False,
+            "dedup_loaded": False, "clock_loaded": False,
+            "ledger_records": audits[0]["ledger_records"] if audits else None,
+            "source_text_present": not source_free,
+            **version_metadata(args),
+        })
+        _write_json(output / "cost.json", cost)
+        _write_json(output / "phase_work.json", {
+            "format": "replica.nested_text.phase_work.v2",
+            "scoring_version": SCORING_VERSION,
+            "attempts": attempts, "failed_attempts": 0,
+            "scoring_attempts": attempts,
+            "latency_ms": latency_summary,
+            "totals": work_totals,
+            "requests": _merge_request_rows(work_rows, latency_rows),
+        })
+        _write_json(output / "gates" / "fit.json", {
+            "label": "fit", "fit_accuracy": fit_accuracy,
+            "all_declared_gates_passed": not failures,
+            "gate_failures": failures,
+            "metrics": {"cost": cost},
+            "scores": score,
+            "latency_ms": latency_summary,
+            "work": work_totals,
+            "scoring_version": SCORING_VERSION,
+            **version_metadata(args),
+        })
+        _write_json(output / "run.json", {
+            "format": PROMPT_FORM, "mode": "fit_eval",
+            "status": "stopped_fit_gate" if failures else "completed",
+            "fit_accuracy": fit_accuracy,
+            "gate_failures": failures,
+            "heldout_opened": False,
+            "scoring_version": SCORING_VERSION,
+            **version_metadata(args),
+        })
+    return 2 if failures else 0
+
+
 def run_p_only_v1(args, config: dict) -> int:
     output: Path = args.output
     manifest = load_episode_manifest(args.episodes)
@@ -2019,7 +2330,7 @@ def run_resume(args, config: dict) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode",
-                        choices=("init", "teach", "p-only-eval", "resume"),
+                        choices=("init", "teach", "fit-eval", "p-only-eval", "resume"),
                         required=True)
     parser.add_argument("--protocol", type=Path,
                         default=ROOT / "configs/nested_text_nl1_v1.json")
@@ -2046,6 +2357,8 @@ def main() -> int:
     parser.add_argument("--wrong-world-teach-cost", type=Path,
                         help="measured wrong-world teach/init cost.json for complete workload duty")
     parser.add_argument("--checkpoint", type=Path)
+    parser.add_argument("--parent-checkpoint", type=Path)
+    parser.add_argument("--wrong-world-parent-checkpoint", type=Path)
     parser.add_argument("--next-event")
     parser.add_argument("--expected-state", type=Path)
     parser.add_argument("--no-updates", action="store_true")
@@ -2056,15 +2369,23 @@ def main() -> int:
         parser.error("only the declared MPS device is supported")
     if args.mode == "p-only-eval" and args.p_state is None:
         parser.error("--p-state is required for p-only-eval")
+    if args.mode == "fit-eval" and args.p_state is None:
+        parser.error("--p-state is required for fit-eval")
+    if args.mode == "fit-eval" and args.checkpoint is not None:
+        parser.error("a full checkpoint is not a P-only input for fit-eval")
+    if args.mode != "teach" and (args.parent_checkpoint is not None
+                                 or args.wrong_world_parent_checkpoint is not None):
+        parser.error("parent checkpoints are only valid for teach")
     if args.mode == "resume" and (args.checkpoint is None or args.next_event is None):
         parser.error("--checkpoint and --next-event are required for resume")
     if args.mode == "teach" and args.no_updates:
         parser.error("teach mode must perform its declared update transaction")
-    if args.mode != "p-only-eval" and (args.p_state is not None
-                                       or args.wrong_world_p is not None
+    if args.mode not in ("p-only-eval", "fit-eval") and args.p_state is not None:
+        parser.error("--p-state is only valid for evaluation modes")
+    if args.mode != "p-only-eval" and (args.wrong_world_p is not None
                                        or args.teach_cost is not None
                                        or args.wrong_world_teach_cost is not None):
-        parser.error("P-only state paths are only valid for p-only-eval")
+        parser.error("wrong-world and duty-cycle paths are only valid for p-only-eval")
     if args.mode == "p-only-eval" and args.checkpoint is not None:
         parser.error("a full checkpoint is not a P-only input")
     if args.max_events < 1 or args.max_new_tokens < 1:
@@ -2085,7 +2406,11 @@ def main() -> int:
                 validate_v2_config(config)
             if args.mode == "init":
                 return run_init(args, config)
+            if args.mode == "fit-eval":
+                return run_fit_eval(args, config)
             if args.mode == "teach":
+                if is_v2(config):
+                    return run_response_teach(args, config)
                 return run_teach(args, config)
             if args.mode == "p-only-eval":
                 return run_p_only(args, config)
