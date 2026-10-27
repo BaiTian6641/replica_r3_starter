@@ -40,7 +40,8 @@ suite now passes 200 tests. A corrected derived teaching total is 3,429
 positions; raw cost bytes remain preserved. No useful baseline is established;
 do not repeat the recipe or open sealed-final rows without a new authorized
 one-clock-compatible hypothesis.
-Spark v5 reconciliation and final verification are committed at `bece2a8f`.
+Spark v5 reconciliation is committed at `bece2a8f`; final verification of that
+tree is recorded by the documentation commit `824e378`.
 The [final verification receipt](reports/final_verification_20261027/summary.json)
 records 2,434 workspace passes plus 21 subtests, 8 skips and four preserved
 historical migration-pin failures; the fresh committed-tree clone records
