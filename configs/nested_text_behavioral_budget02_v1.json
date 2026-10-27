@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "format": "replica.nested_text.behavioral_reference.v1",
-  "status": "predeclared_response_ce_budget02_training_admitted",
+  "status": "rejected_steps_per_event_invariant",
   "software_only": false,
-  "native_execution_admitted": true,
-  "training_admitted": true,
-  "allowed_native_modes": ["init", "teach", "fit-eval", "p-only-eval"],
+  "native_execution_admitted": false,
+  "training_admitted": false,
+  "allowed_native_modes": [],
   "promotion": false,
   "one_clock_control_only": true,
   "adaptive_router": false,
@@ -19,6 +19,15 @@
     "This is the only additional optimization-budget arm admitted after the diagnostic. If fit fails, no further training arm or dependent evaluation follows.",
     "Fit evaluation precedes development. Sealed-final opens only once after all corrected development gates pass; failure stops dependent stages."
   ],
+  "rejection": {
+    "reason": "TextProtocol and the one-clock contract require exactly one optimizer step per event; two-step budget02 is not executable without a separately authorized protocol change.",
+    "initialization_evidence": "runs/nested_text_behavioral_budget02_20261026/init_primary/run.json",
+    "initialization_config_sha256": "e581a4fc025794e6f5f6889df18ed66ab2ea4770ffd8bf773cded64be96237f6",
+    "initialization_protocol_steps_per_event": 1,
+    "teaching_updates": 0,
+    "fit_evaluations": 0,
+    "dependent_stages": "closed"
+  },
   "parent": {
     "protocol": "configs/nested_text_behavioral_reference_v1.json",
     "base_protocol": "configs/nested_text_nl1_v2.json",

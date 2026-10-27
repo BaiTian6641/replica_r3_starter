@@ -222,6 +222,8 @@ def validate_v2_config(config: Mapping[str, Any]) -> None:
     _require(generation.get("token_budget_credit") is False
              and generation.get("empty_generation_credit") is False,
              "v2 cannot credit empty or budget-truncated generations")
+    _require(int(config["transaction"].get("steps_per_event", 1)) == 1,
+             "the one-clock protocol requires exactly one step per event")
     workload = config["workload"]
     attempts = workload["attempts"]
     _require(sum(int(value) for value in attempts.values())

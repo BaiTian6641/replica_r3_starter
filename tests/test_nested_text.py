@@ -993,18 +993,15 @@ def test_behavioral_reference_admits_response_ce_and_fit_gate():
     with pytest.raises(module.RunnerError, match="fit evaluation"):
         module.validate_v2_config(bad_fit)
 
-def test_behavioral_budget02_declares_two_step_bounded_arm():
+def test_behavioral_budget02_is_rejected_by_one_clock_invariant():
     module = runner_module()
     config = json.loads((ROOT / "configs" /
                          "nested_text_behavioral_budget02_v1.json").read_text())
-    for mode in ("init", "teach", "fit-eval"):
-        module.validate_run_mode(config, mode)
-    module.validate_v2_config(config)
     assert config["transaction"]["steps_per_event"] == 2
     assert config["training"]["max_updates"] == 56
-    assert config["training"]["max_backward_calls"] == 56
-    assert config["training"]["wrong_world_max_updates"] == 48
-    assert config["workload"]["fit_eval_attempts"] == 28
+    with pytest.raises(module.RunnerError, match="one step per event"):
+        module.validate_v2_config(config)
+
 
 
 
