@@ -13,8 +13,10 @@ and the unchanged 50 GiB / 512 MiB / 15% guard.
 - [One-clock nested text](docs/experiments/20261026_Nested_Text_One_Clock.md)
   (`1648f72d`, with runner/review fixes through `6739804`) completes 27 primary
   and 24 wrong-world selected-expert updates, strict source-free P-only
-  evaluation and fresh-process resume. Resume on `correction-0003` produces
-  exactly equal post-update state hashes against a second loaded learner.
+  evaluation and fresh-process resume. The historical `resume01` used a second
+  loaded learner; the later [independent comparison](docs/experiments/20261026_Nested_Text_Independent_Continuation.md)
+  now proves two uninterrupted 28-event arms and a fresh resume exactly match at
+  event 27 and final canonical state, with all guards passing.
   Dev04 audits all 196 scoring attempts with updates disabled: new instances
   0/16, corrections 0/4, unaffected 0/8, legacy retention 0/8 and duty cycle
   0.999938. Five quality/cost gates fail and `heldout_opened=false`. The
@@ -218,7 +220,9 @@ See [vision results](docs/experiments/20261026_Vision_Balanced_Alignment.md).
 The fused boundary instrumentation passes 33 training-state/fused tests and 25
 optimizer tests. A/A variation is reported separately from A/B exact failure;
 historical comparison09/10/11 failures and resource stops remain unchanged.
-No new native continuation or replacement run was authorized.
+The new [nested-text independent comparison](docs/experiments/20261026_Nested_Text_Independent_Continuation.md)
+passes exact A/A and A/B at event 27/final state, but does not qualify the
+381-tensor production resume or its stopped direct-restore path.
 
 Spark residency v2 explicitly separates 12-, 14-, 16- and 18-byte plans, the
 mixed FP8/BF16 source inventory and unqualified backend/dequantization gates.

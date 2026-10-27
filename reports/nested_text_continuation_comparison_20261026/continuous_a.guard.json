@@ -1,0 +1,64 @@
+{
+  "status": "completed_within_declared_sampled_limits",
+  "started_at_utc": "2026-10-27T02:55:02.398144+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/run_nested_text.py",
+    "--mode",
+    "teach",
+    "--protocol",
+    "configs/nested_text_continuation_comparison_v1.json",
+    "--episodes",
+    "data/nested_text_nl1_20261026",
+    "--model-path",
+    "checkpoints/minicpm5_source",
+    "--model-lock",
+    "configs/minicpm5_sealed_lock.local.json",
+    "--output",
+    "runs/nested_text_continuation_comparison_20261026/continuous_a",
+    "--device",
+    "mps",
+    "--world-role",
+    "primary",
+    "--max-events",
+    "28",
+    "--no-replay",
+    "--no-heldout"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/nested_text_continuation_comparison_20261026/continuous_a",
+  "child_log": "reports/nested_text_continuation_comparison_20261026/continuous_a.guard.child.log",
+  "host_samples": "reports/nested_text_continuation_comparison_20261026/continuous_a.guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "8e6e25532f4a443c770a0083d412183b7bb2c2dc13a656f2389325a0f16b50cd",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": 0,
+  "elapsed_seconds": 13.542764999903738,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 2644246528,
+      "memory_free_percent": 94.0
+    },
+    "host_samples": 7,
+    "driver_samples": 43,
+    "peak_driver_bytes": 10757210112,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 78.0,
+    "stop_reason": null
+  }
+}

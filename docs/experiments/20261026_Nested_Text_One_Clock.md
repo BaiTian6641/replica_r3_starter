@@ -46,10 +46,12 @@ score requests account for 479 of those tokens. Resume took 8.07 s. Minimum
 observed host free memory across these runs was 75%; guard stop reasons were
 null and CPU fallback remained disabled.
 
-The resume reference is a second independently loaded learner in the same
-fresh process. Its after-state hash exactly equals the resumed learner after
-the same next event. This validates checkpoint restoration and deterministic
-update composition; it is not an independent uninterrupted-process comparison.
+The historical `resume01` reference was a second independently loaded learner in
+the same fresh process. It validated checkpoint restoration and deterministic
+update composition, but was not an independent uninterrupted-process comparison.
+The later [independent continuation comparison](20261026_Nested_Text_Independent_Continuation.md)
+now supplies that missing evidence: two fresh 28-event arms and one fresh resume
+match exactly at event 27 and final canonical state, with all guards passing.
 
 Dev04 persists every preteach role and audits every scoring attempt. Its scores,
 controls and non-cost metrics are identical to dev03. The earlier run audited

@@ -8,7 +8,11 @@ controls and exact checkpoint-resume equality. Dev04 audits all 196 scoring
 attempts with updates disabled and preserves every preteach role. Development
 utility is rejected: new instances 0/16, corrections 0/4 and duty cycle
 0.999938; held-out evaluation
-is unopened and sealed-final rows are not parsed or scored. The [vision learnability diagnostic](docs/experiments/20261026_Vision_Learnability_Diagnostic.md)
+is unopened and sealed-final rows are not parsed or scored.
+The [independent nested continuation comparison](docs/experiments/20261026_Nested_Text_Independent_Continuation.md)
+also passes exact A/A and A/B at event 27 and final canonical state. This is a
+small plastic-bank result, not production 381-tensor continuation or learned
+utility evidence. The [vision learnability diagnostic](docs/experiments/20261026_Vision_Learnability_Diagnostic.md)
 observes spatial contribution in the read-only ablation, but the seven-update
 gradient arm fails all answer gates and stops before development, held-out and
 new V0 alignment work. Historical interface-only V0 remains unchanged.

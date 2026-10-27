@@ -92,6 +92,12 @@ continuation is unqualified: comparison09 differs in all 381 final hashes and
 logits; comparison11 stops on 1,019,677,245 B swap growth. Further fused
 retries are stopped. See the fused performance/resume report.
 
+The [independent nested-text continuation comparison](docs/experiments/20261026_Nested_Text_Independent_Continuation.md)
+now passes exact A/A and A/B: two fresh 28-event arms and one fresh resume
+match at event 27 and final canonical state, with zero swap growth. This is a
+16-expert plastic-bank result only; the 381-tensor production resume and direct
+restore remain unqualified and were not rerun.
+
 Fresh causal evaluation passes new-query restart parity, exactly-once writes,
 live revocation, representation binding and cached-cost accounting with zero
 old-observation/query re-encodes. Restart-held-out accepted correctness is only
@@ -243,9 +249,10 @@ No new model or capability is qualified by this documentation update.
 3. **Vision learnability is rejected.** Mean ablation isolates spatial
    contribution, but the mixed answer/caption gradient arm fails train-fit.
    No development, held-out, new V0 alignment or larger arm is authorized.
-4. **One-clock native engineering passes; utility fails.** Strict P-only and
-   checkpoint resume work, but development accuracy and duty-cycle gates fail.
-   Do not add clocks, objectives, routing or visual memory from this result.
+4. **One-clock native engineering passes; utility fails.** Strict P-only,
+   checkpoint resume and the new independent A/A and A/B continuation comparison
+   pass, but development accuracy and duty-cycle gates fail. Do not add clocks,
+   objectives, routing or visual memory from this result.
 5. **V3/V4 remain gated.** Native visual memory requires accepted perception and
    useful memory with correction and retention. RSI requires independently
    measured improvement, old-task retention, rejection and rollback.
