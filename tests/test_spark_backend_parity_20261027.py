@@ -17,7 +17,7 @@ import pytest
 from conftest import require_local_artifacts
 
 
-pytestmark = require_local_artifacts("checkpoints/minicpm5_source")
+SPARK_ARTIFACTS = "checkpoints/minicpm5_source"
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs/spark_backend_parity_20261027.json"
@@ -51,6 +51,7 @@ def _mutated(tmp_path: Path, mutate) -> Path:
     return _write(value, tmp_path / "spark_config.json")
 
 
+@require_local_artifacts(SPARK_ARTIFACTS)
 def test_preparation_passes_and_never_qualifies_training():
     report = CHECKER.check(CONFIG)
     assert report["training_qualified"] is False
@@ -135,6 +136,7 @@ def test_storage_dtype_and_small_reload_cannot_qualify(kind):
     assert result["reasons"]
 
 
+@require_local_artifacts(SPARK_ARTIFACTS)
 def test_config_claiming_qualification_fails_closed(tmp_path):
     path = _mutated(tmp_path, lambda value: value["claims_policy"].update(
         training_qualified=True))
@@ -143,6 +145,7 @@ def test_config_claiming_qualification_fails_closed(tmp_path):
     assert error.value.check == "claims.qualification"
 
 
+@require_local_artifacts(SPARK_ARTIFACTS)
 def test_derivative_cannot_be_relabelled_official(tmp_path):
     path = _mutated(tmp_path, lambda value: value["precision_identities"][
         "dequantized_fp8_derivative"].update(is_official_release=True))
@@ -151,6 +154,7 @@ def test_derivative_cannot_be_relabelled_official(tmp_path):
     assert error.value.check == "identities.derivative"
 
 
+@require_local_artifacts(SPARK_ARTIFACTS)
 def test_storage_dtype_inference_cannot_be_enabled(tmp_path):
     path = _mutated(tmp_path, lambda value: value["claims_policy"].update(
         storage_dtype_implies_training_qualification=True))
@@ -159,6 +163,7 @@ def test_storage_dtype_inference_cannot_be_enabled(tmp_path):
     assert error.value.check == "claims.storage"
 
 
+@require_local_artifacts(SPARK_ARTIFACTS)
 def test_guard_values_and_native_admission_cannot_be_loosened(tmp_path):
     path = _mutated(tmp_path, lambda value: value["authorization"]["guards"].update(
         driver_limit_bytes=999999999999))
@@ -181,6 +186,7 @@ def test_baseline_pin_change_is_rejected(tmp_path):
     assert error.value.check == "baseline.pin"
 
 
+@require_local_artifacts(SPARK_ARTIFACTS)
 def test_oversized_extension_estimate_is_blocked(tmp_path):
     path = _mutated(tmp_path, lambda value: value["resource_model"]["inputs"].update(
         new_module_parameters=4_112_079_360))
@@ -189,6 +195,7 @@ def test_oversized_extension_estimate_is_blocked(tmp_path):
     assert error.value.check == "resources.extension_budget"
 
 
+@require_local_artifacts(SPARK_ARTIFACTS)
 def test_ablation_cannot_use_unqualified_visual_answers(tmp_path):
     path = _mutated(tmp_path, lambda value: value["later_ablation"][
         "ground_truth_policy"].update(

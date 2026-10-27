@@ -19,8 +19,7 @@ from conftest import require_local_artifacts
 from replica_lab.contracts import canonical_json
 
 
-pytestmark = require_local_artifacts(
-    "data/external_caption_tranche_20261025_v2/raw/images")
+CAPTION_ARTIFACTS = "data/external_caption_tranche_20261025_v2/raw/images"
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -183,6 +182,7 @@ def _receipt(root: Path, **overrides) -> dict:
 # Positive path
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_real_artifacts_are_valid_and_training_is_not_admitted(tmp_path):
     root = _workspace(tmp_path)
     report = _validate(root)
@@ -203,6 +203,7 @@ def test_real_artifacts_are_valid_and_training_is_not_admitted(tmp_path):
     assert seal["attestations"]["model_executions_at_seal"] == 0
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_generators_are_deterministic_and_do_not_change_the_seal(tmp_path):
     root = _workspace(tmp_path)
     lineage_config = json.loads((root / LINEAGE_CONFIG).read_text(encoding="utf-8"))
@@ -224,6 +225,7 @@ def test_generators_are_deterministic_and_do_not_change_the_seal(tmp_path):
     assert seal["sealed_artifacts"]["scene_specs_sha256"] == eval_first["specs_sha256"]
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_all_external_rows_are_accounted_and_exposed_rows_excluded(tmp_path):
     root = _workspace(tmp_path)
     config = json.loads((root / LINEAGE_CONFIG).read_text(encoding="utf-8"))
@@ -249,6 +251,7 @@ def test_all_external_rows_are_accounted_and_exposed_rows_excluded(tmp_path):
 # Duplicate, tamper, leakage and exposed-row fail-closed tests
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_duplicate_group_helper_rejects_shared_keys(tmp_path):
     root = _workspace(tmp_path)
     _, lineage = _lineage_payload(root)
@@ -263,6 +266,7 @@ def test_duplicate_group_helper_rejects_shared_keys(tmp_path):
     assert groups["root_group_key"]
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_validator_duplicate_check_is_wired_to_lineage_validation(tmp_path, monkeypatch):
     root = _workspace(tmp_path)
     monkeypatch.setattr(VALIDATOR, "find_duplicate_groups",
@@ -273,6 +277,7 @@ def test_validator_duplicate_check_is_wired_to_lineage_validation(tmp_path, monk
     assert error.value.check == "lineage.duplicates"
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_rows_file_tamper_is_rejected(tmp_path):
     root = _workspace(tmp_path)
     path = root / "data/caption_corrected_train_20261027/rows.jsonl"
@@ -284,6 +289,7 @@ def test_rows_file_tamper_is_rejected(tmp_path):
     assert report["failed_check"] == "lineage.rows_hash"
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_manifest_tamper_is_rejected(tmp_path):
     root = _workspace(tmp_path)
     path = root / "data/caption_corrected_train_20261027/lineage_manifest.json"
@@ -295,6 +301,7 @@ def test_manifest_tamper_is_rejected(tmp_path):
     assert report["failed_check"] == "lineage.manifest_self_hash"
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_eval_image_tamper_is_rejected(tmp_path):
     root = _workspace(tmp_path)
     image = sorted((root / "data/synthetic_scene_eval_20261027/images").iterdir())[0]
@@ -304,6 +311,7 @@ def test_eval_image_tamper_is_rejected(tmp_path):
     assert report["failed_check"].startswith("eval.")
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_eval_seal_tamper_is_rejected(tmp_path):
     root = _workspace(tmp_path)
     path = root / "data/synthetic_scene_eval_20261027/seal.json"
@@ -322,6 +330,7 @@ def test_eval_seal_tamper_is_rejected(tmp_path):
     assert report["failed_check"] == "eval.seal_digest"
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_scene_spec_and_row_tamper_are_rejected(tmp_path):
     root = _workspace(tmp_path)
     specs_path = root / "data/synthetic_scene_eval_20261027/scene_specs.json"
@@ -342,6 +351,7 @@ def test_scene_spec_and_row_tamper_are_rejected(tmp_path):
     assert report["failed_check"] == "eval.seal_binding.rows_sha256"
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 @pytest.mark.parametrize("field", ["row_id", "image_sha256", "caption"])
 def test_eval_training_leakage_fails_closed(tmp_path, field):
     root = _workspace(tmp_path)
@@ -365,6 +375,7 @@ def test_eval_training_leakage_fails_closed(tmp_path, field):
     assert error.value.check == "separation.keys"
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_exposed_row_cannot_be_marked_eligible_or_omitted(tmp_path):
     root = _workspace(tmp_path)
     config = json.loads((root / LINEAGE_CONFIG).read_text(encoding="utf-8"))
@@ -395,6 +406,7 @@ def test_exposed_row_cannot_be_marked_eligible_or_omitted(tmp_path):
     assert error.value.check == "lineage.exclusions"
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_config_cannot_admit_an_exposed_parent(tmp_path):
     root = _workspace(tmp_path)
     config = json.loads((root / LINEAGE_CONFIG).read_text(encoding="utf-8"))
@@ -408,6 +420,7 @@ def test_config_cannot_admit_an_exposed_parent(tmp_path):
     assert error.value.check == "lineage.selection"
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_eval_row_with_exposed_identity_is_rejected(tmp_path):
     root = _workspace(tmp_path)
     config = json.loads((root / LINEAGE_CONFIG).read_text(encoding="utf-8"))
@@ -425,6 +438,7 @@ def test_eval_row_with_exposed_identity_is_rejected(tmp_path):
 # Admission receipt
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_missing_receipt_never_admits(tmp_path):
     root = _workspace(tmp_path)
     report = _validate(root)
@@ -436,6 +450,7 @@ def test_missing_receipt_never_admits(tmp_path):
     assert error.value.check == "admission.required"
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_reviewed_receipt_admits_only_the_nine_rows(tmp_path):
     root = _workspace(tmp_path)
     receipt = _receipt(root)
@@ -459,6 +474,7 @@ def test_reviewed_receipt_admits_only_the_nine_rows(tmp_path):
     assert admitted["admission"]["status"] == "admitted"
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_tampered_or_unknown_receipt_fields_are_blocked(tmp_path):
     root = _workspace(tmp_path)
     receipt = _receipt(root)
@@ -477,6 +493,7 @@ def test_tampered_or_unknown_receipt_fields_are_blocked(tmp_path):
     assert "fields" in report["admission"]["reason"]
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_stale_receipt_bindings_are_blocked(tmp_path):
     root = _workspace(tmp_path)
     receipt = _receipt(root)
@@ -503,6 +520,7 @@ def test_stale_receipt_bindings_are_blocked(tmp_path):
     assert "binding" in report["admission"]["reason"]
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_wrong_rows_or_review_fields_are_blocked(tmp_path):
     root = _workspace(tmp_path)
     receipt = _receipt(root)
@@ -541,6 +559,7 @@ def test_wrong_rows_or_review_fields_are_blocked(tmp_path):
     assert "decided_at" in report["admission"]["reason"]
 
 
+@require_local_artifacts(CAPTION_ARTIFACTS)
 def test_rejecting_receipt_is_valid_but_never_admits(tmp_path):
     root = _workspace(tmp_path)
     _receipt(root, decision="reject_training")
