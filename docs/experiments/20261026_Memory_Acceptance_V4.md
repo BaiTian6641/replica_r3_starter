@@ -75,20 +75,14 @@ rejects v1/v2/v3 inputs, missing/duplicate/extra rows, incorrect oracle
 populations, invalid phase scopes and superseded current-receipt claims. No
 native training or writer update was performed for this scoring work.
 
-## Next diagnostic
+## Calibration outcome
 
-`query_key_address` and `context_removed` rows exist in the immutable rankings
-but are not included in the v4 primary-quality block. The next package is a
-CPU-only, development-only acceptance/abstention and per-arm diagnostic over
-those existing rows. It will use runtime scores only, keep wrong-address and
-unknown/revoked controls separate, and will not regenerate a refresh state for
-an offline address-threshold change. Any value-threshold frontier is a replay
-of existing readouts, not a new native policy. Prepared04 heldout is already
-spent and will not be reused for calibration or confirmation.
-
-The stop rule is explicit: if no declared value-acceptance rule lets the oracle
-meet the existing v4 quality gates on development rows, calibration is rejected
-as the boundary; if the oracle passes while the candidate fails, selection or
-refresh remains the boundary. A candidate development pass would require a new
-sealed fixture before any native confirmation. No writer training, native rerun
-or held-out retuning is authorized by this receipt.
+The [development-only calibration report](20261026_Memory_Acceptance_Calibration.md)
+replays all four arms over 11,680 train/dev rows and 25 value plus 25 address
+points. No value point passes candidate or full oracle acceptance gates, and no
+address point meets the descriptive 85% hit / 90% precision targets. The final
+disposition is `oracle_cannot_meet_gates`; acceptance calibration is rejected
+as the sole boundary. Address recovery and strict all-layer acceptance are
+reported separately, and no offline address-threshold change is treated as a
+downstream refresh replay. Prepared04 heldout was not scored or reused for
+confirmation. No writer training, native rerun or held-out retuning follows.

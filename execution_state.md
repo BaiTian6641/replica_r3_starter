@@ -189,6 +189,15 @@ process's earlier v3 `inconclusive` label is not reused as the current verdict.
 No learned selector or useful-memory claim is made. Deterministic checkpoint
 crash-injection recovery passes; no SIGKILL/native crash test is claimed.
 See [causal results](docs/experiments/20261026_Causal_Fresh_Selectors.md).
+The [CPU-only development calibration](docs/experiments/20261026_Memory_Acceptance_Calibration.md)
+replays 11,680 train/dev rows and 25 value plus 25 address points. No value
+point passes candidate or full oracle acceptance gates; no address point meets
+the descriptive 85% hit / 90% precision targets. Disposition is
+`oracle_cannot_meet_gates`, so calibration is rejected as the sole boundary.
+Native address recovery is 256/256, but strict all-layer accepted-correct is
+4/256; accepted address layers are 62/62 correct. This separates raw address
+recovery, abstention aggregation and value readout. Prepared04 heldout was not
+scored or reused; no writer training or native rerun followed.
 
 ### Vision v2 native result
 

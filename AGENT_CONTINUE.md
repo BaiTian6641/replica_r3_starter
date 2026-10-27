@@ -235,9 +235,11 @@ No new model or capability is qualified by this documentation update.
 2. **H1 evidence is closed; learned memory quality remains rejected.** The H1
    replay validates 456 decisions and 152 dev +152 heldout rows without
    reopening heldout labels. Acceptance-v4 rejects candidate quality at 21/384
-   accepted-correct despite a 384/384 answerable-fact oracle. Next run the
-   declared CPU-only development acceptance/address diagnostic; do not train a
-   writer or reuse prepared04 heldout for calibration.
+   accepted-correct despite a 384/384 answerable-fact oracle. The [CPU
+   calibration](docs/experiments/20261026_Memory_Acceptance_Calibration.md)
+   finds zero passing value points and zero joint address operating points;
+   calibration is rejected as the sole boundary. Do not train a writer or reuse
+   prepared04 heldout; a new sealed fixture is required for any future pass.
 3. **Vision learnability is rejected.** Mean ablation isolates spatial
    contribution, but the mixed answer/caption gradient arm fails train-fit.
    No development, held-out, new V0 alignment or larger arm is authorized.

@@ -23,9 +23,10 @@ validates 456 decisions and 152 dev +152 heldout rows without reopening heldout
 labels. This is not retrieval or persistent learning. Keep the 50 GiB driver /
 512 MiB swap / 15% host-free guard and protected draft rules.
 Acceptance-v4 rejects candidate quality at 21/384 accepted-correct despite a
-384/384 answerable-fact oracle. The next memory step is the declared CPU-only
-development acceptance/address diagnostic; do not train a writer or reuse
-prepared04 heldout for calibration.
+384/384 answerable-fact oracle. The [CPU calibration](docs/experiments/20261026_Memory_Acceptance_Calibration.md)
+finds zero passing value points and zero joint address operating points;
+calibration is rejected as the sole boundary. Do not train a writer or reuse
+prepared04 heldout for calibration or confirmation.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context
