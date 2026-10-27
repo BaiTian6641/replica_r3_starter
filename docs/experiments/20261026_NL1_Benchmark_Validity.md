@@ -1,7 +1,7 @@
 # NL1 benchmark validity correction
 
-**26 October 2026 · v1 findings reproduced; v2 grammar, fixture and protocol
-implemented. Native v2 initialization/evaluation is not yet a result.** The
+**26–27 October 2026 · v1 findings reproduced; v2 native benchmark executed.
+Engineering passes; learning remains rejected.** The
 hashed-routing experiment and all v1 scores remain unchanged as negative
 controls. This document separates measurement correction from learned utility.
 
@@ -62,7 +62,7 @@ routing. The v1 16-expert prompt hash remains a negative control.
 
 The scorer is a narrow grammar, not a general semantic-equivalence claim.
 Positive, incorrect, ambiguous, contradictory, truncated, status and stopping
-contracts pass **42 focused tests**.
+contracts pass **44 focused tests**.
 
 ### Corrected retention replay
 
@@ -102,7 +102,48 @@ separately counts plastic feature prompts, session-sense prompts, generation
 prefill, decode positions, actual forward/backward calls and response-supervised
 tokens. Replay count is zero for this baseline.
 
-## 3. Commands and current disposition
+## 3. Native initialization and dev02
+
+Both one-expert null banks initialized with zero learning events, zero updates,
+null reads and distinct world protocol hashes. Each P-only file is 3,148,851
+bytes; each full checkpoint is 3,413,679 bytes. Primary and wrong-world
+initialization used one exclusive MPS worker and no downloads or base saves.
+
+The selected [dev02 summary](../../reports/nested_text_nl1_v2_20261026/summary.json)
+contains all 196 source-free attempts and 196/196 audits. It stopped before
+held-out with the same four quality failures as dev01: new-instance, gain over
+preteach, unaffected and correction. Duty, warm-latency, checkpoint and P-only
+cost gates pass. `dev01` remains the truncation diagnostic.
+
+| Metric | dev01 | dev02 with sentence stop |
+|---|---:|---:|
+| Sentence completions | 0 | 188 |
+| EOS/im_end completions | 167 | 0 |
+| Token-budget truncations | 29 | 8 |
+| Legacy retention, taught / preteach | 3/8 / 3/8 | 5/8 / 5/8 |
+| Generated IDs | 3,391 | 2,437 |
+| Total native forward calls | 3,783 | 2,829 |
+| Evaluation end-to-end | 242.34 s | 177.40 s |
+| Warm total p95 | 1,696.49 ms | 1,484.17 ms |
+| Duty cycle | 0.0 | 0.0 |
+
+The older replay measured 4/8. These are different generated texts, not
+improvement in weights or capability. The sentence stop prevents later rambling
+from invalidating a complete answer; it does not make an incorrect or ambiguous
+answer correct. New-instance, correction and unaffected accuracy remain zero.
+
+Dev02 records 4,368 positions in each of plastic feature sensing, session
+sensing and generation prefill, plus 65,214 decode positions. Backward and
+replay calls are zero; response-supervised tokens are zero. The guard reports
+11,815,763,968 peak sampled driver bytes, zero swap growth and 76% minimum host
+free memory. Evaluation end-to-end is 177.40 s; guard wall time is 180.03 s.
+
+Verification is 44 scorer tests, 86 runner/scorer tests, 120 related
+scorer/adapter/nested tests, 53 adapter/session/fast-port tests and 26 matched
+migration tests. Independent review of the corrected benchmark is recorded
+below when complete.
+
+ ## 4. Commands and current disposition
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
@@ -119,13 +160,12 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider \
 ```
 
 **Designed:** one-expert behavioral baseline, amortized workload accounting and
-full phase instrumentation. **Implemented:** scorer, stopping metadata,
-minimal fixture correction, protocols and replay tools. **Executed:** tokenizer
-audit and corrected replay only. **Not executed or qualified:** native v2
-initialization/evaluation, behavioral response-CE training, independent
-uninterrupted/resumed continuation, held-out evaluation and any capability
-promotion.
+full phase instrumentation. **Implemented:** scorer, sentence stopping,
+minimal fixture correction, initialization/evaluation protocols and replay
+tools. **Executed:** tokenizer audit, corrected replay, zero-update
+initialization and the complete development workload. **Not executed or
+qualified:** behavioral response-CE training, independent uninterrupted/resumed
+continuation, held-out evaluation and any capability promotion.
 
-The next gate is zero-update initialization followed by development-only P-only
-evaluation with the v2 stop, latency and accounting evidence. A separate
-frozen-decoder behavioral-reference protocol is required before any teaching.
+The next gate is a separate frozen-decoder behavioral-reference protocol with a
+differentiable training read path, not another detached local-feature arm.

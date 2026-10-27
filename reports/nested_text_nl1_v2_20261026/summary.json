@@ -1,0 +1,139 @@
+{
+  "format": "replica.nested_text.nl1_v2.native_summary.v1",
+  "date": "2026-10-27",
+  "status": "benchmark_engineering_pass_learning_rejected",
+  "protocol": "configs/nested_text_nl1_v2.json",
+  "episodes": "data/nested_text_nl1_v2_20261026/manifest.json",
+  "scoring_version": "replica.nested_text.scoring.v2",
+  "initialization": {
+    "primary": {
+      "run": "runs/nested_text_nl1_v2_20261026/init_primary",
+      "world_uid": "world_alpha",
+      "protocol_sha256": "2b83b3501fd4a60c3510583a1e8abbdc249afc58df9e67a530d8b1b1ce9b6b84",
+      "learning_events": 0,
+      "updates": 0,
+      "initial_read_is_null": true,
+      "checkpoint_bytes": 3413679,
+      "p_only_bytes": 3148851,
+      "end_to_end_seconds": 4.418514917138964,
+      "peak_driver_bytes": 10746232832
+    },
+    "wrong_world": {
+      "run": "runs/nested_text_nl1_v2_20261026/init_wrong_world",
+      "world_uid": "world_beta",
+      "protocol_sha256": "f790262ac3722318f03bf604daa650a0aaa28df779cf915e13ff31aa92e53383",
+      "learning_events": 0,
+      "updates": 0,
+      "initial_read_is_null": true,
+      "checkpoint_bytes": 3413679,
+      "p_only_bytes": 3148851,
+      "end_to_end_seconds": 4.065679499879479,
+      "peak_driver_bytes": 11815763968
+    }
+  },
+  "development": {
+    "selected_run": "runs/nested_text_nl1_v2_20261026/p_only_dev02",
+    "preserved_truncation_diagnostic": "runs/nested_text_nl1_v2_20261026/p_only_dev01",
+    "scoring_attempts": 196,
+    "requests_audited": 196,
+    "audit_complete": true,
+    "source_free": true,
+    "updates": 0,
+    "new_instance_accuracy": 0.0,
+    "gain_over_preteach": 0.0,
+    "correction_accuracy": 0.0,
+    "unaffected_accuracy": 0.0,
+    "legacy_retention_taught": 0.625,
+    "legacy_retention_preteach": 0.625,
+    "retention_decline": 0.0,
+    "unknown_accuracy": 0.0,
+    "revoked_accuracy": 0.0,
+    "wrong_world_accuracy": 0.0,
+    "gate_failures": [
+      "min_new_instance_accuracy",
+      "min_gain_over_preteach",
+      "min_unaffected_accuracy",
+      "min_correction_accuracy"
+    ],
+    "heldout_opened": false,
+    "sealed_final_rows_parsed_or_scored": false,
+    "stop_reasons": {
+      "sentence_complete": 188,
+      "token_budget": 8
+    },
+    "truncated_attempts": 8,
+    "generated_ids": 2437,
+    "forward_calls": {
+      "plastic_read": 196,
+      "session_prepare": 196,
+      "generation_prefill": 196,
+      "generation_decode": 2241,
+      "total": 2829
+    },
+    "positions": {
+      "plastic_feature_prompt": 4368,
+      "session_sense_prompt": 4368,
+      "generation_prefill": 4368,
+      "decode": 65214
+    },
+    "backward_calls": 0,
+    "replay_calls": 0,
+    "response_supervised_tokens": 0,
+    "latency_p95_ms": {
+      "plastic_read": 46.64383316412568,
+      "session_prepare": 61.58545799553394,
+      "generation_finalize": 1386.4920837804675,
+      "release": 0.0832919031381607,
+      "total": 1484.173791948706
+    },
+    "duty_cycle": 0.0,
+    "evaluation_end_to_end_seconds": 177.39516670862213,
+    "teaching_end_to_end_seconds": 4.418514917138964,
+    "peak_driver_bytes": 11815763968,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 76.0,
+    "guard_stop_reason": null,
+    "warm_p95_gate_passed": true,
+    "duty_cycle_gate_passed": true,
+    "checkpoint_gate_passed": true,
+    "p_only_gate_passed": true
+  },
+  "comparison": {
+    "dev01_stop_reasons": {
+      "stop_token": 167,
+      "token_budget": 29
+    },
+    "dev02_stop_reasons": {
+      "sentence_complete": 188,
+      "token_budget": 8
+    },
+    "dev01_retention": 0.375,
+    "dev02_retention": 0.625,
+    "replay_retention": 0.5,
+    "interpretation": "The first complete-sentence stop prevents later rambling from invalidating a complete answer. It changes generation/stop behavior, not weights or learned capability. Different output text explains the 3/8, 4/8 and 5/8 measurements."
+  },
+  "verification": {
+    "scorer_tests": 44,
+    "runner_and_scorer_tests": 86,
+    "adapter_session_fast_port_tests": 53,
+    "matched_migration_tests": 26,
+    "related_total_tests": 120,
+    "raw_evidence": [
+      "runs/nested_text_nl1_v2_20261026/p_only_dev02/gates/dev.json",
+      "runs/nested_text_nl1_v2_20261026/p_only_dev02/phase_work.json",
+      "runs/nested_text_nl1_v2_20261026/p_only_dev02/request_audit.json",
+      "runs/nested_text_nl1_v2_20261026/p_only_dev02/cost.json",
+      "runs/nested_text_nl1_v2_20261026/p_only_dev02.guard.json"
+    ]
+  },
+  "disposition": {
+    "implemented": "one-expert constant routing, v2 scoring/stop metadata, sentence completion, full phase accounting and minimal fixture correction",
+    "executed": "zero-update initialization and complete 196-attempt development evaluation",
+    "capability_qualified": false,
+    "behavioral_training_admitted": false,
+    "next_gate": "separate frozen-decoder behavioral-reference protocol with a differentiable training read path",
+    "sealed_final_authorized": false,
+    "large_training_authorized": false,
+    "rsi_authorized": false
+  }
+}
