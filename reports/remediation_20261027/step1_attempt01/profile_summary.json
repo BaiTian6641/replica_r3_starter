@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "device": "mps",
+  "started_at": "2026-10-27T05:41:38.650050+00:00",
+  "ended_at": "2026-10-27T05:41:44.609456+00:00",
+  "elapsed_seconds": 5.9592701671645045,
+  "sample_interval_seconds": 0.25,
+  "rss_sample_interval_seconds": 2.0,
+  "sample_count": 26,
+  "memory": {
+    "rss_peak_process_lifetime_bytes": 15566487552,
+    "rss_peak_sampled_bytes": 14878638080,
+    "mps_allocated_peak_sampled_bytes": 10141099008,
+    "mps_driver_peak_sampled_bytes": 10746216448
+  },
+  "mps_recommended_max_memory_bytes": 55662788608,
+  "host_start": {
+    "timestamp": "2026-10-27T05:41:38.650340+00:00",
+    "platform": "darwin",
+    "swapusage_raw": "total = 4096.00M  used = 2457.75M  free = 1638.25M  (encrypted)",
+    "swapusage": {
+      "total_bytes": 4294967296,
+      "used_bytes": 2577137664,
+      "free_bytes": 1717829632
+    },
+    "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 94%",
+    "memory_free_percent": 94.0
+  },
+  "host_end": {
+    "timestamp": "2026-10-27T05:41:44.520109+00:00",
+    "platform": "darwin",
+    "swapusage_raw": "total = 4096.00M  used = 2457.75M  free = 1638.25M  (encrypted)",
+    "swapusage": {
+      "total_bytes": 4294967296,
+      "used_bytes": 2577137664,
+      "free_bytes": 1717829632
+    },
+    "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 90%",
+    "memory_free_percent": 90.0
+  },
+  "phases": [
+    {
+      "type": "phase",
+      "phase": "model_loaded",
+      "timestamp": "2026-10-27T05:41:43.520330+00:00",
+      "elapsed_seconds": 4.8700453750789165,
+      "seconds_since_previous_mark": 4.8700453750789165,
+      "synchronize_seconds": 6.250105798244476e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-27T05:41:43.520257+00:00",
+        "elapsed_seconds": 4.870057458989322,
+        "phase": "model_loaded",
+        "rss_peak_process_lifetime_bytes": 15566487552,
+        "rss_current_bytes": 14878638080,
+        "rss_measurement_age_seconds": 0.7036194172687829,
+        "mps_allocated_bytes": 10141099008,
+        "mps_driver_bytes": 10746216448
+      },
+      "fields": {
+        "parameters": {
+          "regime": "modules_only",
+          "original": {
+            "tensors": 381,
+            "parameters": 2516756480,
+            "trainable": 0,
+            "names": []
+          },
+          "new": {
+            "tensors": 49,
+            "parameters": 16420866,
+            "trainable": 16420866,
+            "names": [
+              "record_writer.encoder.slot_queries",
+              "record_writer.encoder.input_norm.weight",
+              "record_writer.encoder.input_norm.bias",
+              "record_writer.encoder.input_projection.weight",
+              "record_writer.encoder.attention.in_proj_weight",
+              "record_writer.encoder.attention.in_proj_bias",
+              "record_writer.encoder.attention.out_proj.weight",
+              "record_writer.encoder.attention.out_proj.bias",
+              "record_writer.encoder.output_norm.weight",
+              "record_writer.encoder.output_norm.bias",
+              "memory_ports.13.gate_logit",
+              "memory_ports.13.query_norm.weight",
+              "memory_ports.13.query_norm.bias",
+              "memory_ports.13.memory_norm.weight",
+              "memory_ports.13.memory_norm.bias",
+              "memory_ports.13.query_projection.weight",
+              "memory_ports.13.key_projection.weight",
+              "memory_ports.13.value_projection.weight",
+              "memory_ports.13.output_projection.weight",
+              "memory_ports.27.gate_logit",
+              "memory_ports.27.query_norm.weight",
+              "memory_ports.27.query_norm.bias",
+              "memory_ports.27.memory_norm.weight",
+              "memory_ports.27.memory_norm.bias",
+              "memory_ports.27.query_projection.weight",
+              "memory_ports.27.key_projection.weight",
+              "memory_ports.27.value_projection.weight",
+              "memory_ports.27.output_projection.weight",
+              "sense_ports.13.input_norm.weight",
+              "sense_ports.13.input_norm.bias",
+              "sense_ports.13.projection.weight",
+              "sense_ports.27.input_norm.weight",
+              "sense_ports.27.input_norm.bias",
+              "sense_ports.27.projection.weight",
+              "sense_ports.41.input_norm.weight",
+              "sense_ports.41.input_norm.bias",
+              "sense_ports.41.projection.weight",
+              "reranker.query_norm.weight",
+              "reranker.query_norm.bias",
+              "reranker.record_norm.weight",
+              "reranker.record_norm.bias",
+              "reranker.query_projection.weight",
+              "reranker.record_projection.weight",
+              "vision_projector.0.weight",
+              "vision_projector.0.bias",
+              "vision_projector.1.weight",
+              "vision_projector.1.bias",
+              "vision_projector.3.weight",
+              "vision_projector.3.bias"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "model_loaded",
+      "timestamp": "2026-10-27T05:41:43.636935+00:00",
+      "elapsed_seconds": 4.9866190841421485,
+      "seconds_since_previous_mark": 0.11657370906323195,
+      "synchronize_seconds": 7.084105163812637e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-27T05:41:43.636833+00:00",
+        "elapsed_seconds": 4.986645875032991,
+        "phase": "model_loaded",
+        "rss_peak_process_lifetime_bytes": 15566487552,
+        "rss_current_bytes": 14878638080,
+        "rss_measurement_age_seconds": 0.8202060000039637,
+        "mps_allocated_bytes": 10141099008,
+        "mps_driver_bytes": 10746216448
+      },
+      "fields": {}
+    }
+  ],
+  "errors": [],
+  "notes": [
+    "All memory values are bytes; GiB = bytes / 2**30.",
+    "MPS and RSS sampled peaks may miss transient allocations.",
+    "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+    "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+    "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+  ]
+}

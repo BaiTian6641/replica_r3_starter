@@ -1,0 +1,15 @@
+{
+  "format": "replica.vision_learnability_step1.report.v1.failure",
+  "generated_at_utc": "2026-10-27T05:41:44.609917+00:00",
+  "status": "stopped_engineering_failure",
+  "error_type": "VisionSourceError",
+  "error": "Official SiglipImageProcessorPil could not load offline: ImportError: \nSiglipImageProcessorPil requires the PIL library but it was not found in your environment. You can install it with pip:\n`pip install pillow`. Please note that you may need to restart your runtime after installation.\n",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/src/replica_lab/architecture/vision.py\", line 1050, in load_pil_image_processor\n    processor = SiglipImageProcessorPil.from_pretrained(\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py\", line 2424, in __getattribute__\n    requires_backends(cls, cls._backends)\n  File \"/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py\", line 2410, in requires_backends\n    raise ImportError(\"\".join(failed))\nImportError: \nSiglipImageProcessorPil requires the PIL library but it was not found in your environment. You can install it with pip:\n`pip install pillow`. Please note that you may need to restart your runtime after installation.\n\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/scripts/run_vision_learnability_curve_v2.py\", line 553, in execute_step1\n    service = feature_service(protocol, \"mps\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py\", line 282, in feature_service\n    return VisionFeatureService(\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/src/replica_lab/architecture/vision.py\", line 1305, in __init__\n    self._processor = load_pil_image_processor(self.source)\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/src/replica_lab/architecture/vision.py\", line 1053, in load_pil_image_processor\n    raise VisionSourceError(\nreplica_lab.architecture.vision.VisionSourceError: Official SiglipImageProcessorPil could not load offline: ImportError: \nSiglipImageProcessorPil requires the PIL library but it was not found in your environment. You can install it with pip:\n`pip install pillow`. Please note that you may need to restart your runtime after installation.\n\n",
+  "curve_v1_verdict": "curve_no_optimization_progress",
+  "curve_verdict_preserved": true,
+  "dev_accessed": false,
+  "heldout_accessed": false,
+  "v0_run": false,
+  "promotion": false,
+  "retry_authorized": false
+}
