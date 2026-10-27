@@ -15,8 +15,12 @@ import shutil
 
 import pytest
 
+from conftest import require_local_artifacts
 from replica_lab.contracts import canonical_json
 
+
+pytestmark = require_local_artifacts(
+    "data/external_caption_tranche_20261025_v2/raw/images")
 
 ROOT = Path(__file__).resolve().parents[1]
 

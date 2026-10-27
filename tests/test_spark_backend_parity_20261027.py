@@ -14,6 +14,10 @@ import shutil
 
 import pytest
 
+from conftest import require_local_artifacts
+
+
+pytestmark = require_local_artifacts("checkpoints/minicpm5_source")
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs/spark_backend_parity_20261027.json"
