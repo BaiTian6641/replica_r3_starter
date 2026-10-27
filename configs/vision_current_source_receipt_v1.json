@@ -1,0 +1,70 @@
+{
+  "configs": {
+    "vision_collapse_diagnostic_v1": "43c101d54f11f2bceb394e73fb42d8708e7e992c6e02f56aecfeabeb318e1368",
+    "vision_gradient_learnability_v1": "f27101a0e2df793b63d4c7c6f8f9f6b5d9a38f08ebe52de3caf0c686eb321ee6",
+    "vision_learnability_curve_v1": "f818a948187b12d3ab9a0a7a744408e533b300925131afa1152174ab3feca5e9",
+    "vision_mean_only_ablation_v1": "a7674944bebfbc10f9c0bb18e960543392d3bc658d76e0dcd1f4b9cfbe2566c3"
+  },
+  "declared_at_utc": "2026-10-27T00:00:00+00:00",
+  "format": "replica.implementation_current_receipt.v1",
+  "migrations": {
+    "scripts/run_vision_balanced_alignment.py": {
+      "current_sha256": "8834e8db25bc6451577062b1bf9ab17fe2182c3d885146c4d32251ca8df03de9",
+      "parent_sha256": "5fc326475aefc8ff78c0fa1bf9e1b963e681079e3f5297246a096c614fd78012",
+      "reason": "The trainer now retains shared per-row prompt/label/EOS coverage evidence; the sealed prepared04 payload and historical train04 result are not rewritten."
+    },
+    "scripts/run_vision_curriculum.py": {
+      "current_sha256": "38e685ec0dd91e663a2c3739ee63c58f98f148ab689ffc06693763b6aba99fef",
+      "parent_sha256": "8d792914e4adfd36ddac1f5a9eb264cd6821744e9e21ab75b716a4a2520a6749",
+      "reason": "Generation rows now report the model-declared stop set and stop reason; prompt, label, scoring and sealed-data semantics are unchanged."
+    },
+    "src/replica_lab/architecture/contracts.py": {
+      "current_sha256": "14daa2cc3cdcd171c17da039c06b694a270a6fff6bc9c1306303b93b65db0712",
+      "parent_sha256": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+      "reason": "Additive PlasticSpec/PlasticRead contracts; this vision diagnostic does not use them and enforces the declared current bytes."
+    },
+    "src/replica_lab/architecture/minicpm5.py": {
+      "current_sha256": "5348613a6c79d33c719cf20f6677b9266c4e725cefaff84af29c360a0a7ef019",
+      "parent_sha256": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+      "reason": "Additive plastic read/site capture; projector, forward_with_frame, generation and loss paths are unchanged and current bytes are enforced."
+    },
+    "src/replica_lab/memory_system/session.py": {
+      "current_sha256": "915b7f196529b1b185cb4192c95f440c5d591869273c070336c7de43e85f2b98",
+      "parent_sha256": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+      "reason": "Additive optional plastic input plumbing; visual prepare/forward/backward/generate paths are unchanged and current bytes are enforced."
+    }
+  },
+  "mode": "reviewed_current_source",
+  "new_files": {
+    "scripts/run_vision_collapse_diagnostic.py": {
+      "pinned_sha256": "9cd6e190f25fe703f4bde53e3c33268c5ee1d0bdf70440c46d5f7b839eda3e8f",
+      "reason": "Current live bytes for the reviewed historical/current vision source split."
+    },
+    "scripts/run_vision_learnability_curve.py": {
+      "pinned_sha256": "268baa91c385b7ce825085c5b91add652ff460b10afe3c0eb12bb42ca6ed6e8a",
+      "reason": "Current live bytes for the reviewed historical/current vision source split."
+    },
+    "scripts/run_vision_learnability_diagnostic.py": {
+      "pinned_sha256": "bdfef4de6ef4fb62b0640649860593a5e14925686a48314bfae00a75a9718759",
+      "reason": "Current live bytes for the reviewed historical/current vision source split."
+    },
+    "src/replica_lab/source_provenance.py": {
+      "pinned_sha256": "e6066b60a98fc40ea6bd04a9599cf0633c12d8b0565d9a1142c4f3cbf2eaabd0",
+      "reason": "Current live bytes for the reviewed historical/current vision source split."
+    },
+    "src/replica_lab/vision_learnability_curve.py": {
+      "pinned_sha256": "124676cead4b14c4c055dc4befa40f19b3712a151066262826262bb2aa367751",
+      "reason": "Current live bytes for the reviewed historical/current vision source split."
+    },
+    "src/replica_lab/vision_learnability_diagnostic.py": {
+      "pinned_sha256": "459ed73379f5b45d16f75f9d471838d71c67a3b0a431a329851e8b69342bf6f1",
+      "reason": "Current live bytes for the reviewed historical/current vision source split."
+    }
+  },
+  "prepared": {
+    "manifest_sha256": "12f43b081e147a0c678e2137a321b709eb528099411b46b913735198563e0227",
+    "protocol_sha256": "3bf636f00dce4e73168eb5f4b2c2454560276b32dfb1122b91d58ffcd44c2d77"
+  },
+  "reason": "Reviewed current-source receipt for the vision diagnostics after the additive historical/current provenance split. Prepared04 data, seals, historical configs, historical receipts and the v1 curve verdict are unchanged. Every live drift from the prepared protocol pins is declared exactly, and every current runner/module byte is pinned before current-mode qualification. Historical replay instead authenticates the immutable source snapshot.",
+  "receipt_digest": "cf6c23f0abebbb76e3ee96b202dffc5c5946e204fa3db8b07268d780d0a055e9"
+}

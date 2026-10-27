@@ -26,6 +26,12 @@ recomputes downstream refresh state.
 The output is a fresh derived receipt.  It is not an authority and it is not
 a native or held-out result.  Malformed, duplicate, extra, missing or
 out-of-scope rows fail closed.
+
+``--diagnosis`` selects a second, receipt-only mode.  It derives fact-only
+address/value correctness, abstention, exact two-layer aggregation, separate
+controls and declared gradient scope from an existing calibration receipt.
+That mode never reads raw rankings, never parses historical v4 metric blocks
+(which may include heldout rows), never loads a model and never trains.
 """
 from __future__ import annotations
 
@@ -66,6 +72,111 @@ from replica_lab.memory_acceptance_v4 import (  # noqa: E402
 RECEIPT_FORMAT = "replica.memory_acceptance.calibration.receipt.v1"
 CONFIG_FORMAT = "replica.memory_acceptance.calibration.v1"
 METRIC_VERSION = "memory.acceptance.calibration.v1"
+
+DIAGNOSIS_FORMAT = "replica.memory_acceptance.remediation.diagnosis.v1"
+DIAGNOSIS_METRIC_VERSION = "memory.acceptance.remediation.diagnosis.v1"
+DIAGNOSIS_OUTPUT = (
+    "reports/remediation_20261027/"
+    "memory_acceptance_diagnosis_20261027.json")
+SUPPORTING_V4_RECEIPTS = (
+    ("native02_v4_first_process",
+     "reports/memory_acceptance_20261026/"
+     "causal_fresh_native02_acceptance_v4.json"),
+    ("restart02_v4",
+     "reports/memory_acceptance_20261026/"
+     "causal_fresh_restart02_acceptance_v4.json"),
+)
+GRADIENT_PARAMETERS = (
+    "expert_<selected>.gate",
+    "expert_<selected>.up",
+    "expert_<selected>.down",
+)
+GRADIENT_SCOPE = {
+    "hypothesis": (
+        "one_step_per_event_future_answer_correction_unaffected_retention"),
+    "status": "declared_not_executed",
+    "current_path": {
+        "training_objective": (
+            "one event response cross-entropy or selected-expert "
+            "half-sum squared error"),
+        "steps_per_event": 1,
+        "gradient_parameters": list(GRADIENT_PARAMETERS),
+        "gradient_parameter_count_per_event": len(GRADIENT_PARAMETERS),
+        "expert_matrices_per_expert": 3,
+        "expert_bias": False,
+        "selected_expert_only": True,
+        "unselected_experts_receive_gradient": False,
+        "decoder_receives_gradient": False,
+        "read_projections_receive_gradient": False,
+        "writers_receive_gradient": False,
+        "backbone_receives_gradient": False,
+        "personality_receives_gradient": False,
+        "unaffected_rows_receive_teaching_gradient": False,
+        "unaffected_rows_current_teaching_gradient": 0,
+        "frozen_view_requires_no_autograd_graph": True,
+    },
+    "next_hypothesis_scope": {
+        "name": (
+            "one_step_per_event_future_answer_correction_"
+            "unaffected_retention"),
+        "allowed_gradient_parameters": list(GRADIENT_PARAMETERS),
+        "must_not_add_gradient_targets": [
+            "decoder", "read_projections", "writers", "backbone",
+            "personality", "unselected_experts"],
+        "teaching_targets": ["future_answer", "correction"],
+        "unaffected_retention_requires_explicit_teaching_signal": True,
+        "current_unaffected_teaching_gradient": 0,
+        "new_training_arm": False,
+        "one_step_per_event_contract_unchanged": True,
+        "native_execution_permitted_by_this_receipt": False,
+    },
+    "evidence": [
+        {
+            "path": "src/replica_lab/nested_learning.py",
+            "symbol": "GatedExpert",
+            "statement": (
+                "The expert owns exactly gate, up and down parameters and "
+                "has no bias."),
+        },
+        {
+            "path": "src/replica_lab/nested_learning.py",
+            "symbol": "expert_loss_gradients",
+            "statement": (
+                "Gradients are taken with respect to tuple(expert.parameters()) "
+                "only."),
+        },
+        {
+            "path": "src/replica_lab/nested_learning.py",
+            "symbol": (
+                "PlasticLearningController.apply_teaching_transaction"),
+            "statement": (
+                "Only the selected expert receives gradients; inactive "
+                "experts are required to have no gradient."),
+        },
+        {
+            "path": "src/replica_lab/nested_text.py",
+            "symbol": "TextLearner.learn_event_response_ce",
+            "statement": (
+                "Response cross-entropy gradients are taken with respect to "
+                "the selected expert's parameters through the frozen decoder "
+                "path."),
+        },
+        {
+            "path": "src/replica_lab/nested_learning.py",
+            "symbol": "FrozenView",
+            "statement": (
+                "A frozen view is readonly and must not carry an autograd "
+                "graph."),
+        },
+        {
+            "path": "src/replica_lab/nested_learning.py",
+            "symbol": "PersonalityIdentity",
+            "statement": (
+                "The personality identity is versioned conditioning and is "
+                "never rewritten by learning."),
+        },
+    ],
+}
 
 ADDRESS_ARM = "query_key_address"
 VALUE_ARMS = ("query_key_value", "exact_key_value", "context_removed")
@@ -1414,6 +1525,1427 @@ def _gate_classification(config, arms, value_frontier):
     }
 
 
+def _receipt_content_digest(receipt, *, label):
+    body = {key: value for key, value in receipt.items()
+            if key != "content_sha256"}
+    digest = receipt.get("content_sha256")
+    _require(isinstance(digest, str) and len(digest) == 64,
+             f"{label}: content_sha256 is missing or malformed")
+    _require(_sha_json(body) == digest,
+             f"{label}: content_sha256 does not cover the receipt body")
+    return digest
+
+
+def _validate_diagnosis_source(receipt, *, label):
+    _require(isinstance(receipt, dict), f"{label}: receipt must be an object")
+    _require(receipt.get("format") == RECEIPT_FORMAT,
+             f"{label}: format is not {RECEIPT_FORMAT}")
+    _require(receipt.get("metric_version") == METRIC_VERSION,
+             f"{label}: metric_version is not {METRIC_VERSION}")
+    for key in ("source", "native", "value_frontier", "address_frontier",
+                "gate_classification", "frontier_summary"):
+        _require(key in receipt, f"{label}: missing {key}")
+    scope = receipt["source"].get("scope")
+    _require(isinstance(scope, dict),
+             f"{label}: source scope is missing")
+    _require(scope.get("heldout_rows_scored") == 0,
+             f"{label}: heldout rows were scored")
+    heldout_flags = []
+    for holder in (scope, receipt.get("audit") or {}):
+        if "heldout_metrics_reported" in holder:
+            heldout_flags.append(holder["heldout_metrics_reported"])
+    _require(
+        bool(heldout_flags)
+        and all(flag is False for flag in heldout_flags),
+        f"{label}: heldout metrics were reported or unverifiable")
+    _receipt_content_digest(receipt, label=label)
+
+
+def _native_point_index(frontier, floors, *, label):
+    points = frontier.get("points") if isinstance(frontier, dict) else None
+    _require(isinstance(points, list) and points,
+             f"{label} frontier has no points")
+    matches = [index for index, point in enumerate(points)
+               if point.get("cosine_floor") == floors["cosine_floor"]
+               and point.get("margin_floor") == floors["margin_floor"]]
+    _require(len(matches) == 1,
+             f"{label} frontier does not contain exactly one native point")
+    return matches[0]
+
+
+def _nonfact_accepted(block, *, label):
+    unknown_n = int(block.get("unknown_n") or 0)
+    revoked_n = int(block.get("revoked_n") or 0)
+    unknown_accepted = int(block.get("unknown_false_recall") or 0)
+    revoked_accepted = int(block.get("revoked_false_recall") or 0)
+    _require(0 <= unknown_accepted <= unknown_n,
+             f"{label}: unknown false recall exceeds unknown rows")
+    _require(0 <= revoked_accepted <= revoked_n,
+             f"{label}: revoked false recall exceeds revoked rows")
+    for count, accepted, rate, part in (
+            (unknown_n, unknown_accepted,
+             block.get("unknown_abstention_rate"), "unknown"),
+            (revoked_n, revoked_accepted,
+             block.get("revoked_abstention_rate"), "revoked")):
+        if count == 0:
+            _require(accepted == 0,
+                     f"{label}: {part} accepted without {part} rows")
+            continue
+        _require(rate is not None,
+                 f"{label}: {part} abstention rate is missing")
+        expected = count * (1.0 - float(rate))
+        _require(abs(expected - accepted) <= 1e-6,
+                 f"{label}: {part} abstention rate disagrees with false recall")
+    return unknown_accepted + revoked_accepted
+
+
+def _wrong_kind_counts(block, *, label):
+    kinds = block.get("false_recall_kinds") or {}
+    _require(isinstance(kinds, dict),
+             f"{label}: false_recall_kinds must be an object")
+    unexpected = sorted(set(kinds) - set(WRONG_ADDRESS_CATEGORIES)
+                        - {"cross_world"})
+    _require(not unexpected,
+             f"{label}: unexpected false-recall categories {unexpected}")
+    counts = {category: int(kinds.get(category) or 0)
+              for category in WRONG_ADDRESS_CATEGORIES}
+    counts["cross_world_alias"] = int(kinds.get("cross_world") or 0)
+    counts["fact_wrong_count"] = (
+        counts["independent_world"] + counts["other_source"]
+        + counts["cross_world_alias"])
+    counts["non_fact_wrong_count"] = (
+        counts["unknown_address"] + counts["revoked_target_other_live"])
+    return counts
+
+
+def _abstention_diagnostics(block, *, label):
+    unknown_n = int(block.get("unknown_n") or 0)
+    revoked_n = int(block.get("revoked_n") or 0)
+    unknown_accepted = int(block.get("unknown_false_recall") or 0)
+    revoked_accepted = int(block.get("revoked_false_recall") or 0)
+    available = (unknown_n + revoked_n) > 0
+    return {
+        "available": available,
+        "unknown_n": unknown_n,
+        "unknown_accepted": unknown_accepted,
+        "unknown_abstained": unknown_n - unknown_accepted,
+        "unknown_abstention_rate": _rate(
+            unknown_n - unknown_accepted, unknown_n),
+        "unknown_false_recall": unknown_accepted,
+        "unknown_false_recall_rate": _rate(unknown_accepted, unknown_n),
+        "revoked_n": revoked_n,
+        "revoked_accepted": revoked_accepted,
+        "revoked_abstained": revoked_n - revoked_accepted,
+        "revoked_abstention_rate": _rate(
+            revoked_n - revoked_accepted, revoked_n),
+        "revoked_false_recall": revoked_accepted,
+        "revoked_false_recall_rate": _rate(revoked_accepted, revoked_n),
+        "false_recall_total": unknown_accepted + revoked_accepted,
+        "false_recall_rate": _rate(
+            unknown_accepted + revoked_accepted, unknown_n + revoked_n),
+        "note": (
+            "Unknown and revoked rows are separated from fact acceptance.  "
+            "Every accepted unknown or revoked row is a false recall by "
+            "construction and never receives correctness credit."),
+    }
+
+
+def _per_layer_diagnostics(entry, *, layers, label):
+    """Per-layer fact-only readout counts for one arm or variant."""
+    by_layer = entry.get("by_layer")
+    _require(isinstance(by_layer, dict),
+             f"{label}: per-layer blocks are missing")
+    result = {}
+    accepted_total = 0
+    correct_total = 0
+    fact_total = 0
+    for layer in layers:
+        block = by_layer.get(str(layer))
+        _require(isinstance(block, dict),
+                 f"{label}: missing layer {layer}")
+        nonfact = _nonfact_accepted(
+            block, label=f"{label} layer {layer}")
+        accepted = int(block.get("accepted") or 0) - nonfact
+        correct = int(block.get("accepted_correct_fact")
+                      if "accepted_correct_fact" in block
+                      else block.get("accepted_correct") or 0)
+        fact_n = int(block.get("fact_n") or 0)
+        _require(0 <= correct <= accepted,
+                 f"{label} layer {layer}: correct layers exceed accepted")
+        result[str(layer)] = {
+            "layer": layer,
+            "fact_readouts": fact_n,
+            "fact_accepted_layers": accepted,
+            "fact_accepted_correct_layers": correct,
+            "fact_wrong_layers": accepted - correct,
+            "fact_layer_precision": _rate(correct, accepted),
+            "fact_layer_acceptance_rate": _rate(accepted, fact_n),
+        }
+        accepted_total += accepted
+        correct_total += correct
+        fact_total += fact_n
+    return {
+        "layers": result,
+        "fact_readouts": fact_total,
+        "fact_accepted_layers": accepted_total,
+        "fact_accepted_correct_layers": correct_total,
+        "fact_wrong_layers": accepted_total - correct_total,
+        "fact_layer_precision": _rate(correct_total, accepted_total),
+        "layer_sums_are_not_query_groups": True,
+    }
+
+
+def _aggregation_diagnostics(query, readout, *, layers, label,
+                             accepted_any_hit=None,
+                             layer_view_available=True):
+    """Explicit fact-only query/layer aggregation for one arm or variant.
+
+    The historical receipt reports ``accepted`` over every query group (or
+    every readout layer), including unknown and revoked rows, while
+    ``accepted_correct`` is fact-only.  This view keeps those historical
+    fields unchanged and derives the fact-only denominators plus the exact
+    two-layer decomposition.  ``accepted`` remains any-layer acceptance and
+    ``accepted_correct`` remains all-layers accepted and correct.
+    """
+    _require(isinstance(query, dict),
+             f"{label}: query block must be an object")
+    _require(isinstance(layers, list) and len(layers) >= 2,
+             f"{label}: at least two layers are required")
+    if layer_view_available:
+        _require(isinstance(readout, dict),
+                 f"{label}: readout block must be an object")
+    fact_n = int(query.get("fact_n") or 0)
+    _require(fact_n > 0, f"{label}: no fact query groups")
+    query_nonfact = _nonfact_accepted(query, label=f"{label} query")
+    query_accepted = int(query.get("accepted") or 0)
+    _require(query_nonfact <= query_accepted,
+             f"{label}: non-fact acceptance exceeds total acceptance")
+    fact_accepted = query_accepted - query_nonfact
+    strict = int(query.get("accepted_correct_fact")
+                 if "accepted_correct_fact" in query
+                 else query.get("accepted_correct") or 0)
+    _require(0 <= strict <= fact_accepted,
+             f"{label}: strict groups exceed fact accepted groups")
+    _require(int(query.get("accepted_correct") or 0) == strict,
+             f"{label}: accepted_correct includes non-fact rows")
+    not_all = fact_accepted - strict
+    query_kinds = _wrong_kind_counts(query, label=f"{label} query")
+    _require(query_kinds["non_fact_wrong_count"] == query_nonfact,
+             f"{label}: non-fact categories disagree with abstention counts")
+    wrong_groups = query_kinds["fact_wrong_count"]
+    _require(wrong_groups <= not_all,
+             f"{label}: wrong-layer groups exceed accepted-not-all groups")
+    partial = not_all - wrong_groups
+    no_accepted = fact_n - fact_accepted
+    _require(no_accepted >= 0,
+             f"{label}: fact acceptance exceeds fact groups")
+    any_hit = int(query.get("raw_top1") or 0)
+    _require(0 <= any_hit <= fact_n,
+             f"{label}: any-layer correctness exceeds fact groups")
+    if accepted_any_hit is not None:
+        accepted_any_hit = int(accepted_any_hit)
+        _require(strict <= accepted_any_hit <= fact_accepted,
+                 f"{label}: accepted-any-layer-hit exceeds accepted groups")
+
+    query_aggregation = {
+        "fact_accepted_groups": fact_accepted,
+        "fact_any_layer_correct_groups": any_hit,
+        "fact_any_layer_correct_rate": _rate(any_hit, fact_n),
+        "fact_any_layer_acceptance_rate": _rate(fact_accepted, fact_n),
+        "fact_strict_all_layers_groups": strict,
+        "fact_strict_group_rate": _rate(strict, fact_n),
+        "fact_accepted_not_all_layers_correct_groups": not_all,
+        "fact_partial_groups": partial,
+        "fact_partial_group_rate": _rate(partial, fact_n),
+        "fact_wrong_layer_groups": wrong_groups,
+        "fact_wrong_layer_group_rate": _rate(wrong_groups, fact_n),
+        "fact_no_accepted_layer_groups": no_accepted,
+        "fact_no_accepted_layer_rate": _rate(no_accepted, fact_n),
+        "fact_query_precision": _rate(strict, fact_accepted),
+        "fact_accepted_any_layer_correct_groups": accepted_any_hit,
+        "fact_accepted_any_layer_correct_rate": (
+            _rate(accepted_any_hit, fact_accepted)
+            if accepted_any_hit is not None else None),
+        "fact_accepted_any_layer_correct_available": (
+            accepted_any_hit is not None),
+        "fact_partial_exactly_one_layer_groups": (
+            partial if len(layers) == 2 else None),
+        "fact_wrong_layer_categories": {
+            "independent_world": query_kinds["independent_world"],
+            "other_source": query_kinds["other_source"],
+            "cross_world_alias": query_kinds["cross_world_alias"],
+        },
+    }
+
+    if not layer_view_available:
+        return {
+            "denominators": {
+                "fact_query_groups": fact_n,
+                "fact_layer_readouts": None,
+                "layers": list(layers),
+                "layers_per_group": len(layers),
+                "layers_are_independent_samples": False,
+                "query_acceptance_semantics": "any_layer_accepted",
+                "query_correctness_semantics":
+                    "all_layers_accepted_and_correct",
+            },
+            "query_aggregation": query_aggregation,
+            "layer_correctness": {
+                "available": False,
+                "reason": (
+                    "role subsets are reported at query aggregation only; "
+                    "this receipt has no per-role layer block"),
+            },
+            "decomposition": {
+                "available": False,
+                "reason": (
+                    "the source receipt has no per-role readout block, so "
+                    "the layer contribution of partial groups is unavailable"),
+            },
+            "historical_reconciliation": {
+                "query_accepted_including_non_fact": query_accepted,
+                "query_accepted_wrong": int(
+                    query.get("accepted_wrong") or 0),
+                "non_fact_accepted_groups": query_nonfact,
+                "fact_accepted_groups": fact_accepted,
+                "query_accepted_correct": strict,
+                "query_raw_top1": any_hit,
+                "readout_accepted_including_non_fact": None,
+                "readout_accepted_wrong": None,
+                "non_fact_accepted_layers": None,
+                "fact_accepted_layers": None,
+                "readout_accepted_correct": None,
+                "note": (
+                    "Historical accepted fields are preserved.  The fact-only "
+                    "view subtracts accepted unknown/revoked rows; it does not "
+                    "relabel or rewrite the historical fields."),
+            },
+            "abstention": _abstention_diagnostics(
+                query, label=f"{label} query"),
+        }
+
+    layer_fact_n = int(readout.get("fact_n") or 0)
+    _require(layer_fact_n == fact_n * len(layers),
+             f"{label}: layer readouts do not equal fact groups * layers")
+    readout_nonfact = _nonfact_accepted(
+        readout, label=f"{label} readout")
+    readout_accepted = int(readout.get("accepted") or 0)
+    _require(readout_nonfact <= readout_accepted,
+             f"{label}: non-fact layer acceptance exceeds total")
+    accepted_layers = readout_accepted - readout_nonfact
+    correct_layers = int(readout.get("accepted_correct_fact")
+                         if "accepted_correct_fact" in readout
+                         else readout.get("accepted_correct") or 0)
+    _require(0 <= correct_layers <= accepted_layers,
+             f"{label}: correct layers exceed accepted fact layers")
+    wrong_layers = accepted_layers - correct_layers
+    readout_kinds = _wrong_kind_counts(
+        readout, label=f"{label} readout")
+    _require(readout_kinds["non_fact_wrong_count"] == readout_nonfact,
+             f"{label}: non-fact layer categories disagree with abstention")
+    _require(readout_kinds["fact_wrong_count"] == wrong_layers,
+             f"{label}: fact wrong-layer categories disagree with "
+             "accepted-correct subtraction")
+
+    layer_correctness = {
+        "available": True,
+        "fact_accepted_layers": accepted_layers,
+        "fact_accepted_correct_layers": correct_layers,
+        "fact_wrong_layers": wrong_layers,
+        "fact_layer_precision": _rate(correct_layers, accepted_layers),
+        "fact_layer_acceptance_coverage": _rate(
+            accepted_layers, layer_fact_n),
+        "fact_wrong_layer_rate": _rate(wrong_layers, layer_fact_n),
+        "non_fact_accepted_layers": readout_nonfact,
+        "fact_wrong_layer_categories": {
+            "independent_world": readout_kinds["independent_world"],
+            "other_source": readout_kinds["other_source"],
+            "cross_world_alias": readout_kinds["cross_world_alias"],
+        },
+    }
+
+    if len(layers) == 2:
+        correct_from_strict = strict * 2
+        correct_from_partial = partial
+        _require(correct_from_strict + correct_from_partial
+                 <= correct_layers,
+                 f"{label}: strict/partial layer credit exceeds correct "
+                 "layers")
+        correct_from_wrong = (correct_layers - correct_from_strict
+                              - correct_from_partial)
+        accepted_from_wrong = (accepted_layers - correct_from_strict
+                               - correct_from_partial)
+        _require(accepted_from_wrong == correct_from_wrong + wrong_layers,
+                 f"{label}: accepted-layer decomposition does not balance")
+        decomposition = {
+            "available": True,
+            "exact": True,
+            "strict_groups": strict,
+            "partial_groups": partial,
+            "wrong_layer_groups": wrong_groups,
+            "accepted_correct_layers_from_strict_groups":
+                correct_from_strict,
+            "accepted_correct_layers_from_partial_groups":
+                correct_from_partial,
+            "accepted_correct_layers_from_wrong_layer_groups":
+                correct_from_wrong,
+            "accepted_wrong_layers_from_wrong_layer_groups": wrong_layers,
+            "fact_accepted_layers": accepted_layers,
+            "fact_accepted_correct_layers": correct_layers,
+            "fact_wrong_layers": wrong_layers,
+            "identity": (
+                "2*strict + partial + correct_in_wrong_layer_groups == "
+                "accepted_correct_layers"),
+            "identity_holds": (
+                correct_from_strict + correct_from_partial
+                + correct_from_wrong == correct_layers),
+            "accepted_identity_holds": (
+                correct_from_strict + correct_from_partial
+                + correct_from_wrong + wrong_layers == accepted_layers),
+            "layers_per_group": 2,
+        }
+    else:
+        decomposition = {
+            "available": True,
+            "exact": False,
+            "reason": (
+                "partial groups can contribute between one and layers-1 "
+                "correct layers when layers_per_group > 2; aggregate receipt "
+                "fields do not determine that split"),
+            "strict_groups": strict,
+            "partial_groups": partial,
+            "wrong_layer_groups": wrong_groups,
+            "fact_accepted_layers": accepted_layers,
+            "fact_accepted_correct_layers": correct_layers,
+            "fact_wrong_layers": wrong_layers,
+            "layers_per_group": len(layers),
+        }
+
+    return {
+        "denominators": {
+            "fact_query_groups": fact_n,
+            "fact_layer_readouts": layer_fact_n,
+            "layers": list(layers),
+            "layers_per_group": len(layers),
+            "layers_are_independent_samples": False,
+            "query_acceptance_semantics": "any_layer_accepted",
+            "query_correctness_semantics":
+                "all_layers_accepted_and_correct",
+            "layer_view_semantics":
+                "accepted_and_correct_per_readout_layer",
+        },
+        "query_aggregation": query_aggregation,
+        "layer_correctness": layer_correctness,
+        "decomposition": decomposition,
+        "historical_reconciliation": {
+            "query_accepted_including_non_fact": query_accepted,
+            "query_accepted_wrong": int(
+                query.get("accepted_wrong") or 0),
+            "non_fact_accepted_groups": query_nonfact,
+            "fact_accepted_groups": fact_accepted,
+            "query_accepted_correct": strict,
+            "query_raw_top1": any_hit,
+            "readout_accepted_including_non_fact": readout_accepted,
+            "readout_accepted_wrong": int(
+                readout.get("accepted_wrong") or 0),
+            "non_fact_accepted_layers": readout_nonfact,
+            "fact_accepted_layers": accepted_layers,
+            "readout_accepted_correct": correct_layers,
+            "note": (
+                "Historical accepted fields are preserved.  The fact-only "
+                "view subtracts accepted unknown/revoked rows; it does not "
+                "relabel or rewrite the historical fields."),
+        },
+        "abstention": _abstention_diagnostics(
+            query, label=f"{label} query"),
+    }
+
+
+def _control_delta(base, other):
+    base_query = base["query_aggregation"]
+    other_query = other["query_aggregation"]
+    base_layer = base["layer_correctness"]
+    other_layer = other["layer_correctness"]
+    return {
+        "fact_strict_group_rate": _delta(
+            other_query["fact_strict_group_rate"],
+            base_query["fact_strict_group_rate"]),
+        "fact_query_precision": _delta(
+            other_query["fact_query_precision"],
+            base_query["fact_query_precision"]),
+        "fact_layer_precision": _delta(
+            other_layer.get("fact_layer_precision"),
+            base_layer.get("fact_layer_precision")),
+        "fact_wrong_layers": _delta(
+            other_layer.get("fact_wrong_layers"),
+            base_layer.get("fact_wrong_layers")),
+        "fact_accepted_groups": _delta(
+            other_query["fact_accepted_groups"],
+            base_query["fact_accepted_groups"]),
+        "unknown_false_recall_rate": _delta(
+            other["abstention"]["unknown_false_recall_rate"],
+            base["abstention"]["unknown_false_recall_rate"]),
+        "revoked_false_recall_rate": _delta(
+            other["abstention"]["revoked_false_recall_rate"],
+            base["abstention"]["revoked_false_recall_rate"]),
+    }
+
+
+def _selected_record(entry, *, label):
+    query = entry["query"]
+    rows = int(query.get("runtime_rows") or 0)
+    accepted = int(query.get("runtime_accepted") or 0)
+    correct = int(query.get("runtime_correct") or 0)
+    _require(0 <= correct <= accepted <= rows,
+             f"{label}: runtime selected-record counts are inconsistent")
+    return {
+        "runtime_rows": rows,
+        "runtime_accepted": accepted,
+        "runtime_correct": correct,
+        "runtime_precision": _rate(correct, accepted),
+        "selected_other_live": int(
+            query.get("selected_other_live") or 0),
+        "runtime_selection_available": bool(
+            query.get("runtime_selection_available")),
+        "source": "artifact runtime fields, not threshold replay",
+    }
+
+
+def _wrong_world_diagnostics(entry, *, label):
+    query = entry["query"]
+    readout = entry["readout"]
+    query_kinds = _wrong_kind_counts(query, label=f"{label} query")
+    layer_kinds = _wrong_kind_counts(readout, label=f"{label} readout")
+    return {
+        "query_cross_world_false_recall": int(
+            query.get("cross_world_false_recall") or 0),
+        "layer_cross_world_false_recall": int(
+            readout.get("cross_world_false_recall") or 0),
+        "query_independent_world_groups": query_kinds["independent_world"],
+        "layer_independent_world_groups": layer_kinds["independent_world"],
+        "query_other_source_groups": query_kinds["other_source"],
+        "layer_other_source_groups": layer_kinds["other_source"],
+        "source": "scoring-only cross_world_selected and category fields",
+    }
+
+
+def _provenance_receipt_record(path, *, role):
+    """Hash a historical receipt without reading its metric fields.
+
+    The historical v4 receipts cover all rows, including heldout rows, so
+    their metric blocks are never parsed or used here.  Only the file hash is
+    recorded as provenance.
+    """
+    path = Path(path)
+    return {
+        "role": role,
+        "path": str(path),
+        "available": path.is_file(),
+        "sha256": _sha(path) if path.is_file() else None,
+        "format": "replica.memory_acceptance.metrics.v4",
+        "metric_version": V4_VERSION,
+        "metrics_used": False,
+        "reason": (
+            "provenance hash only; the receipt may include heldout rows and "
+            "its metric blocks are not parsed or used"),
+    }
+
+
+def _source_receipt_record(path, *, role, receipt=None):
+    path = Path(path)
+    record = {
+        "role": role,
+        "path": str(path),
+        "available": path.is_file(),
+        "sha256": None,
+        "content_sha256": None,
+        "format": None,
+        "metric_version": None,
+    }
+    if not path.is_file():
+        return record
+    document = (json.loads(path.read_text()) if receipt is None else receipt)
+    record.update({
+        "sha256": _sha(path),
+        "format": document.get("format"),
+        "metric_version": document.get("metric_version"),
+    })
+    if "content_sha256" in document:
+        record["content_sha256"] = document["content_sha256"]
+    else:
+        record["content_sha256"] = _sha_json(document)
+    return record
+
+
+def analyze_memory_diagnosis(receipt, *, receipt_path=None, root=ROOT,
+                             supporting_receipts=None):
+    """Derive the remediation diagnosis from a calibration receipt.
+
+    This is a pure replay over committed receipt fields.  It does not read
+    rankings, load a model, run a native command, train a writer, relabel a
+    row or score a held-out row.
+    """
+    _validate_diagnosis_source(receipt, label="calibration receipt")
+    native = receipt["native"]
+    arms = native["arms"]
+    controls_source = native["control_comparison"]
+    candidate = controls_source["candidate"]["variant"]
+    oracle = controls_source["oracle"]["variant"]
+    for arm in (ADDRESS_ARM, PRIMARY_QUALITY_ARM):
+        _require(arm in arms, f"calibration receipt is missing arm {arm}")
+        _require(candidate in arms[arm]["variants"],
+                 f"calibration receipt is missing {arm}/{candidate}")
+    _require(oracle in arms[PRIMARY_QUALITY_ARM]["variants"],
+             "calibration receipt is missing the oracle variant")
+    layers = list(native["views"]["layer_view"]["layers"])
+    thresholds = native["thresholds"]
+    value_index = _native_point_index(
+        receipt["value_frontier"], thresholds["value"], label="value")
+    address_index = _native_point_index(
+        receipt["address_frontier"], thresholds["address"], label="address")
+    gates = receipt["gate_classification"]
+    if "native_point_in_value_grid" in gates:
+        _require(gates["native_point_in_value_grid"] == value_index,
+                 "native value point index disagrees with the frontier")
+    _require(gates.get("native_point_matches_value_grid") is True,
+             "native value point does not match the value frontier")
+
+    def arm_variant(arm, variant):
+        entry = (arms.get(arm) or {}).get("variants", {}).get(variant)
+        _require(isinstance(entry, dict),
+                 f"calibration receipt is missing {arm}/{variant}")
+        for key in ("query", "readout"):
+            _require(isinstance(entry.get(key), dict),
+                     f"calibration receipt is missing {arm}/{variant}/{key}")
+        return entry
+
+    address_entry = arm_variant(ADDRESS_ARM, candidate)
+    value_entry = arm_variant(PRIMARY_QUALITY_ARM, candidate)
+    oracle_entry = arm_variant(PRIMARY_QUALITY_ARM, oracle)
+    address_point = receipt["address_frontier"]["points"][address_index]
+    address_diag = address_point["candidate_address_diagnostics"]
+
+    address = _aggregation_diagnostics(
+        address_entry["query"], address_entry["readout"],
+        layers=layers, label="address",
+        accepted_any_hit=address_diag["address_accepted_any_layer_hit"])
+    value = _aggregation_diagnostics(
+        value_entry["query"], value_entry["readout"],
+        layers=layers, label="value")
+    oracle_diag = _aggregation_diagnostics(
+        oracle_entry["query"], oracle_entry["readout"],
+        layers=layers, label="oracle")
+    address_by_layer = _per_layer_diagnostics(
+        address_entry, layers=layers, label="address")
+    value_by_layer = _per_layer_diagnostics(
+        value_entry, layers=layers, label="value")
+    oracle_by_layer = _per_layer_diagnostics(
+        oracle_entry, layers=layers, label="oracle")
+    for label, layer_view, aggregate in (
+            ("address", address_by_layer, address),
+            ("value", value_by_layer, value),
+            ("oracle", oracle_by_layer, oracle_diag)):
+        _require(
+            layer_view["fact_accepted_layers"]
+            == aggregate["layer_correctness"]["fact_accepted_layers"],
+            f"{label}: per-layer accepted layers do not sum to the aggregate")
+        _require(
+            layer_view["fact_accepted_correct_layers"]
+            == aggregate["layer_correctness"]["fact_accepted_correct_layers"],
+            f"{label}: per-layer correct layers do not sum to the aggregate")
+        _require(
+            layer_view["fact_wrong_layers"]
+            == aggregate["layer_correctness"]["fact_wrong_layers"],
+            f"{label}: per-layer wrong layers do not sum to the aggregate")
+
+    _require(
+        address["query_aggregation"]["fact_accepted_groups"]
+        == address_diag["address_accepted"],
+        "address query acceptance disagrees with address diagnostics")
+    _require(
+        address["query_aggregation"]["fact_strict_all_layers_groups"]
+        == address_diag["address_accepted_hit"],
+        "address strict groups disagree with address diagnostics")
+    _require(
+        address["query_aggregation"][
+            "fact_accepted_not_all_layers_correct_groups"]
+        == address_diag["address_query_accepted_not_all_layers_correct"],
+        "address partial groups disagree with address diagnostics")
+    _require(
+        address["query_aggregation"]["fact_any_layer_correct_groups"]
+        == address_diag["address_hit"],
+        "address any-layer hit disagrees with address diagnostics")
+    _require(
+        address["layer_correctness"]["fact_accepted_layers"]
+        == address_diag["address_layer_accepted"],
+        "address accepted layers disagree with address diagnostics")
+    _require(
+        address["layer_correctness"]["fact_accepted_correct_layers"]
+        == address_diag["address_layer_accepted_hit"],
+        "address correct layers disagree with address diagnostics")
+    _require(
+        address["layer_correctness"]["fact_layer_precision"]
+        == address_diag["address_layer_precision"],
+        "address layer precision disagrees with address diagnostics")
+    _require(
+        address["query_aggregation"]["fact_query_precision"]
+        == address_diag["address_precision"],
+        "address query precision disagrees with address diagnostics")
+    _require(
+        sum(int(value_) for value_ in
+            address_diag["wrong_address_categories"].values())
+        == address["layer_correctness"]["fact_wrong_layers"],
+        "address wrong-layer categories disagree with accepted layers")
+
+    address_accepted_layers = address["layer_correctness"][
+        "fact_accepted_layers"]
+    address_correct_layers = address["layer_correctness"][
+        "fact_accepted_correct_layers"]
+    address_wrong_layers = address["layer_correctness"]["fact_wrong_layers"]
+    address_strict = address["query_aggregation"][
+        "fact_strict_all_layers_groups"]
+    address_partial = address["query_aggregation"]["fact_partial_groups"]
+    address_no_accepted = address["query_aggregation"][
+        "fact_no_accepted_layer_groups"]
+    address_fact_n = address["denominators"]["fact_query_groups"]
+    address.update({
+        "arm": ADDRESS_ARM,
+        "variant": candidate,
+        "thresholds": dict(thresholds["address"]),
+        "by_layer": address_by_layer,
+        "layer_precision_headline": (
+            f"{address_correct_layers}/{address_accepted_layers}"),
+        "strict_group_headline": f"{address_strict}/{address_fact_n}",
+        "headline": (
+            f"{address_correct_layers}/{address_accepted_layers} accepted "
+            "address layer readouts are correct "
+            f"({address_wrong_layers} wrong-address layers) but only "
+            f"{address_strict}/{address_fact_n} fact query groups are "
+            f"strict; {address_partial} groups are partial and "
+            f"{address_no_accepted} groups accept no layer."),
+        "comparison": {
+            "accepted_layer_result": (
+                f"{address_correct_layers}/{address_accepted_layers}"),
+            "strict_group_result": f"{address_strict}/{address_fact_n}",
+            "strict_groups": address_strict,
+            "partial_groups": address_partial,
+            "no_accepted_layer_groups": address_no_accepted,
+            "wrong_address_layers": address_wrong_layers,
+        },
+        "status": "not_repaired",
+        "explanation": (
+            "The layer view and the query view answer different questions.  "
+            "accepted=any_layer_accepted is preserved, so an accepted fact "
+            "group needs only one accepted layer; accepted_correct="
+            "all_layers_accepted_and_correct is preserved, so a strict group "
+            "needs every layer accepted and correct.  All "
+            f"{address_accepted_layers} accepted address layers are correct "
+            f"and {address_wrong_layers} accepted layers are wrong, so the "
+            f"{address_partial} partial groups are not wrong-address "
+            "retrievals at layer level; with two layers they are groups with "
+            "exactly one accepted correct layer and one abstaining layer.  "
+            "The historical query accepted_wrong value is preserved and is "
+            "an aggregation label, not a wrong-address label.  Address "
+            f"acceptance is still unrepaired: {address_no_accepted}/"
+            f"{address_fact_n} fact groups never accept a layer and strict "
+            f"coverage is {address_strict}/{address_fact_n}."),
+    })
+
+    value_accepted_layers = value["layer_correctness"][
+        "fact_accepted_layers"]
+    value_correct_layers = value["layer_correctness"][
+        "fact_accepted_correct_layers"]
+    value_wrong_layers = value["layer_correctness"]["fact_wrong_layers"]
+    value_strict = value["query_aggregation"]["fact_strict_all_layers_groups"]
+    value_partial = value["query_aggregation"]["fact_partial_groups"]
+    value_wrong_groups = value["query_aggregation"]["fact_wrong_layer_groups"]
+    value_no_accepted = value["query_aggregation"][
+        "fact_no_accepted_layer_groups"]
+    value_fact_n = value["denominators"]["fact_query_groups"]
+    value.update({
+        "arm": PRIMARY_QUALITY_ARM,
+        "variant": candidate,
+        "thresholds": dict(thresholds["value"]),
+        "by_layer": value_by_layer,
+        "headline": (
+            f"Candidate value readout accepts {value_accepted_layers} fact "
+            f"layers with only {value_correct_layers} correct "
+            f"({value_wrong_layers} wrong) and reaches {value_strict}/"
+            f"{value_fact_n} strict fact groups; unknown false recall is "
+            f"{value['abstention']['unknown_accepted']}/"
+            f"{value['abstention']['unknown_n']} and revoked false recall "
+            f"is {value['abstention']['revoked_accepted']}/"
+            f"{value['abstention']['revoked_n']}."),
+        "status": "next_bottleneck",
+        "explanation": (
+            "Unlike address, the value arm accepts incorrect fact layers: "
+            f"{value_wrong_layers} accepted fact value layers are wrong.  "
+            "The remaining strict group gap also includes abstention: "
+            f"{value_partial} accepted groups have one correct accepted "
+            "layer and one abstaining layer, "
+            f"{value_wrong_groups} accepted groups contain at least one "
+            f"accepted wrong layer, and {value_no_accepted} fact groups "
+            "accept no layer.  Unknown and revoked rows are accepted at "
+            f"{value['abstention']['unknown_accepted']}/"
+            f"{value['abstention']['unknown_n']} and "
+            f"{value['abstention']['revoked_accepted']}/"
+            f"{value['abstention']['revoked_n']} respectively, so abstention "
+            "is not a working safety margin."),
+    })
+
+    oracle_accepted_layers = oracle_diag["layer_correctness"][
+        "fact_accepted_layers"]
+    oracle_correct_layers = oracle_diag["layer_correctness"][
+        "fact_accepted_correct_layers"]
+    oracle_wrong_layers = oracle_diag["layer_correctness"][
+        "fact_wrong_layers"]
+    oracle_strict = oracle_diag["query_aggregation"][
+        "fact_strict_all_layers_groups"]
+    oracle_partial = oracle_diag["query_aggregation"]["fact_partial_groups"]
+    oracle_no_accepted = oracle_diag["query_aggregation"][
+        "fact_no_accepted_layer_groups"]
+    oracle_fact_n = oracle_diag["denominators"]["fact_query_groups"]
+    oracle_diag.update({
+        "arm": PRIMARY_QUALITY_ARM,
+        "variant": oracle,
+        "thresholds": dict(thresholds["value"]),
+        "by_layer": oracle_by_layer,
+        "is_legal_policy": False,
+        "is_diagnostic_only": True,
+        "headline": (
+            f"Oracle fact value layers are {oracle_correct_layers}/"
+            f"{oracle_accepted_layers} correct with {oracle_wrong_layers} "
+            f"wrong fact value layers, yet only {oracle_strict}/"
+            f"{oracle_fact_n} fact groups are strict and {oracle_partial} "
+            f"are partial; {oracle_no_accepted} groups accept no layer."),
+        "explanation": (
+            "The oracle is a gold-target diagnostic, not a legal policy.  Its "
+            "accepted-layer fact precision with "
+            f"{oracle_partial} partial groups isolates layer aggregation and "
+            "abstention as a remaining limit even when value readout is "
+            "correct.  It does not repair the candidate value readout."),
+    })
+
+    variant_names = sorted(arms[PRIMARY_QUALITY_ARM]["variants"])
+
+    def variant_with(predicate, label):
+        matches = [name for name in variant_names if predicate(name)]
+        _require(len(matches) == 1,
+                 f"calibration receipt does not isolate {label}")
+        return matches[0]
+
+    disabled_variant = variant_with(
+        lambda name: name.endswith("/disabled"), "disabled/reset")
+    shuffled_variant = variant_with(
+        lambda name: "shuffled" in name, "shuffled-value")
+    full_variant = variant_with(
+        lambda name: name.endswith("/full"), "full")
+
+    def value_variant(name):
+        entry = arm_variant(PRIMARY_QUALITY_ARM, name)
+        return _aggregation_diagnostics(
+            entry["query"], entry["readout"], layers=layers,
+            label=f"value:{name}")
+
+    disabled = value_variant(disabled_variant)
+    shuffled = value_variant(shuffled_variant)
+    full = value_variant(full_variant)
+    exact_entry = arm_variant("exact_key_value", candidate)
+    exact_context = _aggregation_diagnostics(
+        exact_entry["query"], exact_entry["readout"], layers=layers,
+        label="exact_context")
+    context_entry = arm_variant("context_removed", candidate)
+    context_removed = _aggregation_diagnostics(
+        context_entry["query"], context_entry["readout"], layers=layers,
+        label="context_removed")
+
+    selected_by_variant = {
+        name: _selected_record(
+            arm_variant(PRIMARY_QUALITY_ARM, name),
+            label=f"selected-record:{name}")
+        for name in variant_names}
+
+    def separation_metric(selector):
+        return {label: selector(item)
+                for label, item in (
+                    ("candidate", value), ("oracle", oracle_diag),
+                    ("full", full), ("shuffled_value", shuffled),
+                    ("disabled_reset", disabled),
+                    ("exact_context", exact_context))}
+
+    strict_rates = separation_metric(
+        lambda item: item["query_aggregation"]["fact_strict_group_rate"])
+    precisions = separation_metric(
+        lambda item: item["query_aggregation"]["fact_query_precision"])
+    layer_precisions = separation_metric(
+        lambda item: item["layer_correctness"]["fact_layer_precision"])
+    accepted_groups = separation_metric(
+        lambda item: item["query_aggregation"]["fact_accepted_groups"])
+    unknown_false_recall = separation_metric(
+        lambda item: item["abstention"]["unknown_false_recall_rate"])
+
+    address_variants = {}
+    for name in variant_names:
+        entry = arm_variant(ADDRESS_ARM, name)
+        address_variants[name] = {
+            "fact_accepted_groups": int(entry["query"]["accepted"]) - int(
+                entry["query"].get("unknown_false_recall") or 0) - int(
+                entry["query"].get("revoked_false_recall") or 0),
+            "fact_strict_groups": int(
+                entry["query"].get("accepted_correct_fact") or 0),
+            "fact_accepted_layers": int(entry["readout"]["accepted"]) - int(
+                entry["readout"].get("unknown_false_recall") or 0) - int(
+                entry["readout"].get("revoked_false_recall") or 0),
+            "fact_correct_layers": int(
+                entry["readout"].get("accepted_correct_fact") or 0),
+        }
+    address_invariant = len({
+        tuple(item.items()) for item in address_variants.values()}) == 1
+
+    controls = {
+        "candidate": {
+            "variant": candidate,
+            "arm": PRIMARY_QUALITY_ARM,
+            "metrics": value,
+        },
+        "oracle": {
+            "variant": oracle,
+            "arm": PRIMARY_QUALITY_ARM,
+            "metrics": oracle_diag,
+            "is_legal_policy": False,
+            "is_diagnostic_only": True,
+        },
+        "exact_context": {
+            "control": "exact_key_value_arm",
+            "variant": candidate,
+            "arm": "exact_key_value",
+            "available": True,
+            "metrics": exact_context,
+            "abstention_available": exact_context["abstention"]["available"],
+            "abstention_unavailable_reason": (
+                None if exact_context["abstention"]["available"] else
+                "exact-key rows exist only for fact targets; this arm has "
+                "no unknown or revoked rows"),
+            "is_upper_bound": False,
+            "blended_into_candidate_quality": False,
+            "delta_vs_candidate": _control_delta(value, exact_context),
+        },
+        "context_removed": {
+            "control": "context_removed_arm",
+            "variant": candidate,
+            "arm": "context_removed",
+            "available": True,
+            "metrics": context_removed,
+            "delta_vs_candidate": _control_delta(value, context_removed),
+            "interpretation": (
+                "With context removed every readout is zero or tied; the "
+                "control accepts no fact group and receives no recoverability "
+                "or acceptance credit."),
+        },
+        "selected_record": {
+            "control": "artifact_runtime_selected_record",
+            "available": any(
+                item["runtime_selection_available"]
+                for item in selected_by_variant.values()),
+            "candidate": selected_by_variant[candidate],
+            "oracle": selected_by_variant[oracle],
+            "address_candidate": _selected_record(
+                address_entry, label="selected-record:address"),
+            "by_variant": selected_by_variant,
+            "note": (
+                "Runtime selected-record fields come from the artifact and "
+                "are not recomputed by threshold replay.  They separate the "
+                "selection decision from the value readout correctness."),
+        },
+        "disabled_reset": {
+            "control": "shared_mean/disabled",
+            "variant": disabled_variant,
+            "available": True,
+            "metrics": disabled,
+            "delta_vs_candidate": _control_delta(value, disabled),
+            "interpretation": (
+                "The disabled/reset control has zero acceptance and a "
+                "zero-or-tied rate of 1.0; observed top-1 evidence receives "
+                "no recoverability or acceptance credit."),
+        },
+        "shuffled_value": {
+            "control": "shuffled_value_variant",
+            "variant": shuffled_variant,
+            "available": True,
+            "metrics": shuffled,
+            "delta_vs_candidate": _control_delta(value, shuffled),
+            "interpretation": (
+                "Shuffled values do not restore fact value correctness: the "
+                "control remains at "
+                f"{shuffled['query_aggregation']['fact_strict_all_layers_groups']}"
+                f"/{shuffled['denominators']['fact_query_groups']} strict "
+                "fact groups and its query precision is lower than the "
+                "candidate.  It is a control, not a recovered policy."),
+        },
+        "full": {
+            "control": "full_state_variant",
+            "variant": full_variant,
+            "available": True,
+            "metrics": full,
+            "delta_vs_candidate": _control_delta(value, full),
+        },
+        "wrong_world": {
+            "control": "cross_world_selected",
+            "candidate": _wrong_world_diagnostics(
+                value_entry, label="wrong-world:candidate"),
+            "oracle": _wrong_world_diagnostics(
+                oracle_entry, label="wrong-world:oracle"),
+            "exact_context": _wrong_world_diagnostics(
+                exact_entry, label="wrong-world:exact"),
+            "address_candidate": _wrong_world_diagnostics(
+                address_entry, label="wrong-world:address"),
+            "available": True,
+            "note": (
+                "cross_world_selected and the category fields are "
+                "scoring-only and never threshold inputs.  For the address "
+                "arm the query view counts cross-world evidence in a "
+                "non-accepted layer of a partial group; the accepted-layer "
+                "view has zero wrong address layers."),
+        },
+        "separation": {
+            "fact_strict_group_rate": strict_rates,
+            "fact_query_precision": precisions,
+            "fact_layer_precision": layer_precisions,
+            "fact_accepted_groups": accepted_groups,
+            "unknown_false_recall_rate": unknown_false_recall,
+            "controls_are_distinct": len({
+                (strict_rates[label], precisions[label],
+                 accepted_groups[label])
+                for label in strict_rates}) > 1,
+            "candidate_equals_full": (
+                value["query_aggregation"]
+                == full["query_aggregation"]),
+            "candidate_equals_shuffled": (
+                value["query_aggregation"]
+                == shuffled["query_aggregation"]),
+            "candidate_equals_disabled": (
+                value["query_aggregation"]
+                == disabled["query_aggregation"]),
+            "address_arm_invariant_across_value_variants": (
+                address_invariant),
+            "address_arm_by_variant": address_variants,
+        },
+    }
+
+    def role_diagnostics(name):
+        block = value_entry.get(name)
+        _require(isinstance(block, dict),
+                 f"calibration receipt is missing the value {name} block")
+        return _aggregation_diagnostics(
+            block, None, layers=layers, label=f"value:{name}",
+            layer_view_available=False)
+
+    by_role = {
+        "correction_target": {
+            "available": "correction" in value_entry,
+            "metrics": role_diagnostics("correction"),
+            "oracle_metrics": None,
+        },
+        "retained_unaffected": {
+            "available": "unaffected" in value_entry,
+            "metrics": role_diagnostics("unaffected"),
+            "oracle_metrics": None,
+        },
+        "note": (
+            "Role subsets are query-level only in the calibration receipt.  "
+            "Unaffected/retained rows are scored after an event; they are not "
+            "an additional teaching gradient in the current path."),
+    }
+    if "correction" in oracle_entry:
+        by_role["correction_target"]["oracle_metrics"] = (
+            _aggregation_diagnostics(
+                oracle_entry["correction"], None, layers=layers,
+                label="oracle:correction", layer_view_available=False))
+    if "unaffected" in oracle_entry:
+        by_role["retained_unaffected"]["oracle_metrics"] = (
+            _aggregation_diagnostics(
+                oracle_entry["unaffected"], None, layers=layers,
+                label="oracle:unaffected", layer_view_available=False))
+
+    frontier = receipt["frontier_summary"]
+    disposition = receipt["gate_classification"]["disposition"]
+    calibration_evidence = {
+        "value_point_count": int(frontier["value_point_count"]),
+        "value_points_passing_candidate_value_gates": int(
+            frontier["value_points_passing_candidate_value_gates"]),
+        "value_points_passing_all_gates": int(
+            frontier["value_points_passing_all_gates"]),
+        "value_points_passing_oracle_gates": int(
+            frontier["value_points_passing_oracle_gates"]),
+        "address_point_count": int(frontier["address_point_count"]),
+        "address_points_meeting_hit_and_precision": int(
+            frontier["address_points_meeting_hit_and_precision"]),
+        "best_candidate_accepted_correct_rate": frontier[
+            "best_query_key_value_accepted_correct_rate"],
+        "best_candidate_precision": frontier[
+            "best_query_key_value_accepted_precision"],
+        "selected_rule": disposition["selected_rule"],
+        "candidate_meets_value_gates": bool(
+            disposition["candidate_meets_value_gates"]),
+        "oracle_meets_gates": bool(disposition["oracle_meets_gates"]),
+        "calibration_is_a_solution": False,
+        "note": (
+            "No value point in the 25-point frontier passes the candidate or "
+            "oracle value gates, and no address point meets both descriptive "
+            "hit and precision targets.  Threshold calibration cannot repair "
+            "the value readout or abstention."),
+    }
+
+    bottleneck = {
+        "selected": "value_readout_and_abstention",
+        "components": ["value_readout", "abstention"],
+        "scope": "train_dev_only",
+        "train_dev_scope": {
+            "splits": list(receipt["source"]["scope"].get(
+                "splits") or receipt["source"]["scope"].get(
+                    "declared_splits") or []),
+            "phases": list(receipt["source"]["scope"].get(
+                "phases") or receipt["source"]["scope"].get(
+                    "declared_phases") or []),
+            "heldout_rows_scored": 0,
+            "heldout_metrics_reported": False,
+            "per_split_decomposition_available": False,
+            "per_split_decomposition_note": (
+                "The source calibration receipt aggregates train and dev "
+                "native blocks; it does not expose a train/dev split of the "
+                "same arm and variant.  No per-split claim is made and no "
+                "heldout row is scored."),
+        },
+        "value_evidence": {
+            "fact_accepted_groups": value["query_aggregation"][
+                "fact_accepted_groups"],
+            "fact_strict_groups": value["query_aggregation"][
+                "fact_strict_all_layers_groups"],
+            "fact_partial_groups": value["query_aggregation"][
+                "fact_partial_groups"],
+            "fact_wrong_layer_groups": value["query_aggregation"][
+                "fact_wrong_layer_groups"],
+            "fact_accepted_layers": value["layer_correctness"][
+                "fact_accepted_layers"],
+            "fact_accepted_correct_layers": value["layer_correctness"][
+                "fact_accepted_correct_layers"],
+            "fact_wrong_layers": value["layer_correctness"][
+                "fact_wrong_layers"],
+            "fact_layer_precision": value["layer_correctness"][
+                "fact_layer_precision"],
+            "fact_strict_group_rate": value["query_aggregation"][
+                "fact_strict_group_rate"],
+        },
+        "abstention_evidence": {
+            "unknown_n": value["abstention"]["unknown_n"],
+            "unknown_accepted": value["abstention"]["unknown_accepted"],
+            "unknown_false_recall_rate": value["abstention"][
+                "unknown_false_recall_rate"],
+            "revoked_n": value["abstention"]["revoked_n"],
+            "revoked_accepted": value["abstention"]["revoked_accepted"],
+            "revoked_false_recall_rate": value["abstention"][
+                "revoked_false_recall_rate"],
+        },
+        "address_evidence": {
+            "fact_accepted_groups": address["query_aggregation"][
+                "fact_accepted_groups"],
+            "fact_strict_groups": address["query_aggregation"][
+                "fact_strict_all_layers_groups"],
+            "fact_partial_groups": address["query_aggregation"][
+                "fact_partial_groups"],
+            "fact_accepted_layers": address["layer_correctness"][
+                "fact_accepted_layers"],
+            "fact_accepted_correct_layers": address["layer_correctness"][
+                "fact_accepted_correct_layers"],
+            "fact_wrong_layers": address["layer_correctness"][
+                "fact_wrong_layers"],
+            "fact_layer_precision": address["layer_correctness"][
+                "fact_layer_precision"],
+            "fact_strict_group_rate": address["query_aggregation"][
+                "fact_strict_group_rate"],
+            "status": "not_repaired",
+        },
+        "oracle_evidence": {
+            "fact_accepted_groups": oracle_diag["query_aggregation"][
+                "fact_accepted_groups"],
+            "fact_strict_groups": oracle_diag["query_aggregation"][
+                "fact_strict_all_layers_groups"],
+            "fact_partial_groups": oracle_diag["query_aggregation"][
+                "fact_partial_groups"],
+            "fact_accepted_layers": oracle_diag["layer_correctness"][
+                "fact_accepted_layers"],
+            "fact_accepted_correct_layers": oracle_diag["layer_correctness"][
+                "fact_accepted_correct_layers"],
+            "fact_wrong_layers": oracle_diag["layer_correctness"][
+                "fact_wrong_layers"],
+            "fact_layer_precision": oracle_diag["layer_correctness"][
+                "fact_layer_precision"],
+            "is_legal_policy": False,
+        },
+        "retention_evidence": {
+            "candidate_unaffected_fact_groups": by_role[
+                "retained_unaffected"]["metrics"]["denominators"][
+                    "fact_query_groups"],
+            "candidate_unaffected_accepted_groups": by_role[
+                "retained_unaffected"]["metrics"]["query_aggregation"][
+                    "fact_accepted_groups"],
+            "candidate_unaffected_strict_groups": by_role[
+                "retained_unaffected"]["metrics"]["query_aggregation"][
+                    "fact_strict_all_layers_groups"],
+            "oracle_unaffected_strict_groups": (
+                (by_role["retained_unaffected"]["oracle_metrics"] or {})
+                .get("query_aggregation", {})
+                .get("fact_strict_all_layers_groups")),
+            "unaffected_rows_are_teaching_targets": False,
+            "unaffected_rows_current_teaching_gradient": 0,
+            "note": (
+                "Unaffected/retained rows are scored after an event and "
+                "currently receive no teaching gradient.  They are part of "
+                "the next hypothesis scope, not a new training arm in this "
+                "receipt."),
+        },
+        "address_readout_repaired": False,
+        "calibration_is_a_solution": False,
+        "why_this_bottleneck": [
+            (
+                "Address layer precision is "
+                f"{address_correct_layers}/{address_accepted_layers} with "
+                f"{address_wrong_layers} wrong accepted address layers, so "
+                "accepted address layers are not mis-addressed; the address "
+                "gap is low strict coverage and partial layer agreement, not "
+                "a wrong-address mechanism."),
+            (
+                "Value layer precision is only "
+                f"{value_correct_layers}/{value_accepted_layers} and "
+                f"{value_wrong_layers} accepted fact value layers are wrong, "
+                "so the value readout itself is the dominant accepted error."),
+            (
+                "Unknown false recall is "
+                f"{value['abstention']['unknown_accepted']}/"
+                f"{value['abstention']['unknown_n']} and revoked false "
+                "recall is "
+                f"{value['abstention']['revoked_accepted']}/"
+                f"{value['abstention']['revoked_n']}, so abstention is also "
+                "failing."),
+            (
+                f"The oracle has {oracle_correct_layers}/"
+                f"{oracle_accepted_layers} correct accepted fact value "
+                f"layers but still only {oracle_strict}/{oracle_fact_n} "
+                f"strict groups with {oracle_partial} partial groups, which "
+                "isolates layer abstention/aggregation as a remaining limit "
+                "independent of wrong fact values."),
+            (
+                "No calibration point repairs the value gates; threshold "
+                "movement cannot create a correct value readout or a working "
+                "abstention rule."),
+        ],
+        "next_hypothesis": (
+            "one_step_per_event_future_answer_correction_unaffected_"
+            "retention"),
+        "next_hypothesis_status": "declared_not_executed",
+        "new_training_arm": False,
+        "calibration_evidence": calibration_evidence,
+        "not_claimed": [
+            "Address acceptance is not repaired.",
+            "Calibration is not a solution.",
+            "The oracle is not a legal policy or an achievable bound.",
+            "No value readout, abstention, writer or retention capability is "
+            "demonstrated by this receipt.",
+        ],
+    }
+
+    primary_record = _source_receipt_record(
+        receipt_path, role="primary_train_dev_calibration",
+        receipt=receipt) if receipt_path is not None else {
+            "role": "primary_train_dev_calibration",
+            "path": None,
+            "available": True,
+            "sha256": None,
+            "content_sha256": receipt["content_sha256"],
+            "format": receipt["format"],
+            "metric_version": receipt["metric_version"],
+        }
+    primary_record.update({
+        "declared_at_utc": receipt["config"].get("declared_at_utc")
+        if isinstance(receipt.get("config"), dict) else None,
+        "content_sha256_verified": True,
+    })
+
+    supporting = []
+    declared_supporting = (
+        SUPPORTING_V4_RECEIPTS if supporting_receipts is None
+        else supporting_receipts)
+    for role, relative in declared_supporting:
+        path = Path(relative)
+        if not path.is_absolute():
+            path = Path(root) / path
+        supporting.append(_provenance_receipt_record(path, role=role))
+
+    body = {
+        "format": DIAGNOSIS_FORMAT,
+        "metric_version": DIAGNOSIS_METRIC_VERSION,
+        "purpose": (
+            "Derived train/dev memory acceptance diagnosis: explicit address "
+            "and value correctness, abstention, multi-layer aggregation, "
+            "control separation and declared gradient scope.  No native "
+            "execution, model load, gradient, optimizer update, checkpoint "
+            "write, relabeling or held-out scoring."),
+        "source_receipts": {
+            "primary": primary_record,
+            "supporting": supporting,
+            "supporting_metrics_used": False,
+            "supporting_note": (
+                "Historical v4 receipts are hashed for provenance only.  "
+                "Their metric blocks may include heldout rows and are never "
+                "parsed or used by this diagnosis."),
+        },
+        "source_pins": {
+            "rankings": dict(receipt["source"].get("rankings") or {}),
+            "inventory": dict(receipt["source"].get("inventory") or {}),
+            "config": dict(receipt.get("config") or {}),
+        },
+        "scope": {
+            **bottleneck["train_dev_scope"],
+            "scored_rows": receipt["source"]["scope"].get("scored_rows"),
+            "heldout_rows_present": receipt["source"]["scope"].get(
+                "heldout_rows_present"),
+            "fact_query_groups": value["denominators"]["fact_query_groups"],
+            "fact_layer_readouts": value["denominators"][
+                "fact_layer_readouts"],
+            "layers": layers,
+        },
+        "metric_semantics": {
+            "accepted": "any_layer_accepted",
+            "accepted_correct": "all_layers_accepted_and_correct",
+            "accepted_wrong": "accepted_and_not_all_layers_correct",
+            "query_view": (
+                "one row per fact query group; acceptance is any-layer and "
+                "correctness is all-layer"),
+            "layer_view": (
+                "one row per readout layer; layers are not independent "
+                "samples and are never treated as extra queries"),
+            "strict_group": "all_layers_accepted_and_correct",
+            "partial_group": (
+                "accepted but not all layers accepted and correct, with no "
+                "accepted wrong layer; for the two-layer receipts this means "
+                "exactly one accepted correct layer and one abstention"),
+            "strict_denominator": "fact query groups",
+            "layer_denominator": "fact readout layers",
+            "historical_metrics_relabelled": False,
+            "gate_semantics_preserved": True,
+            "unknown_and_revoked_separate_from_facts": True,
+        },
+        "address": address,
+        "value": value,
+        "oracle": oracle_diag,
+        "abstention": {
+            "candidate_value": value["abstention"],
+            "address": address["abstention"],
+            "oracle": oracle_diag["abstention"],
+        },
+        "multi_layer_aggregation": {
+            "layers": layers,
+            "layers_per_group": len(layers),
+            "layers_are_independent_samples": False,
+            "address": address["decomposition"],
+            "value": value["decomposition"],
+            "oracle": oracle_diag["decomposition"],
+            "note": (
+                "The strict query view is not the sum of layer views.  "
+                f"Address {address['layer_precision_headline']} is a layer "
+                "precision over accepted layers; "
+                f"{address['strict_group_headline']} is a strict group count "
+                "over fact query groups."),
+        },
+        "by_role": by_role,
+        "controls": controls,
+        "bottleneck": bottleneck,
+        "gradient_scope": GRADIENT_SCOPE,
+        "claims": {
+            "address_layer_readout_correct_when_accepted": True,
+            "address_layer_precision_is_not_strict_group_coverage": True,
+            "address_readout_repaired": False,
+            "address_acceptance_is_not_the_selected_next_bottleneck": True,
+            "value_readout_and_abstention_are_next_bottleneck": True,
+            "calibration_is_a_solution": False,
+            "historical_metrics_relabelled": False,
+            "gate_semantics_preserved": True,
+            "train_dev_rows_only": True,
+            "heldout_rows_scored": False,
+            "heldout_metrics_reported": False,
+            "heldout_metric_blocks_parsed": False,
+            "supporting_receipt_metrics_used": False,
+            "native_execution_performed": False,
+            "model_loads": 0,
+            "gradients": 0,
+            "optimizer_updates": 0,
+            "checkpoint_writes": 0,
+            "new_training_arm": False,
+            "one_step_per_event_contract_unchanged": True,
+            "gradient_scope_declared_not_executed": True,
+            "receipt_is_derived_not_authority": True,
+        },
+        "non_claims": [
+            "No learned-memory, learned-selector, generated-answer or "
+            "calibrated-confidence claim.",
+            "Address acceptance is not repaired; perfect accepted-layer "
+            "precision does not establish strict group coverage.",
+            "Calibration is not a solution; zero frontiers pass the declared "
+            "value gates.",
+            "The oracle is a gold-target diagnostic, not a legal policy or "
+            "an achievable upper bound.",
+            "No new training arm and no change to the one-step-per-event "
+            "contract.",
+            "Prepared04 heldout remains spent and was not reused.",
+        ],
+        "limits": {
+            "derived_from_receipt_fields_only": True,
+            "raw_rankings_read": False,
+            "supporting_receipt_metrics_parsed": False,
+            "native_execution_performed": False,
+            "model_loads": 0,
+            "tokenizer_loads": 0,
+            "gradients": 0,
+            "optimizer_updates": 0,
+            "checkpoint_writes": 0,
+            "new_generation": False,
+            "heldout_rows_scored": 0,
+        },
+        "determinism": {
+            "wall_clock_recorded": False,
+            "ordering": "sorted keys; fixed supporting-receipt order",
+            "content_sha256_covers_receipt_without_this_field": True,
+        },
+    }
+    return dict(body, content_sha256=_sha_json(body))
+
+
+def write_diagnosis_receipt(receipt, path):
+    """Write a derived diagnosis atomically, refusing source overwrites."""
+    _require(receipt.get("format") == DIAGNOSIS_FORMAT,
+             "Refusing to write a non-diagnosis receipt")
+    _require(receipt.get("metric_version") == DIAGNOSIS_METRIC_VERSION,
+             "Refusing to write an unexpected diagnosis metric version")
+    path = Path(path)
+    sources = []
+    primary = receipt["source_receipts"]["primary"].get("path")
+    if primary:
+        sources.append(primary)
+    for item in receipt["source_receipts"]["supporting"]:
+        if item.get("path"):
+            sources.append(item["path"])
+    for source in sources:
+        if Path(source).resolve() == path.resolve():
+            raise ValueError("Refusing to overwrite a source receipt")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(
+        json.dumps(receipt, indent=2, sort_keys=True, allow_nan=False) + "\n",
+        encoding="utf-8")
+    os.replace(temporary, path)
+    return path
+
+
 def analyze_calibration(config, *, root=ROOT, config_path=None):
     """Read the pinned sources and return a deterministic derived receipt."""
     validate_calibration_config(config)
@@ -1804,9 +3336,51 @@ def main(argv=None):
                         default=ROOT / "configs/memory_acceptance_calibration_v1.json")
     parser.add_argument("--output", type=Path,
                         help="override the configured derived-receipt path")
+    parser.add_argument(
+        "--diagnosis", type=Path,
+        help=("emit the remediation memory diagnosis for an existing "
+              "calibration receipt instead of replaying a config"))
+    parser.add_argument(
+        "--diagnosis-output", type=Path,
+        default=ROOT / DIAGNOSIS_OUTPUT,
+        help="override the remediation diagnosis receipt path")
     parser.add_argument("--quiet", action="store_true",
                         help="write the receipt without a stdout summary")
     args = parser.parse_args(argv)
+
+    if args.diagnosis is not None:
+        diagnosis_path = _resolve(args.diagnosis, ROOT)
+        try:
+            receipt = json.loads(diagnosis_path.read_text())
+            diagnosis = analyze_memory_diagnosis(
+                receipt, receipt_path=diagnosis_path, root=ROOT)
+            output = _resolve(args.diagnosis_output, ROOT)
+            write_diagnosis_receipt(diagnosis, output)
+        except (OSError, ValueError) as exc:
+            parser.error(str(exc))
+            return 2
+        if not args.quiet:
+            print(json.dumps({
+                "output": str(output),
+                "output_bytes": output.stat().st_size,
+                "content_sha256": diagnosis["content_sha256"],
+                "address_headline": diagnosis["address"]["headline"],
+                "address_layer_result": diagnosis["address"]["comparison"][
+                    "accepted_layer_result"],
+                "address_strict_group_result": diagnosis["address"][
+                    "comparison"]["strict_group_result"],
+                "address_wrong_layers": diagnosis["address"][
+                    "layer_correctness"]["fact_wrong_layers"],
+                "value_headline": diagnosis["value"]["headline"],
+                "bottleneck": diagnosis["bottleneck"]["selected"],
+                "address_readout_repaired": diagnosis["claims"][
+                    "address_readout_repaired"],
+                "calibration_is_a_solution": diagnosis["claims"][
+                    "calibration_is_a_solution"],
+                "heldout_rows_scored": diagnosis["claims"][
+                    "heldout_rows_scored"],
+            }, sort_keys=True))
+        return 0
 
     config_path = _resolve(args.config, ROOT)
     try:

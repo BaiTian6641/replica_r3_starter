@@ -13,6 +13,9 @@ import replica_lab.vision_balanced_alignment as vba
 from conftest import require_local_artifacts
 
 ROOT = Path(__file__).resolve().parents[1]
+HISTORICAL_SNAPSHOT = (
+    ROOT / "reports/vision_historical_source_20261027/source_snapshot.json")
+CURRENT_RECEIPT = ROOT / "configs/vision_current_source_receipt_v1.json"
 CONFIG_PATH = ROOT / "configs/vision_balanced_alignment_v2.json"
 FIXTURE_FORMAT = "replica.vision_balanced_alignment.evidence_fixture.v1"
 EVIDENCE_FIXTURE_PATH = (
@@ -550,7 +553,14 @@ def test_prepared_v2_roles_load_separately_with_bound_assignments():
     diagnostic_spec.loader.exec_module(diagnostic_module)
     diagnostic_config = diagnostic_module.load_config(
         ROOT / "configs/vision_collapse_diagnostic_v1.json")
-    verified = diagnostic_module.verify_pins(diagnostic_config)
+    verified = diagnostic_module.verify_pins(
+        diagnostic_config, source_root=HISTORICAL_SNAPSHOT,
+        mode="historical")
+    assert verified["pins"]["implementation"]["source_mode"] == (
+        "historical_snapshot")
+    current = diagnostic_module.verify_pins(
+        diagnostic_config, mode="current", current_receipt=CURRENT_RECEIPT)
+    assert current["pins"]["implementation"]["source_mode"] == "current_receipt"
     protocol, manifest = verified["protocol"], verified["manifest"]
     assert protocol["format"] == vba.PROTOCOL_FORMAT_V2
     spec = importlib.util.spec_from_file_location(

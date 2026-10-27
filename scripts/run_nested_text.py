@@ -12,6 +12,12 @@ This entry point is deliberately conservative:
 * ``p-only-eval`` loads weights only (no controller/coordinator/moments/dedup)
   at most once and only after that gate passes (v2 uses corrected gates and
   never retries held-out);
+* behavioral ``p-only-eval`` additionally requires a preserved passing fit
+  receipt that binds the exact P-only file and payload, the live config,
+  protocol, episode manifest, scorer/stopping policy, fit case coverage and
+  attempts, and the teaching run/cost/canonical state hashes.  That receipt is
+  validated before ``torch.load``, before the native worker/model load and
+  before any development-role access; other protocols are unaffected;
 * ``resume`` restores the full checkpoint and applies exactly one next event,
   comparing its state digest with an uninterrupted reference from the same
   checkpoint.
@@ -30,6 +36,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import sys
 import time
@@ -37,7 +44,7 @@ import traceback
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Iterable, Mapping
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -64,14 +71,23 @@ from replica_lab.nested_text import (NestedTextLearner, P_ONLY_FORMAT,  # noqa: 
                                      TextTeachingEvent, evaluate_dev_gate,
                                      prompt_route_key, validate_p_only_payload)
 from replica_lab.nested_continuation import canonical_state  # noqa: E402
-from replica_lab.nested_text_scoring import (SCORING_VERSION, STOP_POLICY_VERSION,
-                                             STOP_TOKENS, finalize_generation,
-                                             score_response, is_truncated_stop_reason,
+from replica_lab.nested_text_scoring import (ANSWER_GRAMMAR_VERSION,
+                                             SCORING_VERSION,
+                                             STOP_POLICY_VERSION, STOP_TOKENS,
+                                             finalize_generation,
+                                             score_response,
+                                             is_truncated_stop_reason,
                                              sentence_complete_text)
 PROMPT_FORM = "replica.nested_text.run.v1"
 CONFIG_FORMAT_BEHAVIORAL = "replica.nested_text.behavioral_reference.v1"
 CONFIG_FORMAT_V2 = "replica.nested_text.nl1.v2"
 CONFIG_FORMAT_V1 = "replica.nested_text.nl1.v1"
+FIT_RECEIPT_FORMAT = "replica.nested_text.fit_receipt.v1"
+FIT_RECEIPT_SCHEMA_VERSION = 1
+FIT_RECEIPT_FILE = "fit_receipt.json"
+_AUDIT_FIELDS = ("sources_present", "memory_spans", "selection_records",
+                 "ledger_records", "controller_constructed",
+                 "coordinator_constructed", "updates_enabled")
 MANIFEST_FORMATS = frozenset({
     "replica.nested_text.episode_manifest.v1",
     "replica.nested_text.episode_manifest.v2",
@@ -353,20 +369,27 @@ def build_episode(row: dict, tokenizer, protocol: TextProtocol, *,
                    attention_mask=attention, response_mask=response_mask)
 
 
-def episodes_for_teaching(directory: Path, manifest: Mapping[str, Any],
-                          tokenizer, protocol: TextProtocol, *,
-                          max_prompt_tokens: int, max_response_tokens: int,
-                          limit: int) -> list[Episode]:
-    files = ("teaching", "correction") if protocol.world_uid == manifest["primary_world"] \
+def teaching_rows(directory: Path, manifest: Mapping[str, Any], world_uid: str,
+                  scope: str, *, limit: int) -> list[dict]:
+    """Deterministic eligible teaching/correction rows for one world and scope."""
+    files = ("teaching", "correction") if world_uid == manifest["primary_world"] \
         else ("wrong_world_teaching",)
     rows = []
     for role in files:
         rows.extend(load_rows(directory, manifest, role))
     rows = [row for row in rows if row["eligible"]
-            and row["world_uid"] == protocol.world_uid
-            and row["scope_uid"] == protocol.scope]
+            and row["world_uid"] == world_uid
+            and row["scope_uid"] == scope]
     rows.sort(key=lambda row: (float(row["target_available_at"]), row["id"]))
-    rows = rows[:limit]
+    return rows[:limit]
+
+
+def episodes_for_teaching(directory: Path, manifest: Mapping[str, Any],
+                          tokenizer, protocol: TextProtocol, *,
+                          max_prompt_tokens: int, max_response_tokens: int,
+                          limit: int) -> list[Episode]:
+    rows = teaching_rows(directory, manifest, protocol.world_uid,
+                         protocol.scope, limit=limit)
     return [build_episode(row, tokenizer, protocol,
                           max_prompt_tokens=max_prompt_tokens,
                           max_response_tokens=max_response_tokens)
@@ -621,6 +644,34 @@ def false_recall(score: Mapping[str, Any], taught_answers: set[str]) -> float:
     return false / total
 
 
+def false_recall_v2(score: Mapping[str, Any],
+                    taught_answers: Iterable[str]) -> float:
+    """False recall under the shared v2 grammar used to score these rows.
+
+    A control row is false recall when the output would be scored correct for any
+    taught answer, including answers decorated by Markdown or terminal
+    punctuation.  Failed generations carry no output and never count as recall.
+    """
+    answers = tuple(taught_answers)
+    total = score["count"] or 1
+    false = sum(1 for item in score["results"]
+                if item.get("output") and any(
+                    score_response(answer, item["output"]).correct
+                    for answer in answers))
+    return false / total
+
+
+def attempt_counts(*, scoring_attempts: int, failures: int) -> dict:
+    """Attempt accounting derived from the actual scored rows, never hardcoded."""
+    _require(type(scoring_attempts) is int and scoring_attempts >= 0,
+             "scoring attempts must be a nonnegative integer")
+    _require(type(failures) is int and 0 <= failures <= scoring_attempts,
+             "failed attempts cannot exceed the scoring attempts")
+    return {"attempts": scoring_attempts - failures,
+            "failed_attempts": failures,
+            "scoring_attempts": scoring_attempts}
+
+
 def p95(values: list[float]) -> float:
     return _percentile(values, 0.95)
 
@@ -854,6 +905,7 @@ def score_episodes_v2(learner: NestedTextLearner, session: MemorySession,
                 "correct": scored.correct,
                 "reason": scored.reason,
                 "scoring_version": scored.scoring_version,
+                "answer_grammar_version": scored.grammar_version,
                 "generated_ids": list(result.generated_ids),
                 "content_ids": list(result.content_ids),
                 "stop_reason": result.stop_reason,
@@ -873,7 +925,11 @@ def score_episodes_v2(learner: NestedTextLearner, session: MemorySession,
             correct += int(scored.correct)
         except BaseException as error:  # raw failure is preserved, never retried
             failures += 1
-            record.update({"error": f"{type(error).__name__}: {error}",
+            record.update({"correct": False, "reason": "generation_failure",
+                           "scoring_version": SCORING_VERSION,
+                           "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+                           "truncated": None,
+                           "error": f"{type(error).__name__}: {error}",
                            "traceback": traceback.format_exc()})
         results.append(record)
     return {"label": label, "count": len(results),
@@ -979,6 +1035,730 @@ def candidate_answers_for(directory: Path, manifest: Mapping[str, Any], *,
                        for row in load_rows(directory, manifest, role))
     _require(answers, "no candidate answers are available")
     return tuple(sorted(answers))
+
+
+# ---------------------------------------------------------------------------
+# Fit receipt: dependent-development admission evidence
+# ---------------------------------------------------------------------------
+
+FIT_RECEIPT_KEYS = frozenset({
+    "format", "schema_version", "status", "mode", "created_by", "world_uid",
+    "scope", "config", "protocol", "episodes", "p_state", "scoring",
+    "coverage", "attempts", "teaching", "gate_report", "heldout_opened",
+    "receipt_sha256"})
+TEACH_RUN_KEYS = (
+    "format", "mode", "status", "world_uid", "protocol_sha256",
+    "config_sha256", "episodes_manifest_sha256", "implementation_sha256",
+    "theta_stamp_unchanged", "updates", "learning_events", "expert_steps",
+    "p_only_sha256", "p_only_manifest_sha256", "checkpoint_sha256",
+    "checkpoint_bytes", "canonical_state_sha256", "cost_sha256",
+    "checkpoint", "p_only")
+TEACH_COST_KEYS = (
+    "events", "optimizer_steps", "backward_calls", "wall_seconds",
+    "learning_update_seconds", "teaching_end_to_end_seconds", "duty_cycle",
+    "checkpoint_bytes", "p_only_bytes", "protocol_sha256", "config_sha256",
+    "scoring_version")
+
+
+def fit_receipt_required(config: Mapping[str, Any]) -> bool:
+    """The behavioral training protocol depends on a passing fit evaluation."""
+    return (config.get("format") == CONFIG_FORMAT_BEHAVIORAL
+            and config.get("training_admitted") is True
+            and bool(config.get("training", {}).get("fit_eval_required")))
+
+
+def protocol_binding(protocol: TextProtocol) -> dict:
+    """Every field needed to reconstruct the exact live text protocol."""
+    return {
+        "protocol_sha256": protocol.protocol_sha256,
+        "world_uid": protocol.world_uid,
+        "scope": protocol.scope,
+        "theta": {"revision": protocol.theta_revision,
+                  "lock_sha256": protocol.theta_lock_sha256,
+                  "stamp_sha256": protocol.parameter_stamp_sha256},
+        "theta_lock_sha256": protocol.theta_lock_sha256,
+        "parameter_stamp_sha256": protocol.parameter_stamp_sha256,
+        "tokenizer_sha256": protocol.tokenizer_sha256,
+        "target_projection_sha256": protocol.target_projection_sha256,
+        "read_path_sha256": protocol.read_path_sha256,
+        "read_gain": protocol.read_gain,
+        "feature_sites": list(protocol.feature_sites),
+        "route": {"mode": protocol.route_mode,
+                  "seed": protocol.route_seed,
+                  "expert_count": protocol.expert_count},
+        "bank": {"experts": protocol.expert_count,
+                 "width": protocol.width,
+                 "hidden_width": protocol.hidden_width,
+                 "hidden_size": protocol.hidden_size},
+    }
+
+
+def p_only_binding(state: Mapping[str, Any]) -> dict:
+    """The payload without weights: the immutable binding the receipt pins."""
+    return {key: value for key, value in state.items() if key != "parameters"}
+
+
+def p_only_binding_digest(state: Mapping[str, Any]) -> str:
+    return _sha256_json(p_only_binding(state))
+
+
+def p_state_summary(state_path: Path, state: Mapping[str, Any]) -> dict:
+    payload = p_only_binding(state)
+    summary = {"path": str(state_path), "sha256": _sha256_file(state_path),
+               "bytes": Path(state_path).stat().st_size,
+               "binding_sha256": _sha256_json(payload),
+               "keys": sorted(state)}
+    for key in ("format", "protocol_sha256", "scope", "theta", "bank", "route",
+                "feature_producer", "read_path", "expert_steps"):
+        _require(key in payload, f"P-only payload lacks {key}")
+        summary[key] = payload[key]
+    return summary
+
+
+def _fit_cases(rows: Iterable[Mapping[str, Any]]) -> list[dict]:
+    return [{"id": row["id"], "expected": row["expected_response"],
+             "prompt_sha256": row["prompt_sha256"],
+             "response_sha256": row["response_sha256"]} for row in rows]
+
+
+def _case_digest(cases: Iterable[Mapping[str, Any]]) -> str:
+    return _sha256_json([dict(case) for case in cases])
+
+
+def _failed_attempt(item: Mapping[str, Any]) -> bool:
+    """A generation failure is explicit; it is never silently a scored attempt."""
+    return (item.get("reason") == "generation_failure"
+            or "error" in item or "correct" not in item)
+
+
+def coverage_summary(cases: list[dict], score: Mapping[str, Any], *,
+                     declared_attempts: int) -> dict:
+    """Coverage derived from the preserved fit-gate attempt rows."""
+    results = [item for item in score["results"] if isinstance(item, Mapping)]
+    ids = [item.get("id") for item in results]
+    expected_ids = [case["id"] for case in cases]
+    duplicates = sorted({value for value in ids
+                         if value is not None and ids.count(value) > 1})
+    audits = [item.get("request_audit") for item in results]
+    audit_complete = bool(results) and all(
+        isinstance(audit, Mapping)
+        and all(field in audit for field in _AUDIT_FIELDS)
+        for audit in audits)
+    source_free = audit_complete and all(
+        audit["sources_present"] is False
+        and audit["memory_spans"] == 0
+        and audit["selection_records"] == 0
+        and audit["ledger_records"] == 0
+        and audit["controller_constructed"] is False
+        and audit["coordinator_constructed"] is False
+        and audit["updates_enabled"] is False
+        for audit in audits)
+    return {
+        "role": "fit",
+        "declared_attempts": int(declared_attempts),
+        "measured_attempts": len(results),
+        "unique_ids": len(set(ids)),
+        "ids": ids,
+        "cases_sha256": _case_digest(cases),
+        "missing_ids": [value for value in expected_ids if value not in ids],
+        "unexpected_ids": [value for value in ids if value not in expected_ids],
+        "duplicate_ids": duplicates,
+        "failed_attempts": sum(1 for item in results if _failed_attempt(item)),
+        "source_free": source_free,
+        "audit_complete": audit_complete,
+    }
+
+
+def attempt_summary(score: Mapping[str, Any], *, min_accuracy: float,
+                    all_declared_gates_passed: bool,
+                    gate_failures: Iterable[str]) -> dict:
+    results = [item for item in score["results"] if isinstance(item, Mapping)]
+    correct = sum(1 for item in results if item.get("correct") is True)
+    failures = sum(1 for item in results if _failed_attempt(item))
+    truncated = sum(1 for item in results if item.get("truncated") is True)
+    stop_reasons: dict[str, int] = {}
+    for item in results:
+        reason = item.get("stop_reason")
+        if isinstance(reason, str):
+            stop_reasons[reason] = stop_reasons.get(reason, 0) + 1
+    return {
+        "scoring_attempts": len(results),
+        "correct": correct,
+        "accuracy": (correct / len(results)) if results else 0.0,
+        "failures": failures,
+        "truncated": truncated,
+        "stop_reasons": stop_reasons,
+        "generated_tokens": sum(len(item.get("generated_ids") or ())
+                                for item in results),
+        "min_accuracy": float(min_accuracy),
+        "all_declared_gates_passed": bool(all_declared_gates_passed),
+        "gate_failures": list(gate_failures),
+    }
+
+
+def teaching_bundle(directory: Path, *, expected_updates: int | None = None) -> dict:
+    """Read and cross-check one preserved teaching run before it is trusted."""
+    directory = Path(directory)
+    run_path = directory / "run.json"
+    cost_path = directory / "cost.json"
+    p_only_manifest_path = directory / "p_only" / "manifest.json"
+    p_only_path = directory / "p_only" / "state.pt"
+    checkpoint_path = directory / "full_checkpoint.pt"
+    final_state_path = directory / "final_state.json"
+    for path in (run_path, cost_path, p_only_manifest_path, p_only_path,
+                 checkpoint_path, final_state_path):
+        _require(path.is_file(), f"teaching artifact is missing: {path}")
+    run = json.loads(run_path.read_text(encoding="utf-8"))
+    cost = json.loads(cost_path.read_text(encoding="utf-8"))
+    p_manifest = json.loads(p_only_manifest_path.read_text(encoding="utf-8"))
+    final_state = json.loads(final_state_path.read_text(encoding="utf-8"))
+    for key in TEACH_RUN_KEYS:
+        _require(key in run,
+                 f"teaching run.json lacks {key}; rerun teaching with this runner")
+    _require(run["format"] == PROMPT_FORM and run["mode"] == "teach"
+             and run["status"] == "completed",
+             "teaching run.json is not a completed teach run")
+    _require(run["theta_stamp_unchanged"] is True,
+             "teaching run changed the native theta parameter stamp")
+    _require(isinstance(run["implementation_sha256"], Mapping),
+             "teaching run lacks implementation pins")
+    for key in TEACH_COST_KEYS:
+        _require(key in cost, f"teaching cost.json lacks {key}")
+    _require(isinstance(p_manifest, Mapping)
+             and p_manifest.get("format") == P_ONLY_FORMAT,
+             "teaching P-only manifest is invalid")
+    _require(p_manifest.get("forbidden_absent") is True
+             and p_manifest.get("source_inputs") == 0,
+             "teaching P-only export carries learning state or sources")
+    _require(isinstance(final_state, Mapping)
+             and isinstance(final_state.get("sha256"), str)
+             and len(final_state["sha256"]) == 64,
+             "teaching canonical state is invalid")
+    p_only_sha = _sha256_file(p_only_path)
+    checkpoint_sha = _sha256_file(checkpoint_path)
+    _require(p_manifest["sha256"] == p_only_sha
+             and p_manifest["bytes"] == p_only_path.stat().st_size,
+             "teaching P-only manifest differs from the exported state")
+    _require(run["p_only_sha256"] == p_only_sha
+             and run["p_only_manifest_sha256"] == _sha256_file(p_only_manifest_path),
+             "teaching run.json P-only hashes differ from the export")
+    _require(run["checkpoint_sha256"] == checkpoint_sha
+             and int(run["checkpoint_bytes"]) == checkpoint_path.stat().st_size,
+             "teaching run.json checkpoint hashes differ from the checkpoint")
+    _require(run["canonical_state_sha256"] == final_state["sha256"],
+             "teaching run.json canonical state differs from final_state.json")
+    _require(cost["protocol_sha256"] == run["protocol_sha256"],
+             "teaching cost.json belongs to another protocol")
+    _require(run["cost_sha256"] == _sha256_file(cost_path),
+             "teaching run.json cost_sha256 differs from cost.json")
+    _require(cost["config_sha256"] == run["config_sha256"],
+             "teaching cost.json belongs to another config")
+    _require(int(cost["checkpoint_bytes"]) == checkpoint_path.stat().st_size
+             and int(cost["p_only_bytes"]) == p_only_path.stat().st_size,
+             "teaching cost.json bytes differ from the exported artifacts")
+    updates = int(run["updates"])
+    _require(updates >= 1 and int(run["learning_events"]) == updates,
+             "teaching run.json event accounting is invalid")
+    _require(int(cost["events"]) == updates,
+             "teaching cost.json events differ from run.json updates")
+    _require(int(cost["optimizer_steps"]) == updates
+             and int(cost["backward_calls"]) == updates,
+             "teaching optimizer/backward accounting differs from its updates")
+    expert_steps = [int(value) for value in run["expert_steps"]]
+    _require(expert_steps and sum(expert_steps) == updates,
+             "teaching expert counters do not cover the declared updates")
+    if expected_updates is not None:
+        _require(updates == int(expected_updates),
+                 f"teaching run covers {updates} events; "
+                 f"the workload declares {expected_updates}")
+    wall = float(cost["wall_seconds"])
+    _require(wall > 0, "teaching wall time must be positive")
+    learning = float(cost["learning_update_seconds"])
+    end_to_end = float(cost["teaching_end_to_end_seconds"])
+    _require(learning >= 0.0 and end_to_end >= learning,
+             "teaching cost timing is inconsistent")
+    _require(math.isclose(float(cost["duty_cycle"]), learning / wall,
+                          rel_tol=1e-9, abs_tol=1e-12),
+             "teaching cost duty cycle does not match its timings")
+    return {
+        "run_path": str(run_path), "run_sha256": _sha256_file(run_path),
+        "cost_path": str(cost_path), "cost_sha256": _sha256_file(cost_path),
+        "p_only_manifest_path": str(p_only_manifest_path),
+        "p_only_manifest_sha256": _sha256_file(p_only_manifest_path),
+        "p_only_path": str(p_only_path), "p_only_sha256": p_only_sha,
+        "p_only_bytes": p_only_path.stat().st_size,
+        "checkpoint_path": str(checkpoint_path),
+        "checkpoint_sha256": checkpoint_sha,
+        "checkpoint_bytes": checkpoint_path.stat().st_size,
+        "final_state_path": str(final_state_path),
+        "final_state_sha256": _sha256_file(final_state_path),
+        "canonical_state_sha256": final_state["sha256"],
+        "protocol_sha256": run["protocol_sha256"],
+        "config_sha256": run["config_sha256"],
+        "episodes_manifest_sha256": run["episodes_manifest_sha256"],
+        "world_uid": run["world_uid"],
+        "updates": updates,
+        "learning_events": int(run["learning_events"]),
+        "expert_steps": expert_steps,
+        "events": int(cost["events"]),
+        "optimizer_steps": int(cost["optimizer_steps"]),
+        "backward_calls": int(cost["backward_calls"]),
+        "learning_update_seconds": learning,
+        "teaching_end_to_end_seconds": end_to_end,
+        "wall_seconds": wall,
+        "duty_cycle": float(cost["duty_cycle"]),
+        "theta_stamp_unchanged": True,
+    }
+
+
+def seal_fit_receipt(receipt: Mapping[str, Any]) -> dict:
+    """Attach the digest over every field except ``receipt_sha256``."""
+    body = {key: value for key, value in receipt.items()
+            if key != "receipt_sha256"}
+    sealed = dict(receipt)
+    sealed["receipt_sha256"] = _sha256_json(body)
+    return sealed
+
+
+def load_fit_receipt(path: Path) -> dict:
+    path = Path(path)
+    _require(path.is_file(), f"fit receipt is missing: {path}")
+    try:
+        receipt = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise RunnerError(f"fit receipt is unreadable: {error}") from error
+    _require(isinstance(receipt, Mapping), "fit receipt must be a JSON object")
+    return dict(receipt)
+
+
+def load_model_lock(path: Path) -> dict:
+    path = Path(path)
+    _require(path.is_file(), f"model lock is missing: {path}")
+    try:
+        lock = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise RunnerError(f"model lock is unreadable: {error}") from error
+    _require(isinstance(lock, Mapping)
+             and isinstance(lock.get("snapshot_files_sha256"), Mapping),
+             "model lock lacks the snapshot digests")
+    return dict(lock)
+
+
+def build_fit_receipt(*, config: Mapping[str, Any], config_path: Path,
+                      manifest: Mapping[str, Any], manifest_path: Path,
+                      episodes_root: Path, state_path: Path,
+                      state: Mapping[str, Any], protocol: TextProtocol,
+                      teach_dir: Path, teach_expected_updates: int,
+                      fit_gate_path: Path,
+                      wrong_world_teach_dir: Path | None = None) -> dict:
+    """Bind one fit evaluation to its P-state, protocol, data, scorer and teach run."""
+    gate = json.loads(Path(fit_gate_path).read_text(encoding="utf-8"))
+    _require(gate.get("label") == "fit", "fit gate report has another label")
+    score = gate.get("scores")
+    _require(isinstance(score, Mapping)
+             and isinstance(score.get("results"), list),
+             "fit gate report lacks per-attempt scores")
+    primary = manifest["primary_world"]
+    scope = f"{primary}/text"
+    declared = int(config["workload"]["fit_eval_attempts"])
+    rows = teaching_rows(episodes_root, manifest, primary, scope, limit=declared)
+    cases = _fit_cases(rows)
+    coverage = coverage_summary(cases, score, declared_attempts=declared)
+    gate_passed = gate.get("all_declared_gates_passed") is True
+    gate_failures = [str(value) for value in gate.get("gate_failures") or ()]
+    attempts = attempt_summary(
+        score, min_accuracy=float(config["gates"]["fit"]["min_accuracy"]),
+        all_declared_gates_passed=gate_passed, gate_failures=gate_failures)
+    _require(attempts["scoring_attempts"] == coverage["measured_attempts"],
+             "fit gate attempt and coverage counts differ")
+    _require(math.isclose(float(gate.get("fit_accuracy", -1.0)),
+                          attempts["accuracy"], rel_tol=1e-12, abs_tol=1e-12),
+             "fit gate accuracy differs from its scored attempts")
+    teaching = teaching_bundle(teach_dir, expected_updates=teach_expected_updates)
+    _require(teaching["world_uid"] == primary,
+             "teaching run belongs to another world")
+    teaching_block = {"primary": teaching}
+    if wrong_world_teach_dir is not None:
+        wrong = teaching_bundle(
+            Path(wrong_world_teach_dir),
+            expected_updates=int(config["workload"]["wrong_world_teaching_events"]))
+        _require(wrong["world_uid"] == manifest["wrong_world"],
+                 "wrong-world teaching run belongs to another world")
+        teaching_block["wrong_world"] = wrong
+    _require(teaching["p_only_sha256"] == _sha256_file(state_path),
+             "fit evaluation P-state is not the teaching run export")
+    _require(teaching["protocol_sha256"] == protocol.protocol_sha256,
+             "teaching run protocol differs from the fit protocol")
+    _require(teaching["config_sha256"] == _sha256_file(config_path),
+             "teaching run config differs from the fit config")
+    _require(teaching["episodes_manifest_sha256"]
+             == _sha256_file(manifest_path),
+             "teaching run episodes differ from the fit episodes")
+    generation = config["generation"]
+    candidates = candidate_answers_for(episodes_root, manifest)
+    passed = (gate_passed and not gate_failures
+              and attempts["failures"] == 0 and attempts["correct"] > 0
+              and coverage["audit_complete"] and coverage["source_free"]
+              and coverage["missing_ids"] == []
+              and coverage["unexpected_ids"] == []
+              and coverage["duplicate_ids"] == []
+              and coverage["measured_attempts"] == declared)
+    receipt = {
+        "format": FIT_RECEIPT_FORMAT,
+        "schema_version": FIT_RECEIPT_SCHEMA_VERSION,
+        "status": "passed" if passed else "failed",
+        "mode": "fit-eval",
+        "created_by": "scripts/run_nested_text.py",
+        "world_uid": primary,
+        "scope": scope,
+        "config": {
+            "path": str(config_path),
+            "sha256": _sha256_file(config_path),
+            "format": config.get("format"),
+            "training_admitted": config.get("training_admitted") is True,
+            "objective": config["transaction"].get("objective"),
+            "steps_per_event": int(config["transaction"]["steps_per_event"]),
+        },
+        "protocol": protocol_binding(protocol),
+        "episodes": {
+            "root": str(episodes_root),
+            "manifest_path": str(manifest_path),
+            "format": manifest.get("format"),
+            "schema_version": manifest.get("schema_version"),
+            "manifest_sha256": _sha256_file(manifest_path),
+            "files_sha256_digest": _sha256_json(
+                sorted(manifest["files_sha256"].items())),
+            "role_files_digest": _sha256_json(
+                sorted(manifest["role_files"].items())),
+            "primary_world": manifest["primary_world"],
+            "wrong_world": manifest["wrong_world"],
+        },
+        "p_state": p_state_summary(state_path, state),
+        "scoring": {
+            "scoring_version": SCORING_VERSION,
+            "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+            "stop_policy_version": STOP_POLICY_VERSION,
+            "max_new_tokens": int(generation["max_new_tokens"]),
+            "stop_tokens": [int(token) for token in generation["stop_tokens"]],
+            "sentence_stop": generation["sentence_stop"],
+            "target_eos_token": generation.get("target_eos_token"),
+            "token_budget_credit": generation.get("token_budget_credit"),
+            "empty_generation_credit": generation.get("empty_generation_credit"),
+            "candidate_answers_sha256": _sha256_json(list(candidates)),
+        },
+        "coverage": coverage,
+        "attempts": attempts,
+        "teaching": teaching_block,
+        "gate_report": {
+            "path": str(fit_gate_path),
+            "sha256": _sha256_file(fit_gate_path),
+            "all_declared_gates_passed": gate_passed,
+            "gate_failures": gate_failures,
+        },
+        "heldout_opened": False,
+    }
+    return seal_fit_receipt(receipt)
+
+
+def verify_fit_receipt_payload(receipt: Mapping[str, Any], *,
+                               state: Mapping[str, Any]) -> None:
+    """Compare the loaded P-only payload with the receipt's immutable binding."""
+    _require(isinstance(state, Mapping) and set(state) == P_ONLY_KEYS,
+             "fit receipt P-state lacks the declared P-only keys")
+    block = receipt["p_state"]
+    _require(p_only_binding_digest(state) == block["binding_sha256"],
+             "fit receipt P-state payload binding differs")
+    for key in ("format", "protocol_sha256", "scope", "theta", "bank", "route",
+                "feature_producer", "read_path", "expert_steps"):
+        _require(state.get(key) == block.get(key),
+                 f"fit receipt P-state field {key} differs from the loaded payload")
+
+
+def verify_fit_receipt_protocol(receipt: Mapping[str, Any], *,
+                                protocol: TextProtocol) -> None:
+    """Bind the receipt to the live protocol built from the loaded model."""
+    _require(protocol_binding(protocol) == receipt["protocol"],
+             "fit receipt protocol differs from the live text protocol")
+    _require(receipt["p_state"]["protocol_sha256"] == protocol.protocol_sha256,
+             "fit receipt P-state belongs to another protocol")
+
+
+def validate_fit_receipt(receipt: Mapping[str, Any], *,
+                         config: Mapping[str, Any], config_path: Path,
+                         manifest: Mapping[str, Any], manifest_path: Path,
+                         episodes_root: Path, state_path: Path,
+                         lock: Mapping[str, Any],
+                         state: Mapping[str, Any] | None = None) -> None:
+    """Fail closed unless this receipt admits the live dependent evaluation.
+
+    Everything except the payload digest is checked before ``torch.load``; the
+    payload binding is checked immediately after the state is loaded and before
+    the native worker or any development-role access.
+    """
+    _require(isinstance(receipt, Mapping), "fit receipt must be a mapping")
+    _require(set(receipt) == FIT_RECEIPT_KEYS,
+             "fit receipt fields differ from the declared schema")
+    _require(receipt.get("format") == FIT_RECEIPT_FORMAT,
+             "fit receipt format differs")
+    _require(receipt.get("schema_version") == FIT_RECEIPT_SCHEMA_VERSION,
+             "fit receipt schema version differs")
+    _require(receipt.get("created_by") == "scripts/run_nested_text.py",
+             "fit receipt was not produced by this runner")
+    _require(seal_fit_receipt(receipt)["receipt_sha256"]
+             == receipt.get("receipt_sha256"),
+             "fit receipt digest differs")
+    _require(receipt.get("mode") == "fit-eval", "fit receipt mode differs")
+    _require(receipt.get("status") == "passed",
+             f"fit receipt status is {receipt.get('status')!r}; "
+             "development evaluation requires a passing fit")
+    _require(receipt.get("heldout_opened") is False,
+             "fit receipt must not have opened the heldout role")
+
+    config_block = receipt["config"]
+    _require(isinstance(config_block, Mapping), "fit receipt config block is invalid")
+    _require(Path(config_block["path"]).resolve() == Path(config_path).resolve(),
+             "fit receipt belongs to another config file")
+    _require(_sha256_file(config_path) == config_block["sha256"],
+             "fit receipt config digest differs")
+    _require(config_block["format"] == config.get("format")
+             and config_block["training_admitted"] is True,
+             "fit receipt config is not the admitted behavioral protocol")
+    _require(config_block["objective"]
+             == config["transaction"].get("objective"),
+             "fit receipt objective differs from the live config")
+    _require(int(config_block["steps_per_event"])
+             == int(config["transaction"]["steps_per_event"]),
+             "fit receipt step policy differs from the live config")
+
+    episodes = receipt["episodes"]
+    _require(isinstance(episodes, Mapping), "fit receipt episode block is invalid")
+    _require(Path(episodes["root"]).resolve() == Path(episodes_root).resolve(),
+             "fit receipt belongs to another episode root")
+    _require(Path(episodes["manifest_path"]).resolve()
+             == Path(manifest_path).resolve(),
+             "fit receipt belongs to another episode manifest")
+    _require(_sha256_file(manifest_path) == episodes["manifest_sha256"],
+             "fit receipt episode manifest digest differs")
+    _require(episodes["format"] == manifest.get("format")
+             and episodes["schema_version"] == manifest.get("schema_version"),
+             "fit receipt episode manifest format differs")
+    _require(episodes["files_sha256_digest"]
+             == _sha256_json(sorted(manifest["files_sha256"].items()))
+             and episodes["role_files_digest"]
+             == _sha256_json(sorted(manifest["role_files"].items())),
+             "fit receipt episode file digests differ")
+    _require(episodes["primary_world"] == manifest["primary_world"]
+             and episodes["wrong_world"] == manifest["wrong_world"],
+             "fit receipt belongs to another episode world pair")
+
+    protocol_block = receipt["protocol"]
+    _require(isinstance(protocol_block, Mapping)
+             and isinstance(protocol_block.get("bank"), Mapping),
+             "fit receipt protocol block is invalid")
+    _require(isinstance(lock, Mapping)
+             and isinstance(lock.get("snapshot_files_sha256"), Mapping),
+             "fit receipt validation requires the model lock")
+    hidden_size = int(protocol_block["bank"]["hidden_size"])
+    live = protocol_for_world(config, lock, hidden_size=hidden_size,
+                              world_uid=manifest["primary_world"])
+    _require(protocol_binding(live) == protocol_block,
+             "fit receipt protocol is stale or differs from the live config/lock")
+    _require(receipt["world_uid"] == manifest["primary_world"]
+             and receipt["scope"] == f"{manifest['primary_world']}/text",
+             "fit receipt world/scope differs from the episodes")
+
+    p_state = receipt["p_state"]
+    _require(isinstance(p_state, Mapping), "fit receipt P-state block is invalid")
+    _require(Path(p_state["path"]).resolve() == Path(state_path).resolve(),
+             "fit receipt binds another P-state file")
+    _require(_sha256_file(state_path) == p_state["sha256"],
+             "fit receipt P-state digest differs")
+    _require(Path(state_path).stat().st_size == int(p_state["bytes"]),
+             "fit receipt P-state byte count differs")
+    _require(p_state["format"] == P_ONLY_FORMAT
+             and p_state["protocol_sha256"] == protocol_block["protocol_sha256"]
+             and p_state["scope"] == protocol_block["scope"],
+             "fit receipt P-state binding differs from its protocol")
+    _require(list(p_state["keys"]) == sorted(P_ONLY_KEYS),
+             "fit receipt P-state key inventory differs")
+    declared_binding = {key: p_state[key] for key in P_ONLY_KEYS
+                        if key != "parameters"}
+    _require(_sha256_json(declared_binding) == p_state["binding_sha256"],
+             "fit receipt P-state binding digest differs")
+    _require(p_state["theta"] == protocol_block["theta"],
+             "fit receipt P-state theta binding differs")
+    _require(p_state["bank"].get("experts") == protocol_block["bank"]["experts"]
+             and p_state["bank"].get("width") == protocol_block["bank"]["width"]
+             and p_state["bank"].get("hidden_width")
+             == protocol_block["bank"]["hidden_width"]
+             and p_state["bank"].get("seed") == int(config["bank"]["seed"]),
+             "fit receipt P-state bank binding differs")
+    _require(p_state["route"].get("mode") == protocol_block["route"]["mode"]
+             and p_state["route"].get("seed") == protocol_block["route"]["seed"]
+             and p_state["route"].get("expert_count")
+             == protocol_block["route"]["expert_count"],
+             "fit receipt P-state route binding differs")
+    feature = p_state["feature_producer"]
+    _require(list(feature.get("sites", ())) == protocol_block["feature_sites"]
+             and feature.get("width") == protocol_block["bank"]["width"]
+             and feature.get("hidden_size") == protocol_block["bank"]["hidden_size"]
+             and feature.get("target_projection_seed")
+             == int(config["features"]["target_projection_seed"])
+             and feature.get("target_projection_sha256")
+             == protocol_block["target_projection_sha256"],
+             "fit receipt P-state feature producer differs")
+    read = p_state["read_path"]
+    _require(read.get("decoder_sha256") == protocol_block["read_path_sha256"]
+             and float(read.get("gain", -1)) == protocol_block["read_gain"],
+             "fit receipt P-state read path differs")
+
+    scoring = receipt["scoring"]
+    generation = config["generation"]
+    _require(isinstance(scoring, Mapping), "fit receipt scoring block is invalid")
+    _require(scoring["scoring_version"] == SCORING_VERSION
+             and scoring["scoring_version"] == generation.get("scoring_version"),
+             "fit receipt scorer version differs from the live scorer/config")
+    _require(scoring["answer_grammar_version"] == ANSWER_GRAMMAR_VERSION,
+             "fit receipt answer grammar differs from this scorer")
+    _require(scoring["stop_policy_version"] == STOP_POLICY_VERSION
+             and scoring["stop_policy_version"]
+             == generation["sentence_stop"]["version"],
+             "fit receipt stop policy differs from the live stopping policy")
+    _require(int(scoring["max_new_tokens"])
+             == int(generation["max_new_tokens"]),
+             "fit receipt generation budget differs")
+    _require([int(token) for token in scoring["stop_tokens"]]
+             == [int(token) for token in generation["stop_tokens"]]
+             == list(STOP_TOKENS),
+             "fit receipt stop tokens differ")
+    _require(scoring["sentence_stop"] == generation["sentence_stop"],
+             "fit receipt sentence-stop policy differs")
+    _require(scoring["target_eos_token"] == generation.get("target_eos_token")
+             and scoring["token_budget_credit"] is False
+             and scoring["empty_generation_credit"] is False,
+             "fit receipt credits empty or budget-truncated generations")
+    _require(scoring["candidate_answers_sha256"]
+             == _sha256_json(list(candidate_answers_for(episodes_root, manifest))),
+             "fit receipt candidate answers differ")
+
+    gate_block = receipt["gate_report"]
+    _require(isinstance(gate_block, Mapping), "fit receipt gate block is invalid")
+    gate_path = Path(gate_block["path"])
+    _require(gate_path.is_file(), f"fit gate report is missing: {gate_path}")
+    _require(_sha256_file(gate_path) == gate_block["sha256"],
+             "fit receipt gate report digest differs")
+    gate = json.loads(gate_path.read_text(encoding="utf-8"))
+    _require(gate.get("label") == "fit"
+             and gate.get("all_declared_gates_passed") is True
+             and gate_block["all_declared_gates_passed"] is True,
+             "fit receipt records a failed fit gate")
+    _require(gate.get("scoring_version") == SCORING_VERSION
+             and gate.get("stop_policy_version") == STOP_POLICY_VERSION
+             and gate.get("config_sha256") == config_block["sha256"],
+             "fit gate report was produced by another scorer or config")
+    _require(list(gate.get("gate_failures") or ()) == []
+             and list(gate_block["gate_failures"]) == [],
+             "fit receipt records fit gate failures")
+    score = gate.get("scores")
+    _require(isinstance(score, Mapping)
+             and isinstance(score.get("results"), list),
+             "fit gate report lacks per-attempt scores")
+    declared = int(config["workload"]["fit_eval_attempts"])
+    rows = teaching_rows(episodes_root, manifest, manifest["primary_world"],
+                         f"{manifest['primary_world']}/text", limit=declared)
+    cases = _fit_cases(rows)
+    coverage = coverage_summary(cases, score, declared_attempts=declared)
+    _require(receipt["coverage"] == coverage,
+             "fit receipt case coverage differs from the declared fit workload")
+    attempts = attempt_summary(
+        score, min_accuracy=float(config["gates"]["fit"]["min_accuracy"]),
+        all_declared_gates_passed=True, gate_failures=[])
+    _require(receipt["attempts"] == attempts,
+             "fit receipt attempt accounting differs from the preserved fit gate")
+    _require(attempts["failures"] == 0 and coverage["audit_complete"]
+             and coverage["source_free"],
+             "fit receipt does not record a complete source-free fit pass")
+    _require(attempts["correct"] > 0,
+             "fit receipt records no correct fit attempt")
+    _require(math.isclose(float(gate.get("fit_accuracy", -1.0)),
+                          attempts["accuracy"], rel_tol=1e-12, abs_tol=1e-12),
+             "fit gate accuracy differs from its scored attempts")
+
+    teaching = receipt["teaching"]
+    _require(isinstance(teaching, Mapping) and "primary" in teaching,
+             "fit receipt lacks the primary teaching run")
+    primary = teaching["primary"]
+    _require(isinstance(primary, Mapping)
+             and "run_path" in primary,
+             "fit receipt primary teaching block is invalid")
+    bundle = teaching_bundle(Path(primary["run_path"]).parent,
+                             expected_updates=int(
+                                 config["workload"][
+                                     "teaching_events_for_this_baseline"]))
+    _require(dict(primary) == bundle,
+             "fit receipt teaching run/cost/state hashes are stale")
+    _require(primary["world_uid"] == manifest["primary_world"],
+             "fit receipt teaching run belongs to another world")
+    _require(primary["p_only_sha256"] == p_state["sha256"],
+             "fit receipt P-state is not the teaching run export")
+    _require(primary["p_only_bytes"] == int(p_state["bytes"]),
+             "fit receipt P-state bytes differ from the teaching export")
+    _require(primary["protocol_sha256"] == protocol_block["protocol_sha256"]
+             and primary["config_sha256"] == config_block["sha256"]
+             and primary["episodes_manifest_sha256"]
+             == episodes["manifest_sha256"],
+             "fit receipt teaching run belongs to another protocol/config/episodes")
+    _require([int(value) for value in p_state["expert_steps"]]
+             == [int(value) for value in primary["expert_steps"]],
+             "fit receipt P-state counters differ from the teaching run")
+    if "wrong_world" in teaching:
+        wrong = teaching["wrong_world"]
+        _require(isinstance(wrong, Mapping) and "run_path" in wrong,
+                 "fit receipt wrong-world teaching block is invalid")
+        wrong_bundle = teaching_bundle(
+            Path(wrong["run_path"]).parent,
+            expected_updates=int(config["workload"]["wrong_world_teaching_events"]))
+        _require(dict(wrong) == wrong_bundle,
+                 "fit receipt wrong-world teaching hashes are stale")
+        _require(wrong["world_uid"] == manifest["wrong_world"],
+                 "fit receipt wrong-world teaching run belongs to another world")
+
+    if state is not None:
+        verify_fit_receipt_payload(receipt, state=state)
+
+
+def bound_teach_cost(receipt: Mapping[str, Any], role: str,
+                     path: Path | None) -> None:
+    """Reject a duty-cycle cost report from another teaching run."""
+    if path is None:
+        return
+    block = receipt["teaching"].get(role)
+    _require(isinstance(block, Mapping),
+             f"fit receipt lacks the {role} teaching cost binding")
+    _require(Path(block["cost_path"]).resolve() == Path(path).resolve()
+             and block["cost_sha256"] == _sha256_file(path),
+             f"the {role} teach cost report differs from the fit receipt")
+
+
+def require_fit_receipt(args, config: Mapping[str, Any], *,
+                        manifest: Mapping[str, Any], manifest_path: Path,
+                        episodes_root: Path) -> dict | None:
+    """Admission gate run before ``torch.load`` and any native/development access."""
+    if not fit_receipt_required(config):
+        _require(getattr(args, "fit_receipt", None) is None,
+                 "--fit-receipt is only valid for the behavioral protocol")
+        return None
+    path = getattr(args, "fit_receipt", None)
+    _require(path is not None,
+             "the behavioral protocol requires a passing fit receipt "
+             "(--fit-receipt) before development evaluation")
+    receipt = load_fit_receipt(Path(path))
+    validate_fit_receipt(
+        receipt, config=config, config_path=Path(args.protocol),
+        manifest=manifest, manifest_path=manifest_path,
+        episodes_root=episodes_root, state_path=Path(args.p_state),
+        lock=load_model_lock(args.model_lock))
+    return receipt
 
 
 # ---------------------------------------------------------------------------
@@ -1386,6 +2166,8 @@ def run_response_teach(args, config: dict) -> int:
         p_only_path = learner.save_p_only(output / "p_only" / "state.pt")
         p_only_seconds = time.perf_counter() - p_only_started
         p_only = torch.load(p_only_path, map_location="cpu", weights_only=True)
+        final_canonical = canonical_state(learner)
+        _write_json(output / "final_state.json", final_canonical)
         _write_json(output / "p_only" / "manifest.json", {
             "format": P_ONLY_FORMAT,
             "bytes": p_only_path.stat().st_size,
@@ -1459,7 +2241,20 @@ def run_response_teach(args, config: dict) -> int:
             "world_uid": world_uid, "protocol_sha256": protocol.protocol_sha256,
             "episodes_manifest_sha256": _sha256_file(
                 args.episodes / "manifest.json"),
+            "config_sha256": _sha256_file(args.protocol),
+            "implementation_sha256": _implementation_pins(config),
+            "theta_stamp_unchanged": stamp_before == stamp_after,
             "checkpoint": str(checkpoint), "p_only": str(p_only_path),
+            "checkpoint_sha256": _sha256_file(checkpoint),
+            "checkpoint_bytes": checkpoint.stat().st_size,
+            "p_only_sha256": _sha256_file(p_only_path),
+            "p_only_bytes": p_only_path.stat().st_size,
+            "p_only_manifest_sha256": _sha256_file(
+                output / "p_only" / "manifest.json"),
+            "canonical_state_sha256": final_canonical["sha256"],
+            "final_state": "final_state.json",
+            "expert_steps": list(bank.expert_steps),
+            "cost_sha256": _sha256_file(output / "cost.json"),
             "objective": config["transaction"]["objective"],
             "updates": events, "learning_events": events,
             "descriptive_only": True, "promotion": False,
@@ -1471,12 +2266,26 @@ def run_response_teach(args, config: dict) -> int:
 
 
 def run_fit_eval(args, config: dict) -> int:
-    """Evaluate teaching-fit rows with v2 scoring and full phase accounting."""
+    """Evaluate fit rows against the exact teaching export and seal a receipt."""
     output: Path = args.output
     _require(is_v2(config), "fit evaluation requires the behavioral protocol")
     validate_v2_config(config)
+    _require(fit_receipt_required(config),
+             "fit evaluation requires the admitted behavioral protocol")
+    teach_run = getattr(args, "teach_run", None)
+    _require(teach_run is not None,
+             "fit evaluation requires --teach-run: the teaching output that "
+             "produced the P-only state and its cost/state hashes")
+    wrong_world_teach_run = getattr(args, "wrong_world_teach_run", None)
+    required_attempts = int(config["workload"]["fit_eval_attempts"])
+    required_updates = int(config["workload"]["teaching_events_for_this_baseline"])
     manifest = load_episode_manifest(args.episodes)
     validate_episode_binding(args, config, manifest)
+    teach = teaching_bundle(Path(teach_run), expected_updates=required_updates)
+    _require(Path(teach["p_only_path"]).resolve() == Path(args.p_state).resolve(),
+             "fit evaluation must score the exact teaching P-only export file")
+    _require(teach["p_only_sha256"] == _sha256_file(args.p_state),
+             "fit evaluation P-state digest differs from the teaching export")
     state = torch.load(args.p_state, map_location="cpu", weights_only=True)
     _require(isinstance(state, Mapping) and set(state) == P_ONLY_KEYS,
              "P-only state must contain exactly the declared weights/binding keys")
@@ -1489,6 +2298,16 @@ def run_fit_eval(args, config: dict) -> int:
             world_uid=manifest["primary_world"])
         adapter.install_plastic(protocol.plastic_spec)
         validate_p_only_payload(state, protocol=protocol)
+        _require(teach["protocol_sha256"] == protocol.protocol_sha256,
+                 "teaching run protocol differs from the fit protocol")
+        _require(teach["config_sha256"] == _sha256_file(args.protocol),
+                 "teaching run config differs from the fit config")
+        _require(teach["episodes_manifest_sha256"]
+                 == _sha256_file(args.episodes / "manifest.json"),
+                 "teaching run episodes differ from the fit episodes")
+        _require([int(value) for value in state["expert_steps"]]
+                 == [int(value) for value in teach["expert_steps"]],
+                 "P-only expert counters differ from the teaching run")
         learner = build_read_only_learner(protocol, config, adapter, state)
         (output / "fit").mkdir(parents=True, exist_ok=True)
         session = MemorySession(adapter, tokenizer,
@@ -1497,7 +2316,7 @@ def run_fit_eval(args, config: dict) -> int:
             args.episodes, manifest, tokenizer, protocol,
             max_prompt_tokens=args.max_prompt_tokens,
             max_response_tokens=args.max_response_tokens,
-            limit=args.max_events)
+            limit=required_attempts)
         candidates = candidate_answers_for(args.episodes, manifest)
         latency_rows, work_rows = [], []
         score = score_episodes_v2(
@@ -1507,79 +2326,119 @@ def run_fit_eval(args, config: dict) -> int:
             label="fit", candidate_answers=candidates,
             latency_rows=latency_rows, work_rows=work_rows)
         attempts = len(episodes)
-        required_attempts = int(config["workload"]["fit_eval_attempts"])
         _require(attempts == required_attempts,
                  f"fit workload requires {required_attempts} attempts; measured {attempts}")
-        audits = [item["request_audit"] for item in score["results"]
-                  if item.get("request_audit")]
-        source_free = len(audits) == attempts and all(
-            audit["sources_present"] is False
-            and audit["memory_spans"] == 0
-            and audit["selection_records"] == 0
-            and audit["ledger_records"] == 0
-            and audit["controller_constructed"] is False
-            and audit["coordinator_constructed"] is False
-            and audit["updates_enabled"] is False
+        audits = [item.get("request_audit") for item in score["results"]]
+        audited = sum(1 for audit in audits if isinstance(audit, Mapping))
+        audit_complete = audited == attempts and all(
+            all(field in audit for field in _AUDIT_FIELDS)
+            for audit in audits if isinstance(audit, Mapping))
+        source_bearing = any(
+            isinstance(audit, Mapping) and (
+                audit.get("sources_present") is not False
+                or audit.get("memory_spans") != 0
+                or audit.get("selection_records") != 0
+                or audit.get("ledger_records") != 0
+                or audit.get("controller_constructed") is not False
+                or audit.get("coordinator_constructed") is not False
+                or audit.get("updates_enabled") is not False)
             for audit in audits)
-        _require(source_free, "fit request constructed a source-bearing state")
+        _require(not source_bearing,
+                 "fit request constructed a source-bearing state")
         fit_accuracy = float(score["accuracy"])
-        failures = ([] if fit_accuracy >= float(config["gates"]["fit"]["min_accuracy"])
-                    else ["min_fit_accuracy"])
+        gate_failures = []
+        if fit_accuracy < float(config["gates"]["fit"]["min_accuracy"]):
+            gate_failures.append("min_fit_accuracy")
+        if int(score["failures"]) > 0:
+            gate_failures.append("generation_failures")
+        if not audit_complete:
+            gate_failures.append("incomplete_request_audit")
+        counts = attempt_counts(scoring_attempts=attempts,
+                                failures=int(score["failures"]))
         latency_summary = summarize_latency(latency_rows)
         work_totals = sum_phase_work(work_rows)
         cost = {
             "fit_accuracy": fit_accuracy,
             "scoring_attempts": attempts,
+            "failed_attempts": int(score["failures"]),
             "generated_tokens": work_totals["generated_ids"],
             "evaluation_end_to_end_seconds": time.perf_counter() - evaluation_started,
             "peak_driver_bytes": peak_driver_bytes(),
             "latency_ms": latency_summary,
             "work": work_totals,
             "scoring_version": SCORING_VERSION,
+            "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
             **version_metadata(args),
         }
         _write_json(output / "request_audit.json", {
-            "requests_audited": len(audits), "scoring_attempts": attempts,
-            "audit_complete": len(audits) == attempts,
-            "source_free": source_free,
+            "requests_audited": audited, "scoring_attempts": attempts,
+            "audit_complete": audit_complete,
+            "source_free": audit_complete and not source_bearing,
             "controller_constructed": False, "coordinator_constructed": False,
             "updates_enabled": False, "moments_loaded": False,
             "dedup_loaded": False, "clock_loaded": False,
-            "ledger_records": audits[0]["ledger_records"] if audits else None,
-            "source_text_present": not source_free,
+            "ledger_records": audits[0]["ledger_records"]
+            if isinstance(audits[0], Mapping) else None,
+            "source_text_present": source_bearing,
+            "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
             **version_metadata(args),
         })
         _write_json(output / "cost.json", cost)
         _write_json(output / "phase_work.json", {
             "format": "replica.nested_text.phase_work.v2",
             "scoring_version": SCORING_VERSION,
-            "attempts": attempts, "failed_attempts": 0,
-            "scoring_attempts": attempts,
+            "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+            **counts,
             "latency_ms": latency_summary,
             "totals": work_totals,
             "requests": _merge_request_rows(work_rows, latency_rows),
         })
         _write_json(output / "gates" / "fit.json", {
             "label": "fit", "fit_accuracy": fit_accuracy,
-            "all_declared_gates_passed": not failures,
-            "gate_failures": failures,
+            "all_declared_gates_passed": not gate_failures,
+            "gate_failures": gate_failures,
             "metrics": {"cost": cost},
             "scores": score,
             "latency_ms": latency_summary,
             "work": work_totals,
             "scoring_version": SCORING_VERSION,
+            "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
             **version_metadata(args),
         })
+        receipt = build_fit_receipt(
+            config=config, config_path=args.protocol, manifest=manifest,
+            manifest_path=args.episodes / "manifest.json",
+            episodes_root=args.episodes, state_path=args.p_state, state=state,
+            protocol=protocol, teach_dir=Path(teach_run),
+            teach_expected_updates=required_updates,
+            fit_gate_path=output / "gates" / "fit.json",
+            wrong_world_teach_dir=(Path(wrong_world_teach_run)
+                                   if wrong_world_teach_run is not None
+                                   else None))
+        _require(receipt["status"] == ("passed" if not gate_failures else "failed"),
+                 "fit receipt status differs from the fit gate")
+        if receipt["status"] == "passed":
+            validate_fit_receipt(
+                receipt, config=config, config_path=args.protocol,
+                manifest=manifest, manifest_path=args.episodes / "manifest.json",
+                episodes_root=args.episodes, state_path=args.p_state,
+                lock=lock, state=state)
+        receipt_path = output / FIT_RECEIPT_FILE
+        _write_json(receipt_path, receipt)
         _write_json(output / "run.json", {
             "format": PROMPT_FORM, "mode": "fit_eval",
-            "status": "stopped_fit_gate" if failures else "completed",
+            "status": "stopped_fit_gate" if gate_failures else "completed",
             "fit_accuracy": fit_accuracy,
-            "gate_failures": failures,
+            "gate_failures": gate_failures,
             "heldout_opened": False,
+            "fit_receipt": FIT_RECEIPT_FILE,
+            "fit_receipt_status": receipt["status"],
+            "fit_receipt_sha256": _sha256_file(receipt_path),
+            "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
             "scoring_version": SCORING_VERSION,
             **version_metadata(args),
         })
-    return 2 if failures else 0
+    return 2 if gate_failures else 0
 
 
 def run_p_only_v1(args, config: dict) -> int:
@@ -1898,9 +2757,25 @@ def run_p_only_v2(args, config: dict) -> int:
     validate_episode_binding(args, config, manifest)
     primary_world = manifest["primary_world"]
     wrong_world_uid = manifest["wrong_world"]
+    # Dependent-development admission: this fails closed before torch.load, the
+    # native worker/model load and any development-role access.
+    fit_receipt = require_fit_receipt(
+        args, config, manifest=manifest,
+        manifest_path=args.episodes / "manifest.json",
+        episodes_root=args.episodes)
+    if fit_receipt is not None:
+        bound_teach_cost(fit_receipt, "primary", args.teach_cost)
+        bound_teach_cost(fit_receipt, "wrong_world", args.wrong_world_teach_cost)
+        if (args.wrong_world_p is not None
+                and "wrong_world" in fit_receipt["teaching"]):
+            _require(fit_receipt["teaching"]["wrong_world"]["p_only_sha256"]
+                     == _sha256_file(args.wrong_world_p),
+                     "wrong-world P control differs from the fit receipt teaching run")
     state = torch.load(args.p_state, map_location="cpu", weights_only=True)
     _require(isinstance(state, Mapping) and set(state) == P_ONLY_KEYS,
              "P-only state must contain exactly the declared weights/binding keys")
+    if fit_receipt is not None:
+        verify_fit_receipt_payload(fit_receipt, state=state)
     _write_json(output / "p_only_input.json", {
         "path": str(args.p_state), "sha256": _sha256_file(args.p_state),
         "keys": sorted(state),
@@ -1909,6 +2784,15 @@ def run_p_only_v2(args, config: dict) -> int:
             ("optimizer", "dedup", "clock", "revision", "coordinator",
              "observations", "moments", "sources")),
         "scoring_version": SCORING_VERSION,
+        "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+        "fit_receipt": (None if fit_receipt is None else {
+            "path": str(args.fit_receipt),
+            "sha256": _sha256_file(args.fit_receipt),
+            "receipt_sha256": fit_receipt["receipt_sha256"],
+            "status": fit_receipt["status"],
+            "p_state_sha256": fit_receipt["p_state"]["sha256"],
+            "gate_report_sha256": fit_receipt["gate_report"]["sha256"],
+        }),
         **version_metadata(args),
     })
     _require(args.wrong_world_p is not None,
@@ -1923,6 +2807,8 @@ def run_p_only_v2(args, config: dict) -> int:
             world_uid=primary_world)
         adapter.install_plastic(protocol.plastic_spec)
         validate_p_only_payload(state, protocol=protocol)
+        if fit_receipt is not None:
+            verify_fit_receipt_protocol(fit_receipt, protocol=protocol)
         learner = build_read_only_learner(protocol, config, adapter, state)
         (output / "p_only").mkdir(parents=True, exist_ok=True)
         ledger = RecordLedger(output / "p_only" / "ledger.sqlite")
@@ -2022,16 +2908,19 @@ def run_p_only_v2(args, config: dict) -> int:
         audits = [item.get("request_audit")
                   for group in scored_groups
                   for item in group["results"] if item.get("request_audit")]
-        audit_complete = len(audits) == scoring_attempts
-        source_free = bool(audits) and audit_complete and all(
-            audit["sources_present"] is False
-            and audit["memory_spans"] == 0
-            and audit["selection_records"] == 0
-            and audit["ledger_records"] == 0
-            and audit["controller_constructed"] is False
-            and audit["coordinator_constructed"] is False
-            and audit["updates_enabled"] is False
+        audit_complete = len(audits) == scoring_attempts and all(
+            all(field in audit for field in _AUDIT_FIELDS)
             for audit in audits)
+        source_bearing = any(
+            audit.get("sources_present") is not False
+            or audit.get("memory_spans") != 0
+            or audit.get("selection_records") != 0
+            or audit.get("ledger_records") != 0
+            or audit.get("controller_constructed") is not False
+            or audit.get("coordinator_constructed") is not False
+            or audit.get("updates_enabled") is not False
+            for audit in audits)
+        source_free = audit_complete and not source_bearing
         _write_json(output / "request_audit.json", {
             "requests_audited": len(audits),
             "scoring_attempts": scoring_attempts,
@@ -2044,14 +2933,19 @@ def run_p_only_v2(args, config: dict) -> int:
             "dedup_loaded": False,
             "clock_loaded": False,
             "ledger_records": audits[0]["ledger_records"] if audits else None,
-            "source_text_present": not source_free,
+            "source_text_present": source_bearing,
             "scoring_version": SCORING_VERSION,
+            "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
             **version_metadata(args),
             "candidate_answers": len(candidates),
             "declared_attempts": declared_attempts,
             "group_attempts": group_counts,
         })
-        _require(source_free, "P-only request constructed a source-bearing state")
+        _require(audit_complete,
+                 "P-only request audit is incomplete; "
+                 f"{scoring_attempts - len(audits)} attempts were not audited")
+        _require(not source_bearing,
+                 "P-only request constructed a source-bearing state")
         gates = config["gates"]["dev"]
         cost_limits = config["gates"]["cost"]
         new_accuracy = scores["development"]["accuracy"]
@@ -2062,8 +2956,8 @@ def run_p_only_v2(args, config: dict) -> int:
         retention_decline = max(
             0.0, preteach_scores["legacy_retention"]["accuracy"]
             - scores["legacy_retention"]["accuracy"])
-        unknown_false = false_recall(scores["unknown"], taught_answers)
-        revoked_false = false_recall(scores["revoked"], taught_answers)
+        unknown_false = false_recall_v2(scores["unknown"], taught_answers)
+        revoked_false = false_recall_v2(scores["revoked"], taught_answers)
         peak = peak_driver_bytes()
         latency_summary = summarize_latency(latency_rows)
         work_totals = sum_phase_work(work_rows)
@@ -2124,6 +3018,31 @@ def run_p_only_v2(args, config: dict) -> int:
             "spine_absent_parity": parity_equal,
         }
 
+        receipt_binding = (None if fit_receipt is None else {
+            "path": str(args.fit_receipt),
+            "sha256": _sha256_file(args.fit_receipt),
+            "receipt_sha256": fit_receipt["receipt_sha256"],
+            "status": fit_receipt["status"],
+            "p_state_sha256": fit_receipt["p_state"]["sha256"],
+            "fit_accuracy": fit_receipt["attempts"]["accuracy"],
+            "gate_report_sha256": fit_receipt["gate_report"]["sha256"],
+        })
+        failure_count = sum(int(group.get("failures", 0))
+                            for group in scored_groups)
+        counts = attempt_counts(scoring_attempts=scoring_attempts,
+                                failures=failure_count)
+        phase_work_report = {
+            "format": "replica.nested_text.phase_work.v2",
+            "scoring_version": SCORING_VERSION,
+            "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+            "fit_receipt_sha256": (None if receipt_binding is None
+                                   else receipt_binding["sha256"]),
+            **version_metadata(args),
+            **counts,
+            "latency_ms": latency_summary,
+            "totals": work_totals,
+            "requests": _merge_request_rows(work_rows, latency_rows),
+        }
         def build(evaluation_end_to_end_seconds: float):
             duty = None
             if teach_cost is not None:
@@ -2163,6 +3082,9 @@ def run_p_only_v2(args, config: dict) -> int:
                 "teacher_requests": 0,
                 "updates": 0,
                 "scoring_version": SCORING_VERSION,
+                "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+                "fit_receipt_sha256": (None if receipt_binding is None
+                                       else receipt_binding["sha256"]),
                 **version_metadata(args),
                 "learning_update_seconds": learning_update_seconds,
                 "teaching_end_to_end_seconds": teaching_end_to_end_seconds,
@@ -2200,6 +3122,8 @@ def run_p_only_v2(args, config: dict) -> int:
                 "scores": scores,
                 "preteach_scores": preteach_scores,
                 "scoring_version": SCORING_VERSION,
+                "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+                "fit_receipt": receipt_binding,
                 **version_metadata(args),
                 "workload": {"declared_attempts": declared_attempts,
                              "declared_groups": declared_groups,
@@ -2217,17 +3141,6 @@ def run_p_only_v2(args, config: dict) -> int:
         cost, failures, report = build(
             time.perf_counter() - evaluation_started)
         json.dumps(report, indent=2, sort_keys=True)
-        phase_work_report = {
-            "format": "replica.nested_text.phase_work.v2",
-            "scoring_version": SCORING_VERSION,
-            **version_metadata(args),
-            "attempts": len(work_rows),
-            "failed_attempts": scoring_attempts - len(work_rows),
-            "scoring_attempts": scoring_attempts,
-            "latency_ms": latency_summary,
-            "totals": work_totals,
-            "requests": _merge_request_rows(work_rows, latency_rows),
-        }
         _write_json(output / "gates" / "dev.json", report)
         _write_json(output / "cost.json", cost)
         _write_json(output / "phase_work.json", phase_work_report)
@@ -2240,6 +3153,9 @@ def run_p_only_v2(args, config: dict) -> int:
                 "format": PROMPT_FORM, "mode": "p_only_eval",
                 "status": "stopped_before_heldout", "gate_failures": failures,
                 "heldout_opened": False, "scoring_version": SCORING_VERSION,
+                "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+                "fit_receipt_sha256": (None if receipt_binding is None
+                                       else receipt_binding["sha256"]),
                 **version_metadata(args),
                 "scoring_attempts": scoring_attempts,
                 "descriptive_only": True})
@@ -2251,6 +3167,10 @@ def run_p_only_v2(args, config: dict) -> int:
                 "format": PROMPT_FORM, "mode": "p_only_eval",
                 "status": "development_passed_heldout_closed",
                 "heldout_opened": False, "no_heldout": True,
+                "scoring_version": SCORING_VERSION,
+                "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+                "fit_receipt_sha256": (None if receipt_binding is None
+                                       else receipt_binding["sha256"]),
                 **version_metadata(args),
                 "scoring_attempts": scoring_attempts,
                 "descriptive_only": True})
@@ -2293,6 +3213,9 @@ def run_p_only_v2(args, config: dict) -> int:
             "format": PROMPT_FORM, "mode": "p_only_eval",
             "status": "completed", "heldout_opened": True,
             "scoring_version": SCORING_VERSION,
+            "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+            "fit_receipt_sha256": (None if receipt_binding is None
+                                   else receipt_binding["sha256"]),
             **version_metadata(args),
             "descriptive_only": True, "promotion": False,
             "non_claims": ["single-seed descriptive diagnostic only",
@@ -2450,6 +3373,12 @@ def main() -> int:
                         help="measured teach/init cost.json for the duty-cycle gate")
     parser.add_argument("--wrong-world-teach-cost", type=Path,
                         help="measured wrong-world teach/init cost.json for complete workload duty")
+    parser.add_argument("--fit-receipt", type=Path,
+                        help="p-only-eval: preserved passing fit receipt that admits development")
+    parser.add_argument("--teach-run", type=Path,
+                        help="fit-eval: teaching output that produced the exact P-only state")
+    parser.add_argument("--wrong-world-teach-run", type=Path,
+                        help="fit-eval: optional wrong-world teaching output bound into the receipt")
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--parent-checkpoint", type=Path)
     parser.add_argument("--wrong-world-parent-checkpoint", type=Path)
@@ -2482,6 +3411,13 @@ def main() -> int:
         parser.error("wrong-world and duty-cycle paths are only valid for p-only-eval")
     if args.mode == "p-only-eval" and args.checkpoint is not None:
         parser.error("a full checkpoint is not a P-only input")
+    if args.mode != "p-only-eval" and args.fit_receipt is not None:
+        parser.error("--fit-receipt is only valid for p-only-eval")
+    if args.mode != "fit-eval" and (args.teach_run is not None
+                                    or args.wrong_world_teach_run is not None):
+        parser.error("--teach-run/--wrong-world-teach-run are only valid for fit-eval")
+    if args.mode == "fit-eval" and args.fit_receipt is not None:
+        parser.error("fit-eval produces a fit receipt; it does not consume one")
     if args.max_events < 1 or args.max_new_tokens < 1:
         parser.error("positive event/generation budgets are required")
     try:
@@ -2498,6 +3434,13 @@ def main() -> int:
                      "the one-clock baseline forbids replay bytes")
             if is_v2(config):
                 validate_v2_config(config)
+            if fit_receipt_required(config):
+                if args.mode == "p-only-eval" and args.fit_receipt is None:
+                    parser.error("the behavioral protocol requires a passing "
+                                 "--fit-receipt before development evaluation")
+                if args.mode == "fit-eval" and args.teach_run is None:
+                    parser.error("fit-eval requires --teach-run: the teaching "
+                                 "output that produced the P-only state")
             if args.mode == "init":
                 return run_init(args, config)
             if args.mode == "fit-eval":

@@ -1,0 +1,2235 @@
+{
+  "format": "replica.nested_text.scoring_replay.v2.1",
+  "scoring_version": "replica.nested_text.scoring.v2.1.1",
+  "scorer_contract_version": "replica.nested_text.scoring.v2.1",
+  "answer_grammar_version": "replica.nested_text.answer_grammar.v2.1.1",
+  "historical_source_scoring_version": "replica.nested_text.scoring.v2",
+  "input": "runs/nested_text_nl1_20261026/p_only_dev04/gates/dev.json",
+  "input_sha256": "58bb62fd32f317d16a4dde5919d16e90e8c00072166d644d95fd4fe3f325db81",
+  "history_rewrite": false,
+  "native_model_executed": false,
+  "sealed_final_read": false,
+  "raw_stop_metadata_available": false,
+  "truncation_policy": "No global cap-hit inference; visibly incomplete text is rejected, while native v2 runs additionally record actual stop reasons",
+  "groups": [
+    {
+      "label": "taught:correction",
+      "count": 4,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 2,
+        "truncated": 2
+      },
+      "results": [
+        {
+          "id": "correction-0000",
+          "label": "taught:correction",
+          "expected": "TevufaRevised",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "ce8f45ecf6592f7869ce64f6a9e2e4ad0fd78aa541bfaec21f847a1d9bb46617"
+        },
+        {
+          "id": "correction-0001",
+          "label": "taught:correction",
+          "expected": "MipezuRevised",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "b6c198bdc2452f1988495f774e5a213a7fa77deee2e52ce8be6609e66917adca"
+        },
+        {
+          "id": "correction-0002",
+          "label": "taught:correction",
+          "expected": "KezuraRevised",
+          "output": "I'm sorry, I'm unable to",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "e559d136fe7c4bca6830f49874e8d2a5267ff59f6d969b6d97ea8899535d4413"
+        },
+        {
+          "id": "correction-0003",
+          "label": "taught:correction",
+          "expected": "ZumevoRevised",
+          "output": "I'm sorry, I'm unable to",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "b38f0ab15468c28ba08cde3de08acc5524dedfd725ffa39f5d12117a580d2dd9"
+        }
+      ]
+    },
+    {
+      "label": "taught:development",
+      "count": 16,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 16
+      },
+      "results": [
+        {
+          "id": "dev-0000",
+          "label": "taught:development",
+          "expected": "Tevufa",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "dev-0001",
+          "label": "taught:development",
+          "expected": "Mipezu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "dev-0002",
+          "label": "taught:development",
+          "expected": "Kezura",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "dev-0003",
+          "label": "taught:development",
+          "expected": "Zumevo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        },
+        {
+          "id": "dev-0004",
+          "label": "taught:development",
+          "expected": "Samimu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "099f63043ad171c47a18f737db804a8d8645ec2bc6f440e963bc337c539ea4c0"
+        },
+        {
+          "id": "dev-0005",
+          "label": "taught:development",
+          "expected": "Lupudu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "4d52e30864a3b07e7fc9d74e2ae76ba0c586f3082304fa21a0e2740f1a452cdb"
+        },
+        {
+          "id": "dev-0006",
+          "label": "taught:development",
+          "expected": "Goroti",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "fbbf274c1cc298f6856fb3b49161c53641cd9b9ea69e5b37082d25fea67c0353"
+        },
+        {
+          "id": "dev-0007",
+          "label": "taught:development",
+          "expected": "Ruroko",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "778cddc1e8f4967fcd31756237f330edbe316661ead7f6ac0d784b849433a895"
+        },
+        {
+          "id": "dev-0008",
+          "label": "taught:development",
+          "expected": "Mesele",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "c09eae831abdca8fdfe647b2a93dd0be1f1ac153beac1548adb234a86c2ab0c4"
+        },
+        {
+          "id": "dev-0009",
+          "label": "taught:development",
+          "expected": "Mogipu",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "74ee9f9fe2afd9644eb49413006fcb9a31a08943164f027675abada79ce6e57c"
+        },
+        {
+          "id": "dev-0010",
+          "label": "taught:development",
+          "expected": "Nebena",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3830c0362060f57b3556eb16d60ac19cf702aa04939e2ec3c53155ceb6247409"
+        },
+        {
+          "id": "dev-0011",
+          "label": "taught:development",
+          "expected": "Bazilu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3911dbd6d59c7e72d159449a0173f6cf1242c9f1f86cea79eab96e3c0e103cd3"
+        },
+        {
+          "id": "dev-0012",
+          "label": "taught:development",
+          "expected": "Tevufa",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "dev-0013",
+          "label": "taught:development",
+          "expected": "Mipezu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "dev-0014",
+          "label": "taught:development",
+          "expected": "Kezura",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "dev-0015",
+          "label": "taught:development",
+          "expected": "Zumevo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        }
+      ]
+    },
+    {
+      "label": "taught:legacy_retention",
+      "count": 8,
+      "correct": 4,
+      "old_exact_correct": 0,
+      "accuracy": 0.5,
+      "reason_counts": {
+        "correct": 4,
+        "truncated": 4
+      },
+      "results": [
+        {
+          "id": "legacy-0000",
+          "label": "taught:legacy_retention",
+          "expected": "43",
+          "output": "To find the sum of 17 and",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "d36a3490af3107c3d4a76c27fdc5b72e2c7ef976cd7310b8e66a76264f545d06"
+        },
+        {
+          "id": "legacy-0001",
+          "label": "taught:legacy_retention",
+          "expected": "56",
+          "output": "8 times 7 is **56**.",
+          "old_exact_correct": false,
+          "correct": true,
+          "reason": "correct",
+          "prompt_sha256": "7c068555e4a6681def2ee978b8b3dd587dc9fcaeef7478f5fd8395412baded62"
+        },
+        {
+          "id": "legacy-0002",
+          "label": "taught:legacy_retention",
+          "expected": "closes",
+          "output": "The library closes at dusk, but the",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "a3d77d98875c7d815045cad893a5f81748e92ff95bdeb9a6856e6dc5c35a383e"
+        },
+        {
+          "id": "legacy-0003",
+          "label": "taught:legacy_retention",
+          "expected": "Paris",
+          "output": "The capital of France is Paris.",
+          "old_exact_correct": false,
+          "correct": true,
+          "reason": "correct",
+          "prompt_sha256": "5c5da3fd596bac972d64b45fe31b95483919c737f7170d713a55538918d3f068"
+        },
+        {
+          "id": "legacy-0004",
+          "label": "taught:legacy_retention",
+          "expected": "12",
+          "output": "To divide 144 by 12,",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "a8dc1c0289d9a0053eb2ef1dfc111a1a965de4718ea953d6440274aa2f19ff71"
+        },
+        {
+          "id": "legacy-0005",
+          "label": "taught:legacy_retention",
+          "expected": "run",
+          "output": "The word that is a verb is **",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "ca0568e1184890c571dc8e912877fec90c0fe248bd9dc63332822f9b3154a414"
+        },
+        {
+          "id": "legacy-0006",
+          "label": "taught:legacy_retention",
+          "expected": "81",
+          "output": "The square of 9 is 81",
+          "old_exact_correct": false,
+          "correct": true,
+          "reason": "correct",
+          "prompt_sha256": "a095b9a8ec538ab5516b994d390697915a59209975d43acb0e4075f32a711b27"
+        },
+        {
+          "id": "legacy-0007",
+          "label": "taught:legacy_retention",
+          "expected": "366",
+          "output": "A leap year has **366 days**.",
+          "old_exact_correct": false,
+          "correct": true,
+          "reason": "correct",
+          "prompt_sha256": "5176d2e00a3873fa60c751a6ec7532406f07ab998d3801c16eafbc1c3eb49255"
+        }
+      ]
+    },
+    {
+      "label": "taught:revoked",
+      "count": 4,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "status_mismatch": 4
+      },
+      "results": [
+        {
+          "id": "revoked-0000",
+          "label": "taught:revoked",
+          "expected": "unknown",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "3830c0362060f57b3556eb16d60ac19cf702aa04939e2ec3c53155ceb6247409"
+        },
+        {
+          "id": "revoked-0001",
+          "label": "taught:revoked",
+          "expected": "unknown",
+          "output": "I don't have access to a specific",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "95ed46b4f689df5bf516f6d98cca24af34b0ac58f2b678edea0f4df7aff2762d"
+        },
+        {
+          "id": "revoked-0002",
+          "label": "taught:revoked",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "456d1c41227c0b6b2c838bf7a50a35d1e20f22d06accbccbe640600194bde56c"
+        },
+        {
+          "id": "revoked-0003",
+          "label": "taught:revoked",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "2e419b60939f827ce55329876bbd907333582efe8c1776dc7fa04e951f00c07b"
+        }
+      ]
+    },
+    {
+      "label": "taught:unaffected",
+      "count": 8,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 6,
+        "truncated": 2
+      },
+      "results": [
+        {
+          "id": "unaffected-0000",
+          "label": "taught:unaffected",
+          "expected": "Samimu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "57aae5944824a1a66c444c956d578f2c8f2aa9663b99100ebe1fbf27ac5c6421"
+        },
+        {
+          "id": "unaffected-0001",
+          "label": "taught:unaffected",
+          "expected": "Lupudu",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "85b513299861867a3ede85994bbbd8d52a7d54a728919d1054aa2805f3d45573"
+        },
+        {
+          "id": "unaffected-0002",
+          "label": "taught:unaffected",
+          "expected": "Goroti",
+          "output": "I'm sorry, I'm unable to",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "407a755dcc8e682847bacbdee8e305fc959530fa783860f1080ba5ee52c20162"
+        },
+        {
+          "id": "unaffected-0003",
+          "label": "taught:unaffected",
+          "expected": "Ruroko",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "fdf55878cfce91eabe43df0b548dbfa52848a4cc0183cec4d4c314b2051a7acb"
+        },
+        {
+          "id": "unaffected-0004",
+          "label": "taught:unaffected",
+          "expected": "Samimu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "dff546bfa46c8ce21449610c56f68426eb7b9cf89830ec3aa68c9a5a58c05527"
+        },
+        {
+          "id": "unaffected-0005",
+          "label": "taught:unaffected",
+          "expected": "Lupudu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "f1a1fc15a40e1fdc93765b2a6713e5d4797d80626db7bd6ba6ef4a0f751ea83b"
+        },
+        {
+          "id": "unaffected-0006",
+          "label": "taught:unaffected",
+          "expected": "Goroti",
+          "output": "I don't know what you mean by",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "0db2b54f4a0f1fb971a5b5d59881bacb027425f2ad4d89dd96fdea78b2478bb1"
+        },
+        {
+          "id": "unaffected-0007",
+          "label": "taught:unaffected",
+          "expected": "Ruroko",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "086dcdcb0e660a44a2ebff6ef71673fca92ca6398f0c0bf2bb305f9aa0183e7e"
+        }
+      ]
+    },
+    {
+      "label": "taught:unknown",
+      "count": 8,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "status_mismatch": 8
+      },
+      "results": [
+        {
+          "id": "unknown-0000",
+          "label": "taught:unknown",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "03d81e390b006851e820113243440979c2814d52f76f31d1be7d71383392c2d8"
+        },
+        {
+          "id": "unknown-0001",
+          "label": "taught:unknown",
+          "expected": "unknown",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "ce72b77e1398619df81d5d55e1ac47d19b91a47bb58e66584f4e009b7d475561"
+        },
+        {
+          "id": "unknown-0002",
+          "label": "taught:unknown",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "ae47f5b3c9be38cab6bf5aacb268fe3f3a7cd2509481d439e98f292aff3395d8"
+        },
+        {
+          "id": "unknown-0003",
+          "label": "taught:unknown",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "a0008bab550bdbcbc9d8342e94d6282881dc1c7ef249b8c9e771a9e7ef445808"
+        },
+        {
+          "id": "unknown-0004",
+          "label": "taught:unknown",
+          "expected": "unknown",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "c11d24becb3b5f346ba2b404c4f545d9ce89be29757b3112f067987a872301a9"
+        },
+        {
+          "id": "unknown-0005",
+          "label": "taught:unknown",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "54c3cd90e4226cdb40c2db7b534f37c0311ed214a0a6ed40911bc23d3ee57ad1"
+        },
+        {
+          "id": "unknown-0006",
+          "label": "taught:unknown",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "584a2095d796e7e1d83c698512928435b048e9049fed5e8386edad57370ece39"
+        },
+        {
+          "id": "unknown-0007",
+          "label": "taught:unknown",
+          "expected": "unknown",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "300d842b6d8a3470c7f4b65ae305d6cba3c0a49d39c693c0a2abb28a0134be93"
+        }
+      ]
+    },
+    {
+      "label": "taught:wrong_world",
+      "count": 12,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 12
+      },
+      "results": [
+        {
+          "id": "wrong-world-0000",
+          "label": "taught:wrong_world",
+          "expected": "Zopomo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "wrong-world-0001",
+          "label": "taught:wrong_world",
+          "expected": "Zelake",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "wrong-world-0002",
+          "label": "taught:wrong_world",
+          "expected": "Sabumu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "wrong-world-0003",
+          "label": "taught:wrong_world",
+          "expected": "Tipuda",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        },
+        {
+          "id": "wrong-world-0004",
+          "label": "taught:wrong_world",
+          "expected": "Sokini",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "099f63043ad171c47a18f737db804a8d8645ec2bc6f440e963bc337c539ea4c0"
+        },
+        {
+          "id": "wrong-world-0005",
+          "label": "taught:wrong_world",
+          "expected": "Dakama",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "4d52e30864a3b07e7fc9d74e2ae76ba0c586f3082304fa21a0e2740f1a452cdb"
+        },
+        {
+          "id": "wrong-world-0006",
+          "label": "taught:wrong_world",
+          "expected": "Mogene",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "fbbf274c1cc298f6856fb3b49161c53641cd9b9ea69e5b37082d25fea67c0353"
+        },
+        {
+          "id": "wrong-world-0007",
+          "label": "taught:wrong_world",
+          "expected": "Sededi",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "778cddc1e8f4967fcd31756237f330edbe316661ead7f6ac0d784b849433a895"
+        },
+        {
+          "id": "wrong-world-0008",
+          "label": "taught:wrong_world",
+          "expected": "Vezoke",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "c09eae831abdca8fdfe647b2a93dd0be1f1ac153beac1548adb234a86c2ab0c4"
+        },
+        {
+          "id": "wrong-world-0009",
+          "label": "taught:wrong_world",
+          "expected": "Suloli",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "74ee9f9fe2afd9644eb49413006fcb9a31a08943164f027675abada79ce6e57c"
+        },
+        {
+          "id": "wrong-world-0010",
+          "label": "taught:wrong_world",
+          "expected": "Bidefe",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3830c0362060f57b3556eb16d60ac19cf702aa04939e2ec3c53155ceb6247409"
+        },
+        {
+          "id": "wrong-world-0011",
+          "label": "taught:wrong_world",
+          "expected": "Fipuli",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3911dbd6d59c7e72d159449a0173f6cf1242c9f1f86cea79eab96e3c0e103cd3"
+        }
+      ]
+    },
+    {
+      "label": "preteach:correction",
+      "count": 4,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 4
+      },
+      "results": [
+        {
+          "id": "correction-0000",
+          "label": "preteach:correction",
+          "expected": "TevufaRevised",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "ce8f45ecf6592f7869ce64f6a9e2e4ad0fd78aa541bfaec21f847a1d9bb46617"
+        },
+        {
+          "id": "correction-0001",
+          "label": "preteach:correction",
+          "expected": "MipezuRevised",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "b6c198bdc2452f1988495f774e5a213a7fa77deee2e52ce8be6609e66917adca"
+        },
+        {
+          "id": "correction-0002",
+          "label": "preteach:correction",
+          "expected": "KezuraRevised",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "e559d136fe7c4bca6830f49874e8d2a5267ff59f6d969b6d97ea8899535d4413"
+        },
+        {
+          "id": "correction-0003",
+          "label": "preteach:correction",
+          "expected": "ZumevoRevised",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "b38f0ab15468c28ba08cde3de08acc5524dedfd725ffa39f5d12117a580d2dd9"
+        }
+      ]
+    },
+    {
+      "label": "preteach:development",
+      "count": 16,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 13,
+        "missing_answer": 1,
+        "truncated": 2
+      },
+      "results": [
+        {
+          "id": "dev-0000",
+          "label": "preteach:development",
+          "expected": "Tevufa",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "dev-0001",
+          "label": "preteach:development",
+          "expected": "Mipezu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "dev-0002",
+          "label": "preteach:development",
+          "expected": "Kezura",
+          "output": "I don't know what you mean by",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "dev-0003",
+          "label": "preteach:development",
+          "expected": "Zumevo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        },
+        {
+          "id": "dev-0004",
+          "label": "preteach:development",
+          "expected": "Samimu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "099f63043ad171c47a18f737db804a8d8645ec2bc6f440e963bc337c539ea4c0"
+        },
+        {
+          "id": "dev-0005",
+          "label": "preteach:development",
+          "expected": "Lupudu",
+          "output": "I don't have information about a glyph",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "missing_answer",
+          "prompt_sha256": "4d52e30864a3b07e7fc9d74e2ae76ba0c586f3082304fa21a0e2740f1a452cdb"
+        },
+        {
+          "id": "dev-0006",
+          "label": "preteach:development",
+          "expected": "Goroti",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "fbbf274c1cc298f6856fb3b49161c53641cd9b9ea69e5b37082d25fea67c0353"
+        },
+        {
+          "id": "dev-0007",
+          "label": "preteach:development",
+          "expected": "Ruroko",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "778cddc1e8f4967fcd31756237f330edbe316661ead7f6ac0d784b849433a895"
+        },
+        {
+          "id": "dev-0008",
+          "label": "preteach:development",
+          "expected": "Mesele",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "c09eae831abdca8fdfe647b2a93dd0be1f1ac153beac1548adb234a86c2ab0c4"
+        },
+        {
+          "id": "dev-0009",
+          "label": "preteach:development",
+          "expected": "Mogipu",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "74ee9f9fe2afd9644eb49413006fcb9a31a08943164f027675abada79ce6e57c"
+        },
+        {
+          "id": "dev-0010",
+          "label": "preteach:development",
+          "expected": "Nebena",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3830c0362060f57b3556eb16d60ac19cf702aa04939e2ec3c53155ceb6247409"
+        },
+        {
+          "id": "dev-0011",
+          "label": "preteach:development",
+          "expected": "Bazilu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3911dbd6d59c7e72d159449a0173f6cf1242c9f1f86cea79eab96e3c0e103cd3"
+        },
+        {
+          "id": "dev-0012",
+          "label": "preteach:development",
+          "expected": "Tevufa",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "dev-0013",
+          "label": "preteach:development",
+          "expected": "Mipezu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "dev-0014",
+          "label": "preteach:development",
+          "expected": "Kezura",
+          "output": "I don't know what you mean by",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "dev-0015",
+          "label": "preteach:development",
+          "expected": "Zumevo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        }
+      ]
+    },
+    {
+      "label": "preteach:legacy_retention",
+      "count": 8,
+      "correct": 4,
+      "old_exact_correct": 0,
+      "accuracy": 0.5,
+      "reason_counts": {
+        "correct": 4,
+        "truncated": 4
+      },
+      "results": [
+        {
+          "id": "legacy-0000",
+          "label": "preteach:legacy_retention",
+          "expected": "43",
+          "output": "To find the sum of 17 and",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "d36a3490af3107c3d4a76c27fdc5b72e2c7ef976cd7310b8e66a76264f545d06"
+        },
+        {
+          "id": "legacy-0001",
+          "label": "preteach:legacy_retention",
+          "expected": "56",
+          "output": "8 times 7 is **56**.",
+          "old_exact_correct": false,
+          "correct": true,
+          "reason": "correct",
+          "prompt_sha256": "7c068555e4a6681def2ee978b8b3dd587dc9fcaeef7478f5fd8395412baded62"
+        },
+        {
+          "id": "legacy-0002",
+          "label": "preteach:legacy_retention",
+          "expected": "closes",
+          "output": "The library closes at dusk, but the",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "a3d77d98875c7d815045cad893a5f81748e92ff95bdeb9a6856e6dc5c35a383e"
+        },
+        {
+          "id": "legacy-0003",
+          "label": "preteach:legacy_retention",
+          "expected": "Paris",
+          "output": "The capital of France is Paris.",
+          "old_exact_correct": false,
+          "correct": true,
+          "reason": "correct",
+          "prompt_sha256": "5c5da3fd596bac972d64b45fe31b95483919c737f7170d713a55538918d3f068"
+        },
+        {
+          "id": "legacy-0004",
+          "label": "preteach:legacy_retention",
+          "expected": "12",
+          "output": "To divide 144 by 12,",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "a8dc1c0289d9a0053eb2ef1dfc111a1a965de4718ea953d6440274aa2f19ff71"
+        },
+        {
+          "id": "legacy-0005",
+          "label": "preteach:legacy_retention",
+          "expected": "run",
+          "output": "The word that is a verb is **",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "ca0568e1184890c571dc8e912877fec90c0fe248bd9dc63332822f9b3154a414"
+        },
+        {
+          "id": "legacy-0006",
+          "label": "preteach:legacy_retention",
+          "expected": "81",
+          "output": "The square of 9 is 81",
+          "old_exact_correct": false,
+          "correct": true,
+          "reason": "correct",
+          "prompt_sha256": "a095b9a8ec538ab5516b994d390697915a59209975d43acb0e4075f32a711b27"
+        },
+        {
+          "id": "legacy-0007",
+          "label": "preteach:legacy_retention",
+          "expected": "366",
+          "output": "A leap year has **366 days**.",
+          "old_exact_correct": false,
+          "correct": true,
+          "reason": "correct",
+          "prompt_sha256": "5176d2e00a3873fa60c751a6ec7532406f07ab998d3801c16eafbc1c3eb49255"
+        }
+      ]
+    },
+    {
+      "label": "preteach:revoked",
+      "count": 4,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "status_mismatch": 4
+      },
+      "results": [
+        {
+          "id": "revoked-0000",
+          "label": "preteach:revoked",
+          "expected": "unknown",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "3830c0362060f57b3556eb16d60ac19cf702aa04939e2ec3c53155ceb6247409"
+        },
+        {
+          "id": "revoked-0001",
+          "label": "preteach:revoked",
+          "expected": "unknown",
+          "output": "I don't have access to a specific",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "95ed46b4f689df5bf516f6d98cca24af34b0ac58f2b678edea0f4df7aff2762d"
+        },
+        {
+          "id": "revoked-0002",
+          "label": "preteach:revoked",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "456d1c41227c0b6b2c838bf7a50a35d1e20f22d06accbccbe640600194bde56c"
+        },
+        {
+          "id": "revoked-0003",
+          "label": "preteach:revoked",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "2e419b60939f827ce55329876bbd907333582efe8c1776dc7fa04e951f00c07b"
+        }
+      ]
+    },
+    {
+      "label": "preteach:unaffected",
+      "count": 8,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 6,
+        "truncated": 2
+      },
+      "results": [
+        {
+          "id": "unaffected-0000",
+          "label": "preteach:unaffected",
+          "expected": "Samimu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "57aae5944824a1a66c444c956d578f2c8f2aa9663b99100ebe1fbf27ac5c6421"
+        },
+        {
+          "id": "unaffected-0001",
+          "label": "preteach:unaffected",
+          "expected": "Lupudu",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "85b513299861867a3ede85994bbbd8d52a7d54a728919d1054aa2805f3d45573"
+        },
+        {
+          "id": "unaffected-0002",
+          "label": "preteach:unaffected",
+          "expected": "Goroti",
+          "output": "I'm sorry, I'm unable to",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "407a755dcc8e682847bacbdee8e305fc959530fa783860f1080ba5ee52c20162"
+        },
+        {
+          "id": "unaffected-0003",
+          "label": "preteach:unaffected",
+          "expected": "Ruroko",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "fdf55878cfce91eabe43df0b548dbfa52848a4cc0183cec4d4c314b2051a7acb"
+        },
+        {
+          "id": "unaffected-0004",
+          "label": "preteach:unaffected",
+          "expected": "Samimu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "dff546bfa46c8ce21449610c56f68426eb7b9cf89830ec3aa68c9a5a58c05527"
+        },
+        {
+          "id": "unaffected-0005",
+          "label": "preteach:unaffected",
+          "expected": "Lupudu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "f1a1fc15a40e1fdc93765b2a6713e5d4797d80626db7bd6ba6ef4a0f751ea83b"
+        },
+        {
+          "id": "unaffected-0006",
+          "label": "preteach:unaffected",
+          "expected": "Goroti",
+          "output": "I don't know what you mean by",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "0db2b54f4a0f1fb971a5b5d59881bacb027425f2ad4d89dd96fdea78b2478bb1"
+        },
+        {
+          "id": "unaffected-0007",
+          "label": "preteach:unaffected",
+          "expected": "Ruroko",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "086dcdcb0e660a44a2ebff6ef71673fca92ca6398f0c0bf2bb305f9aa0183e7e"
+        }
+      ]
+    },
+    {
+      "label": "preteach:unknown",
+      "count": 8,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "status_mismatch": 8
+      },
+      "results": [
+        {
+          "id": "unknown-0000",
+          "label": "preteach:unknown",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "03d81e390b006851e820113243440979c2814d52f76f31d1be7d71383392c2d8"
+        },
+        {
+          "id": "unknown-0001",
+          "label": "preteach:unknown",
+          "expected": "unknown",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "ce72b77e1398619df81d5d55e1ac47d19b91a47bb58e66584f4e009b7d475561"
+        },
+        {
+          "id": "unknown-0002",
+          "label": "preteach:unknown",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "ae47f5b3c9be38cab6bf5aacb268fe3f3a7cd2509481d439e98f292aff3395d8"
+        },
+        {
+          "id": "unknown-0003",
+          "label": "preteach:unknown",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "a0008bab550bdbcbc9d8342e94d6282881dc1c7ef249b8c9e771a9e7ef445808"
+        },
+        {
+          "id": "unknown-0004",
+          "label": "preteach:unknown",
+          "expected": "unknown",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "c11d24becb3b5f346ba2b404c4f545d9ce89be29757b3112f067987a872301a9"
+        },
+        {
+          "id": "unknown-0005",
+          "label": "preteach:unknown",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "54c3cd90e4226cdb40c2db7b534f37c0311ed214a0a6ed40911bc23d3ee57ad1"
+        },
+        {
+          "id": "unknown-0006",
+          "label": "preteach:unknown",
+          "expected": "unknown",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "584a2095d796e7e1d83c698512928435b048e9049fed5e8386edad57370ece39"
+        },
+        {
+          "id": "unknown-0007",
+          "label": "preteach:unknown",
+          "expected": "unknown",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "status_mismatch",
+          "prompt_sha256": "300d842b6d8a3470c7f4b65ae305d6cba3c0a49d39c693c0a2abb28a0134be93"
+        }
+      ]
+    },
+    {
+      "label": "preteach:wrong_world",
+      "count": 12,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 10,
+        "missing_answer": 1,
+        "truncated": 1
+      },
+      "results": [
+        {
+          "id": "wrong-world-0000",
+          "label": "preteach:wrong_world",
+          "expected": "Zopomo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "wrong-world-0001",
+          "label": "preteach:wrong_world",
+          "expected": "Zelake",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "wrong-world-0002",
+          "label": "preteach:wrong_world",
+          "expected": "Sabumu",
+          "output": "I don't know what you mean by",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "wrong-world-0003",
+          "label": "preteach:wrong_world",
+          "expected": "Tipuda",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        },
+        {
+          "id": "wrong-world-0004",
+          "label": "preteach:wrong_world",
+          "expected": "Sokini",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "099f63043ad171c47a18f737db804a8d8645ec2bc6f440e963bc337c539ea4c0"
+        },
+        {
+          "id": "wrong-world-0005",
+          "label": "preteach:wrong_world",
+          "expected": "Dakama",
+          "output": "I don't have information about a glyph",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "missing_answer",
+          "prompt_sha256": "4d52e30864a3b07e7fc9d74e2ae76ba0c586f3082304fa21a0e2740f1a452cdb"
+        },
+        {
+          "id": "wrong-world-0006",
+          "label": "preteach:wrong_world",
+          "expected": "Mogene",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "fbbf274c1cc298f6856fb3b49161c53641cd9b9ea69e5b37082d25fea67c0353"
+        },
+        {
+          "id": "wrong-world-0007",
+          "label": "preteach:wrong_world",
+          "expected": "Sededi",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "778cddc1e8f4967fcd31756237f330edbe316661ead7f6ac0d784b849433a895"
+        },
+        {
+          "id": "wrong-world-0008",
+          "label": "preteach:wrong_world",
+          "expected": "Vezoke",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "c09eae831abdca8fdfe647b2a93dd0be1f1ac153beac1548adb234a86c2ab0c4"
+        },
+        {
+          "id": "wrong-world-0009",
+          "label": "preteach:wrong_world",
+          "expected": "Suloli",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "74ee9f9fe2afd9644eb49413006fcb9a31a08943164f027675abada79ce6e57c"
+        },
+        {
+          "id": "wrong-world-0010",
+          "label": "preteach:wrong_world",
+          "expected": "Bidefe",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3830c0362060f57b3556eb16d60ac19cf702aa04939e2ec3c53155ceb6247409"
+        },
+        {
+          "id": "wrong-world-0011",
+          "label": "preteach:wrong_world",
+          "expected": "Fipuli",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3911dbd6d59c7e72d159449a0173f6cf1242c9f1f86cea79eab96e3c0e103cd3"
+        }
+      ]
+    },
+    {
+      "label": "control:shuffled_route",
+      "count": 16,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 14,
+        "truncated": 2
+      },
+      "results": [
+        {
+          "id": "dev-0000",
+          "label": "control:shuffled_route",
+          "expected": "Tevufa",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "dev-0001",
+          "label": "control:shuffled_route",
+          "expected": "Mipezu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "dev-0002",
+          "label": "control:shuffled_route",
+          "expected": "Kezura",
+          "output": "I don't know what you mean by",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "dev-0003",
+          "label": "control:shuffled_route",
+          "expected": "Zumevo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        },
+        {
+          "id": "dev-0004",
+          "label": "control:shuffled_route",
+          "expected": "Samimu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "099f63043ad171c47a18f737db804a8d8645ec2bc6f440e963bc337c539ea4c0"
+        },
+        {
+          "id": "dev-0005",
+          "label": "control:shuffled_route",
+          "expected": "Lupudu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "4d52e30864a3b07e7fc9d74e2ae76ba0c586f3082304fa21a0e2740f1a452cdb"
+        },
+        {
+          "id": "dev-0006",
+          "label": "control:shuffled_route",
+          "expected": "Goroti",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "fbbf274c1cc298f6856fb3b49161c53641cd9b9ea69e5b37082d25fea67c0353"
+        },
+        {
+          "id": "dev-0007",
+          "label": "control:shuffled_route",
+          "expected": "Ruroko",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "778cddc1e8f4967fcd31756237f330edbe316661ead7f6ac0d784b849433a895"
+        },
+        {
+          "id": "dev-0008",
+          "label": "control:shuffled_route",
+          "expected": "Mesele",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "c09eae831abdca8fdfe647b2a93dd0be1f1ac153beac1548adb234a86c2ab0c4"
+        },
+        {
+          "id": "dev-0009",
+          "label": "control:shuffled_route",
+          "expected": "Mogipu",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "74ee9f9fe2afd9644eb49413006fcb9a31a08943164f027675abada79ce6e57c"
+        },
+        {
+          "id": "dev-0010",
+          "label": "control:shuffled_route",
+          "expected": "Nebena",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3830c0362060f57b3556eb16d60ac19cf702aa04939e2ec3c53155ceb6247409"
+        },
+        {
+          "id": "dev-0011",
+          "label": "control:shuffled_route",
+          "expected": "Bazilu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3911dbd6d59c7e72d159449a0173f6cf1242c9f1f86cea79eab96e3c0e103cd3"
+        },
+        {
+          "id": "dev-0012",
+          "label": "control:shuffled_route",
+          "expected": "Tevufa",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "dev-0013",
+          "label": "control:shuffled_route",
+          "expected": "Mipezu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "dev-0014",
+          "label": "control:shuffled_route",
+          "expected": "Kezura",
+          "output": "I don't know what you mean by",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "dev-0015",
+          "label": "control:shuffled_route",
+          "expected": "Zumevo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        }
+      ]
+    },
+    {
+      "label": "control:reset_P",
+      "count": 16,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 13,
+        "missing_answer": 1,
+        "truncated": 2
+      },
+      "results": [
+        {
+          "id": "dev-0000",
+          "label": "control:reset_P",
+          "expected": "Tevufa",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "dev-0001",
+          "label": "control:reset_P",
+          "expected": "Mipezu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "dev-0002",
+          "label": "control:reset_P",
+          "expected": "Kezura",
+          "output": "I don't know what you mean by",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "dev-0003",
+          "label": "control:reset_P",
+          "expected": "Zumevo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        },
+        {
+          "id": "dev-0004",
+          "label": "control:reset_P",
+          "expected": "Samimu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "099f63043ad171c47a18f737db804a8d8645ec2bc6f440e963bc337c539ea4c0"
+        },
+        {
+          "id": "dev-0005",
+          "label": "control:reset_P",
+          "expected": "Lupudu",
+          "output": "I don't have information about a glyph",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "missing_answer",
+          "prompt_sha256": "4d52e30864a3b07e7fc9d74e2ae76ba0c586f3082304fa21a0e2740f1a452cdb"
+        },
+        {
+          "id": "dev-0006",
+          "label": "control:reset_P",
+          "expected": "Goroti",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "fbbf274c1cc298f6856fb3b49161c53641cd9b9ea69e5b37082d25fea67c0353"
+        },
+        {
+          "id": "dev-0007",
+          "label": "control:reset_P",
+          "expected": "Ruroko",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "778cddc1e8f4967fcd31756237f330edbe316661ead7f6ac0d784b849433a895"
+        },
+        {
+          "id": "dev-0008",
+          "label": "control:reset_P",
+          "expected": "Mesele",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "c09eae831abdca8fdfe647b2a93dd0be1f1ac153beac1548adb234a86c2ab0c4"
+        },
+        {
+          "id": "dev-0009",
+          "label": "control:reset_P",
+          "expected": "Mogipu",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "74ee9f9fe2afd9644eb49413006fcb9a31a08943164f027675abada79ce6e57c"
+        },
+        {
+          "id": "dev-0010",
+          "label": "control:reset_P",
+          "expected": "Nebena",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3830c0362060f57b3556eb16d60ac19cf702aa04939e2ec3c53155ceb6247409"
+        },
+        {
+          "id": "dev-0011",
+          "label": "control:reset_P",
+          "expected": "Bazilu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3911dbd6d59c7e72d159449a0173f6cf1242c9f1f86cea79eab96e3c0e103cd3"
+        },
+        {
+          "id": "dev-0012",
+          "label": "control:reset_P",
+          "expected": "Tevufa",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "dev-0013",
+          "label": "control:reset_P",
+          "expected": "Mipezu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "dev-0014",
+          "label": "control:reset_P",
+          "expected": "Kezura",
+          "output": "I don't know what you mean by",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "dev-0015",
+          "label": "control:reset_P",
+          "expected": "Zumevo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        }
+      ]
+    },
+    {
+      "label": "control:spine_absent",
+      "count": 16,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 16
+      },
+      "results": [
+        {
+          "id": "dev-0000",
+          "label": "control:spine_absent",
+          "expected": "Tevufa",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "dev-0001",
+          "label": "control:spine_absent",
+          "expected": "Mipezu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "dev-0002",
+          "label": "control:spine_absent",
+          "expected": "Kezura",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "dev-0003",
+          "label": "control:spine_absent",
+          "expected": "Zumevo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        },
+        {
+          "id": "dev-0004",
+          "label": "control:spine_absent",
+          "expected": "Samimu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "099f63043ad171c47a18f737db804a8d8645ec2bc6f440e963bc337c539ea4c0"
+        },
+        {
+          "id": "dev-0005",
+          "label": "control:spine_absent",
+          "expected": "Lupudu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "4d52e30864a3b07e7fc9d74e2ae76ba0c586f3082304fa21a0e2740f1a452cdb"
+        },
+        {
+          "id": "dev-0006",
+          "label": "control:spine_absent",
+          "expected": "Goroti",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "fbbf274c1cc298f6856fb3b49161c53641cd9b9ea69e5b37082d25fea67c0353"
+        },
+        {
+          "id": "dev-0007",
+          "label": "control:spine_absent",
+          "expected": "Ruroko",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "778cddc1e8f4967fcd31756237f330edbe316661ead7f6ac0d784b849433a895"
+        },
+        {
+          "id": "dev-0008",
+          "label": "control:spine_absent",
+          "expected": "Mesele",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "c09eae831abdca8fdfe647b2a93dd0be1f1ac153beac1548adb234a86c2ab0c4"
+        },
+        {
+          "id": "dev-0009",
+          "label": "control:spine_absent",
+          "expected": "Mogipu",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "74ee9f9fe2afd9644eb49413006fcb9a31a08943164f027675abada79ce6e57c"
+        },
+        {
+          "id": "dev-0010",
+          "label": "control:spine_absent",
+          "expected": "Nebena",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3830c0362060f57b3556eb16d60ac19cf702aa04939e2ec3c53155ceb6247409"
+        },
+        {
+          "id": "dev-0011",
+          "label": "control:spine_absent",
+          "expected": "Bazilu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3911dbd6d59c7e72d159449a0173f6cf1242c9f1f86cea79eab96e3c0e103cd3"
+        },
+        {
+          "id": "dev-0012",
+          "label": "control:spine_absent",
+          "expected": "Tevufa",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "dev-0013",
+          "label": "control:spine_absent",
+          "expected": "Mipezu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "dev-0014",
+          "label": "control:spine_absent",
+          "expected": "Kezura",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "dev-0015",
+          "label": "control:spine_absent",
+          "expected": "Zumevo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        }
+      ]
+    },
+    {
+      "label": "control:wrong_world_P",
+      "count": 12,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 10,
+        "truncated": 2
+      },
+      "results": [
+        {
+          "id": "wrong-world-0000",
+          "label": "control:wrong_world_P",
+          "expected": "Zopomo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "wrong-world-0001",
+          "label": "control:wrong_world_P",
+          "expected": "Zelake",
+          "output": "I'm sorry, I'm unable to",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "wrong-world-0002",
+          "label": "control:wrong_world_P",
+          "expected": "Sabumu",
+          "output": "I don't know what you mean by",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "wrong-world-0003",
+          "label": "control:wrong_world_P",
+          "expected": "Tipuda",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        },
+        {
+          "id": "wrong-world-0004",
+          "label": "control:wrong_world_P",
+          "expected": "Sokini",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "099f63043ad171c47a18f737db804a8d8645ec2bc6f440e963bc337c539ea4c0"
+        },
+        {
+          "id": "wrong-world-0005",
+          "label": "control:wrong_world_P",
+          "expected": "Dakama",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "4d52e30864a3b07e7fc9d74e2ae76ba0c586f3082304fa21a0e2740f1a452cdb"
+        },
+        {
+          "id": "wrong-world-0006",
+          "label": "control:wrong_world_P",
+          "expected": "Mogene",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "fbbf274c1cc298f6856fb3b49161c53641cd9b9ea69e5b37082d25fea67c0353"
+        },
+        {
+          "id": "wrong-world-0007",
+          "label": "control:wrong_world_P",
+          "expected": "Sededi",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "778cddc1e8f4967fcd31756237f330edbe316661ead7f6ac0d784b849433a895"
+        },
+        {
+          "id": "wrong-world-0008",
+          "label": "control:wrong_world_P",
+          "expected": "Vezoke",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "c09eae831abdca8fdfe647b2a93dd0be1f1ac153beac1548adb234a86c2ab0c4"
+        },
+        {
+          "id": "wrong-world-0009",
+          "label": "control:wrong_world_P",
+          "expected": "Suloli",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "74ee9f9fe2afd9644eb49413006fcb9a31a08943164f027675abada79ce6e57c"
+        },
+        {
+          "id": "wrong-world-0010",
+          "label": "control:wrong_world_P",
+          "expected": "Bidefe",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3830c0362060f57b3556eb16d60ac19cf702aa04939e2ec3c53155ceb6247409"
+        },
+        {
+          "id": "wrong-world-0011",
+          "label": "control:wrong_world_P",
+          "expected": "Fipuli",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3911dbd6d59c7e72d159449a0173f6cf1242c9f1f86cea79eab96e3c0e103cd3"
+        }
+      ]
+    },
+    {
+      "label": "control:wrong_world_on_primary",
+      "count": 16,
+      "correct": 0,
+      "old_exact_correct": 0,
+      "accuracy": 0.0,
+      "reason_counts": {
+        "ambiguous": 12,
+        "truncated": 4
+      },
+      "results": [
+        {
+          "id": "dev-0000",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Tevufa",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "dev-0001",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Mipezu",
+          "output": "I'm sorry, I'm unable to",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "dev-0002",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Kezura",
+          "output": "I don't know what you mean by",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "dev-0003",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Zumevo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        },
+        {
+          "id": "dev-0004",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Samimu",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "099f63043ad171c47a18f737db804a8d8645ec2bc6f440e963bc337c539ea4c0"
+        },
+        {
+          "id": "dev-0005",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Lupudu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "4d52e30864a3b07e7fc9d74e2ae76ba0c586f3082304fa21a0e2740f1a452cdb"
+        },
+        {
+          "id": "dev-0006",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Goroti",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "fbbf274c1cc298f6856fb3b49161c53641cd9b9ea69e5b37082d25fea67c0353"
+        },
+        {
+          "id": "dev-0007",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Ruroko",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "778cddc1e8f4967fcd31756237f330edbe316661ead7f6ac0d784b849433a895"
+        },
+        {
+          "id": "dev-0008",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Mesele",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "c09eae831abdca8fdfe647b2a93dd0be1f1ac153beac1548adb234a86c2ab0c4"
+        },
+        {
+          "id": "dev-0009",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Mogipu",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "74ee9f9fe2afd9644eb49413006fcb9a31a08943164f027675abada79ce6e57c"
+        },
+        {
+          "id": "dev-0010",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Nebena",
+          "output": "Apologies, I'm unable to provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3830c0362060f57b3556eb16d60ac19cf702aa04939e2ec3c53155ceb6247409"
+        },
+        {
+          "id": "dev-0011",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Bazilu",
+          "output": "I'm sorry, I can't provide",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "3911dbd6d59c7e72d159449a0173f6cf1242c9f1f86cea79eab96e3c0e103cd3"
+        },
+        {
+          "id": "dev-0012",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Tevufa",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "1eda1def30a871d48c7a3a9aaa882385207da9985ba87c0f3e60a204907c447e"
+        },
+        {
+          "id": "dev-0013",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Mipezu",
+          "output": "I'm sorry, I'm unable to",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "1f018bc770e9366942d287162b549363fcfc66842bdf21cbfe07216b1805c239"
+        },
+        {
+          "id": "dev-0014",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Kezura",
+          "output": "I don't know what you mean by",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "truncated",
+          "prompt_sha256": "596fc145e9498a2a781c4505dca86f6729bc541a662eebaae156ff11510574be"
+        },
+        {
+          "id": "dev-0015",
+          "label": "control:wrong_world_on_primary",
+          "expected": "Zumevo",
+          "output": "I'm sorry, I can't answer",
+          "old_exact_correct": false,
+          "correct": false,
+          "reason": "ambiguous",
+          "prompt_sha256": "8ce3768225b43b945e04e49be3a93ebe665298b0cd7226a71d9458228fd4e318"
+        }
+      ]
+    }
+  ],
+  "legacy_retention": {
+    "preteach_correct": 4,
+    "preteach_count": 8,
+    "preteach_accuracy": 0.5,
+    "taught_correct": 4,
+    "taught_count": 8,
+    "taught_accuracy": 0.5,
+    "old_exact_preteach_correct": 0,
+    "old_exact_taught_correct": 0,
+    "retention_decline": 0.0,
+    "scope": "Eight legacy rows under derived scoring v2.1.1; no model run and no new training result"
+  },
+  "claims": {
+    "corrected_measurement_of_preserved_outputs": true,
+    "new_learned_capability": false,
+    "heldout_evaluation": false
+  }
+}

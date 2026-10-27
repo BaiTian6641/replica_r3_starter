@@ -1,0 +1,10 @@
+{
+  "format": "replica.nested_text.guard_binding.v1",
+  "reason": "Binds the preserved capacity guard receipts to the exact launcher and guard module bytes recorded at run time (launcher 8e6e25532f4a443c770a0083d412183b7bb2c2dc13a656f2389325a0f16b50cd, capacity_guard 01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6) and declares that the recorded child command must launch scripts/run_nested_text.py. The launcher bytes have since drifted in the live tree; historical replay authenticates the recorded bytes from the immutable continuation source snapshot.",
+  "launcher": "scripts/run_capacity_preflight.py",
+  "child": "scripts/run_nested_text.py",
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "8e6e25532f4a443c770a0083d412183b7bb2c2dc13a656f2389325a0f16b50cd",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6"
+  }
+}

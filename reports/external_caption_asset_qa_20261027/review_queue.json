@@ -1,0 +1,2658 @@
+{
+  "counts": {
+    "reviewable": 22,
+    "sealed": 8,
+    "sections": {
+      "sealed_final_eval": 8,
+      "training_candidates": 15,
+      "validation_only": 7
+    },
+    "total": 30
+  },
+  "created_on": "2026-10-27",
+  "data_root": "data/external_caption_tranche_20261025_v2",
+  "format": "replica.external_caption_asset_review_queue.v1",
+  "instructions": {
+    "admission": "Copy admission_decision.template.json to admission_decision.json only after every non-sealed queue entry has been inspected. Sealed final-eval and validation-only rows are never eligible for the training-admitted output, and sealed rows must never appear in semantic_reviews.",
+    "machine_checks": "Structural/byte-level checks have already run; see machine_checks on each entry. Sealed final-eval entries retain only structural hashes and decode evidence.",
+    "semantic_review": "Only training_candidates and validation_only entries are reviewable. Open image.image_path and compare it with caption; record match/mismatch/unclear in admission_decision.json. The QA script never sets this. Sealed final-eval rows have no caption text and cannot receive a semantic verdict."
+  },
+  "non_claims": {
+    "sealed_final_eval_included_in_training": false,
+    "sealed_semantic_review_performed": false,
+    "semantic_caption_image_agreement_verified": false,
+    "training_admission_claimed": false,
+    "validation_only_assets_included_in_training": false
+  },
+  "qa_id": "external_caption_asset_qa_20261027",
+  "sealed_semantic_review": "prohibited",
+  "sealed_target_text_redacted": true,
+  "sections": {
+    "sealed_final_eval": [
+      {
+        "admission_scope": "sealed_evaluation_only",
+        "caption": null,
+        "group_key": "liuhaotian/LLaVA-Pretrain:001308193",
+        "image": {
+          "bytes": 23346,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/001308193.jpg",
+          "image_ref": "images/001308193.jpg",
+          "sha256": "22048e8eb5c4556e52f063a2a86c86e483a7799e4421a9d621dfaf22305fe3f6",
+          "upstream_url": "http://tse4.mm.bing.net/th?id=OIP.48ZliTKkC7ZDirUtr_ufUgHaHa",
+          "width": 336,
+          "zip_member": "00130/001308193.jpg",
+          "zip_member_crc32": "1087a05d"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": null,
+        "provenance": {
+          "annotation_row_index": 1320,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "eef044b656e9d3f94ea33007d8f6a93b7fab9811a7108446ac02b21e08db3ac6",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "0315ac863d381331ad4175740195d47882b451f1def6406a0b6cf37a41e42f00",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "001308193",
+          "upstream_prompt": null,
+          "upstream_url": "http://tse4.mm.bing.net/th?id=OIP.48ZliTKkC7ZDirUtr_ufUgHaHa"
+        },
+        "redaction": {
+          "caption": "withheld_sealed_final_eval",
+          "prompt": "withheld_sealed_final_eval",
+          "target_sha256_retained": true
+        },
+        "review_index": 23,
+        "role": "final_eval_untouched",
+        "row_id": "liuhaotian/LLaVA-Pretrain:001308193#raw_caption",
+        "row_sha256": "db3f471c6962022f8f07ca5d7c1b2eb905023302285b23e6c5a0b728a3deda23",
+        "sealed": true,
+        "section": "sealed_final_eval",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": false,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Sealed final-eval rows are structural-only. Their target text is withheld and semantic review is prohibited.",
+          "status": "prohibited_sealed",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "eef044b656e9d3f94ea33007d8f6a93b7fab9811a7108446ac02b21e08db3ac6",
+        "target_text_redacted": true,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "sealed_evaluation_only",
+        "caption": null,
+        "group_key": "liuhaotian/LLaVA-Pretrain:000809480",
+        "image": {
+          "bytes": 37256,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/000809480.jpg",
+          "image_ref": "images/000809480.jpg",
+          "sha256": "b3055628ddbaeba82027e2dc83db8aba172b3c33b820174b55622a18606238f0",
+          "upstream_url": "https://images.baby-walz.de/v2/470x470_r1/images/vpp/427320/images/616/616949/tif/supermom-kleid-brown-leopard-pid46913-427320-2.jpg",
+          "width": 336,
+          "zip_member": "00080/000809480.jpg",
+          "zip_member_crc32": "018203f0"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": null,
+        "provenance": {
+          "annotation_row_index": 665,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "bf21edeaf93f53583f33654dd93ff6e94fb5e69b794586f2793c42586cd24e91",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "0326c196af0105447301fc880226b4c1a1b7ce53dce0d2cf2d3c5bf63fce288e",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "000809480",
+          "upstream_prompt": null,
+          "upstream_url": "https://images.baby-walz.de/v2/470x470_r1/images/vpp/427320/images/616/616949/tif/supermom-kleid-brown-leopard-pid46913-427320-2.jpg"
+        },
+        "redaction": {
+          "caption": "withheld_sealed_final_eval",
+          "prompt": "withheld_sealed_final_eval",
+          "target_sha256_retained": true
+        },
+        "review_index": 24,
+        "role": "final_eval_untouched",
+        "row_id": "liuhaotian/LLaVA-Pretrain:000809480#raw_caption",
+        "row_sha256": "4ca0bf9cebef0dc6f640c95355169eaa5baeda9d3e5b6e027d58e1e6fa2ee8c1",
+        "sealed": true,
+        "section": "sealed_final_eval",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": false,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Sealed final-eval rows are structural-only. Their target text is withheld and semantic review is prohibited.",
+          "status": "prohibited_sealed",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "bf21edeaf93f53583f33654dd93ff6e94fb5e69b794586f2793c42586cd24e91",
+        "target_text_redacted": true,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "sealed_evaluation_only",
+        "caption": null,
+        "group_key": "liuhaotian/LLaVA-Pretrain:000237684",
+        "image": {
+          "bytes": 54378,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 432,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 432,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/000237684.jpg",
+          "image_ref": "images/000237684.jpg",
+          "sha256": "61f0437115e02b30e472563090d113a52ffb84c969c00daa00ea512f8da20834",
+          "upstream_url": "https://thumbs.dreamstime.com/b/matching-game-education-children-puzzle-kids-match-right-object-help-fox-find-his-favorite-food-173840436.jpg",
+          "width": 336,
+          "zip_member": "00023/000237684.jpg",
+          "zip_member_crc32": "4c82ba60"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": null,
+        "provenance": {
+          "annotation_row_index": 644,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "5671159d90c051658c1dca085fa7b7c274d85257e6f6d88a9fdfe6eb0f0e1520",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "0354407c1f360b23a6eef2de4541f22abe2bd0b1dcbc35d8834112fa7ef4c1ae",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "000237684",
+          "upstream_prompt": null,
+          "upstream_url": "https://thumbs.dreamstime.com/b/matching-game-education-children-puzzle-kids-match-right-object-help-fox-find-his-favorite-food-173840436.jpg"
+        },
+        "redaction": {
+          "caption": "withheld_sealed_final_eval",
+          "prompt": "withheld_sealed_final_eval",
+          "target_sha256_retained": true
+        },
+        "review_index": 25,
+        "role": "final_eval_untouched",
+        "row_id": "liuhaotian/LLaVA-Pretrain:000237684#raw_caption",
+        "row_sha256": "6f2ada6519b4cd781a20a5e7699835cab6863945a179e0446c790d508f47b76e",
+        "sealed": true,
+        "section": "sealed_final_eval",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": false,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Sealed final-eval rows are structural-only. Their target text is withheld and semantic review is prohibited.",
+          "status": "prohibited_sealed",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "5671159d90c051658c1dca085fa7b7c274d85257e6f6d88a9fdfe6eb0f0e1520",
+        "target_text_redacted": true,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "sealed_evaluation_only",
+        "caption": null,
+        "group_key": "liuhaotian/LLaVA-Pretrain:000937058",
+        "image": {
+          "bytes": 81015,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 447,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 447,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/000937058.jpg",
+          "image_ref": "images/000937058.jpg",
+          "sha256": "6e3258259a6e6985c76304f5a394b361c00e627dec9068aa4098af5357625814",
+          "upstream_url": "https://tse1.mm.bing.net/th?q=Diy%20Wood%20Stairs%20Prefinished%20Balusters%20For%20Decks",
+          "width": 336,
+          "zip_member": "00093/000937058.jpg",
+          "zip_member_crc32": "96383e67"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": null,
+        "provenance": {
+          "annotation_row_index": 348,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "aa7c4aa2b93c48342fceb574d448a80d416bcc4264abddb1bae84fae05757abc",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "035a6c04e4077882ced87d92bc9507476e7b178a7bc3152115b0e12dfce1653d",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "000937058",
+          "upstream_prompt": null,
+          "upstream_url": "https://tse1.mm.bing.net/th?q=Diy%20Wood%20Stairs%20Prefinished%20Balusters%20For%20Decks"
+        },
+        "redaction": {
+          "caption": "withheld_sealed_final_eval",
+          "prompt": "withheld_sealed_final_eval",
+          "target_sha256_retained": true
+        },
+        "review_index": 26,
+        "role": "final_eval_untouched",
+        "row_id": "liuhaotian/LLaVA-Pretrain:000937058#raw_caption",
+        "row_sha256": "8029766615e770234e5b33a7e54bc0259c43a6f63c7f0525305df7a091558e3a",
+        "sealed": true,
+        "section": "sealed_final_eval",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": false,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Sealed final-eval rows are structural-only. Their target text is withheld and semantic review is prohibited.",
+          "status": "prohibited_sealed",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "aa7c4aa2b93c48342fceb574d448a80d416bcc4264abddb1bae84fae05757abc",
+        "target_text_redacted": true,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "sealed_evaluation_only",
+        "caption": null,
+        "group_key": "liuhaotian/LLaVA-Pretrain:003169286",
+        "image": {
+          "bytes": 44107,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 363,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 363,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/003169286.jpg",
+          "image_ref": "images/003169286.jpg",
+          "sha256": "4461f9a867daf9848b1b9a19a07d970d77fde692b9e80c5c970fc73834ce3e3c",
+          "upstream_url": "http://cdn.vectorstock.com/i/thumbs/33,13/presidential-election-label-vector-1003313.jpg",
+          "width": 336,
+          "zip_member": "00316/003169286.jpg",
+          "zip_member_crc32": "7c8c6579"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": null,
+        "provenance": {
+          "annotation_row_index": 964,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "22b6823e1c758580c4052418c611f102a05a06683e8910b90cdda350c2700f86",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "035b04e02052a82c944bc74d290868484b322e1ac1422daa9dd32a24d49b8077",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "003169286",
+          "upstream_prompt": null,
+          "upstream_url": "http://cdn.vectorstock.com/i/thumbs/33,13/presidential-election-label-vector-1003313.jpg"
+        },
+        "redaction": {
+          "caption": "withheld_sealed_final_eval",
+          "prompt": "withheld_sealed_final_eval",
+          "target_sha256_retained": true
+        },
+        "review_index": 27,
+        "role": "final_eval_untouched",
+        "row_id": "liuhaotian/LLaVA-Pretrain:003169286#raw_caption",
+        "row_sha256": "786385616e8d4ba32b138a9113645122ea6c5c956b26f45795e7a6ed680af893",
+        "sealed": true,
+        "section": "sealed_final_eval",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": false,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Sealed final-eval rows are structural-only. Their target text is withheld and semantic review is prohibited.",
+          "status": "prohibited_sealed",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "22b6823e1c758580c4052418c611f102a05a06683e8910b90cdda350c2700f86",
+        "target_text_redacted": true,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "sealed_evaluation_only",
+        "caption": null,
+        "group_key": "liuhaotian/LLaVA-Pretrain:000401749",
+        "image": {
+          "bytes": 37051,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 345
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/000401749.jpg",
+          "image_ref": "images/000401749.jpg",
+          "sha256": "9589f0d97c4251e36111d273872ab5c7348ebe1ed8a23e564679f16994e9b1e5",
+          "upstream_url": "https://tentenshirts.com/wp-content/uploads/2020/03/krusty-the-clown-simpsons-the-joker-hot-t-shirt-3.jpg",
+          "width": 345,
+          "zip_member": "00040/000401749.jpg",
+          "zip_member_crc32": "f932eb4f"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": null,
+        "provenance": {
+          "annotation_row_index": 986,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "5b62aa8411547fce8553e67dde3306e89d62e01622cd4cac61f8b21fdce235d8",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "037f2e239e0a4936d33c7cfde8fb031aa3bc3efa32855207f89b30dcf2d099a6",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "000401749",
+          "upstream_prompt": null,
+          "upstream_url": "https://tentenshirts.com/wp-content/uploads/2020/03/krusty-the-clown-simpsons-the-joker-hot-t-shirt-3.jpg"
+        },
+        "redaction": {
+          "caption": "withheld_sealed_final_eval",
+          "prompt": "withheld_sealed_final_eval",
+          "target_sha256_retained": true
+        },
+        "review_index": 28,
+        "role": "final_eval_untouched",
+        "row_id": "liuhaotian/LLaVA-Pretrain:000401749#raw_caption",
+        "row_sha256": "010612e765b50e1dd49347de3505c161927c60b0ee0855b340edd78a8cb554e2",
+        "sealed": true,
+        "section": "sealed_final_eval",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": false,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Sealed final-eval rows are structural-only. Their target text is withheld and semantic review is prohibited.",
+          "status": "prohibited_sealed",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "5b62aa8411547fce8553e67dde3306e89d62e01622cd4cac61f8b21fdce235d8",
+        "target_text_redacted": true,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "sealed_evaluation_only",
+        "caption": null,
+        "group_key": "liuhaotian/LLaVA-Pretrain:002321958",
+        "image": {
+          "bytes": 56712,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 628
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/002321958.jpg",
+          "image_ref": "images/002321958.jpg",
+          "sha256": "67b3f945dc356ee8eb830d87b309f7c5f8bd06caab6ea58b4786cae6036fe520",
+          "upstream_url": "https://cdp.azureedge.net/products/USA/PO/2018/SNOWMOB/SNOWMTN/800_PRO-RMK_155_SNOWCHECK_SELECT/50/INDY_RED_-_BLACK/2000000010_480px.jpg",
+          "width": 628,
+          "zip_member": "00232/002321958.jpg",
+          "zip_member_crc32": "0905e6b4"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": null,
+        "provenance": {
+          "annotation_row_index": 498,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "388a3038b171cf3ba9784b8a4600fb14fb979a33543049e1a0591f5473ded8f8",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "03936f3897d3e436ac8841ba9aaecfed46b767b68f0e3df2dabca32852580d42",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "002321958",
+          "upstream_prompt": null,
+          "upstream_url": "https://cdp.azureedge.net/products/USA/PO/2018/SNOWMOB/SNOWMTN/800_PRO-RMK_155_SNOWCHECK_SELECT/50/INDY_RED_-_BLACK/2000000010_480px.jpg"
+        },
+        "redaction": {
+          "caption": "withheld_sealed_final_eval",
+          "prompt": "withheld_sealed_final_eval",
+          "target_sha256_retained": true
+        },
+        "review_index": 29,
+        "role": "final_eval_untouched",
+        "row_id": "liuhaotian/LLaVA-Pretrain:002321958#raw_caption",
+        "row_sha256": "201e0775556ae61d504298c1ea06b2dd491639cb0a19d2b9d2cdfb5ff1960ed7",
+        "sealed": true,
+        "section": "sealed_final_eval",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": false,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Sealed final-eval rows are structural-only. Their target text is withheld and semantic review is prohibited.",
+          "status": "prohibited_sealed",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "388a3038b171cf3ba9784b8a4600fb14fb979a33543049e1a0591f5473ded8f8",
+        "target_text_redacted": true,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "sealed_evaluation_only",
+        "caption": null,
+        "group_key": "liuhaotian/LLaVA-Pretrain:003373510",
+        "image": {
+          "bytes": 103378,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 490,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 490,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/003373510.jpg",
+          "image_ref": "images/003373510.jpg",
+          "sha256": "ba9a14aeedb3dbc671d498ef19ba466fbab08670b366af861800c60e97ad8638",
+          "upstream_url": "https://i.pinimg.com/736x/98/a6/0c/98a60c11e1fa97b212de210b47535774.jpg",
+          "width": 336,
+          "zip_member": "00337/003373510.jpg",
+          "zip_member_crc32": "a8b02745"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": null,
+        "provenance": {
+          "annotation_row_index": 1311,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "3df466967e7bd66ff0fd6fbb1b0a11614fc0cee9cce9c6ad11fcbd1b4dec7dec",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "03c66f66dcf2f68fb2841138c976cd871b5101fab449cae59f3463d42a12473d",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "003373510",
+          "upstream_prompt": null,
+          "upstream_url": "https://i.pinimg.com/736x/98/a6/0c/98a60c11e1fa97b212de210b47535774.jpg"
+        },
+        "redaction": {
+          "caption": "withheld_sealed_final_eval",
+          "prompt": "withheld_sealed_final_eval",
+          "target_sha256_retained": true
+        },
+        "review_index": 30,
+        "role": "final_eval_untouched",
+        "row_id": "liuhaotian/LLaVA-Pretrain:003373510#raw_caption",
+        "row_sha256": "29f97365553e016ebe161103a67a0060ad955f0f7198c5773f3887c20c231049",
+        "sealed": true,
+        "section": "sealed_final_eval",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": false,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Sealed final-eval rows are structural-only. Their target text is withheld and semantic review is prohibited.",
+          "status": "prohibited_sealed",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "3df466967e7bd66ff0fd6fbb1b0a11614fc0cee9cce9c6ad11fcbd1b4dec7dec",
+        "target_text_redacted": true,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      }
+    ],
+    "training_candidates": [
+      {
+        "admission_scope": "training_candidate",
+        "caption": "the core objectives of a new consulting business",
+        "group_key": "liuhaotian/LLaVA-Pretrain:001842798",
+        "image": {
+          "bytes": 33334,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 640
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/001842798.jpg",
+          "image_ref": "images/001842798.jpg",
+          "sha256": "fad8c4fe23a8fedb1a64f3705dbb02469f75f0adc1729bbec618ac31cfd9fc83",
+          "upstream_url": "https://149456980.v2.pressablecdn.com/wp-content/uploads/2019/12/Core-Creative-Goals-FBL.png",
+          "width": 640,
+          "zip_member": "00184/001842798.jpg",
+          "zip_member_crc32": "09fc5083"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Write a terse but informative summary of the picture.",
+        "provenance": {
+          "annotation_row_index": 2197,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "f4ebf5e01ca2c61c1d3b18fe4bbeda93e344bfd8a889a463b6fb3c2788fa52b4",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "001bbad1d866ed654feb470b9982ac13c2a7e4da1ac185337d59cbc21f72abdf",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "001842798",
+          "upstream_prompt": "Write a terse but informative summary of the picture.",
+          "upstream_url": "https://149456980.v2.pressablecdn.com/wp-content/uploads/2019/12/Core-Creative-Goals-FBL.png"
+        },
+        "redaction": null,
+        "review_index": 1,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:001842798#raw_caption",
+        "row_sha256": "c05a158ff862583d37788146b9ad56713c2655cc95b427c5e96f26e056293a68",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "f4ebf5e01ca2c61c1d3b18fe4bbeda93e344bfd8a889a463b6fb3c2788fa52b4",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "the team of dynamo celebrate their goal with a celebration following their victory over fc in the europa cup round one",
+        "group_key": "liuhaotian/LLaVA-Pretrain:001529205",
+        "image": {
+          "bytes": 92561,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 404,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 404,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/001529205.jpg",
+          "image_ref": "images/001529205.jpg",
+          "sha256": "e4d4306245010d98897a8cc755fa55c30838c09a3945e14a840a55e6255b7ccf",
+          "upstream_url": "http://media.gettyimages.com/photos/bloemendaals-teun-de-nooijer-celebrates-with-teammates-after-scoring-picture-id168998171?s=612x612",
+          "width": 336,
+          "zip_member": "00152/001529205.jpg",
+          "zip_member_crc32": "eb239ae9"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Share a concise interpretation of the image provided.",
+        "provenance": {
+          "annotation_row_index": 118,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "9f56b4a6410d1aa862083f3e068d6321d2931cac6ddf0d43baaeb3893b7774dc",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "00493ee63439079a92b44d1ad369968ac70fefd54dc537d9d89b0c1064d324a8",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "001529205",
+          "upstream_prompt": "Share a concise interpretation of the image provided.",
+          "upstream_url": "http://media.gettyimages.com/photos/bloemendaals-teun-de-nooijer-celebrates-with-teammates-after-scoring-picture-id168998171?s=612x612"
+        },
+        "redaction": null,
+        "review_index": 2,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:001529205#raw_caption",
+        "row_sha256": "ca7153a78a3282f7343ad38264223ba6701589a2159d69be677777e01126b9c0",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "9f56b4a6410d1aa862083f3e068d6321d2931cac6ddf0d43baaeb3893b7774dc",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "a new dad custom skateboard",
+        "group_key": "liuhaotian/LLaVA-Pretrain:000764186",
+        "image": {
+          "bytes": 14607,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/000764186.jpg",
+          "image_ref": "images/000764186.jpg",
+          "sha256": "be47781e142fc38432d3fe942826478c521342d445113024d886e3781ed9a6bc",
+          "upstream_url": "http://rlv.zcache.ca/new_dad_green_custom_skate_board-r872730d981604e1b94b4a6dddf06dd5d_xw0kb_8byvr_324.jpg",
+          "width": 336,
+          "zip_member": "00076/000764186.jpg",
+          "zip_member_crc32": "5592e119"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Give a brief description of the image.",
+        "provenance": {
+          "annotation_row_index": 2349,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "c9851be94e854040376c978f6fb16c24c471648b366252127a0280e6de74f9b5",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "004f356a3025b93a90e087e6260f1ca4f9d5aed2067568394e5382b11fc789a3",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "000764186",
+          "upstream_prompt": "Give a brief description of the image.",
+          "upstream_url": "http://rlv.zcache.ca/new_dad_green_custom_skate_board-r872730d981604e1b94b4a6dddf06dd5d_xw0kb_8byvr_324.jpg"
+        },
+        "redaction": null,
+        "review_index": 3,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:000764186#raw_caption",
+        "row_sha256": "6b192d88b707d677c1ea99816588da41a37aaf803629dc894c6c15e6b17449b4",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "c9851be94e854040376c978f6fb16c24c471648b366252127a0280e6de74f9b5",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "a picture of ballet dancers in white tutues",
+        "group_key": "liuhaotian/LLaVA-Pretrain:000456905",
+        "image": {
+          "bytes": 77895,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 533
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/000456905.jpg",
+          "image_ref": "images/000456905.jpg",
+          "sha256": "57363b7adeac59537c7c81c0ae9cdf1d069abbcc3525a83f86b848929c597841",
+          "upstream_url": "https://live.staticflickr.com/4904/46660799144_02e287c457_b.jpg",
+          "width": 533,
+          "zip_member": "00045/000456905.jpg",
+          "zip_member_crc32": "7012108c"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "What is in the photo?",
+        "provenance": {
+          "annotation_row_index": 2140,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "7196ba40eee5d8b5dc5e792e416e73dadb31b0c32c221262c168d5bb9b859c8a",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "007380e8c5adac5464fe213f9915096524c048b199f04881113feb5af903c1a5",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "000456905",
+          "upstream_prompt": "What is in the photo?",
+          "upstream_url": "https://live.staticflickr.com/4904/46660799144_02e287c457_b.jpg"
+        },
+        "redaction": null,
+        "review_index": 4,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:000456905#raw_caption",
+        "row_sha256": "6cc9a80e3f5a80076189382c4e78ccb5e6ed77b70fdddef029786f3edf8c81bf",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "7196ba40eee5d8b5dc5e792e416e73dadb31b0c32c221262c168d5bb9b859c8a",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "the pitons from the ocean",
+        "group_key": "liuhaotian/LLaVA-Pretrain:002709185",
+        "image": {
+          "bytes": 45345,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 449
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/002709185.jpg",
+          "image_ref": "images/002709185.jpg",
+          "sha256": "ed36fde76317d037f0d9e7e92dd5284ddd7cf6fc9993910a22427545a4ad57ce",
+          "upstream_url": "http://media-cdn.tripadvisor.com/media/photo-s/01/c3/ea/95/scuba-steve-s-diving.jpg",
+          "width": 449,
+          "zip_member": "00270/002709185.jpg",
+          "zip_member_crc32": "e9248dec"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "What is in the photo?",
+        "provenance": {
+          "annotation_row_index": 977,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "82cba8c642765fc5f79a3d574f3649b853d2ad487e637d997d191717ff9fb0c6",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "009035413e616b6aea7b15874ea9b2e05b9b3c30602908a269717af685bc2e56",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "002709185",
+          "upstream_prompt": "What is in the photo?",
+          "upstream_url": "http://media-cdn.tripadvisor.com/media/photo-s/01/c3/ea/95/scuba-steve-s-diving.jpg"
+        },
+        "redaction": null,
+        "review_index": 5,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:002709185#raw_caption",
+        "row_sha256": "c88f5b3ffc0acfc0f1d05b430fb9d668429e8240f800afd7c2a7ebd55d46ee07",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "82cba8c642765fc5f79a3d574f3649b853d2ad487e637d997d191717ff9fb0c6",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "nicole nicole opi - chocolate milk review, full view of the brown nailpolis",
+        "group_key": "liuhaotian/LLaVA-Pretrain:006359771",
+        "image": {
+          "bytes": 46852,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 504
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/006359771.jpg",
+          "image_ref": "images/006359771.jpg",
+          "sha256": "b7ce966a661307c946d69f246ded7dbb19527d81f6ea1517057439b908158db4",
+          "upstream_url": "http://3.bp.blogspot.com/-SlNIYUR-iA8/Uf1NU-zOVcI/AAAAAAAACNg/dxuS4WbrsR0/s1600/China+Glaze+Mahogany+Magic.JPG",
+          "width": 504,
+          "zip_member": "00635/006359771.jpg",
+          "zip_member_crc32": "a5cb4a42"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Render a clear and concise summary of the photo.",
+        "provenance": {
+          "annotation_row_index": 1592,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "a4c5bb92d4cc7104dcc6febbdab7f4e909e2997370f74ae6f6ba1c025de0177b",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "00ad2ab3ca8ea73998c6448b9a67cc7dbd410754fbdfd98a80925dd91f8824ad",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "006359771",
+          "upstream_prompt": "Render a clear and concise summary of the photo.",
+          "upstream_url": "http://3.bp.blogspot.com/-SlNIYUR-iA8/Uf1NU-zOVcI/AAAAAAAACNg/dxuS4WbrsR0/s1600/China+Glaze+Mahogany+Magic.JPG"
+        },
+        "redaction": null,
+        "review_index": 6,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:006359771#raw_caption",
+        "row_sha256": "4c0128ffe249476e0dbe7f8b42c2078f42656930cab1b9730170a97b732a9972",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "a4c5bb92d4cc7104dcc6febbdab7f4e909e2997370f74ae6f6ba1c025de0177b",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "a person with a surface pen and graphic tablet",
+        "group_key": "liuhaotian/LLaVA-Pretrain:001719881",
+        "image": {
+          "bytes": 27996,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 374
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/001719881.jpg",
+          "image_ref": "images/001719881.jpg",
+          "sha256": "5159e8d315bda512d22908cc6b47044cf29e45d95b5c391a559d155b6612e599",
+          "upstream_url": "https://c.s-microsoft.com/en-gb/CMSImages/SurfaceHome_Lg_17_Mosaic_Item1_new_V1.jpg?version=702da129-cb6a-62ab-5cfa-bd312e1b58f6",
+          "width": 374,
+          "zip_member": "00171/001719881.jpg",
+          "zip_member_crc32": "fe8d6581"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Write a terse but informative summary of the picture.",
+        "provenance": {
+          "annotation_row_index": 2025,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "5d88b0ceb7c4cec939c30dbf0c91cfbad4bc2605bc521fbcf53b8d3b73188b08",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "00b0664a71ae984145b20ed8022bddd8a0de92e330b955c2edcb931ba715dc8f",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "001719881",
+          "upstream_prompt": "Write a terse but informative summary of the picture.",
+          "upstream_url": "https://c.s-microsoft.com/en-gb/CMSImages/SurfaceHome_Lg_17_Mosaic_Item1_new_V1.jpg?version=702da129-cb6a-62ab-5cfa-bd312e1b58f6"
+        },
+        "redaction": null,
+        "review_index": 7,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:001719881#raw_caption",
+        "row_sha256": "f620be834dde608b6a829e33f49406962e3de44d7d6e6808aeaf2043b9b14c80",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "5d88b0ceb7c4cec939c30dbf0c91cfbad4bc2605bc521fbcf53b8d3b73188b08",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "dw home breathe essential fragrance candle in eucalyptus and clary mint",
+        "group_key": "liuhaotian/LLaVA-Pretrain:003982744",
+        "image": {
+          "bytes": 23055,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 385,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 385,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/003982744.jpg",
+          "image_ref": "images/003982744.jpg",
+          "sha256": "c3f03999ba7c58014f103f9db1e78e7fb7d131a34eeb5bd9536b0a3d851033e9",
+          "upstream_url": "https://prodimage.images-bn.com/pimages/0683327815566_p0_v1_s550x406.jpg",
+          "width": 336,
+          "zip_member": "00398/003982744.jpg",
+          "zip_member_crc32": "074495b6"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Give a short and clear explanation of the subsequent image.",
+        "provenance": {
+          "annotation_row_index": 2614,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "e47d88a2faa02c48e762ac2a5b673062ea80a8171a06e4eb19c88bc5b65301ff",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "00cd4217a558e7999430eef23e3810a0add632f963a3c37a5d83618911fa9555",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "003982744",
+          "upstream_prompt": "Give a short and clear explanation of the subsequent image.",
+          "upstream_url": "https://prodimage.images-bn.com/pimages/0683327815566_p0_v1_s550x406.jpg"
+        },
+        "redaction": null,
+        "review_index": 8,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:003982744#raw_caption",
+        "row_sha256": "0c1260ef0dfc0992623b18a2ac2928b601d4a2fb5eda553630434fc32268b064",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "e47d88a2faa02c48e762ac2a5b673062ea80a8171a06e4eb19c88bc5b65301ff",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "a baby cup that's been placed on the side of a white background",
+        "group_key": "liuhaotian/LLaVA-Pretrain:002878530",
+        "image": {
+          "bytes": 21031,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/002878530.jpg",
+          "image_ref": "images/002878530.jpg",
+          "sha256": "1d8dc0186d5da7c79a538b7c3450ad2802d21be27ce070d1692ea8dc0bb7e26b",
+          "upstream_url": "http://ep.yimg.com/ca/I/albee-baby_2268_379272002",
+          "width": 336,
+          "zip_member": "00287/002878530.jpg",
+          "zip_member_crc32": "487bbfda"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Render a clear and concise summary of the photo.",
+        "provenance": {
+          "annotation_row_index": 2602,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "ed736336368a1ff0cc736a2fe1ac26c780cf4fe07fa65e3c9e37e53a30e0adb5",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "00dbfbb4c201a39b3c92878981c97487628cb933b8b2731845e013831e7fc21d",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "002878530",
+          "upstream_prompt": "Render a clear and concise summary of the photo.",
+          "upstream_url": "http://ep.yimg.com/ca/I/albee-baby_2268_379272002"
+        },
+        "redaction": null,
+        "review_index": 9,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:002878530#raw_caption",
+        "row_sha256": "169d5d4b7a76724e3d6582357c2f3ab617bbe06b967b54d3f23c9e1eb6965817",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "ed736336368a1ff0cc736a2fe1ac26c780cf4fe07fa65e3c9e37e53a30e0adb5",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "a woman cannot survive herself sewing is not a hobby it's a 2020 survival skill shirt",
+        "group_key": "liuhaotian/LLaVA-Pretrain:000284813",
+        "image": {
+          "bytes": 41185,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/000284813.jpg",
+          "image_ref": "images/000284813.jpg",
+          "sha256": "b36f93bf4168376030fada198cb1ab07cd0d81162d9a6804784a6cc43df80594",
+          "upstream_url": "https://cdn.gifteeshirt.com/pepetees/2020/04/294c65e7-sewing-is-not-a-hobby-it-s-a-2020-survival-skill-coronavirus-shirt-4-600x600.jpg",
+          "width": 336,
+          "zip_member": "00028/000284813.jpg",
+          "zip_member_crc32": "6bfbe0dc"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Summarize the visual content of the image.",
+        "provenance": {
+          "annotation_row_index": 2941,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "6b18835c9a3ded672281b9480a78feb10c4378a7426785a59c00ebfb831687f3",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "011a4c92f51589f2ec98fb7a6519f3a205101c15a094791b0504c17c65b01c1c",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "000284813",
+          "upstream_prompt": "Summarize the visual content of the image.",
+          "upstream_url": "https://cdn.gifteeshirt.com/pepetees/2020/04/294c65e7-sewing-is-not-a-hobby-it-s-a-2020-survival-skill-coronavirus-shirt-4-600x600.jpg"
+        },
+        "redaction": null,
+        "review_index": 10,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:000284813#raw_caption",
+        "row_sha256": "95563018eead02fe90dd6b3f2b4ceef5a711f60620a5873d61346fb752ca9642",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "6b18835c9a3ded672281b9480a78feb10c4378a7426785a59c00ebfb831687f3",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "the bleachers at fenway park",
+        "group_key": "liuhaotian/LLaVA-Pretrain:002710233",
+        "image": {
+          "bytes": 74589,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 449
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/002710233.jpg",
+          "image_ref": "images/002710233.jpg",
+          "sha256": "3c6777db6d1eb66cb8a99ae7c7b4c5f7cbd8747b9fc17487206403255ae2edbb",
+          "upstream_url": "https://aviewfrommyseat.com/medium/20100502181156-20100708180144.jpg",
+          "width": 449,
+          "zip_member": "00271/002710233.jpg",
+          "zip_member_crc32": "200e36db"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "What is in the photo?",
+        "provenance": {
+          "annotation_row_index": 1861,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "72f0c24db424daf70313309da12b44ca7a0360b05c4a106feaedc6733633d2a9",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "013622bf55d0aaa20cb938a374ef18bf7b4a5220f88ca2a2cb018bfb31c72b22",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "002710233",
+          "upstream_prompt": "What is in the photo?",
+          "upstream_url": "https://aviewfrommyseat.com/medium/20100502181156-20100708180144.jpg"
+        },
+        "redaction": null,
+        "review_index": 11,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:002710233#raw_caption",
+        "row_sha256": "7de834bbc4d15baf9571850f6225c16440fa4325871426719ff2a0b5fdde5c69",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "72f0c24db424daf70313309da12b44ca7a0360b05c4a106feaedc6733633d2a9",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "festive christmas sock on wood with garland and christmas lights by alenka mandic for stocksation",
+        "group_key": "liuhaotian/LLaVA-Pretrain:005525460",
+        "image": {
+          "bytes": 63218,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 504,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 504,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/005525460.jpg",
+          "image_ref": "images/005525460.jpg",
+          "sha256": "f0488533e966d343d46574354a6f024e193cbc425d64e783a08377adc6d75381",
+          "upstream_url": "https://c.stocksy.com/a/HIT300/z0/827593.jpg",
+          "width": 336,
+          "zip_member": "00552/005525460.jpg",
+          "zip_member_crc32": "25bb6353"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Give a short and clear explanation of the subsequent image.",
+        "provenance": {
+          "annotation_row_index": 2855,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "4fc74aaedb641bf5d19f1f61589fbcbc2b799b1b9839c060bde650008a440d3f",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "014d090c0b8800999b4030d814aaa0094e6c9f5e4e49a92489e2d1414b46dbc8",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "005525460",
+          "upstream_prompt": "Give a short and clear explanation of the subsequent image.",
+          "upstream_url": "https://c.stocksy.com/a/HIT300/z0/827593.jpg"
+        },
+        "redaction": null,
+        "review_index": 12,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:005525460#raw_caption",
+        "row_sha256": "0464a2f84e3b79bf4ce7a30559b62286d4c5ec48cfc853dd9560855a37bdbd5d",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "4fc74aaedb641bf5d19f1f61589fbcbc2b799b1b9839c060bde650008a440d3f",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "aya kumar bhathwali performance in sangi festival",
+        "group_key": "liuhaotian/LLaVA-Pretrain:001104367",
+        "image": {
+          "bytes": 44327,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 448
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/001104367.jpg",
+          "image_ref": "images/001104367.jpg",
+          "sha256": "92a9125f573c5aaaee24faf1cd74eb3ce853f8dd263db661fcf9c18c142d507b",
+          "upstream_url": "http://i.ytimg.com/vi/fCj9dfZuHRQ/0.jpg",
+          "width": 448,
+          "zip_member": "00110/001104367.jpg",
+          "zip_member_crc32": "fb1bd3d2"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Share a concise interpretation of the image provided.",
+        "provenance": {
+          "annotation_row_index": 342,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "5667e8c55db6d7f75e5771a07f2775b3ade521c72a3f89a67be23272bd78f321",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "0156f43737e1d166dbbab0d6625c1ca72ea3d5bdca6eab2d97a5229df04b40e7",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "001104367",
+          "upstream_prompt": "Share a concise interpretation of the image provided.",
+          "upstream_url": "http://i.ytimg.com/vi/fCj9dfZuHRQ/0.jpg"
+        },
+        "redaction": null,
+        "review_index": 13,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:001104367#raw_caption",
+        "row_sha256": "d4852032b49dce8e2bc806f509adbb206ae5f19fb9ddfd5475d2652006048e3d",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "5667e8c55db6d7f75e5771a07f2775b3ade521c72a3f89a67be23272bd78f321",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "bunk bed, size twin over full for sale in las vegas, nv",
+        "group_key": "liuhaotian/LLaVA-Pretrain:001316033",
+        "image": {
+          "bytes": 44402,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 448,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 448,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/001316033.jpg",
+          "image_ref": "images/001316033.jpg",
+          "sha256": "925fd5437dd2c3237e4015c9d67038df2fa31fddd6822a9ceb63dc0076f642c7",
+          "upstream_url": "https://photos.offerup.com/9w8_ugSBzg_3LKaI5zN8qjrVWBQ=/300x400/9781/978191517b544726a3fefcfc5e2d572f.jpg",
+          "width": 336,
+          "zip_member": "00131/001316033.jpg",
+          "zip_member_crc32": "3a1e4747"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Write a terse but informative summary of the picture.",
+        "provenance": {
+          "annotation_row_index": 1594,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "bbadb1fb251221ede9f6559c429d3d22cc52459fd34c585eb49921ec3d8bbb9e",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "01915b68403dcbf83baad5c0b7964253b3f2a56d7a52260daab00318bb0dd62e",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "001316033",
+          "upstream_prompt": "Write a terse but informative summary of the picture.",
+          "upstream_url": "https://photos.offerup.com/9w8_ugSBzg_3LKaI5zN8qjrVWBQ=/300x400/9781/978191517b544726a3fefcfc5e2d572f.jpg"
+        },
+        "redaction": null,
+        "review_index": 14,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:001316033#raw_caption",
+        "row_sha256": "81eb08448d8e8e8e4e953caf6a961ab217e0efc6e9ca7ac6cc4ca1660b0e822f",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "bbadb1fb251221ede9f6559c429d3d22cc52459fd34c585eb49921ec3d8bbb9e",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      },
+      {
+        "admission_scope": "training_candidate",
+        "caption": "an empty wicker box on a table",
+        "group_key": "liuhaotian/LLaVA-Pretrain:001939145",
+        "image": {
+          "bytes": 48340,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 423
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/001939145.jpg",
+          "image_ref": "images/001939145.jpg",
+          "sha256": "ec59a33db9ae23be3a6295a7dc757c851fb436783754a17443c1c222bc5f7269",
+          "upstream_url": "https://img1.etsystatic.com/158/0/9441786/il_340x270.1181832675_nhjj.jpg",
+          "width": 423,
+          "zip_member": "00193/001939145.jpg",
+          "zip_member_crc32": "3886af79"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Write a terse but informative summary of the picture.",
+        "provenance": {
+          "annotation_row_index": 761,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "585042f5a45ea691c3d0fbc0635caed1f0197d88c41016f9553e374b5037e897",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "01b6710d4fa91d66955bedb9f7a1b1f1053e178d3c59e12b7d3b25745845da53",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "001939145",
+          "upstream_prompt": "Write a terse but informative summary of the picture.",
+          "upstream_url": "https://img1.etsystatic.com/158/0/9441786/il_340x270.1181832675_nhjj.jpg"
+        },
+        "redaction": null,
+        "review_index": 15,
+        "role": "train",
+        "row_id": "liuhaotian/LLaVA-Pretrain:001939145#raw_caption",
+        "row_sha256": "9e2971b240b9a478a3cafcb2c02c4532bff22604b13560c5dab09c501c1d3699",
+        "sealed": false,
+        "section": "training_candidates",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "585042f5a45ea691c3d0fbc0635caed1f0197d88c41016f9553e374b5037e897",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": true
+      }
+    ],
+    "validation_only": [
+      {
+        "admission_scope": "validation_only",
+        "caption": "a drawing of a bonsail with a frame behind it",
+        "group_key": "liuhaotian/LLaVA-Pretrain:000054222",
+        "image": {
+          "bytes": 59254,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 368,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 368,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/000054222.jpg",
+          "image_ref": "images/000054222.jpg",
+          "sha256": "b2ecabe011085d7831deba27473bf0a57acb86157d663abf19122f57d2739b0e",
+          "upstream_url": "https://static1.squarespace.com/static/55efa788e4b09c3362406e54/59caa0a090bade98db74ef72/5d3b0deeabecc6000113af34/1564156719591/JapaneseWhitePineBonsai.jpg?format=1000w",
+          "width": 336,
+          "zip_member": "00005/000054222.jpg",
+          "zip_member_crc32": "0523eafe"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "What is this?",
+        "provenance": {
+          "annotation_row_index": 47,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "bcca1eaab48ca01b7dda269bc1f0d0b1e480744cf8da274b0345153e65d1d219",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "01bf1196017884d7c896b1b317028da65c4c05cc7f05fdb4cff0a334aa484480",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "000054222",
+          "upstream_prompt": "What is this?",
+          "upstream_url": "https://static1.squarespace.com/static/55efa788e4b09c3362406e54/59caa0a090bade98db74ef72/5d3b0deeabecc6000113af34/1564156719591/JapaneseWhitePineBonsai.jpg?format=1000w"
+        },
+        "redaction": null,
+        "review_index": 16,
+        "role": "development",
+        "row_id": "liuhaotian/LLaVA-Pretrain:000054222#raw_caption",
+        "row_sha256": "994178382524d89274ad6dedf43f39e7273357afd154648e294610836d960985",
+        "sealed": false,
+        "section": "validation_only",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "bcca1eaab48ca01b7dda269bc1f0d0b1e480744cf8da274b0345153e65d1d219",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "validation_only",
+        "caption": "sammy keyes and the hollywood mummy",
+        "group_key": "liuhaotian/LLaVA-Pretrain:003902288",
+        "image": {
+          "bytes": 74793,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 494,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 494,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/003902288.jpg",
+          "image_ref": "images/003902288.jpg",
+          "sha256": "a16a6fa91d56781b5da472d874bb0fb5298ada74e14640710ab4e907997f2eba",
+          "upstream_url": "http://img1.imagesbn.com/p/9780307545176_p0_v1_s260x420.JPG",
+          "width": 336,
+          "zip_member": "00390/003902288.jpg",
+          "zip_member_crc32": "f2b48bbd"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Render a clear and concise summary of the photo.",
+        "provenance": {
+          "annotation_row_index": 586,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "25628c7a1dcf608d36f92259cda256471f479f6850231b24b82dc7ec77634c48",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "02196fdc45b2b109032ba42c3441168244d8eb348242f8623e6a43c3c43d331f",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "003902288",
+          "upstream_prompt": "Render a clear and concise summary of the photo.",
+          "upstream_url": "http://img1.imagesbn.com/p/9780307545176_p0_v1_s260x420.JPG"
+        },
+        "redaction": null,
+        "review_index": 17,
+        "role": "development",
+        "row_id": "liuhaotian/LLaVA-Pretrain:003902288#raw_caption",
+        "row_sha256": "d93bc70c0b37c696574f2926f94fb0fcb59e017f73a873dc2d2eff1c2375d45c",
+        "sealed": false,
+        "section": "validation_only",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "25628c7a1dcf608d36f92259cda256471f479f6850231b24b82dc7ec77634c48",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "validation_only",
+        "caption": "a smiling woman in a helmet smiles",
+        "group_key": "liuhaotian/LLaVA-Pretrain:000961551",
+        "image": {
+          "bytes": 33867,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 367,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 367,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/000961551.jpg",
+          "image_ref": "images/000961551.jpg",
+          "sha256": "1c06c71cfe3ec093b5027d1787c1f5642aaf274d7b2fcf5a49e88969ccbe146f",
+          "upstream_url": "https://www.fairfaxstatic.com.au/content/dam/images/z/t/g/k/y/image.related.articleLeadNarrow.300x0.ztgja.png/1405815294946.jpg",
+          "width": 336,
+          "zip_member": "00096/000961551.jpg",
+          "zip_member_crc32": "ac4e094c"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Write a terse but informative summary of the picture.",
+        "provenance": {
+          "annotation_row_index": 1487,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "c02248b17bccb3e2dbb60e70025b64fef00b2d0952d1b98a4db697bfc5f8aa1b",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "02763a0dfb5f4d07dc55db846548ed14b34db33e5cbc3b62b1398f220c7270ad",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "000961551",
+          "upstream_prompt": "Write a terse but informative summary of the picture.",
+          "upstream_url": "https://www.fairfaxstatic.com.au/content/dam/images/z/t/g/k/y/image.related.articleLeadNarrow.300x0.ztgja.png/1405815294946.jpg"
+        },
+        "redaction": null,
+        "review_index": 18,
+        "role": "development",
+        "row_id": "liuhaotian/LLaVA-Pretrain:000961551#raw_caption",
+        "row_sha256": "9f6898c43cc150a8d2b6b2d27b356b759c0e1c8f3f68b35bd97015acad47a4ab",
+        "sealed": false,
+        "section": "validation_only",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "c02248b17bccb3e2dbb60e70025b64fef00b2d0952d1b98a4db697bfc5f8aa1b",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "validation_only",
+        "caption": "pattern pieces for digital scrapbook pages and wallpaper",
+        "group_key": "liuhaotian/LLaVA-Pretrain:005507560",
+        "image": {
+          "bytes": 32175,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/005507560.jpg",
+          "image_ref": "images/005507560.jpg",
+          "sha256": "f66a7f05514f8f6e5fbb65dddfc7f84ccd6b19264931a2d0bef2d448242926b4",
+          "upstream_url": "https://sahindesigns.com/wp-content/uploads/2016/07/sahindesigns-tilablepatternsno2-500x500.jpg",
+          "width": 336,
+          "zip_member": "00550/005507560.jpg",
+          "zip_member_crc32": "7190e1e9"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Describe the image concisely.",
+        "provenance": {
+          "annotation_row_index": 2298,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "d56d6bfeaf211d99e77d2a6b97a95ccdf6e5a3446d0f874f179c64e8fd6214aa",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "02b384ce5f2f46306ce3bd7e03509b56725951cd52c0b82a0a239bc0f70b0b1d",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "005507560",
+          "upstream_prompt": "Describe the image concisely.",
+          "upstream_url": "https://sahindesigns.com/wp-content/uploads/2016/07/sahindesigns-tilablepatternsno2-500x500.jpg"
+        },
+        "redaction": null,
+        "review_index": 19,
+        "role": "development",
+        "row_id": "liuhaotian/LLaVA-Pretrain:005507560#raw_caption",
+        "row_sha256": "9a0fc8fbcd5f9fb5d0096589e1f3ef7b2645c577cbfc1b8dac08214cb43f88fc",
+        "sealed": false,
+        "section": "validation_only",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "d56d6bfeaf211d99e77d2a6b97a95ccdf6e5a3446d0f874f179c64e8fd6214aa",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "validation_only",
+        "caption": "a red skimobile parked on top of a parking lot",
+        "group_key": "liuhaotian/LLaVA-Pretrain:004055865",
+        "image": {
+          "bytes": 62266,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 448
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/004055865.jpg",
+          "image_ref": "images/004055865.jpg",
+          "sha256": "7cfdd4030ab4b5e0bce837770766db34734864f70af9fd97befa728c8377f556",
+          "upstream_url": "https://cdp.azureedge.net/products-private/prod/1e989f2f-3af5-4ec7-b3a7-6665aaa48ff8/7d1400f0-3772-4a2d-a123-27fa8b89d3e2/00000000-0000-0000-0000-000000000000/95e3d6e6-9713-470b-9d96-aa070091c1ef/99deecf1-12c5-4e80-bbd2-ab0d014a680d/6000000010_480px.jpg",
+          "width": 448,
+          "zip_member": "00405/004055865.jpg",
+          "zip_member_crc32": "f8fb1eef"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Describe the image concisely.",
+        "provenance": {
+          "annotation_row_index": 2173,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "bd369df37b953ad7728522bbd9d17f42da788701316e87a521a6aa1270db7fe2",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "02b508eb4a5c24dd682f3160b65c1cc7bb5e8408e6f74dd32c991d7a133b2d4b",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "004055865",
+          "upstream_prompt": "Describe the image concisely.",
+          "upstream_url": "https://cdp.azureedge.net/products-private/prod/1e989f2f-3af5-4ec7-b3a7-6665aaa48ff8/7d1400f0-3772-4a2d-a123-27fa8b89d3e2/00000000-0000-0000-0000-000000000000/95e3d6e6-9713-470b-9d96-aa070091c1ef/99deecf1-12c5-4e80-bbd2-ab0d014a680d/6000000010_480px.jpg"
+        },
+        "redaction": null,
+        "review_index": 20,
+        "role": "development",
+        "row_id": "liuhaotian/LLaVA-Pretrain:004055865#raw_caption",
+        "row_sha256": "f7eb75b8a897dc65ddea2b5f1c83e2023479bebfa8fce1ce729fe68d76fa2da2",
+        "sealed": false,
+        "section": "validation_only",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "bd369df37b953ad7728522bbd9d17f42da788701316e87a521a6aa1270db7fe2",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "validation_only",
+        "caption": "little girl ruffle shoes / toddler girls shoes / slippers / children's shoes / handmade",
+        "group_key": "liuhaotian/LLaVA-Pretrain:003524176",
+        "image": {
+          "bytes": 70447,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 336,
+            "mode": "RGB",
+            "verified": true,
+            "width": 446
+          },
+          "format": "JPEG",
+          "height": 336,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/003524176.jpg",
+          "image_ref": "images/003524176.jpg",
+          "sha256": "ef0703f7e8e58c76267a39a3bfa9388abe664ad666fc812b58d9e7079d197637",
+          "upstream_url": "http://i01.i.aliimg.com/wsphoto/v0/609996361/promotion-NEWEST-baby-cotton-shoes-font-b-newborn-b-font-baby-soft-prewalker-can-choose-color.jpg",
+          "width": 446,
+          "zip_member": "00352/003524176.jpg",
+          "zip_member_crc32": "95f5e061"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Provide a brief description of the given image.",
+        "provenance": {
+          "annotation_row_index": 813,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "690f2d776c3abade9c86b3a2fdc8e61fbc97b96cd99671fcadabe5b77262ce04",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "02c015cae6d3f641028bc3ec59c36b02146e024363636edca43fe5f23a8317d9",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "003524176",
+          "upstream_prompt": "Provide a brief description of the given image.",
+          "upstream_url": "http://i01.i.aliimg.com/wsphoto/v0/609996361/promotion-NEWEST-baby-cotton-shoes-font-b-newborn-b-font-baby-soft-prewalker-can-choose-color.jpg"
+        },
+        "redaction": null,
+        "review_index": 21,
+        "role": "development",
+        "row_id": "liuhaotian/LLaVA-Pretrain:003524176#raw_caption",
+        "row_sha256": "70574e1c96bfa8e79826807f99157ce2aa66670b9f7d8e4c01b0e853dbf4dc5f",
+        "sealed": false,
+        "section": "validation_only",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "690f2d776c3abade9c86b3a2fdc8e61fbc97b96cd99671fcadabe5b77262ce04",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      },
+      {
+        "admission_scope": "validation_only",
+        "caption": "tiffany lamp table lamps",
+        "group_key": "liuhaotian/LLaVA-Pretrain:001725011",
+        "image": {
+          "bytes": 27323,
+          "channels": 3,
+          "decode": {
+            "channels": 3,
+            "decoder": "pillow-12.0.0",
+            "format": "JPEG",
+            "height": 359,
+            "mode": "RGB",
+            "verified": true,
+            "width": 336
+          },
+          "format": "JPEG",
+          "height": 359,
+          "image_path": "data/external_caption_tranche_20261025_v2/raw/images/001725011.jpg",
+          "image_ref": "images/001725011.jpg",
+          "sha256": "a5113072725707aea3d26521bf2a7ddfcdb66865c068c076ea82787b85a0a29b",
+          "upstream_url": "https://htdeco.fr/3632-large_default/tiffany-lamp-series-london.jpg",
+          "width": 336,
+          "zip_member": "00172/001725011.jpg",
+          "zip_member_crc32": "83ed2e64"
+        },
+        "machine_checks": {
+          "detail_path": "qa_report.json#machine_checks.row_checks",
+          "failed": [],
+          "passed": true,
+          "total": 81
+        },
+        "prompt": "Give a brief description of the image.",
+        "provenance": {
+          "annotation_row_index": 2367,
+          "blip_caption_equals_target": true,
+          "blip_caption_sha256": "3c8d0ded27b1c52728194267732df5992f3f68f14405a7ead486bdfe708feac7",
+          "caption_provenance_note": "Pinned card declares the raw CC-3M caption as the default answer; the metadata blip_caption field is textually identical for the sampled rows, so per-row caption origin is not distinguishable from the pinned artifacts. Both component terms are recorded.",
+          "caption_source": "llava_pretrain_answer_text",
+          "preprocessing_version": "external-caption-normalization-v1",
+          "rank_sha256": "02d0ef0ecd3a17bd22089e117db525f8f2b9637705bd255e39a1be12a8c65641",
+          "sample_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+          "sample_seed": 20261025,
+          "upstream_id": "001725011",
+          "upstream_prompt": "Give a brief description of the image.",
+          "upstream_url": "https://htdeco.fr/3632-large_default/tiffany-lamp-series-london.jpg"
+        },
+        "redaction": null,
+        "review_index": 22,
+        "role": "development",
+        "row_id": "liuhaotian/LLaVA-Pretrain:001725011#raw_caption",
+        "row_sha256": "889c77102dd8b8c93f96ed6353eaae720859902d5e812834c4a628118d4d924a",
+        "sealed": false,
+        "section": "validation_only",
+        "semantic_review": {
+          "notes": null,
+          "performed": false,
+          "required": true,
+          "reviewed_at": null,
+          "reviewer": null,
+          "scope_note": "Machine checks never verify that the caption describes the image. A human must open the image and record a verdict.",
+          "status": "pending",
+          "verdict": null
+        },
+        "source": {
+          "family": "laion_cc_sbu_root_image",
+          "id": "liuhaotian/LLaVA-Pretrain",
+          "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+          "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+          "split": "train"
+        },
+        "target_sha256": "3c8d0ded27b1c52728194267732df5992f3f68f14405a7ead486bdfe708feac7",
+        "target_text_redacted": false,
+        "terms": {
+          "acknowledgements": [
+            "Google LLC (CC-3M)",
+            "LAION/CC/SBU",
+            "Salesforce BLIP",
+            "LLaVA (liuhaotian)"
+          ],
+          "permitted_use": "internal_research",
+          "redistribution": "prohibited",
+          "research_use_only": true
+        },
+        "training_admission_eligible": false
+      }
+    ]
+  },
+  "source": {
+    "family": "laion_cc_sbu_root_image",
+    "id": "liuhaotian/LLaVA-Pretrain",
+    "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+    "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+    "source_url": "https://huggingface.co/datasets/liuhaotian/LLaVA-Pretrain",
+    "split": "train"
+  }
+}

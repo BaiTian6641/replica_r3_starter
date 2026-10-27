@@ -44,8 +44,28 @@ from replica_lab.vision_collapse_diagnostic import (  # noqa: E402
     require, require_fit_coverage, require_stop_conditions, resolve_stop_tokens,
     stop_conditions_report,
 )
-from replica_lab.vision_curriculum import (  # noqa: E402
-    VisionCurriculumError, verify_implementation_pins)
+from replica_lab import source_provenance as provenance  # noqa: E402
+
+HISTORICAL_SOURCE_SNAPSHOT = (
+    "reports/vision_historical_source_20261027/source_snapshot.json")
+CURRENT_SOURCE_RECEIPT = (
+    "configs/vision_current_source_receipt_v1.json")
+
+
+def _default_snapshot(root):
+    root = Path(root)
+    snapshot = root / HISTORICAL_SOURCE_SNAPSHOT
+    if snapshot.is_file():
+        return snapshot
+    return ROOT / HISTORICAL_SOURCE_SNAPSHOT
+
+
+def _default_receipt(root):
+    root = Path(root)
+    receipt = root / CURRENT_SOURCE_RECEIPT
+    if receipt.is_file():
+        return receipt
+    return ROOT / CURRENT_SOURCE_RECEIPT
 
 
 def _sha(path):
@@ -138,9 +158,27 @@ def load_config(path):
     return config
 
 
-def verify_pins(config, root=ROOT):
-    """Verify prepared, source, lock and extension bytes without loading a model."""
+def verify_pins(config, root=ROOT, *, source_root=None, mode=None,
+                current_receipt=None):
+    """Verify prepared, source, lock and extension bytes without loading a model.
+
+    ``historical`` replay authenticates the implementation pins against the
+    immutable source snapshot.  ``current`` qualification requires a reviewed
+    current-source receipt and verifies the live tree against it.  Omitting
+    ``mode`` preserves the pre-existing declared-pin live check for additive
+    consumers that have not yet selected a mode; the v1 CLI always selects
+    ``current``.
+    """
     root = Path(root)
+    if mode is None:
+        if source_root is not None and current_receipt is not None:
+            raise DiagnosticError(
+                "Specify the implementation source mode explicitly when both "
+                "source_root and current_receipt are supplied")
+        if source_root is not None:
+            mode = "historical"
+        elif current_receipt is not None:
+            mode = "current"
     prepared = root / config["prepared"]["root"]
     require(prepared.is_dir(), "The prepared data root is missing")
     protocol_path = root / config["prepared"]["protocol"]
@@ -264,12 +302,10 @@ def verify_pins(config, root=ROOT):
             and migration_config["mode"] == "explicit_read_only_migration",
             "The diagnostic must declare explicit read-only implementation migrations")
     require(prepared_pins, "The prepared protocol lacks implementation pins")
+    require(mode is None or mode in provenance.MODES,
+            f"Unknown implementation source mode: {mode}")
     require(set(migrations) <= set(prepared_pins),
             "Implementation migration names an unpinned file")
-    unchanged = {"implementation_sha256": {
-        relative: expected for relative, expected in prepared_pins.items()
-        if relative not in migrations}}
-    actual = verify_implementation_pins(unchanged, root)
     for relative, migration in migrations.items():
         require(isinstance(migration, dict)
                 and set(migration) == {"parent_sha256", "current_sha256", "reason"},
@@ -278,20 +314,44 @@ def verify_pins(config, root=ROOT):
         require(migration["parent_sha256"] == expected,
                 f"Implementation migration parent differs: {relative}")
         current = migration["current_sha256"]
-        require(isinstance(current, str) and len(current) == 64
-                and all(character in "0123456789abcdef" for character in current)
-                and current != expected,
+        require(provenance.is_sha256(current) and current != expected,
                 f"Implementation migration current pin is invalid: {relative}")
         require(isinstance(migration["reason"], str)
                 and bool(migration["reason"].strip()),
                 f"Implementation migration lacks a reason: {relative}")
-        try:
-            migrated_actual = verify_implementation_pins(
-                {"implementation_sha256": {relative: current}}, root)
-        except VisionCurriculumError as error:
-            raise DiagnosticError(
-                f"Migrated implementation bytes differ: {relative}") from error
-        actual.update(migrated_actual)
+    config_body_sha256 = provenance.canonical_digest(config)
+    try:
+        if mode is None:
+            source = provenance.verify_declared_live(
+                root, prepared_pins=prepared_pins, migrations=migrations,
+                new_files={})
+            actual = source["actual"]
+            resolved_migrations = migrations
+            new_files = {}
+        elif mode == "historical":
+            snapshot = source_root or _default_snapshot(root)
+            source = provenance.verify_historical_source(
+                snapshot, prepared_pins=prepared_pins,
+                migrations=migrations, new_files={})
+            actual = source["actual"]
+            resolved_migrations = migrations
+            new_files = {}
+        else:
+            require(current_receipt is not None,
+                    "Current implementation verification requires a reviewed "
+                    "current-source receipt")
+            current_receipt_path = (current_receipt
+                                    or _default_receipt(root))
+            source = provenance.verify_current_source(
+                current_receipt_path, root=root, prepared_pins=prepared_pins,
+                protocol_sha256=protocol_sha, manifest_sha256=manifest_sha,
+                config_name=config["name"], config_body_sha256=config_body_sha256,
+                config_new_files={})
+            actual = source["live"]
+            resolved_migrations = source["migrations"]
+            new_files = {}
+    except provenance.SourceProvenanceError as error:
+        raise DiagnosticError(str(error)) from error
     implementation = {}
     for relative in sorted(prepared_pins):
         expected = prepared_pins[relative]
@@ -302,7 +362,7 @@ def verify_pins(config, root=ROOT):
             "enforced": True,
             "matches_prepared_pin": actual[relative] == expected,
             "migrated": migrated,
-            "migration": migrations.get(relative),
+            "migration": resolved_migrations.get(relative),
         }
     pins = {
         "prepared": {
@@ -335,7 +395,11 @@ def verify_pins(config, root=ROOT):
             "enforced": True,
             "mode": migration_config["mode"],
             "reason": migration_config["reason"],
+            "source_mode": source["source_mode"],
+            "source_snapshot_sha256": source.get("snapshot_sha256"),
+            "current_receipt_sha256": source.get("receipt_sha256"),
             "files": implementation,
+            "new_files": new_files,
         },
     }
     return {
@@ -1349,12 +1413,43 @@ def build_parser():
     parser.add_argument("--device", choices=("mps",), default="mps")
     parser.add_argument("--model-path", type=Path, required=True)
     parser.add_argument("--model-lock", type=Path, required=True)
+    parser.add_argument("--mode", choices=provenance.MODES,
+                        default="current",
+                        help="authenticate historical snapshot or reviewed current receipt")
+    parser.add_argument("--source-root", type=Path, default=None,
+                        help="historical source snapshot manifest or directory")
+    parser.add_argument("--current-receipt", type=Path,
+                        default=ROOT / CURRENT_SOURCE_RECEIPT,
+                        help="reviewed current-source receipt (required by --mode current)")
+    parser.add_argument("--verify-only", action="store_true",
+                        help="verify pins on CPU and exit without loading a model")
     return parser
+
+
+def _verify_only(args, config):
+    pins = verify_pins(config, source_root=args.source_root, mode=args.mode,
+                       current_receipt=args.current_receipt)
+    implementation = pins["pins"]["implementation"]
+    print(json.dumps({
+        "mode": args.mode,
+        "source_mode": implementation["source_mode"],
+        "source_snapshot_sha256": implementation.get("source_snapshot_sha256"),
+        "current_receipt_sha256": implementation.get("current_receipt_sha256"),
+        "implementation_files": len(implementation["files"]),
+        "new_files": sorted(implementation["new_files"]),
+    }, sort_keys=True))
+    return pins
 
 
 def main():
     parser = build_parser()
     args = parser.parse_args()
+    if args.verify_only:
+        config_path = Path(args.config)
+        if not config_path.is_absolute():
+            config_path = ROOT / config_path
+        _verify_only(args, load_config(config_path))
+        return
     if os.environ.get("REPLICA_CAPACITY_GUARD") != "1":
         parser.error("Use the capacity guard")
     if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") != "0":
@@ -1375,7 +1470,9 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     started = time.monotonic()
     try:
-        pins = verify_pins(config)
+        pins = verify_pins(config, source_root=args.source_root,
+                           mode=args.mode,
+                           current_receipt=args.current_receipt)
         execute(args, config, pins)
     except BaseException as exc:
         if not (args.output / "failure_report.json").exists():

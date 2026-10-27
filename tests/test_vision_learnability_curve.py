@@ -25,6 +25,9 @@ from conftest import require_local_artifacts
 
 
 ROOT = Path(__file__).resolve().parents[1]
+HISTORICAL_SNAPSHOT = (
+    ROOT / "reports/vision_historical_source_20261027/source_snapshot.json")
+CURRENT_RECEIPT = ROOT / "configs/vision_current_source_receipt_v1.json"
 CURVE_CONFIG = ROOT / "configs/vision_learnability_curve_v1.json"
 GRADIENT_CONFIG = ROOT / "configs/vision_gradient_learnability_v1.json"
 ABLATION_RECEIPT = (ROOT / "runs/vision_mean_only_ablation_v1_20261026_attempt09/"
@@ -56,6 +59,12 @@ def _gradient_runner_module():
 
 def _sha(relative):
     return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+
+
+def _snapshot_pins(relative):
+    manifest = json.loads(HISTORICAL_SNAPSHOT.read_text())
+    return {entry["sha256"] for entry in manifest["entries"]
+            if entry["path"] == relative}
 
 
 # ---------------------------------------------------------------------------
@@ -109,8 +118,12 @@ def test_curve_config_is_predeclared_with_five_prefixes_and_reused_pins():
             gradient["implementation_pins"]["new_files"][
                 "scripts/run_vision_learnability_diagnostic.py"])
     for relative in curve.NEW_FILE_PINS:
-        assert config["implementation_pins"]["new_files"][relative] == _sha(
-            relative)
+        pinned = config["implementation_pins"]["new_files"][relative]
+        assert pinned in _snapshot_pins(relative)
+        if relative not in (
+                "scripts/run_vision_learnability_diagnostic.py",
+                "scripts/run_vision_learnability_curve.py"):
+            assert pinned == _sha(relative)
     assert set(config["implementation_pins"]["new_files"]) == set(
         curve.NEW_FILE_PINS)
     for key, value in gradient["limits"].items():
@@ -175,29 +188,52 @@ def test_curve_cli_defaults_to_the_curve_mode_and_mps_device():
     "runs/vision_collapse_diagnostic_v1_20261026_attempt02",
     "runs/vision_mean_only_ablation_v1_20261026_attempt09",
 )
-def test_curve_pins_verify_and_historical_gradient_migration_failure_is_preserved():
+def test_curve_pins_verify_historical_snapshot_and_current_receipt():
     curve_runner = _runner_module()
     gradient_runner = _gradient_runner_module()
     config = curve.load_config(CURVE_CONFIG)
     gradient = learn.load_config(GRADIENT_CONFIG)
-    pins = curve_runner.verify_pins(config)
+    pinned_runner = config["implementation_pins"]["new_files"][
+        "scripts/run_vision_learnability_curve.py"]
+    assert pinned_runner != _sha("scripts/run_vision_learnability_curve.py")
+    pins = curve_runner.verify_pins(config, source_root=HISTORICAL_SNAPSHOT,
+                                    mode="historical")
     assert pins["pins"]["mode"] == "curve"
+    assert pins["pins"]["implementation"]["source_mode"] == (
+        "historical_snapshot")
+    assert pins["pins"]["implementation"]["new_files"][
+        "scripts/run_vision_learnability_curve.py"]["actual_sha256"] == (
+            pinned_runner)
     assert set(pins["pins"]["implementation"]["new_files"]) == set(
         curve.NEW_FILE_PINS)
-    with pytest.raises(learn.LearnabilityDiagnosticError,
-                       match="Migrated implementation bytes differ"):
-        gradient_runner.verify_pins(gradient)
+    gradient_pins = gradient_runner.verify_pins(
+        gradient, source_root=HISTORICAL_SNAPSHOT, mode="historical")
+    assert gradient_pins["pins"]["implementation"]["source_mode"] == (
+        "historical_snapshot")
     for relative in (
             "src/replica_lab/vision_learnability_diagnostic.py",
             "scripts/run_vision_learnability_diagnostic.py"):
-        assert gradient["implementation_pins"]["new_files"][
-            relative] == _sha(relative)
+        pinned = gradient["implementation_pins"]["new_files"][relative]
+        assert pinned in _snapshot_pins(relative)
+        assert gradient_pins["pins"]["implementation"]["new_files"][
+            relative]["actual_sha256"] == pinned
+    with pytest.raises(learn.LearnabilityDiagnosticError,
+                       match="reviewed current-source receipt"):
+        gradient_runner.verify_pins(gradient, mode="current")
+    current = gradient_runner.verify_pins(
+        gradient, mode="current", current_receipt=CURRENT_RECEIPT)
+    assert current["pins"]["implementation"]["source_mode"] == (
+        "current_receipt")
+    curve_current = curve_runner.verify_pins(
+        config, mode="current", current_receipt=CURRENT_RECEIPT)
+    assert curve_current["pins"]["implementation"]["source_mode"] == (
+        "current_receipt")
     drifted = copy.deepcopy(config)
     drifted["implementation_pins"]["new_files"][
         "src/replica_lab/vision_learnability_curve.py"] = "0" * 64
     with pytest.raises(learn.LearnabilityDiagnosticError,
                        match="New implementation bytes differ"):
-        curve_runner.verify_pins(drifted)
+        curve_runner.verify_pins(drifted, source_root=HISTORICAL_SNAPSHOT)
 
 def test_empty_decoded_response_is_scored_but_empty_ids_fail():
     row = {

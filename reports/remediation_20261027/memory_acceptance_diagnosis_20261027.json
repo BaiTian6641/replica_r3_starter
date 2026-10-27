@@ -1,0 +1,2348 @@
+{
+  "abstention": {
+    "address": {
+      "available": true,
+      "false_recall_rate": 0.0,
+      "false_recall_total": 0,
+      "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+      "revoked_abstained": 16,
+      "revoked_abstention_rate": 1.0,
+      "revoked_accepted": 0,
+      "revoked_false_recall": 0,
+      "revoked_false_recall_rate": 0.0,
+      "revoked_n": 16,
+      "unknown_abstained": 32,
+      "unknown_abstention_rate": 1.0,
+      "unknown_accepted": 0,
+      "unknown_false_recall": 0,
+      "unknown_false_recall_rate": 0.0,
+      "unknown_n": 32
+    },
+    "candidate_value": {
+      "available": true,
+      "false_recall_rate": 0.2708333333333333,
+      "false_recall_total": 13,
+      "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+      "revoked_abstained": 13,
+      "revoked_abstention_rate": 0.8125,
+      "revoked_accepted": 3,
+      "revoked_false_recall": 3,
+      "revoked_false_recall_rate": 0.1875,
+      "revoked_n": 16,
+      "unknown_abstained": 22,
+      "unknown_abstention_rate": 0.6875,
+      "unknown_accepted": 10,
+      "unknown_false_recall": 10,
+      "unknown_false_recall_rate": 0.3125,
+      "unknown_n": 32
+    },
+    "oracle": {
+      "available": true,
+      "false_recall_rate": 0.2708333333333333,
+      "false_recall_total": 13,
+      "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+      "revoked_abstained": 13,
+      "revoked_abstention_rate": 0.8125,
+      "revoked_accepted": 3,
+      "revoked_false_recall": 3,
+      "revoked_false_recall_rate": 0.1875,
+      "revoked_n": 16,
+      "unknown_abstained": 22,
+      "unknown_abstention_rate": 0.6875,
+      "unknown_accepted": 10,
+      "unknown_false_recall": 10,
+      "unknown_false_recall_rate": 0.3125,
+      "unknown_n": 32
+    }
+  },
+  "address": {
+    "abstention": {
+      "available": true,
+      "false_recall_rate": 0.0,
+      "false_recall_total": 0,
+      "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+      "revoked_abstained": 16,
+      "revoked_abstention_rate": 1.0,
+      "revoked_accepted": 0,
+      "revoked_false_recall": 0,
+      "revoked_false_recall_rate": 0.0,
+      "revoked_n": 16,
+      "unknown_abstained": 32,
+      "unknown_abstention_rate": 1.0,
+      "unknown_accepted": 0,
+      "unknown_false_recall": 0,
+      "unknown_false_recall_rate": 0.0,
+      "unknown_n": 32
+    },
+    "arm": "query_key_address",
+    "by_layer": {
+      "fact_accepted_correct_layers": 62,
+      "fact_accepted_layers": 62,
+      "fact_layer_precision": 1.0,
+      "fact_readouts": 512,
+      "fact_wrong_layers": 0,
+      "layer_sums_are_not_query_groups": true,
+      "layers": {
+        "13": {
+          "fact_accepted_correct_layers": 4,
+          "fact_accepted_layers": 4,
+          "fact_layer_acceptance_rate": 0.015625,
+          "fact_layer_precision": 1.0,
+          "fact_readouts": 256,
+          "fact_wrong_layers": 0,
+          "layer": 13
+        },
+        "27": {
+          "fact_accepted_correct_layers": 58,
+          "fact_accepted_layers": 58,
+          "fact_layer_acceptance_rate": 0.2265625,
+          "fact_layer_precision": 1.0,
+          "fact_readouts": 256,
+          "fact_wrong_layers": 0,
+          "layer": 27
+        }
+      }
+    },
+    "comparison": {
+      "accepted_layer_result": "62/62",
+      "no_accepted_layer_groups": 198,
+      "partial_groups": 54,
+      "strict_group_result": "4/256",
+      "strict_groups": 4,
+      "wrong_address_layers": 0
+    },
+    "decomposition": {
+      "accepted_correct_layers_from_partial_groups": 54,
+      "accepted_correct_layers_from_strict_groups": 8,
+      "accepted_correct_layers_from_wrong_layer_groups": 0,
+      "accepted_identity_holds": true,
+      "accepted_wrong_layers_from_wrong_layer_groups": 0,
+      "available": true,
+      "exact": true,
+      "fact_accepted_correct_layers": 62,
+      "fact_accepted_layers": 62,
+      "fact_wrong_layers": 0,
+      "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+      "identity_holds": true,
+      "layers_per_group": 2,
+      "partial_groups": 54,
+      "strict_groups": 4,
+      "wrong_layer_groups": 0
+    },
+    "denominators": {
+      "fact_layer_readouts": 512,
+      "fact_query_groups": 256,
+      "layer_view_semantics": "accepted_and_correct_per_readout_layer",
+      "layers": [
+        13,
+        27
+      ],
+      "layers_are_independent_samples": false,
+      "layers_per_group": 2,
+      "query_acceptance_semantics": "any_layer_accepted",
+      "query_correctness_semantics": "all_layers_accepted_and_correct"
+    },
+    "explanation": "The layer view and the query view answer different questions.  accepted=any_layer_accepted is preserved, so an accepted fact group needs only one accepted layer; accepted_correct=all_layers_accepted_and_correct is preserved, so a strict group needs every layer accepted and correct.  All 62 accepted address layers are correct and 0 accepted layers are wrong, so the 54 partial groups are not wrong-address retrievals at layer level; with two layers they are groups with exactly one accepted correct layer and one abstaining layer.  The historical query accepted_wrong value is preserved and is an aggregation label, not a wrong-address label.  Address acceptance is still unrepaired: 198/256 fact groups never accept a layer and strict coverage is 4/256.",
+    "headline": "62/62 accepted address layer readouts are correct (0 wrong-address layers) but only 4/256 fact query groups are strict; 54 groups are partial and 198 groups accept no layer.",
+    "historical_reconciliation": {
+      "fact_accepted_groups": 58,
+      "fact_accepted_layers": 62,
+      "non_fact_accepted_groups": 0,
+      "non_fact_accepted_layers": 0,
+      "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+      "query_accepted_correct": 4,
+      "query_accepted_including_non_fact": 58,
+      "query_accepted_wrong": 54,
+      "query_raw_top1": 256,
+      "readout_accepted_correct": 62,
+      "readout_accepted_including_non_fact": 62,
+      "readout_accepted_wrong": 0
+    },
+    "layer_correctness": {
+      "available": true,
+      "fact_accepted_correct_layers": 62,
+      "fact_accepted_layers": 62,
+      "fact_layer_acceptance_coverage": 0.12109375,
+      "fact_layer_precision": 1.0,
+      "fact_wrong_layer_categories": {
+        "cross_world_alias": 0,
+        "independent_world": 0,
+        "other_source": 0
+      },
+      "fact_wrong_layer_rate": 0.0,
+      "fact_wrong_layers": 0,
+      "non_fact_accepted_layers": 0
+    },
+    "layer_precision_headline": "62/62",
+    "query_aggregation": {
+      "fact_accepted_any_layer_correct_available": true,
+      "fact_accepted_any_layer_correct_groups": 58,
+      "fact_accepted_any_layer_correct_rate": 1.0,
+      "fact_accepted_groups": 58,
+      "fact_accepted_not_all_layers_correct_groups": 54,
+      "fact_any_layer_acceptance_rate": 0.2265625,
+      "fact_any_layer_correct_groups": 256,
+      "fact_any_layer_correct_rate": 1.0,
+      "fact_no_accepted_layer_groups": 198,
+      "fact_no_accepted_layer_rate": 0.7734375,
+      "fact_partial_exactly_one_layer_groups": 54,
+      "fact_partial_group_rate": 0.2109375,
+      "fact_partial_groups": 54,
+      "fact_query_precision": 0.06896551724137931,
+      "fact_strict_all_layers_groups": 4,
+      "fact_strict_group_rate": 0.015625,
+      "fact_wrong_layer_categories": {
+        "cross_world_alias": 0,
+        "independent_world": 0,
+        "other_source": 0
+      },
+      "fact_wrong_layer_group_rate": 0.0,
+      "fact_wrong_layer_groups": 0
+    },
+    "status": "not_repaired",
+    "strict_group_headline": "4/256",
+    "thresholds": {
+      "cosine_floor": 0.5,
+      "margin_floor": 0.05
+    },
+    "variant": "shared_mean/causal_query_refresh"
+  },
+  "bottleneck": {
+    "abstention_evidence": {
+      "revoked_accepted": 3,
+      "revoked_false_recall_rate": 0.1875,
+      "revoked_n": 16,
+      "unknown_accepted": 10,
+      "unknown_false_recall_rate": 0.3125,
+      "unknown_n": 32
+    },
+    "address_evidence": {
+      "fact_accepted_correct_layers": 62,
+      "fact_accepted_groups": 58,
+      "fact_accepted_layers": 62,
+      "fact_layer_precision": 1.0,
+      "fact_partial_groups": 54,
+      "fact_strict_group_rate": 0.015625,
+      "fact_strict_groups": 4,
+      "fact_wrong_layers": 0,
+      "status": "not_repaired"
+    },
+    "address_readout_repaired": false,
+    "calibration_evidence": {
+      "address_point_count": 25,
+      "address_points_meeting_hit_and_precision": 0,
+      "best_candidate_accepted_correct_rate": {
+        "cosine_floor": 0.0,
+        "margin_floor": 0.0,
+        "point_index": 0,
+        "value": 0.1875
+      },
+      "best_candidate_precision": {
+        "cosine_floor": 0.0,
+        "margin_floor": 0.0,
+        "point_index": 0,
+        "value": 0.16
+      },
+      "calibration_is_a_solution": false,
+      "candidate_meets_value_gates": false,
+      "note": "No value point in the 25-point frontier passes the candidate or oracle value gates, and no address point meets both descriptive hit and precision targets.  Threshold calibration cannot repair the value readout or abstention.",
+      "oracle_meets_gates": false,
+      "selected_rule": "oracle_cannot_meet_gates",
+      "value_point_count": 25,
+      "value_points_passing_all_gates": 0,
+      "value_points_passing_candidate_value_gates": 0,
+      "value_points_passing_oracle_gates": 0
+    },
+    "calibration_is_a_solution": false,
+    "components": [
+      "value_readout",
+      "abstention"
+    ],
+    "new_training_arm": false,
+    "next_hypothesis": "one_step_per_event_future_answer_correction_unaffected_retention",
+    "next_hypothesis_status": "declared_not_executed",
+    "not_claimed": [
+      "Address acceptance is not repaired.",
+      "Calibration is not a solution.",
+      "The oracle is not a legal policy or an achievable bound.",
+      "No value readout, abstention, writer or retention capability is demonstrated by this receipt."
+    ],
+    "oracle_evidence": {
+      "fact_accepted_correct_layers": 252,
+      "fact_accepted_groups": 150,
+      "fact_accepted_layers": 252,
+      "fact_layer_precision": 1.0,
+      "fact_partial_groups": 48,
+      "fact_strict_groups": 102,
+      "fact_wrong_layers": 0,
+      "is_legal_policy": false
+    },
+    "retention_evidence": {
+      "candidate_unaffected_accepted_groups": 33,
+      "candidate_unaffected_fact_groups": 80,
+      "candidate_unaffected_strict_groups": 1,
+      "note": "Unaffected/retained rows are scored after an event and currently receive no teaching gradient.  They are part of the next hypothesis scope, not a new training arm in this receipt.",
+      "oracle_unaffected_strict_groups": 18,
+      "unaffected_rows_are_teaching_targets": false,
+      "unaffected_rows_current_teaching_gradient": 0
+    },
+    "scope": "train_dev_only",
+    "selected": "value_readout_and_abstention",
+    "train_dev_scope": {
+      "heldout_metrics_reported": false,
+      "heldout_rows_scored": 0,
+      "per_split_decomposition_available": false,
+      "per_split_decomposition_note": "The source calibration receipt aggregates train and dev native blocks; it does not expose a train/dev split of the same arm and variant.  No per-split claim is made and no heldout row is scored.",
+      "phases": [
+        "first_process",
+        "restart",
+        "revocation"
+      ],
+      "splits": [
+        "train",
+        "dev"
+      ]
+    },
+    "value_evidence": {
+      "fact_accepted_correct_layers": 57,
+      "fact_accepted_groups": 98,
+      "fact_accepted_layers": 156,
+      "fact_layer_precision": 0.36538461538461536,
+      "fact_partial_groups": 23,
+      "fact_strict_group_rate": 0.0546875,
+      "fact_strict_groups": 14,
+      "fact_wrong_layer_groups": 61,
+      "fact_wrong_layers": 99
+    },
+    "why_this_bottleneck": [
+      "Address layer precision is 62/62 with 0 wrong accepted address layers, so accepted address layers are not mis-addressed; the address gap is low strict coverage and partial layer agreement, not a wrong-address mechanism.",
+      "Value layer precision is only 57/156 and 99 accepted fact value layers are wrong, so the value readout itself is the dominant accepted error.",
+      "Unknown false recall is 10/32 and revoked false recall is 3/16, so abstention is also failing.",
+      "The oracle has 252/252 correct accepted fact value layers but still only 102/256 strict groups with 48 partial groups, which isolates layer abstention/aggregation as a remaining limit independent of wrong fact values.",
+      "No calibration point repairs the value gates; threshold movement cannot create a correct value readout or a working abstention rule."
+    ]
+  },
+  "by_role": {
+    "correction_target": {
+      "available": true,
+      "metrics": {
+        "abstention": {
+          "available": false,
+          "false_recall_rate": null,
+          "false_recall_total": 0,
+          "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+          "revoked_abstained": 0,
+          "revoked_abstention_rate": null,
+          "revoked_accepted": 0,
+          "revoked_false_recall": 0,
+          "revoked_false_recall_rate": null,
+          "revoked_n": 0,
+          "unknown_abstained": 0,
+          "unknown_abstention_rate": null,
+          "unknown_accepted": 0,
+          "unknown_false_recall": 0,
+          "unknown_false_recall_rate": null,
+          "unknown_n": 0
+        },
+        "decomposition": {
+          "available": false,
+          "reason": "the source receipt has no per-role readout block, so the layer contribution of partial groups is unavailable"
+        },
+        "denominators": {
+          "fact_layer_readouts": null,
+          "fact_query_groups": 32,
+          "layers": [
+            13,
+            27
+          ],
+          "layers_are_independent_samples": false,
+          "layers_per_group": 2,
+          "query_acceptance_semantics": "any_layer_accepted",
+          "query_correctness_semantics": "all_layers_accepted_and_correct"
+        },
+        "historical_reconciliation": {
+          "fact_accepted_groups": 14,
+          "fact_accepted_layers": null,
+          "non_fact_accepted_groups": 0,
+          "non_fact_accepted_layers": null,
+          "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+          "query_accepted_correct": 8,
+          "query_accepted_including_non_fact": 14,
+          "query_accepted_wrong": 6,
+          "query_raw_top1": 32,
+          "readout_accepted_correct": null,
+          "readout_accepted_including_non_fact": null,
+          "readout_accepted_wrong": null
+        },
+        "layer_correctness": {
+          "available": false,
+          "reason": "role subsets are reported at query aggregation only; this receipt has no per-role layer block"
+        },
+        "query_aggregation": {
+          "fact_accepted_any_layer_correct_available": false,
+          "fact_accepted_any_layer_correct_groups": null,
+          "fact_accepted_any_layer_correct_rate": null,
+          "fact_accepted_groups": 14,
+          "fact_accepted_not_all_layers_correct_groups": 6,
+          "fact_any_layer_acceptance_rate": 0.4375,
+          "fact_any_layer_correct_groups": 32,
+          "fact_any_layer_correct_rate": 1.0,
+          "fact_no_accepted_layer_groups": 18,
+          "fact_no_accepted_layer_rate": 0.5625,
+          "fact_partial_exactly_one_layer_groups": 6,
+          "fact_partial_group_rate": 0.1875,
+          "fact_partial_groups": 6,
+          "fact_query_precision": 0.5714285714285714,
+          "fact_strict_all_layers_groups": 8,
+          "fact_strict_group_rate": 0.25,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 0,
+            "other_source": 0
+          },
+          "fact_wrong_layer_group_rate": 0.0,
+          "fact_wrong_layer_groups": 0
+        }
+      },
+      "oracle_metrics": {
+        "abstention": {
+          "available": false,
+          "false_recall_rate": null,
+          "false_recall_total": 0,
+          "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+          "revoked_abstained": 0,
+          "revoked_abstention_rate": null,
+          "revoked_accepted": 0,
+          "revoked_false_recall": 0,
+          "revoked_false_recall_rate": null,
+          "revoked_n": 0,
+          "unknown_abstained": 0,
+          "unknown_abstention_rate": null,
+          "unknown_accepted": 0,
+          "unknown_false_recall": 0,
+          "unknown_false_recall_rate": null,
+          "unknown_n": 0
+        },
+        "decomposition": {
+          "available": false,
+          "reason": "the source receipt has no per-role readout block, so the layer contribution of partial groups is unavailable"
+        },
+        "denominators": {
+          "fact_layer_readouts": null,
+          "fact_query_groups": 32,
+          "layers": [
+            13,
+            27
+          ],
+          "layers_are_independent_samples": false,
+          "layers_per_group": 2,
+          "query_acceptance_semantics": "any_layer_accepted",
+          "query_correctness_semantics": "all_layers_accepted_and_correct"
+        },
+        "historical_reconciliation": {
+          "fact_accepted_groups": 32,
+          "fact_accepted_layers": null,
+          "non_fact_accepted_groups": 0,
+          "non_fact_accepted_layers": null,
+          "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+          "query_accepted_correct": 28,
+          "query_accepted_including_non_fact": 32,
+          "query_accepted_wrong": 4,
+          "query_raw_top1": 32,
+          "readout_accepted_correct": null,
+          "readout_accepted_including_non_fact": null,
+          "readout_accepted_wrong": null
+        },
+        "layer_correctness": {
+          "available": false,
+          "reason": "role subsets are reported at query aggregation only; this receipt has no per-role layer block"
+        },
+        "query_aggregation": {
+          "fact_accepted_any_layer_correct_available": false,
+          "fact_accepted_any_layer_correct_groups": null,
+          "fact_accepted_any_layer_correct_rate": null,
+          "fact_accepted_groups": 32,
+          "fact_accepted_not_all_layers_correct_groups": 4,
+          "fact_any_layer_acceptance_rate": 1.0,
+          "fact_any_layer_correct_groups": 32,
+          "fact_any_layer_correct_rate": 1.0,
+          "fact_no_accepted_layer_groups": 0,
+          "fact_no_accepted_layer_rate": 0.0,
+          "fact_partial_exactly_one_layer_groups": 4,
+          "fact_partial_group_rate": 0.125,
+          "fact_partial_groups": 4,
+          "fact_query_precision": 0.875,
+          "fact_strict_all_layers_groups": 28,
+          "fact_strict_group_rate": 0.875,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 0,
+            "other_source": 0
+          },
+          "fact_wrong_layer_group_rate": 0.0,
+          "fact_wrong_layer_groups": 0
+        }
+      }
+    },
+    "note": "Role subsets are query-level only in the calibration receipt.  Unaffected/retained rows are scored after an event; they are not an additional teaching gradient in the current path.",
+    "retained_unaffected": {
+      "available": true,
+      "metrics": {
+        "abstention": {
+          "available": false,
+          "false_recall_rate": null,
+          "false_recall_total": 0,
+          "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+          "revoked_abstained": 0,
+          "revoked_abstention_rate": null,
+          "revoked_accepted": 0,
+          "revoked_false_recall": 0,
+          "revoked_false_recall_rate": null,
+          "revoked_n": 0,
+          "unknown_abstained": 0,
+          "unknown_abstention_rate": null,
+          "unknown_accepted": 0,
+          "unknown_false_recall": 0,
+          "unknown_false_recall_rate": null,
+          "unknown_n": 0
+        },
+        "decomposition": {
+          "available": false,
+          "reason": "the source receipt has no per-role readout block, so the layer contribution of partial groups is unavailable"
+        },
+        "denominators": {
+          "fact_layer_readouts": null,
+          "fact_query_groups": 80,
+          "layers": [
+            13,
+            27
+          ],
+          "layers_are_independent_samples": false,
+          "layers_per_group": 2,
+          "query_acceptance_semantics": "any_layer_accepted",
+          "query_correctness_semantics": "all_layers_accepted_and_correct"
+        },
+        "historical_reconciliation": {
+          "fact_accepted_groups": 33,
+          "fact_accepted_layers": null,
+          "non_fact_accepted_groups": 0,
+          "non_fact_accepted_layers": null,
+          "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+          "query_accepted_correct": 1,
+          "query_accepted_including_non_fact": 33,
+          "query_accepted_wrong": 32,
+          "query_raw_top1": 24,
+          "readout_accepted_correct": null,
+          "readout_accepted_including_non_fact": null,
+          "readout_accepted_wrong": null
+        },
+        "layer_correctness": {
+          "available": false,
+          "reason": "role subsets are reported at query aggregation only; this receipt has no per-role layer block"
+        },
+        "query_aggregation": {
+          "fact_accepted_any_layer_correct_available": false,
+          "fact_accepted_any_layer_correct_groups": null,
+          "fact_accepted_any_layer_correct_rate": null,
+          "fact_accepted_groups": 33,
+          "fact_accepted_not_all_layers_correct_groups": 32,
+          "fact_any_layer_acceptance_rate": 0.4125,
+          "fact_any_layer_correct_groups": 24,
+          "fact_any_layer_correct_rate": 0.3,
+          "fact_no_accepted_layer_groups": 47,
+          "fact_no_accepted_layer_rate": 0.5875,
+          "fact_partial_exactly_one_layer_groups": 4,
+          "fact_partial_group_rate": 0.05,
+          "fact_partial_groups": 4,
+          "fact_query_precision": 0.030303030303030304,
+          "fact_strict_all_layers_groups": 1,
+          "fact_strict_group_rate": 0.0125,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 0,
+            "other_source": 28
+          },
+          "fact_wrong_layer_group_rate": 0.35,
+          "fact_wrong_layer_groups": 28
+        }
+      },
+      "oracle_metrics": {
+        "abstention": {
+          "available": false,
+          "false_recall_rate": null,
+          "false_recall_total": 0,
+          "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+          "revoked_abstained": 0,
+          "revoked_abstention_rate": null,
+          "revoked_accepted": 0,
+          "revoked_false_recall": 0,
+          "revoked_false_recall_rate": null,
+          "revoked_n": 0,
+          "unknown_abstained": 0,
+          "unknown_abstention_rate": null,
+          "unknown_accepted": 0,
+          "unknown_false_recall": 0,
+          "unknown_false_recall_rate": null,
+          "unknown_n": 0
+        },
+        "decomposition": {
+          "available": false,
+          "reason": "the source receipt has no per-role readout block, so the layer contribution of partial groups is unavailable"
+        },
+        "denominators": {
+          "fact_layer_readouts": null,
+          "fact_query_groups": 80,
+          "layers": [
+            13,
+            27
+          ],
+          "layers_are_independent_samples": false,
+          "layers_per_group": 2,
+          "query_acceptance_semantics": "any_layer_accepted",
+          "query_correctness_semantics": "all_layers_accepted_and_correct"
+        },
+        "historical_reconciliation": {
+          "fact_accepted_groups": 37,
+          "fact_accepted_layers": null,
+          "non_fact_accepted_groups": 0,
+          "non_fact_accepted_layers": null,
+          "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+          "query_accepted_correct": 18,
+          "query_accepted_including_non_fact": 37,
+          "query_accepted_wrong": 19,
+          "query_raw_top1": 80,
+          "readout_accepted_correct": null,
+          "readout_accepted_including_non_fact": null,
+          "readout_accepted_wrong": null
+        },
+        "layer_correctness": {
+          "available": false,
+          "reason": "role subsets are reported at query aggregation only; this receipt has no per-role layer block"
+        },
+        "query_aggregation": {
+          "fact_accepted_any_layer_correct_available": false,
+          "fact_accepted_any_layer_correct_groups": null,
+          "fact_accepted_any_layer_correct_rate": null,
+          "fact_accepted_groups": 37,
+          "fact_accepted_not_all_layers_correct_groups": 19,
+          "fact_any_layer_acceptance_rate": 0.4625,
+          "fact_any_layer_correct_groups": 80,
+          "fact_any_layer_correct_rate": 1.0,
+          "fact_no_accepted_layer_groups": 43,
+          "fact_no_accepted_layer_rate": 0.5375,
+          "fact_partial_exactly_one_layer_groups": 19,
+          "fact_partial_group_rate": 0.2375,
+          "fact_partial_groups": 19,
+          "fact_query_precision": 0.4864864864864865,
+          "fact_strict_all_layers_groups": 18,
+          "fact_strict_group_rate": 0.225,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 0,
+            "other_source": 0
+          },
+          "fact_wrong_layer_group_rate": 0.0,
+          "fact_wrong_layer_groups": 0
+        }
+      }
+    }
+  },
+  "claims": {
+    "address_acceptance_is_not_the_selected_next_bottleneck": true,
+    "address_layer_precision_is_not_strict_group_coverage": true,
+    "address_layer_readout_correct_when_accepted": true,
+    "address_readout_repaired": false,
+    "calibration_is_a_solution": false,
+    "checkpoint_writes": 0,
+    "gate_semantics_preserved": true,
+    "gradient_scope_declared_not_executed": true,
+    "gradients": 0,
+    "heldout_metric_blocks_parsed": false,
+    "heldout_metrics_reported": false,
+    "heldout_rows_scored": false,
+    "historical_metrics_relabelled": false,
+    "model_loads": 0,
+    "native_execution_performed": false,
+    "new_training_arm": false,
+    "one_step_per_event_contract_unchanged": true,
+    "optimizer_updates": 0,
+    "receipt_is_derived_not_authority": true,
+    "supporting_receipt_metrics_used": false,
+    "train_dev_rows_only": true,
+    "value_readout_and_abstention_are_next_bottleneck": true
+  },
+  "content_sha256": "108ae475bc12932a34003489fc47ae209449a41548218e09efdd5b8cc75bf373",
+  "controls": {
+    "candidate": {
+      "arm": "query_key_value",
+      "metrics": {
+        "abstention": {
+          "available": true,
+          "false_recall_rate": 0.2708333333333333,
+          "false_recall_total": 13,
+          "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+          "revoked_abstained": 13,
+          "revoked_abstention_rate": 0.8125,
+          "revoked_accepted": 3,
+          "revoked_false_recall": 3,
+          "revoked_false_recall_rate": 0.1875,
+          "revoked_n": 16,
+          "unknown_abstained": 22,
+          "unknown_abstention_rate": 0.6875,
+          "unknown_accepted": 10,
+          "unknown_false_recall": 10,
+          "unknown_false_recall_rate": 0.3125,
+          "unknown_n": 32
+        },
+        "arm": "query_key_value",
+        "by_layer": {
+          "fact_accepted_correct_layers": 57,
+          "fact_accepted_layers": 156,
+          "fact_layer_precision": 0.36538461538461536,
+          "fact_readouts": 512,
+          "fact_wrong_layers": 99,
+          "layer_sums_are_not_query_groups": true,
+          "layers": {
+            "13": {
+              "fact_accepted_correct_layers": 16,
+              "fact_accepted_layers": 67,
+              "fact_layer_acceptance_rate": 0.26171875,
+              "fact_layer_precision": 0.23880597014925373,
+              "fact_readouts": 256,
+              "fact_wrong_layers": 51,
+              "layer": 13
+            },
+            "27": {
+              "fact_accepted_correct_layers": 41,
+              "fact_accepted_layers": 89,
+              "fact_layer_acceptance_rate": 0.34765625,
+              "fact_layer_precision": 0.4606741573033708,
+              "fact_readouts": 256,
+              "fact_wrong_layers": 48,
+              "layer": 27
+            }
+          }
+        },
+        "decomposition": {
+          "accepted_correct_layers_from_partial_groups": 23,
+          "accepted_correct_layers_from_strict_groups": 28,
+          "accepted_correct_layers_from_wrong_layer_groups": 6,
+          "accepted_identity_holds": true,
+          "accepted_wrong_layers_from_wrong_layer_groups": 99,
+          "available": true,
+          "exact": true,
+          "fact_accepted_correct_layers": 57,
+          "fact_accepted_layers": 156,
+          "fact_wrong_layers": 99,
+          "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+          "identity_holds": true,
+          "layers_per_group": 2,
+          "partial_groups": 23,
+          "strict_groups": 14,
+          "wrong_layer_groups": 61
+        },
+        "denominators": {
+          "fact_layer_readouts": 512,
+          "fact_query_groups": 256,
+          "layer_view_semantics": "accepted_and_correct_per_readout_layer",
+          "layers": [
+            13,
+            27
+          ],
+          "layers_are_independent_samples": false,
+          "layers_per_group": 2,
+          "query_acceptance_semantics": "any_layer_accepted",
+          "query_correctness_semantics": "all_layers_accepted_and_correct"
+        },
+        "explanation": "Unlike address, the value arm accepts incorrect fact layers: 99 accepted fact value layers are wrong.  The remaining strict group gap also includes abstention: 23 accepted groups have one correct accepted layer and one abstaining layer, 61 accepted groups contain at least one accepted wrong layer, and 158 fact groups accept no layer.  Unknown and revoked rows are accepted at 10/32 and 3/16 respectively, so abstention is not a working safety margin.",
+        "headline": "Candidate value readout accepts 156 fact layers with only 57 correct (99 wrong) and reaches 14/256 strict fact groups; unknown false recall is 10/32 and revoked false recall is 3/16.",
+        "historical_reconciliation": {
+          "fact_accepted_groups": 98,
+          "fact_accepted_layers": 156,
+          "non_fact_accepted_groups": 13,
+          "non_fact_accepted_layers": 23,
+          "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+          "query_accepted_correct": 14,
+          "query_accepted_including_non_fact": 111,
+          "query_accepted_wrong": 97,
+          "query_raw_top1": 101,
+          "readout_accepted_correct": 57,
+          "readout_accepted_including_non_fact": 179,
+          "readout_accepted_wrong": 122
+        },
+        "layer_correctness": {
+          "available": true,
+          "fact_accepted_correct_layers": 57,
+          "fact_accepted_layers": 156,
+          "fact_layer_acceptance_coverage": 0.3046875,
+          "fact_layer_precision": 0.36538461538461536,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 49,
+            "other_source": 50
+          },
+          "fact_wrong_layer_rate": 0.193359375,
+          "fact_wrong_layers": 99,
+          "non_fact_accepted_layers": 23
+        },
+        "query_aggregation": {
+          "fact_accepted_any_layer_correct_available": false,
+          "fact_accepted_any_layer_correct_groups": null,
+          "fact_accepted_any_layer_correct_rate": null,
+          "fact_accepted_groups": 98,
+          "fact_accepted_not_all_layers_correct_groups": 84,
+          "fact_any_layer_acceptance_rate": 0.3828125,
+          "fact_any_layer_correct_groups": 101,
+          "fact_any_layer_correct_rate": 0.39453125,
+          "fact_no_accepted_layer_groups": 158,
+          "fact_no_accepted_layer_rate": 0.6171875,
+          "fact_partial_exactly_one_layer_groups": 23,
+          "fact_partial_group_rate": 0.08984375,
+          "fact_partial_groups": 23,
+          "fact_query_precision": 0.14285714285714285,
+          "fact_strict_all_layers_groups": 14,
+          "fact_strict_group_rate": 0.0546875,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 27,
+            "other_source": 34
+          },
+          "fact_wrong_layer_group_rate": 0.23828125,
+          "fact_wrong_layer_groups": 61
+        },
+        "status": "next_bottleneck",
+        "thresholds": {
+          "cosine_floor": 0.5,
+          "margin_floor": 0.05
+        },
+        "variant": "shared_mean/causal_query_refresh"
+      },
+      "variant": "shared_mean/causal_query_refresh"
+    },
+    "context_removed": {
+      "arm": "context_removed",
+      "available": true,
+      "control": "context_removed_arm",
+      "delta_vs_candidate": {
+        "fact_accepted_groups": -98,
+        "fact_layer_precision": null,
+        "fact_query_precision": null,
+        "fact_strict_group_rate": -0.0546875,
+        "fact_wrong_layers": -99,
+        "revoked_false_recall_rate": -0.1875,
+        "unknown_false_recall_rate": -0.3125
+      },
+      "interpretation": "With context removed every readout is zero or tied; the control accepts no fact group and receives no recoverability or acceptance credit.",
+      "metrics": {
+        "abstention": {
+          "available": true,
+          "false_recall_rate": 0.0,
+          "false_recall_total": 0,
+          "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+          "revoked_abstained": 16,
+          "revoked_abstention_rate": 1.0,
+          "revoked_accepted": 0,
+          "revoked_false_recall": 0,
+          "revoked_false_recall_rate": 0.0,
+          "revoked_n": 16,
+          "unknown_abstained": 32,
+          "unknown_abstention_rate": 1.0,
+          "unknown_accepted": 0,
+          "unknown_false_recall": 0,
+          "unknown_false_recall_rate": 0.0,
+          "unknown_n": 32
+        },
+        "decomposition": {
+          "accepted_correct_layers_from_partial_groups": 0,
+          "accepted_correct_layers_from_strict_groups": 0,
+          "accepted_correct_layers_from_wrong_layer_groups": 0,
+          "accepted_identity_holds": true,
+          "accepted_wrong_layers_from_wrong_layer_groups": 0,
+          "available": true,
+          "exact": true,
+          "fact_accepted_correct_layers": 0,
+          "fact_accepted_layers": 0,
+          "fact_wrong_layers": 0,
+          "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+          "identity_holds": true,
+          "layers_per_group": 2,
+          "partial_groups": 0,
+          "strict_groups": 0,
+          "wrong_layer_groups": 0
+        },
+        "denominators": {
+          "fact_layer_readouts": 512,
+          "fact_query_groups": 256,
+          "layer_view_semantics": "accepted_and_correct_per_readout_layer",
+          "layers": [
+            13,
+            27
+          ],
+          "layers_are_independent_samples": false,
+          "layers_per_group": 2,
+          "query_acceptance_semantics": "any_layer_accepted",
+          "query_correctness_semantics": "all_layers_accepted_and_correct"
+        },
+        "historical_reconciliation": {
+          "fact_accepted_groups": 0,
+          "fact_accepted_layers": 0,
+          "non_fact_accepted_groups": 0,
+          "non_fact_accepted_layers": 0,
+          "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+          "query_accepted_correct": 0,
+          "query_accepted_including_non_fact": 0,
+          "query_accepted_wrong": 0,
+          "query_raw_top1": 0,
+          "readout_accepted_correct": 0,
+          "readout_accepted_including_non_fact": 0,
+          "readout_accepted_wrong": 0
+        },
+        "layer_correctness": {
+          "available": true,
+          "fact_accepted_correct_layers": 0,
+          "fact_accepted_layers": 0,
+          "fact_layer_acceptance_coverage": 0.0,
+          "fact_layer_precision": null,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 0,
+            "other_source": 0
+          },
+          "fact_wrong_layer_rate": 0.0,
+          "fact_wrong_layers": 0,
+          "non_fact_accepted_layers": 0
+        },
+        "query_aggregation": {
+          "fact_accepted_any_layer_correct_available": false,
+          "fact_accepted_any_layer_correct_groups": null,
+          "fact_accepted_any_layer_correct_rate": null,
+          "fact_accepted_groups": 0,
+          "fact_accepted_not_all_layers_correct_groups": 0,
+          "fact_any_layer_acceptance_rate": 0.0,
+          "fact_any_layer_correct_groups": 0,
+          "fact_any_layer_correct_rate": 0.0,
+          "fact_no_accepted_layer_groups": 256,
+          "fact_no_accepted_layer_rate": 1.0,
+          "fact_partial_exactly_one_layer_groups": 0,
+          "fact_partial_group_rate": 0.0,
+          "fact_partial_groups": 0,
+          "fact_query_precision": null,
+          "fact_strict_all_layers_groups": 0,
+          "fact_strict_group_rate": 0.0,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 0,
+            "other_source": 0
+          },
+          "fact_wrong_layer_group_rate": 0.0,
+          "fact_wrong_layer_groups": 0
+        }
+      },
+      "variant": "shared_mean/causal_query_refresh"
+    },
+    "disabled_reset": {
+      "available": true,
+      "control": "shared_mean/disabled",
+      "delta_vs_candidate": {
+        "fact_accepted_groups": -98,
+        "fact_layer_precision": null,
+        "fact_query_precision": null,
+        "fact_strict_group_rate": -0.0546875,
+        "fact_wrong_layers": -99,
+        "revoked_false_recall_rate": -0.1875,
+        "unknown_false_recall_rate": -0.3125
+      },
+      "interpretation": "The disabled/reset control has zero acceptance and a zero-or-tied rate of 1.0; observed top-1 evidence receives no recoverability or acceptance credit.",
+      "metrics": {
+        "abstention": {
+          "available": true,
+          "false_recall_rate": 0.0,
+          "false_recall_total": 0,
+          "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+          "revoked_abstained": 16,
+          "revoked_abstention_rate": 1.0,
+          "revoked_accepted": 0,
+          "revoked_false_recall": 0,
+          "revoked_false_recall_rate": 0.0,
+          "revoked_n": 16,
+          "unknown_abstained": 32,
+          "unknown_abstention_rate": 1.0,
+          "unknown_accepted": 0,
+          "unknown_false_recall": 0,
+          "unknown_false_recall_rate": 0.0,
+          "unknown_n": 32
+        },
+        "decomposition": {
+          "accepted_correct_layers_from_partial_groups": 0,
+          "accepted_correct_layers_from_strict_groups": 0,
+          "accepted_correct_layers_from_wrong_layer_groups": 0,
+          "accepted_identity_holds": true,
+          "accepted_wrong_layers_from_wrong_layer_groups": 0,
+          "available": true,
+          "exact": true,
+          "fact_accepted_correct_layers": 0,
+          "fact_accepted_layers": 0,
+          "fact_wrong_layers": 0,
+          "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+          "identity_holds": true,
+          "layers_per_group": 2,
+          "partial_groups": 0,
+          "strict_groups": 0,
+          "wrong_layer_groups": 0
+        },
+        "denominators": {
+          "fact_layer_readouts": 512,
+          "fact_query_groups": 256,
+          "layer_view_semantics": "accepted_and_correct_per_readout_layer",
+          "layers": [
+            13,
+            27
+          ],
+          "layers_are_independent_samples": false,
+          "layers_per_group": 2,
+          "query_acceptance_semantics": "any_layer_accepted",
+          "query_correctness_semantics": "all_layers_accepted_and_correct"
+        },
+        "historical_reconciliation": {
+          "fact_accepted_groups": 0,
+          "fact_accepted_layers": 0,
+          "non_fact_accepted_groups": 0,
+          "non_fact_accepted_layers": 0,
+          "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+          "query_accepted_correct": 0,
+          "query_accepted_including_non_fact": 0,
+          "query_accepted_wrong": 0,
+          "query_raw_top1": 0,
+          "readout_accepted_correct": 0,
+          "readout_accepted_including_non_fact": 0,
+          "readout_accepted_wrong": 0
+        },
+        "layer_correctness": {
+          "available": true,
+          "fact_accepted_correct_layers": 0,
+          "fact_accepted_layers": 0,
+          "fact_layer_acceptance_coverage": 0.0,
+          "fact_layer_precision": null,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 0,
+            "other_source": 0
+          },
+          "fact_wrong_layer_rate": 0.0,
+          "fact_wrong_layers": 0,
+          "non_fact_accepted_layers": 0
+        },
+        "query_aggregation": {
+          "fact_accepted_any_layer_correct_available": false,
+          "fact_accepted_any_layer_correct_groups": null,
+          "fact_accepted_any_layer_correct_rate": null,
+          "fact_accepted_groups": 0,
+          "fact_accepted_not_all_layers_correct_groups": 0,
+          "fact_any_layer_acceptance_rate": 0.0,
+          "fact_any_layer_correct_groups": 0,
+          "fact_any_layer_correct_rate": 0.0,
+          "fact_no_accepted_layer_groups": 256,
+          "fact_no_accepted_layer_rate": 1.0,
+          "fact_partial_exactly_one_layer_groups": 0,
+          "fact_partial_group_rate": 0.0,
+          "fact_partial_groups": 0,
+          "fact_query_precision": null,
+          "fact_strict_all_layers_groups": 0,
+          "fact_strict_group_rate": 0.0,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 0,
+            "other_source": 0
+          },
+          "fact_wrong_layer_group_rate": 0.0,
+          "fact_wrong_layer_groups": 0
+        }
+      },
+      "variant": "shared_mean/disabled"
+    },
+    "exact_context": {
+      "abstention_available": false,
+      "abstention_unavailable_reason": "exact-key rows exist only for fact targets; this arm has no unknown or revoked rows",
+      "arm": "exact_key_value",
+      "available": true,
+      "blended_into_candidate_quality": false,
+      "control": "exact_key_value_arm",
+      "delta_vs_candidate": {
+        "fact_accepted_groups": 9,
+        "fact_layer_precision": 0.04425393883225209,
+        "fact_query_precision": -0.002670226969292394,
+        "fact_strict_group_rate": 0.00390625,
+        "fact_wrong_layers": -1,
+        "revoked_false_recall_rate": null,
+        "unknown_false_recall_rate": null
+      },
+      "is_upper_bound": false,
+      "metrics": {
+        "abstention": {
+          "available": false,
+          "false_recall_rate": null,
+          "false_recall_total": 0,
+          "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+          "revoked_abstained": 0,
+          "revoked_abstention_rate": null,
+          "revoked_accepted": 0,
+          "revoked_false_recall": 0,
+          "revoked_false_recall_rate": null,
+          "revoked_n": 0,
+          "unknown_abstained": 0,
+          "unknown_abstention_rate": null,
+          "unknown_accepted": 0,
+          "unknown_false_recall": 0,
+          "unknown_false_recall_rate": null,
+          "unknown_n": 0
+        },
+        "decomposition": {
+          "accepted_correct_layers_from_partial_groups": 32,
+          "accepted_correct_layers_from_strict_groups": 30,
+          "accepted_correct_layers_from_wrong_layer_groups": 6,
+          "accepted_identity_holds": true,
+          "accepted_wrong_layers_from_wrong_layer_groups": 98,
+          "available": true,
+          "exact": true,
+          "fact_accepted_correct_layers": 68,
+          "fact_accepted_layers": 166,
+          "fact_wrong_layers": 98,
+          "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+          "identity_holds": true,
+          "layers_per_group": 2,
+          "partial_groups": 32,
+          "strict_groups": 15,
+          "wrong_layer_groups": 60
+        },
+        "denominators": {
+          "fact_layer_readouts": 512,
+          "fact_query_groups": 256,
+          "layer_view_semantics": "accepted_and_correct_per_readout_layer",
+          "layers": [
+            13,
+            27
+          ],
+          "layers_are_independent_samples": false,
+          "layers_per_group": 2,
+          "query_acceptance_semantics": "any_layer_accepted",
+          "query_correctness_semantics": "all_layers_accepted_and_correct"
+        },
+        "historical_reconciliation": {
+          "fact_accepted_groups": 107,
+          "fact_accepted_layers": 166,
+          "non_fact_accepted_groups": 0,
+          "non_fact_accepted_layers": 0,
+          "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+          "query_accepted_correct": 15,
+          "query_accepted_including_non_fact": 107,
+          "query_accepted_wrong": 92,
+          "query_raw_top1": 101,
+          "readout_accepted_correct": 68,
+          "readout_accepted_including_non_fact": 166,
+          "readout_accepted_wrong": 98
+        },
+        "layer_correctness": {
+          "available": true,
+          "fact_accepted_correct_layers": 68,
+          "fact_accepted_layers": 166,
+          "fact_layer_acceptance_coverage": 0.32421875,
+          "fact_layer_precision": 0.40963855421686746,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 46,
+            "other_source": 52
+          },
+          "fact_wrong_layer_rate": 0.19140625,
+          "fact_wrong_layers": 98,
+          "non_fact_accepted_layers": 0
+        },
+        "query_aggregation": {
+          "fact_accepted_any_layer_correct_available": false,
+          "fact_accepted_any_layer_correct_groups": null,
+          "fact_accepted_any_layer_correct_rate": null,
+          "fact_accepted_groups": 107,
+          "fact_accepted_not_all_layers_correct_groups": 92,
+          "fact_any_layer_acceptance_rate": 0.41796875,
+          "fact_any_layer_correct_groups": 101,
+          "fact_any_layer_correct_rate": 0.39453125,
+          "fact_no_accepted_layer_groups": 149,
+          "fact_no_accepted_layer_rate": 0.58203125,
+          "fact_partial_exactly_one_layer_groups": 32,
+          "fact_partial_group_rate": 0.125,
+          "fact_partial_groups": 32,
+          "fact_query_precision": 0.14018691588785046,
+          "fact_strict_all_layers_groups": 15,
+          "fact_strict_group_rate": 0.05859375,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 24,
+            "other_source": 36
+          },
+          "fact_wrong_layer_group_rate": 0.234375,
+          "fact_wrong_layer_groups": 60
+        }
+      },
+      "variant": "shared_mean/causal_query_refresh"
+    },
+    "full": {
+      "available": true,
+      "control": "full_state_variant",
+      "delta_vs_candidate": {
+        "fact_accepted_groups": -17,
+        "fact_layer_precision": -0.1384342607746863,
+        "fact_query_precision": 0.005291005291005291,
+        "fact_strict_group_rate": -0.0078125,
+        "fact_wrong_layers": 10,
+        "revoked_false_recall_rate": 0.0,
+        "unknown_false_recall_rate": 0.0
+      },
+      "metrics": {
+        "abstention": {
+          "available": true,
+          "false_recall_rate": 0.2708333333333333,
+          "false_recall_total": 13,
+          "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+          "revoked_abstained": 13,
+          "revoked_abstention_rate": 0.8125,
+          "revoked_accepted": 3,
+          "revoked_false_recall": 3,
+          "revoked_false_recall_rate": 0.1875,
+          "revoked_n": 16,
+          "unknown_abstained": 22,
+          "unknown_abstention_rate": 0.6875,
+          "unknown_accepted": 10,
+          "unknown_false_recall": 10,
+          "unknown_false_recall_rate": 0.3125,
+          "unknown_n": 32
+        },
+        "decomposition": {
+          "accepted_correct_layers_from_partial_groups": 8,
+          "accepted_correct_layers_from_strict_groups": 24,
+          "accepted_correct_layers_from_wrong_layer_groups": 0,
+          "accepted_identity_holds": true,
+          "accepted_wrong_layers_from_wrong_layer_groups": 109,
+          "available": true,
+          "exact": true,
+          "fact_accepted_correct_layers": 32,
+          "fact_accepted_layers": 141,
+          "fact_wrong_layers": 109,
+          "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+          "identity_holds": true,
+          "layers_per_group": 2,
+          "partial_groups": 8,
+          "strict_groups": 12,
+          "wrong_layer_groups": 61
+        },
+        "denominators": {
+          "fact_layer_readouts": 512,
+          "fact_query_groups": 256,
+          "layer_view_semantics": "accepted_and_correct_per_readout_layer",
+          "layers": [
+            13,
+            27
+          ],
+          "layers_are_independent_samples": false,
+          "layers_per_group": 2,
+          "query_acceptance_semantics": "any_layer_accepted",
+          "query_correctness_semantics": "all_layers_accepted_and_correct"
+        },
+        "historical_reconciliation": {
+          "fact_accepted_groups": 81,
+          "fact_accepted_layers": 141,
+          "non_fact_accepted_groups": 13,
+          "non_fact_accepted_layers": 23,
+          "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+          "query_accepted_correct": 12,
+          "query_accepted_including_non_fact": 94,
+          "query_accepted_wrong": 82,
+          "query_raw_top1": 48,
+          "readout_accepted_correct": 32,
+          "readout_accepted_including_non_fact": 164,
+          "readout_accepted_wrong": 132
+        },
+        "layer_correctness": {
+          "available": true,
+          "fact_accepted_correct_layers": 32,
+          "fact_accepted_layers": 141,
+          "fact_layer_acceptance_coverage": 0.275390625,
+          "fact_layer_precision": 0.22695035460992907,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 51,
+            "other_source": 58
+          },
+          "fact_wrong_layer_rate": 0.212890625,
+          "fact_wrong_layers": 109,
+          "non_fact_accepted_layers": 23
+        },
+        "query_aggregation": {
+          "fact_accepted_any_layer_correct_available": false,
+          "fact_accepted_any_layer_correct_groups": null,
+          "fact_accepted_any_layer_correct_rate": null,
+          "fact_accepted_groups": 81,
+          "fact_accepted_not_all_layers_correct_groups": 69,
+          "fact_any_layer_acceptance_rate": 0.31640625,
+          "fact_any_layer_correct_groups": 48,
+          "fact_any_layer_correct_rate": 0.1875,
+          "fact_no_accepted_layer_groups": 175,
+          "fact_no_accepted_layer_rate": 0.68359375,
+          "fact_partial_exactly_one_layer_groups": 8,
+          "fact_partial_group_rate": 0.03125,
+          "fact_partial_groups": 8,
+          "fact_query_precision": 0.14814814814814814,
+          "fact_strict_all_layers_groups": 12,
+          "fact_strict_group_rate": 0.046875,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 27,
+            "other_source": 34
+          },
+          "fact_wrong_layer_group_rate": 0.23828125,
+          "fact_wrong_layer_groups": 61
+        }
+      },
+      "variant": "shared_mean/full"
+    },
+    "oracle": {
+      "arm": "query_key_value",
+      "is_diagnostic_only": true,
+      "is_legal_policy": false,
+      "metrics": {
+        "abstention": {
+          "available": true,
+          "false_recall_rate": 0.2708333333333333,
+          "false_recall_total": 13,
+          "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+          "revoked_abstained": 13,
+          "revoked_abstention_rate": 0.8125,
+          "revoked_accepted": 3,
+          "revoked_false_recall": 3,
+          "revoked_false_recall_rate": 0.1875,
+          "revoked_n": 16,
+          "unknown_abstained": 22,
+          "unknown_abstention_rate": 0.6875,
+          "unknown_accepted": 10,
+          "unknown_false_recall": 10,
+          "unknown_false_recall_rate": 0.3125,
+          "unknown_n": 32
+        },
+        "arm": "query_key_value",
+        "by_layer": {
+          "fact_accepted_correct_layers": 252,
+          "fact_accepted_layers": 252,
+          "fact_layer_precision": 1.0,
+          "fact_readouts": 512,
+          "fact_wrong_layers": 0,
+          "layer_sums_are_not_query_groups": true,
+          "layers": {
+            "13": {
+              "fact_accepted_correct_layers": 125,
+              "fact_accepted_layers": 125,
+              "fact_layer_acceptance_rate": 0.48828125,
+              "fact_layer_precision": 1.0,
+              "fact_readouts": 256,
+              "fact_wrong_layers": 0,
+              "layer": 13
+            },
+            "27": {
+              "fact_accepted_correct_layers": 127,
+              "fact_accepted_layers": 127,
+              "fact_layer_acceptance_rate": 0.49609375,
+              "fact_layer_precision": 1.0,
+              "fact_readouts": 256,
+              "fact_wrong_layers": 0,
+              "layer": 27
+            }
+          }
+        },
+        "decomposition": {
+          "accepted_correct_layers_from_partial_groups": 48,
+          "accepted_correct_layers_from_strict_groups": 204,
+          "accepted_correct_layers_from_wrong_layer_groups": 0,
+          "accepted_identity_holds": true,
+          "accepted_wrong_layers_from_wrong_layer_groups": 0,
+          "available": true,
+          "exact": true,
+          "fact_accepted_correct_layers": 252,
+          "fact_accepted_layers": 252,
+          "fact_wrong_layers": 0,
+          "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+          "identity_holds": true,
+          "layers_per_group": 2,
+          "partial_groups": 48,
+          "strict_groups": 102,
+          "wrong_layer_groups": 0
+        },
+        "denominators": {
+          "fact_layer_readouts": 512,
+          "fact_query_groups": 256,
+          "layer_view_semantics": "accepted_and_correct_per_readout_layer",
+          "layers": [
+            13,
+            27
+          ],
+          "layers_are_independent_samples": false,
+          "layers_per_group": 2,
+          "query_acceptance_semantics": "any_layer_accepted",
+          "query_correctness_semantics": "all_layers_accepted_and_correct"
+        },
+        "explanation": "The oracle is a gold-target diagnostic, not a legal policy.  Its accepted-layer fact precision with 48 partial groups isolates layer aggregation and abstention as a remaining limit even when value readout is correct.  It does not repair the candidate value readout.",
+        "headline": "Oracle fact value layers are 252/252 correct with 0 wrong fact value layers, yet only 102/256 fact groups are strict and 48 are partial; 106 groups accept no layer.",
+        "historical_reconciliation": {
+          "fact_accepted_groups": 150,
+          "fact_accepted_layers": 252,
+          "non_fact_accepted_groups": 13,
+          "non_fact_accepted_layers": 23,
+          "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+          "query_accepted_correct": 102,
+          "query_accepted_including_non_fact": 163,
+          "query_accepted_wrong": 61,
+          "query_raw_top1": 256,
+          "readout_accepted_correct": 252,
+          "readout_accepted_including_non_fact": 275,
+          "readout_accepted_wrong": 23
+        },
+        "is_diagnostic_only": true,
+        "is_legal_policy": false,
+        "layer_correctness": {
+          "available": true,
+          "fact_accepted_correct_layers": 252,
+          "fact_accepted_layers": 252,
+          "fact_layer_acceptance_coverage": 0.4921875,
+          "fact_layer_precision": 1.0,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 0,
+            "other_source": 0
+          },
+          "fact_wrong_layer_rate": 0.0,
+          "fact_wrong_layers": 0,
+          "non_fact_accepted_layers": 23
+        },
+        "query_aggregation": {
+          "fact_accepted_any_layer_correct_available": false,
+          "fact_accepted_any_layer_correct_groups": null,
+          "fact_accepted_any_layer_correct_rate": null,
+          "fact_accepted_groups": 150,
+          "fact_accepted_not_all_layers_correct_groups": 48,
+          "fact_any_layer_acceptance_rate": 0.5859375,
+          "fact_any_layer_correct_groups": 256,
+          "fact_any_layer_correct_rate": 1.0,
+          "fact_no_accepted_layer_groups": 106,
+          "fact_no_accepted_layer_rate": 0.4140625,
+          "fact_partial_exactly_one_layer_groups": 48,
+          "fact_partial_group_rate": 0.1875,
+          "fact_partial_groups": 48,
+          "fact_query_precision": 0.68,
+          "fact_strict_all_layers_groups": 102,
+          "fact_strict_group_rate": 0.3984375,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 0,
+            "other_source": 0
+          },
+          "fact_wrong_layer_group_rate": 0.0,
+          "fact_wrong_layer_groups": 0
+        },
+        "thresholds": {
+          "cosine_floor": 0.5,
+          "margin_floor": 0.05
+        },
+        "variant": "shared_mean/oracle_target_refresh_last"
+      },
+      "variant": "shared_mean/oracle_target_refresh_last"
+    },
+    "selected_record": {
+      "address_candidate": {
+        "runtime_accepted": 58,
+        "runtime_correct": 4,
+        "runtime_precision": 0.06896551724137931,
+        "runtime_rows": 304,
+        "runtime_selection_available": true,
+        "selected_other_live": 0,
+        "source": "artifact runtime fields, not threshold replay"
+      },
+      "available": true,
+      "by_variant": {
+        "shared_mean/causal_query_refresh": {
+          "runtime_accepted": 58,
+          "runtime_correct": 4,
+          "runtime_precision": 0.06896551724137931,
+          "runtime_rows": 304,
+          "runtime_selection_available": true,
+          "selected_other_live": 0,
+          "source": "artifact runtime fields, not threshold replay"
+        },
+        "shared_mean/causal_query_refresh_shuffled_values": {
+          "runtime_accepted": 58,
+          "runtime_correct": 4,
+          "runtime_precision": 0.06896551724137931,
+          "runtime_rows": 304,
+          "runtime_selection_available": true,
+          "selected_other_live": 0,
+          "source": "artifact runtime fields, not threshold replay"
+        },
+        "shared_mean/disabled": {
+          "runtime_accepted": 0,
+          "runtime_correct": 0,
+          "runtime_precision": null,
+          "runtime_rows": 304,
+          "runtime_selection_available": true,
+          "selected_other_live": 0,
+          "source": "artifact runtime fields, not threshold replay"
+        },
+        "shared_mean/full": {
+          "runtime_accepted": 0,
+          "runtime_correct": 0,
+          "runtime_precision": null,
+          "runtime_rows": 304,
+          "runtime_selection_available": true,
+          "selected_other_live": 0,
+          "source": "artifact runtime fields, not threshold replay"
+        },
+        "shared_mean/oracle_target_refresh_last": {
+          "runtime_accepted": 256,
+          "runtime_correct": 256,
+          "runtime_precision": 1.0,
+          "runtime_rows": 304,
+          "runtime_selection_available": true,
+          "selected_other_live": 0,
+          "source": "artifact runtime fields, not threshold replay"
+        }
+      },
+      "candidate": {
+        "runtime_accepted": 58,
+        "runtime_correct": 4,
+        "runtime_precision": 0.06896551724137931,
+        "runtime_rows": 304,
+        "runtime_selection_available": true,
+        "selected_other_live": 0,
+        "source": "artifact runtime fields, not threshold replay"
+      },
+      "control": "artifact_runtime_selected_record",
+      "note": "Runtime selected-record fields come from the artifact and are not recomputed by threshold replay.  They separate the selection decision from the value readout correctness.",
+      "oracle": {
+        "runtime_accepted": 256,
+        "runtime_correct": 256,
+        "runtime_precision": 1.0,
+        "runtime_rows": 304,
+        "runtime_selection_available": true,
+        "selected_other_live": 0,
+        "source": "artifact runtime fields, not threshold replay"
+      }
+    },
+    "separation": {
+      "address_arm_by_variant": {
+        "shared_mean/causal_query_refresh": {
+          "fact_accepted_groups": 58,
+          "fact_accepted_layers": 62,
+          "fact_correct_layers": 62,
+          "fact_strict_groups": 4
+        },
+        "shared_mean/causal_query_refresh_shuffled_values": {
+          "fact_accepted_groups": 58,
+          "fact_accepted_layers": 62,
+          "fact_correct_layers": 62,
+          "fact_strict_groups": 4
+        },
+        "shared_mean/disabled": {
+          "fact_accepted_groups": 58,
+          "fact_accepted_layers": 62,
+          "fact_correct_layers": 62,
+          "fact_strict_groups": 4
+        },
+        "shared_mean/full": {
+          "fact_accepted_groups": 58,
+          "fact_accepted_layers": 62,
+          "fact_correct_layers": 62,
+          "fact_strict_groups": 4
+        },
+        "shared_mean/oracle_target_refresh_last": {
+          "fact_accepted_groups": 58,
+          "fact_accepted_layers": 62,
+          "fact_correct_layers": 62,
+          "fact_strict_groups": 4
+        }
+      },
+      "address_arm_invariant_across_value_variants": true,
+      "candidate_equals_disabled": false,
+      "candidate_equals_full": false,
+      "candidate_equals_shuffled": false,
+      "controls_are_distinct": true,
+      "fact_accepted_groups": {
+        "candidate": 98,
+        "disabled_reset": 0,
+        "exact_context": 107,
+        "full": 81,
+        "oracle": 150,
+        "shuffled_value": 108
+      },
+      "fact_layer_precision": {
+        "candidate": 0.36538461538461536,
+        "disabled_reset": null,
+        "exact_context": 0.40963855421686746,
+        "full": 0.22695035460992907,
+        "oracle": 1.0,
+        "shuffled_value": 0.2222222222222222
+      },
+      "fact_query_precision": {
+        "candidate": 0.14285714285714285,
+        "disabled_reset": null,
+        "exact_context": 0.14018691588785046,
+        "full": 0.14814814814814814,
+        "oracle": 0.68,
+        "shuffled_value": 0.1111111111111111
+      },
+      "fact_strict_group_rate": {
+        "candidate": 0.0546875,
+        "disabled_reset": 0.0,
+        "exact_context": 0.05859375,
+        "full": 0.046875,
+        "oracle": 0.3984375,
+        "shuffled_value": 0.046875
+      },
+      "unknown_false_recall_rate": {
+        "candidate": 0.3125,
+        "disabled_reset": 0.0,
+        "exact_context": null,
+        "full": 0.3125,
+        "oracle": 0.3125,
+        "shuffled_value": 0.40625
+      }
+    },
+    "shuffled_value": {
+      "available": true,
+      "control": "shuffled_value_variant",
+      "delta_vs_candidate": {
+        "fact_accepted_groups": 10,
+        "fact_layer_precision": -0.14316239316239315,
+        "fact_query_precision": -0.031746031746031744,
+        "fact_strict_group_rate": -0.0078125,
+        "fact_wrong_layers": 20,
+        "revoked_false_recall_rate": 0.125,
+        "unknown_false_recall_rate": 0.09375
+      },
+      "interpretation": "Shuffled values do not restore fact value correctness: the control remains at 12/256 strict fact groups and its query precision is lower than the candidate.  It is a control, not a recovered policy.",
+      "metrics": {
+        "abstention": {
+          "available": true,
+          "false_recall_rate": 0.375,
+          "false_recall_total": 18,
+          "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+          "revoked_abstained": 11,
+          "revoked_abstention_rate": 0.6875,
+          "revoked_accepted": 5,
+          "revoked_false_recall": 5,
+          "revoked_false_recall_rate": 0.3125,
+          "revoked_n": 16,
+          "unknown_abstained": 19,
+          "unknown_abstention_rate": 0.59375,
+          "unknown_accepted": 13,
+          "unknown_false_recall": 13,
+          "unknown_false_recall_rate": 0.40625,
+          "unknown_n": 32
+        },
+        "decomposition": {
+          "accepted_correct_layers_from_partial_groups": 10,
+          "accepted_correct_layers_from_strict_groups": 24,
+          "accepted_correct_layers_from_wrong_layer_groups": 0,
+          "accepted_identity_holds": true,
+          "accepted_wrong_layers_from_wrong_layer_groups": 119,
+          "available": true,
+          "exact": true,
+          "fact_accepted_correct_layers": 34,
+          "fact_accepted_layers": 153,
+          "fact_wrong_layers": 119,
+          "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+          "identity_holds": true,
+          "layers_per_group": 2,
+          "partial_groups": 10,
+          "strict_groups": 12,
+          "wrong_layer_groups": 86
+        },
+        "denominators": {
+          "fact_layer_readouts": 512,
+          "fact_query_groups": 256,
+          "layer_view_semantics": "accepted_and_correct_per_readout_layer",
+          "layers": [
+            13,
+            27
+          ],
+          "layers_are_independent_samples": false,
+          "layers_per_group": 2,
+          "query_acceptance_semantics": "any_layer_accepted",
+          "query_correctness_semantics": "all_layers_accepted_and_correct"
+        },
+        "historical_reconciliation": {
+          "fact_accepted_groups": 108,
+          "fact_accepted_layers": 153,
+          "non_fact_accepted_groups": 18,
+          "non_fact_accepted_layers": 27,
+          "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+          "query_accepted_correct": 12,
+          "query_accepted_including_non_fact": 126,
+          "query_accepted_wrong": 114,
+          "query_raw_top1": 42,
+          "readout_accepted_correct": 34,
+          "readout_accepted_including_non_fact": 180,
+          "readout_accepted_wrong": 146
+        },
+        "layer_correctness": {
+          "available": true,
+          "fact_accepted_correct_layers": 34,
+          "fact_accepted_layers": 153,
+          "fact_layer_acceptance_coverage": 0.298828125,
+          "fact_layer_precision": 0.2222222222222222,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 28,
+            "other_source": 91
+          },
+          "fact_wrong_layer_rate": 0.232421875,
+          "fact_wrong_layers": 119,
+          "non_fact_accepted_layers": 27
+        },
+        "query_aggregation": {
+          "fact_accepted_any_layer_correct_available": false,
+          "fact_accepted_any_layer_correct_groups": null,
+          "fact_accepted_any_layer_correct_rate": null,
+          "fact_accepted_groups": 108,
+          "fact_accepted_not_all_layers_correct_groups": 96,
+          "fact_any_layer_acceptance_rate": 0.421875,
+          "fact_any_layer_correct_groups": 42,
+          "fact_any_layer_correct_rate": 0.1640625,
+          "fact_no_accepted_layer_groups": 148,
+          "fact_no_accepted_layer_rate": 0.578125,
+          "fact_partial_exactly_one_layer_groups": 10,
+          "fact_partial_group_rate": 0.0390625,
+          "fact_partial_groups": 10,
+          "fact_query_precision": 0.1111111111111111,
+          "fact_strict_all_layers_groups": 12,
+          "fact_strict_group_rate": 0.046875,
+          "fact_wrong_layer_categories": {
+            "cross_world_alias": 0,
+            "independent_world": 27,
+            "other_source": 59
+          },
+          "fact_wrong_layer_group_rate": 0.3359375,
+          "fact_wrong_layer_groups": 86
+        }
+      },
+      "variant": "shared_mean/causal_query_refresh_shuffled_values"
+    },
+    "wrong_world": {
+      "address_candidate": {
+        "layer_cross_world_false_recall": 0,
+        "layer_independent_world_groups": 0,
+        "layer_other_source_groups": 0,
+        "query_cross_world_false_recall": 10,
+        "query_independent_world_groups": 0,
+        "query_other_source_groups": 0,
+        "source": "scoring-only cross_world_selected and category fields"
+      },
+      "available": true,
+      "candidate": {
+        "layer_cross_world_false_recall": 57,
+        "layer_independent_world_groups": 49,
+        "layer_other_source_groups": 50,
+        "query_cross_world_false_recall": 38,
+        "query_independent_world_groups": 27,
+        "query_other_source_groups": 34,
+        "source": "scoring-only cross_world_selected and category fields"
+      },
+      "control": "cross_world_selected",
+      "exact_context": {
+        "layer_cross_world_false_recall": 46,
+        "layer_independent_world_groups": 46,
+        "layer_other_source_groups": 52,
+        "query_cross_world_false_recall": 29,
+        "query_independent_world_groups": 24,
+        "query_other_source_groups": 36,
+        "source": "scoring-only cross_world_selected and category fields"
+      },
+      "note": "cross_world_selected and the category fields are scoring-only and never threshold inputs.  For the address arm the query view counts cross-world evidence in a non-accepted layer of a partial group; the accepted-layer view has zero wrong address layers.",
+      "oracle": {
+        "layer_cross_world_false_recall": 8,
+        "layer_independent_world_groups": 0,
+        "layer_other_source_groups": 0,
+        "query_cross_world_false_recall": 8,
+        "query_independent_world_groups": 0,
+        "query_other_source_groups": 0,
+        "source": "scoring-only cross_world_selected and category fields"
+      }
+    }
+  },
+  "determinism": {
+    "content_sha256_covers_receipt_without_this_field": true,
+    "ordering": "sorted keys; fixed supporting-receipt order",
+    "wall_clock_recorded": false
+  },
+  "format": "replica.memory_acceptance.remediation.diagnosis.v1",
+  "gradient_scope": {
+    "current_path": {
+      "backbone_receives_gradient": false,
+      "decoder_receives_gradient": false,
+      "expert_bias": false,
+      "expert_matrices_per_expert": 3,
+      "frozen_view_requires_no_autograd_graph": true,
+      "gradient_parameter_count_per_event": 3,
+      "gradient_parameters": [
+        "expert_<selected>.gate",
+        "expert_<selected>.up",
+        "expert_<selected>.down"
+      ],
+      "personality_receives_gradient": false,
+      "read_projections_receive_gradient": false,
+      "selected_expert_only": true,
+      "steps_per_event": 1,
+      "training_objective": "one event response cross-entropy or selected-expert half-sum squared error",
+      "unaffected_rows_current_teaching_gradient": 0,
+      "unaffected_rows_receive_teaching_gradient": false,
+      "unselected_experts_receive_gradient": false,
+      "writers_receive_gradient": false
+    },
+    "evidence": [
+      {
+        "path": "src/replica_lab/nested_learning.py",
+        "statement": "The expert owns exactly gate, up and down parameters and has no bias.",
+        "symbol": "GatedExpert"
+      },
+      {
+        "path": "src/replica_lab/nested_learning.py",
+        "statement": "Gradients are taken with respect to tuple(expert.parameters()) only.",
+        "symbol": "expert_loss_gradients"
+      },
+      {
+        "path": "src/replica_lab/nested_learning.py",
+        "statement": "Only the selected expert receives gradients; inactive experts are required to have no gradient.",
+        "symbol": "PlasticLearningController.apply_teaching_transaction"
+      },
+      {
+        "path": "src/replica_lab/nested_text.py",
+        "statement": "Response cross-entropy gradients are taken with respect to the selected expert's parameters through the frozen decoder path.",
+        "symbol": "TextLearner.learn_event_response_ce"
+      },
+      {
+        "path": "src/replica_lab/nested_learning.py",
+        "statement": "A frozen view is readonly and must not carry an autograd graph.",
+        "symbol": "FrozenView"
+      },
+      {
+        "path": "src/replica_lab/nested_learning.py",
+        "statement": "The personality identity is versioned conditioning and is never rewritten by learning.",
+        "symbol": "PersonalityIdentity"
+      }
+    ],
+    "hypothesis": "one_step_per_event_future_answer_correction_unaffected_retention",
+    "next_hypothesis_scope": {
+      "allowed_gradient_parameters": [
+        "expert_<selected>.gate",
+        "expert_<selected>.up",
+        "expert_<selected>.down"
+      ],
+      "current_unaffected_teaching_gradient": 0,
+      "must_not_add_gradient_targets": [
+        "decoder",
+        "read_projections",
+        "writers",
+        "backbone",
+        "personality",
+        "unselected_experts"
+      ],
+      "name": "one_step_per_event_future_answer_correction_unaffected_retention",
+      "native_execution_permitted_by_this_receipt": false,
+      "new_training_arm": false,
+      "one_step_per_event_contract_unchanged": true,
+      "teaching_targets": [
+        "future_answer",
+        "correction"
+      ],
+      "unaffected_retention_requires_explicit_teaching_signal": true
+    },
+    "status": "declared_not_executed"
+  },
+  "limits": {
+    "checkpoint_writes": 0,
+    "derived_from_receipt_fields_only": true,
+    "gradients": 0,
+    "heldout_rows_scored": 0,
+    "model_loads": 0,
+    "native_execution_performed": false,
+    "new_generation": false,
+    "optimizer_updates": 0,
+    "raw_rankings_read": false,
+    "supporting_receipt_metrics_parsed": false,
+    "tokenizer_loads": 0
+  },
+  "metric_semantics": {
+    "accepted": "any_layer_accepted",
+    "accepted_correct": "all_layers_accepted_and_correct",
+    "accepted_wrong": "accepted_and_not_all_layers_correct",
+    "gate_semantics_preserved": true,
+    "historical_metrics_relabelled": false,
+    "layer_denominator": "fact readout layers",
+    "layer_view": "one row per readout layer; layers are not independent samples and are never treated as extra queries",
+    "partial_group": "accepted but not all layers accepted and correct, with no accepted wrong layer; for the two-layer receipts this means exactly one accepted correct layer and one abstention",
+    "query_view": "one row per fact query group; acceptance is any-layer and correctness is all-layer",
+    "strict_denominator": "fact query groups",
+    "strict_group": "all_layers_accepted_and_correct",
+    "unknown_and_revoked_separate_from_facts": true
+  },
+  "metric_version": "memory.acceptance.remediation.diagnosis.v1",
+  "multi_layer_aggregation": {
+    "address": {
+      "accepted_correct_layers_from_partial_groups": 54,
+      "accepted_correct_layers_from_strict_groups": 8,
+      "accepted_correct_layers_from_wrong_layer_groups": 0,
+      "accepted_identity_holds": true,
+      "accepted_wrong_layers_from_wrong_layer_groups": 0,
+      "available": true,
+      "exact": true,
+      "fact_accepted_correct_layers": 62,
+      "fact_accepted_layers": 62,
+      "fact_wrong_layers": 0,
+      "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+      "identity_holds": true,
+      "layers_per_group": 2,
+      "partial_groups": 54,
+      "strict_groups": 4,
+      "wrong_layer_groups": 0
+    },
+    "layers": [
+      13,
+      27
+    ],
+    "layers_are_independent_samples": false,
+    "layers_per_group": 2,
+    "note": "The strict query view is not the sum of layer views.  Address 62/62 is a layer precision over accepted layers; 4/256 is a strict group count over fact query groups.",
+    "oracle": {
+      "accepted_correct_layers_from_partial_groups": 48,
+      "accepted_correct_layers_from_strict_groups": 204,
+      "accepted_correct_layers_from_wrong_layer_groups": 0,
+      "accepted_identity_holds": true,
+      "accepted_wrong_layers_from_wrong_layer_groups": 0,
+      "available": true,
+      "exact": true,
+      "fact_accepted_correct_layers": 252,
+      "fact_accepted_layers": 252,
+      "fact_wrong_layers": 0,
+      "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+      "identity_holds": true,
+      "layers_per_group": 2,
+      "partial_groups": 48,
+      "strict_groups": 102,
+      "wrong_layer_groups": 0
+    },
+    "value": {
+      "accepted_correct_layers_from_partial_groups": 23,
+      "accepted_correct_layers_from_strict_groups": 28,
+      "accepted_correct_layers_from_wrong_layer_groups": 6,
+      "accepted_identity_holds": true,
+      "accepted_wrong_layers_from_wrong_layer_groups": 99,
+      "available": true,
+      "exact": true,
+      "fact_accepted_correct_layers": 57,
+      "fact_accepted_layers": 156,
+      "fact_wrong_layers": 99,
+      "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+      "identity_holds": true,
+      "layers_per_group": 2,
+      "partial_groups": 23,
+      "strict_groups": 14,
+      "wrong_layer_groups": 61
+    }
+  },
+  "non_claims": [
+    "No learned-memory, learned-selector, generated-answer or calibrated-confidence claim.",
+    "Address acceptance is not repaired; perfect accepted-layer precision does not establish strict group coverage.",
+    "Calibration is not a solution; zero frontiers pass the declared value gates.",
+    "The oracle is a gold-target diagnostic, not a legal policy or an achievable upper bound.",
+    "No new training arm and no change to the one-step-per-event contract.",
+    "Prepared04 heldout remains spent and was not reused."
+  ],
+  "oracle": {
+    "abstention": {
+      "available": true,
+      "false_recall_rate": 0.2708333333333333,
+      "false_recall_total": 13,
+      "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+      "revoked_abstained": 13,
+      "revoked_abstention_rate": 0.8125,
+      "revoked_accepted": 3,
+      "revoked_false_recall": 3,
+      "revoked_false_recall_rate": 0.1875,
+      "revoked_n": 16,
+      "unknown_abstained": 22,
+      "unknown_abstention_rate": 0.6875,
+      "unknown_accepted": 10,
+      "unknown_false_recall": 10,
+      "unknown_false_recall_rate": 0.3125,
+      "unknown_n": 32
+    },
+    "arm": "query_key_value",
+    "by_layer": {
+      "fact_accepted_correct_layers": 252,
+      "fact_accepted_layers": 252,
+      "fact_layer_precision": 1.0,
+      "fact_readouts": 512,
+      "fact_wrong_layers": 0,
+      "layer_sums_are_not_query_groups": true,
+      "layers": {
+        "13": {
+          "fact_accepted_correct_layers": 125,
+          "fact_accepted_layers": 125,
+          "fact_layer_acceptance_rate": 0.48828125,
+          "fact_layer_precision": 1.0,
+          "fact_readouts": 256,
+          "fact_wrong_layers": 0,
+          "layer": 13
+        },
+        "27": {
+          "fact_accepted_correct_layers": 127,
+          "fact_accepted_layers": 127,
+          "fact_layer_acceptance_rate": 0.49609375,
+          "fact_layer_precision": 1.0,
+          "fact_readouts": 256,
+          "fact_wrong_layers": 0,
+          "layer": 27
+        }
+      }
+    },
+    "decomposition": {
+      "accepted_correct_layers_from_partial_groups": 48,
+      "accepted_correct_layers_from_strict_groups": 204,
+      "accepted_correct_layers_from_wrong_layer_groups": 0,
+      "accepted_identity_holds": true,
+      "accepted_wrong_layers_from_wrong_layer_groups": 0,
+      "available": true,
+      "exact": true,
+      "fact_accepted_correct_layers": 252,
+      "fact_accepted_layers": 252,
+      "fact_wrong_layers": 0,
+      "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+      "identity_holds": true,
+      "layers_per_group": 2,
+      "partial_groups": 48,
+      "strict_groups": 102,
+      "wrong_layer_groups": 0
+    },
+    "denominators": {
+      "fact_layer_readouts": 512,
+      "fact_query_groups": 256,
+      "layer_view_semantics": "accepted_and_correct_per_readout_layer",
+      "layers": [
+        13,
+        27
+      ],
+      "layers_are_independent_samples": false,
+      "layers_per_group": 2,
+      "query_acceptance_semantics": "any_layer_accepted",
+      "query_correctness_semantics": "all_layers_accepted_and_correct"
+    },
+    "explanation": "The oracle is a gold-target diagnostic, not a legal policy.  Its accepted-layer fact precision with 48 partial groups isolates layer aggregation and abstention as a remaining limit even when value readout is correct.  It does not repair the candidate value readout.",
+    "headline": "Oracle fact value layers are 252/252 correct with 0 wrong fact value layers, yet only 102/256 fact groups are strict and 48 are partial; 106 groups accept no layer.",
+    "historical_reconciliation": {
+      "fact_accepted_groups": 150,
+      "fact_accepted_layers": 252,
+      "non_fact_accepted_groups": 13,
+      "non_fact_accepted_layers": 23,
+      "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+      "query_accepted_correct": 102,
+      "query_accepted_including_non_fact": 163,
+      "query_accepted_wrong": 61,
+      "query_raw_top1": 256,
+      "readout_accepted_correct": 252,
+      "readout_accepted_including_non_fact": 275,
+      "readout_accepted_wrong": 23
+    },
+    "is_diagnostic_only": true,
+    "is_legal_policy": false,
+    "layer_correctness": {
+      "available": true,
+      "fact_accepted_correct_layers": 252,
+      "fact_accepted_layers": 252,
+      "fact_layer_acceptance_coverage": 0.4921875,
+      "fact_layer_precision": 1.0,
+      "fact_wrong_layer_categories": {
+        "cross_world_alias": 0,
+        "independent_world": 0,
+        "other_source": 0
+      },
+      "fact_wrong_layer_rate": 0.0,
+      "fact_wrong_layers": 0,
+      "non_fact_accepted_layers": 23
+    },
+    "query_aggregation": {
+      "fact_accepted_any_layer_correct_available": false,
+      "fact_accepted_any_layer_correct_groups": null,
+      "fact_accepted_any_layer_correct_rate": null,
+      "fact_accepted_groups": 150,
+      "fact_accepted_not_all_layers_correct_groups": 48,
+      "fact_any_layer_acceptance_rate": 0.5859375,
+      "fact_any_layer_correct_groups": 256,
+      "fact_any_layer_correct_rate": 1.0,
+      "fact_no_accepted_layer_groups": 106,
+      "fact_no_accepted_layer_rate": 0.4140625,
+      "fact_partial_exactly_one_layer_groups": 48,
+      "fact_partial_group_rate": 0.1875,
+      "fact_partial_groups": 48,
+      "fact_query_precision": 0.68,
+      "fact_strict_all_layers_groups": 102,
+      "fact_strict_group_rate": 0.3984375,
+      "fact_wrong_layer_categories": {
+        "cross_world_alias": 0,
+        "independent_world": 0,
+        "other_source": 0
+      },
+      "fact_wrong_layer_group_rate": 0.0,
+      "fact_wrong_layer_groups": 0
+    },
+    "thresholds": {
+      "cosine_floor": 0.5,
+      "margin_floor": 0.05
+    },
+    "variant": "shared_mean/oracle_target_refresh_last"
+  },
+  "purpose": "Derived train/dev memory acceptance diagnosis: explicit address and value correctness, abstention, multi-layer aggregation, control separation and declared gradient scope.  No native execution, model load, gradient, optimizer update, checkpoint write, relabeling or held-out scoring.",
+  "scope": {
+    "fact_layer_readouts": 512,
+    "fact_query_groups": 256,
+    "heldout_metrics_reported": false,
+    "heldout_rows_present": 5840,
+    "heldout_rows_scored": 0,
+    "layers": [
+      13,
+      27
+    ],
+    "per_split_decomposition_available": false,
+    "per_split_decomposition_note": "The source calibration receipt aggregates train and dev native blocks; it does not expose a train/dev split of the same arm and variant.  No per-split claim is made and no heldout row is scored.",
+    "phases": [
+      "first_process",
+      "restart",
+      "revocation"
+    ],
+    "scored_rows": 11680,
+    "splits": [
+      "train",
+      "dev"
+    ]
+  },
+  "source_pins": {
+    "config": {
+      "declared_at_utc": "2026-10-26T00:00:00+00:00",
+      "file_sha256": "13e7a08d7d69f3a6d8707bd90dd11e175c728a4db890e4109f6aed2b7e168c46",
+      "format": "replica.memory_acceptance.calibration.v1",
+      "metric_version": "memory.acceptance.calibration.v1",
+      "path": "/Users/flare/replica_r3_starter/configs/memory_acceptance_calibration_v1.json",
+      "sha256": "1fa84d1575ba83b0d84e2b91e0e495ff8651cda6ce0175fa66c43e6d3366e372"
+    },
+    "inventory": {
+      "path": "/Users/flare/replica_r3_starter/data/memory_causal_fresh_20261026/prepared03/inventory.json",
+      "rows": 456,
+      "sha256": "5994de0da6e7f863f4a697a40a25041e760d0d9e8e5c77f565713e1bdf763a93",
+      "sha256_matches": true,
+      "units": {
+        "arm_case_counts": {
+          "fact": 4,
+          "revoked": 3,
+          "unknown": 3
+        },
+        "arm_expanded_metric_rows": 17520,
+        "declared_query_rows": 228,
+        "inventory_case_rows": 456,
+        "layers": 2,
+        "note": "declared query rows are before state duplication; inventory case rows are state-expanded; arm-expanded rows multiply by variants, layers and kind-eligible arms (exact_key_value only for facts)",
+        "per_layer_arm_expanded_metric_rows": 8760,
+        "variants": 5
+      },
+      "units_reconciled": true
+    },
+    "rankings": {
+      "expected_rows": 17520,
+      "path": "/Users/flare/replica_r3_starter/runs/memory_causal_fresh_20261026/restart02/rankings.jsonl",
+      "rows": 17520,
+      "rows_match": true,
+      "sha256": "e8c8a4a0338ebb1fcc1ec689372f1792350dcc7a8120714145d31c5e835f7952",
+      "sha256_matches": true
+    }
+  },
+  "source_receipts": {
+    "primary": {
+      "available": true,
+      "content_sha256": "0d7df9f40ac76927d8aa695308a5cec92fe31cd909e5c238fc0cd4c72d2d9f46",
+      "content_sha256_verified": true,
+      "declared_at_utc": "2026-10-26T00:00:00+00:00",
+      "format": "replica.memory_acceptance.calibration.receipt.v1",
+      "metric_version": "memory.acceptance.calibration.v1",
+      "path": "/Users/flare/replica_r3_starter/reports/memory_acceptance_20261026/calibration_dev01.json",
+      "role": "primary_train_dev_calibration",
+      "sha256": "dd3994e2b52ddef8ae5f6c3e753fe12e7c957f69c345dc08207e44a16aff40b4"
+    },
+    "supporting": [
+      {
+        "available": true,
+        "format": "replica.memory_acceptance.metrics.v4",
+        "metric_version": "memory.acceptance.v4",
+        "metrics_used": false,
+        "path": "/Users/flare/replica_r3_starter/reports/memory_acceptance_20261026/causal_fresh_native02_acceptance_v4.json",
+        "reason": "provenance hash only; the receipt may include heldout rows and its metric blocks are not parsed or used",
+        "role": "native02_v4_first_process",
+        "sha256": "d348e476b15886f68cd3373a65cf4a8e80072b93d5589cd150368a1ad7629afe"
+      },
+      {
+        "available": true,
+        "format": "replica.memory_acceptance.metrics.v4",
+        "metric_version": "memory.acceptance.v4",
+        "metrics_used": false,
+        "path": "/Users/flare/replica_r3_starter/reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v4.json",
+        "reason": "provenance hash only; the receipt may include heldout rows and its metric blocks are not parsed or used",
+        "role": "restart02_v4",
+        "sha256": "b188d52948392d542991e81c887a4ef843eef642b45f913374b332dcfff22472"
+      }
+    ],
+    "supporting_metrics_used": false,
+    "supporting_note": "Historical v4 receipts are hashed for provenance only.  Their metric blocks may include heldout rows and are never parsed or used by this diagnosis."
+  },
+  "value": {
+    "abstention": {
+      "available": true,
+      "false_recall_rate": 0.2708333333333333,
+      "false_recall_total": 13,
+      "note": "Unknown and revoked rows are separated from fact acceptance.  Every accepted unknown or revoked row is a false recall by construction and never receives correctness credit.",
+      "revoked_abstained": 13,
+      "revoked_abstention_rate": 0.8125,
+      "revoked_accepted": 3,
+      "revoked_false_recall": 3,
+      "revoked_false_recall_rate": 0.1875,
+      "revoked_n": 16,
+      "unknown_abstained": 22,
+      "unknown_abstention_rate": 0.6875,
+      "unknown_accepted": 10,
+      "unknown_false_recall": 10,
+      "unknown_false_recall_rate": 0.3125,
+      "unknown_n": 32
+    },
+    "arm": "query_key_value",
+    "by_layer": {
+      "fact_accepted_correct_layers": 57,
+      "fact_accepted_layers": 156,
+      "fact_layer_precision": 0.36538461538461536,
+      "fact_readouts": 512,
+      "fact_wrong_layers": 99,
+      "layer_sums_are_not_query_groups": true,
+      "layers": {
+        "13": {
+          "fact_accepted_correct_layers": 16,
+          "fact_accepted_layers": 67,
+          "fact_layer_acceptance_rate": 0.26171875,
+          "fact_layer_precision": 0.23880597014925373,
+          "fact_readouts": 256,
+          "fact_wrong_layers": 51,
+          "layer": 13
+        },
+        "27": {
+          "fact_accepted_correct_layers": 41,
+          "fact_accepted_layers": 89,
+          "fact_layer_acceptance_rate": 0.34765625,
+          "fact_layer_precision": 0.4606741573033708,
+          "fact_readouts": 256,
+          "fact_wrong_layers": 48,
+          "layer": 27
+        }
+      }
+    },
+    "decomposition": {
+      "accepted_correct_layers_from_partial_groups": 23,
+      "accepted_correct_layers_from_strict_groups": 28,
+      "accepted_correct_layers_from_wrong_layer_groups": 6,
+      "accepted_identity_holds": true,
+      "accepted_wrong_layers_from_wrong_layer_groups": 99,
+      "available": true,
+      "exact": true,
+      "fact_accepted_correct_layers": 57,
+      "fact_accepted_layers": 156,
+      "fact_wrong_layers": 99,
+      "identity": "2*strict + partial + correct_in_wrong_layer_groups == accepted_correct_layers",
+      "identity_holds": true,
+      "layers_per_group": 2,
+      "partial_groups": 23,
+      "strict_groups": 14,
+      "wrong_layer_groups": 61
+    },
+    "denominators": {
+      "fact_layer_readouts": 512,
+      "fact_query_groups": 256,
+      "layer_view_semantics": "accepted_and_correct_per_readout_layer",
+      "layers": [
+        13,
+        27
+      ],
+      "layers_are_independent_samples": false,
+      "layers_per_group": 2,
+      "query_acceptance_semantics": "any_layer_accepted",
+      "query_correctness_semantics": "all_layers_accepted_and_correct"
+    },
+    "explanation": "Unlike address, the value arm accepts incorrect fact layers: 99 accepted fact value layers are wrong.  The remaining strict group gap also includes abstention: 23 accepted groups have one correct accepted layer and one abstaining layer, 61 accepted groups contain at least one accepted wrong layer, and 158 fact groups accept no layer.  Unknown and revoked rows are accepted at 10/32 and 3/16 respectively, so abstention is not a working safety margin.",
+    "headline": "Candidate value readout accepts 156 fact layers with only 57 correct (99 wrong) and reaches 14/256 strict fact groups; unknown false recall is 10/32 and revoked false recall is 3/16.",
+    "historical_reconciliation": {
+      "fact_accepted_groups": 98,
+      "fact_accepted_layers": 156,
+      "non_fact_accepted_groups": 13,
+      "non_fact_accepted_layers": 23,
+      "note": "Historical accepted fields are preserved.  The fact-only view subtracts accepted unknown/revoked rows; it does not relabel or rewrite the historical fields.",
+      "query_accepted_correct": 14,
+      "query_accepted_including_non_fact": 111,
+      "query_accepted_wrong": 97,
+      "query_raw_top1": 101,
+      "readout_accepted_correct": 57,
+      "readout_accepted_including_non_fact": 179,
+      "readout_accepted_wrong": 122
+    },
+    "layer_correctness": {
+      "available": true,
+      "fact_accepted_correct_layers": 57,
+      "fact_accepted_layers": 156,
+      "fact_layer_acceptance_coverage": 0.3046875,
+      "fact_layer_precision": 0.36538461538461536,
+      "fact_wrong_layer_categories": {
+        "cross_world_alias": 0,
+        "independent_world": 49,
+        "other_source": 50
+      },
+      "fact_wrong_layer_rate": 0.193359375,
+      "fact_wrong_layers": 99,
+      "non_fact_accepted_layers": 23
+    },
+    "query_aggregation": {
+      "fact_accepted_any_layer_correct_available": false,
+      "fact_accepted_any_layer_correct_groups": null,
+      "fact_accepted_any_layer_correct_rate": null,
+      "fact_accepted_groups": 98,
+      "fact_accepted_not_all_layers_correct_groups": 84,
+      "fact_any_layer_acceptance_rate": 0.3828125,
+      "fact_any_layer_correct_groups": 101,
+      "fact_any_layer_correct_rate": 0.39453125,
+      "fact_no_accepted_layer_groups": 158,
+      "fact_no_accepted_layer_rate": 0.6171875,
+      "fact_partial_exactly_one_layer_groups": 23,
+      "fact_partial_group_rate": 0.08984375,
+      "fact_partial_groups": 23,
+      "fact_query_precision": 0.14285714285714285,
+      "fact_strict_all_layers_groups": 14,
+      "fact_strict_group_rate": 0.0546875,
+      "fact_wrong_layer_categories": {
+        "cross_world_alias": 0,
+        "independent_world": 27,
+        "other_source": 34
+      },
+      "fact_wrong_layer_group_rate": 0.23828125,
+      "fact_wrong_layer_groups": 61
+    },
+    "status": "next_bottleneck",
+    "thresholds": {
+      "cosine_floor": 0.5,
+      "margin_floor": 0.05
+    },
+    "variant": "shared_mean/causal_query_refresh"
+  }
+}

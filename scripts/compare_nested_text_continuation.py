@@ -26,8 +26,19 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from replica_lab.nested_continuation import FORMAT, compare_states  # noqa: E402
+from replica_lab import source_provenance as provenance  # noqa: E402
 
 RECEIPT_FORMAT = "replica.nested_text_continuation.comparison.v1"
+SOURCE_MODES = provenance.MODES
+CURRENT_SOURCE_RECEIPT_FORMAT = (
+    "replica.nested_text.continuation_current_receipt.v1")
+GUARD_BINDING_FORMAT = "replica.nested_text.guard_binding.v1"
+HISTORICAL_SOURCE_SNAPSHOT = (
+    "reports/nested_text_continuation_comparison_20261026/"
+    "source_snapshot.json")
+CURRENT_SOURCE_RECEIPT = (
+    "configs/nested_text_continuation_current_receipt_v1.json")
+GUARD_BINDING = "configs/nested_text_continuation_guard_binding_v1.json"
 RUN_FORMAT = "replica.nested_text.run.v1"
 CONFIG_FORMAT = "replica.nested_text.nl1.v1"
 P_ONLY_FORMAT = "replica.nested_learning.text_p_only.v1"
@@ -115,9 +126,9 @@ def _load_jsonl(path: Path) -> list[Any]:
     return rows
 
 
-def _path(value: str | Path) -> Path:
+def _path(value: str | Path, root: str | Path = ROOT) -> Path:
     path = Path(value)
-    return path if path.is_absolute() else (ROOT / path)
+    return path if path.is_absolute() else (Path(root) / path)
 
 
 def _is_int(value: Any) -> bool:
@@ -297,7 +308,8 @@ def _require_mapping(report: Report, value: Any, gate: str,
     return value
 
 
-def _protocol_context(protocol_path: Path, report: Report) -> dict | None:
+def _protocol_context(protocol_path: Path, report: Report,
+                      artifact_root: Path = ROOT) -> dict | None:
     try:
         config = _load_json(protocol_path)
     except (OSError, ValueError) as error:
@@ -390,7 +402,7 @@ def _protocol_context(protocol_path: Path, report: Report) -> dict | None:
     if not isinstance(parent_value, str) or not parent_value:
         report.fail("protocol", "comparison.parent_checkpoint is missing")
         return None
-    parent_path = _path(parent_value)
+    parent_path = _path(parent_value, artifact_root)
     parent_sha = comparison.get("parent_checkpoint_sha256")
     parent_bytes = comparison.get("parent_checkpoint_bytes")
     if not _is_hex(parent_sha):
@@ -422,6 +434,7 @@ def _protocol_context(protocol_path: Path, report: Report) -> dict | None:
         "implementation_paths": implementation_paths,
         "protocol_sha256": declared, "manifest_sha256": manifest_sha,
         "config_sha256": _sha_file(protocol_path),
+        "artifact_root": Path(artifact_root),
         "parent": parent,
     }
 
@@ -488,7 +501,12 @@ def _validate_protocol_body(report: Report, body: Any, label: str,
 
 
 def _validate_implementation(report: Report, mapping: Any, label: str,
-                             expected_paths: list[str]) -> None:
+                             expected_paths: list[str],
+                             expected_map: Mapping | None,
+                             source_label: str) -> None:
+    if expected_map is None:
+        # The source snapshot or receipt already failed authentication.
+        return
     if not isinstance(mapping, Mapping):
         report.fail("implementation", f"{label} implementation_sha256 is missing")
         return
@@ -496,20 +514,20 @@ def _validate_implementation(report: Report, mapping: Any, label: str,
         report.fail("implementation",
                     f"{label} implementation path set differs from the protocol")
     for relative in sorted(set(expected_paths)):
-        path = ROOT / relative
-        try:
-            current = _sha_file(path)
-        except OSError as error:
+        expected = expected_map.get(relative)
+        if expected is None:
             report.fail("implementation",
-                        f"{label} implementation file unreadable at {relative}: {error}")
+                        f"{source_label} does not pin {relative}")
             continue
-        if mapping.get(relative) != current:
+        if mapping.get(relative) != expected:
             report.fail("implementation",
-                        f"{label} implementation hash drifted at {relative}")
+                        f"{label} implementation hash differs from the "
+                        f"{source_label} at {relative}")
 
 
 def _validate_guard(report: Report, path: Path, label: str,
-                    runtime: Mapping) -> dict | None:
+                    runtime: Mapping, binding: Mapping | None,
+                    expected_output_name: str | None = None) -> dict | None:
     try:
         guard = _load_json(path)
     except (OSError, ValueError) as error:
@@ -520,6 +538,44 @@ def _validate_guard(report: Report, path: Path, label: str,
         report.fail("guard", f"{label} is not a JSON object", resource=True,
                     invalid=True)
         return None
+    if binding is not None:
+        declared = guard.get("implementation_sha256")
+        if not isinstance(declared, Mapping):
+            report.fail("guard",
+                        f"{label} guard.implementation_sha256 is missing",
+                        resource=True, invalid=True)
+        elif dict(declared) != dict(binding["implementation_sha256"]):
+            report.fail("guard",
+                        f"{label} guard implementation map differs from the "
+                        "declared launcher/child binding", resource=True,
+                        invalid=True)
+        command = guard.get("command")
+        if not (isinstance(command, list) and command
+                and all(isinstance(item, str) and item for item in command)):
+            report.fail("guard", f"{label} guard.command is not a string list",
+                        resource=True, invalid=True)
+        else:
+            executable = Path(command[0]).name
+            if not executable.startswith("python"):
+                report.fail("guard",
+                            f"{label} guard.command[0] is not a Python launcher "
+                            f"(saw {executable!r})", resource=True,
+                            invalid=True)
+            child = Path(binding["child"]).name
+            matches = [item for item in command[1:]
+                       if Path(item).name == child]
+            if len(matches) != 1:
+                report.fail("guard",
+                            f"{label} guard.command must name exactly one declared "
+                            f"child {child!r}", resource=True, invalid=True)
+        if expected_output_name is not None:
+            output = guard.get("output")
+            if not isinstance(output, str) or Path(output).name != \
+                    expected_output_name:
+                report.fail("guard",
+                            f"{label} guard.output does not name the declared "
+                            f"artifact {expected_output_name!r}", resource=True,
+                            invalid=True)
     status = guard.get("status")
     if status != "completed_within_declared_sampled_limits":
         report.fail("guard", f"{label} status must be "
@@ -587,7 +643,187 @@ def _validate_guard(report: Report, path: Path, label: str,
         "peak_driver_bytes": peak_driver,
         "peak_swap_growth_bytes": peak_swap,
         "minimum_observed_free_percent": free_percent,
+        "implementation_sha256": (dict(guard.get("implementation_sha256"))
+                                  if isinstance(
+                                      guard.get("implementation_sha256"),
+                                      Mapping) else None),
     }
+
+
+def _normalise_binding(value: Any, label: str, *,
+                       require_format: bool) -> dict | None:
+    fields = {"launcher", "child", "implementation_sha256"}
+    if require_format:
+        fields |= {"format", "reason"}
+    if not isinstance(value, Mapping) or set(value) != fields:
+        raise provenance.SourceProvenanceError(
+            f"{label} fields differ from the declared guard binding")
+    if require_format:
+        if value.get("format") != GUARD_BINDING_FORMAT:
+            raise provenance.SourceProvenanceError(
+                f"{label} format differs")
+        if not isinstance(value.get("reason"), str) or not value["reason"].strip():
+            raise provenance.SourceProvenanceError(f"{label} lacks a reason")
+    launcher = provenance.safe_relative(value["launcher"],
+                                        f"{label} launcher").as_posix()
+    child = provenance.safe_relative(value["child"],
+                                     f"{label} child").as_posix()
+    if Path(launcher).suffix != ".py" or Path(child).suffix != ".py":
+        raise provenance.SourceProvenanceError(
+            f"{label} launcher/child must be Python entry points")
+    mapping = value["implementation_sha256"]
+    if not isinstance(mapping, Mapping) or not mapping:
+        raise provenance.SourceProvenanceError(
+            f"{label} implementation map is missing")
+    result = {}
+    for relative, digest in mapping.items():
+        safe = provenance.safe_relative(relative,
+                                        f"{label} implementation path")
+        if not provenance.is_sha256(digest):
+            raise provenance.SourceProvenanceError(
+                f"{label} implementation pin is invalid: {safe.as_posix()}")
+        result[safe.as_posix()] = digest
+    if launcher not in result:
+        raise provenance.SourceProvenanceError(
+            f"{label} does not authenticate its own launcher")
+    return {"launcher": launcher, "child": child,
+            "implementation_sha256": result}
+
+
+def _bind_guard_to_source(report: Report, binding: dict, ctx: Mapping,
+                          label: str) -> bool:
+    expected = ctx.get("expected_implementation")
+    if expected is None:
+        return False
+    for relative, digest in binding["implementation_sha256"].items():
+        if expected.get(relative) != digest:
+            report.fail("guard",
+                        f"{label} implementation pin differs from the reviewed "
+                        f"source map at {relative}", resource=True,
+                        invalid=True)
+            return False
+    return True
+
+
+def _load_guard_binding(path: Path, ctx: Mapping,
+                        report: Report) -> dict | None:
+    try:
+        document = provenance.load_json_object(path, "Guard binding")
+        binding = _normalise_binding(document, "Guard binding",
+                                     require_format=True)
+    except provenance.SourceProvenanceError as error:
+        report.fail("guard", str(error), resource=True, invalid=True)
+        return None
+    if not _bind_guard_to_source(report, binding, ctx, "Guard binding"):
+        return None
+    return binding
+
+
+def _resolve_implementation_source(
+        mode: str, ctx: Mapping, *, artifact_root: Path,
+        protocol_path: Path, source_root: Path | None,
+        current_receipt: Path | None, guard_binding: Path | None,
+        report: Report) -> tuple[dict, dict | None]:
+    """Authenticate the artifact implementation map and guard binding."""
+    paths = ctx["implementation_paths"]
+
+    def resolve(value: Path | None, default: Path) -> Path:
+        if value is None:
+            return default
+        return value if value.is_absolute() else artifact_root / value
+
+    try:
+        if mode == "historical":
+            snapshot_path = resolve(source_root,
+                                    ROOT / HISTORICAL_SOURCE_SNAPSHOT)
+            snapshot = provenance.load_source_snapshot(snapshot_path)
+            expected = provenance.historical_map(snapshot, paths)
+            ctx["expected_implementation"] = expected
+            source = {
+                "mode": "historical",
+                "snapshot_sha256": snapshot["sha256"],
+                "receipt_sha256": None,
+                "paths": expected,
+            }
+            binding_path = resolve(guard_binding, ROOT / GUARD_BINDING)
+            binding = _load_guard_binding(Path(binding_path), ctx, report)
+            return source, binding
+        if mode != "current":
+            raise provenance.SourceProvenanceError(
+                f"Unknown implementation source mode: {mode}")
+        if current_receipt is None:
+            raise provenance.SourceProvenanceError(
+                "Current implementation verification requires a reviewed "
+                "current receipt")
+        receipt_path = (Path(current_receipt)
+                        if Path(current_receipt).is_absolute()
+                        else artifact_root / Path(current_receipt))
+        receipt = provenance.load_json_object(receipt_path,
+                                             "Current continuation receipt")
+        if set(receipt) != {
+                "format", "mode", "declared_at_utc", "reason", "config",
+                "implementation_sha256", "guard", "receipt_digest"}:
+            raise provenance.SourceProvenanceError(
+                "Current continuation receipt fields differ")
+        if receipt.get("format") != CURRENT_SOURCE_RECEIPT_FORMAT:
+            raise provenance.SourceProvenanceError(
+                "Current continuation receipt format differs")
+        if receipt.get("mode") != provenance.CURRENT_RECEIPT_MODE:
+            raise provenance.SourceProvenanceError(
+                "Current continuation receipt must be explicitly reviewed")
+        if not isinstance(receipt.get("reason"), str) or not receipt["reason"].strip():
+            raise provenance.SourceProvenanceError(
+                "Current continuation receipt lacks a reason")
+        if receipt.get("receipt_digest") != provenance.receipt_digest(receipt):
+            raise provenance.SourceProvenanceError(
+                "Current continuation receipt digest differs")
+        config = receipt.get("config")
+        if not isinstance(config, Mapping) or set(config) != {"path", "sha256"}:
+            raise provenance.SourceProvenanceError(
+                "Current continuation receipt config pin is malformed")
+        declared_config = provenance.safe_relative(
+            config["path"], "Current receipt config path")
+        if Path(declared_config).name != protocol_path.name:
+            raise provenance.SourceProvenanceError(
+                "Current continuation receipt pins a different config")
+        if config["sha256"] != ctx["config_sha256"]:
+            raise provenance.SourceProvenanceError(
+                "Current continuation receipt config pin is stale")
+        declared_map = receipt.get("implementation_sha256")
+        if not isinstance(declared_map, Mapping) or \
+                set(declared_map) != set(paths):
+            raise provenance.SourceProvenanceError(
+                "Current continuation receipt does not pin the declared "
+                "implementation inventory")
+        for relative, digest in declared_map.items():
+            if not provenance.is_sha256(digest):
+                raise provenance.SourceProvenanceError(
+                    f"Current continuation receipt pin is invalid: {relative}")
+        live = provenance.compute_implementation_map(artifact_root, paths)
+        if dict(declared_map) != live:
+            stale = sorted(relative for relative in paths
+                           if declared_map.get(relative) != live[relative])
+            raise provenance.SourceProvenanceError(
+                "Current continuation receipt does not match the live "
+                f"implementation bytes: {stale}")
+        ctx["expected_implementation"] = live
+        binding = _normalise_binding(receipt.get("guard"),
+                                     "Current receipt guard binding",
+                                     require_format=False)
+        source = {
+            "mode": "current",
+            "snapshot_sha256": None,
+            "receipt_sha256": provenance.sha256_file(receipt_path),
+            "paths": dict(declared_map),
+        }
+        if not _bind_guard_to_source(report, binding, ctx,
+                                     "Current receipt guard binding"):
+            binding = None
+        return source, binding
+    except provenance.SourceProvenanceError as error:
+        report.fail("implementation", str(error))
+        return {"mode": mode, "snapshot_sha256": None,
+                "receipt_sha256": None, "paths": None}, None
 
 
 def _validate_canonical(report: Report, state: Any, *, label: str,
@@ -1248,7 +1484,9 @@ def _load_continuous(report: Report, directory: Path, label: str,
         report.fail("process_reports",
                     f"{label} p_only path does not name p_only/state.pt")
     _validate_implementation(report, run.get("implementation_sha256"), label,
-                             ctx["implementation_paths"])
+                             ctx["implementation_paths"],
+                             ctx.get("expected_implementation"),
+                             ctx.get("implementation_source_label", "source"))
 
     try:
         protocol_body = _load_json(directory / "protocol.json")
@@ -1413,8 +1651,11 @@ def _load_resume(report: Report, directory: Path, ctx: Mapping) -> dict | None:
         report.fail("process_reports",
                     f"{label} resume report must be descriptive_only")
     for mapping, name in ((run, "run.json"), (manifest, "resume.json")):
-        _validate_implementation(report, mapping.get("implementation_sha256"),
-                                 f"{label} {name}", ctx["implementation_paths"])
+        _validate_implementation(
+            report, mapping.get("implementation_sha256"),
+            f"{label} {name}", ctx["implementation_paths"],
+            ctx.get("expected_implementation"),
+            ctx.get("implementation_source_label", "source"))
     if run.get("config_sha256") != ctx["config_sha256"]:
         report.fail("process_reports",
                     f"{label} run config_sha256 differs from the passed protocol")
@@ -1455,7 +1696,7 @@ def _load_resume(report: Report, directory: Path, ctx: Mapping) -> dict | None:
         report.fail("parent_checkpoint",
                     f"{label} checkpoint path is missing")
     else:
-        checkpoint_path = _path(checkpoint_value)
+        checkpoint_path = _path(checkpoint_value, ctx["artifact_root"])
         try:
             if checkpoint_path.resolve() != parent["path"].resolve():
                 report.fail("parent_checkpoint",
@@ -1837,10 +2078,49 @@ def _verify_artifact_states(report: Report, arms: Mapping[str, Mapping],
                 CONTINUOUS_EVENTS, RESUME_EVENT_ID, "resume")
 
 
+def _record_path(value: Any, artifact_root: Path,
+                 record_inputs: str) -> str | None:
+    if value is None or record_inputs == "omit":
+        return None
+    path = Path(value)
+    if record_inputs == "relative":
+        try:
+            return path.relative_to(artifact_root).as_posix()
+        except ValueError:
+            return str(path)
+    return str(path)
+
+
 def _finalize(report: Report, ctx: Mapping | None,
               arms: Mapping[str, Mapping], resume: Mapping | None,
               guards: Mapping[str, Mapping | None],
-              protocol_path: Path, paths: Mapping[str, Path]) -> dict:
+              protocol_path: Path, paths: Mapping[str, Path], *,
+              source: Mapping, artifact_root: Path,
+              record_inputs: str) -> dict:
+    recorded_inputs = {
+        "protocol": _record_path(protocol_path, artifact_root, record_inputs),
+        "continuous_a": _record_path(paths.get("continuous-a"), artifact_root,
+                                     record_inputs),
+        "continuous_b": _record_path(paths.get("continuous-b"), artifact_root,
+                                     record_inputs),
+        "resume": _record_path(paths.get("resume"), artifact_root,
+                               record_inputs),
+        "guard_a": _record_path(paths.get("guard-a"), artifact_root,
+                                record_inputs),
+        "guard_b": _record_path(paths.get("guard-b"), artifact_root,
+                                record_inputs),
+        "guard_resume": _record_path(paths.get("guard-resume"), artifact_root,
+                                     record_inputs),
+    }
+    recorded_guards = {}
+    for name, entry in guards.items():
+        if entry is None:
+            recorded_guards[name] = None
+            continue
+        recorded = dict(entry)
+        recorded["path"] = _record_path(entry.get("path"), artifact_root,
+                                        record_inputs)
+        recorded_guards[name] = recorded
     receipt = {
         "format": RECEIPT_FORMAT,
         "status": report.status,
@@ -1863,26 +2143,25 @@ def _finalize(report: Report, ctx: Mapping | None,
             "boundary_event_index": RESUME_EVENT_INDEX,
             "parent_state_index": PARENT_STATE_INDEX,
         },
-        "inputs": {
-            "protocol": str(protocol_path),
-            "continuous_a": str(paths.get("continuous-a")),
-            "continuous_b": str(paths.get("continuous-b")),
-            "resume": str(paths.get("resume")),
-            "guard_a": str(paths.get("guard-a")),
-            "guard_b": str(paths.get("guard-b")),
-            "guard_resume": str(paths.get("guard-resume")),
-        },
-        "guards": dict(guards),
+        "guards": recorded_guards,
         "artifacts": {},
+        "implementation_source": {
+            "mode": source.get("mode"),
+            "snapshot_sha256": source.get("snapshot_sha256"),
+            "receipt_sha256": source.get("receipt_sha256"),
+            "implementation_pins": (len(source["paths"])
+                                    if isinstance(source.get("paths"),
+                                                  Mapping) else 0),
+        },
     }
+    if record_inputs != "omit":
+        receipt["inputs"] = recorded_inputs
     if ctx is not None:
         receipt["protocol"] = {
             "config_sha256": ctx["config_sha256"],
             "protocol_sha256": ctx["protocol_sha256"],
             "episodes_manifest_sha256": ctx["manifest_sha256"],
-            "implementation_sha256": {
-                relative: _safe_sha(ROOT / relative)
-                for relative in ctx["implementation_paths"]},
+            "implementation_sha256": dict(source.get("paths") or {}),
         }
         receipt["parent_checkpoint"] = {
             "declared_path": ctx["parent"]["declared_path"],
@@ -1897,7 +2176,8 @@ def _finalize(report: Report, ctx: Mapping | None,
         if arm is None:
             continue
         receipt["artifacts"][label] = {
-            "path": str(arm["directory"]),
+            "path": _record_path(arm["directory"], artifact_root,
+                                 record_inputs),
             "run_sha256": arm.get("run_sha256"),
             "checkpoint_sha256": arm.get("checkpoint_sha256"),
             "checkpoint_bytes": arm.get("checkpoint_bytes"),
@@ -1912,7 +2192,8 @@ def _finalize(report: Report, ctx: Mapping | None,
         before = resume.get("before_state")
         after = resume.get("after_state")
         receipt["artifacts"]["resume"] = {
-            "path": str(resume["directory"]),
+            "path": _record_path(resume["directory"], artifact_root,
+                                 record_inputs),
             "run_sha256": resume.get("run_sha256"),
             "resume_sha256": resume.get("resume_sha256"),
             "before_canonical_sha256": (
@@ -1982,16 +2263,32 @@ def _history_state_sha(history: Any, index: int) -> str | None:
 def compare_artifacts(*, protocol: str | Path, continuous_a: str | Path,
                       continuous_b: str | Path, resume: str | Path,
                       guard_a: str | Path, guard_b: str | Path,
-                      guard_resume: str | Path) -> dict:
-    """Compare declared artifacts and return a deterministic receipt."""
+                      guard_resume: str | Path,
+                      artifact_root: str | Path = ROOT,
+                      source_root: str | Path | None = None,
+                      mode: str = "historical",
+                      current_receipt: str | Path | None = None,
+                      guard_binding: str | Path | None = None,
+                      record_inputs: str = "absolute") -> dict:
+    """Compare declared artifacts and return a deterministic receipt.
+
+    Historical mode authenticates the artifact implementation maps against the
+    immutable source snapshot; live drift cannot change the verdict.  Current
+    mode requires a reviewed current receipt and authenticates the live tree.
+    Relative inputs resolve against ``artifact_root`` so relocated replay does
+    not depend on the original checkout path.
+    """
+    if record_inputs not in ("absolute", "relative", "omit"):
+        raise ValueError("record_inputs must be absolute, relative or omit")
+    artifact_root = Path(artifact_root)
     report = Report()
     paths = {
-        "continuous-a": _path(continuous_a),
-        "continuous-b": _path(continuous_b),
-        "resume": _path(resume),
-        "guard-a": _path(guard_a),
-        "guard-b": _path(guard_b),
-        "guard-resume": _path(guard_resume),
+        "continuous-a": _path(continuous_a, artifact_root),
+        "continuous-b": _path(continuous_b, artifact_root),
+        "resume": _path(resume, artifact_root),
+        "guard-a": _path(guard_a, artifact_root),
+        "guard-b": _path(guard_b, artifact_root),
+        "guard-resume": _path(guard_resume, artifact_root),
     }
     if paths["continuous-a"].resolve() == paths["continuous-b"].resolve():
         report.fail("process_reports",
@@ -2006,16 +2303,41 @@ def compare_artifacts(*, protocol: str | Path, continuous_a: str | Path,
         report.fail("guard",
                     "each process requires a distinct guard receipt",
                     resource=True, invalid=True)
-    protocol_path = _path(protocol)
-    ctx = _protocol_context(protocol_path, report)
+    protocol_path = _path(protocol, artifact_root)
+    ctx = _protocol_context(protocol_path, report, artifact_root)
     guards = {}
+    source = {"mode": mode, "snapshot_sha256": None,
+              "receipt_sha256": None, "paths": None}
+    binding = None
     if ctx is None:
         # Without the declared runtime limits no guard can be judged.
         report.resource_invalid = True
+        if mode == "current" and current_receipt is None:
+            report.fail("implementation",
+                        "Current implementation verification requires a "
+                        "reviewed current receipt")
     else:
+        ctx["config_path"] = protocol_path
+        source, binding = _resolve_implementation_source(
+            mode, ctx, artifact_root=artifact_root,
+            protocol_path=protocol_path,
+            source_root=(Path(source_root) if source_root is not None else None),
+            current_receipt=(Path(current_receipt)
+                             if current_receipt is not None else None),
+            guard_binding=(Path(guard_binding)
+                           if guard_binding is not None else None),
+            report=report)
+        ctx["expected_implementation"] = source.get("paths")
+        ctx["implementation_source_label"] = (
+            "historical source snapshot" if mode == "historical"
+            else "reviewed current receipt")
+        guard_artifacts = {"guard-a": "continuous-a",
+                           "guard-b": "continuous-b",
+                           "guard-resume": "resume"}
         for name in ("guard-a", "guard-b", "guard-resume"):
             guards[name] = _validate_guard(
-                report, paths[name], name, ctx["runtime"])
+                report, paths[name], name, ctx["runtime"], binding,
+                expected_output_name=paths[guard_artifacts[name]].name)
     arms: dict[str, Mapping] = {}
     resume_arm = None
     if ctx is not None:
@@ -2058,7 +2380,9 @@ def compare_artifacts(*, protocol: str | Path, continuous_a: str | Path,
                         event_index=PARENT_STATE_INDEX,
                         event_id=EXPECTED_EVENT_IDS[PARENT_STATE_INDEX - 1],
                         stage="boundary")
-    return _finalize(report, ctx, arms, resume_arm, guards, protocol_path, paths)
+    return _finalize(report, ctx, arms, resume_arm, guards, protocol_path,
+                     paths, source=source, artifact_root=artifact_root,
+                     record_inputs=record_inputs)
 
 
 def main() -> int:
@@ -2071,6 +2395,19 @@ def main() -> int:
     parser.add_argument("--guard-b", type=Path, required=True)
     parser.add_argument("--guard-resume", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--artifact-root", type=Path, default=ROOT,
+                        help="root for relative artifact/protocol inputs")
+    parser.add_argument("--source-root", type=Path, default=None,
+                        help="historical source snapshot manifest or directory")
+    parser.add_argument("--mode", choices=SOURCE_MODES, default="historical")
+    parser.add_argument("--current-receipt", type=Path, default=None,
+                        help="reviewed current receipt (required by --mode current)")
+    parser.add_argument("--guard-binding", type=Path, default=None,
+                        help="declared launcher/child guard binding")
+    parser.add_argument("--record-inputs",
+                        choices=("absolute", "relative", "omit"),
+                        default="absolute",
+                        help="how to record input/artifact paths")
     args = parser.parse_args()
     try:
         if args.output.exists():
@@ -2079,7 +2416,11 @@ def main() -> int:
             protocol=args.protocol, continuous_a=args.continuous_a,
             continuous_b=args.continuous_b, resume=args.resume,
             guard_a=args.guard_a, guard_b=args.guard_b,
-            guard_resume=args.guard_resume)
+            guard_resume=args.guard_resume,
+            artifact_root=args.artifact_root, source_root=args.source_root,
+            mode=args.mode, current_receipt=args.current_receipt,
+            guard_binding=args.guard_binding,
+            record_inputs=args.record_inputs)
     except (OSError, ValueError, KeyError, TypeError) as error:
         receipt = {
             "format": RECEIPT_FORMAT, "status": "failed",

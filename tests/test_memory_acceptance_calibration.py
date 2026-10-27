@@ -628,8 +628,394 @@ REAL_CONFIG = ROOT / "configs/memory_acceptance_calibration_v1.json"
 REAL_RANKINGS = ROOT / "runs/memory_causal_fresh_20261026/restart02/rankings.jsonl"
 REAL_INVENTORY = (
     ROOT / "data/memory_causal_fresh_20261026/prepared03/inventory.json")
+REAL_CALIBRATION_RECEIPT = (
+    ROOT / "reports/memory_acceptance_20261026/calibration_dev01.json")
 REAL_MISSING = [str(path) for path in (REAL_RANKINGS, REAL_INVENTORY)
                 if not path.exists()]
+REAL_DIAGNOSIS_MISSING = (
+    [] if REAL_CALIBRATION_RECEIPT.exists()
+    else [str(REAL_CALIBRATION_RECEIPT)])
+
+
+def _real_diagnosis(*, with_supporting=True):
+    receipt = json.loads(REAL_CALIBRATION_RECEIPT.read_text())
+    return module.analyze_memory_diagnosis(
+        receipt, receipt_path=REAL_CALIBRATION_RECEIPT,
+        supporting_receipts=(
+            None if with_supporting else ()))
+
+
+@pytest.mark.skipif(
+    bool(REAL_DIAGNOSIS_MISSING),
+    reason="missing committed calibration receipt")
+def test_real_receipt_address_layer_precision_vs_strict_groups():
+    diagnosis = _real_diagnosis()
+    address = diagnosis["address"]
+    layer = address["layer_correctness"]
+    query = address["query_aggregation"]
+    assert layer["fact_accepted_layers"] == 62
+    assert layer["fact_accepted_correct_layers"] == 62
+    assert layer["fact_wrong_layers"] == 0
+    assert layer["fact_layer_precision"] == 1.0
+    assert query["fact_accepted_groups"] == 58
+    assert query["fact_strict_all_layers_groups"] == 4
+    assert query["fact_partial_groups"] == 54
+    assert query["fact_no_accepted_layer_groups"] == 198
+    assert query["fact_accepted_any_layer_correct_groups"] == 58
+    assert query["fact_any_layer_correct_groups"] == 256
+    assert address["denominators"]["fact_query_groups"] == 256
+    assert address["denominators"]["fact_layer_readouts"] == 512
+    assert query["fact_strict_group_rate"] == 4 / 256
+    assert query["fact_any_layer_acceptance_rate"] == 58 / 256
+    reconciliation = address["historical_reconciliation"]
+    assert reconciliation["query_accepted_including_non_fact"] == 58
+    assert reconciliation["query_accepted_wrong"] == 54
+    assert reconciliation["non_fact_accepted_groups"] == 0
+    assert reconciliation["fact_accepted_groups"] == 58
+    assert reconciliation["readout_accepted_including_non_fact"] == 62
+    assert reconciliation["readout_accepted_wrong"] == 0
+    assert reconciliation["fact_accepted_layers"] == 62
+    assert address["comparison"] == {
+        "accepted_layer_result": "62/62",
+        "strict_group_result": "4/256",
+        "strict_groups": 4,
+        "partial_groups": 54,
+        "no_accepted_layer_groups": 198,
+        "wrong_address_layers": 0,
+    }
+    assert address["status"] == "not_repaired"
+    decomposition = diagnosis["multi_layer_aggregation"]["address"]
+    assert decomposition["identity_holds"] is True
+    assert decomposition["accepted_identity_holds"] is True
+    assert decomposition[
+        "accepted_correct_layers_from_strict_groups"] == 8
+    assert decomposition[
+        "accepted_correct_layers_from_partial_groups"] == 54
+    assert decomposition[
+        "accepted_correct_layers_from_wrong_layer_groups"] == 0
+    assert decomposition["fact_accepted_layers"] == 62
+    assert diagnosis["metric_semantics"][
+        "historical_metrics_relabelled"] is False
+    assert diagnosis["metric_semantics"][
+        "gate_semantics_preserved"] is True
+    assert diagnosis["claims"]["address_readout_repaired"] is False
+    assert diagnosis["abstention"]["address"]["unknown_accepted"] == 0
+    assert diagnosis["abstention"]["address"]["revoked_accepted"] == 0
+    by_layer = address["by_layer"]
+    assert by_layer["layers"]["13"]["fact_accepted_layers"] == 4
+    assert by_layer["layers"]["13"]["fact_accepted_correct_layers"] == 4
+    assert by_layer["layers"]["27"]["fact_accepted_layers"] == 58
+    assert by_layer["layers"]["27"]["fact_accepted_correct_layers"] == 58
+    assert by_layer["layers"]["13"]["fact_wrong_layers"] == 0
+    assert by_layer["layers"]["27"]["fact_wrong_layers"] == 0
+    assert by_layer["fact_accepted_layers"] == 62
+    assert by_layer["layer_sums_are_not_query_groups"] is True
+
+
+@pytest.mark.skipif(
+    bool(REAL_DIAGNOSIS_MISSING),
+    reason="missing committed calibration receipt")
+def test_real_receipt_value_and_oracle_partial_fact_groups():
+    diagnosis = _real_diagnosis()
+    value = diagnosis["value"]
+    oracle = diagnosis["oracle"]
+    assert value["denominators"]["fact_query_groups"] == 256
+    assert value["query_aggregation"]["fact_accepted_groups"] == 98
+    assert value["query_aggregation"]["fact_strict_all_layers_groups"] == 14
+    assert value["query_aggregation"]["fact_partial_groups"] == 23
+    assert value["query_aggregation"]["fact_wrong_layer_groups"] == 61
+    assert value["layer_correctness"]["fact_accepted_layers"] == 156
+    assert value["layer_correctness"]["fact_accepted_correct_layers"] == 57
+    assert value["layer_correctness"]["fact_wrong_layers"] == 99
+    assert value["layer_correctness"]["fact_layer_precision"] == 57 / 156
+    assert value["abstention"]["unknown_n"] == 32
+    assert value["abstention"]["unknown_accepted"] == 10
+    assert value["abstention"]["revoked_n"] == 16
+    assert value["abstention"]["revoked_accepted"] == 3
+    reconciliation = value["historical_reconciliation"]
+    assert reconciliation["query_accepted_including_non_fact"] == 111
+    assert reconciliation["query_accepted_wrong"] == 97
+    assert reconciliation["non_fact_accepted_groups"] == 13
+    assert reconciliation["fact_accepted_groups"] == 98
+    assert reconciliation["readout_accepted_including_non_fact"] == 179
+    assert reconciliation["readout_accepted_wrong"] == 122
+    assert reconciliation["non_fact_accepted_layers"] == 23
+    assert reconciliation["fact_accepted_layers"] == 156
+    assert oracle["query_aggregation"]["fact_accepted_groups"] == 150
+    assert oracle["query_aggregation"][
+        "fact_strict_all_layers_groups"] == 102
+    assert oracle["query_aggregation"]["fact_partial_groups"] == 48
+    assert oracle["query_aggregation"]["fact_wrong_layer_groups"] == 0
+    assert oracle["layer_correctness"]["fact_accepted_layers"] == 252
+    assert oracle["layer_correctness"][
+        "fact_accepted_correct_layers"] == 252
+    assert oracle["layer_correctness"]["fact_wrong_layers"] == 0
+    assert oracle["layer_correctness"]["fact_layer_precision"] == 1.0
+    oracle_reconciliation = oracle["historical_reconciliation"]
+    assert oracle_reconciliation["query_accepted_including_non_fact"] == 163
+    assert oracle_reconciliation["query_accepted_wrong"] == 61
+    assert oracle_reconciliation["fact_accepted_groups"] == 150
+    assert oracle_reconciliation["readout_accepted_including_non_fact"] == 275
+    assert oracle_reconciliation["readout_accepted_wrong"] == 23
+    assert oracle_reconciliation["fact_accepted_layers"] == 252
+    assert oracle["is_legal_policy"] is False
+    assert oracle["is_diagnostic_only"] is True
+    oracle_decomposition = diagnosis["multi_layer_aggregation"]["oracle"]
+    assert oracle_decomposition["identity_holds"] is True
+    assert oracle_decomposition[
+        "accepted_correct_layers_from_partial_groups"] == 48
+    assert diagnosis["bottleneck"]["selected"] == (
+        "value_readout_and_abstention")
+    assert diagnosis["bottleneck"]["address_readout_repaired"] is False
+    assert diagnosis["bottleneck"]["calibration_is_a_solution"] is False
+    assert diagnosis["claims"][
+        "value_readout_and_abstention_are_next_bottleneck"] is True
+    assert diagnosis["claims"]["calibration_is_a_solution"] is False
+    assert diagnosis["bottleneck"]["calibration_evidence"][
+        "value_points_passing_all_gates"] == 0
+    assert diagnosis["bottleneck"]["calibration_evidence"][
+        "address_points_meeting_hit_and_precision"] == 0
+    retention = diagnosis["bottleneck"]["retention_evidence"]
+    assert retention["candidate_unaffected_fact_groups"] == 80
+    assert retention["candidate_unaffected_accepted_groups"] == 33
+    assert retention["candidate_unaffected_strict_groups"] == 1
+    assert retention["oracle_unaffected_strict_groups"] == 18
+    assert retention["unaffected_rows_current_teaching_gradient"] == 0
+    value_layers = value["by_layer"]["layers"]
+    assert value_layers["13"]["fact_accepted_layers"] == 67
+    assert value_layers["13"]["fact_accepted_correct_layers"] == 16
+    assert value_layers["13"]["fact_wrong_layers"] == 51
+    assert value_layers["27"]["fact_accepted_layers"] == 89
+    assert value_layers["27"]["fact_accepted_correct_layers"] == 41
+    assert value_layers["27"]["fact_wrong_layers"] == 48
+    oracle_layers = oracle["by_layer"]["layers"]
+    assert oracle_layers["13"]["fact_accepted_layers"] == 125
+    assert oracle_layers["13"]["fact_accepted_correct_layers"] == 125
+    assert oracle_layers["27"]["fact_accepted_layers"] == 127
+    assert oracle_layers["27"]["fact_accepted_correct_layers"] == 127
+
+
+@pytest.mark.skipif(
+    bool(REAL_DIAGNOSIS_MISSING),
+    reason="missing committed calibration receipt")
+def test_real_receipt_controls_are_separated():
+    diagnosis = _real_diagnosis()
+    controls = diagnosis["controls"]
+    candidate = controls["candidate"]["metrics"]
+    disabled = controls["disabled_reset"]["metrics"]
+    shuffled = controls["shuffled_value"]["metrics"]
+    exact = controls["exact_context"]["metrics"]
+    assert candidate["query_aggregation"][
+        "fact_strict_all_layers_groups"] == 14
+    assert disabled["query_aggregation"]["fact_accepted_groups"] == 0
+    assert disabled["query_aggregation"][
+        "fact_strict_all_layers_groups"] == 0
+    assert disabled["query_aggregation"]["fact_wrong_layer_groups"] == 0
+    assert shuffled["query_aggregation"][
+        "fact_strict_all_layers_groups"] == 12
+    assert exact["query_aggregation"]["fact_strict_all_layers_groups"] == 15
+    assert controls["exact_context"]["abstention_available"] is False
+    assert controls["exact_context"]["is_upper_bound"] is False
+    assert controls["exact_context"][
+        "blended_into_candidate_quality"] is False
+    removed = controls["context_removed"]["metrics"]
+    assert removed["query_aggregation"]["fact_accepted_groups"] == 0
+    assert removed["query_aggregation"][
+        "fact_strict_all_layers_groups"] == 0
+    assert removed["query_aggregation"]["fact_wrong_layer_groups"] == 0
+    assert removed["layer_correctness"]["fact_accepted_layers"] == 0
+    selected = controls["selected_record"]
+    assert selected["candidate"]["runtime_accepted"] == 58
+    assert selected["candidate"]["runtime_correct"] == 4
+    assert selected["oracle"]["runtime_accepted"] == 256
+    assert selected["oracle"]["runtime_correct"] == 256
+    assert selected["address_candidate"]["runtime_accepted"] == 58
+    assert selected["address_candidate"]["runtime_correct"] == 4
+    wrong_world = controls["wrong_world"]
+    assert wrong_world["candidate"]["query_independent_world_groups"] == 27
+    assert wrong_world["candidate"]["layer_independent_world_groups"] == 49
+    assert wrong_world["address_candidate"][
+        "layer_cross_world_false_recall"] == 0
+    separation = controls["separation"]
+    assert separation["controls_are_distinct"] is True
+    assert separation["candidate_equals_disabled"] is False
+    assert separation["candidate_equals_shuffled"] is False
+    assert separation[
+        "address_arm_invariant_across_value_variants"] is True
+    assert set(separation["fact_strict_group_rate"]) == {
+        "candidate", "oracle", "full", "shuffled_value",
+        "disabled_reset", "exact_context"}
+
+
+@pytest.mark.skipif(
+    bool(REAL_DIAGNOSIS_MISSING),
+    reason="missing committed calibration receipt")
+def test_real_diagnosis_declares_gradient_scope_and_source_hashes():
+    first = _real_diagnosis()
+    second = _real_diagnosis()
+    assert first == second
+    body = {key: item for key, item in first.items()
+            if key != "content_sha256"}
+    assert _canonical(body) == first["content_sha256"]
+    assert first["format"] == module.DIAGNOSIS_FORMAT
+    assert first["metric_version"] == module.DIAGNOSIS_METRIC_VERSION
+    primary = first["source_receipts"]["primary"]
+    receipt = json.loads(REAL_CALIBRATION_RECEIPT.read_text())
+    assert primary["sha256"] == _sha(REAL_CALIBRATION_RECEIPT)
+    assert primary["content_sha256"] == receipt["content_sha256"]
+    assert primary["content_sha256_verified"] is True
+    supporting = first["source_receipts"]["supporting"]
+    assert len(supporting) == 2
+    assert all(item["available"] for item in supporting)
+    assert all(item["sha256"] for item in supporting)
+    assert first["source_receipts"]["supporting_metrics_used"] is False
+    assert all(item["metrics_used"] is False for item in supporting)
+    assert all("oracle_fact_diagnostics" not in item
+               for item in supporting)
+    current = first["gradient_scope"]["current_path"]
+    assert current["steps_per_event"] == 1
+    assert current["gradient_parameters"] == [
+        "expert_<selected>.gate",
+        "expert_<selected>.up",
+        "expert_<selected>.down",
+    ]
+    assert current["gradient_parameter_count_per_event"] == 3
+    assert current["selected_expert_only"] is True
+    for name in ("decoder_receives_gradient",
+                 "read_projections_receive_gradient",
+                 "writers_receive_gradient",
+                 "backbone_receives_gradient",
+                 "personality_receives_gradient"):
+        assert current[name] is False
+    assert current["unselected_experts_receive_gradient"] is False
+    assert current["unaffected_rows_receive_teaching_gradient"] is False
+    assert current["unaffected_rows_current_teaching_gradient"] == 0
+    next_scope = first["gradient_scope"]["next_hypothesis_scope"]
+    assert next_scope["new_training_arm"] is False
+    assert next_scope["one_step_per_event_contract_unchanged"] is True
+    assert next_scope["native_execution_permitted_by_this_receipt"] is False
+    assert first["claims"]["heldout_rows_scored"] is False
+    assert first["claims"]["heldout_metric_blocks_parsed"] is False
+    assert first["claims"]["supporting_receipt_metrics_used"] is False
+    assert first["claims"]["native_execution_performed"] is False
+    assert first["claims"]["gradients"] == 0
+    assert first["claims"]["optimizer_updates"] == 0
+    assert first["claims"]["new_training_arm"] is False
+
+
+@pytest.mark.skipif(
+    bool(REAL_DIAGNOSIS_MISSING),
+    reason="missing committed calibration receipt")
+def test_diagnosis_rejects_tampered_and_undercovered_receipts():
+    receipt = json.loads(REAL_CALIBRATION_RECEIPT.read_text())
+
+    tampered = json.loads(json.dumps(receipt))
+    native_address_index = next(
+        index for index, point in enumerate(
+            tampered["address_frontier"]["points"])
+        if point["cosine_floor"] == 0.5
+        and point["margin_floor"] == 0.05)
+    tampered["address_frontier"]["points"][native_address_index][
+        "candidate_address_diagnostics"]["address_accepted_hit"] = 3
+    with pytest.raises(ValueError, match="content_sha256"):
+        module.analyze_memory_diagnosis(tampered, supporting_receipts=())
+    body = {key: item for key, item in tampered.items()
+            if key != "content_sha256"}
+    tampered["content_sha256"] = _canonical(body)
+    with pytest.raises(ValueError, match="strict groups disagree"):
+        module.analyze_memory_diagnosis(tampered, supporting_receipts=())
+
+    undercovered = json.loads(json.dumps(receipt))
+    candidate = undercovered["native"]["control_comparison"]["candidate"][
+        "variant"]
+    undercovered["native"]["arms"]["query_key_value"]["variants"][
+        candidate]["query"]["fact_n"] = 0
+    body = {key: item for key, item in undercovered.items()
+            if key != "content_sha256"}
+    undercovered["content_sha256"] = _canonical(body)
+    with pytest.raises(ValueError, match="no fact query groups"):
+        module.analyze_memory_diagnosis(
+            undercovered, supporting_receipts=())
+
+    heldout = json.loads(json.dumps(receipt))
+    heldout["source"]["scope"]["heldout_rows_scored"] = 1
+    body = {key: item for key, item in heldout.items()
+            if key != "content_sha256"}
+    heldout["content_sha256"] = _canonical(body)
+    with pytest.raises(ValueError, match="heldout rows were scored"):
+        module.analyze_memory_diagnosis(heldout, supporting_receipts=())
+
+    missing = json.loads(json.dumps(receipt))
+    del missing["native"]["arms"]["query_key_value"]["variants"][
+        candidate]["readout"]
+    body = {key: item for key, item in missing.items()
+            if key != "content_sha256"}
+    missing["content_sha256"] = _canonical(body)
+    with pytest.raises(ValueError, match="readout"):
+        module.analyze_memory_diagnosis(missing, supporting_receipts=())
+
+
+def test_synthetic_mixed_layer_aggregation_is_exact(tmp_path):
+    def mutate(row):
+        if (row["arm"] == module.ADDRESS_ARM
+                and row["variant"] == CANDIDATE
+                and row["case_id"] == "c1"
+                and row["layer"] == 27):
+            row["top_cosine"] = 0.2
+            row["second_cosine"] = 0.1
+
+    config, _, _, _ = _write_fixture(tmp_path, mutate=mutate)
+    receipt = module.analyze_calibration(config, root=tmp_path)
+    diagnosis = module.analyze_memory_diagnosis(
+        receipt, supporting_receipts=())
+    address = diagnosis["address"]
+    assert address["denominators"]["fact_query_groups"] == 8
+    assert address["query_aggregation"]["fact_accepted_groups"] == 8
+    assert address["query_aggregation"][
+        "fact_strict_all_layers_groups"] == 7
+    assert address["query_aggregation"]["fact_partial_groups"] == 1
+    assert address["query_aggregation"]["fact_wrong_layer_groups"] == 0
+    assert address["layer_correctness"]["fact_accepted_layers"] == 15
+    assert address["layer_correctness"][
+        "fact_accepted_correct_layers"] == 15
+    assert address["layer_correctness"]["fact_wrong_layers"] == 0
+    decomposition = diagnosis["multi_layer_aggregation"]["address"]
+    assert decomposition["identity_holds"] is True
+    assert decomposition["accepted_identity_holds"] is True
+    assert decomposition[
+        "accepted_correct_layers_from_strict_groups"] == 14
+    assert decomposition[
+        "accepted_correct_layers_from_partial_groups"] == 1
+    value = diagnosis["value"]
+    assert value["query_aggregation"]["fact_accepted_groups"] == 8
+    assert value["query_aggregation"]["fact_strict_all_layers_groups"] == 4
+    assert value["query_aggregation"]["fact_wrong_layer_groups"] == 4
+    assert value["layer_correctness"]["fact_accepted_layers"] == 16
+    assert value["layer_correctness"]["fact_accepted_correct_layers"] == 8
+    assert value["layer_correctness"]["fact_wrong_layers"] == 8
+    assert diagnosis["multi_layer_aggregation"][
+        "value"]["identity_holds"] is True
+
+
+def test_diagnosis_cli_writes_receipt_and_refuses_source(tmp_path):
+    config, _, _, _ = _write_fixture(tmp_path)
+    receipt = module.analyze_calibration(config, root=tmp_path)
+    source = tmp_path / "calibration_receipt.json"
+    source.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n")
+    output = tmp_path / "derived" / "diagnosis.json"
+    assert module.main([
+        "--diagnosis", str(source),
+        "--diagnosis-output", str(output),
+        "--quiet",
+    ]) == 0
+    written = json.loads(output.read_text())
+    assert written["format"] == module.DIAGNOSIS_FORMAT
+    assert written["metric_version"] == module.DIAGNOSIS_METRIC_VERSION
+    expected = module.analyze_memory_diagnosis(
+        receipt, receipt_path=source, root=ROOT)
+    assert written["content_sha256"] == expected["content_sha256"]
+    with pytest.raises(ValueError, match="source receipt"):
+        module.write_diagnosis_receipt(written, source)
 
 
 @pytest.mark.integration

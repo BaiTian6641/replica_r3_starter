@@ -4,6 +4,8 @@ from __future__ import annotations
 import pytest
 
 from replica_lab.nested_text_scoring import (
+    ANSWER_GRAMMAR_VERSION,
+    SCORING_VERSION,
     finalize_generation,
     is_truncated_stop_reason,
     score_response,
@@ -147,3 +149,141 @@ def test_sentence_completion_is_not_truncation():
                             completed_by="sentence_complete")
     with pytest.raises(ValueError, match="completed_by"):
         finalize_generation([7], decode=lambda ids: "x", completed_by="other")
+
+
+# ---------------------------------------------------------------------------
+# Answer-grammar boundaries (answer_grammar.v2.1.1)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("expected, output", [
+    ("Paris", "**Paris**"),
+    ("Paris", "*Paris*"),
+    ("Paris", "_Paris_"),
+    ("Paris", "__Paris__"),
+    ("Paris", "~~Paris~~"),
+    ("Paris", "`Paris`"),
+    ("Paris", "**Paris.**"),
+    ("Paris", "### Paris"),
+    ("Paris", "- Paris"),
+    ("Paris", "1. Paris"),
+    ("Paris", "Paris!"),
+    ("43", "The answer is 43."),
+    ("43", "**43**."),
+    ("43", "43."),
+])
+def test_markdown_flourishes_and_terminal_punctuation_are_accepted(expected, output):
+    score = score_response(expected, output)
+    assert score.correct is True
+    assert score.reason == "correct"
+
+
+@pytest.mark.parametrize("expected, output", [
+    ("43", "43.5"),
+    ("43", "The answer is 43.5."),
+    ("43", "43,000"),
+    ("43", "1,043"),
+    ("43", "143"),
+    ("43", "430"),
+    ("Tevufa", "Tevufa's"),
+    ("Tevufa", "**Tevufa's**"),
+    ("9", "9.5"),
+])
+def test_extended_numbers_and_possessives_are_not_the_expected_answer(expected, output):
+    score = score_response(expected, output, candidate_answers=["81"])
+    assert score.correct is False
+    assert score.reason in {"missing_answer", "other_candidate"}
+
+
+@pytest.mark.parametrize("output", [
+    "44",
+    "The answer is 44.",
+    "Purple",
+    "The meaning is unclear.",
+    "The meaning is elsewhere.",
+    "It is recorded in another entry.",
+    "Tevufa is wrong",
+    "Tevufa is not correct",
+    "maybe Tevufa",
+    "I think Tevufa is the answer",
+    "Tevufa?",
+    "Is it Tevufa?",
+    "",
+    "   ",
+])
+def test_arbitrary_wrong_answers_never_pass(output):
+    score = score_response("Tevufa", output, candidate_answers=["Mipezu"])
+    assert score.correct is False
+
+
+def test_known_answer_string_must_still_be_present_for_a_non_status_answer():
+    assert score_response("Tevufa", "Mipezu").reason == "missing_answer"
+    assert score_response("Tevufa", "The answer is Mipezu.").reason == "missing_answer"
+    assert score_response("Tevufa", "Tevufa").correct is True
+
+
+@pytest.mark.parametrize("expected, output, correct", [
+    ("unknown", "unknown", True),
+    ("unknown", "Unknown.", True),
+    ("unknown", "**unknown**", True),
+    ("unknown", "The answer is unknown.", False),
+    ("unknown", "I don't know", False),
+    ("unknown", "revoked", False),
+    ("revoked", "revoked", True),
+    ("revoked", "Revoked!", True),
+    ("revoked", "`revoked`", True),
+    ("revoked", "unknown", False),
+    ("revoked", "The answer is revoked.", False),
+])
+def test_unknown_and_revoked_are_exact_status_answers(expected, output, correct):
+    score = score_response(expected, output)
+    assert score.correct is correct
+    assert score.reason == ("correct" if correct else "status_mismatch")
+
+
+def test_status_answers_still_reject_conflicting_known_answers():
+    score = score_response("unknown", "Tevufa", candidate_answers=["Tevufa"])
+    assert score.correct is False
+    assert score.reason == "status_mismatch"
+
+
+@pytest.mark.parametrize("expected, output", [
+    ("unknown", "unknown"),
+    ("revoked", "revoked"),
+    ("43", "43"),
+])
+def test_generation_failure_empty_and_truncated_gates_receive_no_credit(expected, output):
+    truncated = score_response(expected, output, truncated=True)
+    assert truncated.correct is False
+    assert truncated.reason == "truncated"
+    empty = score_response(expected, "")
+    assert empty.correct is False and empty.reason == "empty"
+    whitespace = score_response(expected, "   ")
+    assert whitespace.correct is False and whitespace.reason == "empty"
+
+
+def test_a_budget_stop_with_empty_content_is_an_empty_answer_not_a_pass():
+    result = finalize_generation([1], decode=lambda ids: "", max_new_tokens=24)
+    assert result.stop_reason == "stop_token"
+    assert result.truncated is False
+    assert score_response("43", result.text).reason == "empty"
+    budget = finalize_generation([9, 10], decode=lambda ids: "4", max_new_tokens=2)
+    assert budget.truncated is True
+    assert score_response("43", budget.text, truncated=budget.truncated).reason == (
+        "truncated")
+
+
+def test_scorer_rejects_non_text_output_instead_of_scoring_it():
+    with pytest.raises(ValueError):
+        score_response("43", None)
+    with pytest.raises(ValueError):
+        score_response("43", 43)
+
+
+def test_every_score_records_the_declared_scoring_and_grammar_versions():
+    for expected, output in (("43", "43"), ("43", "44"), ("43", ""),
+                             ("unknown", "unknown"), ("unknown", "revoked")):
+        score = score_response(expected, output)
+        assert score.scoring_version == SCORING_VERSION
+        assert score.grammar_version == ANSWER_GRAMMAR_VERSION
+    assert ANSWER_GRAMMAR_VERSION.endswith("v2.1.1")

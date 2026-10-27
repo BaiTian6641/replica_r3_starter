@@ -12,12 +12,17 @@ import hashlib
 import json
 from pathlib import Path
 
-from replica_lab.nested_text_scoring import SCORING_VERSION, score_response
+from replica_lab.nested_text_scoring import (ANSWER_GRAMMAR_VERSION,
+                                             SCORING_VERSION, score_response)
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUT = ROOT / "runs/nested_text_nl1_20261026/p_only_dev04/gates/dev.json"
 
-REPLAY_SCORING_VERSION = "replica.nested_text.scoring.v2"
+REPLAY_SCORING_VERSION = "replica.nested_text.scoring.v2.1.1"
+REPLAY_FORMAT = "replica.nested_text.scoring_replay.v2.1"
+
+
+def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -77,11 +82,14 @@ REPLAY_SCORING_VERSION = "replica.nested_text.scoring.v2"
         "old_exact_preteach_correct": preteach["old_exact_correct"],
         "old_exact_taught_correct": taught["old_exact_correct"],
         "retention_decline": max(0.0, preteach["accuracy"] - taught["accuracy"]),
-        "scope": "Eight legacy rows under scoring v2; no model run and no new training result",
+        "scope": "Eight legacy rows under derived scoring v2.1.1; no model run and no new training result",
     }
     result = {
-        "format": "replica.nested_text.scoring_replay.v2",
+        "format": REPLAY_FORMAT,
         "scoring_version": REPLAY_SCORING_VERSION,
+        "scorer_contract_version": SCORING_VERSION,
+        "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+        "historical_source_scoring_version": "replica.nested_text.scoring.v2",
         "input": str(INPUT.relative_to(ROOT)),
         "input_sha256": hashlib.sha256(INPUT.read_bytes()).hexdigest(),
         "history_rewrite": False,
@@ -101,8 +109,8 @@ REPLAY_SCORING_VERSION = "replica.nested_text.scoring.v2"
     args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
     print(json.dumps({
         "output": str(args.output), "scoring_attempts": len(replay_rows),
-        "legacy_preteach": f"{legacy['preteach_correct']}/{legacy['preteach_count']}",
         "scoring_version": REPLAY_SCORING_VERSION,
+        "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
         "retention_decline": legacy["retention_decline"],
     }, sort_keys=True))
     return 0

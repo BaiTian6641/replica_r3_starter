@@ -11,10 +11,13 @@ import copy
 import hashlib
 import importlib.util
 import json
+import shutil
 import sys
 from pathlib import Path
 
 import pytest
+
+from conftest import require_local_artifacts
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPARATOR = ROOT / "scripts" / "compare_nested_text_continuation.py"
@@ -305,10 +308,14 @@ def parameter_audit() -> dict:
     }
 
 
-def guard(runtime: dict) -> dict:
+def guard(runtime: dict, *, output: str, binding: dict) -> dict:
     return {
         "status": "completed_within_declared_sampled_limits",
         "child_exit_code": 0,
+        "command": [sys.executable, str(Path(output).parent / binding["child"]),
+                    "--mode", "teach"],
+        "output": output,
+        "implementation_sha256": dict(binding["implementation_sha256"]),
         "guard": {
             "policy": {
                 "driver_limit_bytes": runtime["max_driver_bytes"],
@@ -351,20 +358,60 @@ def corrupt_state(state: dict, path: str, value: dict) -> None:
     state["sha256"] = sha_json(leaves)
 
 
-def build(tmp_path: Path) -> dict:
+def _source_bytes(root: Path, relative: str) -> bytes:
+    local = root / relative
+    return local.read_bytes() if local.is_file() else (ROOT / relative).read_bytes()
+
+
+def write_snapshot(tmp_path: Path, implementation: dict) -> Path:
+    blobs = tmp_path / "snapshot_blobs"
+    blobs.mkdir(exist_ok=True)
+    entries = []
+    for relative, digest in sorted(implementation.items()):
+        value = _source_bytes(tmp_path, relative)
+        assert sha(value) == digest
+        (blobs / digest).write_bytes(value)
+        entries.append({
+            "path": relative, "sha256": digest, "bytes": len(value),
+            "blob": f"snapshot_blobs/{digest}",
+        })
+    path = tmp_path / "source_snapshot.json"
+    write_json(path, {
+        "format": "replica.implementation_source_snapshot.v1",
+        "created_at_utc": "2026-10-27T00:00:00+00:00",
+        "commit": "synthetic-fixture",
+        "reason": "Synthetic CPU fixture snapshot for historical replay tests.",
+        "entries": entries,
+    })
+    return path
+
+
+def build(tmp_path: Path, *, extra_paths=(), relative_paths: bool = False) -> dict:
     """Write one exact-pass artifact set under ``tmp_path``."""
     protocol_body = copy.deepcopy(PROTOCOL_BODY)
     parent = tmp_path / "parent.pt"
     parent.write_bytes(b"parent-checkpoint-v1\n")
     config = copy.deepcopy(read_json(CONFIG_PATH))
     config["format"] = CONFIG_FORMAT
-    config["implementation_paths"] = [
+    implementation_paths = [
         "scripts/compare_nested_text_continuation.py",
         "src/replica_lab/nested_continuation.py",
+        *extra_paths,
     ]
+    for relative in implementation_paths:
+        target = tmp_path / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if target.exists():
+            continue
+        if relative in extra_paths:
+            target.write_text("fixture drift probe\n")
+        else:
+            target.write_bytes((ROOT / relative).read_bytes())
+    config["implementation_paths"] = implementation_paths
+    parent_field = "parent.pt" if relative_paths else str(parent)
     comparison = config["comparison"]
     comparison.update({
-        "parent_checkpoint": str(parent),
+        "parent_checkpoint": parent_field,
         "parent_checkpoint_sha256": sha_file(parent),
         "parent_checkpoint_bytes": parent.stat().st_size,
         "parent_event_count": PARENT_EVENTS,
@@ -391,8 +438,21 @@ def build(tmp_path: Path) -> dict:
     config_sha = sha_file(protocol_path)
     runtime = config["runtime"]
     implementation = {
-        relative: sha_file(ROOT / relative)
+        relative: sha(_source_bytes(tmp_path, relative))
         for relative in config["implementation_paths"]}
+    snapshot = write_snapshot(tmp_path, implementation)
+    binding = {
+        "format": "replica.nested_text.guard_binding.v1",
+        "reason": "Synthetic guard launcher/child binding for CPU tests.",
+        "launcher": "scripts/compare_nested_text_continuation.py",
+        "child": "scripts/guard_child.py",
+        "implementation_sha256": {
+            "scripts/compare_nested_text_continuation.py": implementation[
+                "scripts/compare_nested_text_continuation.py"],
+        },
+    }
+    guard_binding = tmp_path / "guard_binding.json"
+    write_json(guard_binding, binding)
     manifest_sha = config["episodes"]["manifest_sha256"]
 
     states = {index: canonical(index)
@@ -508,7 +568,7 @@ def build(tmp_path: Path) -> dict:
         "before_state_file": "before_state.json",
         "after_state_file": "after_state.json",
         "state_history": "state_history.jsonl",
-        "checkpoint": str(parent),
+        "checkpoint": parent_field,
         "checkpoint_sha256": sha_file(parent),
         "checkpoint_bytes": parent.stat().st_size,
         "config_sha256": config_sha,
@@ -536,12 +596,19 @@ def build(tmp_path: Path) -> dict:
     })
 
     guards = {}
+    outputs = {"guard-a": arms["arm-a"], "guard-b": arms["arm-b"],
+               "guard-resume": resume}
     for label in ("guard-a", "guard-b", "guard-resume"):
         path = tmp_path / f"{label}.json"
-        write_json(path, guard(runtime))
+        write_json(path, guard(runtime, output=str(outputs[label]),
+                               binding=binding))
         guards[label] = path
     return {
         "protocol": protocol_path,
+        "snapshot": snapshot,
+        "guard_binding": guard_binding,
+        "implementation": implementation,
+        "binding": binding,
         "continuous_a": arms["arm-a"],
         "continuous_b": arms["arm-b"],
         "resume": resume,
@@ -560,15 +627,19 @@ def build(tmp_path: Path) -> dict:
     }
 
 
-def compare(module, fixture: dict) -> dict:
-    return module.compare_artifacts(
+def compare(module, fixture: dict, **overrides) -> dict:
+    arguments = dict(
         protocol=fixture["protocol"],
         continuous_a=fixture["continuous_a"],
         continuous_b=fixture["continuous_b"],
         resume=fixture["resume"],
         guard_a=fixture["guard_a"],
         guard_b=fixture["guard_b"],
-        guard_resume=fixture["guard_resume"])
+        guard_resume=fixture["guard_resume"],
+        source_root=fixture["snapshot"],
+        guard_binding=fixture["guard_binding"])
+    arguments.update(overrides)
+    return module.compare_artifacts(**arguments)
 
 
 @pytest.fixture(scope="module")
@@ -592,6 +663,8 @@ def test_exact_pass_cli_and_determinism(tmp_path, comparator, monkeypatch):
         "--guard-a", str(fixture["guard_a"]),
         "--guard-b", str(fixture["guard_b"]),
         "--guard-resume", str(fixture["guard_resume"]),
+        "--source-root", str(fixture["snapshot"]),
+        "--guard-binding", str(fixture["guard_binding"]),
         "--output", str(first),
     ])
     assert comparator.main() == 0
@@ -786,7 +859,9 @@ def test_same_arm_twice_is_not_two_independent_arms(tmp_path, comparator):
         resume=fixture["resume"],
         guard_a=fixture["guard_a"],
         guard_b=fixture["guard_b"],
-        guard_resume=fixture["guard_resume"])
+        guard_resume=fixture["guard_resume"],
+        source_root=fixture["snapshot"],
+        guard_binding=fixture["guard_binding"])
     assert receipt["status"] == "failed"
     assert receipt["exact_status"] == "failed"
     assert any("distinct directories" in failure
@@ -800,3 +875,225 @@ def test_comparator_has_no_in_process_learner_reference():
     assert "canonical_state(learner" not in source
     assert "from replica_lab.nested_continuation import FORMAT, compare_states" \
         in source
+
+
+def _current_receipt(fixture: dict, *, implementation=None,
+                     guard=None) -> Path:
+    document = {
+        "format": "replica.nested_text.continuation_current_receipt.v1",
+        "mode": "reviewed_current_source",
+        "declared_at_utc": "2026-10-27T00:00:00+00:00",
+        "reason": "Synthetic reviewed current receipt for CPU tests.",
+        "config": {
+            "path": Path(fixture["protocol"]).name,
+            "sha256": sha_file(fixture["protocol"]),
+        },
+        "implementation_sha256": dict(implementation
+                                      or fixture["implementation"]),
+        "guard": {
+            "launcher": fixture["binding"]["launcher"],
+            "child": fixture["binding"]["child"],
+            "implementation_sha256": dict(
+                guard or fixture["binding"]["implementation_sha256"]),
+        },
+    }
+    document["receipt_digest"] = sha_json(document)
+    path = Path(fixture["outdir"]) / "current_receipt.json"
+    write_json(path, document)
+    return path
+
+
+def test_historical_replay_survives_live_source_drift(tmp_path, comparator):
+    fixture = build(tmp_path, extra_paths=["scripts/drift_probe.py"])
+    probe = tmp_path / "scripts" / "drift_probe.py"
+    pinned = fixture["implementation"]["scripts/drift_probe.py"]
+    probe.write_text("live drift after the historical snapshot\n")
+    assert sha_file(probe) != pinned
+    receipt = compare(comparator, fixture)
+    assert receipt["status"] == "exact_match"
+    assert receipt["implementation_source"]["mode"] == "historical"
+    assert receipt["implementation_source"]["implementation_pins"] == 3
+    assert receipt["protocol"]["implementation_sha256"][
+        "scripts/drift_probe.py"] == pinned
+    without = compare(comparator, fixture, mode="current")
+    assert without["status"] == "failed"
+    assert any("requires a reviewed current receipt" in failure
+               for failure in without["failures"])
+
+
+def test_current_receipt_accepts_live_bytes_and_rejects_stale(tmp_path,
+                                                              comparator):
+    fixture = build(tmp_path, extra_paths=["scripts/drift_probe.py"])
+    receipt_path = _current_receipt(fixture)
+    accepted = compare(comparator, fixture, mode="current",
+                       current_receipt=receipt_path,
+                       artifact_root=tmp_path)
+    assert accepted["status"] == "exact_match"
+    assert accepted["implementation_source"]["mode"] == "current"
+    assert accepted["implementation_source"]["receipt_sha256"] == \
+        sha_file(receipt_path)
+    (tmp_path / "scripts" / "drift_probe.py").write_text("stale now\n")
+    stale = compare(comparator, fixture, mode="current",
+                    current_receipt=receipt_path,
+                    artifact_root=tmp_path)
+    assert stale["status"] == "failed"
+    assert any("does not match the live implementation bytes" in failure
+               for failure in stale["failures"])
+    document = read_json(receipt_path)
+    document["implementation_sha256"]["scripts/drift_probe.py"] = "0" * 64
+    write_json(receipt_path, document)
+    tampered = compare(comparator, fixture, mode="current",
+                       current_receipt=receipt_path,
+                       artifact_root=tmp_path)
+    assert tampered["status"] == "failed"
+    assert any("receipt digest differs" in failure
+               for failure in tampered["failures"])
+
+
+def test_relocated_replay_is_canonical(tmp_path, comparator):
+    first_root = tmp_path / "first"
+    second_root = tmp_path / "second"
+    first_root.mkdir()
+    fixture = build(first_root, relative_paths=True)
+    arguments = dict(
+        protocol="protocol.json", continuous_a="arm-a",
+        continuous_b="arm-b", resume="resume",
+        guard_a="guard-a.json", guard_b="guard-b.json",
+        guard_resume="guard-resume.json",
+        source_root="source_snapshot.json",
+        guard_binding="guard_binding.json", record_inputs="omit")
+    first = comparator.compare_artifacts(artifact_root=first_root, **arguments)
+    shutil.copytree(first_root, second_root)
+    second = comparator.compare_artifacts(artifact_root=second_root, **arguments)
+    assert first["status"] == "exact_match"
+    assert second["status"] == "exact_match"
+    assert first == second
+    assert "inputs" not in first
+    assert first["artifacts"]["continuous-a"]["path"] is None
+    assert first["guards"]["guard-a"]["path"] is None
+
+
+def test_snapshot_tampering_fails_closed(tmp_path, comparator):
+    fixture = build(tmp_path)
+    original = read_json(fixture["snapshot"])
+    entry = original["entries"][0]
+    blob = tmp_path / entry["blob"]
+    original_value = blob.read_bytes()
+    value = bytearray(original_value)
+    value[0] ^= 0xFF
+    blob.write_bytes(bytes(value))
+    receipt = compare(comparator, fixture)
+    assert receipt["status"] == "failed"
+    assert any("snapshot bytes differ" in failure
+               for failure in receipt["failures"])
+    blob.write_bytes(original_value)
+    assert sha_file(blob) == entry["sha256"]
+
+    manifest = copy.deepcopy(original)
+    manifest["entries"][0]["path"] = "../escape.py"
+    path = tmp_path / "unsafe_snapshot.json"
+    write_json(path, manifest)
+    receipt = compare(comparator, fixture, source_root=path)
+    assert receipt["status"] == "failed"
+    assert any("unsafe" in failure for failure in receipt["failures"])
+
+    manifest = copy.deepcopy(original)
+    manifest["entries"][0]["bytes"] += 1
+    path = tmp_path / "size_snapshot.json"
+    write_json(path, manifest)
+    receipt = compare(comparator, fixture, source_root=path)
+    assert receipt["status"] == "failed"
+    assert any("byte size differs" in failure
+               for failure in receipt["failures"])
+
+    missing = copy.deepcopy(original)
+    for item in missing["entries"]:
+        (tmp_path / item["blob"]).unlink()
+    path = tmp_path / "missing_snapshot.json"
+    write_json(path, missing)
+    receipt = compare(comparator, fixture, source_root=path)
+    assert receipt["status"] == "failed"
+    assert any("blob is missing" in failure for failure in receipt["failures"])
+
+
+def test_guard_map_and_command_tampering_fails_closed(tmp_path, comparator):
+    fixture = build(tmp_path)
+    path = fixture["guard_a"]
+    report = read_json(path)
+    report["implementation_sha256"] = {
+        relative: "0" * 64
+        for relative in report["implementation_sha256"]}
+    write_json(path, report)
+    receipt = compare(comparator, fixture)
+    assert receipt["status"] == "failed"
+    assert any("implementation map differs" in failure
+               for failure in receipt["failures"])
+
+    (tmp_path / "command").mkdir()
+    fixture = build(tmp_path / "command")
+    path = fixture["guard_a"]
+    report = read_json(path)
+    report["command"] = [sys.executable, "/tmp/not_the_child.py"]
+    write_json(path, report)
+    receipt = compare(comparator, fixture)
+    assert receipt["status"] == "failed"
+    assert any("declared child" in failure for failure in receipt["failures"])
+
+    (tmp_path / "binding").mkdir()
+    fixture = build(tmp_path / "binding")
+    binding = read_json(fixture["guard_binding"])
+    first = sorted(binding["implementation_sha256"])[0]
+    binding["implementation_sha256"][first] = "0" * 64
+    write_json(fixture["guard_binding"], binding)
+    receipt = compare(comparator, fixture)
+    assert receipt["status"] == "failed"
+    assert any("differs from the reviewed source map" in failure
+               for failure in receipt["failures"])
+
+
+@require_local_artifacts(
+    "runs/nested_text_continuation_comparison_20261026/continuous_a",
+    "runs/nested_text_continuation_comparison_20261026/continuous_b",
+    "runs/nested_text_continuation_comparison_20261026/resume",
+    "runs/nested_text_nl1_20261026/teach02/full_checkpoint.pt",
+)
+def test_preserved_artifacts_replay_after_live_source_drift(comparator):
+    reports = ROOT / "reports" / "nested_text_continuation_comparison_20261026"
+    preserved = json.loads((reports / "comparison.json").read_text())
+    before = {path: sha_file(path) for path in (
+        reports / "comparison.json", reports / "comparison_repeat.json",
+        reports / "source_snapshot.json")}
+    receipt = comparator.compare_artifacts(
+        protocol=ROOT / "configs/nested_text_continuation_comparison_v1.json",
+        continuous_a=ROOT / "runs/nested_text_continuation_comparison_20261026/continuous_a",
+        continuous_b=ROOT / "runs/nested_text_continuation_comparison_20261026/continuous_b",
+        resume=ROOT / "runs/nested_text_continuation_comparison_20261026/resume",
+        guard_a=reports / "continuous_a.guard.json",
+        guard_b=reports / "continuous_b.guard.json",
+        guard_resume=reports / "resume.guard.json",
+        source_root=reports / "source_snapshot.json",
+        guard_binding=ROOT / "configs/nested_text_continuation_guard_binding_v1.json",
+        mode="historical", record_inputs="omit")
+    assert receipt["status"] == "exact_match"
+    assert receipt["failure_count"] == 0
+    assert receipt["implementation_source"]["mode"] == "historical"
+    assert receipt["protocol"]["implementation_sha256"] == (
+        preserved["protocol"]["implementation_sha256"])
+    after = {path: sha_file(path) for path in before}
+    assert before == after
+
+
+def test_original_receipts_and_snapshot_bytes_are_unchanged(tmp_path,
+                                                            comparator):
+    preserved = [
+        ROOT / "reports" / "nested_text_continuation_comparison_20261026" /
+        name
+        for name in ("comparison.json", "comparison_repeat.json",
+                     "source_snapshot.json")]
+    before = {path: sha_file(path) for path in preserved}
+    fixture = build(tmp_path)
+    assert compare(comparator, fixture)["status"] == "exact_match"
+    after = {path: sha_file(path) for path in preserved}
+    assert before == after
+    source = COMPARATOR.read_text()
+    assert "subprocess" not in source

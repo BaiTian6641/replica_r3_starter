@@ -12,6 +12,7 @@ import importlib.util
 import json
 import math
 from pathlib import Path
+import shutil
 from types import SimpleNamespace
 import time
 
@@ -21,6 +22,9 @@ from replica_lab import vision_collapse_diagnostic as diagnostic
 from conftest import require_local_artifacts
 
 ROOT = Path(__file__).resolve().parents[1]
+HISTORICAL_SNAPSHOT = (
+    ROOT / "reports/vision_historical_source_20261027/source_snapshot.json")
+CURRENT_RECEIPT = ROOT / "configs/vision_current_source_receipt_v1.json"
 CONFIG = ROOT / "configs/vision_collapse_diagnostic_v1.json"
 TRAINING = (ROOT / "data/vision_balanced_alignment_v2_20261026/prepared04/"
                    "training/alignment.jsonl")
@@ -615,7 +619,12 @@ def test_config_and_static_pins_verify_without_a_model():
     config = module.load_config(CONFIG)
     assert config["limits"]["updates"] == 0
     assert config["policy"]["sealed_evaluation_access"] == 0
-    pins = module.verify_pins(config)
+    pins = module.verify_pins(config, source_root=HISTORICAL_SNAPSHOT,
+                              mode="historical")
+    assert pins["pins"]["implementation"]["source_mode"] == (
+        "historical_snapshot")
+    assert pins["pins"]["implementation"]["source_snapshot_sha256"] == (
+        module._sha(HISTORICAL_SNAPSHOT))
     assert pins["pins"]["prepared"]["training_examples"] == 26
     assert pins["pins"]["prepared"]["answer_examples"] == 14
     assert pins["pins"]["prepared"]["caption_examples"] == 12
@@ -662,8 +671,148 @@ def test_explicit_migration_rejects_wrong_current_hash():
     migration = config["implementation_pins"]["migrations"][
         "scripts/run_vision_curriculum.py"]
     migration["current_sha256"] = "0" * 64
-    with pytest.raises(diagnostic.DiagnosticError, match="Migrated implementation bytes differ"):
-        module.verify_pins(config)
+    with pytest.raises(diagnostic.DiagnosticError,
+                       match="Migrated implementation bytes differ"):
+        module.verify_pins(config, source_root=HISTORICAL_SNAPSHOT)
+
+
+@require_local_artifacts(
+    "checkpoints/minicpm5_source",
+    "checkpoints/siglip2_base_patch16_224_source",
+    "data/vision_balanced_alignment_v2_20261026/prepared04",
+    "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+)
+def test_current_receipt_verifies_live_bytes_and_fails_closed(tmp_path):
+    module = _runner_module()
+    config = module.load_config(CONFIG)
+    pins = module.verify_pins(config, mode="current",
+                              current_receipt=CURRENT_RECEIPT)
+    implementation = pins["pins"]["implementation"]
+    assert implementation["source_mode"] == "current_receipt"
+    assert implementation["current_receipt_sha256"] == (
+        module._sha(CURRENT_RECEIPT))
+    assert set(implementation["new_files"]) == set()
+    with pytest.raises(diagnostic.DiagnosticError,
+                       match="reviewed current-source receipt"):
+        module.verify_pins(config, mode="current")
+
+    receipt = json.loads(CURRENT_RECEIPT.read_text())
+    relative = sorted(receipt["new_files"])[0]
+    receipt["new_files"][relative]["pinned_sha256"] = "0" * 64
+    tampered = tmp_path / "tampered_receipt.json"
+    tampered.write_text(json.dumps(receipt))
+    with pytest.raises(diagnostic.DiagnosticError,
+                       match="receipt digest differs"):
+        module.verify_pins(config, mode="current",
+                           current_receipt=tampered)
+
+    receipt = json.loads(CURRENT_RECEIPT.read_text())
+    receipt["new_files"][relative]["pinned_sha256"] = "0" * 64
+    receipt["receipt_digest"] = module.provenance.receipt_digest(receipt)
+    tampered.write_text(json.dumps(receipt))
+    with pytest.raises(diagnostic.DiagnosticError,
+                       match="Current implementation bytes differ"):
+        module.verify_pins(config, mode="current",
+                           current_receipt=tampered)
+
+    receipt = json.loads(CURRENT_RECEIPT.read_text())
+    stale = sorted(receipt["migrations"])[0]
+    receipt["migrations"][stale]["current_sha256"] = "1" * 64
+    receipt["receipt_digest"] = module.provenance.receipt_digest(receipt)
+    tampered.write_text(json.dumps(receipt))
+    with pytest.raises(diagnostic.DiagnosticError,
+                       match="current pin is stale"):
+        module.verify_pins(config, mode="current",
+                           current_receipt=tampered)
+
+    unrelated = copy.deepcopy(config)
+    unrelated["name"] = "vision_collapse_diagnostic_unreviewed"
+    with pytest.raises(diagnostic.DiagnosticError,
+                       match="not reviewed for config"):
+        module.verify_pins(unrelated, mode="current",
+                           current_receipt=CURRENT_RECEIPT)
+
+
+@require_local_artifacts(
+    "checkpoints/minicpm5_source",
+    "checkpoints/siglip2_base_patch16_224_source",
+    "data/vision_balanced_alignment_v2_20261026/prepared04",
+    "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+)
+def test_historical_snapshot_tampering_fails_closed(tmp_path):
+    module = _runner_module()
+    config = module.load_config(CONFIG)
+    source = ROOT / "reports/vision_historical_source_20261027"
+
+    def copied(name):
+        target = tmp_path / name
+        shutil.copytree(source, target)
+        return target
+
+    target = copied("size")
+    manifest = json.loads((target / "source_snapshot.json").read_text())
+    manifest["entries"][0]["bytes"] += 1
+    (target / "source_snapshot.json").write_text(json.dumps(manifest))
+    with pytest.raises(diagnostic.DiagnosticError,
+                       match="byte size differs"):
+        module.verify_pins(config, source_root=target)
+
+    target = copied("path")
+    manifest = json.loads((target / "source_snapshot.json").read_text())
+    manifest["entries"][0]["path"] = "../escape.py"
+    (target / "source_snapshot.json").write_text(json.dumps(manifest))
+    with pytest.raises(diagnostic.DiagnosticError, match="unsafe"):
+        module.verify_pins(config, source_root=target)
+
+    target = copied("missing")
+    manifest = json.loads((target / "source_snapshot.json").read_text())
+    (target / manifest["entries"][0]["blob"]).unlink()
+    with pytest.raises(diagnostic.DiagnosticError, match="blob is missing"):
+        module.verify_pins(config, source_root=target)
+
+    target = copied("blob")
+    manifest = json.loads((target / "source_snapshot.json").read_text())
+    blob = target / manifest["entries"][0]["blob"]
+    value = bytearray(blob.read_bytes())
+    value[0] ^= 0xFF
+    blob.write_bytes(bytes(value))
+    with pytest.raises(diagnostic.DiagnosticError,
+                       match="snapshot bytes differ"):
+        module.verify_pins(config, source_root=target)
+
+
+def test_source_provenance_files_are_self_contained_and_reviewed():
+    module = _runner_module()
+    snapshot = module.provenance.load_source_snapshot(HISTORICAL_SNAPSHOT)
+    historical = snapshot["by_path"][
+        "src/replica_lab/architecture/contracts.py"]
+    assert len(historical) >= 1
+    assert "d882f03cb6f7b0c52dcf39b83b296d8602e34e02bfa95741b2f97b7b654d67a9" \
+        in historical
+    assert module._sha(ROOT / "src/replica_lab/architecture/contracts.py") != \
+        "d882f03cb6f7b0c52dcf39b83b296d8602e34e02bfa95741b2f97b7b654d67a9"
+    receipt = module.provenance.load_current_receipt(CURRENT_RECEIPT)
+    assert receipt["prepared"]["protocol_sha256"] == (
+        "3bf636f00dce4e73168eb5f4b2c2454560276b32dfb1122b91d58ffcd44c2d77")
+    assert receipt["configs"]["vision_collapse_diagnostic_v1"] == (
+        module.provenance.canonical_digest(module.load_config(CONFIG)))
+    for relative, entry in receipt["new_files"].items():
+        assert module._sha(ROOT / relative) == entry["pinned_sha256"]
+
+
+def test_collapse_cli_forwards_source_provenance_flags():
+    module = _runner_module()
+    args = module.build_parser().parse_args([
+        "--config", "configs/vision_collapse_diagnostic_v1.json",
+        "--output", "runs/example", "--model-path", "checkpoints/minicpm5_source",
+        "--model-lock", "configs/minicpm5_sealed_lock.local.json",
+        "--mode", "current", "--current-receipt", "configs/receipt.json",
+        "--source-root", "reports/snapshot.json", "--verify-only",
+    ])
+    assert args.mode == "current"
+    assert args.verify_only is True
+    assert args.current_receipt == Path("configs/receipt.json")
+    assert args.source_root == Path("reports/snapshot.json")
 
 
 def test_config_rejects_eos_or_write_policy_drift(tmp_path):

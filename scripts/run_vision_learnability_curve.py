@@ -56,11 +56,22 @@ _snapshot_new_parameters = base._snapshot_new_parameters
 _changed = base._changed
 
 
-def verify_pins(config, root=ROOT):
-    """Reuse the historical pin verifier for the curve declaration."""
+def verify_pins(config, root=ROOT, *, source_root=None, mode=None,
+                current_receipt=None):
+    """Reuse the historical/current pin verifier for the curve declaration."""
     learn.require(config.get("mode") == curve.MODE,
                   "The curve runner requires a curve config")
-    pins = base.verify_pins(config, root)
+    if mode is None:
+        if source_root is not None and current_receipt is not None:
+            raise learn.LearnabilityDiagnosticError(
+                "Specify the implementation source mode explicitly when both "
+                "source_root and current_receipt are supplied")
+        if source_root is not None:
+            mode = "historical"
+        elif current_receipt is not None:
+            mode = "current"
+    pins = base.verify_pins(config, root, source_root=source_root, mode=mode,
+                            current_receipt=current_receipt)
     learn.require(pins["pins"]["mode"] == curve.MODE,
                   "The pinned curve config was mislabelled")
     return pins
@@ -791,12 +802,47 @@ def build_parser():
     parser.add_argument("--device", choices=("mps",), default="mps")
     parser.add_argument("--model-path", type=Path, required=True)
     parser.add_argument("--model-lock", type=Path, required=True)
+    parser.add_argument("--source-mode", choices=base.provenance.MODES,
+                        default="current",
+                        help="authenticate historical snapshot or reviewed current receipt")
+    parser.add_argument("--source-root", type=Path, default=None,
+                        help="historical source snapshot manifest or directory")
+    parser.add_argument("--current-receipt", type=Path,
+                        default=ROOT / base.collapse.CURRENT_SOURCE_RECEIPT,
+                        help="reviewed current-source receipt (required by current mode)")
+    parser.add_argument("--verify-only", action="store_true",
+                        help="verify pins on CPU and exit without loading a model")
     return parser
+
+
+def _verify_only(args, config):
+    pins = verify_pins(config, source_root=args.source_root,
+                       mode=args.source_mode,
+                       current_receipt=args.current_receipt)
+    implementation = pins["pins"]["implementation"]
+    print(json.dumps({
+        "mode": args.mode,
+        "source_mode": implementation["source_mode"],
+        "source_snapshot_sha256": implementation.get("source_snapshot_sha256"),
+        "current_receipt_sha256": implementation.get("current_receipt_sha256"),
+        "implementation_files": len(implementation["files"]),
+        "new_files": sorted(implementation["new_files"]),
+    }, sort_keys=True))
+    return pins
 
 
 def main():
     parser = build_parser()
     args = parser.parse_args()
+    if args.verify_only:
+        config_path = Path(args.config)
+        if not config_path.is_absolute():
+            config_path = ROOT / config_path
+        config = curve.load_config(config_path)
+        if config["mode"] != args.mode:
+            parser.error("--mode differs from the declared config mode")
+        _verify_only(args, config)
+        return
     if os.environ.get("REPLICA_CAPACITY_GUARD") != "1":
         parser.error("Use the capacity guard")
     if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") != "0":
@@ -822,7 +868,9 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     started = time.monotonic()
     try:
-        pins = verify_pins(config)
+        pins = verify_pins(config, source_root=args.source_root,
+                           mode=args.source_mode,
+                           current_receipt=args.current_receipt)
         execute_curve(args, config, pins)
     except BaseException as exc:
         if not (args.output / "failure_report.json").exists():

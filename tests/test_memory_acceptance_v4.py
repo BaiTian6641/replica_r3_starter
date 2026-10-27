@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 
@@ -676,6 +677,26 @@ def test_real_v3_receipt_is_never_accepted_as_v4():
     assert receipt["metric_version"] == "memory.acceptance.v3"
     with pytest.raises(ValueError, match="not v4"):
         validate_receipt(receipt)
+
+
+CALIBRATION_SCRIPT = (
+    ROOT / "scripts/analyze_memory_acceptance_calibration.py")
+
+
+def test_calibration_semantics_mirror_v4_layer_combination():
+    """The remediation view must not relabel v4 query aggregation."""
+    spec = importlib.util.spec_from_file_location(
+        "memory_acceptance_calibration_contract", CALIBRATION_SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    for key in ("raw_top1", "accepted", "accepted_correct",
+                "accepted_wrong", "zero_or_tied",
+                "layers_are_independent_samples"):
+        assert module.LAYER_SEMANTICS[key] == LAYER_COMBINATION[key]
+    assert module.LAYER_SEMANTICS["zero_or_tied_credit"] == "none"
+    assert module.LAYER_SEMANTICS["report_layer_and_query_views"] is True
+    assert module.DIAGNOSIS_FORMAT.startswith(
+        "replica.memory_acceptance.remediation.")
 
 
 def test_replay_restart02_full_v4():

@@ -38,9 +38,9 @@ from replica_lab.vision_collapse_diagnostic import (  # noqa: E402
     CONTROL_NAMES, EXPECTED_STOP_TOKENS, comparison_cells, control_plan,
     first_token_analysis, fit_coverage, pair_groups, require_fit_coverage,
     require_stop_conditions, resolve_stop_tokens)
+from replica_lab import source_provenance as provenance  # noqa: E402
 from replica_lab.vision_curriculum import (  # noqa: E402
-    PROJECTOR_PARAMETER_COUNT, PROJECTOR_TENSORS, VisionCurriculumError,
-    verify_implementation_pins)
+    PROJECTOR_PARAMETER_COUNT, PROJECTOR_TENSORS)
 import run_vision_balanced_alignment as balanced  # noqa: E402
 import run_vision_collapse_diagnostic as collapse  # noqa: E402
 import run_vision_curriculum as curriculum  # noqa: E402
@@ -67,10 +67,27 @@ MANIFEST_SCOPE = collapse.MANIFEST_SCOPE
 # ---------------------------------------------------------------------------
 
 
-def verify_pins(config, root=ROOT):
-    """Verify prepared/source/extension/baseline bytes before any model load."""
+def verify_pins(config, root=ROOT, *, source_root=None, mode=None,
+                current_receipt=None):
+    """Verify prepared/source/extension/baseline bytes before any model load.
+
+    Historical replay authenticates every implementation pin against the
+    immutable source snapshot.  Current qualification requires a reviewed
+    current-source receipt and verifies the live tree against it.  Omitting
+    ``mode`` preserves the pre-existing declared-pin live check for additive
+    consumers; the v1 CLI always selects ``current``.
+    """
     root = Path(root)
-    mode = config["mode"]
+    if mode is None:
+        if source_root is not None and current_receipt is not None:
+            raise learn.LearnabilityDiagnosticError(
+                "Specify the implementation source mode explicitly when both "
+                "source_root and current_receipt are supplied")
+        if source_root is not None:
+            mode = "historical"
+        elif current_receipt is not None:
+            mode = "current"
+    config_mode = config["mode"]
     prepared = config["prepared"]
     prepared_root = root / prepared["root"]
     require = learn.require
@@ -157,7 +174,7 @@ def verify_pins(config, root=ROOT):
             "Prepared protocol vision manifest pin differs")
 
     extension_path = None
-    if mode == "ablation":
+    if config_mode == "ablation":
         extension_path = root / config["extension"]["path"]
         weights_path = extension_path / "extensions.safetensors"
         receipt_path = extension_path / "manifest.json"
@@ -224,29 +241,55 @@ def verify_pins(config, root=ROOT):
 
     migration_config = config["implementation_pins"]
     migrations = dict(migration_config["migrations"])
+    new_file_pins = dict(migration_config.get("new_files") or {})
     prepared_pins = dict(protocol.get("implementation_sha256") or {})
     require(prepared_pins, "The prepared protocol lacks implementation pins")
+    require(mode is None or mode in provenance.MODES,
+            f"Unknown implementation source mode: {mode}")
     require(set(migrations) <= set(prepared_pins),
             "An implementation migration names an unpinned file")
-    unchanged = {"implementation_sha256": {
-        relative: expected for relative, expected in prepared_pins.items()
-        if relative not in migrations}}
-    try:
-        actual = verify_implementation_pins(unchanged, root)
-    except VisionCurriculumError as error:
-        raise learn.LearnabilityDiagnosticError(str(error)) from error
     for relative, migration in migrations.items():
+        require(isinstance(migration, dict)
+                and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                f"Implementation migration is malformed: {relative}")
         expected = prepared_pins[relative]
         require(migration["parent_sha256"] == expected,
                 f"Implementation migration parent differs: {relative}")
-        try:
-            migrated = verify_implementation_pins(
-                {"implementation_sha256": {
-                    relative: migration["current_sha256"]}}, root)
-        except VisionCurriculumError as error:
-            raise learn.LearnabilityDiagnosticError(
-                f"Migrated implementation bytes differ: {relative}") from error
-        actual.update(migrated)
+        require(provenance.is_sha256(migration["current_sha256"])
+                and migration["current_sha256"] != expected,
+                f"Implementation migration current pin is invalid: {relative}")
+        require(isinstance(migration["reason"], str)
+                and bool(migration["reason"].strip()),
+                f"Implementation migration lacks a reason: {relative}")
+    config_body_sha256 = provenance.canonical_digest(config)
+    try:
+        if mode is None:
+            source = provenance.verify_declared_live(
+                root, prepared_pins=prepared_pins, migrations=migrations,
+                new_files=new_file_pins)
+            actual = source["actual"]
+            resolved_migrations = migrations
+        elif mode == "historical":
+            source = provenance.verify_historical_source(
+                source_root or collapse._default_snapshot(root),
+                prepared_pins=prepared_pins, migrations=migrations,
+                new_files=new_file_pins)
+            actual = source["actual"]
+            resolved_migrations = migrations
+        else:
+            require(current_receipt is not None,
+                    "Current implementation verification requires a reviewed "
+                    "current-source receipt")
+            source = provenance.verify_current_source(
+                current_receipt, root=root, prepared_pins=prepared_pins,
+                protocol_sha256=protocol_sha, manifest_sha256=manifest_sha,
+                config_name=config["name"],
+                config_body_sha256=config_body_sha256,
+                config_new_files=new_file_pins)
+            actual = source["live"]
+            resolved_migrations = source["migrations"]
+    except provenance.SourceProvenanceError as error:
+        raise learn.LearnabilityDiagnosticError(str(error)) from error
     implementation = {}
     for relative in sorted(prepared_pins):
         expected = prepared_pins[relative]
@@ -255,18 +298,25 @@ def verify_pins(config, root=ROOT):
             "actual_sha256": actual[relative],
             "matches_prepared_pin": actual[relative] == expected,
             "migrated": relative in migrations,
-            "migration": migrations.get(relative),
+            "migration": resolved_migrations.get(relative),
         }
     new_files = {}
-    for relative, expected in config["implementation_pins"]["new_files"].items():
-        actual_sha = _sha(root / relative)
-        require(actual_sha == expected,
-                f"New implementation bytes differ: {relative}")
-        new_files[relative] = {"pinned_sha256": expected,
-                               "actual_sha256": actual_sha,
-                               "enforced": True}
+    for relative, expected in new_file_pins.items():
+        if mode != "current":
+            new_files[relative] = {
+                "pinned_sha256": expected,
+                "actual_sha256": source["new_files"][relative],
+                "enforced": True,
+            }
+        else:
+            entry = source["new_files"][relative]
+            new_files[relative] = {
+                "pinned_sha256": entry["pinned_sha256"],
+                "actual_sha256": entry["actual_sha256"],
+                "enforced": True,
+            }
     pins = {
-        "mode": mode,
+        "mode": config_mode,
         "prepared": {
             "root": prepared["root"],
             "protocol_sha256": protocol_sha,
@@ -288,11 +338,14 @@ def verify_pins(config, root=ROOT):
             "enforced": True,
             "mode": migration_config["mode"],
             "reason": migration_config["reason"],
+            "source_mode": source["source_mode"],
+            "source_snapshot_sha256": source.get("snapshot_sha256"),
+            "current_receipt_sha256": source.get("receipt_sha256"),
             "files": implementation,
             "new_files": new_files,
         },
     }
-    if mode == "ablation":
+    if config_mode == "ablation":
         pins["extension"] = {
             "path": config["extension"]["path"],
             "manifest_sha256": config["extension"]["manifest_sha256"],
@@ -1654,12 +1707,47 @@ def build_parser():
     parser.add_argument("--device", choices=("mps",), default="mps")
     parser.add_argument("--model-path", type=Path, required=True)
     parser.add_argument("--model-lock", type=Path, required=True)
+    parser.add_argument("--source-mode", choices=provenance.MODES,
+                        default="current",
+                        help="authenticate historical snapshot or reviewed current receipt")
+    parser.add_argument("--source-root", type=Path, default=None,
+                        help="historical source snapshot manifest or directory")
+    parser.add_argument("--current-receipt", type=Path,
+                        default=ROOT / collapse.CURRENT_SOURCE_RECEIPT,
+                        help="reviewed current-source receipt (required by current mode)")
+    parser.add_argument("--verify-only", action="store_true",
+                        help="verify pins on CPU and exit without loading a model")
     return parser
+
+
+def _verify_only(args, config):
+    pins = verify_pins(config, source_root=args.source_root,
+                       mode=args.source_mode,
+                       current_receipt=args.current_receipt)
+    implementation = pins["pins"]["implementation"]
+    print(json.dumps({
+        "mode": args.mode,
+        "source_mode": implementation["source_mode"],
+        "source_snapshot_sha256": implementation.get("source_snapshot_sha256"),
+        "current_receipt_sha256": implementation.get("current_receipt_sha256"),
+        "implementation_files": len(implementation["files"]),
+        "new_files": sorted(implementation["new_files"]),
+    }, sort_keys=True))
+    return pins
 
 
 def main():
     parser = build_parser()
     args = parser.parse_args()
+    if args.verify_only:
+        config_path = Path(args.config)
+        if not config_path.is_absolute():
+            config_path = ROOT / config_path
+        config = learn.load_config(config_path)
+        if config["mode"] != args.mode:
+            parser.error("--mode differs from the declared config mode")
+        _verify_only(args, config)
+        return
     if os.environ.get("REPLICA_CAPACITY_GUARD") != "1":
         parser.error("Use the capacity guard")
     if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") != "0":
@@ -1684,7 +1772,9 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     started = time.monotonic()
     try:
-        pins = verify_pins(config)
+        pins = verify_pins(config, source_root=args.source_root,
+                           mode=args.source_mode,
+                           current_receipt=args.current_receipt)
         if config["mode"] == "ablation":
             execute_ablation(args, config, pins)
         else:

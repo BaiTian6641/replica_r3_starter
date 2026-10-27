@@ -1,0 +1,30 @@
+{
+  "format": "replica.sealed_evaluation_exposure_incident.v1",
+  "created_on": "2026-10-27",
+  "qa_id": "external_caption_asset_qa_20261027",
+  "status": "quarantined_after_semantic_review_exposure",
+  "source_queue_sha256": "da7526c0ca1d6fab2e47a49d86bb9f6ffdb4c41eab92fdc0f068c7005b090bfb",
+  "exposed_role": "final_eval_untouched",
+  "exposed_row_ids": [
+    "liuhaotian/LLaVA-Pretrain:001308193#raw_caption",
+    "liuhaotian/LLaVA-Pretrain:000809480#raw_caption",
+    "liuhaotian/LLaVA-Pretrain:000237684#raw_caption",
+    "liuhaotian/LLaVA-Pretrain:000937058#raw_caption",
+    "liuhaotian/LLaVA-Pretrain:003169286#raw_caption",
+    "liuhaotian/LLaVA-Pretrain:000401749#raw_caption",
+    "liuhaotian/LLaVA-Pretrain:002321958#raw_caption",
+    "liuhaotian/LLaVA-Pretrain:003373510#raw_caption"
+  ],
+  "mechanism": "The initial QA template incorrectly required semantic review for sealed rows. A labeled contact sheet, reports/external_caption_asset_qa_20261027/review_sheet_3.jpg, was generated and viewed with all eight sealed image/caption pairs.",
+  "scope": "Human/agent semantic asset review only; no model execution, training, scoring, or development/held-out evaluation was run.",
+  "impact": "These rows are no longer valid as untouched independent evaluation data for this workstream. They are quarantined and must not be used for training, model selection, or future untouched-evaluation claims.",
+  "containment": {
+    "training_admission": "rejected",
+    "sealed_rows_excluded_from_future_semantic_review": true,
+    "sealed_rows_excluded_from_training_output": true,
+    "historical_source_data_modified": false,
+    "exposure_artifacts_deleted": false,
+    "new_independent_evaluation_tranche_required": true
+  },
+  "preservation": "The initial queue, review sheets, machine QA report and this incident receipt are retained as failure evidence. No existing artifact was deleted."
+}

@@ -1,0 +1,174 @@
+{
+  "aa_tolerance": 0,
+  "artifacts": {
+    "continuous-a": {
+      "artifact_bytes": 162233255,
+      "canonical_state_sha256": "59cd0c520f869fbadcbca0061a7d86bfa76235063618ea3f41e1e6e50cbf4bf9",
+      "checkpoint_bytes": 107539619,
+      "checkpoint_sha256": "1872abb5870148287c08475e2dd8afff06df55ed5a1ac04895fbfac5325047d1",
+      "p_only_bytes": 50347007,
+      "p_only_sha256": "03e34ab932aa7b2e0267f7f4e348022916f1e72bb08444514214daaf2c0c2c34",
+      "path": "/Users/flare/replica_r3_starter/runs/nested_text_continuation_comparison_20261026/continuous_a",
+      "run_sha256": "5b81276e5ee9eb4d80161f77b100f240b37dfa57bc7c257f34ae5558d0c8136f"
+    },
+    "continuous-b": {
+      "artifact_bytes": 162232938,
+      "canonical_state_sha256": "59cd0c520f869fbadcbca0061a7d86bfa76235063618ea3f41e1e6e50cbf4bf9",
+      "checkpoint_bytes": 107539619,
+      "checkpoint_sha256": "b8b0fc3038743477b95b4de1219fce797131f846cc60b996669309c7a00310c8",
+      "p_only_bytes": 50347007,
+      "p_only_sha256": "03e34ab932aa7b2e0267f7f4e348022916f1e72bb08444514214daaf2c0c2c34",
+      "path": "/Users/flare/replica_r3_starter/runs/nested_text_continuation_comparison_20261026/continuous_b",
+      "run_sha256": "2dd0a2ea77ab0b0c0574098bdcfbb980a7a7995f6aec4ac4e3ddef74b93a6bbb"
+    },
+    "resume": {
+      "after_canonical_sha256": "59cd0c520f869fbadcbca0061a7d86bfa76235063618ea3f41e1e6e50cbf4bf9",
+      "artifact_bytes": 589691,
+      "before_canonical_sha256": "31d6821fa845b64b1f3af4ffe0d09627eb256bf20902813c64a26d42d5098574",
+      "checkpoint_bytes": 107529763,
+      "checkpoint_sha256": "0042947840f8c93392a421b11a8d63da7e879dbff7770350287a9309346e8f16",
+      "path": "/Users/flare/replica_r3_starter/runs/nested_text_continuation_comparison_20261026/resume",
+      "resume_sha256": "5f4b41594cb4445530ef06d4e49aa359836f13ea8e92a13c417e276b953c6859",
+      "run_sha256": "47aedb9e8981b570e9ab54139e1a1129896299192b43df961f01be627c1fb8cb"
+    }
+  },
+  "claims": {
+    "exact_only": true,
+    "heldout_opened": false,
+    "in_process_reference_verdict": false,
+    "numeric_envelope": false,
+    "promotion": false
+  },
+  "comparisons": {
+    "boundary": {
+      "continuous_a_after_sha256": "59cd0c520f869fbadcbca0061a7d86bfa76235063618ea3f41e1e6e50cbf4bf9",
+      "continuous_a_before_sha256": "31d6821fa845b64b1f3af4ffe0d09627eb256bf20902813c64a26d42d5098574",
+      "continuous_b_after_sha256": "59cd0c520f869fbadcbca0061a7d86bfa76235063618ea3f41e1e6e50cbf4bf9",
+      "continuous_b_before_sha256": "31d6821fa845b64b1f3af4ffe0d09627eb256bf20902813c64a26d42d5098574",
+      "event": "correction-0003",
+      "event_index": 28,
+      "parent_state_index": 27,
+      "resume_after_sha256": "59cd0c520f869fbadcbca0061a7d86bfa76235063618ea3f41e1e6e50cbf4bf9",
+      "resume_before_sha256": "31d6821fa845b64b1f3af4ffe0d09627eb256bf20902813c64a26d42d5098574"
+    },
+    "checkpoint_bytes_equal": true,
+    "p_only_equal": true
+  },
+  "earliest_divergence": null,
+  "events": {
+    "aa_states_compared": 57,
+    "boundary_event": "correction-0003",
+    "boundary_event_index": 28,
+    "continuous_events": 28,
+    "expected_sequence": [
+      "teach-0000",
+      "teach-0001",
+      "teach-0002",
+      "teach-0003",
+      "teach-0004",
+      "teach-0005",
+      "teach-0006",
+      "teach-0007",
+      "teach-0008",
+      "teach-0009",
+      "teach-0010",
+      "teach-0011",
+      "teach-0012",
+      "teach-0013",
+      "teach-0014",
+      "teach-0015",
+      "teach-0016",
+      "teach-0017",
+      "teach-0018",
+      "teach-0019",
+      "teach-0020",
+      "teach-0021",
+      "teach-0022",
+      "teach-0023",
+      "correction-0000",
+      "correction-0001",
+      "correction-0002",
+      "correction-0003"
+    ],
+    "parent_events": 27,
+    "parent_state_index": 27
+  },
+  "exact_only": true,
+  "exact_status": "failed",
+  "failure_count": 4,
+  "failures": [
+    "implementation: continuous-a implementation hash drifted at scripts/run_capacity_preflight.py",
+    "implementation: continuous-b implementation hash drifted at scripts/run_capacity_preflight.py",
+    "implementation: resume run.json implementation hash drifted at scripts/run_capacity_preflight.py",
+    "implementation: resume resume.json implementation hash drifted at scripts/run_capacity_preflight.py"
+  ],
+  "format": "replica.nested_text_continuation.comparison.v1",
+  "guards": {
+    "guard-a": {
+      "minimum_observed_free_percent": 78.0,
+      "path": "/Users/flare/replica_r3_starter/reports/nested_text_continuation_comparison_20261026/continuous_a.guard.json",
+      "peak_driver_bytes": 10757210112,
+      "peak_swap_growth_bytes": 0,
+      "sha256": "6abba810b6158ba85a1256b6abeb05222c9bc2ce996527ab16aeeea87a282362",
+      "status": "completed_within_declared_sampled_limits",
+      "stop_reason": null
+    },
+    "guard-b": {
+      "minimum_observed_free_percent": 76.0,
+      "path": "/Users/flare/replica_r3_starter/reports/nested_text_continuation_comparison_20261026/continuous_b.guard.json",
+      "peak_driver_bytes": 11815763968,
+      "peak_swap_growth_bytes": 0,
+      "sha256": "b2b27b281152bc5eaa9987ce43880104099bd6af7bc4d4a2059accc76088a260",
+      "status": "completed_within_declared_sampled_limits",
+      "stop_reason": null
+    },
+    "guard-resume": {
+      "minimum_observed_free_percent": 78.0,
+      "path": "/Users/flare/replica_r3_starter/reports/nested_text_continuation_comparison_20261026/resume.guard.json",
+      "peak_driver_bytes": 10757210112,
+      "peak_swap_growth_bytes": 0,
+      "sha256": "d592de65082367b127ad4d0de7ed5432d969b3da2c3b042615c8881f7bc0788b",
+      "status": "completed_within_declared_sampled_limits",
+      "stop_reason": null
+    }
+  },
+  "in_process_reference_verdict": false,
+  "inputs": {
+    "continuous_a": "/Users/flare/replica_r3_starter/runs/nested_text_continuation_comparison_20261026/continuous_a",
+    "continuous_b": "/Users/flare/replica_r3_starter/runs/nested_text_continuation_comparison_20261026/continuous_b",
+    "guard_a": "/Users/flare/replica_r3_starter/reports/nested_text_continuation_comparison_20261026/continuous_a.guard.json",
+    "guard_b": "/Users/flare/replica_r3_starter/reports/nested_text_continuation_comparison_20261026/continuous_b.guard.json",
+    "guard_resume": "/Users/flare/replica_r3_starter/reports/nested_text_continuation_comparison_20261026/resume.guard.json",
+    "protocol": "/Users/flare/replica_r3_starter/configs/nested_text_continuation_comparison_v1.json",
+    "resume": "/Users/flare/replica_r3_starter/runs/nested_text_continuation_comparison_20261026/resume"
+  },
+  "numeric_envelope": false,
+  "parent_checkpoint": {
+    "bytes": 107529763,
+    "declared_bytes": 107529763,
+    "declared_path": "runs/nested_text_nl1_20261026/teach02/full_checkpoint.pt",
+    "declared_sha256": "0042947840f8c93392a421b11a8d63da7e879dbff7770350287a9309346e8f16",
+    "retained": true,
+    "sha256": "0042947840f8c93392a421b11a8d63da7e879dbff7770350287a9309346e8f16"
+  },
+  "protocol": {
+    "config_sha256": "de45931405d2f34fe41574b4fff4dc9c1790853cb0e0736cc170611e7a4fe447",
+    "episodes_manifest_sha256": "88da5a54ab4269f2e26be701c8d02651dfac3de5ddb80208a9a84db0cbc48942",
+    "implementation_sha256": {
+      "configs/nested_text_continuation_comparison_v1.json": "de45931405d2f34fe41574b4fff4dc9c1790853cb0e0736cc170611e7a4fe447",
+      "scripts/compare_nested_text_continuation.py": "09615a2657b3e6ede51109bf991e0e703487b98f5cb8dda9aa5800bf4731ebbd",
+      "scripts/run_capacity_preflight.py": "a66f411719f3745f72982655c8ecd1a7433a67f0a60e69cf9cbe7a3649c0371e",
+      "scripts/run_nested_text.py": "9e64d2ce227bb8d22904416b1c03889490d3a109ef700e0778ce731b5791dfed",
+      "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+      "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+      "src/replica_lab/nested_continuation.py": "6c87f9aaad0ed7cd1083f4b0221d4678756bb30d7da6f0eb34a428ecf27ca4f5",
+      "src/replica_lab/nested_learning.py": "f4adf4a77b8916b38f89af286444ae97b81397e5dc95f8823d687763afeae713",
+      "src/replica_lab/nested_text.py": "fdb05a02b51df1bd0d35d67418afb42b5ce8cf471de7a1fb350c03888a5ef83c",
+      "src/replica_lab/optimizers.py": "e51d91b9007681fd15827224c3b57e8657550d88590ef3a995dcdf76b5c82adb"
+    },
+    "protocol_sha256": "b0249d3a8258baaebba80166cec0c89abb098a2b64ff599ee5dad4c09125c958"
+  },
+  "resource_status": "within_declared_limits",
+  "status": "failed",
+  "variation_status": "none"
+}

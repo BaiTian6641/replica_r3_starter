@@ -1,0 +1,347 @@
+{
+  "format": "replica.external_caption_asset_qa_config.v1",
+  "qa_id": "external_caption_asset_qa_20261027",
+  "created_on": "2026-10-27",
+  "data_root": "data/external_caption_tranche_20261025_v2",
+  "report_dir": "reports/external_caption_asset_qa_20261027",
+  "source": {
+    "id": "liuhaotian/LLaVA-Pretrain",
+    "family": "laion_cc_sbu_root_image",
+    "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+    "split": "train",
+    "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+    "source_url": "https://huggingface.co/datasets/liuhaotian/LLaVA-Pretrain"
+  },
+  "pins": {
+    "intake_config": {
+      "path": "configs/external_caption_tranche_v1.json",
+      "sha256": "04b5eac5ab22dabcd0ec0a8b73a6321ea28ae840e161f08f07f18903ec22126b",
+      "bytes": 6203
+    },
+    "tranche_manifest": {
+      "path": "data/external_caption_tranche_20261025_v2/manifest.json",
+      "sha256": "3e9d9e2428079c12cbe45d006512ce97193280f6f66ec235af78553af7851232",
+      "bytes": 43340
+    },
+    "card": {
+      "path": "data/external_caption_tranche_20261025_v2/raw/card.md",
+      "sha256": "2c0409a377737d7d9aa37c5f72abcf6e6303c6b9b682922527314f7aec5342f4",
+      "bytes": 2681
+    },
+    "annotation": {
+      "path": "data/external_caption_tranche_20261025_v2/raw/annotation_prefix.json",
+      "sha256": "04512647d38d10c4a22ed0bb04557d41f025150dd7d6048b22c665a1a756789a",
+      "bytes": 2097152,
+      "complete_rows": 3000,
+      "window_sha256": "e467c19d7f3d3c25ee3e49a973f0ec7bdbd7f0ff82d3074be6cd1cba47102b70",
+      "declared_full_sha256": "fe0a999808f30dba5067297a1283d0937a0f519101298ad639d178d8564dfcd6"
+    },
+    "metadata": {
+      "path": "data/external_caption_tranche_20261025_v2/raw/metadata_prefix.json",
+      "sha256": "d69d0eeeb66e0eee6547be516c0b890e7c5bd29a31d518d8b11235d4a41b847a",
+      "bytes": 2097152,
+      "complete_rows": 3000,
+      "window_sha256": "ba3727481cd98e4c38c6cbc2fd2638c722a7f34b8198fb99947347f8487c3aad",
+      "declared_full_sha256": "b83a45928ea612555b630245d7f7dc8d92f477332a146c4eb66b760dafd6e8ba"
+    },
+    "media": {
+      "central_directory": {
+        "path": "data/external_caption_tranche_20261025_v2/raw/images_central_directory.bin",
+        "sha256": "f66f240c17b535e26007a528be631f8f11c22516d361ed2b5ed19192a0120c6e",
+        "bytes": 55378132,
+        "records": 558788,
+        "file_entries": 558128,
+        "offset": 27300730152,
+        "declared_full_sha256": "05459d8cb059bd32322b1c466c1cbd4568b09b1ce1db748425b7977236912660",
+        "declared_size": 27356108382
+      },
+      "images": {
+        "dir": "data/external_caption_tranche_20261025_v2/raw/images",
+        "count": 30,
+        "total_bytes": 1496105,
+        "aggregate_sha256": "65622f6348032a0ac0bee47321f16916604efce220b7f5c7a292028d3d62f52c",
+        "aggregate_method": "sha256(concat(sorted filename + NUL + bytes))",
+        "per_image": {
+          "000054222.jpg": {
+            "sha256": "b2ecabe011085d7831deba27473bf0a57acb86157d663abf19122f57d2739b0e",
+            "bytes": 59254
+          },
+          "000237684.jpg": {
+            "sha256": "61f0437115e02b30e472563090d113a52ffb84c969c00daa00ea512f8da20834",
+            "bytes": 54378
+          },
+          "000284813.jpg": {
+            "sha256": "b36f93bf4168376030fada198cb1ab07cd0d81162d9a6804784a6cc43df80594",
+            "bytes": 41185
+          },
+          "000401749.jpg": {
+            "sha256": "9589f0d97c4251e36111d273872ab5c7348ebe1ed8a23e564679f16994e9b1e5",
+            "bytes": 37051
+          },
+          "000456905.jpg": {
+            "sha256": "57363b7adeac59537c7c81c0ae9cdf1d069abbcc3525a83f86b848929c597841",
+            "bytes": 77895
+          },
+          "000764186.jpg": {
+            "sha256": "be47781e142fc38432d3fe942826478c521342d445113024d886e3781ed9a6bc",
+            "bytes": 14607
+          },
+          "000809480.jpg": {
+            "sha256": "b3055628ddbaeba82027e2dc83db8aba172b3c33b820174b55622a18606238f0",
+            "bytes": 37256
+          },
+          "000937058.jpg": {
+            "sha256": "6e3258259a6e6985c76304f5a394b361c00e627dec9068aa4098af5357625814",
+            "bytes": 81015
+          },
+          "000961551.jpg": {
+            "sha256": "1c06c71cfe3ec093b5027d1787c1f5642aaf274d7b2fcf5a49e88969ccbe146f",
+            "bytes": 33867
+          },
+          "001104367.jpg": {
+            "sha256": "92a9125f573c5aaaee24faf1cd74eb3ce853f8dd263db661fcf9c18c142d507b",
+            "bytes": 44327
+          },
+          "001308193.jpg": {
+            "sha256": "22048e8eb5c4556e52f063a2a86c86e483a7799e4421a9d621dfaf22305fe3f6",
+            "bytes": 23346
+          },
+          "001316033.jpg": {
+            "sha256": "925fd5437dd2c3237e4015c9d67038df2fa31fddd6822a9ceb63dc0076f642c7",
+            "bytes": 44402
+          },
+          "001529205.jpg": {
+            "sha256": "e4d4306245010d98897a8cc755fa55c30838c09a3945e14a840a55e6255b7ccf",
+            "bytes": 92561
+          },
+          "001719881.jpg": {
+            "sha256": "5159e8d315bda512d22908cc6b47044cf29e45d95b5c391a559d155b6612e599",
+            "bytes": 27996
+          },
+          "001725011.jpg": {
+            "sha256": "a5113072725707aea3d26521bf2a7ddfcdb66865c068c076ea82787b85a0a29b",
+            "bytes": 27323
+          },
+          "001842798.jpg": {
+            "sha256": "fad8c4fe23a8fedb1a64f3705dbb02469f75f0adc1729bbec618ac31cfd9fc83",
+            "bytes": 33334
+          },
+          "001939145.jpg": {
+            "sha256": "ec59a33db9ae23be3a6295a7dc757c851fb436783754a17443c1c222bc5f7269",
+            "bytes": 48340
+          },
+          "002321958.jpg": {
+            "sha256": "67b3f945dc356ee8eb830d87b309f7c5f8bd06caab6ea58b4786cae6036fe520",
+            "bytes": 56712
+          },
+          "002709185.jpg": {
+            "sha256": "ed36fde76317d037f0d9e7e92dd5284ddd7cf6fc9993910a22427545a4ad57ce",
+            "bytes": 45345
+          },
+          "002710233.jpg": {
+            "sha256": "3c6777db6d1eb66cb8a99ae7c7b4c5f7cbd8747b9fc17487206403255ae2edbb",
+            "bytes": 74589
+          },
+          "002878530.jpg": {
+            "sha256": "1d8dc0186d5da7c79a538b7c3450ad2802d21be27ce070d1692ea8dc0bb7e26b",
+            "bytes": 21031
+          },
+          "003169286.jpg": {
+            "sha256": "4461f9a867daf9848b1b9a19a07d970d77fde692b9e80c5c970fc73834ce3e3c",
+            "bytes": 44107
+          },
+          "003373510.jpg": {
+            "sha256": "ba9a14aeedb3dbc671d498ef19ba466fbab08670b366af861800c60e97ad8638",
+            "bytes": 103378
+          },
+          "003524176.jpg": {
+            "sha256": "ef0703f7e8e58c76267a39a3bfa9388abe664ad666fc812b58d9e7079d197637",
+            "bytes": 70447
+          },
+          "003902288.jpg": {
+            "sha256": "a16a6fa91d56781b5da472d874bb0fb5298ada74e14640710ab4e907997f2eba",
+            "bytes": 74793
+          },
+          "003982744.jpg": {
+            "sha256": "c3f03999ba7c58014f103f9db1e78e7fb7d131a34eeb5bd9536b0a3d851033e9",
+            "bytes": 23055
+          },
+          "004055865.jpg": {
+            "sha256": "7cfdd4030ab4b5e0bce837770766db34734864f70af9fd97befa728c8377f556",
+            "bytes": 62266
+          },
+          "005507560.jpg": {
+            "sha256": "f66a7f05514f8f6e5fbb65dddfc7f84ccd6b19264931a2d0bef2d448242926b4",
+            "bytes": 32175
+          },
+          "005525460.jpg": {
+            "sha256": "f0488533e966d343d46574354a6f024e193cbc425d64e783a08377adc6d75381",
+            "bytes": 63218
+          },
+          "006359771.jpg": {
+            "sha256": "b7ce966a661307c946d69f246ded7dbb19527d81f6ea1517057439b908158db4",
+            "bytes": 46852
+          }
+        }
+      }
+    },
+    "corpus": {
+      "path": "data/external_caption_tranche_20261025_v2/corpus.jsonl",
+      "sha256": "100f28c226cfd27913f0750d959d41de2faea0eb1857670e178d53278064da90",
+      "bytes": 84746,
+      "rows": 30
+    },
+    "rejections": {
+      "path": "data/external_caption_tranche_20261025_v2/rejections.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "rows": 0
+    },
+    "role_manifests": {
+      "train": {
+        "path": "data/external_caption_tranche_20261025_v2/manifests/train.json",
+        "sha256": "5cd231d151ddedc3c373556a46a29c92c19c6f918a09ef66ac15e4c1f3ff9a72",
+        "bytes": 7411,
+        "rows": 15,
+        "sealed": false,
+        "seal_sha256": null
+      },
+      "development": {
+        "path": "data/external_caption_tranche_20261025_v2/manifests/development.json",
+        "sha256": "46df3145fa9eef0d0bf2bd4e47ff5de995b2a7082d82d5325acbdbe63da75993",
+        "bytes": 3671,
+        "rows": 7,
+        "sealed": false,
+        "seal_sha256": null
+      },
+      "final_eval_untouched": {
+        "path": "data/external_caption_tranche_20261025_v2/manifests/final_eval_untouched.json",
+        "sha256": "e4d951e09ce5eb0ce7b1bc213c8af3448fcddbf6fa9a491817b96a4ad74db26a",
+        "bytes": 4253,
+        "rows": 8,
+        "sealed": true,
+        "seal_sha256": "a29566736a46bc2079f81c502ecb6fbb081481ffaae05fdca604e003bea7b48d"
+      }
+    }
+  },
+  "expected": {
+    "rows": 30,
+    "root_groups": 30,
+    "roles": {
+      "train": 15,
+      "development": 7,
+      "final_eval_untouched": 8
+    },
+    "training_role": "train",
+    "validation_roles": [
+      "development"
+    ],
+    "sealed_role": "final_eval_untouched",
+    "annotation_rows": 3000,
+    "metadata_rows": 3000,
+    "metadata_candidates": 3000,
+    "rejections_rows": 0,
+    "preprocessing_version": "external-caption-normalization-v1",
+    "sampling_seed": 20261025,
+    "sampling_order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+    "split_policy": "complete root asset and all derivatives share one split",
+    "image_constraints": {
+      "formats": [
+        "JPEG",
+        "PNG",
+        "WEBP"
+      ],
+      "min_dimension": 64,
+      "max_dimension": 8192,
+      "max_bytes": 8388608,
+      "require_extension_match": false
+    },
+    "row_terms": {
+      "acknowledgements": [
+        "Google LLC (CC-3M)",
+        "LAION/CC/SBU",
+        "Salesforce BLIP",
+        "LLaVA (liuhaotian)"
+      ],
+      "permitted_use": "internal_research",
+      "redistribution": "prohibited",
+      "research_use_only": true
+    },
+    "terms": {
+      "permitted_use": "internal_research",
+      "research_use_only": true,
+      "redistribution": "prohibited",
+      "commercial_use": false,
+      "license_expression": "other (research-use-only filtered image bundle; permissive caption text with attribution)",
+      "acknowledgements": [
+        "Google LLC (CC-3M)",
+        "LAION/CC/SBU",
+        "Salesforce BLIP",
+        "LLaVA (liuhaotian)"
+      ]
+    },
+    "reserved_patterns": [
+      "(?<![a-z])coco(?![a-z])",
+      "cocodataset",
+      "mscoco",
+      "ms-coco",
+      "train2017",
+      "val2017",
+      "visual[._-]genome",
+      "\\bgqa\\b",
+      "\\bvsr\\b",
+      "vqav2",
+      "visualqa"
+    ],
+    "reserved_families": [
+      "coco_root_image"
+    ],
+    "leakage": {
+      "root_groups_disjoint": true,
+      "image_hashes_disjoint": true,
+      "caption_hashes_disjoint": true,
+      "observation_caption_leakage_cross_split": 0,
+      "row_ids_unique": true,
+      "label_separation_verified": true,
+      "eval_vs_non_eval_image_overlap": 0,
+      "eval_vs_non_eval_caption_overlap": 0
+    },
+    "blip_caption_equals_target": true,
+    "caption_min_chars": 3,
+    "caption_max_chars": 300,
+    "annotation_source_name": "blip_laion_cc_sbu_558k.json",
+    "metadata_source_name": "blip_laion_cc_sbu_558k_meta.json"
+  },
+  "semantic_review": {
+    "required": true,
+    "reviewable_sections": [
+      "training_candidates",
+      "validation_only"
+    ],
+    "reviewable_queue_entries": 22,
+    "sealed_queue_entries": 8,
+    "sealed_semantic_review": "prohibited",
+    "required_verdicts": [
+      "match",
+      "mismatch",
+      "unclear"
+    ],
+    "training_candidate_verdict": "match",
+    "decision_file": "admission_decision.json",
+    "template_file": "admission_decision.template.json",
+    "allowed_decisions": [
+      "pending_human_semantic_review",
+      "reject",
+      "admit_machine_checked_train_rows"
+    ],
+    "require_all_nonsealed_queue_entries_reviewed": true
+  },
+  "non_claims": {
+    "semantic_caption_image_agreement": false,
+    "training_admission_from_machine_checks_alone": false,
+    "validation_only_assets_are_training_assets": false,
+    "sealed_final_eval_assets_are_training_assets": false,
+    "native_execution": false,
+    "network_access": false
+  }
+}

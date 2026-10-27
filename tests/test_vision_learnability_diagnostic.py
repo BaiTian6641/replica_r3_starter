@@ -23,6 +23,9 @@ from conftest import require_local_artifacts
 
 
 ROOT = Path(__file__).resolve().parents[1]
+HISTORICAL_SNAPSHOT = (
+    ROOT / "reports/vision_historical_source_20261027/source_snapshot.json")
+CURRENT_RECEIPT = ROOT / "configs/vision_current_source_receipt_v1.json"
 ABLATION_CONFIG = ROOT / "configs/vision_mean_only_ablation_v1.json"
 GRADIENT_CONFIG = ROOT / "configs/vision_gradient_learnability_v1.json"
 ABLATION_RECEIPT = (ROOT / "runs/vision_mean_only_ablation_v1_20261026_attempt09/"
@@ -931,7 +934,7 @@ def test_config_rejects_a_gradient_field_in_ablation(tmp_path):
     "runs/vision_collapse_diagnostic_v1_20261026_attempt02",
     "runs/vision_mean_only_ablation_v1_20261026_attempt09",
 )
-def test_static_pins_verify_and_historical_ablation_refuses_drift():
+def test_static_pins_verify_historical_snapshot_and_current_receipt():
     module = _runner_module()
     ablation = learn.load_config(ABLATION_CONFIG)
     gradient = learn.load_config(GRADIENT_CONFIG)
@@ -942,10 +945,21 @@ def test_static_pins_verify_and_historical_ablation_refuses_drift():
         historical_pin["pinned_sha256"])
     assert module._sha(ABLATION_CONFIG) == receipt["config_sha256"]
     assert gradient["precondition"]["config_sha256"] == receipt["config_sha256"]
+    ablation_pins = module.verify_pins(
+        ablation, source_root=HISTORICAL_SNAPSHOT, mode="historical")
+    implementation = ablation_pins["pins"]["implementation"]
+    assert implementation["source_mode"] == "historical_snapshot"
+    assert implementation["new_files"][runner]["actual_sha256"] == (
+        historical_pin["pinned_sha256"])
     with pytest.raises(learn.LearnabilityDiagnosticError,
-                       match="New implementation bytes differ"):
-        module.verify_pins(ablation)
-    gradient_pins = module.verify_pins(gradient)
+                       match="reviewed current-source receipt"):
+        module.verify_pins(ablation, mode="current")
+    current = module.verify_pins(ablation, mode="current",
+                                 current_receipt=CURRENT_RECEIPT)
+    assert current["pins"]["implementation"]["source_mode"] == (
+        "current_receipt")
+    gradient_pins = module.verify_pins(
+        gradient, source_root=HISTORICAL_SNAPSHOT, mode="historical")
     assert gradient_pins["pins"]["source"]["model_revision"] == (
         "f97400052a43d642bbc6e9975e2397e3ae6a6b52")
     assert gradient_pins["pins"]["schedule"]["source_sha256"] == (
@@ -966,4 +980,26 @@ def test_new_file_pin_drift_is_rejected(tmp_path):
         "src/replica_lab/vision_learnability_diagnostic.py"] = "0" * 64
     with pytest.raises(learn.LearnabilityDiagnosticError,
                        match="New implementation bytes differ"):
-        module.verify_pins(config)
+        module.verify_pins(config, source_root=HISTORICAL_SNAPSHOT)
+
+
+@require_local_artifacts(
+    "checkpoints/minicpm5_source",
+    "checkpoints/siglip2_base_patch16_224_source",
+    "data/vision_balanced_alignment_v2_20261026/prepared04",
+    "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+    "runs/vision_collapse_diagnostic_v1_20261026_attempt02",
+)
+def test_current_receipt_new_file_tamper_is_rejected(tmp_path):
+    module = _runner_module()
+    config = learn.load_config(GRADIENT_CONFIG)
+    receipt = json.loads(CURRENT_RECEIPT.read_text())
+    relative = sorted(receipt["new_files"])[0]
+    receipt["new_files"][relative]["pinned_sha256"] = "0" * 64
+    receipt["receipt_digest"] = module.provenance.receipt_digest(receipt)
+    tampered = tmp_path / "tampered_receipt.json"
+    tampered.write_text(json.dumps(receipt))
+    with pytest.raises(learn.LearnabilityDiagnosticError,
+                       match="Current implementation bytes differ"):
+        module.verify_pins(config, mode="current",
+                           current_receipt=tampered)

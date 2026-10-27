@@ -39,6 +39,7 @@ from replica_lab.nested_text import (NestedTextError, NestedTextLearner,
                                      evaluate_dev_gate,
                                      initialize_null_plastic, prompt_route_key,
                                      validate_p_only_payload)
+from replica_lab.nested_continuation import canonical_state
 
 ROOT = Path(__file__).resolve().parents[1]
 WIDTH = 4
@@ -1264,3 +1265,574 @@ def test_v2_amended_scoring_and_stop_policy_are_explicit():
         drifted = copy.deepcopy(config)
         drifted["generation"]["sentence_stop"]["version"] = "other"
         module.validate_v2_config(drifted)
+
+
+# ---------------------------------------------------------------------------
+# Fit receipt: dependent-development admission (CPU only, no model/worker)
+# ---------------------------------------------------------------------------
+
+BEHAVIORAL_CONFIG = (ROOT / "configs" /
+                     "nested_text_behavioral_reference_v1.json")
+FIT_UPDATES = 28
+
+
+def _write_json_file(path: Path, value) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+    return path
+
+
+def _protocol_lock() -> dict:
+    return {"snapshot_files_sha256": {
+        "model.safetensors": "a" * 64,
+        "tokenizer.json": "b" * 64,
+        "chat_template.jinja": "c" * 64,
+    }}
+
+
+def fit_bundle(tmp_path: Path, *, failing_attempts: int = 0):
+    """A complete CPU-only fit/teaching fixture with no native execution."""
+    module = runner_module()
+    config = json.loads(BEHAVIORAL_CONFIG.read_text(encoding="utf-8"))
+    config_path = _write_json_file(tmp_path / "config.json", config)
+    episodes = v2_directory()
+    manifest_path = episodes / "manifest.json"
+    manifest = module.load_episode_manifest(episodes)
+    lock = _protocol_lock()
+    lock_path = _write_json_file(tmp_path / "model_lock.json", lock)
+    protocol = module.protocol_for_world(
+        config, lock, hidden_size=HIDDEN_SIZE,
+        world_uid=manifest["primary_world"])
+    expert_bank = ExpertBank(expert_count=1, width=256, hidden_width=1024,
+                             seed=0, lr=1e-4)
+    personality = PersonalityIdentity.default()
+    coordinator = ObservationCoordinator(scope=protocol.scope, width=256,
+                                         seed=0, personality=personality)
+    controller = PlasticLearningController(
+        expert_bank, scope=protocol.scope, personality=personality,
+        coordinator=coordinator, max_steps=2, total_step_cap=4,
+        clock_period=protocol.clock_period)
+    learner = NestedTextLearner(FakeAdapter(), bank=expert_bank,
+                                protocol=protocol, controller=controller,
+                                coordinator=coordinator,
+                                personality=personality,
+                                tokenizer_sha256=protocol.tokenizer_sha256)
+    expert_bank.expert_steps[:] = [FIT_UPDATES]
+    teach = tmp_path / "teach_primary"
+    (teach / "p_only").mkdir(parents=True)
+    state_path = learner.save_p_only(teach / "p_only" / "state.pt")
+    state = torch.load(state_path, map_location="cpu", weights_only=True)
+    checkpoint = teach / "full_checkpoint.pt"
+    checkpoint.write_bytes(b"bounded-checkpoint-placeholder")
+    final_state = canonical_state(learner)
+    _write_json_file(teach / "final_state.json", final_state)
+    _write_json_file(teach / "p_only" / "manifest.json", {
+        "format": P_ONLY_FORMAT, "bytes": state_path.stat().st_size,
+        "sha256": module._sha256_file(state_path), "keys": sorted(state),
+        "forbidden_absent": True, "source_inputs": 0})
+    wall = 4.0
+    update_seconds = 2.0
+    cost = {
+        "events": FIT_UPDATES, "optimizer_steps": FIT_UPDATES,
+        "backward_calls": FIT_UPDATES, "wall_seconds": wall,
+        "update_seconds": update_seconds,
+        "learning_update_seconds": update_seconds,
+        "teaching_end_to_end_seconds": wall, "end_to_end_seconds": wall,
+        "duty_cycle": update_seconds / wall,
+        "checkpoint_bytes": checkpoint.stat().st_size,
+        "p_only_bytes": state_path.stat().st_size,
+        "protocol_sha256": protocol.protocol_sha256,
+        "config_sha256": module._sha256_file(config_path),
+        "scoring_version": module.SCORING_VERSION,
+    }
+    cost_path = _write_json_file(teach / "cost.json", cost)
+    run = {
+        "format": module.PROMPT_FORM, "mode": "teach", "status": "completed",
+        "world_uid": protocol.world_uid,
+        "protocol_sha256": protocol.protocol_sha256,
+        "config_sha256": module._sha256_file(config_path),
+        "episodes_manifest_sha256": module._sha256_file(manifest_path),
+        "implementation_sha256": {},
+        "theta_stamp_unchanged": True,
+        "updates": FIT_UPDATES, "learning_events": FIT_UPDATES,
+        "expert_steps": [FIT_UPDATES],
+        "p_only_sha256": module._sha256_file(state_path),
+        "p_only_manifest_sha256": module._sha256_file(
+            teach / "p_only" / "manifest.json"),
+        "checkpoint_sha256": module._sha256_file(checkpoint),
+        "checkpoint_bytes": checkpoint.stat().st_size,
+        "canonical_state_sha256": final_state["sha256"],
+        "cost_sha256": module._sha256_file(cost_path),
+        "checkpoint": str(checkpoint), "p_only": str(state_path),
+    }
+    _write_json_file(teach / "run.json", run)
+    rows = module.teaching_rows(
+        episodes, manifest, manifest["primary_world"],
+        f"{manifest['primary_world']}/text",
+        limit=int(config["workload"]["fit_eval_attempts"]))
+    audit = {"sources_present": False, "memory_spans": 0,
+             "selection_records": 0, "ledger_records": 0,
+             "controller_constructed": False, "coordinator_constructed": False,
+             "updates_enabled": False}
+    results = []
+    for index, row in enumerate(rows):
+        record = {"id": row["id"], "label": "fit",
+                  "expected": row["expected_response"],
+                  "prompt_sha256": row["prompt_sha256"],
+                  "scoring_version": module.SCORING_VERSION,
+                  "generated_ids": [1], "stop_reason": "stop_token",
+                  "truncated": False}
+        if index < failing_attempts:
+            record.pop("generated_ids")
+            record.pop("stop_reason")
+            record.update({"correct": False, "reason": "generation_failure",
+                           "truncated": None,
+                           "error": "RuntimeError: dropped request"})
+        else:
+            record.update({"output": row["expected_response"],
+                           "correct": True, "reason": "correct",
+                           "request_audit": dict(audit)})
+        results.append(record)
+    correct = sum(1 for item in results if item["correct"] is True)
+    scores = {"label": "fit", "count": len(results), "correct": correct,
+              "failures": failing_attempts,
+              "accuracy": correct / len(results), "results": results,
+              "scoring_version": module.SCORING_VERSION}
+    gate_failures = ([] if correct / len(results) >= 0.5
+                     else ["min_fit_accuracy"])
+    gate = {
+        "label": "fit", "fit_accuracy": correct / len(results),
+        "all_declared_gates_passed": not gate_failures,
+        "gate_failures": gate_failures, "metrics": {"cost": cost},
+        "scores": scores, "scoring_version": module.SCORING_VERSION,
+        "config_sha256": module._sha256_file(config_path),
+        "stop_policy_version": module.STOP_POLICY_VERSION,
+        "answer_grammar_version": module.ANSWER_GRAMMAR_VERSION,
+    }
+    gate_path = _write_json_file(tmp_path / "gates" / "fit.json", gate)
+    receipt = module.build_fit_receipt(
+        config=config, config_path=config_path, manifest=manifest,
+        manifest_path=manifest_path, episodes_root=episodes,
+        state_path=state_path, state=state, protocol=protocol,
+        teach_dir=teach, teach_expected_updates=FIT_UPDATES,
+        fit_gate_path=gate_path)
+    receipt_path = _write_json_file(tmp_path / "fit_receipt.json", receipt)
+    return SimpleNamespace(
+        module=module, config=config, config_path=config_path,
+        manifest=manifest, manifest_path=manifest_path, episodes=episodes,
+        lock=lock, lock_path=lock_path, protocol=protocol,
+        state_path=state_path, state=state, teach=teach, gate=gate,
+        gate_path=gate_path, receipt=receipt, receipt_path=receipt_path,
+        rows=rows)
+
+
+def validate_bundle(bundle, receipt=None, *, state="default", state_path=None):
+    bundle.module.validate_fit_receipt(
+        receipt if receipt is not None else bundle.receipt,
+        config=bundle.config, config_path=bundle.config_path,
+        manifest=bundle.manifest, manifest_path=bundle.manifest_path,
+        episodes_root=bundle.episodes,
+        state_path=state_path or bundle.state_path, lock=bundle.lock,
+        state=bundle.state if state == "default" else state)
+
+
+def resealed(bundle, mutate) -> dict:
+    receipt = copy.deepcopy(bundle.receipt)
+    mutate(receipt)
+    return bundle.module.seal_fit_receipt(receipt)
+
+
+def _set(path, value):
+    def mutate(receipt):
+        target = receipt
+        for key in path[:-1]:
+            target = target[key]
+        target[path[-1]] = value
+    return mutate
+
+
+def test_fit_receipt_round_trip_binds_every_admission_field(tmp_path):
+    bundle = fit_bundle(tmp_path)
+    module = bundle.module
+    receipt = module.load_fit_receipt(bundle.receipt_path)
+    assert receipt == bundle.receipt
+    assert receipt["format"] == "replica.nested_text.fit_receipt.v1"
+    assert receipt["schema_version"] == 1
+    assert receipt["status"] == "passed"
+    assert set(receipt) == module.FIT_RECEIPT_KEYS
+    assert receipt["receipt_sha256"] == module.seal_fit_receipt(
+        receipt)["receipt_sha256"]
+    assert receipt["p_state"]["sha256"] == module._sha256_file(bundle.state_path)
+    assert receipt["p_state"]["bytes"] == bundle.state_path.stat().st_size
+    assert receipt["p_state"]["binding_sha256"] == (
+        module.p_only_binding_digest(bundle.state))
+    assert receipt["p_state"]["theta"] == receipt["protocol"]["theta"]
+    expected_ids = [row["id"] for row in bundle.rows]
+    assert receipt["coverage"]["ids"] == expected_ids
+    assert receipt["coverage"]["measured_attempts"] == FIT_UPDATES
+    assert receipt["coverage"]["declared_attempts"] == FIT_UPDATES
+    assert receipt["coverage"]["failed_attempts"] == 0
+    assert receipt["coverage"]["source_free"] is True
+    assert receipt["coverage"]["audit_complete"] is True
+    assert receipt["attempts"]["correct"] == FIT_UPDATES
+    assert receipt["attempts"]["accuracy"] == 1.0
+    assert receipt["attempts"]["all_declared_gates_passed"] is True
+    assert receipt["gate_report"]["all_declared_gates_passed"] is True
+    assert receipt["heldout_opened"] is False
+    assert receipt["scoring"]["scoring_version"] == module.SCORING_VERSION
+    assert receipt["scoring"]["answer_grammar_version"] == (
+        module.ANSWER_GRAMMAR_VERSION)
+    assert receipt["scoring"]["candidate_answers_sha256"] == (
+        module._sha256_json(list(module.candidate_answers_for(
+            bundle.episodes, bundle.manifest))))
+    primary = receipt["teaching"]["primary"]
+    assert primary["p_only_sha256"] == receipt["p_state"]["sha256"]
+    assert primary["canonical_state_sha256"] == json.loads(
+        (bundle.teach / "final_state.json").read_text())["sha256"]
+    assert primary["updates"] == FIT_UPDATES
+    assert primary["run_sha256"] == module._sha256_file(
+        bundle.teach / "run.json")
+    validate_bundle(bundle)
+    tampered = copy.deepcopy(receipt)
+    tampered["attempts"]["correct"] = FIT_UPDATES - 1
+    with pytest.raises(module.RunnerError, match="digest differs"):
+        validate_bundle(bundle, tampered, state=None)
+
+
+@pytest.mark.parametrize("label, mutate, message", [
+    ("p_state sha256", _set(("p_state", "sha256"), "0" * 64), "P-state digest"),
+    ("p_state bytes", _set(("p_state", "bytes"), 1), "byte count"),
+    ("p_state binding",
+     _set(("p_state", "binding_sha256"), "0" * 64), "binding digest"),
+    ("p_state protocol",
+     _set(("p_state", "protocol_sha256"), "0" * 64),
+     "binding differs from its protocol"),
+    ("p_state theta",
+     _set(("p_state", "theta", "lock_sha256"), "0" * 64), "binding digest"),
+    ("p_state bank", _set(("p_state", "bank", "width"), 8), "binding digest"),
+    ("p_state route", _set(("p_state", "route", "seed"), 7), "binding digest"),
+    ("p_state features",
+     _set(("p_state", "feature_producer", "hidden_size"), 4), "binding digest"),
+    ("p_state read", _set(("p_state", "read_path", "gain"), 0.9),
+     "binding digest"),
+    ("config sha256", _set(("config", "sha256"), "0" * 64), "config digest"),
+    ("config objective",
+     _set(("config", "objective"), "other"), "objective"),
+    ("config steps", _set(("config", "steps_per_event"), 2), "step policy"),
+    ("protocol sha256",
+     _set(("protocol", "protocol_sha256"), "0" * 64), "protocol"),
+    ("protocol gain", _set(("protocol", "read_gain"), 0.9), "protocol"),
+    ("protocol theta",
+     _set(("protocol", "theta", "stamp_sha256"), "0" * 64), "protocol"),
+    ("world", _set(("world_uid",), "world_beta"), "world/scope"),
+    ("manifest sha256",
+     _set(("episodes", "manifest_sha256"), "0" * 64), "manifest digest"),
+    ("manifest format",
+     _set(("episodes", "schema_version"), 1), "manifest format"),
+    ("manifest files",
+     _set(("episodes", "files_sha256_digest"), "0" * 64), "file digests"),
+    ("manifest roles",
+     _set(("episodes", "role_files_digest"), "0" * 64), "file digests"),
+    ("manifest world",
+     _set(("episodes", "primary_world"), "world_beta"), "world pair"),
+])
+def test_fit_receipt_rejects_state_config_protocol_and_manifest_drift(
+        tmp_path, label, mutate, message):
+    bundle = fit_bundle(tmp_path)
+    receipt = resealed(bundle, mutate)
+    with pytest.raises(bundle.module.RunnerError, match=message):
+        validate_bundle(bundle, receipt, state=None)
+
+
+def forged_p_state(bundle, mutate) -> dict:
+    """Mutate the P-state block and re-forge a self-consistent binding digest."""
+    receipt = copy.deepcopy(bundle.receipt)
+    mutate(receipt)
+    block = receipt["p_state"]
+    block["binding_sha256"] = bundle.module._sha256_json(
+        {key: block[key] for key in bundle.module.P_ONLY_KEYS
+         if key != "parameters"})
+    return bundle.module.seal_fit_receipt(receipt)
+
+
+@pytest.mark.parametrize("label, mutate, message", [
+    ("protocol", _set(("p_state", "protocol_sha256"), "0" * 64),
+     "binding differs from its protocol"),
+    ("scope", _set(("p_state", "scope"), "world_beta/text"),
+     "binding differs from its protocol"),
+    ("theta", _set(("p_state", "theta", "stamp_sha256"), "0" * 64),
+     "theta binding differs"),
+    ("bank", _set(("p_state", "bank", "width"), 8), "bank binding differs"),
+    ("route", _set(("p_state", "route", "seed"), 7), "route binding differs"),
+    ("features", _set(("p_state", "feature_producer", "hidden_size"), 4),
+     "feature producer differs"),
+    ("read", _set(("p_state", "read_path", "gain"), 0.9),
+     "read path differs"),
+    ("counters", _set(("p_state", "expert_steps"), [1]),
+     "P-state counters differ"),
+])
+def test_fit_receipt_rejects_forged_p_state_binding_fields(
+        tmp_path, label, mutate, message):
+    bundle = fit_bundle(tmp_path)
+    receipt = forged_p_state(bundle, mutate)
+    with pytest.raises(bundle.module.RunnerError, match=message):
+        validate_bundle(bundle, receipt, state=None)
+
+
+@pytest.mark.parametrize("label, mutate, message", [
+    ("scorer", _set(("scoring", "scoring_version"), "other"), "scorer version"),
+    ("grammar", _set(("scoring", "answer_grammar_version"), "other"),
+     "answer grammar"),
+    ("stop policy", _set(("scoring", "stop_policy_version"), "other"),
+     "stop policy"),
+    ("tokens", _set(("scoring", "max_new_tokens"), 8), "generation budget"),
+    ("stop tokens", _set(("scoring", "stop_tokens"), [1]), "stop tokens"),
+    ("sentence stop",
+     _set(("scoring", "sentence_stop", "enabled"), False),
+     "sentence-stop policy"),
+    ("empty credit", _set(("scoring", "empty_generation_credit"), True),
+     "credits empty"),
+    ("candidates", _set(("scoring", "candidate_answers_sha256"), "0" * 64),
+     "candidate answers"),
+])
+def test_fit_receipt_rejects_scorer_and_stopping_policy_drift(
+        tmp_path, label, mutate, message):
+    bundle = fit_bundle(tmp_path)
+    receipt = resealed(bundle, mutate)
+    with pytest.raises(bundle.module.RunnerError, match=message):
+        validate_bundle(bundle, receipt, state=None)
+
+
+@pytest.mark.parametrize("label, mutate", [
+    ("missing id", lambda r: r["coverage"]["ids"].pop()),
+    ("duplicate id",
+     lambda r: r["coverage"]["ids"].__setitem__(1, r["coverage"]["ids"][0])),
+    ("unexpected id", lambda r: r["coverage"]["ids"].append("dev-9999")),
+    ("cases digest", _set(("coverage", "cases_sha256"), "0" * 64)),
+    ("measured", _set(("coverage", "measured_attempts"), FIT_UPDATES - 1)),
+    ("unique", _set(("coverage", "unique_ids"), FIT_UPDATES - 1)),
+    ("failed", _set(("coverage", "failed_attempts"), 1)),
+    ("source free", _set(("coverage", "source_free"), False)),
+    ("audit", _set(("coverage", "audit_complete"), False)),
+    ("role", _set(("coverage", "role"), "development")),
+    ("declared", _set(("coverage", "declared_attempts"), 27)),
+])
+def test_fit_receipt_rejects_incomplete_or_duplicate_case_coverage(
+        tmp_path, label, mutate):
+    bundle = fit_bundle(tmp_path)
+    receipt = resealed(bundle, mutate)
+    with pytest.raises(bundle.module.RunnerError, match="case coverage"):
+        validate_bundle(bundle, receipt, state=None)
+
+
+@pytest.mark.parametrize("label, mutate, message", [
+    ("status", _set(("status",), "failed"), "status is 'failed'"),
+    ("gate", _set(("gate_report", "all_declared_gates_passed"), False),
+     "failed fit gate"),
+    ("gate failures", _set(("gate_report", "gate_failures"), ["min_fit_accuracy"]),
+     "fit gate failures"),
+    ("gate digest", _set(("gate_report", "sha256"), "0" * 64),
+     "gate report digest"),
+    ("accuracy", _set(("attempts", "accuracy"), 0.25), "attempt accounting"),
+    ("correct", _set(("attempts", "correct"), FIT_UPDATES - 1),
+     "attempt accounting"),
+    ("failures", _set(("attempts", "failures"), 1), "attempt accounting"),
+    ("min accuracy", _set(("attempts", "min_accuracy"), 0.9),
+     "attempt accounting"),
+    ("heldout", _set(("heldout_opened",), True), "heldout"),
+    ("mode", _set(("mode",), "teach"), "mode differs"),
+    ("schema", _set(("schema_version",), 2), "schema version"),
+    ("extra", _set(("extra",), 1), "declared schema"),
+])
+def test_fit_receipt_rejects_failed_gate_and_attempt_mismatch(
+        tmp_path, label, mutate, message):
+    bundle = fit_bundle(tmp_path)
+    receipt = resealed(bundle, mutate)
+    with pytest.raises(bundle.module.RunnerError, match=message):
+        validate_bundle(bundle, receipt, state=None)
+
+
+@pytest.mark.parametrize("label, mutate, message", [
+    ("run hash", _set(("teaching", "primary", "run_sha256"), "0" * 64),
+     "hashes are stale"),
+    ("cost hash", _set(("teaching", "primary", "cost_sha256"), "0" * 64),
+     "hashes are stale"),
+    ("p_only hash", _set(("teaching", "primary", "p_only_sha256"), "0" * 64),
+     "hashes are stale"),
+    ("checkpoint hash",
+     _set(("teaching", "primary", "checkpoint_sha256"), "0" * 64),
+     "hashes are stale"),
+    ("canonical state",
+     _set(("teaching", "primary", "canonical_state_sha256"), "0" * 64),
+     "hashes are stale"),
+    ("updates", _set(("teaching", "primary", "updates"), FIT_UPDATES - 1),
+     "hashes are stale"),
+    ("optimizer", _set(("teaching", "primary", "optimizer_steps"),
+                       FIT_UPDATES - 1), "hashes are stale"),
+    ("duty cycle", _set(("teaching", "primary", "duty_cycle"), 0.25),
+     "hashes are stale"),
+    ("theta stamp",
+     _set(("teaching", "primary", "theta_stamp_unchanged"), False),
+     "hashes are stale"),
+    ("expert steps", _set(("teaching", "primary", "expert_steps"), [1]),
+     "hashes are stale"),
+])
+def test_fit_receipt_rejects_stale_teaching_run_cost_or_state(
+        tmp_path, label, mutate, message):
+    bundle = fit_bundle(tmp_path)
+    receipt = resealed(bundle, mutate)
+    with pytest.raises(bundle.module.RunnerError, match=message):
+        validate_bundle(bundle, receipt, state=None)
+
+
+def test_teaching_bundle_rejects_a_run_without_state_hashes(tmp_path):
+    bundle = fit_bundle(tmp_path)
+    run = json.loads((bundle.teach / "run.json").read_text())
+    for key in ("p_only_sha256", "checkpoint_sha256",
+                "canonical_state_sha256"):
+        run.pop(key)
+    _write_json_file(bundle.teach / "run.json", run)
+    with pytest.raises(bundle.module.RunnerError, match="lacks p_only_sha256"):
+        bundle.module.teaching_bundle(bundle.teach,
+                                      expected_updates=FIT_UPDATES)
+
+
+def test_teaching_bundle_rejects_a_cost_report_from_another_run(tmp_path):
+    bundle = fit_bundle(tmp_path)
+    cost = json.loads((bundle.teach / "cost.json").read_text())
+    cost["wall_seconds"] = 9.0
+    cost["teaching_end_to_end_seconds"] = 9.0
+    cost["duty_cycle"] = cost["learning_update_seconds"] / 9.0
+    _write_json_file(bundle.teach / "cost.json", cost)
+    with pytest.raises(bundle.module.RunnerError,
+                       match="cost_sha256 differs"):
+        bundle.module.teaching_bundle(bundle.teach,
+                                      expected_updates=FIT_UPDATES)
+
+
+def test_generation_failure_seals_a_failed_receipt_that_cannot_admit_dev(tmp_path):
+    bundle = fit_bundle(tmp_path, failing_attempts=2)
+    module = bundle.module
+    receipt = module.load_fit_receipt(bundle.receipt_path)
+    assert receipt["status"] == "failed"
+    assert receipt["attempts"]["failures"] == 2
+    assert receipt["attempts"]["correct"] == FIT_UPDATES - 2
+    assert receipt["coverage"]["failed_attempts"] == 2
+    assert receipt["coverage"]["audit_complete"] is False
+    assert receipt["coverage"]["source_free"] is False
+    with pytest.raises(module.RunnerError, match="status is 'failed'"):
+        validate_bundle(bundle)
+    counts = module.attempt_counts(scoring_attempts=FIT_UPDATES, failures=2)
+    assert counts == {"attempts": FIT_UPDATES - 2, "failed_attempts": 2,
+                      "scoring_attempts": FIT_UPDATES}
+    with pytest.raises(module.RunnerError, match="failed attempts"):
+        module.attempt_counts(scoring_attempts=FIT_UPDATES,
+                              failures=FIT_UPDATES + 1)
+
+
+def test_non_training_v2_never_requires_a_fit_receipt():
+    module = runner_module()
+    baseline = json.loads((ROOT / "configs" / "nested_text_nl1_v2.json").read_text())
+    behavioral = json.loads(BEHAVIORAL_CONFIG.read_text())
+    assert module.fit_receipt_required(baseline) is False
+    assert module.fit_receipt_required(behavioral) is True
+    args = SimpleNamespace(fit_receipt=None)
+    assert module.require_fit_receipt(
+        args, baseline, manifest={}, manifest_path=ROOT / "unused",
+        episodes_root=ROOT) is None
+    with pytest.raises(module.RunnerError, match="fit receipt"):
+        module.require_fit_receipt(
+            args, behavioral, manifest={}, manifest_path=ROOT / "unused",
+            episodes_root=ROOT)
+
+
+def _p_only_args(tmp_path, *, receipt_path, state_path, config_path=None):
+    return SimpleNamespace(
+        protocol=config_path or BEHAVIORAL_CONFIG, episodes=v2_directory(),
+        output=tmp_path / "eval", model_path=tmp_path / "model",
+        model_lock=tmp_path / "model_lock.json", p_state=state_path,
+        wrong_world_p=None, teach_cost=None, wrong_world_teach_cost=None,
+        fit_receipt=receipt_path, max_prompt_tokens=256,
+        max_response_tokens=64, max_dev=32, max_heldout=32,
+        max_new_tokens=8, no_heldout=True, device="mps", world_role="primary")
+
+
+@pytest.mark.parametrize("scenario, message", [
+    ("missing", "fit receipt"),
+    ("failed", "status is 'failed'"),
+    ("other-state", "another P-state file"),
+    ("other-config", "config"),
+])
+def test_behavioral_p_only_rejects_invalid_fit_evidence_before_native_load(
+        tmp_path, monkeypatch, scenario, message):
+    bundle = fit_bundle(tmp_path)
+    module = bundle.module
+    calls: list[str] = []
+
+    def forbidden(name):
+        def _raise(*args, **kwargs):
+            calls.append(name)
+            raise AssertionError(f"{name} must not run without a valid receipt")
+        return _raise
+
+    monkeypatch.setattr(module.torch, "load", forbidden("torch.load"))
+    monkeypatch.setattr(module, "exclusive_mps_worker", forbidden("worker"))
+    monkeypatch.setattr(module, "load_local_mps", forbidden("model"))
+    monkeypatch.setattr(module.TextAccessOrder, "access",
+                        forbidden("development-access"))
+    monkeypatch.setattr(module.TextAccessOrder, "advance",
+                        forbidden("development-advance"))
+    receipt_path = bundle.receipt_path
+    state_path = bundle.state_path
+    config_path = bundle.config_path
+    args = _p_only_args(tmp_path, receipt_path=receipt_path,
+                        state_path=state_path, config_path=config_path)
+    if scenario == "missing":
+        args.fit_receipt = None
+    elif scenario == "failed":
+        failed = bundle.module.seal_fit_receipt(
+            {**copy.deepcopy(bundle.receipt), "status": "failed"})
+        args.fit_receipt = _write_json_file(tmp_path / "failed_receipt.json",
+                                            failed)
+    elif scenario == "other-state":
+        other = tmp_path / "other_state.pt"
+        other.write_bytes(bundle.state_path.read_bytes())
+        args.p_state = other
+    elif scenario == "other-config":
+        other_config = _write_json_file(
+            tmp_path / "other_config.json",
+            {**bundle.config, "status": "other"})
+        args.protocol = other_config
+    with pytest.raises(module.RunnerError, match=message):
+        module.run_p_only_v2(args, bundle.config)
+    assert calls == [], "receipt admission must precede native/development access"
+    assert not (tmp_path / "eval" / "p_only_input.json").exists()
+
+
+def test_behavioral_p_only_accepts_the_bound_receipt_before_native_load(tmp_path,
+                                                                        monkeypatch):
+    """A valid receipt passes admission; the very next step is torch.load."""
+    bundle = fit_bundle(tmp_path)
+    module = bundle.module
+    calls: list[str] = []
+
+    def stop_at_load(*args, **kwargs):
+        calls.append("torch.load")
+        raise AssertionError("admission reached torch.load")
+
+    monkeypatch.setattr(module.torch, "load", stop_at_load)
+    monkeypatch.setattr(module, "exclusive_mps_worker",
+                        lambda *a, **k: (_ for _ in ()).throw(
+                            AssertionError("worker must not run")))
+    monkeypatch.setattr(module, "load_local_mps",
+                        lambda *a, **k: (_ for _ in ()).throw(
+                            AssertionError("model must not load")))
+    monkeypatch.setattr(module.TextAccessOrder, "access",
+                        lambda *a, **k: (_ for _ in ()).throw(
+                            AssertionError("development must not be accessed")))
+    args = _p_only_args(tmp_path, receipt_path=bundle.receipt_path,
+                        state_path=bundle.state_path,
+                        config_path=bundle.config_path)
+    with pytest.raises(AssertionError, match="admission reached torch.load"):
+        module.run_p_only_v2(args, bundle.config)
+    assert calls == ["torch.load"]

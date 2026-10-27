@@ -17,6 +17,13 @@ Commands:
   python3 scripts/prepare_sparkx_research_bundle.py --write
   python3 scripts/prepare_sparkx_research_bundle.py --check
   python3 scripts/prepare_sparkx_research_bundle.py --check --allow-untracked
+  python3 scripts/prepare_sparkx_research_bundle.py --profile final-product --write
+  python3 scripts/prepare_sparkx_research_bundle.py --profile final-product --check
+
+The historical first-tranche profile is the default and its 117-input manifest
+is never rewritten by the final-product profile. The final-product profile is
+additive: it pins current acceptance, calibration, continuation, vision-curve,
+final-verification and clean-export evidence, plus the clean-export links.
 
 Exit codes: 0 verified, 1 verification failure, 2 missing/unreadable input
 or manifest. No network access, no model or dataset loader, no native job.
@@ -35,6 +42,11 @@ from pathlib import Path
 FORMAT = "replica.sparkx_research_bundle.v1"
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST = "reports/sparkx_first_tranche_20261026/research_bundle_manifest.json"
+DEFAULT_FINAL_PRODUCT_MANIFEST = (
+    "reports/sparkx_final_product_20261026/final_product_bundle_manifest.json"
+)
+FINAL_PRODUCT_FORMAT = "replica.sparkx_final_product_bundle.v1"
+FINAL_PRODUCT_GENERATED_OUTPUT = "reports/sparkx_final_product_20261026/verification_v2.json"
 
 # Ordered (path, role) pairs. Paths are repository-relative; the manifest is
 # deterministic because entries are sorted by path before serialization.
@@ -463,6 +475,226 @@ INPUT_ROLES: list[tuple[str, str]] = [
     ),
 ]
 
+# Additive current final-product evidence.  This profile is independent of the
+# historical 117-input manifest above; it never rewrites that manifest and it
+# requires only tracked repository evidence, never a temporary source cache.
+FINAL_PRODUCT_INPUT_ROLES: list[tuple[str, str]] = [
+    (
+        "docs/architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md",
+        "version-5 final-product blueprint with reconciled current evidence",
+    ),
+    (
+        "docs/experiments/20261026_Memory_Acceptance_V4.md",
+        "current v4 memory-acceptance protocol and rejected verdict",
+    ),
+    (
+        "docs/experiments/20261026_Memory_Acceptance_Calibration.md",
+        "development-only calibration protocol and rejection disposition",
+    ),
+    (
+        "docs/experiments/20261026_Nested_Text_Independent_Continuation.md",
+        "exact plastic continuation evidence and 16-expert scope limit",
+    ),
+    (
+        "docs/experiments/20261026_Vision_Learnability_Curve.md",
+        "latest vision learnability curve and terminal decision",
+    ),
+    (
+        "configs/sparkx_2_6_4b_final_product_v5.json",
+        "v5 declarative profile and inventory reconciliation",
+    ),
+    (
+        "configs/memory_acceptance_v4.json",
+        "v4 memory-acceptance metric configuration",
+    ),
+    (
+        "configs/memory_acceptance_calibration_v1.json",
+        "development acceptance/address calibration configuration",
+    ),
+    (
+        "configs/nested_text_continuation_comparison_v1.json",
+        "16-expert independent continuation protocol",
+    ),
+    (
+        "configs/vision_learnability_curve_v1.json",
+        "vision learnability curve protocol",
+    ),
+    (
+        "reports/sparkx_residency_20261026/residency_v2.json",
+        "current residency receipt consumed by the analytical calculator",
+    ),
+    (
+        "reports/sparkx_nested_learning_20261026/analytical_costs.json",
+        "prior nested-learning payload profile consumed by the calculator",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/README.md",
+        "current consolidation guide with reconciled evidence",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/verify.py",
+        "portable tracked-evidence verifier",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/analytical_costs.json",
+        "v5 analytical payload and compute ledger",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/calculate_costs.py",
+        "deterministic analytical calculator",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/requirements_traceability.json",
+        "requirement-to-evidence traceability map",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/evidence.json",
+        "public-source and method evidence bindings",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/portable_evidence.json",
+        "portable required-evidence and source-pin inventory",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/reviewed_input_changes.json",
+        "explicitly reviewed snapshot and historical-manifest changes",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/repository_snapshot.json",
+        "historical 40-input snapshot and worktree drift record",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/verification.json",
+        "historical v5 verification receipt, preserved",
+    ),
+    (
+        "reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v4.json",
+        "sole current authoritative v4 memory-acceptance receipt",
+    ),
+    (
+        "reports/memory_acceptance_20261026/receipt_manifest_v4.restart02.json",
+        "v4 receipt manifest selecting the current receipt",
+    ),
+    (
+        "reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v3.json",
+        "historical v3 acceptable receipt, never accepted as v4",
+    ),
+    (
+        "reports/memory_acceptance_20261026/receipt_manifest_v3.json",
+        "historical v3 receipt manifest",
+    ),
+    (
+        "reports/memory_acceptance_20261026/calibration_dev01.json",
+        "development-only calibration rejection receipt",
+    ),
+    (
+        "reports/nested_text_continuation_comparison_20261026/comparison.json",
+        "exact independent plastic continuation comparison",
+    ),
+    (
+        "reports/nested_text_continuation_comparison_20261026/continuous_a.guard.json",
+        "continuous_a guard receipt",
+    ),
+    (
+        "reports/nested_text_continuation_comparison_20261026/continuous_b.guard.json",
+        "continuous_b guard receipt",
+    ),
+    (
+        "reports/nested_text_continuation_comparison_20261026/resume.guard.json",
+        "resume guard receipt",
+    ),
+    (
+        "reports/vision_learnability_curve_v1_20261026/summary.json",
+        "latest vision curve summary and terminal decision",
+    ),
+    (
+        "reports/vision_learnability_curve_v1_20261026_attempt04/guard.json",
+        "completed vision curve attempt-04 guard receipt",
+    ),
+    (
+        "reports/vision_learnability_curve_v1_20261026/guard.json",
+        "historical failed vision curve guard receipt, preserved",
+    ),
+    (
+        "reports/final_verification_20261027/summary.json",
+        "final verification and current clean-clone summary",
+    ),
+    (
+        "reports/final_verification_20261027/tests.xml",
+        "final workspace JUnit receipt with preserved historical failures",
+    ),
+    (
+        "reports/final_verification_20261027/clean_export/tests.xml",
+        "current clean-clone JUnit receipt",
+    ),
+    (
+        "reports/clean_export_20261026_final/summary.json",
+        "historical clean-clone verification at f25670a",
+    ),
+    (
+        "reports/clean_export_20261026_final/tests_final.xml",
+        "historical clean-clone final JUnit receipt",
+    ),
+    (
+        "reports/sparkx_first_tranche_20261026/research_bundle_manifest.json",
+        "historical 117-input manifest retained byte-for-byte",
+    ),
+    (
+        "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/config.json",
+        "tracked pinned Spark configuration",
+    ),
+    (
+        "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/modeling_spark.py",
+        "tracked pinned Spark modeling code",
+    ),
+    (
+        "tests/test_sparkx_final_product.py",
+        "portable verifier, evidence-tamper and manifest tests",
+    ),
+]
+
+FINAL_PRODUCT_CLEAN_EXPORT_LINKS = [
+    {
+        "path": "reports/final_verification_20261027/summary.json",
+        "role": "current final verification and clean-clone summary",
+        "status": "current",
+    },
+    {
+        "path": "reports/final_verification_20261027/clean_export/tests.xml",
+        "role": "current clean-clone JUnit receipt",
+        "status": "current",
+    },
+    {
+        "path": "reports/clean_export_20261026_final/summary.json",
+        "role": "historical clean-clone summary at f25670a",
+        "status": "historical",
+    },
+    {
+        "path": "reports/clean_export_20261026_final/tests_final.xml",
+        "role": "historical clean-clone final JUnit receipt",
+        "status": "historical",
+    },
+]
+
+PROFILES = {
+    "historical": {
+        "manifest": DEFAULT_MANIFEST,
+        "roles": INPUT_ROLES,
+        "format": FORMAT,
+        "profile": "historical",
+        "clean_export_links": [],
+        "generated_output": None,
+    },
+    "final-product": {
+        "manifest": DEFAULT_FINAL_PRODUCT_MANIFEST,
+        "roles": FINAL_PRODUCT_INPUT_ROLES,
+        "format": FINAL_PRODUCT_FORMAT,
+        "profile": "final-product",
+        "clean_export_links": FINAL_PRODUCT_CLEAN_EXPORT_LINKS,
+        "generated_output": FINAL_PRODUCT_GENERATED_OUTPUT,
+    },
+}
+
 # Large payloads that must never be copied into this bundle. They are either
 # absent or separately provisioned; their hashes are not required here.
 NOT_COPIED = [
@@ -548,16 +780,38 @@ def _canonical_digest(entries: list[dict]) -> str:
     return hashlib.sha256(canonical).hexdigest()
 
 
-def build_manifest(root: Path, allow_untracked: bool = False) -> dict:
+def build_manifest(
+    root: Path,
+    allow_untracked: bool = False,
+    *,
+    profile: str = "historical",
+) -> dict:
     root = Path(root)
+    if profile not in PROFILES:
+        raise BundleError(f"unknown bundle profile: {profile}")
+    settings = PROFILES[profile]
+    roles = settings["roles"]
     entries = sorted(
-        (_entry(root, relative, role, allow_untracked) for relative, role in INPUT_ROLES),
+        (_entry(root, relative, role, allow_untracked) for relative, role in roles),
         key=lambda entry: entry["path"],
     )
     untracked = [entry["path"] for entry in entries if not entry["tracked_in_git"]]
     dirty = [entry["path"] for entry in entries if not entry["worktree_matches_index"]]
-    return {
-        "format": FORMAT,
+    by_path = {entry["path"]: entry for entry in entries}
+    clean_export_links = []
+    for link in settings["clean_export_links"]:
+        entry = by_path[link["path"]]
+        clean_export_links.append(
+            {
+                "path": entry["path"],
+                "role": link["role"],
+                "status": link["status"],
+                "bytes": entry["bytes"],
+                "sha256": entry["sha256"],
+            }
+        )
+    manifest = {
+        "format": settings["format"],
         "kind": "hashed_manifest_not_an_asset_copy",
         "generator": "scripts/prepare_sparkx_research_bundle.py",
         "root_policy": (
@@ -574,8 +828,23 @@ def build_manifest(root: Path, allow_untracked: bool = False) -> dict:
         "inputs": entries,
         "not_copied": NOT_COPIED,
         "provisioning": {
-            "write_command": "python3 scripts/prepare_sparkx_research_bundle.py --write",
-            "check_command": "python3 scripts/prepare_sparkx_research_bundle.py --check",
+            "write_command": (
+                "python3 scripts/prepare_sparkx_research_bundle.py --write"
+                if profile == "historical"
+                else (
+                    "python3 scripts/prepare_sparkx_research_bundle.py "
+                    f"--profile {profile} --write"
+                )
+            ),
+            "check_command": (
+                "python3 scripts/prepare_sparkx_research_bundle.py --check"
+                if profile == "historical"
+                else (
+                    "python3 scripts/prepare_sparkx_research_bundle.py "
+                    f"--profile {profile} --check"
+                )
+            ),
+
             "development_override": (
                 "python3 scripts/prepare_sparkx_research_bundle.py --check "
                 "--allow-untracked"
@@ -589,6 +858,11 @@ def build_manifest(root: Path, allow_untracked: bool = False) -> dict:
             "large_payload_copied": False,
         },
     }
+    if profile != "historical":
+        manifest["profile"] = settings["profile"]
+        manifest["clean_export_links"] = clean_export_links
+        manifest["generated_output"] = settings["generated_output"]
+    return manifest
 
 
 def verify_manifest(
@@ -597,9 +871,14 @@ def verify_manifest(
     *,
     allow_untracked: bool = False,
     require_tracking: bool = True,
+    profile: str | None = None,
 ) -> dict:
     root = Path(root)
-    if manifest.get("format") != FORMAT:
+    effective_profile = manifest.get("profile", profile or "historical")
+    if effective_profile not in PROFILES:
+        raise BundleError(f"unknown bundle profile: {effective_profile}")
+    settings = PROFILES[effective_profile]
+    if manifest.get("format") != settings["format"]:
         raise BundleError(f"unsupported manifest format: {manifest.get('format')!r}")
     declared = manifest.get("inputs")
     if not isinstance(declared, list) or not declared:
@@ -607,8 +886,25 @@ def verify_manifest(
 
     failures: list[dict] = []
     entries: list[dict] = []
+    reviewed_current_updates: list[dict] = []
     seen_paths = set()
-    expected_roles = dict(INPUT_ROLES)
+    expected_roles = dict(settings["roles"])
+    reviewed_updates: dict[str, dict] = {}
+    if effective_profile == "historical":
+        overlay_path = (
+            root
+            / "reports/sparkx_final_product_20261026/reviewed_input_changes.json"
+        )
+        if overlay_path.is_file():
+            try:
+                overlay = json.loads(overlay_path.read_text(encoding="utf-8"))
+                reviewed_updates = {
+                    update["path"]: update
+                    for update in overlay.get("historical_manifest_updates", [])
+                    if isinstance(update, dict) and update.get("path")
+                }
+            except (json.JSONDecodeError, OSError):
+                reviewed_updates = {}
     for record in declared:
         relative = record.get("path") if isinstance(record, dict) else None
         if not isinstance(relative, str) or not relative:
@@ -635,14 +931,30 @@ def verify_manifest(
         digest = sha256_file(path)
         tracked = _git_tracked(root, relative)
         matches_index = _git_worktree_matches_index(root, relative)
-        if size != record.get("bytes"):
+        reviewed = reviewed_updates.get(relative)
+        reviewed_ok = (
+            reviewed is not None
+            and reviewed.get("prior_sha256") == record.get("sha256")
+            and reviewed.get("current_sha256") == digest
+        )
+        if size != record.get("bytes") and not reviewed_ok:
             failures.append(
                 {"path": relative, "reason": "size_mismatch", "expected": record.get("bytes"), "actual": size}
             )
         if digest != record.get("sha256"):
-            failures.append(
-                {"path": relative, "reason": "sha256_mismatch", "expected": record.get("sha256"), "actual": digest}
-            )
+            if reviewed_ok:
+                reviewed_current_updates.append(
+                    {
+                        "path": relative,
+                        "prior_sha256": record.get("sha256"),
+                        "current_sha256": digest,
+                        "reviewed_in": "reports/sparkx_final_product_20261026/reviewed_input_changes.json",
+                    }
+                )
+            else:
+                failures.append(
+                    {"path": relative, "reason": "sha256_mismatch", "expected": record.get("sha256"), "actual": digest}
+                )
         if require_tracking and not allow_untracked and not tracked:
             failures.append({"path": relative, "reason": "untracked_in_git"})
         if require_tracking and not allow_untracked and not matches_index:
@@ -668,7 +980,21 @@ def verify_manifest(
         )
 
     entries.sort(key=lambda entry: entry["path"])
-    recomputed = _canonical_digest(entries)
+    digest_entries = [
+        {
+            "path": record.get("path"),
+            "role": record.get("role"),
+            "bytes": record.get("bytes"),
+            "sha256": record.get("sha256"),
+            "tracked_in_git": record.get("tracked_in_git"),
+            "worktree_matches_index": record.get("worktree_matches_index"),
+        }
+        for record in declared
+        if isinstance(record, dict) and isinstance(record.get("path"), str)
+    ]
+    recomputed = _canonical_digest(
+        sorted(digest_entries, key=lambda entry: entry["path"])
+    )
     if recomputed != manifest.get("bundle_digest"):
         failures.append(
             {
@@ -680,19 +1006,60 @@ def verify_manifest(
         )
 
     missing = sorted(
-        relative for relative, _role in INPUT_ROLES if relative not in seen_paths
+        relative for relative, _role in settings["roles"] if relative not in seen_paths
     )
     if missing:
         failures.append({"path": "<bundle>", "reason": "missing_manifest_inputs", "paths": missing})
 
+    declared_links = manifest.get("clean_export_links", [])
+    if effective_profile == "final-product":
+        expected_links = {link["path"]: link for link in settings["clean_export_links"]}
+        entries_by_path = {entry["path"]: entry for entry in entries}
+        seen_links = set()
+        for link in declared_links:
+            relative = link.get("path") if isinstance(link, dict) else None
+            expected = expected_links.get(relative)
+            if expected is None:
+                failures.append(
+                    {"path": relative, "reason": "unexpected_clean_export_link"}
+                )
+                continue
+            seen_links.add(relative)
+            entry = entries_by_path.get(relative)
+            if entry is None:
+                failures.append(
+                    {"path": relative, "reason": "clean_export_link_not_in_inputs"}
+                )
+                continue
+            if (
+                link.get("sha256") != entry["sha256"]
+                or link.get("bytes") != entry["bytes"]
+                or link.get("role") != expected["role"]
+                or link.get("status") != expected["status"]
+            ):
+                failures.append(
+                    {"path": relative, "reason": "clean_export_link_mismatch"}
+                )
+        for relative in sorted(set(expected_links) - seen_links):
+            failures.append(
+                {"path": relative, "reason": "missing_clean_export_link"}
+            )
+        generated = settings.get("generated_output")
+        if generated and generated in entries_by_path:
+            failures.append(
+                {"path": generated, "reason": "generated_receipt_must_not_be_hashed"}
+            )
+
     return {
         "format": "replica.sparkx_research_bundle_verification.v1",
+        "profile": effective_profile,
         "verified": not failures,
         "clean_checkout_ready": not failures and bool(manifest.get("clean_checkout_ready")),
         "tracking_enforced": require_tracking and not allow_untracked,
         "input_count": len(entries),
         "total_input_bytes": sum(entry["bytes"] for entry in entries),
         "bundle_digest": recomputed,
+        "reviewed_current_updates": reviewed_current_updates,
         "failures": failures,
         "network_used": False,
     }
@@ -702,6 +1069,12 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--manifest", type=Path, default=None)
+    parser.add_argument(
+        "--profile",
+        choices=sorted(PROFILES),
+        default="historical",
+        help="historical first-tranche profile (default) or additive final-product profile",
+    )
     action = parser.add_mutually_exclusive_group()
     action.add_argument("--write", action="store_true", help="write the manifest")
     action.add_argument("--check", action="store_true", help="verify the manifest")
@@ -716,15 +1089,20 @@ def main(argv=None) -> int:
     )
     args = parser.parse_args(argv)
     root = args.root.resolve()
-    manifest_path = args.manifest or (root / DEFAULT_MANIFEST)
+    manifest_path = args.manifest or (root / PROFILES[args.profile]["manifest"])
 
     try:
         if args.write:
-            manifest = build_manifest(root, allow_untracked=args.allow_untracked)
+            manifest = build_manifest(
+                root,
+                allow_untracked=args.allow_untracked,
+                profile=args.profile,
+            )
             manifest_path.parent.mkdir(parents=True, exist_ok=True)
             manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
             print(
-                f"Wrote {manifest_path}: {manifest['input_count']} inputs, "
+                f"Wrote {manifest_path}: profile={manifest['profile']}, "
+                f"{manifest['input_count']} inputs, "
                 f"digest {manifest['bundle_digest']}, "
                 f"clean_checkout_ready={manifest['clean_checkout_ready']}"
             )
@@ -738,6 +1116,7 @@ def main(argv=None) -> int:
             manifest,
             allow_untracked=args.allow_untracked,
             require_tracking=True,
+            profile=args.profile,
         )
     except (BundleError, json.JSONDecodeError, OSError) as error:
         print(f"bundle error: {error}", file=sys.stderr)

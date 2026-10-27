@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="45" time="0.727" timestamp="2026-10-27T00:37:01.550668-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_vision_forward_accounting" name="test_native_taps_attribute_each_phase_and_generation_prefill_decode" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_visual_forwards_count_196_positions_cache_and_projector" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_wrappers_restore_on_native_exception" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_measured_session_labels_prepare_forward_generate_and_backward" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_budget_rejects_three_prepare_calls_as_total_scoring_forwards" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_budget_rejects_wrong_units_and_missing_cumulative_cap" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_budget_trips_on_first_excess_forward_before_recording_it" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_cumulative_budget_survives_a_new_readout" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_wall_check_happens_inside_the_forward_tap" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_unknown_or_missing_phase_fails_closed" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_training_block_between_readouts_uses_cumulative_budget" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_logical_units_are_counted_but_never_charged_as_forwards" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_historical_reconstruction_is_exact_and_labeled_reconstructed" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_historical_reconstruction_rejects_tampering" time="0.000" /><testcase classname="tests.test_vision_forward_accounting" name="test_eos_only_and_whitespace_only_are_distinct" time="0.000" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_v1_files_and_config_remain_byte_identical" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_v2_curve_config_declares_measured_units_and_preserves_verdict" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_v2_curve_config_rejects_accounting_or_authorization_drift[&lt;lambda&gt;-three prepare]" time="0.002"><failure message="replica_lab.vision_forward_accounting.AccountingError: The decoder cap cannot be three prepare passes per cell; it must cover prepares, explicit logits and generation">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1342/test_v2_curve_config_rejects_a0')
+mutation = &lt;function &lt;lambda&gt; at 0x10bba7ce0&gt;, message = 'three prepare'
+
+    @pytest.mark.parametrize("mutation, message", [
+        (lambda config: config["accounting"]["per_readout"].update(
+            {"decoder_forward_calls": 294}), "three prepare"),
+        (lambda config: config["accounting"]["units"].update(
+            {"decoder_forward_calls": "logical_scoring_operation"}),
+         "Budget unit differs"),
+        (lambda config: config["accounting"]["cumulative"].pop(
+            "decoder_forward_calls"), "cumulative cap"),
+        (lambda config: config["authorization"].update(
+            {"native_execution_authorized": True}), "predeclared protocol"),
+        (lambda config: config["authorization"].update(
+            {"protocol_commit": "a" * 40}), "committed identity"),
+        (lambda config: config["expectations"].update(
+            {"measured_by_old_run": True}), "reconstruction"),
+        (lambda config: config["implementation_pins"]["new_files"].pop(
+            "src/replica_lab/vision_forward_accounting.py"), "New-file"),
+    ])
+    def test_v2_curve_config_rejects_accounting_or_authorization_drift(
+            tmp_path, mutation, message):
+        config = json.loads(CURVE_V2_CONFIG.read_text())
+        mutation(config)
+        path = tmp_path / "drifted.json"
+        path.write_text(json.dumps(config))
+        with pytest.raises(learn.LearnabilityDiagnosticError, match=message):
+&gt;           curve_v2.load_config(path)
+
+tests/test_vision_learnability_curve_v2.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/vision_learnability_curve_v2.py:195: in load_config
+    return validate_curve_config(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/vision_learnability_curve_v2.py:405: in validate_curve_config
+    fwd.validate_budget_declaration(
+src/replica_lab/vision_forward_accounting.py:794: in validate_budget_declaration
+    _require(cap &gt;= minimum,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False
+message = 'The decoder cap cannot be three prepare passes per cell; it must cover prepares, explicit logits and generation'
+
+    def _require(condition: Any, message: str) -&gt; None:
+        if not condition:
+&gt;           raise AccountingError(message)
+E           replica_lab.vision_forward_accounting.AccountingError: The decoder cap cannot be three prepare passes per cell; it must cover prepares, explicit logits and generation
+
+src/replica_lab/vision_forward_accounting.py:151: AccountingError</failure></testcase><testcase classname="tests.test_vision_learnability_curve_v2" name="test_v2_curve_config_rejects_accounting_or_authorization_drift[&lt;lambda&gt;-Budget unit differs]" time="0.001"><failure message="replica_lab.vision_forward_accounting.AccountingError: Budget unit differs for decoder_forward_calls: 'logical_scoring_operation'">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1342/test_v2_curve_config_rejects_a1')
+mutation = &lt;function &lt;lambda&gt; at 0x10bba7d80&gt;, message = 'Budget unit differs'
+
+    @pytest.mark.parametrize("mutation, message", [
+        (lambda config: config["accounting"]["per_readout"].update(
+            {"decoder_forward_calls": 294}), "three prepare"),
+        (lambda config: config["accounting"]["units"].update(
+            {"decoder_forward_calls": "logical_scoring_operation"}),
+         "Budget unit differs"),
+        (lambda config: config["accounting"]["cumulative"].pop(
+            "decoder_forward_calls"), "cumulative cap"),
+        (lambda config: config["authorization"].update(
+            {"native_execution_authorized": True}), "predeclared protocol"),
+        (lambda config: config["authorization"].update(
+            {"protocol_commit": "a" * 40}), "committed identity"),
+        (lambda config: config["expectations"].update(
+            {"measured_by_old_run": True}), "reconstruction"),
+        (lambda config: config["implementation_pins"]["new_files"].pop(
+            "src/replica_lab/vision_forward_accounting.py"), "New-file"),
+    ])
+    def test_v2_curve_config_rejects_accounting_or_authorization_drift(
+            tmp_path, mutation, message):
+        config = json.loads(CURVE_V2_CONFIG.read_text())
+        mutation(config)
+        path = tmp_path / "drifted.json"
+        path.write_text(json.dumps(config))
+        with pytest.raises(learn.LearnabilityDiagnosticError, match=message):
+&gt;           curve_v2.load_config(path)
+
+tests/test_vision_learnability_curve_v2.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/vision_learnability_curve_v2.py:195: in load_config
+    return validate_curve_config(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/vision_learnability_curve_v2.py:405: in validate_curve_config
+    fwd.validate_budget_declaration(
+src/replica_lab/vision_forward_accounting.py:763: in validate_budget_declaration
+    _require(unit == UNIT_BY_COUNTER[key],
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False
+message = "Budget unit differs for decoder_forward_calls: 'logical_scoring_operation'"
+
+    def _require(condition: Any, message: str) -&gt; None:
+        if not condition:
+&gt;           raise AccountingError(message)
+E           replica_lab.vision_forward_accounting.AccountingError: Budget unit differs for decoder_forward_calls: 'logical_scoring_operation'
+
+src/replica_lab/vision_forward_accounting.py:151: AccountingError</failure></testcase><testcase classname="tests.test_vision_learnability_curve_v2" name="test_v2_curve_config_rejects_accounting_or_authorization_drift[&lt;lambda&gt;-cumulative cap]" time="0.001"><failure message="replica_lab.vision_forward_accounting.AccountingError: Budget lacks a cumulative cap for decoder_forward_calls">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1342/test_v2_curve_config_rejects_a2')
+mutation = &lt;function &lt;lambda&gt; at 0x10bba7e20&gt;, message = 'cumulative cap'
+
+    @pytest.mark.parametrize("mutation, message", [
+        (lambda config: config["accounting"]["per_readout"].update(
+            {"decoder_forward_calls": 294}), "three prepare"),
+        (lambda config: config["accounting"]["units"].update(
+            {"decoder_forward_calls": "logical_scoring_operation"}),
+         "Budget unit differs"),
+        (lambda config: config["accounting"]["cumulative"].pop(
+            "decoder_forward_calls"), "cumulative cap"),
+        (lambda config: config["authorization"].update(
+            {"native_execution_authorized": True}), "predeclared protocol"),
+        (lambda config: config["authorization"].update(
+            {"protocol_commit": "a" * 40}), "committed identity"),
+        (lambda config: config["expectations"].update(
+            {"measured_by_old_run": True}), "reconstruction"),
+        (lambda config: config["implementation_pins"]["new_files"].pop(
+            "src/replica_lab/vision_forward_accounting.py"), "New-file"),
+    ])
+    def test_v2_curve_config_rejects_accounting_or_authorization_drift(
+            tmp_path, mutation, message):
+        config = json.loads(CURVE_V2_CONFIG.read_text())
+        mutation(config)
+        path = tmp_path / "drifted.json"
+        path.write_text(json.dumps(config))
+        with pytest.raises(learn.LearnabilityDiagnosticError, match=message):
+&gt;           curve_v2.load_config(path)
+
+tests/test_vision_learnability_curve_v2.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/vision_learnability_curve_v2.py:195: in load_config
+    return validate_curve_config(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/vision_learnability_curve_v2.py:405: in validate_curve_config
+    fwd.validate_budget_declaration(
+src/replica_lab/vision_forward_accounting.py:777: in validate_budget_declaration
+    _require(key in declaration["cumulative"],
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False
+message = 'Budget lacks a cumulative cap for decoder_forward_calls'
+
+    def _require(condition: Any, message: str) -&gt; None:
+        if not condition:
+&gt;           raise AccountingError(message)
+E           replica_lab.vision_forward_accounting.AccountingError: Budget lacks a cumulative cap for decoder_forward_calls
+
+src/replica_lab/vision_forward_accounting.py:151: AccountingError</failure></testcase><testcase classname="tests.test_vision_learnability_curve_v2" name="test_v2_curve_config_rejects_accounting_or_authorization_drift[&lt;lambda&gt;-predeclared protocol]" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_v2_curve_config_rejects_accounting_or_authorization_drift[&lt;lambda&gt;-committed identity]" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_v2_curve_config_rejects_accounting_or_authorization_drift[&lt;lambda&gt;-reconstruction]" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_v2_curve_config_rejects_accounting_or_authorization_drift[&lt;lambda&gt;-New-file]" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_step1_protocol_is_predeclared_and_fail_closed" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_step1_config_rejects_scope_or_anchor_drift[&lt;lambda&gt;-rows_per_update]" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_step1_config_rejects_scope_or_anchor_drift[&lt;lambda&gt;-probes]" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_step1_config_rejects_scope_or_anchor_drift[&lt;lambda&gt;-measured-work]" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_step1_config_rejects_scope_or_anchor_drift[&lt;lambda&gt;-predeclared protocol]" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_step1_config_rejects_scope_or_anchor_drift[&lt;lambda&gt;-historical anchors]" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_step1_config_rejects_scope_or_anchor_drift[&lt;lambda&gt;-claims]" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_measured_readout_accepts_physical_and_logical_units" time="0.000" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_measured_readout_rejects_missing_counters_and_bad_arithmetic" time="0.000" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_measured_readout_rejects_generation_length_and_record_sum" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_endpoint_gates_must_be_context_only" time="0.000" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_response_audit_separates_eos_only_from_whitespace_only" time="0.000" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_response_audit_rejects_target_inequality_and_self_inconsistency" time="0.000" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_response_mask_audit_accepts_exact_masks_and_rejects_leaks" time="0.000" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_projector_scale_and_control_features_are_measured" time="0.002" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_feature_report_requires_sibling_and_shuffled_controls" time="0.000" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_step1_accounting_reconciles_5660_decoder_passes" time="0.000" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_step1_accounting_fails_closed_on_length_or_update_drift" time="0.000" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_step1_statuses_are_explicit_and_preserve_the_v1_verdict" time="0.000" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_authorization_receipt_binds_config_and_commit" time="0.001" /><testcase classname="tests.test_vision_learnability_curve_v2" name="test_historical_correction_reconstructs_7704_and_audits_receipts" time="0.009" /></testsuite></testsuites>

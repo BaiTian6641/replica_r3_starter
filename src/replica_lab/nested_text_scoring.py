@@ -4,6 +4,17 @@ Scoring v2 accepts a bare expected answer or a complete declarative containing
 that answer as a whole phrase.  Ambiguity, contradiction, competing candidate
 answers and visibly incomplete output are rejected.  This is deliberately not a
 claim of general semantic equivalence.
+
+``SCORING_VERSION`` is the declared protocol/config scorer contract and stays at
+``v2.1`` so the frozen v2 and behavioral configs keep their pinned digest.
+``ANSWER_GRAMMAR_VERSION`` versions the enforced acceptance grammar itself: the
+v2.1.1 grammar accepts Markdown emphasis and terminal punctuation while requiring
+the expected answer to be a whole standalone phrase, so numeric, decimal,
+thousands-separated or possessive extensions (``43.5``, ``43,000``,
+``Tevufa's``) no longer pass and the known-answer check cannot be dropped.  New
+receipts record both versions; historical scoring receipts that predate
+``ANSWER_GRAMMAR_VERSION`` are left untouched and are not admissible as new
+evidence.
 """
 from __future__ import annotations
 
@@ -12,6 +23,7 @@ import re
 from typing import Callable, Iterable, Sequence
 
 SCORING_VERSION = "replica.nested_text.scoring.v2.1"
+ANSWER_GRAMMAR_VERSION = "replica.nested_text.answer_grammar.v2.1.1"
 STOP_POLICY_VERSION = "replica.nested_text.sentence_stop.v1"
 STOP_TOKENS = (1, 130073)
 DEFAULT_MAX_NEW_TOKENS = 24
@@ -30,10 +42,18 @@ _INCOMPLETE_WORDS = frozenset({
 })
 
 
+_EMPHASIS = re.compile(r"(?<![\w])[*_~`]+|[*_~`]+(?![\w])")
+
+
+def _strip_markdown(text: str) -> str:
+    """Drop Markdown emphasis/backtick runs without joining inner word characters."""
+    return _EMPHASIS.sub("", text)
+
+
 def _normalized(value: str, *, strip_terminal: bool = False) -> str:
     if not isinstance(value, str):
         raise ValueError("response text must be a string")
-    text = value.replace("**", "").replace("__", "").replace("`", "")
+    text = _strip_markdown(value.replace("**", "").replace("__", ""))
     text = " ".join(text.lower().strip().split())
     if strip_terminal:
         text = text.rstrip(" \t.!?")
@@ -41,7 +61,15 @@ def _normalized(value: str, *, strip_terminal: bool = False) -> str:
 
 
 def _contains(output: str, answer: str) -> bool:
-    return bool(re.search(rf"(?<![\w]){re.escape(answer)}(?![\w])", output))
+    """The expected answer must occur as a standalone whole phrase.
+
+    A trailing decimal/thousands continuation or possessive extension makes the
+    occurrence a different token, so ``43.5``/``43,000`` do not answer ``43`` and
+    ``Tevufa's`` does not answer ``Tevufa``.
+    """
+    pattern = (rf"(?<![\w])(?<![\d][.,]){re.escape(answer)}"
+               r"(?![\w]|['’]s\b|[.,:]\s*\d)")
+    return bool(re.search(pattern, output))
 
 
 def _visibly_incomplete(output: str) -> bool:
@@ -74,6 +102,7 @@ class ResponseScore:
     normalized_expected: str
     normalized_output: str
     scoring_version: str = SCORING_VERSION
+    grammar_version: str = ANSWER_GRAMMAR_VERSION
 
 
 def is_truncated_stop_reason(reason: str) -> bool:
@@ -164,7 +193,8 @@ def score_response(expected: str, output: str, *, candidate_answers: Iterable[st
     return ResponseScore(True, "correct", expected_norm, output_norm)
 
 __all__ = [
-    "DEFAULT_MAX_NEW_TOKENS", "GenerationResult", "ResponseScore",
-    "SCORING_VERSION", "STOP_POLICY_VERSION", "STOP_TOKENS", "finalize_generation",
-    "score_response", "is_truncated_stop_reason", "sentence_complete_text",
+    "ANSWER_GRAMMAR_VERSION", "DEFAULT_MAX_NEW_TOKENS", "GenerationResult",
+    "ResponseScore", "SCORING_VERSION", "STOP_POLICY_VERSION", "STOP_TOKENS",
+    "finalize_generation", "score_response", "is_truncated_stop_reason",
+    "sentence_complete_text",
 ]

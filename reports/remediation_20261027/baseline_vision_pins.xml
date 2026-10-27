@@ -1,0 +1,748 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="1.111" timestamp="2026-10-27T00:06:41.290377-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_vision_caption_v2" name="test_prepared_v2_roles_load_separately_with_bound_assignments" time="0.068"><failure message="replica_lab.vision_collapse_diagnostic.DiagnosticError: Migrated implementation bytes differ: src/replica_lab/architecture/contracts.py">config = {'format': 'replica.vision_collapse_diagnostic_config.v1', 'version': 'replica.vision_collapse_diagnostic.v1', 'name': 'vision_collapse_diagnostic_v1', 'declared_at_utc': '2026-10-26T00:00:00+00:00', ...}
+root = PosixPath('/Users/flare/replica_r3_starter')
+
+    def verify_pins(config, root=ROOT):
+        """Verify prepared, source, lock and extension bytes without loading a model."""
+        root = Path(root)
+        prepared = root / config["prepared"]["root"]
+        require(prepared.is_dir(), "The prepared data root is missing")
+        protocol_path = root / config["prepared"]["protocol"]
+        manifest_path = root / config["prepared"]["manifest"]
+        training_path = root / config["prepared"]["training"]
+        for path, label in ((protocol_path, "prepared protocol"),
+                            (manifest_path, "prepared manifest"),
+                            (training_path, "training alignment")):
+            require(path.is_file(), f"The {label} is missing: {path}")
+        protocol_sha = _sha(protocol_path)
+        require(protocol_sha == config["prepared"]["protocol_sha256"],
+                "Prepared protocol bytes differ from the diagnostic pin")
+        manifest_sha = _sha(manifest_path)
+        require(manifest_sha == config["prepared"]["manifest_sha256"],
+                "Prepared manifest bytes differ from the diagnostic pin")
+        training_sha = _sha(training_path)
+        require(training_sha == config["prepared"]["training_sha256"],
+                "Training alignment bytes differ from the diagnostic pin")
+        protocol = _read_json(protocol_path)
+        manifest = _read_json(manifest_path)
+        require(protocol["data"]["root"] == config["prepared"]["root"],
+                "Prepared protocol data root differs")
+        require(protocol["data"]["manifest"]["sha256"] == manifest_sha,
+                "Prepared protocol manifest pin differs")
+        require(protocol["data"]["seals"]["train_alignment_payload"] == training_sha,
+                "Prepared alignment seal differs")
+        counts = protocol["data"]["counts"]
+        require(counts["train_examples"] == config["prepared"]["training_examples"]
+                and counts["train_answers"] == config["prepared"]["answer_examples"]
+                and counts["train_captions"] == config["prepared"]["caption_examples"],
+                "Prepared training counts differ")
+        require(manifest["counts"] == counts, "Prepared manifest counts differ")
+        fit = protocol["fit_contract"]
+        prompt_contract = config["prompt_contract"]
+        require(fit["question_template"] == prompt_contract["question_template"]
+                == protocol["evaluation"]["question_template"],
+                "The question template pins differ")
+        require(fit["caption_template"] == prompt_contract["caption_template"],
+                "The caption template pins differ")
+        require(fit["loss"] == prompt_contract["loss"]
+                and fit["response_only_labels"] is True,
+                "The prepared fit loss/label contract differs")
+        require(int(protocol["train"]["init_seed"])
+                == int(config["stages"][0]["init_seed"]),
+                "The fresh init seed differs from the prepared protocol")
+        limits = config["limits"]
+        for name in ("max_prompt_tokens", "max_sequence_tokens",
+                     "max_new_tokens", "caption_max_new_tokens"):
+            require(int(protocol["limits"][name]) == int(limits[name]),
+                    f"The declared {name} differs from the prepared protocol")
+        resource = protocol["resource_policy"]
+        require(resource["device"] == config["policy"]["device"] == "mps",
+                "The declared device differs")
+        require(resource["cpu_fallback"] is False
+                and resource["downloads"] == 0
+                and resource["workers"] == 1,
+                "The prepared resource policy allows fallback, downloads or workers")
+        require(resource["exclusive_mps_worker"] is True,
+                "The prepared resource policy lacks the exclusive MPS worker")
+    
+        lock_path = root / config["source"]["model_lock"]
+        require(lock_path.is_file(), "The model lock is missing")
+        lock_sha = _sha(lock_path)
+        require(lock_sha == config["source"]["model_lock_sha256"],
+                "Model lock bytes differ from the diagnostic pin")
+        lock = _read_json(lock_path)
+        require(lock["revision"] == config["source"]["model_revision"],
+                "Model lock revision differs")
+        require(protocol["model"]["revision"] == config["source"]["model_revision"],
+                "Prepared protocol model revision differs")
+        require(protocol["model"]["lock_sha256"] == lock_sha,
+                "Prepared protocol model lock pin differs")
+        model_path = root / config["source"]["model_path"]
+        require(model_path.is_dir(), "The sealed model path is missing")
+        require(_sha(model_path / "config.json") == lock["config_sha256"],
+                "Local model config differs from the lock")
+        require(bool(list(model_path.glob("*.safetensors"))),
+                "The sealed model snapshot has no safetensors weights")
+        vision_manifest = root / config["source"]["vision_source_manifest"]
+        require(vision_manifest.is_file(), "The vision source manifest is missing")
+        vision_manifest_sha = _sha(vision_manifest)
+        require(vision_manifest_sha == config["source"]["vision_source_manifest_sha256"],
+                "Vision source manifest bytes differ from the diagnostic pin")
+        require(protocol["vision_source"]["manifest"]["sha256"] == vision_manifest_sha,
+                "Prepared protocol vision manifest pin differs")
+    
+        extension_path = root / config["extension"]["path"]
+        weights_path = extension_path / "extensions.safetensors"
+        receipt_path = extension_path / "manifest.json"
+        require(weights_path.is_file() and receipt_path.is_file(),
+                "The pinned train04 extension is incomplete")
+        receipt_sha = _sha(receipt_path)
+        require(receipt_sha == config["extension"]["manifest_sha256"],
+                "Extension receipt bytes differ from the diagnostic pin")
+        weights_sha = _sha(weights_path)
+        require(weights_sha == config["extension"]["weights_sha256"],
+                "Extension weights differ from the diagnostic pin")
+        require(weights_path.stat().st_size == config["extension"]["weights_bytes"],
+                "Extension weight bytes differ from the diagnostic pin")
+        receipt = _read_json(receipt_path)
+        require(receipt["format"] == config["extension"]["format"],
+                "Extension format differs")
+        require(receipt["regime"] == config["extension"]["regime"],
+                "Extension regime differs")
+        require(receipt["base_saved"] is False,
+                "The pinned extension saved base weights")
+        require(receipt["weights_sha256"] == weights_sha,
+                "Extension receipt weight hash differs")
+        require(receipt["manifest_digest"] == config["extension"]["manifest_digest"],
+                "Extension manifest digest differs")
+        require(receipt["manifest"]["vision"] == protocol["vision"],
+                "Extension vision pins differ from the prepared protocol")
+        require(receipt["manifest"]["source_revision"]
+                == config["source"]["model_revision"],
+                "Extension source revision differs")
+    
+        migration_config = config["implementation_pins"]
+        migrations = dict(migration_config["migrations"])
+        prepared_pins = dict(protocol.get("implementation_sha256") or {})
+        require(migration_config["prepared_protocol_pins_checked"] is True
+                and migration_config["mode"] == "explicit_read_only_migration",
+                "The diagnostic must declare explicit read-only implementation migrations")
+        require(prepared_pins, "The prepared protocol lacks implementation pins")
+        require(set(migrations) &lt;= set(prepared_pins),
+                "Implementation migration names an unpinned file")
+        unchanged = {"implementation_sha256": {
+            relative: expected for relative, expected in prepared_pins.items()
+            if relative not in migrations}}
+        actual = verify_implementation_pins(unchanged, root)
+        for relative, migration in migrations.items():
+            require(isinstance(migration, dict)
+                    and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                    f"Implementation migration is malformed: {relative}")
+            expected = prepared_pins[relative]
+            require(migration["parent_sha256"] == expected,
+                    f"Implementation migration parent differs: {relative}")
+            current = migration["current_sha256"]
+            require(isinstance(current, str) and len(current) == 64
+                    and all(character in "0123456789abcdef" for character in current)
+                    and current != expected,
+                    f"Implementation migration current pin is invalid: {relative}")
+            require(isinstance(migration["reason"], str)
+                    and bool(migration["reason"].strip()),
+                    f"Implementation migration lacks a reason: {relative}")
+            try:
+&gt;               migrated_actual = verify_implementation_pins(
+                    {"implementation_sha256": {relative: current}}, root)
+
+scripts/run_vision_collapse_diagnostic.py:289: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/vision_curriculum.py:3426: in verify_implementation_pins
+    _require(actual[relative] == expected,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False
+message = 'Implementation bytes changed: src/replica_lab/architecture/contracts.py'
+
+    def _require(condition: bool, message: str) -&gt; None:
+        if not condition:
+&gt;           raise VisionCurriculumError(message)
+E           replica_lab.vision_curriculum.VisionCurriculumError: Implementation bytes changed: src/replica_lab/architecture/contracts.py
+
+src/replica_lab/vision_curriculum.py:207: VisionCurriculumError
+
+The above exception was the direct cause of the following exception:
+
+    @require_local_artifacts(
+        "checkpoints/minicpm5_source",
+        "checkpoints/siglip2_base_patch16_224_source",
+        "data/vision_balanced_alignment_v2_20261026/prepared04",
+        "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+    )
+    def test_prepared_v2_roles_load_separately_with_bound_assignments():
+        import importlib.util
+        protocol_path = (ROOT / "data/vision_balanced_alignment_v2_20261026/prepared04/"
+                         "protocol.json")
+        with pytest.raises(ValueError, match="Implementation bytes changed"):
+            vba.load_prepared(protocol_path, ROOT)
+        diagnostic_spec = importlib.util.spec_from_file_location(
+            "vision_collapse_runner_for_roles",
+            ROOT / "scripts/run_vision_collapse_diagnostic.py")
+        diagnostic_module = importlib.util.module_from_spec(diagnostic_spec)
+        diagnostic_spec.loader.exec_module(diagnostic_module)
+        diagnostic_config = diagnostic_module.load_config(
+            ROOT / "configs/vision_collapse_diagnostic_v1.json")
+&gt;       verified = diagnostic_module.verify_pins(diagnostic_config)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_caption_v2.py:553: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'format': 'replica.vision_collapse_diagnostic_config.v1', 'version': 'replica.vision_collapse_diagnostic.v1', 'name': 'vision_collapse_diagnostic_v1', 'declared_at_utc': '2026-10-26T00:00:00+00:00', ...}
+root = PosixPath('/Users/flare/replica_r3_starter')
+
+    def verify_pins(config, root=ROOT):
+        """Verify prepared, source, lock and extension bytes without loading a model."""
+        root = Path(root)
+        prepared = root / config["prepared"]["root"]
+        require(prepared.is_dir(), "The prepared data root is missing")
+        protocol_path = root / config["prepared"]["protocol"]
+        manifest_path = root / config["prepared"]["manifest"]
+        training_path = root / config["prepared"]["training"]
+        for path, label in ((protocol_path, "prepared protocol"),
+                            (manifest_path, "prepared manifest"),
+                            (training_path, "training alignment")):
+            require(path.is_file(), f"The {label} is missing: {path}")
+        protocol_sha = _sha(protocol_path)
+        require(protocol_sha == config["prepared"]["protocol_sha256"],
+                "Prepared protocol bytes differ from the diagnostic pin")
+        manifest_sha = _sha(manifest_path)
+        require(manifest_sha == config["prepared"]["manifest_sha256"],
+                "Prepared manifest bytes differ from the diagnostic pin")
+        training_sha = _sha(training_path)
+        require(training_sha == config["prepared"]["training_sha256"],
+                "Training alignment bytes differ from the diagnostic pin")
+        protocol = _read_json(protocol_path)
+        manifest = _read_json(manifest_path)
+        require(protocol["data"]["root"] == config["prepared"]["root"],
+                "Prepared protocol data root differs")
+        require(protocol["data"]["manifest"]["sha256"] == manifest_sha,
+                "Prepared protocol manifest pin differs")
+        require(protocol["data"]["seals"]["train_alignment_payload"] == training_sha,
+                "Prepared alignment seal differs")
+        counts = protocol["data"]["counts"]
+        require(counts["train_examples"] == config["prepared"]["training_examples"]
+                and counts["train_answers"] == config["prepared"]["answer_examples"]
+                and counts["train_captions"] == config["prepared"]["caption_examples"],
+                "Prepared training counts differ")
+        require(manifest["counts"] == counts, "Prepared manifest counts differ")
+        fit = protocol["fit_contract"]
+        prompt_contract = config["prompt_contract"]
+        require(fit["question_template"] == prompt_contract["question_template"]
+                == protocol["evaluation"]["question_template"],
+                "The question template pins differ")
+        require(fit["caption_template"] == prompt_contract["caption_template"],
+                "The caption template pins differ")
+        require(fit["loss"] == prompt_contract["loss"]
+                and fit["response_only_labels"] is True,
+                "The prepared fit loss/label contract differs")
+        require(int(protocol["train"]["init_seed"])
+                == int(config["stages"][0]["init_seed"]),
+                "The fresh init seed differs from the prepared protocol")
+        limits = config["limits"]
+        for name in ("max_prompt_tokens", "max_sequence_tokens",
+                     "max_new_tokens", "caption_max_new_tokens"):
+            require(int(protocol["limits"][name]) == int(limits[name]),
+                    f"The declared {name} differs from the prepared protocol")
+        resource = protocol["resource_policy"]
+        require(resource["device"] == config["policy"]["device"] == "mps",
+                "The declared device differs")
+        require(resource["cpu_fallback"] is False
+                and resource["downloads"] == 0
+                and resource["workers"] == 1,
+                "The prepared resource policy allows fallback, downloads or workers")
+        require(resource["exclusive_mps_worker"] is True,
+                "The prepared resource policy lacks the exclusive MPS worker")
+    
+        lock_path = root / config["source"]["model_lock"]
+        require(lock_path.is_file(), "The model lock is missing")
+        lock_sha = _sha(lock_path)
+        require(lock_sha == config["source"]["model_lock_sha256"],
+                "Model lock bytes differ from the diagnostic pin")
+        lock = _read_json(lock_path)
+        require(lock["revision"] == config["source"]["model_revision"],
+                "Model lock revision differs")
+        require(protocol["model"]["revision"] == config["source"]["model_revision"],
+                "Prepared protocol model revision differs")
+        require(protocol["model"]["lock_sha256"] == lock_sha,
+                "Prepared protocol model lock pin differs")
+        model_path = root / config["source"]["model_path"]
+        require(model_path.is_dir(), "The sealed model path is missing")
+        require(_sha(model_path / "config.json") == lock["config_sha256"],
+                "Local model config differs from the lock")
+        require(bool(list(model_path.glob("*.safetensors"))),
+                "The sealed model snapshot has no safetensors weights")
+        vision_manifest = root / config["source"]["vision_source_manifest"]
+        require(vision_manifest.is_file(), "The vision source manifest is missing")
+        vision_manifest_sha = _sha(vision_manifest)
+        require(vision_manifest_sha == config["source"]["vision_source_manifest_sha256"],
+                "Vision source manifest bytes differ from the diagnostic pin")
+        require(protocol["vision_source"]["manifest"]["sha256"] == vision_manifest_sha,
+                "Prepared protocol vision manifest pin differs")
+    
+        extension_path = root / config["extension"]["path"]
+        weights_path = extension_path / "extensions.safetensors"
+        receipt_path = extension_path / "manifest.json"
+        require(weights_path.is_file() and receipt_path.is_file(),
+                "The pinned train04 extension is incomplete")
+        receipt_sha = _sha(receipt_path)
+        require(receipt_sha == config["extension"]["manifest_sha256"],
+                "Extension receipt bytes differ from the diagnostic pin")
+        weights_sha = _sha(weights_path)
+        require(weights_sha == config["extension"]["weights_sha256"],
+                "Extension weights differ from the diagnostic pin")
+        require(weights_path.stat().st_size == config["extension"]["weights_bytes"],
+                "Extension weight bytes differ from the diagnostic pin")
+        receipt = _read_json(receipt_path)
+        require(receipt["format"] == config["extension"]["format"],
+                "Extension format differs")
+        require(receipt["regime"] == config["extension"]["regime"],
+                "Extension regime differs")
+        require(receipt["base_saved"] is False,
+                "The pinned extension saved base weights")
+        require(receipt["weights_sha256"] == weights_sha,
+                "Extension receipt weight hash differs")
+        require(receipt["manifest_digest"] == config["extension"]["manifest_digest"],
+                "Extension manifest digest differs")
+        require(receipt["manifest"]["vision"] == protocol["vision"],
+                "Extension vision pins differ from the prepared protocol")
+        require(receipt["manifest"]["source_revision"]
+                == config["source"]["model_revision"],
+                "Extension source revision differs")
+    
+        migration_config = config["implementation_pins"]
+        migrations = dict(migration_config["migrations"])
+        prepared_pins = dict(protocol.get("implementation_sha256") or {})
+        require(migration_config["prepared_protocol_pins_checked"] is True
+                and migration_config["mode"] == "explicit_read_only_migration",
+                "The diagnostic must declare explicit read-only implementation migrations")
+        require(prepared_pins, "The prepared protocol lacks implementation pins")
+        require(set(migrations) &lt;= set(prepared_pins),
+                "Implementation migration names an unpinned file")
+        unchanged = {"implementation_sha256": {
+            relative: expected for relative, expected in prepared_pins.items()
+            if relative not in migrations}}
+        actual = verify_implementation_pins(unchanged, root)
+        for relative, migration in migrations.items():
+            require(isinstance(migration, dict)
+                    and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                    f"Implementation migration is malformed: {relative}")
+            expected = prepared_pins[relative]
+            require(migration["parent_sha256"] == expected,
+                    f"Implementation migration parent differs: {relative}")
+            current = migration["current_sha256"]
+            require(isinstance(current, str) and len(current) == 64
+                    and all(character in "0123456789abcdef" for character in current)
+                    and current != expected,
+                    f"Implementation migration current pin is invalid: {relative}")
+            require(isinstance(migration["reason"], str)
+                    and bool(migration["reason"].strip()),
+                    f"Implementation migration lacks a reason: {relative}")
+            try:
+                migrated_actual = verify_implementation_pins(
+                    {"implementation_sha256": {relative: current}}, root)
+            except VisionCurriculumError as error:
+&gt;               raise DiagnosticError(
+                    f"Migrated implementation bytes differ: {relative}") from error
+E               replica_lab.vision_collapse_diagnostic.DiagnosticError: Migrated implementation bytes differ: src/replica_lab/architecture/contracts.py
+
+scripts/run_vision_collapse_diagnostic.py:292: DiagnosticError</failure></testcase><testcase classname="tests.test_vision_collapse_diagnostic" name="test_config_and_static_pins_verify_without_a_model" time="0.042"><failure message="replica_lab.vision_collapse_diagnostic.DiagnosticError: Migrated implementation bytes differ: src/replica_lab/architecture/contracts.py">config = {'format': 'replica.vision_collapse_diagnostic_config.v1', 'version': 'replica.vision_collapse_diagnostic.v1', 'name': 'vision_collapse_diagnostic_v1', 'declared_at_utc': '2026-10-26T00:00:00+00:00', ...}
+root = PosixPath('/Users/flare/replica_r3_starter')
+
+    def verify_pins(config, root=ROOT):
+        """Verify prepared, source, lock and extension bytes without loading a model."""
+        root = Path(root)
+        prepared = root / config["prepared"]["root"]
+        require(prepared.is_dir(), "The prepared data root is missing")
+        protocol_path = root / config["prepared"]["protocol"]
+        manifest_path = root / config["prepared"]["manifest"]
+        training_path = root / config["prepared"]["training"]
+        for path, label in ((protocol_path, "prepared protocol"),
+                            (manifest_path, "prepared manifest"),
+                            (training_path, "training alignment")):
+            require(path.is_file(), f"The {label} is missing: {path}")
+        protocol_sha = _sha(protocol_path)
+        require(protocol_sha == config["prepared"]["protocol_sha256"],
+                "Prepared protocol bytes differ from the diagnostic pin")
+        manifest_sha = _sha(manifest_path)
+        require(manifest_sha == config["prepared"]["manifest_sha256"],
+                "Prepared manifest bytes differ from the diagnostic pin")
+        training_sha = _sha(training_path)
+        require(training_sha == config["prepared"]["training_sha256"],
+                "Training alignment bytes differ from the diagnostic pin")
+        protocol = _read_json(protocol_path)
+        manifest = _read_json(manifest_path)
+        require(protocol["data"]["root"] == config["prepared"]["root"],
+                "Prepared protocol data root differs")
+        require(protocol["data"]["manifest"]["sha256"] == manifest_sha,
+                "Prepared protocol manifest pin differs")
+        require(protocol["data"]["seals"]["train_alignment_payload"] == training_sha,
+                "Prepared alignment seal differs")
+        counts = protocol["data"]["counts"]
+        require(counts["train_examples"] == config["prepared"]["training_examples"]
+                and counts["train_answers"] == config["prepared"]["answer_examples"]
+                and counts["train_captions"] == config["prepared"]["caption_examples"],
+                "Prepared training counts differ")
+        require(manifest["counts"] == counts, "Prepared manifest counts differ")
+        fit = protocol["fit_contract"]
+        prompt_contract = config["prompt_contract"]
+        require(fit["question_template"] == prompt_contract["question_template"]
+                == protocol["evaluation"]["question_template"],
+                "The question template pins differ")
+        require(fit["caption_template"] == prompt_contract["caption_template"],
+                "The caption template pins differ")
+        require(fit["loss"] == prompt_contract["loss"]
+                and fit["response_only_labels"] is True,
+                "The prepared fit loss/label contract differs")
+        require(int(protocol["train"]["init_seed"])
+                == int(config["stages"][0]["init_seed"]),
+                "The fresh init seed differs from the prepared protocol")
+        limits = config["limits"]
+        for name in ("max_prompt_tokens", "max_sequence_tokens",
+                     "max_new_tokens", "caption_max_new_tokens"):
+            require(int(protocol["limits"][name]) == int(limits[name]),
+                    f"The declared {name} differs from the prepared protocol")
+        resource = protocol["resource_policy"]
+        require(resource["device"] == config["policy"]["device"] == "mps",
+                "The declared device differs")
+        require(resource["cpu_fallback"] is False
+                and resource["downloads"] == 0
+                and resource["workers"] == 1,
+                "The prepared resource policy allows fallback, downloads or workers")
+        require(resource["exclusive_mps_worker"] is True,
+                "The prepared resource policy lacks the exclusive MPS worker")
+    
+        lock_path = root / config["source"]["model_lock"]
+        require(lock_path.is_file(), "The model lock is missing")
+        lock_sha = _sha(lock_path)
+        require(lock_sha == config["source"]["model_lock_sha256"],
+                "Model lock bytes differ from the diagnostic pin")
+        lock = _read_json(lock_path)
+        require(lock["revision"] == config["source"]["model_revision"],
+                "Model lock revision differs")
+        require(protocol["model"]["revision"] == config["source"]["model_revision"],
+                "Prepared protocol model revision differs")
+        require(protocol["model"]["lock_sha256"] == lock_sha,
+                "Prepared protocol model lock pin differs")
+        model_path = root / config["source"]["model_path"]
+        require(model_path.is_dir(), "The sealed model path is missing")
+        require(_sha(model_path / "config.json") == lock["config_sha256"],
+                "Local model config differs from the lock")
+        require(bool(list(model_path.glob("*.safetensors"))),
+                "The sealed model snapshot has no safetensors weights")
+        vision_manifest = root / config["source"]["vision_source_manifest"]
+        require(vision_manifest.is_file(), "The vision source manifest is missing")
+        vision_manifest_sha = _sha(vision_manifest)
+        require(vision_manifest_sha == config["source"]["vision_source_manifest_sha256"],
+                "Vision source manifest bytes differ from the diagnostic pin")
+        require(protocol["vision_source"]["manifest"]["sha256"] == vision_manifest_sha,
+                "Prepared protocol vision manifest pin differs")
+    
+        extension_path = root / config["extension"]["path"]
+        weights_path = extension_path / "extensions.safetensors"
+        receipt_path = extension_path / "manifest.json"
+        require(weights_path.is_file() and receipt_path.is_file(),
+                "The pinned train04 extension is incomplete")
+        receipt_sha = _sha(receipt_path)
+        require(receipt_sha == config["extension"]["manifest_sha256"],
+                "Extension receipt bytes differ from the diagnostic pin")
+        weights_sha = _sha(weights_path)
+        require(weights_sha == config["extension"]["weights_sha256"],
+                "Extension weights differ from the diagnostic pin")
+        require(weights_path.stat().st_size == config["extension"]["weights_bytes"],
+                "Extension weight bytes differ from the diagnostic pin")
+        receipt = _read_json(receipt_path)
+        require(receipt["format"] == config["extension"]["format"],
+                "Extension format differs")
+        require(receipt["regime"] == config["extension"]["regime"],
+                "Extension regime differs")
+        require(receipt["base_saved"] is False,
+                "The pinned extension saved base weights")
+        require(receipt["weights_sha256"] == weights_sha,
+                "Extension receipt weight hash differs")
+        require(receipt["manifest_digest"] == config["extension"]["manifest_digest"],
+                "Extension manifest digest differs")
+        require(receipt["manifest"]["vision"] == protocol["vision"],
+                "Extension vision pins differ from the prepared protocol")
+        require(receipt["manifest"]["source_revision"]
+                == config["source"]["model_revision"],
+                "Extension source revision differs")
+    
+        migration_config = config["implementation_pins"]
+        migrations = dict(migration_config["migrations"])
+        prepared_pins = dict(protocol.get("implementation_sha256") or {})
+        require(migration_config["prepared_protocol_pins_checked"] is True
+                and migration_config["mode"] == "explicit_read_only_migration",
+                "The diagnostic must declare explicit read-only implementation migrations")
+        require(prepared_pins, "The prepared protocol lacks implementation pins")
+        require(set(migrations) &lt;= set(prepared_pins),
+                "Implementation migration names an unpinned file")
+        unchanged = {"implementation_sha256": {
+            relative: expected for relative, expected in prepared_pins.items()
+            if relative not in migrations}}
+        actual = verify_implementation_pins(unchanged, root)
+        for relative, migration in migrations.items():
+            require(isinstance(migration, dict)
+                    and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                    f"Implementation migration is malformed: {relative}")
+            expected = prepared_pins[relative]
+            require(migration["parent_sha256"] == expected,
+                    f"Implementation migration parent differs: {relative}")
+            current = migration["current_sha256"]
+            require(isinstance(current, str) and len(current) == 64
+                    and all(character in "0123456789abcdef" for character in current)
+                    and current != expected,
+                    f"Implementation migration current pin is invalid: {relative}")
+            require(isinstance(migration["reason"], str)
+                    and bool(migration["reason"].strip()),
+                    f"Implementation migration lacks a reason: {relative}")
+            try:
+&gt;               migrated_actual = verify_implementation_pins(
+                    {"implementation_sha256": {relative: current}}, root)
+
+scripts/run_vision_collapse_diagnostic.py:289: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/vision_curriculum.py:3426: in verify_implementation_pins
+    _require(actual[relative] == expected,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False
+message = 'Implementation bytes changed: src/replica_lab/architecture/contracts.py'
+
+    def _require(condition: bool, message: str) -&gt; None:
+        if not condition:
+&gt;           raise VisionCurriculumError(message)
+E           replica_lab.vision_curriculum.VisionCurriculumError: Implementation bytes changed: src/replica_lab/architecture/contracts.py
+
+src/replica_lab/vision_curriculum.py:207: VisionCurriculumError
+
+The above exception was the direct cause of the following exception:
+
+    @require_local_artifacts(
+        "checkpoints/minicpm5_source",
+        "checkpoints/siglip2_base_patch16_224_source",
+        "data/vision_balanced_alignment_v2_20261026/prepared04",
+        "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+    )
+    def test_config_and_static_pins_verify_without_a_model():
+        module = _runner_module()
+        config = module.load_config(CONFIG)
+        assert config["limits"]["updates"] == 0
+        assert config["policy"]["sealed_evaluation_access"] == 0
+&gt;       pins = module.verify_pins(config)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_collapse_diagnostic.py:618: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'format': 'replica.vision_collapse_diagnostic_config.v1', 'version': 'replica.vision_collapse_diagnostic.v1', 'name': 'vision_collapse_diagnostic_v1', 'declared_at_utc': '2026-10-26T00:00:00+00:00', ...}
+root = PosixPath('/Users/flare/replica_r3_starter')
+
+    def verify_pins(config, root=ROOT):
+        """Verify prepared, source, lock and extension bytes without loading a model."""
+        root = Path(root)
+        prepared = root / config["prepared"]["root"]
+        require(prepared.is_dir(), "The prepared data root is missing")
+        protocol_path = root / config["prepared"]["protocol"]
+        manifest_path = root / config["prepared"]["manifest"]
+        training_path = root / config["prepared"]["training"]
+        for path, label in ((protocol_path, "prepared protocol"),
+                            (manifest_path, "prepared manifest"),
+                            (training_path, "training alignment")):
+            require(path.is_file(), f"The {label} is missing: {path}")
+        protocol_sha = _sha(protocol_path)
+        require(protocol_sha == config["prepared"]["protocol_sha256"],
+                "Prepared protocol bytes differ from the diagnostic pin")
+        manifest_sha = _sha(manifest_path)
+        require(manifest_sha == config["prepared"]["manifest_sha256"],
+                "Prepared manifest bytes differ from the diagnostic pin")
+        training_sha = _sha(training_path)
+        require(training_sha == config["prepared"]["training_sha256"],
+                "Training alignment bytes differ from the diagnostic pin")
+        protocol = _read_json(protocol_path)
+        manifest = _read_json(manifest_path)
+        require(protocol["data"]["root"] == config["prepared"]["root"],
+                "Prepared protocol data root differs")
+        require(protocol["data"]["manifest"]["sha256"] == manifest_sha,
+                "Prepared protocol manifest pin differs")
+        require(protocol["data"]["seals"]["train_alignment_payload"] == training_sha,
+                "Prepared alignment seal differs")
+        counts = protocol["data"]["counts"]
+        require(counts["train_examples"] == config["prepared"]["training_examples"]
+                and counts["train_answers"] == config["prepared"]["answer_examples"]
+                and counts["train_captions"] == config["prepared"]["caption_examples"],
+                "Prepared training counts differ")
+        require(manifest["counts"] == counts, "Prepared manifest counts differ")
+        fit = protocol["fit_contract"]
+        prompt_contract = config["prompt_contract"]
+        require(fit["question_template"] == prompt_contract["question_template"]
+                == protocol["evaluation"]["question_template"],
+                "The question template pins differ")
+        require(fit["caption_template"] == prompt_contract["caption_template"],
+                "The caption template pins differ")
+        require(fit["loss"] == prompt_contract["loss"]
+                and fit["response_only_labels"] is True,
+                "The prepared fit loss/label contract differs")
+        require(int(protocol["train"]["init_seed"])
+                == int(config["stages"][0]["init_seed"]),
+                "The fresh init seed differs from the prepared protocol")
+        limits = config["limits"]
+        for name in ("max_prompt_tokens", "max_sequence_tokens",
+                     "max_new_tokens", "caption_max_new_tokens"):
+            require(int(protocol["limits"][name]) == int(limits[name]),
+                    f"The declared {name} differs from the prepared protocol")
+        resource = protocol["resource_policy"]
+        require(resource["device"] == config["policy"]["device"] == "mps",
+                "The declared device differs")
+        require(resource["cpu_fallback"] is False
+                and resource["downloads"] == 0
+                and resource["workers"] == 1,
+                "The prepared resource policy allows fallback, downloads or workers")
+        require(resource["exclusive_mps_worker"] is True,
+                "The prepared resource policy lacks the exclusive MPS worker")
+    
+        lock_path = root / config["source"]["model_lock"]
+        require(lock_path.is_file(), "The model lock is missing")
+        lock_sha = _sha(lock_path)
+        require(lock_sha == config["source"]["model_lock_sha256"],
+                "Model lock bytes differ from the diagnostic pin")
+        lock = _read_json(lock_path)
+        require(lock["revision"] == config["source"]["model_revision"],
+                "Model lock revision differs")
+        require(protocol["model"]["revision"] == config["source"]["model_revision"],
+                "Prepared protocol model revision differs")
+        require(protocol["model"]["lock_sha256"] == lock_sha,
+                "Prepared protocol model lock pin differs")
+        model_path = root / config["source"]["model_path"]
+        require(model_path.is_dir(), "The sealed model path is missing")
+        require(_sha(model_path / "config.json") == lock["config_sha256"],
+                "Local model config differs from the lock")
+        require(bool(list(model_path.glob("*.safetensors"))),
+                "The sealed model snapshot has no safetensors weights")
+        vision_manifest = root / config["source"]["vision_source_manifest"]
+        require(vision_manifest.is_file(), "The vision source manifest is missing")
+        vision_manifest_sha = _sha(vision_manifest)
+        require(vision_manifest_sha == config["source"]["vision_source_manifest_sha256"],
+                "Vision source manifest bytes differ from the diagnostic pin")
+        require(protocol["vision_source"]["manifest"]["sha256"] == vision_manifest_sha,
+                "Prepared protocol vision manifest pin differs")
+    
+        extension_path = root / config["extension"]["path"]
+        weights_path = extension_path / "extensions.safetensors"
+        receipt_path = extension_path / "manifest.json"
+        require(weights_path.is_file() and receipt_path.is_file(),
+                "The pinned train04 extension is incomplete")
+        receipt_sha = _sha(receipt_path)
+        require(receipt_sha == config["extension"]["manifest_sha256"],
+                "Extension receipt bytes differ from the diagnostic pin")
+        weights_sha = _sha(weights_path)
+        require(weights_sha == config["extension"]["weights_sha256"],
+                "Extension weights differ from the diagnostic pin")
+        require(weights_path.stat().st_size == config["extension"]["weights_bytes"],
+                "Extension weight bytes differ from the diagnostic pin")
+        receipt = _read_json(receipt_path)
+        require(receipt["format"] == config["extension"]["format"],
+                "Extension format differs")
+        require(receipt["regime"] == config["extension"]["regime"],
+                "Extension regime differs")
+        require(receipt["base_saved"] is False,
+                "The pinned extension saved base weights")
+        require(receipt["weights_sha256"] == weights_sha,
+                "Extension receipt weight hash differs")
+        require(receipt["manifest_digest"] == config["extension"]["manifest_digest"],
+                "Extension manifest digest differs")
+        require(receipt["manifest"]["vision"] == protocol["vision"],
+                "Extension vision pins differ from the prepared protocol")
+        require(receipt["manifest"]["source_revision"]
+                == config["source"]["model_revision"],
+                "Extension source revision differs")
+    
+        migration_config = config["implementation_pins"]
+        migrations = dict(migration_config["migrations"])
+        prepared_pins = dict(protocol.get("implementation_sha256") or {})
+        require(migration_config["prepared_protocol_pins_checked"] is True
+                and migration_config["mode"] == "explicit_read_only_migration",
+                "The diagnostic must declare explicit read-only implementation migrations")
+        require(prepared_pins, "The prepared protocol lacks implementation pins")
+        require(set(migrations) &lt;= set(prepared_pins),
+                "Implementation migration names an unpinned file")
+        unchanged = {"implementation_sha256": {
+            relative: expected for relative, expected in prepared_pins.items()
+            if relative not in migrations}}
+        actual = verify_implementation_pins(unchanged, root)
+        for relative, migration in migrations.items():
+            require(isinstance(migration, dict)
+                    and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                    f"Implementation migration is malformed: {relative}")
+            expected = prepared_pins[relative]
+            require(migration["parent_sha256"] == expected,
+                    f"Implementation migration parent differs: {relative}")
+            current = migration["current_sha256"]
+            require(isinstance(current, str) and len(current) == 64
+                    and all(character in "0123456789abcdef" for character in current)
+                    and current != expected,
+                    f"Implementation migration current pin is invalid: {relative}")
+            require(isinstance(migration["reason"], str)
+                    and bool(migration["reason"].strip()),
+                    f"Implementation migration lacks a reason: {relative}")
+            try:
+                migrated_actual = verify_implementation_pins(
+                    {"implementation_sha256": {relative: current}}, root)
+            except VisionCurriculumError as error:
+&gt;               raise DiagnosticError(
+                    f"Migrated implementation bytes differ: {relative}") from error
+E               replica_lab.vision_collapse_diagnostic.DiagnosticError: Migrated implementation bytes differ: src/replica_lab/architecture/contracts.py
+
+scripts/run_vision_collapse_diagnostic.py:292: DiagnosticError</failure></testcase><testcase classname="tests.test_vision_learnability_diagnostic" name="test_static_pins_verify_and_historical_ablation_refuses_drift" time="0.078"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'New implementation bytes differ'&#10;  Actual message: 'Migrated implementation bytes differ: src/replica_lab/architecture/contracts.py'">@require_local_artifacts(
+        "checkpoints/minicpm5_source",
+        "checkpoints/siglip2_base_patch16_224_source",
+        "data/vision_balanced_alignment_v2_20261026/prepared04",
+        "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+        "runs/vision_collapse_diagnostic_v1_20261026_attempt02",
+        "runs/vision_mean_only_ablation_v1_20261026_attempt09",
+    )
+    def test_static_pins_verify_and_historical_ablation_refuses_drift():
+        module = _runner_module()
+        ablation = learn.load_config(ABLATION_CONFIG)
+        gradient = learn.load_config(GRADIENT_CONFIG)
+        receipt = json.loads(ABLATION_RECEIPT.read_text())
+        runner = "scripts/run_vision_learnability_diagnostic.py"
+        historical_pin = receipt["pins"]["implementation"]["new_files"][runner]
+        assert ablation["implementation_pins"]["new_files"][runner] == (
+            historical_pin["pinned_sha256"])
+        assert module._sha(ABLATION_CONFIG) == receipt["config_sha256"]
+        assert gradient["precondition"]["config_sha256"] == receipt["config_sha256"]
+&gt;       with pytest.raises(learn.LearnabilityDiagnosticError,
+                           match="New implementation bytes differ"):
+E                          AssertionError: Regex pattern did not match.
+E                            Expected regex: 'New implementation bytes differ'
+E                            Actual message: 'Migrated implementation bytes differ: src/replica_lab/architecture/contracts.py'
+
+tests/test_vision_learnability_diagnostic.py:945: AssertionError</failure></testcase><testcase classname="tests.test_vision_learnability_diagnostic" name="test_new_file_pin_drift_is_rejected" time="0.056"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'New implementation bytes differ'&#10;  Actual message: 'Migrated implementation bytes differ: src/replica_lab/architecture/contracts.py'">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1334/test_new_file_pin_drift_is_rej0')
+
+    @require_local_artifacts(
+        "checkpoints/minicpm5_source",
+        "checkpoints/siglip2_base_patch16_224_source",
+        "data/vision_balanced_alignment_v2_20261026/prepared04",
+        "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+        "runs/vision_collapse_diagnostic_v1_20261026_attempt02",
+    )
+    def test_new_file_pin_drift_is_rejected(tmp_path):
+        module = _runner_module()
+        config = learn.load_config(ABLATION_CONFIG)
+        config["implementation_pins"]["new_files"][
+            "src/replica_lab/vision_learnability_diagnostic.py"] = "0" * 64
+&gt;       with pytest.raises(learn.LearnabilityDiagnosticError,
+                           match="New implementation bytes differ"):
+E                          AssertionError: Regex pattern did not match.
+E                            Expected regex: 'New implementation bytes differ'
+E                            Actual message: 'Migrated implementation bytes differ: src/replica_lab/architecture/contracts.py'
+
+tests/test_vision_learnability_diagnostic.py:967: AssertionError</failure></testcase></testsuite></testsuites>
