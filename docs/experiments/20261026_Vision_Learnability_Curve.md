@@ -1,6 +1,7 @@
 # Vision learning curve protocol — training-only 0/1/2/4/7
 
-**Status: predeclared at `f67b4ed`; native execution has not started.** This is a
+**Status: predeclared at `f67b4ed`; amended at `26b353c` and `2f0d0d9`.
+Attempts 01–03 failed before a complete curve; attempt 04 is pending.** This is a
 bounded first-order training diagnostic, not a source-disjoint fine-tuning
 pilot, generalization test, V0 run or capability claim. Development, held-out
 and semantic-audit data remain sealed.
@@ -61,14 +62,36 @@ available and six unavailable sibling placeholders. It uses one greedy
 hypothesis per cell, prefill analysis, and the same teacher-forced loss path for
 answers and captions. Answer loss targets `row.response`; caption loss targets
 the sealed caption answer. Per-prefix answer/caption scores use the unchanged
-`score_train_fit` implementation. Prefix-7 endpoint gates are reported only as
-context and never as the curve decision.
+`score_train_fit` implementation. Prefix-7 endpoint gates are reported only as endpoint context and never as the curve decision.
+
 
 No intermediate checkpoint is needed or allowed. Scoring is forward-only on the
 live in-memory projector. Each prefix digest must change across prefixes and
 remain unchanged during its readout; optimizer steps/state and the sealed base
 stamp must not change during scoring. `adapter.train()` is restored after every
 readout. All per-prefix artifacts are written before the fixed-point report.
+## Execution amendments before attempt 04
+
+Three unsuccessful attempts are preserved. Attempt 01 used the baseline
+interpreter and failed before updates because Pillow was absent. Attempt 02
+used the existing `.venv-vision` overlay and reached prefix 0 but failed on a
+missing `curriculum` import alias. Attempt 03 completed one update and one
+readout, then stopped after 443.7 seconds when 13 early generated cells decoded
+to empty text under the historical nonempty-text hypothesis rule. All three
+had zero observed swap growth and no resource stop; none produced a complete
+curve.
+
+The `26b353c` change imports the projector digest helper directly and adds a
+behavioral regression test. The `2f0d0d9` amendment adds the explicit
+`empty_text_policy=score_as_wrong_and_record`: empty decoded responses remain
+in the raw trajectory and count as incorrect, while empty IDs, stop errors and
+prefill mismatches remain engineering failures. This changes no model weights,
+data, threshold, endpoint gate or T1/T2/T3 decision rule. The curve suite now
+passes **37 tests**.
+
+Attempt 04 uses the overlay interpreter and a fresh output directory. The
+original predeclaration and all failed artifacts remain preserved.
+
 
 ## Decision contract
 
@@ -114,15 +137,15 @@ authorizes V0, development, held-out evaluation, promotion or automatic retry.
 The declared native command is:
 
 ```bash
-.venv/bin/python scripts/run_capacity_preflight.py \
+.venv-vision/bin/python scripts/run_capacity_preflight.py \
   --entry-point run_vision_learnability_curve.py \
-  --report reports/vision_learnability_curve_v1_20261026/guard.json -- \
+  --report reports/vision_learnability_curve_v1_20261026_attempt04/guard.json -- \
   --config configs/vision_learnability_curve_v1.json \
-  --output runs/vision_learnability_curve_v1_20261026 \
+  --output runs/vision_learnability_curve_v1_20261026_attempt04 \
   --device mps --model-path checkpoints/minicpm5_source \
   --model-lock configs/minicpm5_sealed_lock.local.json
 ```
 
-The CPU contract suite passes **35 tests**. It covers config and pin drift,
+The CPU contract suite passes **37 tests**. It covers config and pin drift,
 readout invariants, all T3 clauses, every decision status and the unchanged
 historical gradient failure behavior.
