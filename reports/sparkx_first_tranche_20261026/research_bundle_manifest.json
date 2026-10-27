@@ -2,10 +2,10 @@
   "format": "replica.sparkx_research_bundle.v1",
   "kind": "hashed_manifest_not_an_asset_copy",
   "generator": "scripts/prepare_sparkx_research_bundle.py",
-  "root_policy": "all paths are repository-relative; no absolute path, home directory or temporary directory is recorded",
-  "input_count": 89,
-  "total_input_bytes": 3958181,
-  "bundle_digest": "ef2e961cb79ac8b6cc47ec13c723509c93ddc854e3fd1d9c9f3eea32f3031f79",
+  "root_policy": "manifest entry paths are repository-relative; historical receipt contents may quote the origin workspace and are not rewritten",
+  "input_count": 117,
+  "total_input_bytes": 5217870,
+  "bundle_digest": "8f4e37762448517744018788e7968148614c74704c840fc61c334c3f8b3f07d2",
   "clean_checkout_ready": true,
   "untracked_inputs": [],
   "unstaged_modified_inputs": [],
@@ -32,6 +32,30 @@
       "role": "predeclared bounded public-domain/CC0 real-image acquisition protocol",
       "bytes": 17044,
       "sha256": "e18ce054aeaa9a9bdfa3d3a2cd0c13971927c71465bfb959a1236f82ae2e6714",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "configs/spark_qualification_v1.json",
+      "role": "frozen source, stage, resource and storage pins for Spark2_5 qualification",
+      "bytes": 12406,
+      "sha256": "702fa07d01e9fba64d2ef84d55e590c8fa278b12b9fecde795630533176ca8fd",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "configs/spark_weight_acquisition_v1.json",
+      "role": "official snapshot acquisition plan pins and budget",
+      "bytes": 6926,
+      "sha256": "4d7530c349f09763fcd866b308ef87e8c671559490627660816864fb50195767",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "configs/sparkx_2_6_4b_final_product_v5.json",
+      "role": "v5 final-product declarative profile and inventory reconciliation",
+      "bytes": 13370,
+      "sha256": "17365a89bbe907a448996610115149c2768150420314d6256fe852b9c346f154",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -86,8 +110,8 @@
     {
       "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
       "role": "declared encoder counts, revisions, projectors and memory-module scope",
-      "bytes": 64225,
-      "sha256": "a0285330d1157ecaabc7fd762112737fc7d9776170a06ef2fc37f3ffc00633b1",
+      "bytes": 64614,
+      "sha256": "9ec5c8d0c2245456b94782c78c5110a297d9b9ac019d23b10ed6b62c9e4ed741",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -100,10 +124,18 @@
       "worktree_matches_index": true
     },
     {
+      "path": "docs/architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md",
+      "role": "v5 final-product blueprint and Spark precision identity",
+      "bytes": 107914,
+      "sha256": "bd22e18c990d942dbc0c40a671ce80c8bee5435a179f8938cea4db533518c9d1",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
       "path": "docs/architecture/README.md",
       "role": "architecture reading order and revision 4.5 entry point",
-      "bytes": 8979,
-      "sha256": "c7b322e417412d88f5d4ef5712d859eea6f13c66cee2814c504e9982b909edb4",
+      "bytes": 9632,
+      "sha256": "d64ea6e70089dd977506ce7e7d3bcd6c3198dfa53824a91f228c98aa8dab2a4e",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -158,16 +190,24 @@
     {
       "path": "docs/experiments/20261026_Spark_Dataset_Preparation.md",
       "role": "dataset preparation, provisioning and tranche documentation",
-      "bytes": 16518,
-      "sha256": "c0bf1b2dca1697eb038890611772dc632c85934fa5aa0dc28019b208e7c55cc7",
+      "bytes": 16484,
+      "sha256": "2863a34e236bbbf2b40af76c762116e10f294cde4e7518f2f4db3239e9992503",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "docs/experiments/20261026_Spark_Precision_and_Provisioning.md",
+      "role": "three precision identities, frozen-base admission, storage ledger and H200 provisioning boundary",
+      "bytes": 16944,
+      "sha256": "ba599d668e9928d5a04be38574b14ab4ef1101c0a01b23b304172cb60e720443",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
     {
       "path": "docs/experiments/20261026_Spark_Residency_Reconciliation.md",
       "role": "residency reconciliation note: 18-byte formula, dtype inventory and gates",
-      "bytes": 23569,
-      "sha256": "0785bc0a4a760274f3be0da0427c864914719938b0e388b1b77e0f4190ee1a06",
+      "bytes": 26082,
+      "sha256": "62be40d71bf684c3233664212677300328a9253d5fbc76934ba33a47b47f00c3",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -364,6 +404,22 @@
       "worktree_matches_index": true
     },
     {
+      "path": "reports/runs_cleanup_20261026.json",
+      "role": "preserved failed cleanup inspection receipt",
+      "bytes": 674939,
+      "sha256": "ea91fde588960f5a767517c40b27e350297c6d6df3746f750c64f901570fd6b2",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/runs_cleanup_20261026_verified.json",
+      "role": "verified cleanup journal and evidence preservation receipt",
+      "bytes": 2802,
+      "sha256": "42cdea5311fbaf486f85c14128229d01506ffd9a7967caf644cff60bf15ada01",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
       "path": "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json",
       "role": "sealed BF16 source tensor index used for the backbone parameter inventory",
       "bytes": 77950,
@@ -376,6 +432,46 @@
       "role": "sealed mixed-dtype FP8 adaptation tensor index (source storage only)",
       "bytes": 118721,
       "sha256": "ca2757aadaa1c9eb8cfa296b0651b4612004d0d063279bcb435d89b5d1f4ac9f",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/spark_qualification_20261025/backend_audit.json",
+      "role": "MPS native-FP8 refusal evidence and blocked stage ledger",
+      "bytes": 2919,
+      "sha256": "bb4507c4510f254145adebaf76e2ce9c8f147d2d8b2094aa7bb4d884d79ac799",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/spark_qualification_20261026/comparison.json",
+      "role": "paired BF16/derivative smoke comparison receipt (no capability claim)",
+      "bytes": 4336,
+      "sha256": "c2019734fdd1e85a40c158d6e74cdf701f6417b9e284dee1011de8ef44b52d11",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/spark_qualification_20261026/selected_runs.json",
+      "role": "portable selected-run digest receipt for the official BF16 and dequantized FP8 qualifications",
+      "bytes": 19685,
+      "sha256": "65a6b5c175ef3629246612b9686af2d872f2f91dc74cc3cd54316688fd4e2ece",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/spark_qualification_20261026/summary.json",
+      "role": "Spark2_5 qualification summary: stages, resources, storage and preserved failures",
+      "bytes": 4588,
+      "sha256": "bdea5cf6ba98c61c6f19110efe14fc2ce21bf0948b2eef318ed7a11ad27faa92",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/spark_weight_acquisition_20261026/receipt_01.json",
+      "role": "official BF16 and FP8 weight-acquisition and offline re-verification receipt",
+      "bytes": 3200,
+      "sha256": "56254c3349dae19c25bb4ed9e8bed6fdd4747a0dd55ba35450dfdc6d8fbddae4",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -440,6 +536,94 @@
       "role": "metadata-only validation report",
       "bytes": 17248,
       "sha256": "e6b4a1929b9aaea4a313c5f71d3eac73013e0da7c983489eaa4fc746cf95bbb1",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/sparkx_final_product_20261026/README.md",
+      "role": "v5 consolidation guide and repository evidence scope",
+      "bytes": 8556,
+      "sha256": "3b25592de35f612358a80066bc93d48f2739b200049f2bdbfead71c937024e28",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/sparkx_final_product_20261026/analytical_costs.json",
+      "role": "v5 analytical payload and compute ledger",
+      "bytes": 3663,
+      "sha256": "74646a3e064f818d1076c637bef6a914ec60184140c4d8989f1b0e1cd7d7f5b1",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/sparkx_final_product_20261026/architecture_index_before.txt",
+      "role": "pre-edit architecture index text snapshot",
+      "bytes": 8979,
+      "sha256": "c7b322e417412d88f5d4ef5712d859eea6f13c66cee2814c504e9982b909edb4",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/sparkx_final_product_20261026/architecture_v4_5_before.txt",
+      "role": "pre-edit architecture text snapshot",
+      "bytes": 64225,
+      "sha256": "a0285330d1157ecaabc7fd762112737fc7d9776170a06ef2fc37f3ffc00633b1",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/sparkx_final_product_20261026/calculate_costs.py",
+      "role": "v5 deterministic analytical cost calculator",
+      "bytes": 7438,
+      "sha256": "62341531de9f94e39e288940b846b95efeb868e291b238bce024b323eaf2883f",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/sparkx_final_product_20261026/evidence.json",
+      "role": "v5 source and method evidence bindings",
+      "bytes": 26293,
+      "sha256": "59a5cadcfe12d91093e96131f12cd38758b531b6110b18a0ac6c6538da688c7e",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/sparkx_final_product_20261026/repository_snapshot.json",
+      "role": "historical 40-input snapshot and worktree drift record",
+      "bytes": 16709,
+      "sha256": "1f4f4fb8d3e042f5b396dc906226e75939884eeb4e360d6fa3e151f09aef4e40",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/sparkx_final_product_20261026/requirements_traceability.json",
+      "role": "v5 requirement-to-evidence traceability map",
+      "bytes": 4920,
+      "sha256": "15d268f5475206a200b42c642c4c07f8af41290f43f535bc0da8de99b8244e3b",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/sparkx_final_product_20261026/state_contract_before.txt",
+      "role": "pre-edit state contract text snapshot",
+      "bytes": 40058,
+      "sha256": "b68d0c9fef40902b27c4b813d86ca126a57762bb33c6f1f31ee0cb78fb5b89d1",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/sparkx_final_product_20261026/verification.json",
+      "role": "v5 documentation and arithmetic verification receipt",
+      "bytes": 24775,
+      "sha256": "677acbffd8626d18c718d173a70bd5f88d81b1f81e20d6233376f7bb24147003",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/sparkx_final_product_20261026/verify.py",
+      "role": "v5 documentation and arithmetic verifier",
+      "bytes": 10049,
+      "sha256": "94235d95bc841afd45efd21014e82d140af0c9ecc5ad92d6bca4a269cee336ba",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -655,7 +839,7 @@
       "path": "reports/sparkx_residency_20261026/residency_v2.json",
       "role": "current analytical residency receipt (v2)",
       "bytes": 23998,
-      "sha256": "5c406623eb26b6ae1c60189edc57e19b2fc2d8f4d4228b3b095d4b04454c7f2a",
+      "sha256": "0d3c4dc574a9dddab9593663970fb49b85bd6d135a81a275bbaf92891b78c644",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -664,6 +848,14 @@
       "role": "preserved prose-derived residency v2 legacy receipt",
       "bytes": 22251,
       "sha256": "38a379eaaa18592c886c543246cfe0c5d1e469d21e3a92acc31d26d703f0363b",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "scripts/dequantize_spark_fp8.py",
+      "role": "offline FP8 validator and single dequantized BF16 derivative writer",
+      "bytes": 24446,
+      "sha256": "215c9c49b6557be2589d7decdba98ec42719d858585b85b2342045e3a10df488",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -686,8 +878,8 @@
     {
       "path": "scripts/prepare_sparkx_research_bundle.py",
       "role": "bundle manifest generator/verifier (this file's hash is pinned separately)",
-      "bytes": 23997,
-      "sha256": "8df0373c12ee89af83f5dca3af2d0bce3125dcc9b8e5d10eebf25b47ca526035",
+      "bytes": 28116,
+      "sha256": "6f03b31b4a51cc6b7980a7cf92193a7d0071b040282a76426f22692747bc7ba1",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -700,10 +892,34 @@
       "worktree_matches_index": true
     },
     {
+      "path": "scripts/qualify_spark2_5.py",
+      "role": "Spark2_5 stage runner and fresh-process reload comparison",
+      "bytes": 60530,
+      "sha256": "b89acf4dc046348606473a987ffabc675f81fc4188075074dccbdeb54bedf4d8",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "src/replica_lab/architecture/spark_adapter.py",
+      "role": "Spark2_5 frozen-base adapter, optimizer audit and extension-only export",
+      "bytes": 38923,
+      "sha256": "919b58b75e58d5c01ff933eb44a6f75e977b139885280ed2597f9023ebb77430",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
       "path": "src/replica_lab/nested_learning.py",
       "role": "NL0 plastic, recurrence, observation and persistence implementation",
-      "bytes": 88109,
-      "sha256": "ce5986e24c4293d3224293a4e9cd48aaf9a044880d13faebc61143f819b79fa7",
+      "bytes": 88590,
+      "sha256": "f4adf4a77b8916b38f89af286444ae97b81397e5dc95f8823d687763afeae713",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "tests/test_dequantize_spark_fp8.py",
+      "role": "synthetic FP8 inventory, scale, dequantization and identity tests",
+      "bytes": 14338,
+      "sha256": "316e097d9a864b187142d373c82618f7d319d8acb471f41c662380092ea7c8d2",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -722,13 +938,22 @@
       "sha256": "79fc3289fa65857498814177702fa70ede888257c3cd31cb0c3dbee362a4665d",
       "tracked_in_git": true,
       "worktree_matches_index": true
+    },
+    {
+      "path": "tests/test_spark2_5_adapter.py",
+      "role": "synthetic adapter, optimizer, export/reload and runner-contract tests",
+      "bytes": 27637,
+      "sha256": "b50994bc0a581912e2e7fe2ba5812a835acf28afcb32ca26161b86f629c1244b",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
     }
   ],
   "not_copied": [
     "checkpoints/** (model weights)",
     "data/** (bulk media, annotations and caches)",
     "runs/** (ignored native run evidence)",
-    "reports/**/*.safetensors"
+    "reports/**/*.safetensors",
+    "**/*.pt (fresh-process reload tensors)"
   ],
   "provisioning": {
     "write_command": "python3 scripts/prepare_sparkx_research_bundle.py --write",

@@ -232,12 +232,23 @@ passes exact A/A and A/B at event 27/final state, but does not qualify the
 
 Spark residency v2 explicitly separates 12-, 14-, 16- and 18-byte plans, the
 mixed FP8/BF16 source inventory and unqualified backend/dequantization gates.
-The calculator and strict receipt check pass. The 32-input research bundle
+The calculator and strict receipt check pass. The 117-input research bundle
 verifies with Git tracking enforced and no network or payload copy. Only six
 owned synthetic protocol fixtures are admitted; external media, rights
 clearance, asset QA and native Spark are not completed.
 See [residency](docs/experiments/20261026_Spark_Residency_Reconciliation.md)
 and [dataset preparation](docs/experiments/20261026_Spark_Dataset_Preparation.md).
+
+### Spark v5 reconciliation — 26 October 2026
+
+The v5 blueprint now distinguishes official BF16, unexecuted native FP8 and the
+separate BF16 dequantized derivative. Official BF16 and derivative reloads have
+zero logit difference and unchanged base; cross-arm logits differ (max 10.875),
+so output equivalence and training capability are not claimed. The final
+product README records 40 inputs and the snapshot's pointer-edit drift. The
+research bundle adds the v5 profile, blueprint, verification/cost artifacts,
+historical snapshots and cleanup receipts. No new model, dataset or native
+Spark job was launched.
 
 ### Verification and next bounded work
 
@@ -247,7 +258,7 @@ and [dataset preparation](docs/experiments/20261026_Spark_Dataset_Preparation.md
 | Visual caption + balanced alignment suites | 27 passed |
 | Training-state + fused continuation suites | 33 passed |
 | Optimizer suite | 25 passed |
-| Spark residency + first-tranche suites | 35 passed |
+| Spark residency + first-tranche suites | 47 passed |
 | Spark residency receipt / strict bundle | both verified |
 | Full repository regression | 2016 passed, 1 skipped, 21 subtests |
 

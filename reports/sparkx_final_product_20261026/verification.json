@@ -1,0 +1,963 @@
+{
+  "kind": "documentation_sources_and_arithmetic_verification_not_model_qualification",
+  "status": "passed",
+  "checks_count": 223,
+  "passed": 223,
+  "failed": [],
+  "unavailable_source_cache": [],
+  "input_changes_since_snapshot": [
+    {
+      "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "reviewed_sha256": "a0285330d1157ecaabc7fd762112737fc7d9776170a06ef2fc37f3ffc00633b1",
+      "current_sha256": "9ec5c8d0c2245456b94782c78c5110a297d9b9ac019d23b10ed6b62c9e4ed741",
+      "planned_index_edit": true
+    },
+    {
+      "path": "docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
+      "reviewed_sha256": "b68d0c9fef40902b27c4b813d86ca126a57762bb33c6f1f31ee0cb78fb5b89d1",
+      "current_sha256": "1e44a99f7b38b335b111462fd603c1d30346ee3a83e3c736332f132831f48c96",
+      "planned_index_edit": false
+    },
+    {
+      "path": "docs/architecture/README.md",
+      "reviewed_sha256": "c7b322e417412d88f5d4ef5712d859eea6f13c66cee2814c504e9982b909edb4",
+      "current_sha256": "d64ea6e70089dd977506ce7e7d3bcd6c3198dfa53824a91f228c98aa8dab2a4e",
+      "planned_index_edit": true
+    },
+    {
+      "path": "reports/sparkx_residency_20261026/residency_v2.json",
+      "reviewed_sha256": "5c406623eb26b6ae1c60189edc57e19b2fc2d8f4d4228b3b095d4b04454c7f2a",
+      "current_sha256": "0d3c4dc574a9dddab9593663970fb49b85bd6d135a81a275bbaf92891b78c644",
+      "planned_index_edit": false
+    },
+    {
+      "path": "docs/experiments/20261026_Spark_Residency_Reconciliation.md",
+      "reviewed_sha256": "cc9bb4da8abc6a49fa234d65bb3a884b20eb051ae62bea63d8076f8a946af370",
+      "current_sha256": "62be40d71bf684c3233664212677300328a9253d5fbc76934ba33a47b47f00c3",
+      "planned_index_edit": false
+    }
+  ],
+  "blueprint_words": 14320,
+  "native_execution": false,
+  "training": false,
+  "checks": [
+    {
+      "name": "arithmetic_receipt_reproduces",
+      "passed": true
+    },
+    {
+      "name": "design_not_runtime_admission",
+      "passed": true
+    },
+    {
+      "name": "no_native_execution",
+      "passed": true
+    },
+    {
+      "name": "offline_full_modalities_required",
+      "passed": true
+    },
+    {
+      "name": "deployment_backbone_frozen",
+      "passed": true
+    },
+    {
+      "name": "optional_spine_separate",
+      "passed": true
+    },
+    {
+      "name": "stable_plus_plastic_count",
+      "passed": true
+    },
+    {
+      "name": "reader_groups_partition_sites",
+      "passed": true
+    },
+    {
+      "name": "record_feature_shape",
+      "passed": true
+    },
+    {
+      "name": "record_packet_bound",
+      "passed": true
+    },
+    {
+      "name": "record_KV_bound",
+      "passed": true
+    },
+    {
+      "name": "plastic_pool_partition",
+      "passed": true
+    },
+    {
+      "name": "slow_clock_exercised_twice",
+      "passed": true
+    },
+    {
+      "name": "two_selected_expert_writes",
+      "passed": true
+    },
+    {
+      "name": "inactive_expert_no_decay",
+      "passed": true
+    },
+    {
+      "name": "no_reader_count_write_multiplier",
+      "passed": true
+    },
+    {
+      "name": "fixed_first_order_inner_rate",
+      "passed": true
+    },
+    {
+      "name": "audio_noncausal_declared",
+      "passed": true
+    },
+    {
+      "name": "new_and_original_mlp_distinguished",
+      "passed": true
+    },
+    {
+      "name": "vocab_stable_identity",
+      "passed": true
+    },
+    {
+      "name": "factorial_complete_unique",
+      "passed": true
+    },
+    {
+      "name": "planning_mixture_sum",
+      "passed": true
+    },
+    {
+      "name": "KV_reference_342_MiB",
+      "passed": true
+    },
+    {
+      "name": "KV_unbounded_control_1_125_GiB",
+      "passed": true
+    },
+    {
+      "name": "AV_reference_640_positions",
+      "passed": true
+    },
+    {
+      "name": "phrase_buffer_1_25_MiB",
+      "passed": true
+    },
+    {
+      "name": "128_MiB_profile_not_fit",
+      "passed": true
+    },
+    {
+      "name": "unchanged_50_GiB_guard",
+      "passed": true
+    },
+    {
+      "name": "19_fresh_10_retained_sources",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_spark_config",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_spark_code",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_spear_config",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_siglip_config",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_grounding",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_dvagen",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_covt",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_spear_paper",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_hope",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_memt",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_engram",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_visual_primitives_mirror",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_salmonn2",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_moss_audio",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_voxemo",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_lvr",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_lora_tuning",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_spear_card",
+      "passed": true
+    },
+    {
+      "name": "source_hash:final_siglip_card",
+      "passed": true
+    },
+    {
+      "name": "source_hash:density_titans",
+      "passed": true
+    },
+    {
+      "name": "source_hash:nested_ttt",
+      "passed": true
+    },
+    {
+      "name": "source_hash:intrinsic_ttt_e2e",
+      "passed": true
+    },
+    {
+      "name": "source_hash:intrinsic_anml",
+      "passed": true
+    },
+    {
+      "name": "source_hash:nested_atlas",
+      "passed": true
+    },
+    {
+      "name": "source_hash:salmonn_v2",
+      "passed": true
+    },
+    {
+      "name": "source_hash:dataset_paper_molmo2",
+      "passed": true
+    },
+    {
+      "name": "source_hash:nested_hidden_forgetting",
+      "passed": true
+    },
+    {
+      "name": "source_hash:nested_uttt",
+      "passed": true
+    },
+    {
+      "name": "source_hash:nested_benchmark",
+      "passed": true
+    },
+    {
+      "name": "pinned_spark:layers",
+      "passed": true
+    },
+    {
+      "name": "pinned_spark:width",
+      "passed": true
+    },
+    {
+      "name": "pinned_spark:ffn_width",
+      "passed": true
+    },
+    {
+      "name": "pinned_spark:query_heads",
+      "passed": true
+    },
+    {
+      "name": "pinned_spark:kv_heads",
+      "passed": true
+    },
+    {
+      "name": "pinned_spark:head_width",
+      "passed": true
+    },
+    {
+      "name": "pinned_spark:base_vocab",
+      "passed": true
+    },
+    {
+      "name": "pinned_spark:original_mlp_activation",
+      "passed": true
+    },
+    {
+      "name": "pinned_spark:sliding_window",
+      "passed": true
+    },
+    {
+      "name": "pinned_spark:embedding_head_tied",
+      "passed": true
+    },
+    {
+      "name": "pinned_full_attention_sites",
+      "passed": true
+    },
+    {
+      "name": "pinned_QKV_geometry",
+      "passed": true
+    },
+    {
+      "name": "pinned_attention_output_geometry",
+      "passed": true
+    },
+    {
+      "name": "pinned_code_GELU_guard",
+      "passed": true
+    },
+    {
+      "name": "pinned_code_tied_head",
+      "passed": true
+    },
+    {
+      "name": "fresh_code_matches_repository_pin",
+      "passed": true
+    },
+    {
+      "name": "pinned_SPEAR_noncausal",
+      "passed": true
+    },
+    {
+      "name": "balanced_code_fences:23_SparkX_2_6_4B_Final_Product_Blueprint.md",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:0",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:1",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:2",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:2",
+      "passed": true,
+      "detail": "#1-product-contract"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:3",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:3",
+      "passed": true,
+      "detail": "#2-what-is-established-and-what-is-not"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:4",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:4",
+      "passed": true,
+      "detail": "#3-research-grounding-and-design-decisions"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:5",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:5",
+      "passed": true,
+      "detail": "#4-whole-model-architecture"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:6",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:6",
+      "passed": true,
+      "detail": "#5-backbone-integration"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:7",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:7",
+      "passed": true,
+      "detail": "#6-vision-spatial-and-temporal-reasoning"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:8",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:8",
+      "passed": true,
+      "detail": "#7-native-audio-and-audiovisual-reasoning"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:9",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:9",
+      "passed": true,
+      "detail": "#8-state-ownership-and-experience-representation"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:10",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:10",
+      "passed": true,
+      "detail": "#9-dynamic-engram-and-memory-attention"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:11",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:11",
+      "passed": true,
+      "detail": "#10-native-nested-learning-algorithms"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:12",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:12",
+      "passed": true,
+      "detail": "#11-swappable-dynamic-vocabulary"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:13",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:13",
+      "passed": true,
+      "detail": "#12-semi-cognitive-core-appraisal-and-personality"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:14",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:14",
+      "passed": true,
+      "detail": "#13-unified-access-port-the-separate-neural-spine"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:15",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:15",
+      "passed": true,
+      "detail": "#14-runtime-execution-and-system-design"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:16",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:16",
+      "passed": true,
+      "detail": "#15-persistence-correction-and-release-migration"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:17",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:17",
+      "passed": true,
+      "detail": "#16-worked-example-learning-an-audiovisual-convention"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:18",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:18",
+      "passed": true,
+      "detail": "#17-offline-training-program"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:19",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:19",
+      "passed": true,
+      "detail": "#18-objectives-credit-assignment-and-optimizer-policy"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:20",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:20",
+      "passed": true,
+      "detail": "#19-dataset-and-curriculum-plan"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:21",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:21",
+      "passed": true,
+      "detail": "#20-minicpm5-first-validation-program"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:22",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:22",
+      "passed": true,
+      "detail": "#21-product-acceptance-and-long-run-validation"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:23",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:23",
+      "passed": true,
+      "detail": "#22-parameters-memory-and-compute"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:24",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:24",
+      "passed": true,
+      "detail": "#23-implementation-packages-and-dependencies"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:25",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:25",
+      "passed": true,
+      "detail": "#24-recursive-improvement-and-later-expansion"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:26",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:26",
+      "passed": true,
+      "detail": "#25-decisions-that-must-be-closed-before-release"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:27",
+      "passed": true
+    },
+    {
+      "name": "anchor:23_SparkX_2_6_4B_Final_Product_Blueprint.md:27",
+      "passed": true,
+      "detail": "#26-final-release-package-and-document-authority"
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:28",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:29",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:30",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:31",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:32",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:33",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:34",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:35",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:36",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:60",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:61",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:62",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:63",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:64",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:69",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:70",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:71",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:72",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:73",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:74",
+      "passed": true
+    },
+    {
+      "name": "local_link:23_SparkX_2_6_4B_Final_Product_Blueprint.md:75",
+      "passed": true
+    },
+    {
+      "name": "balanced_code_fences:README.md",
+      "passed": true
+    },
+    {
+      "name": "local_link:README.md:0",
+      "passed": true
+    },
+    {
+      "name": "local_link:README.md:1",
+      "passed": true
+    },
+    {
+      "name": "local_link:README.md:2",
+      "passed": true
+    },
+    {
+      "name": "local_link:README.md:3",
+      "passed": true
+    },
+    {
+      "name": "local_link:README.md:4",
+      "passed": true
+    },
+    {
+      "name": "local_link:README.md:5",
+      "passed": true
+    },
+    {
+      "name": "local_link:README.md:6",
+      "passed": true
+    },
+    {
+      "name": "local_link:README.md:7",
+      "passed": true
+    },
+    {
+      "name": "26_product_sections",
+      "passed": true
+    },
+    {
+      "name": "open_issues_explicit",
+      "passed": true
+    },
+    {
+      "name": "20_requirements_unique",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R01",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R02",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R03",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R04",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R05",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R06",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R07",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R08",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R09",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R10",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R11",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R12",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R13",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R14",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R15",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R16",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R17",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R18",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R19",
+      "passed": true
+    },
+    {
+      "name": "requirement_sections:R20",
+      "passed": true
+    },
+    {
+      "name": "preserved_input:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "passed": true
+    },
+    {
+      "name": "preserved_input:docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
+      "passed": true
+    },
+    {
+      "name": "preserved_input:docs/architecture/README.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/research/sparkx_av_experience_20261026/Native_Experience_Design.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/research/vocabulary_lora_20261025/05_Swappable_Dynamic_Vocabulary.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/research/vocabulary_lora_20261025/02_Efficient_LoRA_Research.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/datasets/20261026_SparkX_Dataset_Plan.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/datasets/20261026_SparkX_Dataset_Catalog.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/datasets/20261026_MiniCPM_Dataset_Validation.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:configs/sparkx_2_6_4b_nested_learning_v1.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:configs/sparkx_residency_components_v1.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:reports/sparkx_nested_learning_20261026/analytical_costs.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v3.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/experiments/20261026_Vision_Balanced_Alignment.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/experiments/20261026_Nested_Learning_NL0.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:reports/nested_learning_nl0_20261026/qualification.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/experiments/20261026_Fused_AdamW_Integration_and_Sustained_Performance.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/experiments/20261026_SparkX_Formal_Full_Finetuning_Compute_Estimate.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/experiments/20261026_Mixed_Precision_Muon_and_Parallel_GPU_Budget_Review.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:reports/spark_preparation_20261025/run_01/assets/official_bf16_control/config.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:reports/spark_preparation_20261025/run_01/assets/official_bf16_control/modeling_spark.py",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:docs/experiments/20261026_Spark_Precision_and_Provisioning.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:reports/spark_qualification_20261026/summary.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:reports/spark_qualification_20261026/comparison.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:reports/spark_qualification_20261026/selected_runs.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:reports/spark_weight_acquisition_20261026/receipt_01.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:configs/spark_qualification_v1.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:configs/spark_weight_acquisition_v1.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:src/replica_lab/architecture/spark_adapter.py",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:scripts/qualify_spark2_5.py",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:scripts/dequantize_spark_fp8.py",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:tests/test_spark2_5_adapter.py",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:tests/test_dequantize_spark_fp8.py",
+      "passed": true
+    },
+    {
+      "name": "unchanged_input:reports/spark_qualification_20261025/backend_audit.json",
+      "passed": true
+    },
+    {
+      "name": "reviewed_memory_verdict_rejected",
+      "passed": true
+    },
+    {
+      "name": "reviewed_memory_denominators",
+      "passed": true
+    }
+  ]
+}

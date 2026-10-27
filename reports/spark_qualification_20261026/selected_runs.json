@@ -1,0 +1,468 @@
+{
+  "format": "replica.spark2_5_qualification.selected_runs.v1",
+  "kind": "portable_receipt_digest_summary_not_payload_copy",
+  "date_utc": "2026-10-26",
+  "scope": "Selected frozen-base Spark2_5 qualifications on one exclusive MPS worker: the official BF16 control (bf16_06) and the one authorized dequantized FP8 derivative (derivative_02). Digests, identities, stage statuses, resource peaks and reload statistics only. No model weights, optimizer state, .pt tensors or extension payload bytes are included.",
+  "source_documents": {
+    "precision_and_provisioning": "docs/experiments/20261026_Spark_Precision_and_Provisioning.md",
+    "qualification_summary": "reports/spark_qualification_20261026/summary.json",
+    "arm_comparison": "reports/spark_qualification_20261026/comparison.json",
+    "weight_acquisition_receipt": "reports/spark_weight_acquisition_20261026/receipt_01.json",
+    "qualification_config": "configs/spark_qualification_v1.json",
+    "acquisition_config": "configs/spark_weight_acquisition_v1.json",
+    "adapter": "src/replica_lab/architecture/spark_adapter.py",
+    "qualification_runner": "scripts/qualify_spark2_5.py",
+    "dequantizer": "scripts/dequantize_spark_fp8.py",
+    "adapter_tests": "tests/test_spark2_5_adapter.py",
+    "dequantizer_tests": "tests/test_dequantize_spark_fp8.py"
+  },
+  "fresh_checkout_policy": {
+    "required_inputs": "only the tracked files named in source_documents plus this receipt",
+    "not_required_for_fresh_checkout": [
+      "git-ignored native run directories",
+      "git-ignored model and derivative checkpoint directories",
+      "fresh-process reload tensor dumps",
+      "download, staging and temporary scratch directories outside the repository"
+    ],
+    "ignored_evidence_marker": "optional_local_ignored_evidence",
+    "note": "Receipt digests below record what was executed in the originating workspace. The raw git-ignored files are optional local evidence; no claim in this receipt requires them to exist in a clean checkout."
+  },
+  "identities": {
+    "official_bf16": {
+      "storage": "bf16",
+      "runtime_activation_semantics": "unquantized BF16 activations",
+      "admission": "frozen base only; admitted on MPS as the official BF16 control",
+      "official_release": true
+    },
+    "official_native_fp8": {
+      "storage": "F8_E4M3 compressed-tensors weights with BF16 scales",
+      "runtime_activation_semantics": "dynamic symmetric per-token F8_E4M3",
+      "admission": "refused on MPS and not executed; requires an explicitly FP8-capable backend",
+      "official_release": true
+    },
+    "dequantized_fp8_derivative": {
+      "storage": "bf16",
+      "runtime_activation_semantics": "BF16/FP32 activations with no per-token F8 quantization; this is not the official FP8 forward semantics",
+      "admission": "separate experiment, never official FP8; not the official BF16 release",
+      "official_release": false,
+      "derivative_count_authorized": 1
+    }
+  },
+  "selected_runs": {
+    "official_bf16": {
+      "run_id": "bf16_06",
+      "role": "official_bf16_control",
+      "precision_kind": "official_bf16",
+      "status": "completed",
+      "completion_scope": "export_reload",
+      "stage_status": {
+        "load": "completed",
+        "inference": "completed",
+        "input_gradients": "completed",
+        "single_update": "completed",
+        "export_reload": "completed"
+      },
+      "receipts": {
+        "run_guard_report": {
+          "path": "runs/spark_qualification_20261026/bf16_06.guard.json",
+          "sha256": "c8e6e46089fba05a6f9a1b52753f51273ca3f6ff20767d8ba4673e686f89744d",
+          "provisioning": "optional_local_ignored_evidence"
+        },
+        "qualification_report": {
+          "path": "runs/spark_qualification_20261026/bf16_06/qualification_report.json",
+          "sha256": "798dc4f7cea6d47fcdbc7013ecb4e413cae6d1d862505d33c6fd83e6f2797ffc",
+          "provisioning": "optional_local_ignored_evidence"
+        },
+        "reload_compare": {
+          "path": "runs/spark_qualification_20261026/bf16_06/reload_compare.json",
+          "sha256": "5d2abfb557dc9a73498ae5e19c79f58b14d8eaf723e3d9624266888c21fe6414",
+          "provisioning": "optional_local_ignored_evidence"
+        },
+        "profile_summary": {
+          "path": "runs/spark_qualification_20261026/bf16_06/profile_summary.json",
+          "sha256": "9baca8c406290affab5928f3634fb282438b98525374e9d9f520b3b2cd1cd24c",
+          "provisioning": "optional_local_ignored_evidence"
+        }
+      },
+      "base_identity": {
+        "repo_id": "XHToken/Spark-X2.6-4B",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "artifact_sha256": "ca66fc7f500f4b36a1d7a1274176d54b79332693604e70492a1a96855b90423d",
+        "config_sha256": "767161ece8ed2891e44345afdf98d29c1cacb964116cb6db7d20dc1c757490ad",
+        "weight_dtype": "BF16",
+        "dequantized": false,
+        "derivative_of": null,
+        "is_official_bf16_release": true,
+        "note": "independent official BF16 release; not a dequantized FP8 derivative"
+      },
+      "loaded_inventory": {
+        "parameter_elements": 4112079360,
+        "tensor_count": 290,
+        "dtypes": [
+          "torch.bfloat16"
+        ],
+        "tied_output_embedding": true,
+        "trainable_base_parameters": 0,
+        "tokenizer_digest": "5516b4e18977dbaf382ceec4f34ed0d4f18f8ac892fb06a137fd3b5f2e7e43b7",
+        "official_geometry": true,
+        "attention_implementation": "eager",
+        "use_cache": false
+      },
+      "extension": {
+        "manifest_schema": "replica.spark2_5_adapter_extension.v1",
+        "extension_tensor_count": 24,
+        "loaded_extension_tensors": 24,
+        "loaded_extension_parameter_elements": 8146434,
+        "projector_tensor_count": 6,
+        "projector_parameter_elements": 5251584,
+        "trainable_dtype": "FLOAT32",
+        "memory_port_layers": [
+          11,
+          23
+        ],
+        "weights_sha256": "1a1e0a2b67a73ebf879b8e42bb727af0c0917d265303bdf978da2b043332d763",
+        "export_fingerprint": "a74265a05a0a993fb3f4342017f9783923bd9088aa70b30ad47ac7de6dc364dc",
+        "contains_base_weights": false,
+        "base_saved": false,
+        "optimizer_saved": false
+      },
+      "parity": {
+        "zero_init_projector_exact_logits": true,
+        "zero_init_max_abs_logit_difference": 0.0,
+        "perturbation_max_abs_change": 48.6640625,
+        "perturbation_scale": 0.05
+      },
+      "input_gradients": {
+        "grad_enabled": true,
+        "new_gradient_tensors": 24,
+        "new_gradient_tensors_finite": 24,
+        "new_gradient_tensors_nonzero": 4,
+        "base_gradient_tensors": 0,
+        "traced_layers": 36,
+        "base_unchanged": true
+      },
+      "single_update": {
+        "optimizer": "NativeFusedAdamW",
+        "optimizer_group": "new_adamw_fused",
+        "steps": 1,
+        "learning_rate": 0.0002,
+        "loss": 8.720588684082031,
+        "loss_finite": true,
+        "changed_tensor_count": 4,
+        "max_abs_named_delta": 0.0002000000240514055,
+        "all_parameters_finite": true,
+        "base_unchanged": true,
+        "post_update_new_gradient_nonzero": true
+      },
+      "fresh_process_reload": {
+        "fresh_process": true,
+        "child_pid": 25916,
+        "base_identity_verified": true,
+        "rtol": 1e-05,
+        "atol": 1e-06,
+        "logits_finite": true,
+        "max_abs_logit_difference": 0.0,
+        "mean_abs_logit_difference": 0.0,
+        "within_tolerance": true,
+        "exact_greedy_tokens": true,
+        "reload_report_fingerprint": "03125c9859c3fdf1ac7a2b95aac815b1c19f6acd33d69724613e95f72256b117"
+      },
+      "resources": {
+        "peak_driver_bytes": 9552216064,
+        "peak_mps_allocated_sampled_bytes": 8579513088,
+        "peak_rss_bytes": 767197184,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 77.0,
+        "guard_elapsed_seconds": 27.97310262499377,
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912,
+        "minimum_free_percent_limit": 15,
+        "sampled_driver_within_limit": true,
+        "stop_reason": null,
+        "guard_status": "completed_within_declared_sampled_limits"
+      },
+      "storage": {
+        "free_bytes_before": 491685683200,
+        "free_bytes_after": 491648606208,
+        "extension_only_artifacts": true,
+        "full_base_saves": false
+      }
+    },
+    "dequantized_fp8_derivative": {
+      "run_id": "derivative_02",
+      "role": "dequantized_fp8_derivative",
+      "precision_kind": "dequantized_fp8_derivative",
+      "status": "completed",
+      "completion_scope": "export_reload",
+      "stage_status": {
+        "load": "completed",
+        "inference": "completed",
+        "input_gradients": "completed",
+        "single_update": "completed",
+        "export_reload": "completed"
+      },
+      "receipts": {
+        "run_guard_report": {
+          "path": "runs/spark_qualification_20261026/derivative_02.guard.json",
+          "sha256": "e8301c65cedd76e21899becd79bc9e09f228ccd37b9bbc42afa1ff579ea9ca7a",
+          "provisioning": "optional_local_ignored_evidence"
+        },
+        "qualification_report": {
+          "path": "runs/spark_qualification_20261026/derivative_02/qualification_report.json",
+          "sha256": "68f8674476293fa83bd7a96ba56563e1a88d8dc283f9da7f3e9ed52684fe53b5",
+          "provisioning": "optional_local_ignored_evidence"
+        },
+        "reload_compare": {
+          "path": "runs/spark_qualification_20261026/derivative_02/reload_compare.json",
+          "sha256": "07a4072652ed84e19ea39106e7c27ed29b9e78e3a4fa5f3043e6bd924aa8b9c9",
+          "provisioning": "optional_local_ignored_evidence"
+        },
+        "profile_summary": {
+          "path": "runs/spark_qualification_20261026/derivative_02/profile_summary.json",
+          "sha256": "65c39049d708b37fb526665d3c434829c6185fdd09b5f1925e2f1adbcce08897",
+          "provisioning": "optional_local_ignored_evidence"
+        }
+      },
+      "base_identity": {
+        "repo_id": "replica/spark-x2.6-4b-dequantized-fp8-v1",
+        "revision": "derivative-1",
+        "artifact_sha256": "c52c6cc5e6aababa94105cf4612a09013cffd841c71d53d16356e6dc49966882",
+        "config_sha256": "87eea28583b637189c33f110b69706f6262aaa9205db4f3af00198f0eb768e87",
+        "derivative_manifest_path": "checkpoints/spark_fp8_derivative_v1/derivative_manifest.json",
+        "derivative_manifest_sha256": "73d82478abe90391f3ca9c67be079931a6dd46a1e9991bfbda1de0f682055bdc",
+        "derivative_manifest_provisioning": "optional_local_ignored_evidence",
+        "derivative_of": "393fedcdff7cd527dc131aa50adb23dc3e363de2c273e33635bf5bf1da04006d",
+        "dequantization_sha256": "215c9c49b6557be2589d7decdba98ec42719d858585b85b2342045e3a10df488",
+        "precision_digest": "144f46f6aabb2b3a623c9d91249032a75b0b53852b7bb2edbbce8fe6bbfb4e9c",
+        "weight_dtype": "BF16",
+        "storage": "bf16",
+        "dequantized": true,
+        "derivative_index": 1,
+        "shards": 8,
+        "equivalent_to_bf16_release": false,
+        "activation_semantics": "BF16/FP32 activations with no per-token F8 quantization; this is not the official FP8 forward semantics",
+        "note": "reconstructed from the official FP8 values and scales; it does not restore quantization loss, change activation semantics, or equal the official BF16 release"
+      },
+      "loaded_inventory": {
+        "parameter_elements": 4112079360,
+        "tensor_count": 290,
+        "dtypes": [
+          "torch.bfloat16"
+        ],
+        "tied_output_embedding": true,
+        "trainable_base_parameters": 0,
+        "tokenizer_digest": "5516b4e18977dbaf382ceec4f34ed0d4f18f8ac892fb06a137fd3b5f2e7e43b7",
+        "official_geometry": true,
+        "attention_implementation": "eager",
+        "use_cache": false
+      },
+      "extension": {
+        "manifest_schema": "replica.spark2_5_adapter_extension.v1",
+        "extension_tensor_count": 24,
+        "loaded_extension_tensors": 24,
+        "loaded_extension_parameter_elements": 8146434,
+        "projector_tensor_count": 6,
+        "projector_parameter_elements": 5251584,
+        "trainable_dtype": "FLOAT32",
+        "memory_port_layers": [
+          11,
+          23
+        ],
+        "weights_sha256": "0ef97aae4cb81f3e8f552de6676a84a6326d1ce7000e4e40f821db125b743a57",
+        "export_fingerprint": "1dba30442e5860db7880d37f7777a41878c3227bcb05db350b260a7971d5b4e0",
+        "contains_base_weights": false,
+        "base_saved": false,
+        "optimizer_saved": false
+      },
+      "parity": {
+        "zero_init_projector_exact_logits": true,
+        "zero_init_max_abs_logit_difference": 0.0,
+        "perturbation_max_abs_change": 43.8671875,
+        "perturbation_scale": 0.05
+      },
+      "input_gradients": {
+        "grad_enabled": true,
+        "new_gradient_tensors": 24,
+        "new_gradient_tensors_finite": 24,
+        "new_gradient_tensors_nonzero": 4,
+        "base_gradient_tensors": 0,
+        "traced_layers": 36,
+        "base_unchanged": true
+      },
+      "single_update": {
+        "optimizer": "NativeFusedAdamW",
+        "optimizer_group": "new_adamw_fused",
+        "steps": 1,
+        "learning_rate": 0.0002,
+        "loss": 8.743444442749023,
+        "loss_finite": true,
+        "changed_tensor_count": 4,
+        "max_abs_named_delta": 0.0002000000240514055,
+        "all_parameters_finite": true,
+        "base_unchanged": true,
+        "post_update_new_gradient_nonzero": true
+      },
+      "fresh_process_reload": {
+        "fresh_process": true,
+        "child_pid": 26874,
+        "base_identity_verified": true,
+        "rtol": 1e-05,
+        "atol": 1e-06,
+        "logits_finite": true,
+        "max_abs_logit_difference": 0.0,
+        "mean_abs_logit_difference": 0.0,
+        "within_tolerance": true,
+        "exact_greedy_tokens": true,
+        "reload_report_fingerprint": "fc3f71263e321509fe75997d5bfa4a4ae19693ea3f5f6dfdd7ab3a5ff09915c3"
+      },
+      "resources": {
+        "peak_driver_bytes": 9552232448,
+        "peak_mps_allocated_sampled_bytes": 8655145984,
+        "peak_rss_bytes": 760528896,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 77.0,
+        "guard_elapsed_seconds": 26.39054508274421,
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912,
+        "minimum_free_percent_limit": 15,
+        "sampled_driver_within_limit": true,
+        "stop_reason": null,
+        "guard_status": "completed_within_declared_sampled_limits"
+      },
+      "storage": {
+        "free_bytes_before": 491646226432,
+        "free_bytes_after": 491607945216,
+        "extension_only_artifacts": true,
+        "full_base_saves": false
+      }
+    }
+  },
+  "paired_smoke_generation": {
+    "declared_budgets": [
+      512,
+      2048
+    ],
+    "executed_budget": 8,
+    "paired_rows": 3,
+    "exact_token_agreement_count": 2,
+    "mismatch": {
+      "prompt_id": "q_primary_colors",
+      "thinking": "low"
+    },
+    "rows": [
+      {
+        "prompt_id": "q_primary_colors",
+        "thinking": "high",
+        "exact_token_match": true,
+        "bf16_token_count": 8,
+        "derivative_token_count": 8
+      },
+      {
+        "prompt_id": "q_primary_colors",
+        "thinking": "low",
+        "exact_token_match": false,
+        "bf16_token_count": 8,
+        "derivative_token_count": 8
+      },
+      {
+        "prompt_id": "q_primary_colors",
+        "thinking": "none",
+        "exact_token_match": true,
+        "bf16_token_count": 8,
+        "derivative_token_count": 8
+      }
+    ],
+    "note": "Paired smoke rows only; no accuracy tolerance, 512/2048 budget or capability claim is established."
+  },
+  "cross_arm_reload_statistics": {
+    "shape": [
+      1,
+      21,
+      131072
+    ],
+    "finite": true,
+    "max_abs_logit_difference": 10.875,
+    "mean_abs_logit_difference": 0.9691294431686401,
+    "exact_greedy_tokens": false,
+    "exact_token_agreement_count": 2,
+    "paired_rows": 3,
+    "derived_from": "reports/spark_qualification_20261026/summary.json comparison.cross_arm_logits, computed from each arm's reload_expected.pt in the originating workspace",
+    "pt_payloads_included": false,
+    "interpretation": "The dequantized derivative does not reproduce the official BF16 release. Exact fresh-process reload within each arm does not imply cross-precision equality, and this comparison claims no accuracy or capability result."
+  },
+  "preserved_negative_results": [
+    {
+      "run_id": "derivative_01",
+      "role": "dequantized_fp8_derivative",
+      "status": "failed",
+      "failed_stage": "load",
+      "error_type": "KeyError",
+      "error": "'parameter_elements'",
+      "reason": "derivative parameter_elements pin missing from the derivative source entry",
+      "superseded_by": "derivative_02",
+      "reused_as_new_run": false,
+      "receipts": {
+        "qualification_report": {
+          "path": "runs/spark_qualification_20261026/derivative_01/qualification_report.json",
+          "sha256": "26aa4d2fdbc1f0a7fe5e355fe3544fcafa84a6304e190234801df0a6bf84cffb",
+          "provisioning": "optional_local_ignored_evidence"
+        }
+      }
+    },
+    {
+      "id": "preserved_failure_1",
+      "stage": "initial invocation",
+      "reason": "Darwin capitalization rejected before model load",
+      "preserved": true
+    },
+    {
+      "id": "preserved_failure_2",
+      "stage": "load reporting",
+      "reason": "Tokenizer identity digest accessed as a serialized key instead of computed fingerprint",
+      "preserved": true
+    },
+    {
+      "id": "preserved_failure_3",
+      "stage": "inference/gradient",
+      "reason": "Extension and memory-port device placement and registration",
+      "preserved": true
+    },
+    {
+      "id": "preserved_failure_4",
+      "stage": "derivative load",
+      "reason": "Derivative parameter_elements pin missing",
+      "preserved": true
+    }
+  ],
+  "official_native_fp8": {
+    "status": "refused_unexecuted_on_mps",
+    "executed": false,
+    "run_id": null,
+    "qualification_report": null,
+    "reason": "MPS cannot allocate torch.float8_e4m3fn; admission raises before from_pretrained, with no CPU fallback and no implicit dequantization. Native FP8 requires an explicitly FP8-capable backend.",
+    "evidence": {
+      "path": "reports/spark_qualification_20261025/backend_audit.json",
+      "sha256": "bb4507c4510f254145adebaf76e2ce9c8f147d2d8b2094aa7bb4d884d79ac799",
+      "note": "digest recorded from the tracked backend audit; see that file for the exact blocker text"
+    },
+    "note": "No native FP8 run, resource peak or stage status exists for MPS. A successful derivative run does not imply native FP8 execution."
+  },
+  "non_claims": {
+    "official_native_fp8_on_mps": false,
+    "full_fp32_spark_training_admitted": false,
+    "declared_512_2048_generation_budgets_executed": false,
+    "h200_or_cuda_qualified": false,
+    "training_convergence_or_capability": false,
+    "heldout_accessed": false,
+    "derivative_equals_official_bf16": false,
+    "second_derivative_created": false
+  },
+  "verification_notes": {
+    "digest_method": "sha256 over the exact file bytes present in the originating workspace on 2026-10-26",
+    "tests_rerun_by_this_receipt": false,
+    "documented_test_evidence": "15 passed across tests/test_spark2_5_adapter.py and tests/test_dequantize_spark_fp8.py, as recorded in reports/spark_qualification_20261026/summary.json",
+    "unverified_assumptions": [
+      "Raw ignored receipts were not re-hashed after this receipt was written; their recorded digests are the values observed at authoring time."
+    ]
+  }
+}

@@ -62,6 +62,10 @@ required before V0; learned V3/RSI still require useful memory and retention.
 Spark native qualification follows reusable interfaces and backend gates, not
 RSI success. Preserve historical evidence and the protected untracked
 `src/replica_lab/runtime_pilot.py`.
+The [v5 reconciliation](docs/architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md)
+distinguishes official BF16, unexecuted native FP8 and the BF16 derivative;
+117 bundle inputs and 40 snapshot inputs are recorded, with 25 official weight
+files acquired. No native Spark training follows from these receipts.
 
 ## Mission
 

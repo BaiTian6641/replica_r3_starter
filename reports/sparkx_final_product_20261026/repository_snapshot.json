@@ -1,0 +1,366 @@
+{
+  "kind": "documentation_input_snapshot_not_capability_receipt",
+  "captured_at_utc": "2026-10-26T23:41:11.833780+00:00",
+  "head": "c86589c62d9aaa3fee14ba2635e8453551b2ab2e",
+  "previous_snapshot_head": "48aed50d164f8b48d65d5b032014343a056ee6e3",
+  "refresh": {
+    "reason": "post-snapshot Spark2_5 precision, derivative and provisioning work: add the precision/provisioning note, qualification summary and arm comparison, portable selected-run receipt, weight-acquisition receipt, qualification configs, adapter/dequantizer sources and tests, and the MPS native-FP8 refusal audit",
+    "previous_input_count": 27,
+    "input_count": 40,
+    "relocated_to_optional_local_evidence": [
+      "runs/memory_causal_fresh_20261026/restart02/run_report.json"
+    ],
+    "relocation_reason": "git-ignored run artifacts were listed as required snapshot inputs; they are now recorded under optional_local_ignored_evidence so no fresh checkout depends on runs/ or checkpoints/",
+    "added_inputs": [
+      "docs/experiments/20261026_Spark_Precision_and_Provisioning.md",
+      "reports/spark_qualification_20261026/summary.json",
+      "reports/spark_qualification_20261026/comparison.json",
+      "reports/spark_qualification_20261026/selected_runs.json",
+      "reports/spark_weight_acquisition_20261026/receipt_01.json",
+      "configs/spark_qualification_v1.json",
+      "configs/spark_weight_acquisition_v1.json",
+      "src/replica_lab/architecture/spark_adapter.py",
+      "scripts/qualify_spark2_5.py",
+      "scripts/dequantize_spark_fp8.py",
+      "tests/test_spark2_5_adapter.py",
+      "tests/test_dequantize_spark_fp8.py",
+      "reports/spark_qualification_20261025/backend_audit.json",
+      "docs/experiments/20261026_Spark_Residency_Reconciliation.md"
+    ],
+    "note": "Digests are over the exact worktree bytes observed at captured_at_utc. Inputs whose bytes are uncommitted carry an explicit worktree_drift record instead of being silently relabelled."
+  },
+  "working_status": [
+    " M docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+    " M docs/architecture/README.md",
+    " M docs/experiments/20261026_Spark_Residency_Reconciliation.md",
+    " M reports/vision_overfit_20261025/helper_tests.xml",
+    " M scripts/run_nested_text.py",
+    "?? configs/sparkx_2_6_4b_final_product_v5.json",
+    "?? docs/architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md",
+    "?? reports/memory_repair_20261025/full_suite_final_diagnostics.xml",
+    "?? reports/runs_cleanup_20261026.json",
+    "?? reports/runs_cleanup_20261026_verified.json",
+    "?? reports/spark_qualification_20261026/selected_runs.json",
+    "?? reports/sparkx_final_product_20261026/"
+  ],
+  "input_files": [
+    {
+      "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "sha256": "a0285330d1157ecaabc7fd762112737fc7d9776170a06ef2fc37f3ffc00633b1",
+      "bytes": 64225
+    },
+    {
+      "path": "docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
+      "sha256": "b68d0c9fef40902b27c4b813d86ca126a57762bb33c6f1f31ee0cb78fb5b89d1",
+      "bytes": 40058
+    },
+    {
+      "path": "docs/architecture/README.md",
+      "sha256": "c7b322e417412d88f5d4ef5712d859eea6f13c66cee2814c504e9982b909edb4",
+      "bytes": 8979
+    },
+    {
+      "path": "docs/research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md",
+      "sha256": "b79c4bf1346f3a4733201329a4f7796d215141baaa15b57d0dc91b3d28e296b3",
+      "bytes": 23880
+    },
+    {
+      "path": "docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md",
+      "sha256": "8db796487d9a4e11de7fb81f96593e63440755f6d8c54eaf548cd3f303c10172",
+      "bytes": 20392
+    },
+    {
+      "path": "docs/research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md",
+      "sha256": "37a899343a7623fd1dde2561e97bb3f03ce8b59e128cce5f7f71cc5790ce0f5a",
+      "bytes": 23012
+    },
+    {
+      "path": "docs/research/sparkx_av_experience_20261026/Native_Experience_Design.md",
+      "sha256": "6073a45359044091eff5a2f583e2eaa7f3cf1806a438ffe85c0bbde9c8722437",
+      "bytes": 18284
+    },
+    {
+      "path": "docs/research/vocabulary_lora_20261025/05_Swappable_Dynamic_Vocabulary.md",
+      "sha256": "4f5a312d9a295919957d1b62c71e7b85254ebf241852ffd470650ed1bf6b9f3a",
+      "bytes": 15817
+    },
+    {
+      "path": "docs/research/vocabulary_lora_20261025/02_Efficient_LoRA_Research.md",
+      "sha256": "94e8b2129bfc0a403f4b2580b324a74fb4e0a605bc9890e02c13dd2083a27916",
+      "bytes": 13510
+    },
+    {
+      "path": "docs/datasets/20261026_SparkX_Dataset_Plan.md",
+      "sha256": "b1d5d0d0c9228d7ba8f99f9d36b871d948daa1b6894d5b880555adbce78a0d3a",
+      "bytes": 26039
+    },
+    {
+      "path": "docs/datasets/20261026_SparkX_Dataset_Catalog.json",
+      "sha256": "e3646f310015841fe73d05313a241486af8e9f875bfd39854f9409b994d3204e",
+      "bytes": 125048
+    },
+    {
+      "path": "docs/datasets/20261026_MiniCPM_Dataset_Validation.md",
+      "sha256": "cb4c2ec859bff00b56593a65a3d119fa7c0eeed182a298942dc1f2885643e5c7",
+      "bytes": 19002
+    },
+    {
+      "path": "configs/sparkx_2_6_4b_nested_learning_v1.json",
+      "sha256": "1a594cd76401db654befe8bd368e7c45cb66b6411f697f2ad3dd23f70ee35eb7",
+      "bytes": 8050
+    },
+    {
+      "path": "configs/sparkx_residency_components_v1.json",
+      "sha256": "001d76b7e5728302e6f62cb0dd9ce8197b6d09d8c80c09048f321283757dc731",
+      "bytes": 3530
+    },
+    {
+      "path": "reports/sparkx_residency_20261026/residency_v2.json",
+      "sha256": "5c406623eb26b6ae1c60189edc57e19b2fc2d8f4d4228b3b095d4b04454c7f2a",
+      "bytes": 23998
+    },
+    {
+      "path": "reports/sparkx_nested_learning_20261026/analytical_costs.json",
+      "sha256": "d7b66404f6c4ff50c0657bb9077367a1754e278b2bfc4d2e4fb43ee894972bef",
+      "bytes": 3255
+    },
+    {
+      "path": "reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v3.json",
+      "sha256": "b5dd86c01598e60493521b88b5b65d7fe77e0d09cb05722caa9db249f2e842ba",
+      "bytes": 243008
+    },
+    {
+      "path": "docs/experiments/20261026_Vision_Balanced_Alignment.md",
+      "sha256": "c16b9fdfce379e2e1a3d4f9108e494212d05a3e3d0269b9a22cc65db9006ff7f",
+      "bytes": 10200
+    },
+    {
+      "path": "docs/experiments/20261026_Nested_Learning_NL0.md",
+      "sha256": "d68371278b97529834612da47d2f1be96481de521efdce48281e48ae39ade0ec",
+      "bytes": 3264
+    },
+    {
+      "path": "reports/nested_learning_nl0_20261026/qualification.json",
+      "sha256": "d46ff7a3d286b0a172bf53c5400f4ef08cb07020fecf41d8c0850f552b3c413d",
+      "bytes": 4616
+    },
+    {
+      "path": "docs/experiments/20261026_Fused_AdamW_Integration_and_Sustained_Performance.md",
+      "sha256": "b93934e235dc2ed8fd46353f1d0cf92b7b088c932a1c7d347e99222797f8f094",
+      "bytes": 12988
+    },
+    {
+      "path": "docs/experiments/20261026_SparkX_Formal_Full_Finetuning_Compute_Estimate.md",
+      "sha256": "603f2e07fe560faa53c92541d7900cbca19632a7a2767756c8a2162eefb2f6a2",
+      "bytes": 24637
+    },
+    {
+      "path": "docs/experiments/20261026_Mixed_Precision_Muon_and_Parallel_GPU_Budget_Review.md",
+      "sha256": "492f9512b84bd0838c13c45d2a64513cfb2362b3b3daa348eed5e45c73a195ae",
+      "bytes": 25645
+    },
+    {
+      "path": "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/config.json",
+      "sha256": "767161ece8ed2891e44345afdf98d29c1cacb964116cb6db7d20dc1c757490ad",
+      "bytes": 2035
+    },
+    {
+      "path": "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/modeling_spark.py",
+      "sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+      "bytes": 19418
+    },
+    {
+      "path": "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json",
+      "sha256": "05fa1b80b4888f319b2c42233b95ce43b5c1783ed335e830667298a1da91e590",
+      "bytes": 77950
+    },
+    {
+      "path": "docs/experiments/20261026_Spark_Precision_and_Provisioning.md",
+      "sha256": "ba599d668e9928d5a04be38574b14ab4ef1101c0a01b23b304172cb60e720443",
+      "bytes": 16944
+    },
+    {
+      "path": "reports/spark_qualification_20261026/summary.json",
+      "sha256": "bdea5cf6ba98c61c6f19110efe14fc2ce21bf0948b2eef318ed7a11ad27faa92",
+      "bytes": 4588
+    },
+    {
+      "path": "reports/spark_qualification_20261026/comparison.json",
+      "sha256": "c2019734fdd1e85a40c158d6e74cdf701f6417b9e284dee1011de8ef44b52d11",
+      "bytes": 4336
+    },
+    {
+      "path": "reports/spark_qualification_20261026/selected_runs.json",
+      "sha256": "65a6b5c175ef3629246612b9686af2d872f2f91dc74cc3cd54316688fd4e2ece",
+      "bytes": 19685
+    },
+    {
+      "path": "reports/spark_weight_acquisition_20261026/receipt_01.json",
+      "sha256": "56254c3349dae19c25bb4ed9e8bed6fdd4747a0dd55ba35450dfdc6d8fbddae4",
+      "bytes": 3200
+    },
+    {
+      "path": "configs/spark_qualification_v1.json",
+      "sha256": "702fa07d01e9fba64d2ef84d55e590c8fa278b12b9fecde795630533176ca8fd",
+      "bytes": 12406
+    },
+    {
+      "path": "configs/spark_weight_acquisition_v1.json",
+      "sha256": "4d7530c349f09763fcd866b308ef87e8c671559490627660816864fb50195767",
+      "bytes": 6926
+    },
+    {
+      "path": "src/replica_lab/architecture/spark_adapter.py",
+      "sha256": "919b58b75e58d5c01ff933eb44a6f75e977b139885280ed2597f9023ebb77430",
+      "bytes": 38923
+    },
+    {
+      "path": "scripts/qualify_spark2_5.py",
+      "sha256": "b89acf4dc046348606473a987ffabc675f81fc4188075074dccbdeb54bedf4d8",
+      "bytes": 60530
+    },
+    {
+      "path": "scripts/dequantize_spark_fp8.py",
+      "sha256": "215c9c49b6557be2589d7decdba98ec42719d858585b85b2342045e3a10df488",
+      "bytes": 24446
+    },
+    {
+      "path": "tests/test_spark2_5_adapter.py",
+      "sha256": "b50994bc0a581912e2e7fe2ba5812a835acf28afcb32ca26161b86f629c1244b",
+      "bytes": 27637
+    },
+    {
+      "path": "tests/test_dequantize_spark_fp8.py",
+      "sha256": "316e097d9a864b187142d373c82618f7d319d8acb471f41c662380092ea7c8d2",
+      "bytes": 14338
+    },
+    {
+      "path": "reports/spark_qualification_20261025/backend_audit.json",
+      "sha256": "bb4507c4510f254145adebaf76e2ce9c8f147d2d8b2094aa7bb4d884d79ac799",
+      "bytes": 2919
+    },
+    {
+      "path": "docs/experiments/20261026_Spark_Residency_Reconciliation.md",
+      "sha256": "cc9bb4da8abc6a49fa234d65bb3a884b20eb051ae62bea63d8076f8a946af370",
+      "bytes": 25721,
+      "worktree_bytes_committed": false,
+      "note": "digest covers the uncommitted worktree revision present at captured_at_utc"
+    }
+  ],
+  "worktree_drift": [
+    {
+      "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "snapshot_sha256": "a0285330d1157ecaabc7fd762112737fc7d9776170a06ef2fc37f3ffc00633b1",
+      "current_sha256": "9ec5c8d0c2245456b94782c78c5110a297d9b9ac019d23b10ed6b62c9e4ed741",
+      "preserved_copy": "architecture_v4_5_before.txt",
+      "state": "tracked, uncommitted modification",
+      "note": "the recorded digest is the preserved pre-edit revision required by verify.py; the uncommitted edit is recorded here rather than hidden or overwritten"
+    },
+    {
+      "path": "docs/architecture/README.md",
+      "snapshot_sha256": "c7b322e417412d88f5d4ef5712d859eea6f13c66cee2814c504e9982b909edb4",
+      "current_sha256": "d64ea6e70089dd977506ce7e7d3bcd6c3198dfa53824a91f228c98aa8dab2a4e",
+      "preserved_copy": "architecture_index_before.txt",
+      "state": "tracked, uncommitted modification",
+      "note": "same rule as above: preserved digest stays pinned, current bytes are disclosed"
+    },
+    {
+      "path": "docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
+      "snapshot_sha256": "b68d0c9fef40902b27c4b813d86ca126a57762bb33c6f1f31ee0cb78fb5b89d1",
+      "current_sha256": "1e44a99f7b38b335b111462fd603c1d30346ee3a83e3c736332f132831f48c96",
+      "preserved_copy": "state_contract_before.txt",
+      "state": "tracked, committed change since the preserved pre-edit copy (last edit f9d2234c)",
+      "note": "the preserved digest stays pinned for verify.py; the newer committed revision is disclosed rather than hidden"
+    }
+  ],
+  "optional_local_ignored_evidence": {
+    "provisioning": "optional_local_ignored_evidence",
+    "required_for_fresh_checkout": false,
+    "note": "Git-ignored model, derivative and run-local files. Paths and SHA-256 digests are recorded so the executed receipts stay reviewable, but no fresh checkout, verification or replay may depend on them. No payload bytes, weights, optimizer state or .pt tensors are included or required.",
+    "entries": [
+      {
+        "path": "checkpoints/spark_fp8_derivative_v1/derivative_manifest.json",
+        "sha256": "73d82478abe90391f3ca9c67be079931a6dd46a1e9991bfbda1de0f682055bdc",
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false
+      },
+      {
+        "path": "checkpoints/sparkx2_5_bf16_source/acquisition_manifest.json",
+        "sha256": "7afaccef7cfde5bb278022fad410ac89b4839c46d460a9f0d846e26fca1f2f5e",
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false
+      },
+      {
+        "path": "checkpoints/sparkx2_5_fp8_source/acquisition_manifest.json",
+        "sha256": "2c6cd6bd3f24aa12608fb1bd7d04fe07359301d548a791fe95a01ebb4d370266",
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false
+      },
+      {
+        "path": "runs/spark_qualification_20261026/bf16_06.guard.json",
+        "sha256": "c8e6e46089fba05a6f9a1b52753f51273ca3f6ff20767d8ba4673e686f89744d",
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false
+      },
+      {
+        "path": "runs/spark_qualification_20261026/bf16_06/qualification_report.json",
+        "sha256": "798dc4f7cea6d47fcdbc7013ecb4e413cae6d1d862505d33c6fd83e6f2797ffc",
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false
+      },
+      {
+        "path": "runs/spark_qualification_20261026/bf16_06/reload_compare.json",
+        "sha256": "5d2abfb557dc9a73498ae5e19c79f58b14d8eaf723e3d9624266888c21fe6414",
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false
+      },
+      {
+        "path": "runs/spark_qualification_20261026/bf16_06/profile_summary.json",
+        "sha256": "9baca8c406290affab5928f3634fb282438b98525374e9d9f520b3b2cd1cd24c",
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false
+      },
+      {
+        "path": "runs/spark_qualification_20261026/derivative_02.guard.json",
+        "sha256": "e8301c65cedd76e21899becd79bc9e09f228ccd37b9bbc42afa1ff579ea9ca7a",
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false
+      },
+      {
+        "path": "runs/spark_qualification_20261026/derivative_02/qualification_report.json",
+        "sha256": "68f8674476293fa83bd7a96ba56563e1a88d8dc283f9da7f3e9ed52684fe53b5",
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false
+      },
+      {
+        "path": "runs/spark_qualification_20261026/derivative_02/reload_compare.json",
+        "sha256": "07a4072652ed84e19ea39106e7c27ed29b9e78e3a4fa5f3043e6bd924aa8b9c9",
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false
+      },
+      {
+        "path": "runs/spark_qualification_20261026/derivative_02/profile_summary.json",
+        "sha256": "65c39049d708b37fb526665d3c434829c6185fdd09b5f1925e2f1adbcce08897",
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false
+      },
+      {
+        "path": "runs/spark_qualification_20261026/derivative_01/qualification_report.json",
+        "sha256": "26aa4d2fdbc1f0a7fe5e355fe3544fcafa84a6304e190234801df0a6bf84cffb",
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false
+      },
+      {
+        "path": "runs/memory_causal_fresh_20261026/restart02/run_report.json",
+        "sha256": "9a127525ab0134a236d7d37346bd0ad139a3de5a5efd859b00826fe9402a50b1",
+        "bytes": 2270498,
+        "provisioning": "optional_local_ignored_evidence",
+        "required_for_fresh_checkout": false,
+        "note": "relocated out of input_files during this refresh: it is a git-ignored run artifact, so requiring it would break a fresh checkout"
+      }
+    ]
+  },
+  "native_execution": false,
+  "training": false,
+  "protected_runtime_file_accessed": false
+}

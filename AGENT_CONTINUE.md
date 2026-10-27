@@ -123,6 +123,14 @@ is inferred. Offline dataset validation replays 36 families/42 repositories/125
 records with zero assets or admissions. Spark adapter/backend and asset QA
 remain blocked; no native Spark or dataset-admission claim is made.
 
+The [v5 final-product blueprint](docs/architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md)
+now distinguishes official BF16, unexecuted native FP8 and the separate BF16
+dequantized derivative. Official BF16 and derivative reloads have zero logit
+difference and unchanged base; cross-arm logits differ (max 10.875), so output
+equivalence is not claimed. The final README records 40 inputs and the bundle
+has 117 tracked inputs. Official weight acquisition is 25 files; no new model,
+dataset or native Spark job was launched.
+
 The first clean export exposed 12 stale implementation-pin failures. After the
 declared response/vision migrations at `8ebf045`, the final clean `git archive`
 export passes **1,900 tests +21 subtests in 230.93 s**, with 40 explicit
@@ -261,6 +269,9 @@ No new model or capability is qualified by this documentation update.
    measured improvement, old-task retention, rejection and rollback.
 6. **Spark/data preparation continues separately.** Preserve official FP8/BF16
    identities and backend gates; do not replace MiniCPM5 or infer native support.
+   The [v5 reconciliation](docs/architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md)
+   now includes that precision distinction and a 117-input portable bundle; no
+   native training or new acquisition follows from the receipt refresh.
 
 The current canonical result is
 [v5 eval02](reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json).

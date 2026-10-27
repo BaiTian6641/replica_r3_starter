@@ -1,5 +1,7 @@
 # SparkX 2.6 4B: native multimodal, memory and learning product plan
 
+**Unified product entry point:** [version 5.0 final-product blueprint](23_SparkX_2_6_4B_Final_Product_Blueprint.md) consolidates this revision and its research companions into one architecture, learning, training, runtime and validation specification. This document preserves the revision 4.5 history. Existing state contracts and experiment admission remain authoritative for execution.
+
 **Revision 4.5 · 26 October 2026 · Final product target; research/design, not a capability qualification or execution protocol.**
 
 SparkX 2.6 4B is the intended finished product. Its language backbone will undergo **full fine-tuning**, with native vision, audio, memory and learning components integrated into its computation. **Full offline fine-tuning establishes multimodal perception and reasoning. Online self-learning uses those already-trained abilities to acquire knowledge and experience; it does not train the model into becoming multimodal.** MiniCPM5 is the smaller experimental platform used to reject weak mechanisms before paying for Spark training. The 35B/26B MoE options remain separate adapter-based ports; they are not prerequisites for the 4B product.

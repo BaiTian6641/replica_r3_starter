@@ -111,7 +111,7 @@ This revision adds a manifest-based provisioning path for the existing research 
 - `scripts/prepare_sparkx_research_bundle.py` — hashes every required input, records its repository-relative role and byte count, and verifies git tracking.
 - `reports/sparkx_first_tranche_20261026/research_bundle_manifest.json` — the generated manifest and bundle digest.
 
-The bundle is deliberately a manifest, not a copy. It does not duplicate checkpoints, media, annotations or caches, and it never rewrites an input. Paths are repository-relative; absolute home, temporary or `/private/tmp` paths are rejected. A manifest input that is missing, size-mismatched, hash-mismatched or untracked fails verification. Untracked files are refused by default even when they exist locally, because a clean checkout would not contain them.
+Manifest entry paths are repository-relative; absolute home, temporary or `/private/tmp` paths are rejected in those entries. Historical receipt contents may quote the origin workspace and are not rewritten. A manifest input that is missing, size-mismatched, hash-mismatched or untracked fails verification. Untracked files are refused by default even when they exist locally, because a clean checkout would not contain them.
 
 ```bash
 # create/refresh the manifest after the listed inputs are committed

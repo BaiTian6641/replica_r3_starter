@@ -1,0 +1,119 @@
+{
+  "kind": "analytical_payload_account_not_measured_fit",
+  "config": "configs/sparkx_2_6_4b_final_product_v5.json",
+  "native_execution": false,
+  "training": false,
+  "parameters": {
+    "stable_components": {
+      "original_backbone": 4112079360,
+      "vision_encoder_declared": 92884224,
+      "audio_encoder_declared": 93289476,
+      "vision_projector_with_bias": 3411456,
+      "audio_projector_with_bias": 3149312,
+      "nine_compact_readers": 28311552,
+      "nine_plastic_projections": 11796480,
+      "two_projection_phrase_encoder": 2883584
+    },
+    "stable_partial": 4347805444,
+    "plastic": 12582912,
+    "combined_partial": 4360388356,
+    "unsealed_modules": [
+      "record_encoder_and_fusion",
+      "spatial_resampler",
+      "audio_layer_fusion",
+      "temporal_and_core",
+      "norms_and_gates",
+      "routers_and_writers",
+      "learning_heads",
+      "position_features",
+      "structured_output_heads",
+      "identity_reader",
+      "admitted_spine_adapters"
+    ],
+    "rough_planning_placeholder_not_cap": 4400000000
+  },
+  "reconciliation": {
+    "old_profile_total": 4320804612,
+    "remove_alternative_terms": {
+      "memory_query_output": 3276800,
+      "memory_reader_matrices": 10485760,
+      "phrase_encoder": 2228224
+    },
+    "add_reference_terms": {
+      "nine_compact_readers": 28311552,
+      "nine_plastic_projections": 11796480,
+      "two_projection_phrase_encoder": 2883584,
+      "sixteen_plastic_experts": 12582912
+    },
+    "new_partial": 4360388356,
+    "historical_receipts_modified": false
+  },
+  "dynamic": {
+    "live_bytes": {
+      "E": 9437184,
+      "F": 6291456,
+      "C": 36864,
+      "P": 50331648,
+      "P_moments": 100663296
+    },
+    "optional_A_bytes": {
+      "A": 196608,
+      "A_moments": 393216
+    },
+    "staging_bytes": {
+      "F_candidate": 6291456,
+      "C_candidate": 36864,
+      "one_E_record": 2304,
+      "selected_P_candidate": 6291456,
+      "selected_P_candidate_moments": 12582912,
+      "selected_P_gradients": 6291456
+    },
+    "optional_A_staging_bytes": {
+      "A_candidate": 196608,
+      "A_candidate_moments": 393216,
+      "A_gradients": 196608
+    },
+    "live_with_A_MiB": 159.59765625,
+    "peak_with_A_MiB": 190.385009765625,
+    "peak_with_A_plus_separate_replay_MiB": 254.385009765625,
+    "matches_prior_nested_payload": true,
+    "128_MiB_live_profile_fits": false
+  },
+  "KV": {
+    "bytes_per_token_per_layer_BF16": 4096,
+    "bounded_sliding_cache_bytes": 358612992,
+    "bounded_sliding_cache_MiB": 342.0,
+    "all_layers_full_cache_bytes": 1207959552,
+    "all_layers_full_cache_GiB": 1.125,
+    "backend_eviction_verified": false
+  },
+  "training_state_GiB_at_planning_placeholder": {
+    "16_bytes_per_parameter": 65.56510925292969,
+    "18_bytes_per_parameter": 73.7607479095459,
+    "12_bytes_per_parameter_unqualified": 49.173831939697266
+  },
+  "derived_payloads": {
+    "phrase_rows_MiB": 1.25,
+    "double_phrase_buffer_MiB": 2.5,
+    "phrase_head_extra_percent": 0.1953125,
+    "bounded_observer_KiB": 72.0,
+    "full_hidden_dump_GiB": 1.40625,
+    "AV_example_positions": 640,
+    "selected_record_KV_per_site_KiB": 128.0,
+    "selected_record_KV_all_sites_MiB": 1.125,
+    "two_active_P_matrix_MACs_per_position_per_site": 1572864
+  },
+  "excluded": [
+    "unsealed module weights",
+    "activations",
+    "encoder internal work buffers",
+    "allocator and kernel temporaries",
+    "additional candidate or rollback snapshots",
+    "optimizer scalar metadata",
+    "source/literal payloads",
+    "expanded journal and indexes",
+    "multi-stream multiplication",
+    "reference teacher models",
+    "external modules"
+  ]
+}

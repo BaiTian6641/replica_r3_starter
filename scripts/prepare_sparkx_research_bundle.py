@@ -349,6 +349,118 @@ INPUT_ROLES: list[tuple[str, str]] = [
         "reports/nested_learning_nl0_20261026/tests.xml",
         "preserved NL0 status-only failed JUnit evidence",
     ),
+    (
+        "reports/spark_qualification_20261026/selected_runs.json",
+        "portable selected-run digest receipt for the official BF16 and dequantized FP8 qualifications",
+    ),
+    (
+        "docs/experiments/20261026_Spark_Precision_and_Provisioning.md",
+        "three precision identities, frozen-base admission, storage ledger and H200 provisioning boundary",
+    ),
+    (
+        "reports/spark_qualification_20261026/summary.json",
+        "Spark2_5 qualification summary: stages, resources, storage and preserved failures",
+    ),
+    (
+        "reports/spark_qualification_20261026/comparison.json",
+        "paired BF16/derivative smoke comparison receipt (no capability claim)",
+    ),
+    (
+        "reports/spark_weight_acquisition_20261026/receipt_01.json",
+        "official BF16 and FP8 weight-acquisition and offline re-verification receipt",
+    ),
+    (
+        "configs/spark_qualification_v1.json",
+        "frozen source, stage, resource and storage pins for Spark2_5 qualification",
+    ),
+    (
+        "configs/spark_weight_acquisition_v1.json",
+        "official snapshot acquisition plan pins and budget",
+    ),
+    (
+        "src/replica_lab/architecture/spark_adapter.py",
+        "Spark2_5 frozen-base adapter, optimizer audit and extension-only export",
+    ),
+    (
+        "scripts/qualify_spark2_5.py",
+        "Spark2_5 stage runner and fresh-process reload comparison",
+    ),
+    (
+        "scripts/dequantize_spark_fp8.py",
+        "offline FP8 validator and single dequantized BF16 derivative writer",
+    ),
+    (
+        "tests/test_spark2_5_adapter.py",
+        "synthetic adapter, optimizer, export/reload and runner-contract tests",
+    ),
+    (
+        "tests/test_dequantize_spark_fp8.py",
+        "synthetic FP8 inventory, scale, dequantization and identity tests",
+    ),
+    (
+        "reports/spark_qualification_20261025/backend_audit.json",
+        "MPS native-FP8 refusal evidence and blocked stage ledger",
+    ),
+    (
+        "configs/sparkx_2_6_4b_final_product_v5.json",
+        "v5 final-product declarative profile and inventory reconciliation",
+    ),
+    (
+        "docs/architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md",
+        "v5 final-product blueprint and Spark precision identity",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/README.md",
+        "v5 consolidation guide and repository evidence scope",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/verification.json",
+        "v5 documentation and arithmetic verification receipt",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/analytical_costs.json",
+        "v5 analytical payload and compute ledger",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/requirements_traceability.json",
+        "v5 requirement-to-evidence traceability map",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/evidence.json",
+        "v5 source and method evidence bindings",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/repository_snapshot.json",
+        "historical 40-input snapshot and worktree drift record",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/calculate_costs.py",
+        "v5 deterministic analytical cost calculator",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/verify.py",
+        "v5 documentation and arithmetic verifier",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/architecture_v4_5_before.txt",
+        "pre-edit architecture text snapshot",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/state_contract_before.txt",
+        "pre-edit state contract text snapshot",
+    ),
+    (
+        "reports/sparkx_final_product_20261026/architecture_index_before.txt",
+        "pre-edit architecture index text snapshot",
+    ),
+    (
+        "reports/runs_cleanup_20261026.json",
+        "preserved failed cleanup inspection receipt",
+    ),
+    (
+        "reports/runs_cleanup_20261026_verified.json",
+        "verified cleanup journal and evidence preservation receipt",
+    ),
 ]
 
 # Large payloads that must never be copied into this bundle. They are either
@@ -358,6 +470,7 @@ NOT_COPIED = [
     "data/** (bulk media, annotations and caches)",
     "runs/** (ignored native run evidence)",
     "reports/**/*.safetensors",
+    "**/*.pt (fresh-process reload tensors)",
 ]
 
 
@@ -448,8 +561,8 @@ def build_manifest(root: Path, allow_untracked: bool = False) -> dict:
         "kind": "hashed_manifest_not_an_asset_copy",
         "generator": "scripts/prepare_sparkx_research_bundle.py",
         "root_policy": (
-            "all paths are repository-relative; no absolute path, home directory "
-            "or temporary directory is recorded"
+            "manifest entry paths are repository-relative; historical receipt "
+            "contents may quote the origin workspace and are not rewritten"
         ),
         "input_count": len(entries),
         "total_input_bytes": sum(entry["bytes"] for entry in entries),

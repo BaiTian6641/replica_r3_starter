@@ -1,0 +1,57 @@
+{
+  "format": "replica.runs_cleanup.verification.v1",
+  "status": "completed_verified_cleanup",
+  "verified_at_utc": "2026-10-26T14:08:34.321168+00:00",
+  "deletion_journal": "reports/runs_cleanup_20261026.json",
+  "deletion_journal_sha256": "ea91fde588960f5a767517c40b27e350297c6d6df3746f750c64f901570fd6b2",
+  "deleted_files": 47,
+  "deleted_counts": {
+    "obsolete_checkpoint_payload": 31,
+    "orphan_pool_object": 16
+  },
+  "deleted_logical_bytes": 624162326534,
+  "observed_free_space_gain_during_cleanup_bytes": 463005777920,
+  "free_bytes_after_cleanup": 548376932352,
+  "current_free_bytes": 548738420736,
+  "runs_allocated_path_bytes_before": 844326313984,
+  "runs_allocated_path_bytes_after": 220230209536,
+  "verification": {
+    "preserved_original_files": 5101,
+    "missing_preserved_files": [],
+    "evidence_files_rehashed": 2895,
+    "evidence_hash_mismatches": [],
+    "retained_native_files_verified": 10,
+    "incidental_finder_metadata_changes": [
+      "runs/.DS_Store",
+      "runs/fused_adamw_20261026_comparison02/.DS_Store",
+      "runs/fused_adamw_20261026_comparison05/.DS_Store",
+      "runs/fused_adamw_20261026_comparison04/.DS_Store",
+      "runs/fused_adamw_20261025/.DS_Store",
+      "runs/fused_adamw_20261026_comparison03/.DS_Store",
+      "runs/fused_adamw_20261026_comparison10/.DS_Store",
+      "runs/.checkpoint_storage/.DS_Store",
+      "runs/fused_adamw_20261026_comparison08/.DS_Store",
+      "runs/fused_adamw_20261026_comparison06/.DS_Store",
+      "runs/fused_adamw_20261026_comparison01/.DS_Store",
+      "runs/fused_adamw_20261026_comparison07/.DS_Store",
+      "runs/fused_adamw_20261026_resume01/.DS_Store",
+      "runs/vision_balanced_alignment_v2_20261026/.DS_Store"
+    ],
+    "all_deleted_files_absent": true
+  },
+  "inspection_resolution": "Deletion completed before the journal stopped on two .DS_Store identity changes. Independent follow-up verified that only Finder metadata changed; all preserved reports, runtime logs, raw JSON evidence and native checkpoint file identities passed verification. No additional payload deletion was required.",
+  "retained_recent_resume_groups": [
+    "fused_adamw_20261026_comparison09",
+    "fused_adamw_20261026_comparison11"
+  ],
+  "retained_other_native_groups": [
+    "minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022",
+    "minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022",
+    "minicpm5_D2_tiny_chunk02_20261022",
+    "minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022",
+    "minicpm5_mps_muon8bit_D0_preflight_20261022_01"
+  ],
+  "original_model_sources_untouched": true,
+  "all_small_memory_and_vision_extensions_preserved": true,
+  "logical_size_note": "APFS clones share physical extents. Logical/path-allocated removals are not additive physical savings; use observed filesystem free-space increase."
+}
