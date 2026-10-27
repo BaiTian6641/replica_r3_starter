@@ -134,7 +134,42 @@ def _refresh_fit_artifacts(root: Path) -> dict:
             root / "fit" / "fit_report.json"),
         "fit_predictions_sha256": predictions_sha,
     }
+    _refresh_budget(root)
     return _write_receipt(root, receipt)
+
+
+def _resign_fit(root: Path) -> dict:
+    receipt = _receipt(root)
+    receipt["artifacts"] = {
+        "checkpoint_sha256": contract.sha256_file(
+            root / "fit" / "checkpoint.pt"),
+        "fit_report_sha256": contract.sha256_file(
+            root / "fit" / "fit_report.json"),
+        "fit_predictions_sha256": contract.sha256_file(
+            root / "fit" / "fit_predictions.jsonl"),
+    }
+    return _write_receipt(root, receipt)
+
+
+def _rebind_checkpoint(payload: dict) -> dict:
+    from replica_lab.value_readout_abstention import (
+        state_sha256, state_tensor_digests)
+    model_state = payload["model_state"]
+    fixed_state = payload["fixed_state"]
+    payload["trainable_state_sha256"] = state_tensor_digests(model_state)
+    payload["fixed_state_sha256"] = state_tensor_digests(fixed_state)
+    payload["model_state_sha256"] = state_sha256(model_state)
+    payload["state_sha256"] = state_sha256({**model_state, **fixed_state})
+    return payload
+
+
+def _rewrite_treatment_prediction_state(root: Path, state_sha256: str) -> str:
+    path = root / "fit" / "fit_predictions.jsonl"
+    rows = _rows(path)
+    for row in rows:
+        row["model_state_sha256"] = state_sha256
+    _write_rows(path, rows)
+    return contract.sha256_file(path)
 
 
 def _fit_admission(root: Path, *, spy=None) -> dict:
@@ -504,6 +539,20 @@ def test_positive_fit_admission_recomputes_every_case(fit_run):
                for row in admitted["control_fits"])
     assert all(row["optimizer_steps"] == 24
                for row in admitted["control_fits"])
+    assert admitted["physical_work"]["optimizer_steps"] == 72
+    assert admitted["physical_work"]["backward_calls"] == 72
+    assert admitted["physical_work"]["training_forward_calls"] == 72
+    assert admitted["physical_work"]["training_write_events"] == 27
+    assert admitted["physical_work"]["checkpoint_writes"] == 3
+    assert admitted["resume"]["process_count"] == 1
+    assert admitted["resume"]["optimizer_steps_by_process"] == [72]
+    baselines = admitted["zero_update_baselines"]
+    assert baselines["parent"]["case_accuracy"] == 1.0
+    assert baselines["reset"]["case_accuracy"] == pytest.approx(4 / 9)
+    assert baselines["integration_vs_learning"][
+        "learning_improvement_claimed"] is False
+    assert baselines["integration_vs_learning"][
+        "parent_already_passes_all_fit_gates"] is True
 
 
 def test_fit_admission_refuses_missing_and_placeholder_artifacts(fit_run, tmp_path):
@@ -608,6 +657,128 @@ def test_fit_admission_refuses_bad_update_records(fit_run, tmp_path):
     _write_receipt(root, receipt)
     with pytest.raises(contract.ProtocolError):
         _fit_admission(root)
+
+
+def test_fit_admission_refuses_valid_looking_final_update_hash(fit_run,
+                                                               tmp_path):
+    root = _copy_evidence(fit_run, tmp_path)
+    checkpoint_path = root / "fit" / "checkpoint.pt"
+    checkpoint = torch.load(checkpoint_path, map_location="cpu",
+                            weights_only=True)
+    checkpoint["update_records"][-1]["state_after_sha256"] = "0" * 64
+    torch.save(checkpoint, checkpoint_path)
+    report = _fit_report(root)
+    report["update_records"][-1]["state_after_sha256"] = "0" * 64
+    _write_fit_report(root, report)
+    _refresh_budget(root)
+    _resign_fit(root)
+    with pytest.raises(contract.ProtocolError, match="final update hash"):
+        _fit_admission(root)
+
+
+def test_fit_admission_refuses_rehashed_final_state_and_update_hashes(
+        fit_run, tmp_path):
+    root = _copy_evidence(fit_run, tmp_path)
+    checkpoint_path = root / "fit" / "checkpoint.pt"
+    checkpoint = torch.load(checkpoint_path, map_location="cpu",
+                            weights_only=True)
+    with torch.no_grad():
+        checkpoint["model_state"]["selected_expert.gate"] = (
+            checkpoint["model_state"]["selected_expert.gate"] + 1e-6)
+    _rebind_checkpoint(checkpoint)
+    new_state = checkpoint["state_sha256"]
+    checkpoint["update_records"][-1]["state_after_sha256"] = new_state
+    torch.save(checkpoint, checkpoint_path)
+
+    predictions_sha = _rewrite_treatment_prediction_state(root, new_state)
+    checkpoint = torch.load(checkpoint_path, map_location="cpu",
+                            weights_only=True)
+    checkpoint["predictions_sha256"] = predictions_sha
+    torch.save(checkpoint, checkpoint_path)
+    report = _fit_report(root)
+    report["resulting_state_sha256"] = new_state
+    report["model_state_sha256"] = checkpoint["model_state_sha256"]
+    report["update_records"][-1]["state_after_sha256"] = new_state
+    report["predictions_sha256"] = predictions_sha
+    _write_fit_report(root, report)
+    _refresh_budget(root)
+    _resign_fit(root)
+    with pytest.raises(contract.ProtocolError,
+                       match="deterministic replay|differ"):
+        _fit_admission(root)
+
+
+def test_fit_admission_refuses_contradictory_event_clock_and_world(
+        fit_run, tmp_path):
+    for mutation in ("clock", "world", "epoch"):
+        root = _copy_evidence(fit_run, tmp_path / mutation)
+        checkpoint_path = root / "fit" / "checkpoint.pt"
+        checkpoint = torch.load(checkpoint_path, map_location="cpu",
+                                weights_only=True)
+        report = _fit_report(root)
+        index = 7
+        if mutation == "clock":
+            checkpoint["update_records"][index]["clock_step"] += 1
+            report["update_records"][index]["clock_step"] += 1
+        elif mutation == "world":
+            checkpoint["update_records"][index]["world_id"] = "world_dev_alpha"
+            report["update_records"][index]["world_id"] = "world_dev_alpha"
+        else:
+            checkpoint["update_records"][index]["epoch"] += 1
+            report["update_records"][index]["epoch"] += 1
+        torch.save(checkpoint, checkpoint_path)
+        _write_fit_report(root, report)
+        _refresh_budget(root)
+        _resign_fit(root)
+        with pytest.raises(contract.ProtocolError,
+                           match="clock progression|binding differs"):
+            _fit_admission(root)
+
+
+def test_fit_admission_refuses_rehashed_control_checkpoint(fit_run, tmp_path):
+    root = _copy_evidence(fit_run, tmp_path)
+    path = root / "fit" / "control_shuffled_values.pt"
+    payload = torch.load(path, map_location="cpu", weights_only=True)
+    with torch.no_grad():
+        payload["model_state"]["selected_expert.up"] = (
+            payload["model_state"]["selected_expert.up"] + 1e-6)
+    _rebind_checkpoint(payload)
+    payload["update_records"][-1]["state_after_sha256"] = payload["state_sha256"]
+    torch.save(payload, path)
+    report = _fit_report(root)
+    for row in report["control_fits"]:
+        if row["arm_id"] == "shuffled_values":
+            row["checkpoint_sha256"] = contract.sha256_file(path)
+    _write_fit_report(root, report)
+    _refresh_budget(root)
+    _resign_fit(root)
+    with pytest.raises(contract.ProtocolError,
+                       match="control .* replay|differ"):
+        _fit_admission(root)
+
+
+def test_deterministic_replay_matches_fit_and_checkpoint(fit_run):
+    from replica_lab.value_readout_abstention import (
+        read_fit_metadata, replay_fit_evidence)
+    config = _config()
+    metadata = read_fit_metadata(PREPARED, config)
+    first = replay_fit_evidence(metadata, config)
+    second = replay_fit_evidence(metadata, config)
+    assert first == second
+    report = _fit_report(fit_run)
+    checkpoint = torch.load(fit_run / "fit" / "checkpoint.pt",
+                            map_location="cpu", weights_only=True)
+    treatment = first["learned_value_readout"]
+    assert treatment["update_records"] == report["update_records"]
+    assert treatment["update_records"] == checkpoint["update_records"]
+    assert treatment["state_sha256"] == report["resulting_state_sha256"]
+    assert treatment["state_sha256"] == checkpoint["state_sha256"]
+    assert treatment["predictions"] == _rows(
+        fit_run / "fit" / "fit_predictions.jsonl")
+    for arm_id in ("shuffled_values", "wrong_world_values"):
+        assert treatment["state_sha256"] != first[arm_id]["state_sha256"]
+        assert first[arm_id]["predictions"] == _rows(
+            fit_run / "fit" / f"control_{arm_id}_predictions.jsonl")
 
 
 # ---------------------------------------------------------------------------

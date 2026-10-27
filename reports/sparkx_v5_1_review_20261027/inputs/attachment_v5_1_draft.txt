@@ -1,0 +1,702 @@
+# SparkX 2.6 4B — v5.1 refinement plan: multimodal capability, native multimodal memory, native multimodal reasoning and nested self-learning
+
+**Version 5.1-draft · 27 October 2026 · Proposed revision to [Document 23](23_SparkX_2_6_4B_Final_Product_Blueprint.md) (v5.0).**
+
+**Purpose:** This document corrects and refines the v5.0 blueprint using a structured review and a verified literature sweep. It is written for the workspace implementation agent. Each change is mapped to a v5.0 section, given a priority, tied to evidence and given a pass/fail gate (§11).
+
+**Authority:** This is a *proposal*. It does not change executed receipts, admission records or Document 22's normative state/transaction contracts. Every new numeric choice is a **candidate** until it is preregistered and measured, which is the same convention v5.0 uses.
+
+**Long-term goal:** A multimodal model built on Spark-X2.6-4B that can learn from experience in a nested way. The interfaces must carry over to larger future backbones (§10).
+
+**Citation convention:** `[ShortName]` refers to §12. Every arXiv ID in §12 had its title checked against the arXiv abstract page or API on 2026-10-27. Numbers come from the abstracts unless marked **†**, which means the detail is from the paper body, reached via secondary sources, and should be checked in the PDF before anyone depends on the exact value.
+
+---
+
+## 0. Executive summary
+
+### 0.1 What changes and why
+
+| # | Change | v5.0 § | Priority | Core evidence |
+|---|---|---|---|---|
+| C1 | Replace SigLIP2-base@224 (64 tokens) with **SigLIP2-So400m (NaFlex or 384)** at variable resolution, ~256 tokens per crop plus tiling | 4.1, 6.1 | P0 | [SigLIP2], [Gemma3]†, [Qwen2.5-VL], [MM1], [SmolVLM] |
+| C2 | **Textual timestamps plus chunked AV interleave** on the media clock instead of MRoPE-style positions | 6.3, 7.3 | P1 | [Qwen3-VL], [Qwen2.5-Omni]†, [Apollo] |
+| C3 | **Progressive modality curriculum** (image → video → audio → AV) with text in every stage. Remove memory/learning episodes from F2 | 17.1–17.2 | P0 | [Ola], [VITA-1.5], [Qwen3-Omni], [Kimi-Audio], [EMT] |
+| C4 | **Grounded reasoning: light SFT then GRPO with verifiable dense rewards** (point/box, temporal IoU, AV clues, memory citation) | 6.4, 18.1 | P1 | [TwVG], [GRIT], [DeepEyes], [Time-R1], [Video-R1], [AV-Reasoner], [SFTorRL] |
+| C5 | **Split the memory failure into three numbers** and add RAG, in-context and self-KV baselines before redesigning | 9, 21.1 | P0 | [LongMemEval], [MemT], [ReKV] |
+| C6 | **Hybrid native addressing** (dense + hashed lexical + entity anchors, multi-vector) trained end-to-end, with retriever distillation | 9.2–9.3 | P0 | [EntityQs], [DPR-Repl], [Engram], [BGE-M3], [ColBERTv2], [Atlas], [M+], [MemDecoder] |
+| C7 | **Multimodal record redesign**: compact address tier plus a hot tier of per-modality token packets, an exact-literal span and entity anchors | 8.2 | P1 | [OmniMem], [Omni2LoRA], [video-SALMONN S], [MemTrans], [M3-Agent] |
+| C8 | **Single-pass, chunk-delayed memory read** at deeper sites, trained with the same chunk pattern used at inference. This replaces the separate sensing prefill | 9.2, 14.3 | P1 | [RETRO], [StreamingVLM], [LM2], [Light-Omni] |
+| C9 | **Demote F** (linear delta rule). If it is kept, use gated or TTT-style chunk updates | 10.2 | P2 | [TTT-E2E], [GatedDeltaNet], [ATLAS], [video-SALMONN S] |
+| C10 | **Fix persisted Adam momentum** (reset `m` at each teaching event) | 10.4, 15.2 | **P0 (bug)** | [AdamReset], [NestedLearning], [SpuriousForget] |
+| C11 | **Store now, consolidate later.** E answers immediately; P is written by a gated, deferred self-distillation step on augmented examples | 10.3–10.4 | P0 | [CLS95], [CLS16], [Ovadia23], [Gekhman24], [PhysLM3.1], [Cartridges], [SDFT26] |
+| C12 | **Dense read, sparse write P**, with null-space projection, anchor KL and a free-generation commit gate | 10.3 | P0 | [SparseMemFT], [LMM-Skills], [AlphaEdit], [RLRazor], [Mirage-Edit] |
+| C13 | **Meta-training identical to deployment**: E dropout, Meta-SGD step sizes, sequence-level outer loss, amortized-writer arm | 10.5 | P1 | [Meta-SGD], [MAML++], [Reptile], [OML], [RLEdit], [D2L], [GenAdapter] |
+| C14 | **Trust tiers, rate limits and rollback snapshots** for deployment learning, plus poisoning red-team suites | 10.6, 15.3 | P1 | [Poison250], [MINJA], [AgentPoison], [ImgInject], [SleeperAgents] |
+| C15 | **Joint benchmark suite** for omni/AV, multimodal memory and editing, without teacher forcing | 19.4, 21 | P1 | [WorldSense], [Daily-Omni], [AV-Odyssey], [LVOmniBench], [ELViM], [Mirage-Edit] |
+| C16 | **Scaling contract**: width-relative interfaces, backbone-agnostic memory features, two-size confirmation (MiniCPM → Spark) | new §10 | P1 | [Apollo], [InternVL2.5], [MemLayers], [Engram] |
+
+### 0.2 Refined whole-system picture
+
+```mermaid
+flowchart TB
+  subgraph PERCEPTION[Perception, offline full-trained]
+    V["Images and video: SigLIP2-So400m NaFlex, tiles, pixel-shuffle"] --> VP[Vision projector]
+    A["Waveform: SPEAR, about 10-12.5 Hz learned pooling"] --> AP[Audio projector]
+    VP --> IL["Chunked AV interleave with textual timestamps"]
+    AP --> IL
+  end
+  T[Text and teaching] --> D
+  IL --> D["Spark decoder, 36 blocks; bidirectional inside media spans (experiment)"]
+  subgraph MEM[Native multimodal memory]
+    D -->|"early-layer query, chunk t-1"| ADDR["Hybrid address: dense + hashed lexical + entity, multi-vector"]
+    ADDR --> E["E records: compact tier + hot per-modality packets + literal span + entity anchors"]
+    E --> RD["Gated cross-attention read at deeper sites, modality-aware"]
+    RD --> D
+  end
+  subgraph LEARN[Nested self-learning]
+    TEACH["Teaching event, trust tier"] --> E
+    TEACH --> AUG["Derived examples: paraphrase, reverse, multi-hop, cross-modal; entailment filter"]
+    AUG --> PF["Pf: gated sparse-write self-distillation"]
+    PF --> CONS["Consolidation, idle or every 16 events"]
+    CONS --> PS[Ps]
+    PF --> D
+    PS --> D
+  end
+  D --> OUT["Answer + evidence refs: point, box, interval, record_uid"]
+```
+
+---
+
+## 1. Design principles carried forward and added
+
+1. **Keep from v5.0:** claim discipline, information-removal audits (§16, §20.4), transactional state (§14.4), separation of stored, learned and deferred (§26.1), and teachers used offline only.
+2. **New: train the way you deploy.** The chunk pattern, the memory read path and the inner update recipe used in offline training must be the ones that run in deployment ([StreamingVLM], [OML], [RLEdit]).
+3. **New: evidence references are one type.** Points, boxes, temporal intervals, audio intervals and memory record citations share a single typed reference schema and a single reward family (§4.2, §6.3).
+4. **New: diagnose before redesigning.** Every memory or learning failure is reported as separate addressing, readout and calibration numbers ([LongMemEval]).
+5. **New: backbone-agnostic state where possible.** Store memory sensory features in encoder or fixed-width spaces so they can be re-projected for a new backbone (§10).
+
+---
+
+## 2. Multimodal capability refinements
+
+### 2.1 Vision encoder, resolution and token budget (C1) — replaces v5.0 §4.1 vision row and §6.1
+
+**Problem:** At 224 px with 64 tokens, SparkX sits 4–10× below every comparable ~4B VLM token budget. That conflicts with the "documents" contract and with fine pointing.
+
+| Reference | Encoder / resolution | Tokens |
+|---|---|---|
+| [Gemma3]† (4B, sliding/global like Spark) | 400M SigLIP, 896×896, Pan&Scan | 256 per crop |
+| [Qwen2.5-VL] | Native dynamic-resolution ViT, window attention | Dynamic (†2×2 merge) |
+| [LLaVA-OV]† | SigLIP-So400m 384, AnyRes tiles | 729 per tile |
+| [SmolVLM] | Aggressive pixel-shuffle compression wins for small models | Varies |
+| v5.0 SparkX | SigLIP2-base 224 | 64 |
+
+**Candidate reference (v5.1):**
+- **Encoder:** `google/siglip2-so400m-patch16-naflex` (preferred) or `siglip2-so400m-patch14-384`. [SigLIP2] reports better localization and dense features than SigLIP at every scale, plus native-aspect NaFlex. Keep SigLIP2-base@224 only as the cheap ablation.
+- **Tokens:** about 256 tokens per crop via 2×2 or 4×4 pixel shuffle, plus tiling or Pan&Scan for documents and small text. Budget 1 global view plus up to 4 detail tiles per image, and choose tiles from pixels and native queries, never from evaluation boxes (v5.0 §6.1 rule kept).
+- **Connector:** keep the 2-layer MLP. [MM1] found connector design matters comparatively little next to resolution and token count. A 3D resampler over video frames is an optional arm ([MiniCPM-V4.5]).
+- **Parameter impact (candidate):** about +300M encoder parameters over base. The projector input becomes 1152·s² (s = shuffle factor): about 18.4M parameters at s=2 (4608→2560→2560). v5.0 §1.1 already allows this, but §22.1 must be re-audited.
+
+**Spark-specific caveats (must be tested):**
+- **Sliding window 512:** in 27 of 36 layers, a multi-tile image (e.g. 5×256 = 1280 tokens) is only partly visible inside the local window. The 9 full-attention layers see everything. Measure whether tile order or a global-view-last ordering matters.
+- **Bidirectional attention inside image spans** helped [Molmo2]. On Spark this means a mask edit inside media spans only, with causal attention everywhere else. Treat it as an ablation with disabled-extension parity preserved.
+
+**Gate G-V1:** document/OCR and pointing development sets improve over base@224 at matched training compute. The 14-example memorization diagnostic must pass first (v5.0 O2; Review part 1 §4.1).
+
+### 2.2 Media clock and positions (C2) — refines v5.0 §6.3 and §7.3
+
+- **Textual timestamp tokens.** Insert `<t=12.0s>`-style tokens before each media chunk instead of a multi-axis RoPE. [Qwen3-VL] moved from T-RoPE to textual timestamps. Spark's layer-specific RoPE (partial 0.25 on full layers, full 1.0 on sliding layers) makes MRoPE-style surgery risky. Timestamps reuse the base tokenizer and keep the original positional computation unchanged.
+- **Chunked AV interleave.** Within each ~2 s chunk, emit visual tokens then audio tokens, in time order across chunks ([Qwen2.5-Omni] TMRoPE†). This keeps the v5.0 `start/end/available_at` metadata, which becomes the source of the timestamp tokens.
+- **fps-based sampling, not uniform-count sampling** ([Apollo]). Default 1–2 fps for coarse events, with dense re-sampling requests for detail (v5.0 §6.3 detail-request path kept).
+
+### 2.3 Audio (refines v5.0 §7.1–7.2)
+
+- **Rate:** about 10 tok/s is defensible. [Kimi-Audio] uses 12.5 Hz and [Qwen3-Omni]† uses 12.5 Hz; [Qwen2.5-Omni]† uses 25 Hz. Make **12.5 Hz the reference** (closer to proven systems) and keep 25 Hz as the fallback for fine acoustic tasks.
+- **Fine-perception check:** [AV-Odyssey] DeafTest shows current models fail at basic loudness and pitch comparison. Add DeafTest-style probes to G-A1.
+- **Alignment stage:** SPEAR is a self-supervised, non-text-aligned encoder ([SPEAR]). It needs a dedicated alignment stage (ASR + audio captioning + sound-event labels) before reasoning data. Whisper-based encoders ([Whisper], [Qwen2-Audio]) are text-aligned, multilingual and MIT-licensed. Keep a Whisper-encoder arm as a **co-primary candidate** for Mandarin and multilingual speech (v5.0 O3).
+
+### 2.4 Training curriculum to protect text (C3) — replaces v5.0 §17.1 F1–F2 and §17.2 mixture
+
+Evidence: progressive alignment works best when it moves from distinct modalities to bridging ones, with video as the bridge to audio ([Ola]). Adding speech can conflict with vision unless it is staged ([VITA-1.5]). Text-ability degradation is avoidable when text and multimodal data are mixed from early on ([Qwen3-Omni], [Kimi-Audio]). Fine-tuned MLLMs can even fall below their own vision encoder on recognition ([EMT]).
+
+| Stage | Content | Trainable | Text share (charged positions) |
+|---|---|---|---|
+| F1 | Projector alignment: captions (PixMo-Cap), ASR, audio tags/captions | Projectors (+ pooling), backbone frozen | ≥20% |
+| F2a | Images, documents, pointing/counting (PixMo-Points/Count/Docs) | Full: backbone + vision encoder | ≥30% |
+| F2b | Multi-image and video: captions, QA, pointing, tracking (Molmo2 family), timestamps | Full | ≥25% |
+| F2c | Audio: speech (EN + ZH), sound, music | Full: backbone + audio encoder | ≥25% |
+| F2d | AV interleaved: dense AV captions → AV QA. Optional caption DPO ([video-SALMONN 2]) | Full | ≥25% |
+| F2e | Grounded reasoning RL (§4) | Full or scoped | Text-only RL items included ([Omni-R1-A]) |
+
+- **No memory or learning episodes in F2** (they move to F3/F4).
+- **Text retention source:** self-distillation from frozen Spark-X2.6 over diverse prompts, including its thinking-budget modes and tool-call formats. Keep a retention gate on those behaviours.
+- **Fallback:** if full fine-tuning breaks text retention beyond the gate, a modality-LoRA/router variant on a frozen LLM is a declared fallback ([Phi-4-MM]). It is not the reference.
+
+### 2.5 Dataset deltas
+
+The dataset and licence findings from Review part 1 are carried over. Additions supported by this sweep:
+- **Molmo2 family** ([Molmo2]): VideoPoint, VideoTrack, Cap, AskModelAnything, VideoCapQA, MultiImageQA/Point (ODC-BY annotations). VideoTrack must be filtered per upstream source for the product lineage (e.g. MOSE is CC BY-NC-SA).
+- **Visual CoT** ([VisualCoT]) for box-interleaved reasoning SFT; check its licence before admission.
+- **CoTA-style structured audio CoT** ([Audio-Reasoner]), as research lineage unless licence-cleared.
+- **OmniInstruct** ([OmniBench]) for tri-modal instruction data; check its licence.
+- Keep the product/research lineage column from Review part 1 as mandatory.
+
+---
+
+## 3. Native multimodal memory
+
+### 3.1 Diagnosis protocol first (C5) — prerequisite to all other memory work
+
+[LongMemEval] decomposes long-term memory into **indexing, retrieval and reading**. Apply the same split to the current failure (21/384 correct, precision 21/138):
+
+| Metric | Definition | Fix if low |
+|---|---|---|
+| R@16 | Gold record is among the ≤16 selected | §3.3 addressing |
+| Oracle readout | Accuracy when the gold record is injected | §3.2 record content / literal tier |
+| Risk–coverage curve | Precision as a function of the accept threshold | §3.6 calibration; threshold tuning first |
+
+**Baselines (diagnostic only, not shipped):**
+1. Gold facts in context.
+2. Text RAG: BM25 + dense with token injection.
+3. Long context up to 8k.
+4. **Self-KV retrieval:** the model retrieves its own cached KVs ([ReKV]); this is the strongest training-free native baseline.
+
+[MemT] reports parity with retrieval-augmented methods, not superiority. The native memory should be expected to *approach* text RAG first.
+
+### 3.2 Multimodal record redesign (C7) — replaces v5.0 §8.2 feature payload
+
+**Problem:** a single 256-d semantic vector plus 2×128-d visual and 2×128-d acoustic vectors cannot carry literals, and compresses modalities in isolation. Compressing each modality separately destroys cross-modal anchors ([Omni2LoRA]). Visual and audio memories need **separate budgets** ([OmniMem]). The strongest AV streaming memory uses a **modality-aware reader** ([video-SALMONN S]). External multimodal agents get large gains from **entity-centric** (face, voice, name) memory ([M3-Agent], +6.7/+7.7/+5.3 on its benchmarks).
+
+**Candidate tiered record (all widths candidate):**
+
+```text
+ExperienceRecord v2
+  identity / provenance / timing / geometry / state      # unchanged from v5.0
+  address:
+    dense_keys[M=4, 128]          # semantic, visual, acoustic, joint (multi-vector)
+    lexical_sig[H=8 hashes]       # hashed n-grams of names/literals (Engram-style)
+    entity_refs[<=4]              # entity_uid -> face/voice/name anchor embeddings
+  compact_values:                 # always resident (v5.0 896 BF16 retained)
+    semantic[256], visual[2,128], acoustic[2,128]
+  hot_packets (hot tier only):
+    visual_tokens[16, 512]        # projected from encoder features, not semantic summary
+    audio_tokens[16, 512]
+  literal_span: token_ids[<=32] + canonical-bytes ref   # verbatim copy tier
+  joint_anchor: shared timestamp + entity links across modalities
+```
+
+**Byte budget (candidate, BF16):**
+
+| Tier | Per record | Count | Total |
+|---|---:|---:|---:|
+| Compact (v5.0 features + metadata) | 2,304 B | 4,096 | 9 MiB |
+| Multi-vector keys (4×128) | 1 KiB | 4,096 | 4 MiB |
+| Hot packets (2×16×512) | 32 KiB | 1,024 hot | 32 MiB |
+| Literal spans (32×4 B) | 128 B | 4,096 | 0.5 MiB |
+| **Total** | | | **≈45.5 MiB** |
+
+That fits inside v5.0's 256 MiB research envelope next to P (48 MiB) and its moments. Keeping hot packets for *all* 4,096 records would add 128 MiB and exceed it, so the hot tier is managed by the v5.0 §9.5 retention policy.
+
+### 3.3 Hybrid native addressing (C6) — replaces v5.0 §9.2 steps 2–3
+
+Evidence:
+- Dense retrievers drastically underperform BM25 on simple entity-centric questions, and augmentation does not fix it ([EntityQs]).
+- Dense+sparse hybrids were under-reported and are stronger ([DPR-Repl]).
+- Engram's hashed n-gram lookup is O(1) and improves multi-query needle retrieval from 84.2 to 97.0 ([Engram]).
+- A single model can emit dense, sparse and multi-vector scores ([BGE-M3]); late interaction beats a single vector ([ColBERTv2]).
+
+**Candidate scoring:**
+```text
+s(q, r) = w_d · max_m <q_m, k_{r,m}>          # multi-vector dense (per modality)
+        + w_l · |H(q) ∩ lexical_sig_r| / H     # hashed lexical overlap
+        + w_e · 1[entity(q) ∈ entity_refs_r]   # entity anchor match
+```
+Weights are learned offline and frozen at release. Eligibility masks (scope, status, availability) apply **before** scoring (v5.0 rule kept).
+
+**Training write/read alignment** ([REALM], [Atlas], [M+], [MemDecoder]):
+- End-to-end reader loss plus an in-batch contrastive address loss against gold records (gold IDs only in the loss, never in routing, as in v5.0 §9.3).
+- **Hard negatives:** same entity at a different time; same time in a different modality; superseded records.
+- **Retriever distillation:** train the native address to imitate a strong external hybrid retriever's rankings, then evaluate it natively. [M+] shows a co-trained retriever extends retention from under 20k to over 160k tokens, where a latent pool alone collapses.
+
+### 3.4 Read path: single-pass and chunk-delayed (C8) — replaces v5.0 §14.3 steps 3–5 as the reference
+
+- **Query** from the hidden states of the **previous chunk** at an early layer (~L8–L11). Retrieve, then read at sites **deeper than the query layer** ([RETRO] chunked cross-attention; RETRO also shows a pretrained transformer can be retrofitted).
+- **Read operator:** gated cross-attention with the original residual path preserved ([LM2]: BABILong +37.1% vs RMT, MMLU +5.0). A modality-aware reader uses separate projections per packet type ([video-SALMONN S]).
+- **Sites:** v5.0's sites 3 and 7 come before the query layer, so they read only the workspace (and F if kept). Episodic reads start at site 11. The 9-site comparison in v5.0 §5.3 stays.
+- **Training equals inference:** train with the same chunk-delayed pattern ([StreamingVLM]). The two-pass schedule stays as a correctness reference, not the default.
+- **Literal tier:** when a record is selected, its `literal_span` tokens can be copied through a pointer/copy head over the literal tokens ([MemTrans]). Report it as episodic/literal recall, as in v5.0 §8.3.
+
+### 3.5 Write path for streams (refines v5.0 §9.5)
+
+- **Segmentation:** scene/event boundaries ([VideoLLaMB] SceneTiling) or surprise-based boundaries ([EM-LLM]), instead of fixed windows. A fixed-span writer stays as the baseline.
+- **Saliency without the question:** query-agnostic compression scored against generic query tokens ([StreamMem]). Deduplicate near-identical frames ([LongVU]).
+- **Consolidation:** short-term → long-term merging of duplicates and entity-record updates ([MovieChat], [TeleMem]).
+- **Asynchrony:** the writer runs separately from the answerer ([Flash-VStream], [Dispider]). This fits v5.0's one-writer-per-scope transaction model.
+
+### 3.6 Calibration and abstention (refines v5.0 §9.2 step 4)
+
+Models hallucinate even when the context is sufficient. Sufficiency-guided selective generation adds +2–10% accuracy on the questions answered ([SufficientCtx]). Retrieval matters most for long-tail entities ([PopQA]).
+
+**Abstention-head inputs:** top-1/top-2 score margin, lexical-hit flag, entity match, cross-modal agreement between the visual and acoustic packets, and the parametric-confidence estimate. Train refusals on episodes where the gold record is ineligible or evicted ([Trust-Align]).
+
+### 3.7 Fast memory F (C9) — demotion
+
+[TTT-E2E] shows Mamba2 and Gated DeltaNet do **not** scale with context the way full attention or TTT-E2E do (3B, 164B tokens). The v5.0 F is an ungated delta rule. Its gated variant is strictly better ([GatedDeltaNet]), and window-level optimization beats per-token updates ([ATLAS]).
+
+**Decision:** remove F from the v5.1 reference and keep it as arm `M-F`. If it is revived, use a gated delta rule or a TTT layer with a long-span objective ([video-SALMONN S]), with chunk-level updates. It must beat E-alone under reset and wrong-state controls.
+
+### 3.8 Optional parametric fact layer
+
+Memory layers beat dense models with twice the compute, with gains largest on factual tasks ([MemLayers]); ultra-sparse memory scales favourably ([UltraMem]). The plastic bank P (§5.3) can be implemented as a **product-key memory layer** ([PKM]), which also gives fine-grained sparse writes.
+
+---
+
+## 4. Native multimodal reasoning (C4) — replaces v5.0 §6.4 and moves part of §18.1's "later branch" earlier
+
+### 4.1 Evidence that this works at Spark's size
+
+- **4B:** point/box-grounded thinking with dense grounding rewards lets Gemma3-4B-IT match or exceed Gemma3-27B on spatial reasoning ([TwVG]).
+- **3B:** a 3B VLM trained with GRPO and mixed perception+cognition rewards reached #1 on the Open LMM Reasoning leaderboard ([SFTorRL]).
+- **Small data:** box-interleaved reasoning works with as few as 20 samples using answer+format reward ([GRIT]). A 3K SFT cold start plus RL gives +5% on V* ([CoF]).
+
+### 4.2 Unified evidence reference (extends v5.0 §6.2)
+
+```text
+EvidenceRef = {kind: point|box|interval|audio_interval|record,
+               source_id, frame_id|t_start..t_end, xy|xyxy, record_uid?, confidence}
+```
+A reasoning step may cite any `EvidenceRef`. Memory citations (`kind=record`) let memory-grounded reasoning use the same mechanism as visual grounding (§6.3).
+
+### 4.3 Training recipe
+
+| Step | Data | Objective | Evidence |
+|---|---|---|---|
+| R0 cold start (light) | Box/point CoT ([VisualCoT], PixMo, Molmo2); structured audio CoT subset ([Audio-Reasoner]) | SFT, a few thousand to ~165k items | [CoF], [Video-R1], [SFTorRL] (heavy SFT locks in imitation) |
+| R1 image grounding RL | Counting, spatial relations | GRPO: answer + point-match / box-IoU **dense grounding reward** | [TwVG], [GRIT], [DeepEyes] |
+| R2 temporal RL | Temporal grounding, ordering | Temporal IoU reward; T-GRPO temporal contrast (shuffled-frame comparison) | [Time-R1], [Video-R1], [VideoChat-R1] |
+| R3 audio RL | MMAU-style audio QA | GRPO. **Thinking optional**, since explicit reasoning gave no significant gain | [R1-AQA] |
+| R4 AV RL | AV counting, source localisation | GRPO + clue/timestamp grounding reward; coarse-to-fine | [AV-Reasoner], [Omni-R1-2S], [EchoInk-R1] |
+| R5 memory-grounded RL (after F3) | Delayed AV questions | Answer + correct `record_uid` citation + interval/box grounding (gold IDs only in the reward) | Proposed synthesis of [TwVG] + [M3-Agent] |
+
+### 4.4 Guardrails
+
+- **Modality-reliance audit:** report full / audio-only / video-only / text-only accuracy ([Daily-Omni]). Text-only fine-tuning can raise audio scores ([Omni-R1-A]), so gains need ablation proof. Language-space reasoning alone gave no out-of-distribution gain on AV counting ([AV-Reasoner]), so require clue grounding.
+- **Decorative-reference check** (v5.0 §6.4 kept): a box that is not linked to source features earns no grounding reward.
+- **Latent visual tokens:** optional after explicit grounding works. Budget ≤20 continuous tokens ([CoVT]: about 20 tokens, +3–16%). Alternative objectives: [LVR], [Mirage-MI].
+- **Text-only RL items** stay in the mix to preserve reasoning ([Omni-R1-A]).
+
+---
+
+## 5. Nested self-learning (C10–C14) — replaces v5.0 §10.3–10.6
+
+### 5.1 P0 bug: persisted momentum (C10)
+
+With β₁=0.9 and moments persisted across events (bias correction ≈1), the first step on a new fact B is `0.9·m_A + 0.1·g_B`. The new fact contributes about 10% of step 1 and about 19% after two steps.
+- Carrying Adam state across shifting objectives contaminates updates, and resetting helps ([AdamReset]).
+- Nested Learning treats optimizer momentum as a memory of gradients ([NestedLearning]), so persisting it mixes facts together.
+- Most early-step damage shows up as lost alignment ([SpuriousForget]).
+
+**Fix:** set `m ← 0` at each teaching event. Keep `v` as a slow preconditioner (frozen EMA), or replace the step-size rule with meta-learned Meta-SGD step sizes (§5.6). Continued-learning parity (v5.0 §15.2) persists `v`, the counters and α only.
+
+### 5.2 Store now, consolidate later (C11)
+
+Evidence against few-step online writes:
+- New-knowledge examples are learned slowly and, once learned, increase hallucination ([Gekhman24]).
+- RAG beats fine-tuning for knowledge injection ([Ovadia23]).
+- Facts written without augmentation get 0% question-extraction accuracy ([PhysLM3.1]).
+- "A is B" training does not teach "B is A" ([ReversalCurse]).
+
+Complementary learning systems theory predicts exactly the split below ([CLS95], [CLS16]), and recent LLM work implements sleep-like consolidation ([LMSleep], [SleepCompute]).
+
+```mermaid
+sequenceDiagram
+  participant U as Teacher (trust tier)
+  participant E as Episodic E
+  participant G as Derived-example generator
+  participant Pf as Pf (fast plastic)
+  participant Ps as Ps (slow plastic)
+  U->>E: commit record (instant recall; receipt "stored")
+  alt tier allows parameter learning
+    E->>G: teaching + media
+    G->>G: K=8-16 derived examples, entailment filter
+    G->>Pf: gated sparse-write self-distillation (4-8 steps)
+    Pf->>Pf: free-generation probes + anchor KL check
+    Pf-->>U: receipt "learned (fast)" or "stored only"
+    Note over Pf,Ps: idle time or every 16 eligible events
+    Pf->>Ps: consolidation (replay + original sources, EWC, LR rewarm/decay)
+    Ps-->>U: receipt "consolidated"
+  end
+```
+
+### 5.3 The write objective and update rule (C11, C12)
+
+**Augmentation (mandatory).** For each eligible teaching event, generate K=8–16 derived examples: paraphrases, **both directions**, QA form, multi-hop items using known facts, and for multimodal facts, cross-view, crop and caption variants. Evidence:
+- Diverse synthetic renderings: QuALITY 39.49 → 56.22† ([EntiGraph]).
+- Self-generated study strategies: +313% relative on SimpleQA-Wiki ([ActiveReading]).
+- Self-edits: 33.5 → 47.0† ([SEAL]).
+- Generate per fact, not per document ([SFT-Inject]). QA before statements ([PIT]). Multi-hop propagation needs explicit training ([MQuAKE]).
+
+**Entailment rule.** A derived example inherits "verified" status only if the frozen base model *with the teaching in context* judges it entailed. It is tagged `derived` and revoked with its parent. Replay always includes the original verified sources, because accumulating real plus synthetic data avoids collapse while replacing it does not ([Accumulate], [Collapse23]).
+
+**Objective: self-distillation, not next-token loss.**
+- Teacher: the frozen model *with the teaching (and its media) in context*. Student: model + candidate Pf *without* it.
+- Loss: KL over the derived queries' responses ([Cartridges]: self-study matches in-context learning where plain next-token training does not; [SDFT26]: on-policy self-distillation forgets less; [RLRazor]: forgetting tracks forward KL, so a KL-minimal write forgets least).
+
+**P read/write structure:**
+- **Dense read:** all experts in a pool read through a soft gate. All 16 experts at 9 sites cost about 113M MAC/token ≈ 2.75% of the backbone, so top-1 routing isn't worth its failure mode.
+- **Sparse write:** update only the top-r rows of each expert's **gate/up** matrices, ranked by activation on the teaching relative to background usage ([SparseMemFT]: NaturalQuestions F1 drop 11% vs 89% full FT vs 71% LoRA). Keep **down** frozen or slow ([LMM-Skills]: gate&up only +30.5 learning / −2.1 held-out, vs full LLM +31.8 / −23.3). Candidate r ∈ {32, 128, 512}.
+- **Null-space projection per site:** project ΔP onto the null space of a running covariance of preserved keys from the anchor and replay activations ([AlphaEdit], [Adam-NSCL], [GPM]).
+- **Closed-form arm:** clean (subject, relation, object) facts can be batch-inserted into Ps during consolidation with MEMIT/UltraEdit-style updates under AlphaEdit projection ([MEMIT], [UltraEdit]). Everything else uses the gradient arm.
+
+**Anchor:** add `λ·KL(base ‖ base+P)` on about 64 anchor prompts per event, covering general text, instruction following, thinking-mode format and **visual/audio recognition probes** ([LwF], [RLRazor], [CoIN], [EMT]). The write is rejected if the KL budget is exceeded.
+
+**Commit gate:** 3 held-out derived questions, answered by **free generation, not teacher forcing**. Teacher-forced evaluation inflates editing success to 96.8% versus 38.5% in the wild ([Mirage-Edit]). The write commits only if the probes pass and the anchor KL is within budget; otherwise it rolls back to "stored only".
+
+### 5.4 Candidate per-event inner recipe (replaces v5.0 §10.4)
+
+```text
+1  admit: tier check; write E (always); T3 stops here
+2  augment: 12 derived → entailment filter → keep ~8 (≥2 reversed, ≥2 multi-hop, cross-modal if media)
+3  optimizer: m ← 0; α from Meta-SGD (per group, per step); v frozen
+4  Pf write: 4–8 steps; minibatch = 8 derived + 8 replay + 4 anchors
+            loss = KL_selfdistill + λ·KL_anchor; grad masked to top-r gate/up rows; null-space projected
+5  gate: free-generation probes + anchor KL budget → commit or rollback
+6  consolidate (idle or every 16 eligible events): replay queue + reservoir + original sources
+            → distill into Ps; closed-form batch for clean triples; EWC on Ps; LR rewarm→decay
+            → Pf ← P0 + γ(Pf − P0), γ≈0.5
+```
+
+**Budget change (must be declared):** v5.0's "≤256 positions and ≤4 steps per boundary" cannot accommodate augmentation plus anchors. Candidate: about 1–1.3k positions per step × 4–8 steps, plus about 12 short generations per event. That is roughly 10–30k forward-equivalent positions per event. It meets the v5.0 "≤10% amortized learning time" target only on sparse-teaching workloads, which is why writes are deferred to idle time ([SleepCompute]). Measure it.
+
+### 5.5 Consolidation and long-run health (refines v5.0 §10.1 clocks)
+
+- **Clock mapping:** Pf is the per-event gated write; Ps is consolidation (idle or every 16 eligible events). Together they form the two-frequency spectrum that [NestedLearning]'s Continuum Memory System describes. This is not a HOPE reproduction (the v5.0 disclaimer stays).
+- **LR schedule:** consolidation uses rewarm then decay, plus replay ([CPT-Replay], [Rewarm]).
+- **Monitors:**
+  - Sequential edits forget gradually, then collapse abruptly ([EditForget]). Track the P norm, anchor KL and probe recall per 100 events, and trigger consolidation or reset on drift.
+  - Plasticity is lost over long training ([LossPlasticity]). Monitor dead or saturated Pf units and reinitialize them toward P0.
+- **Sharding:** Pf shards are merged into Ps, matching the side-memory/sharding design in [WISE].
+
+### 5.6 Meta-training to learn (C13) — replaces v5.0 §10.5 estimator
+
+| Element | v5.0 | v5.1 candidate | Evidence |
+|---|---|---|---|
+| Inner loop | ≤2 AdamW steps, persisted moments | **Exactly the §5.4 recipe** | [OML], [RLEdit] |
+| Episode | ≥32 events | T=16–32 events: new facts, counterfactual edits, multimodal entity facts, ~10% poisoned/unverified events labelled "do not write" | [Gekhman24] curriculum: known → new |
+| E during outer loss | Present | **Dropped in p=0.5 of episodes**; ≥30–50% of outer queries P-only | Review part 2 §3.4 |
+| Meta-learned | P0 | P0 + **Meta-SGD α** (per group, per step) + **ANML-style write gate / row selector** + anchor λ | [Meta-SGD], [MAML++], [ANML] |
+| Estimator | First-order, identity Jacobian | Reptile/FOMAML for P0; **truncated second-order through the last 2 inner steps** for α and the gates | [Reptile], [MAML++] |
+| Outer loss | Future query + retention + grounding | + reverse/multi-hop recall + backward-forgetting penalty + poisoned-event compliance + anchor KL | [MQuAKE], [EditForget] |
+| Parallel arm | — | **Amortized writer:** hypernetwork maps teaching to a Pf delta in one pass | [D2L], [GenAdapter], [T2L], [MEND] |
+| Later arm | — | Augmentation policy trained with the post-update reward | [SEAL] |
+
+**Cost honesty:** each episode costs roughly T × (10–30k) forward-equivalents, about 0.2–0.9M positions per episode. Pre-generate the augmentations offline with teachers (allowed by v5.0 §17.3). Do the first runs on MiniCPM and count every inner position in §22.5 (Review part 2 §3.8).
+
+**Evidence that this works at LLM scale:** a meta-learned initialization for test-time weight updates scales like full attention at 3B ([TTT-E2E]). Hypernetwork writers internalize context in a single forward pass ([D2L], [GenAdapter]: +63.5% on StreamingQA).
+
+### 5.7 Trust, poisoning and rollback (C14) — extends v5.0 §10.6 and §15.3
+
+| Tier | Source | May write |
+|---|---|---|
+| T1 | Operator-signed or tool-verified | E, Pf, Ps |
+| T2 | User corrections confirmed ≥2 times, consistent | E, Pf (expiring) |
+| T3 | Unverified text; **all instructions embedded in media** | E only (tentative) |
+
+- About 250 poisoned documents can backdoor models from 600M to 13B regardless of clean data size ([Poison250]). Apply per-source and per-scope rate limits on Pf/Ps writes.
+- Memory can be poisoned through queries alone ([MINJA]), and retrieval keys can be backdoored ([AgentPoison], [PoisonedRAG]). Detect address anomalies, and never treat teaching content as instructions ([IndirectPI]).
+- Images and audio can inject instructions ([ImgInject], [VisJailbreak]), which is why media-embedded instructions are tier T3.
+- Backdoors survive later training ([SleeperAgents]). Keep **rollback snapshots** of P plus `v`: about 96 MiB each without `m` (48 MiB P + 48 MiB v). Eight snapshots cost about 768 MiB of disk, and replay after removal is bounded by the snapshot interval.
+
+---
+
+## 6. Combining modalities, memory and learning natively
+
+### 6.1 Multimodal teaching events
+
+- **Derived examples for sensory facts:** new crops and views, a different speaker or performer, time-shifted audio, a caption-only and an audio-only rendering, and reversed queries ("which device shows a blue pulse?" ↔ "what does the blue pulse mean?").
+- **Self-distillation teacher** sees the media + teaching in context; the student sees new instances without it (§5.3).
+- **Evaluation:** editing multimodal LLMs is harder than text-only ([MMEdit]). Use [VLKEB] (portability) and [MIKE] (fine-grained entities), plus owned AV rule worlds (v5.0 §16).
+
+### 6.2 Entity-centric multimodal memory
+
+Face, voice and name anchors link records across modalities and time ([M3-Agent]). Identity recognition is the bottleneck in egocentric assistants ([EgoLife]). The **entity_refs** address component (§3.3) and the record's joint anchor (§3.2) implement this natively. Personal-identity data must carry consent and scope flags; this is a product requirement rather than a research result.
+
+### 6.3 Memory-grounded multimodal reasoning
+
+Retrieved records act as **evidence references** (§4.2). A reasoning step can cite `record_uid` plus an interval or box inside that record's source, and RL step R5 rewards correct citation. This unifies "thinking with visual grounding" ([TwVG]) with episodic recall. It is a **proposed synthesis**, not an established result.
+
+### 6.4 Episodic learning from video
+
+Use **ELViM** (learning from video seen hours earlier, inside [video-SALMONN S]) and **M3-Bench** ([M3-Agent]) as external tests that the combined E+reasoning path works on long AV streams.
+
+### 6.5 Revised worked example (v5.0 §16)
+
+| Step | v5.1 behaviour |
+|---|---|
+| Observe | Chunked AV interleave with timestamps. A scene-boundary writer creates the record: hot visual and audio packets, entity ref for the device, literal span for its name |
+| Teach (T1) | Instant E commit → receipt "stored". 12 derived examples (new device colours, reversed queries, audio-only variant) → entailment filter |
+| Adapt | Pf self-distillation, sparse write, anchor KL check, free-generation probes → "learned (fast)" |
+| Consolidate | Idle-time Ps distillation + EWC → "consolidated" |
+| Query a new device | Single-pass read: hybrid address hits the entity + lexical signature. The answer cites `record_uid` + interval |
+| P-only audit | E/F/C/prompts/KV removed (v5.0 §16 audit unchanged). Gain must persist |
+| Poison test | A T3 user claims the opposite rule 300 times → E only, rate-limited, no Pf/Ps change |
+
+---
+
+## 7. Revised offline training program (replaces v5.0 §17.1 table)
+
+| Stage | Main work | Exit gate |
+|---|---|---|
+| F0 | Source/backend parity; encoder swap parity; 14-example memorization diagnostic | G-F0 |
+| F1 | Projector alignment (image captions, ASR, audio tags) | Learnability; shuffled-input controls |
+| F2a–d | Progressive full fine-tuning: image/doc/point → video → audio → AV, with text in every stage (§2.4) | G-V1, G-A1, G-AV1, G-T (retention) |
+| F2e | Grounded reasoning RL steps R0–R4 (§4.3) | G-R1 |
+| F3 | Native memory: hybrid address, multimodal records, chunk-delayed read, retriever distillation, calibration | G-M1..M3 |
+| F3b | Memory-grounded RL step R5 | G-R2 |
+| F4 | Learn to learn: deployment-identical inner loop, E dropout, Meta-SGD, amortized-writer arm | G-L1..L4 |
+| F5 | Product behaviour, trust tiers, receipts, optional personality | All gates re-run |
+| F6 | Serving qualification | Efficiency gates |
+
+Stage-specific mixtures replace the single 30/20/20/15/15 planning mixture. F2 overall candidate: text ≥25%, image/doc 30%, video 15%, audio 15%, AV 15%. Memory/learning 0% in F2.
+
+---
+
+## 8. Validation and benchmark suite (extends v5.0 §19.4, §21)
+
+### 8.1 New or refined gates
+
+| Gate | Requirement (candidate; preregister) |
+|---|---|
+| G-F0 | Projector-only run memorizes the 14-example set; encoder-swap parity |
+| G-V1 | Doc/OCR and pointing beat the base@224 ablation at matched compute |
+| G-A1 | Beats transcript-only on acoustic tasks; DeafTest-style probes above chance; ZH speech slice reported |
+| G-AV1 | Modality-ablation drop on Daily-Omni/WorldSense-style items (AV > A, V, text) |
+| G-T | Text, thinking-mode and tool-format retention ≤2 pp drop |
+| G-R1 | Grounded RL beats answer-only RL at matched compute; decorative-box check passes |
+| G-M1 | R@16, oracle readout and risk–coverage reported separately; native ≥ text-RAG baseline − δ (δ preregistered) |
+| G-M2 | Over-capacity curve (records > 4096) reported separately from in-capacity |
+| G-M3 | Single-pass read within quality noninferiority of the two-pass reference |
+| G-L1 | Momentum-reset recipe beats the v5.0 recipe on NL1 |
+| G-L2 | Beats LoRA-on-teaching and MEMIT-on-P baselines on new-instance transfer **without teacher forcing** |
+| G-L3 | Survives the P-only audit; forgetting curves at 100 / 1k / 10k events |
+| G-L4 | Poison suites: zero T3-originated Pf/Ps changes; rollback restores pre-poison behaviour |
+
+### 8.2 External benchmark map
+
+| Capability | Benchmarks |
+|---|---|
+| Joint AV / omni | [WorldSense], [Daily-Omni], [AV-Odyssey], [OmniBench], [OmniVideoBench], CG-AV-Counting ([AV-Reasoner]) |
+| Audio | [MMAU], [MMAU-Pro], [MMAR] |
+| Video | [Video-MME], [MLVU], [LVBench], [HourVideo], [EgoSchema] |
+| Streaming | [StreamingBench], [OVO-Bench] |
+| Text and multimodal memory | [LongMemEval], [LoCoMo], [Mem-Gallery], Ego4D NLQ ([Ego4D]), [EgoLife], [LVOmniBench], ELViM ([video-SALMONN S]), M3-Bench ([M3-Agent]) |
+| Knowledge editing / learning | [MQuAKE], [VLKEB], [MIKE], [MMEdit]; free-generation protocol per [Mirage-Edit] |
+| Continual multimodal | [CoIN], [MLLM-CL] |
+| Long context (baseline caveats) | [RULER], [LostMiddle] |
+
+---
+
+## 9. Revised learning and memory ladder (replaces v5.0 §20.2 rows)
+
+| Gate | Experiment |
+|---|---|
+| NL0 | + `m` reset, anchor-KL plumbing, snapshot interval, entailment filter |
+| **NL1** | One-clock Pf: dense read / sparse write, self-distillation on derived examples. Baselines: in-context, text RAG, LoRA-on-teaching, MEMIT-on-P |
+| NL2 | Outer preparation with E dropout and P-only outer queries; Meta-SGD α; truncated second-order |
+| NL3 | Online gated Pf vs store-then-consolidate at equal update compute; then Pf/Ps vs one pool |
+| NL4 | Gradient arm vs closed-form arm vs amortized-writer arm |
+| NL5–NL7 | As v5.0, plus the multimodal teaching of §6.1 and the poison suites of §5.7 |
+| MEM-0 | Three-way diagnosis + four baselines (§3.1) |
+| MEM-1 | Hybrid address + retriever distillation |
+| MEM-2 | Record v2 (hot packets, literal tier, entity anchors) |
+| MEM-3 | Single-pass chunk-delayed read; F arm |
+
+---
+
+## 10. Scaling contract for larger future backbones (C16)
+
+**Evidence:**
+- Design decisions made at small model and data scale transfer to larger models up to a critical size ([Apollo]).
+- Encoder size can scale with the LLM and save data ([InternVL2.5]†).
+- Connector design matters little and the recipe scales to 30B ([MM1]).
+- Model families share one encoder across sizes ([Qwen3-VL] 2B–235B, [Gemma3] 4B–27B).
+- Memory layers and hashed lookup scale to 128B memory parameters and 27B models respectively ([MemLayers], [Engram]).
+- Late versus early fusion shows no inherent advantage ([NMM-Scaling]).
+
+**Contract (design rules):**
+1. **Width-relative interfaces:** reader width ≈ d_model/5, packet width fixed at 512, plastic width fixed at 256. Only the down/up projections depend on d_model.
+2. **Memory sites follow the full-attention layers** (Spark: every 4th). For MoE backbones, read at attention sites and keep P as a separate memory layer, not per-expert.
+3. **Backbone-agnostic memory features:** hot visual and audio packets are derived from *encoder* features at a fixed 512 width. Semantic keys are re-derivable. During release migration, re-project rather than discard where a trained migration map passes the v5.0 §15.4 tests.
+4. **Encoder growth path:** keep So400m for 4B–30B. Consider SigLIP2-g (1B) for ≥30B ([SigLIP2] sizes; [InternVL2.5]†).
+5. **Two-size confirmation:** every mechanism decision is confirmed on MiniCPM (2.5B) and Spark (4B) before the full Spark campaign. That is a cheap scaling-consistency check ([Apollo]).
+6. **Open risk:** no verified paper shows an episodic *multimodal* memory transferring from 4B to larger backbones. Treat it as an experiment.
+
+---
+
+## 11. Change list for the workspace agent
+
+| ID | Edit in Doc 23 | Action | Priority | Gate |
+|---|---|---|---|---|
+| C10 | §10.4, §15.2, §8.1 `O` | Reset `m` per teaching event; persist `v`, counters, α only | **P0** | G-L1 |
+| C5 | §9, §21.1 | Add the three-way memory diagnosis and four baselines; tune the accept threshold | **P0** | G-M1 |
+| C1 | §4.1, §6.1, §22.1 | Swap the reference encoder to SigLIP2-So400m; ~256 tokens per crop plus tiling; re-audit parameters | **P0** | G-F0, G-V1 |
+| C3 | §17.1–17.2 | Replace F1/F2 with F1, F2a–e; stage-specific mixtures; remove memory/learning from F2; name the text-retention source | **P0** | G-T |
+| C11/C12 | §10.3–10.4 | Store-now/consolidate-later; augmentation + entailment rule; self-distillation; dense read / sparse write; null-space; anchor KL; commit gate | **P0** | G-L2, G-L3 |
+| C6 | §9.2–9.3 | Hybrid multi-vector address + lexical hashes + entity anchors; contrastive + distillation training | **P0** | G-M1 |
+| C7 | §8.2, §22.2 | Record v2; tiered byte budget (≈45.5 MiB) | P1 | G-M1 |
+| C8 | §9.2, §14.3, §5.2 | Chunk-delayed single-pass read; episodic reads from site 11; training equals inference | P1 | G-M3 |
+| C2 | §6.3, §7.3 | Textual timestamps; ~2 s chunk interleave; fps sampling | P1 | G-AV1 |
+| C4 | §6.4, §18.1 | Reasoning steps R0–R5 with grounding rewards; modality-reliance audits | P1 | G-R1, G-R2 |
+| C13 | §10.5 | Deployment-identical meta-training; E dropout; Meta-SGD; amortized-writer arm | P1 | G-L2 |
+| C14 | §10.6, §15.3 | Trust tiers, rate limits, snapshots, poison suites | P1 | G-L4 |
+| C15 | §19.4, §21 | Adopt the benchmark map and gates in §8 | P1 | — |
+| C16 | new section | Add the scaling contract (§10) | P1 | Two-size confirmation |
+| C9 | §10.2, §4.1 | Demote F to an arm | P2 | MEM-3 |
+| — | §2.3, §7.1 | Audio reference rate 12.5 Hz; Whisper co-primary arm for ZH | P2 | G-A1 |
+
+**Implementation order (dependencies):**
+1. C10 and C5 are cheap fixes or measurements; do them now.
+2. Next, C1 and C3 on the perception track, in parallel with C6/C7 on the memory track and C11/C12 on the learning track.
+3. Then C8, C4 and C13.
+4. Then the joint factorial (v5.0 §20.3) and C14 before any persistent deployment.
+
+---
+
+## 12. References
+
+All arXiv entries had their title checked against the arXiv abs page or API on 2026-10-27. **†** marks paper-body details obtained via secondary sources that need PDF confirmation. Links use `https://arxiv.org/abs/<id>`.
+
+### Multimodal encoders, VLMs and omni models
+- **[SigLIP2]** Tschannen et al. *SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding, Localization, and Dense Features.* 2025. [arXiv:2502.14786](https://arxiv.org/abs/2502.14786)
+- **[Gemma3]** Gemma Team. *Gemma 3 Technical Report.* 2025. [arXiv:2503.19786](https://arxiv.org/abs/2503.19786) (†encoder/resolution/token details)
+- **[Molmo]** Deitke et al. *Molmo and PixMo: Open Weights and Open Data for State-of-the-Art Vision-Language Models.* 2024. [arXiv:2409.17146](https://arxiv.org/abs/2409.17146)
+- **[Molmo2]** *Molmo2: Open Weights and Data for Vision-Language Models with Video Understanding and Grounding.* 2026. [arXiv:2601.10611](https://arxiv.org/abs/2601.10611)
+- **[LLaVA-OV]** Li et al. *LLaVA-OneVision: Easy Visual Task Transfer.* 2024. [arXiv:2408.03326](https://arxiv.org/abs/2408.03326) (†tile token counts)
+- **[Qwen2.5-VL]** *Qwen2.5-VL Technical Report.* 2025. [arXiv:2502.13923](https://arxiv.org/abs/2502.13923)
+- **[Qwen3-VL]** *Qwen3-VL Technical Report.* 2025. [arXiv:2511.21631](https://arxiv.org/abs/2511.21631)
+- **[SmolVLM]** Marafioti et al. *SmolVLM: Redefining small and efficient multimodal models.* 2025. [arXiv:2504.05299](https://arxiv.org/abs/2504.05299)
+- **[MiniCPM-V4.5]** *MiniCPM-V 4.5: Cooking Efficient MLLMs via Architecture, Data, and Training Recipe.* 2025. [arXiv:2509.18154](https://arxiv.org/abs/2509.18154)
+- **[MM1]** McKinzie et al. *MM1: Methods, Analysis & Insights from Multimodal LLM Pre-training.* 2024. [arXiv:2403.09611](https://arxiv.org/abs/2403.09611)
+- **[Whisper]** Radford et al. *Robust Speech Recognition via Large-Scale Weak Supervision.* 2022. [arXiv:2212.04356](https://arxiv.org/abs/2212.04356)
+- **[Qwen2-Audio]** *Qwen2-Audio Technical Report.* 2024. [arXiv:2407.10759](https://arxiv.org/abs/2407.10759)
+- **[Qwen2.5-Omni]** *Qwen2.5-Omni Technical Report.* 2025. [arXiv:2503.20215](https://arxiv.org/abs/2503.20215) (†chunk length / audio token duration)
+- **[Qwen3-Omni]** *Qwen3-Omni Technical Report.* 2025. [arXiv:2509.17765](https://arxiv.org/abs/2509.17765) (†12.5 Hz encoder)
+- **[Kimi-Audio]** *Kimi-Audio Technical Report.* 2025. [arXiv:2504.18425](https://arxiv.org/abs/2504.18425)
+- **[Ola]** *Ola: Pushing the Frontiers of Omni-Modal Language Model.* 2025. [arXiv:2502.04328](https://arxiv.org/abs/2502.04328)
+- **[VITA-1.5]** *VITA-1.5: Towards GPT-4o Level Real-Time Vision and Speech Interaction.* 2025. [arXiv:2501.01957](https://arxiv.org/abs/2501.01957)
+- **[Phi-4-MM]** *Phi-4-Mini Technical Report: Compact yet Powerful Multimodal Language Models via Mixture-of-LoRAs.* 2025. [arXiv:2503.01743](https://arxiv.org/abs/2503.01743)
+- **[video-SALMONN 2]** *video-SALMONN 2: Caption-Enhanced Audio-Visual Large Language Models.* 2025. [arXiv:2506.15220](https://arxiv.org/abs/2506.15220)
+- **[video-SALMONN S]** *video-SALMONN S: Memory-Enhanced Streaming Audio-Visual LLM.* 2025. [arXiv:2510.11129](https://arxiv.org/abs/2510.11129) (includes the ELViM benchmark)
+- **[SPEAR]** *SPEAR: A Unified SSL Framework for Learning Speech and Audio Representations.* 2025. [arXiv:2510.25955](https://arxiv.org/abs/2510.25955)
+
+### Native multimodal reasoning
+- **[VisualCoT]** Shao et al. *Visual CoT: Advancing Multi-Modal Language Models with a Comprehensive Dataset and Benchmark for Chain-of-Thought Reasoning.* 2024. [arXiv:2403.16999](https://arxiv.org/abs/2403.16999)
+- **[Sketchpad]** Hu et al. *Visual Sketchpad: Sketching as a Visual Chain of Thought for Multimodal Language Models.* 2024. [arXiv:2406.09403](https://arxiv.org/abs/2406.09403)
+- **[DeepEyes]** *DeepEyes: Incentivizing "Thinking with Images" via Reinforcement Learning.* 2025. [arXiv:2505.14362](https://arxiv.org/abs/2505.14362)
+- **[CoF]** *Adaptive Chain-of-Focus Reasoning via Dynamic Visual Search and Zooming for Efficient VLMs.* 2025. [arXiv:2505.15436](https://arxiv.org/abs/2505.15436)
+- **[GRIT]** *GRIT: Teaching MLLMs to Think with Images.* 2025. [arXiv:2505.15879](https://arxiv.org/abs/2505.15879)
+- **[TwVG]** *Thinking with Visual Grounding.* 2026. [arXiv:2606.16122](https://arxiv.org/abs/2606.16122)
+- **[CoVT]** *Chain-of-Visual-Thought: Teaching VLMs to See and Think Better with Continuous Visual Tokens.* 2025. [arXiv:2511.19418](https://arxiv.org/abs/2511.19418)
+- **[LVR]** *Latent Visual Reasoning.* 2025. [arXiv:2509.24251](https://arxiv.org/abs/2509.24251)
+- **[Mirage-MI]** *Machine Mental Imagery: Empower Multimodal Reasoning with Latent Visual Tokens.* 2025. [arXiv:2506.17218](https://arxiv.org/abs/2506.17218)
+- **[Video-R1]** *Video-R1: Reinforcing Video Reasoning in MLLMs.* 2025. [arXiv:2503.21776](https://arxiv.org/abs/2503.21776)
+- **[Time-R1]** *Time-R1: Post-Training Large Vision Language Model for Temporal Video Grounding.* 2025. [arXiv:2503.13377](https://arxiv.org/abs/2503.13377)
+- **[VideoChat-R1]** *VideoChat-R1: Enhancing Spatio-Temporal Perception via Reinforcement Fine-Tuning.* 2025. [arXiv:2504.06958](https://arxiv.org/abs/2504.06958)
+- **[Audio-Reasoner]** *Audio-Reasoner: Improving Reasoning Capability in Large Audio Language Models.* 2025. [arXiv:2503.02318](https://arxiv.org/abs/2503.02318)
+- **[R1-AQA]** *Reinforcement Learning Outperforms Supervised Fine-Tuning: A Case Study on Audio Question Answering.* 2025. [arXiv:2503.11197](https://arxiv.org/abs/2503.11197)
+- **[Omni-R1-A]** *Omni-R1: Do You Really Need Audio to Fine-Tune Your Audio LLM?* 2025. [arXiv:2505.09439](https://arxiv.org/abs/2505.09439)
+- **[Omni-R1-2S]** *Omni-R1: Reinforcement Learning for Omnimodal Reasoning via Two-System Collaboration.* 2025. [arXiv:2505.20256](https://arxiv.org/abs/2505.20256)
+- **[EchoInk-R1]** *EchoInk-R1: Exploring Audio-Visual Reasoning in Multimodal LLMs via Reinforcement Learning.* 2025. [arXiv:2505.04623](https://arxiv.org/abs/2505.04623)
+- **[AV-Reasoner]** *AV-Reasoner: Improving and Benchmarking Clue-Grounded Audio-Visual Counting for MLLMs.* 2025. [arXiv:2506.05328](https://arxiv.org/abs/2506.05328)
+- **[vS-o1]** *video-SALMONN-o1: Reasoning-enhanced Audio-visual Large Language Model.* 2025. [arXiv:2502.11775](https://arxiv.org/abs/2502.11775)
+- **[SFTorRL]** *SFT or RL? An Early Investigation into Training R1-Like Reasoning Large Vision-Language Models.* 2025. [arXiv:2504.11468](https://arxiv.org/abs/2504.11468)
+- **[SFTvsRL]** Chu et al. *SFT Memorizes, RL Generalizes.* 2025. [arXiv:2501.17161](https://arxiv.org/abs/2501.17161) (title-verified)
+
+### Benchmarks
+- **[WorldSense]** [arXiv:2502.04326](https://arxiv.org/abs/2502.04326) · **[Daily-Omni]** [arXiv:2505.17862](https://arxiv.org/abs/2505.17862) · **[AV-Odyssey]** [arXiv:2412.02611](https://arxiv.org/abs/2412.02611) · **[OmniBench]** [arXiv:2409.15272](https://arxiv.org/abs/2409.15272) · **[OmniVideoBench]** [arXiv:2510.10689](https://arxiv.org/abs/2510.10689)
+- **[MMAU]** [arXiv:2410.19168](https://arxiv.org/abs/2410.19168) · **[MMAU-Pro]** [arXiv:2508.13992](https://arxiv.org/abs/2508.13992) (title-verified) · **[MMAR]** [arXiv:2505.13032](https://arxiv.org/abs/2505.13032) · **[Video-MME]** [arXiv:2405.21075](https://arxiv.org/abs/2405.21075)
+- **[StreamingBench]** [arXiv:2411.03628](https://arxiv.org/abs/2411.03628) · **[OVO-Bench]** [arXiv:2501.05510](https://arxiv.org/abs/2501.05510) · **[MLVU]** [arXiv:2406.04264](https://arxiv.org/abs/2406.04264) · **[LVBench]** [arXiv:2406.08035](https://arxiv.org/abs/2406.08035) · **[HourVideo]** [arXiv:2411.04998](https://arxiv.org/abs/2411.04998) · **[EgoSchema]** [arXiv:2308.09126](https://arxiv.org/abs/2308.09126) · **[Ego4D]** [arXiv:2110.07058](https://arxiv.org/abs/2110.07058)
+- **[LongMemEval]** [arXiv:2410.10813](https://arxiv.org/abs/2410.10813) · **[LoCoMo]** [arXiv:2402.17753](https://arxiv.org/abs/2402.17753) · **[Mem-Gallery]** [arXiv:2601.03515](https://arxiv.org/abs/2601.03515) · **[EgoLife]** [arXiv:2503.03803](https://arxiv.org/abs/2503.03803) · **[LVOmniBench]** [arXiv:2603.19217](https://arxiv.org/abs/2603.19217)
+- **[RULER]** [arXiv:2404.06654](https://arxiv.org/abs/2404.06654) · **[LostMiddle]** [arXiv:2307.03172](https://arxiv.org/abs/2307.03172)
+
+### Intrinsic and multimodal memory
+- **[Titans]** *Titans: Learning to Memorize at Test Time.* [arXiv:2501.00663](https://arxiv.org/abs/2501.00663)
+- **[ATLAS]** *ATLAS: Learning to Optimally Memorize the Context at Test Time.* [arXiv:2505.23735](https://arxiv.org/abs/2505.23735)
+- **[GatedDeltaNet]** *Gated Delta Networks: Improving Mamba2 with Delta Rule.* [arXiv:2412.06464](https://arxiv.org/abs/2412.06464)
+- **[TTT]** *Learning to (Learn at Test Time): RNNs with Expressive Hidden States.* [arXiv:2407.04620](https://arxiv.org/abs/2407.04620)
+- **[TTT-E2E]** *End-to-End Test-Time Training for Long Context.* [arXiv:2512.23675](https://arxiv.org/abs/2512.23675)
+- **[MemT]** *MemT-1.0: Towards Memory-Native Evolution.* [arXiv:2610.26825](https://arxiv.org/abs/2610.26825)
+- **[MemTrans]** *Memorizing Transformers.* [arXiv:2203.08913](https://arxiv.org/abs/2203.08913)
+- **[RETRO]** *Improving language models by retrieving from trillions of tokens.* [arXiv:2112.04426](https://arxiv.org/abs/2112.04426)
+- **[Larimar]** *Larimar: Large Language Models with Episodic Memory Control.* [arXiv:2403.11901](https://arxiv.org/abs/2403.11901)
+- **[MemoryLLM]** [arXiv:2402.04624](https://arxiv.org/abs/2402.04624) · **[M+]** *M+: Extending MemoryLLM with Scalable Long-Term Memory.* [arXiv:2502.00592](https://arxiv.org/abs/2502.00592)
+- **[MemLayers]** *Memory Layers at Scale.* [arXiv:2412.09764](https://arxiv.org/abs/2412.09764) · **[PKM]** *Large Memory Layers with Product Keys.* [arXiv:1907.05242](https://arxiv.org/abs/1907.05242) · **[UltraMem]** *Ultra-Sparse Memory Network.* [arXiv:2411.12364](https://arxiv.org/abs/2411.12364)
+- **[Engram]** *Conditional Memory via Scalable Lookup: A New Axis of Sparsity for Large Language Models.* [arXiv:2601.07372](https://arxiv.org/abs/2601.07372)
+- **[NestedLearning]** *Nested Learning: The Illusion of Deep Learning Architectures.* [arXiv:2512.24695](https://arxiv.org/abs/2512.24695)
+- **[LM2]** *LM2: Large Memory Models.* [arXiv:2502.06049](https://arxiv.org/abs/2502.06049) · **[MemDecoder]** *Memory Decoder: A Pretrained, Plug-and-Play Memory for Large Language Models.* [arXiv:2508.09874](https://arxiv.org/abs/2508.09874)
+- **[MA-LMM]** [arXiv:2404.05726](https://arxiv.org/abs/2404.05726) · **[MovieChat]** [arXiv:2307.16449](https://arxiv.org/abs/2307.16449) · **[Flash-VStream]** [arXiv:2406.08085](https://arxiv.org/abs/2406.08085) · **[VideoLLaMB]** [arXiv:2409.01071](https://arxiv.org/abs/2409.01071)
+- **[ReKV]** *Streaming Video Question-Answering with In-context Video KV-Cache Retrieval.* [arXiv:2503.00540](https://arxiv.org/abs/2503.00540) · **[StreamMem]** [arXiv:2508.15717](https://arxiv.org/abs/2508.15717) · **[StreamingVLM]** [arXiv:2510.09608](https://arxiv.org/abs/2510.09608) · **[LongVU]** [arXiv:2410.17434](https://arxiv.org/abs/2410.17434)
+- **[Dispider]** [arXiv:2501.03218](https://arxiv.org/abs/2501.03218) · **[VideoLLM-online]** [arXiv:2406.11816](https://arxiv.org/abs/2406.11816)
+- **[OmniMem]** *OmniMem: Perturbation-aware Memory Compression for Streaming Audio-Visual LLMs.* [arXiv:2606.07577](https://arxiv.org/abs/2606.07577)
+- **[Omni2LoRA]** *Omni2LoRA: Coherence-Preserving Parametric Memory for Efficient Omni Language Models.* [arXiv:2608.09227](https://arxiv.org/abs/2608.09227)
+- **[Light-Omni]** *Light-Omni: Reflex over Reasoning in Agentic Video Understanding with Long-Term Memory.* [arXiv:2607.05511](https://arxiv.org/abs/2607.05511)
+- **[M3-Agent]** *Seeing, Listening, Remembering, and Reasoning: A Multimodal Agent with Long-Term Memory.* [arXiv:2508.09736](https://arxiv.org/abs/2508.09736)
+- **[TeleMem]** *TeleMem: Building Long-Term and Multimodal Memory for Agentic AI.* [arXiv:2601.06037](https://arxiv.org/abs/2601.06037)
+- **[EM-LLM]** *Human-inspired Episodic Memory for Infinite Context LLMs.* [arXiv:2407.09450](https://arxiv.org/abs/2407.09450)
+
+### Retrieval and calibration
+- **[EntityQs]** Sciavolino et al. *Simple Entity-Centric Questions Challenge Dense Retrievers.* 2021. [arXiv:2109.08535](https://arxiv.org/abs/2109.08535)
+- **[DPR-Repl]** *A Replication Study of Dense Passage Retriever.* [arXiv:2104.05740](https://arxiv.org/abs/2104.05740)
+- **[BGE-M3]** [arXiv:2402.03216](https://arxiv.org/abs/2402.03216) · **[ColBERTv2]** [arXiv:2112.01488](https://arxiv.org/abs/2112.01488) · **[REALM]** [arXiv:2002.08909](https://arxiv.org/abs/2002.08909) · **[Atlas]** [arXiv:2208.03299](https://arxiv.org/abs/2208.03299)
+- **[PopQA]** *When Not to Trust Language Models: Investigating Effectiveness of Parametric and Non-Parametric Memories.* [arXiv:2212.10511](https://arxiv.org/abs/2212.10511)
+- **[SufficientCtx]** *Sufficient Context: A New Lens on Retrieval Augmented Generation Systems.* [arXiv:2411.06037](https://arxiv.org/abs/2411.06037)
+- **[Trust-Align]** [arXiv:2409.11242](https://arxiv.org/abs/2409.11242)
+
+### Knowledge injection, editing and continual learning
+- **[Gekhman24]** *Does Fine-Tuning LLMs on New Knowledge Encourage Hallucinations?* [arXiv:2405.05904](https://arxiv.org/abs/2405.05904)
+- **[Ovadia23]** *Fine-Tuning or Retrieval? Comparing Knowledge Injection in LLMs.* [arXiv:2312.05934](https://arxiv.org/abs/2312.05934)
+- **[PhysLM3.1]** *Physics of Language Models: Part 3.1, Knowledge Storage and Extraction.* [arXiv:2309.14316](https://arxiv.org/abs/2309.14316) · **[PhysLM3.2]** [arXiv:2309.14402](https://arxiv.org/abs/2309.14402)
+- **[ReversalCurse]** [arXiv:2309.12288](https://arxiv.org/abs/2309.12288) · **[PIT]** [arXiv:2402.12847](https://arxiv.org/abs/2402.12847) · **[SFT-Inject]** [arXiv:2404.00213](https://arxiv.org/abs/2404.00213)
+- **[EntiGraph]** *Synthetic continued pretraining.* [arXiv:2409.07431](https://arxiv.org/abs/2409.07431) (†QuALITY numbers)
+- **[ActiveReading]** *Learning Facts at Scale with Active Reading.* [arXiv:2508.09494](https://arxiv.org/abs/2508.09494)
+- **[SEAL]** *Self-Adapting Language Models.* [arXiv:2506.10943](https://arxiv.org/abs/2506.10943) (†SQuAD numbers)
+- **[Cartridges]** *Cartridges: Lightweight and general-purpose long context representations via self-study.* [arXiv:2506.06266](https://arxiv.org/abs/2506.06266)
+- **[D2L]** *Doc-to-LoRA: Learning to Instantly Internalize Contexts.* [arXiv:2602.15902](https://arxiv.org/abs/2602.15902) · **[GenAdapter]** [arXiv:2411.05877](https://arxiv.org/abs/2411.05877) · **[T2L]** [arXiv:2506.06105](https://arxiv.org/abs/2506.06105)
+- **[SparseMemFT]** *Continual Learning via Sparse Memory Finetuning.* [arXiv:2510.15103](https://arxiv.org/abs/2510.15103)
+- **[RLRazor]** *RL's Razor: Why Online Reinforcement Learning Forgets Less.* [arXiv:2509.04259](https://arxiv.org/abs/2509.04259)
+- **[SDFT26]** *Self-Distillation Enables Continual Learning.* [arXiv:2601.19897](https://arxiv.org/abs/2601.19897) · **[SDFT24]** [arXiv:2402.13669](https://arxiv.org/abs/2402.13669)
+- **[LoRALess]** *LoRA Learns Less and Forgets Less.* [arXiv:2405.09673](https://arxiv.org/abs/2405.09673) · **[LwF]** [arXiv:1606.09282](https://arxiv.org/abs/1606.09282) · **[EWC]** [arXiv:1612.00796](https://arxiv.org/abs/1612.00796)
+- **[CPT-Replay]** [arXiv:2403.08763](https://arxiv.org/abs/2403.08763) · **[Rewarm]** [arXiv:2308.04014](https://arxiv.org/abs/2308.04014) · **[SpuriousForget]** [arXiv:2501.13453](https://arxiv.org/abs/2501.13453)
+- **[Adam-NSCL]** [arXiv:2103.07113](https://arxiv.org/abs/2103.07113) · **[GPM]** [arXiv:2103.09762](https://arxiv.org/abs/2103.09762)
+- **[ROME]** [arXiv:2202.05262](https://arxiv.org/abs/2202.05262) · **[MEMIT]** [arXiv:2210.07229](https://arxiv.org/abs/2210.07229) · **[AlphaEdit]** [arXiv:2410.02355](https://arxiv.org/abs/2410.02355) · **[MEND]** [arXiv:2110.11309](https://arxiv.org/abs/2110.11309) · **[GRACE]** [arXiv:2211.11031](https://arxiv.org/abs/2211.11031) · **[WISE]** [arXiv:2405.14768](https://arxiv.org/abs/2405.14768)
+- **[EditForget]** [arXiv:2401.07453](https://arxiv.org/abs/2401.07453) · **[Mirage-Edit]** *The Mirage of Model Editing: Revisiting Evaluation in the Wild.* [arXiv:2502.11177](https://arxiv.org/abs/2502.11177) · **[RLEdit]** [arXiv:2502.05759](https://arxiv.org/abs/2502.05759) · **[UltraEdit]** [arXiv:2505.14679](https://arxiv.org/abs/2505.14679)
+- **[MQuAKE]** [arXiv:2305.14795](https://arxiv.org/abs/2305.14795) · **[MMEdit]** [arXiv:2310.08475](https://arxiv.org/abs/2310.08475) · **[VLKEB]** [arXiv:2403.07350](https://arxiv.org/abs/2403.07350) · **[MIKE]** [arXiv:2402.14835](https://arxiv.org/abs/2402.14835)
+- **[CoIN]** [arXiv:2403.08350](https://arxiv.org/abs/2403.08350) · **[EMT]** [arXiv:2309.10313](https://arxiv.org/abs/2309.10313) · **[MLLM-CL]** [arXiv:2506.05453](https://arxiv.org/abs/2506.05453) · **[LMM-Skills]** *How to Teach Large Multimodal Models New Skills.* [arXiv:2510.08564](https://arxiv.org/abs/2510.08564)
+
+### Meta-learning, optimizer state and consolidation
+- **[MAML]** [arXiv:1703.03400](https://arxiv.org/abs/1703.03400) · **[Reptile]** *On First-Order Meta-Learning Algorithms.* [arXiv:1803.02999](https://arxiv.org/abs/1803.02999) · **[MAML++]** *How to train your MAML.* [arXiv:1810.09502](https://arxiv.org/abs/1810.09502) · **[Meta-SGD]** [arXiv:1707.09835](https://arxiv.org/abs/1707.09835)
+- **[OML]** *Meta-Learning Representations for Continual Learning.* [arXiv:1905.12588](https://arxiv.org/abs/1905.12588) · **[ANML]** *Learning to Continually Learn.* [arXiv:2002.09571](https://arxiv.org/abs/2002.09571)
+- **[AdamReset]** *Resetting the Optimizer in Deep RL: An Empirical Study.* [arXiv:2306.17833](https://arxiv.org/abs/2306.17833) · **[LossPlasticity]** *Maintaining Plasticity in Deep Continual Learning.* [arXiv:2306.13812](https://arxiv.org/abs/2306.13812)
+- **[CLS95]** McClelland, McNaughton & O'Reilly. *Why there are complementary learning systems in the hippocampus and neocortex.* Psychological Review 102(3), 1995. [doi:10.1037/0033-295X.102.3.419](https://doi.org/10.1037/0033-295X.102.3.419)
+- **[CLS16]** Kumaran, Hassabis & McClelland. *What Learning Systems do Intelligent Agents Need? Complementary Learning Systems Theory Updated.* Trends in Cognitive Sciences, 2016. [doi:10.1016/j.tics.2016.05.004](https://doi.org/10.1016/j.tics.2016.05.004)
+- **[LMSleep]** *Language Models Need Sleep: Learning to Self-Modify and Consolidate Memories.* 2026. [arXiv:2606.03979](https://arxiv.org/abs/2606.03979)
+- **[SleepCompute]** *Sleep-time Compute: Beyond Inference Scaling at Test-time.* [arXiv:2504.13171](https://arxiv.org/abs/2504.13171)
+
+### Safety of self-learning
+- **[Poison250]** *Poisoning Attacks on LLMs Require a Near-constant Number of Poison Samples.* [arXiv:2510.07192](https://arxiv.org/abs/2510.07192)
+- **[MINJA]** *Memory Injection Attacks on LLM Agents via Query-Only Interaction.* [arXiv:2503.03704](https://arxiv.org/abs/2503.03704) · **[AgentPoison]** [arXiv:2407.12784](https://arxiv.org/abs/2407.12784) · **[PoisonedRAG]** [arXiv:2402.07867](https://arxiv.org/abs/2402.07867)
+- **[IndirectPI]** [arXiv:2302.12173](https://arxiv.org/abs/2302.12173) · **[ImgInject]** [arXiv:2307.10490](https://arxiv.org/abs/2307.10490) · **[VisJailbreak]** [arXiv:2306.13213](https://arxiv.org/abs/2306.13213) · **[SleeperAgents]** [arXiv:2401.05566](https://arxiv.org/abs/2401.05566)
+- **[Collapse23]** *The Curse of Recursion: Training on Generated Data Makes Models Forget.* [arXiv:2305.17493](https://arxiv.org/abs/2305.17493) · Nature version: [doi:10.1038/s41586-024-07566-y](https://doi.org/10.1038/s41586-024-07566-y) · **[Accumulate]** [arXiv:2404.01413](https://arxiv.org/abs/2404.01413)
+
+### Scaling
+- **[Apollo]** *Apollo: An Exploration of Video Understanding in Large Multimodal Models.* [arXiv:2412.10360](https://arxiv.org/abs/2412.10360)
+- **[InternVL2.5]** *Expanding Performance Boundaries of Open-Source Multimodal Models with Model, Data, and Test-Time Scaling.* [arXiv:2412.05271](https://arxiv.org/abs/2412.05271) (†encoder-size/data claim)
+- **[NMM-Scaling]** *Scaling Laws for Native Multimodal Models.* [arXiv:2504.07951](https://arxiv.org/abs/2504.07951)
+
+### Excluded or unverified (do not cite)
+- 2308.09244 is *not* EgoSchema; use 2308.09126.
+- 2503.17707 is *not* TimeZero.
+- MiniCPM-o has no standalone arXiv report.
+- No ID was found for "SCM: Sleep-Consolidated Memory" or for the 2025 TiCS episodic-memory perspective.
+- Light-Omni's venue is unverified.
+- The detailed mechanisms of MA-LMM and Flash-VStream are from memory, not from re-read abstracts.

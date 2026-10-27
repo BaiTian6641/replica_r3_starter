@@ -7,25 +7,25 @@
       "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
       "kind": "reviewed_pointer_edit",
       "prior_sha256": "a0285330d1157ecaabc7fd762112737fc7d9776170a06ef2fc37f3ffc00633b1",
-      "current_sha256": "9ec5c8d0c2245456b94782c78c5110a297d9b9ac019d23b10ed6b62c9e4ed741",
-      "reason": "Adds the version-5 final-product blueprint as the unified entry point while preserving revision 4.5 as historical design lineage.",
-      "reviewed_commit": "bece2a8fa4151a36ff13c3dfb0228a26c180460c"
+      "current_sha256": "dfff370ff3b394b2360e813fafef7e73806f601566aa7c97aa5b2af4f17b6544",
+      "reason": "v5.1 moves the unified entry-pointer from blueprint v5.0 to v5.1; revision-4.5 evidence and the unversioned run receipts remain as historical context. Reviewed in the v5.1 migration manifest.",
+      "reviewed_in": "reports/sparkx_v5_1_review_20261027/migration_manifest.json"
     },
     {
       "path": "docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
       "kind": "reviewed_status_edit",
       "prior_sha256": "b68d0c9fef40902b27c4b813d86ca126a57762bb33c6f1f31ee0cb78fb5b89d1",
-      "current_sha256": "1e44a99f7b38b335b111462fd603c1d30346ee3a83e3c736332f132831f48c96",
-      "reason": "Reconciles native diagnostic status and implementation-contract wording without changing state, transaction or RSI authority.",
-      "reviewed_commit": "f9d2234c"
+      "current_sha256": "ce6de1904fb6a3b7373a1f71b7cbfed7444867f16393a5ce32dc9b362c2c180d",
+      "reason": "v5.1 adds current evidence and the proposed Mkv parameter namespace as pending, without changing transaction, optimizer, one-step or RSI authority. Reviewed in the v5.1 migration manifest.",
+      "reviewed_in": "reports/sparkx_v5_1_review_20261027/migration_manifest.json"
     },
     {
       "path": "docs/architecture/README.md",
       "kind": "reviewed_pointer_edit",
       "prior_sha256": "c7b322e417412d88f5d4ef5712d859eea6f13c66cee2814c504e9982b909edb4",
-      "current_sha256": "d64ea6e70089dd977506ce7e7d3bcd6c3198dfa53824a91f228c98aa8dab2a4e",
-      "reason": "Points the architecture index at the version-5 final-product blueprint and current consolidation report; historical priorities retain their dated context.",
-      "reviewed_commit": "bece2a8fa4151a36ff13c3dfb0228a26c180460c"
+      "current_sha256": "428f44d0228d5770cc8b2f9c207c5a5a034f31c804eb562855b4d65dfcb1854e",
+      "reason": "v5.1 points the architecture index at blueprint v5.1 while retaining revision 4.5 as historical design lineage. Reviewed in the v5.1 migration manifest.",
+      "reviewed_in": "reports/sparkx_v5_1_review_20261027/migration_manifest.json"
     },
     {
       "path": "reports/sparkx_residency_20261026/residency_v2.json",
@@ -48,14 +48,14 @@
     {
       "path": "docs/architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md",
       "prior_sha256": "bd22e18c990d942dbc0c40a671ce80c8bee5435a179f8938cea4db533518c9d1",
-      "current_sha256": "e50278aa3cadd059806f64aa921e488677130fa6ff227edeec652f320766606c",
-      "reason": "Current-evidence reconciliation in this review; the historical manifest remains byte-for-byte and the final-product manifest pins the current bytes."
+      "current_sha256": "9628b29c9e348e123e896fbad834f42a4bac5708a7c456b15d2a0c0535e1d10b",
+      "reason": "v5.1 current-evidence reconciliation; the historical 117-input manifest remains byte-for-byte and the final-product manifest pins the current bytes."
     },
     {
       "path": "reports/sparkx_final_product_20261026/README.md",
       "prior_sha256": "3b25592de35f612358a80066bc93d48f2739b200049f2bdbfead71c937024e28",
       "current_sha256": "2cd0f577e3a2fc68ca417d0856e3398583d987362e78578387d5442d7ccbc603",
-      "reason": "Current-evidence reconciliation in this review; the historical manifest remains byte-for-byte and the final-product manifest pins the current bytes."
+      "reason": "Current-evidence reconciliation; the historical manifest remains byte-for-byte and the final-product manifest pins the current bytes."
     },
     {
       "path": "reports/sparkx_final_product_20261026/verify.py",
@@ -66,8 +66,32 @@
     {
       "path": "scripts/prepare_sparkx_research_bundle.py",
       "prior_sha256": "6f03b31b4a51cc6b7980a7cf92193a7d0071b040282a76426f22692747bc7ba1",
-      "current_sha256": "77f96e7ccc9a258ed6dc2338f38163456d8be53ca0ee4bce990c5b3dba817896",
-      "reason": "Adds the additive final-product manifest profile while leaving the historical 117-input manifest untouched."
+      "current_sha256": "e54bc51eb3368712a81d5a1ecb2757547dcc135315a736a5222963a9cbd2af0f",
+      "reason": "Adds the v5.1 review bundle to the additive final-product profile while leaving the historical 117-input manifest and its hash untouched."
+    },
+    {
+      "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "prior_sha256": "9ec5c8d0c2245456b94782c78c5110a297d9b9ac019d23b10ed6b62c9e4ed741",
+      "current_sha256": "dfff370ff3b394b2360e813fafef7e73806f601566aa7c97aa5b2af4f17b6544",
+      "reason": "v5.1 updates only the unified entry pointer; revision-4.5 evidence and unversioned run receipts remain historical context."
+    },
+    {
+      "path": "docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
+      "prior_sha256": "1e44a99f7b38b335b111462fd603c1d30346ee3a83e3c736332f132831f48c96",
+      "current_sha256": "ce6de1904fb6a3b7373a1f71b7cbfed7444867f16393a5ce32dc9b362c2c180d",
+      "reason": "v5.1 adds current evidence and the pending Mkv namespace note without changing transaction, optimizer, one-step or RSI authority."
+    },
+    {
+      "path": "docs/architecture/README.md",
+      "prior_sha256": "d64ea6e70089dd977506ce7e7d3bcd6c3198dfa53824a91f228c98aa8dab2a4e",
+      "current_sha256": "428f44d0228d5770cc8b2f9c207c5a5a034f31c804eb562855b4d65dfcb1854e",
+      "reason": "v5.1 points the architecture index at blueprint v5.1 while retaining revision 4.5 as historical design lineage."
+    },
+    {
+      "path": "docs/research/sparkx_nested_learning_20261026/README.md",
+      "prior_sha256": "b905728a5d659b260766c0132136ee8b4deef64d6a61897c311785e5d3fc79ac",
+      "current_sha256": "d7f8467517dafedd4004e824aca706317f3cbff4a7d791fd2861d5fb847c97f2",
+      "reason": "v5.1 adds the reviewed learning direction and points at the unified blueprint; earlier NL/V records remain historical."
     }
   ]
 }

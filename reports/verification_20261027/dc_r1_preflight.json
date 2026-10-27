@@ -1,0 +1,41 @@
+{
+  "config_path": "/Users/flare/replica_r3_starter/configs/dc_r1_native_value_protocol_v1.json",
+  "config_sha256": "afe323a0cea96e38dd023a983b953a35bef2d762a1207599e591dd3d17c8d295",
+  "downloads": 0,
+  "exit_code": 0,
+  "format": "replica.dc_protocol.preflight_receipt.v1",
+  "heldout_opened": false,
+  "launch_requested": false,
+  "launch_requirements": {
+    "authorization_fields": [
+      "format",
+      "protocol_id",
+      "config_sha256",
+      "prepared_manifest_sha256",
+      "authorized_by",
+      "native_execution_allowed",
+      "single_attempt",
+      "receipt_sha256"
+    ],
+    "authorization_receipt_format": "replica.dc_protocol.authorization.v1",
+    "fresh_output_path": true,
+    "launch_command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/preflight_dc_r1_native_value_20261027.py --launch --receipt runs/dc_r1_native_value_20261027/preflight_launch01.json --authorization reports/dc_r1_native_value_20261027/authorization.json",
+    "native_execution": false,
+    "native_execution_status": "refused_preparation_only",
+    "on_authorized_package_without_native_runner": "refuse_nonzero",
+    "on_missing_receipt": "refuse_nonzero",
+    "output_root": "runs/dc_r1_native_value_20261027/native01",
+    "requires_authorization_receipt": true,
+    "review_command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/preflight_dc_r1_native_value_20261027.py --review --receipt runs/dc_r1_native_value_20261027/preflight_review01.json",
+    "review_only": true,
+    "review_receipt_path": "runs/dc_r1_native_value_20261027/preflight_review01.json"
+  },
+  "model_loaded": false,
+  "native_execution": false,
+  "native_execution_status": "refused_preparation_only",
+  "prepared_manifest_path": "/Users/flare/replica_r3_starter/data/dc_r1_native_value_20261027/manifest.json",
+  "prepared_manifest_sha256": "15cc48fb9bc71e75ef66d3c741d0b7e185da1d16aedacbab66aa867280b61806",
+  "protocol_id": "dc_r1_native_value_readout_v1",
+  "status": "review_ready",
+  "tokenizer_loaded": false
+}

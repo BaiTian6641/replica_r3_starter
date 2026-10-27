@@ -5,23 +5,15 @@ capability qualification or execution authorization.** This document owns the
 per-state mechanism matrix, the primary-source/deviation audit, the
 routing-versus-compilation admission rules, the bounded RSI gate sequence and the
 behavioral stability/correction protocol. It is compatible with the current
-product plan ([document 21](21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md),
-revision 4.5) and the integrated design
+product plan ([document 23](23_SparkX_2_6_4B_Final_Product_Blueprint.md),
+version 5.1; earlier revision 4.5 retained in document 21) and the integrated design
 ([document 19](19_Integrated_Memory_Learning_and_RSI_Design.md)). Linked
 experiment records own their native evidence; this contract adds no independent
 capability qualification.
 
-**Current dispositions that constrain every claim below.** MiniCPM5 V0 is
-accepted as an interface only (frozen decoder, zero optimizer updates, native
-reload). The new vision learnability arm is rejected at 0/14 train-fit answers
-with caption semantic F1 zero; development and held-out were not opened.
-Learned memory and causal-refresh quality remain rejected: `native04` reaches
-110/240 exact recall with **zero optimizer updates**; `restart04` passes fresh-
-process parity without re-encoding old observations. Spark source preparation
-is metadata/tokenizer only; native FP8 loading, adapters, gradients and
-training are **blocked**. No Titans, uTTT, HOPE, MemT, Mem-T or selective-
-plasticity mechanism in this repository has been trained, and no recursive-
-improvement cycle has run.
+**27 October evidence reconciliation:** native V0 remains interface-only. The bounded vision reproduction supports first-update overshoot with 0/14 answers; no useful visual competence is promoted. Exact selected-record readout passed 148/152 held-out rows with host selection and zero updates. Learned-memory acceptance v4 remains rejected; P response train-fit remains 0/28. Independent 16-expert continuation matches including optimizer state. Spark BF16 and one FP8-derived BF16 artifact have native exact export/reload evidence, while **native FP8 execution remains refused on MPS**; no full Spark learning capability is established. See [Doc23 evidence](23_SparkX_2_6_4B_Final_Product_Blueprint.md#2-what-is-established-and-what-is-not) and [27 October remediation](../experiments/20261027_Remediation_and_Next_Steps.md). No RSI cycle is promoted.
+
+**V5.1 scope:** [Doc24](24_SparkX_2_6_v5_1_Refinement_Plan.md) and [Doc25](25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md) add prospective E2, P32/P64 and `Mkv` parameter-table designs. They preserve this document's authority, transaction, causal-observation and candidate-verification rules. `Mkv` is a new proposed scoped parameter namespace, distinct from disposable KV caches: keys/reader fixed initially, values and optimizer state mutable only through an admitted transaction. Inactive rows must not change through momentum or decay. Its implementation/admission is pending. Existing one-step/optimizer protocols do not change because the research plan names reset/SGD alternatives.
 
 **Revision 4.5 learning refinement:** the [nested-learning contract](../research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md) specifies the `Pf/Ps` clocks, future-query objective, explicit first-order `P` meta-gradient and replay/causal schedule. Its [validation ledger](../research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md) supplies the missing experiments without changing the authority rules below. The new [vision learnability diagnostic](../experiments/20261026_Vision_Learnability_Diagnostic.md) rejects the fresh seven-update train-fit arm after observing spatial contribution in the read-only ablation; development, held-out and new V0 alignment remain closed. No nested-learning or RSI capability is promoted.
 

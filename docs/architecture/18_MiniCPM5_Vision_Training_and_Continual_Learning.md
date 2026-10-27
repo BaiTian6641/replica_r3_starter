@@ -1,5 +1,9 @@
 # MiniCPM5 vision training, visual memory and bounded improvement
 
+**Current direction — 27 October 2026:** [Doc25](25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md) specifies the revised MiniCPM program: address measured vision overshoot and P readout failure, qualify native E2 use, then test P32/P64, sparse parameter values, nested objectives and joint vocab/AV learning. The [reviewed Spark v5.1 plan](24_SparkX_2_6_v5_1_Refinement_Plan.md) supplies the shared architecture. Full offline fine-tuning establishes modalities; deployed learning updates designated native memory parameters. The dated V0–V4 material below remains historical execution guidance, not authorization to skip the new gates.
+
+Exact selected-record readout separately passed 148/152 held-out rows with host selection and no updates; P train-fit free generation remains 0/28. These findings qualify different mechanisms. Existing source pins, failed receipts, one-step protocols and native resource guards remain unchanged.
+
 **Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
 The repair prerequisites are satisfied. The isolated visual prefix is implemented
 through `VisionFeatureService`, the native adapter, frames and `MemorySession`.

@@ -20,7 +20,8 @@ PREPARED = ROOT / "data" / "value_readout_abstention_20261027" / "fixture02"
 
 from replica_lab.value_readout_abstention import (  # noqa: E402
     ArtifactBudgetExceeded, RunInterrupted, enforce_artifact_budget,
-    run_controls, run_development, run_fit, run_heldout, sha256_file,
+    enforce_resume_artifact_budget, run_controls, run_development, run_fit,
+    run_heldout, sha256_file,
 )
 import replica_lab.value_readout_abstention as runner_module  # noqa: E402
 
@@ -76,6 +77,35 @@ def test_runner_accounts_three_independent_24_update_arms(full_runs):
     }
     assert report["optimizer_meta"]["param_names"] == [
         "selected_expert.gate", "selected_expert.up", "selected_expert.down"]
+    assert report["physical_work"] == {
+        "scope": "fit_treatment_and_two_control_arms_plus_zero_update_baselines",
+        "optimizer_steps": 72,
+        "backward_calls": 72,
+        "training_forward_calls": 72,
+        "evaluation_forward_calls": 135,
+        "retention_diagnostic_forwards": 15,
+        "training_write_events": 27,
+        "evaluation_write_events": 45,
+        "checkpoint_writes": 3,
+        "matches_global_logical_updates": True,
+        "process_history": "resume_evidence.json",
+    }
+    baselines = report["zero_update_baselines"]
+    assert baselines["parent"]["optimizer_steps"] == 0
+    assert baselines["parent"]["case_accuracy"] == 1.0
+    assert baselines["parent"]["all_declared_gates_passed"] is True
+    assert baselines["reset"]["case_accuracy"] == pytest.approx(4 / 9)
+    assert baselines["reset"]["all_declared_gates_passed"] is False
+    assert baselines["integration_vs_learning"][
+        "learning_improvement_claimed"] is False
+    assert baselines["integration_vs_learning"][
+        "parent_already_passes_all_fit_gates"] is True
+    evidence = json.loads(
+        (full_runs["fit_root"] / "resume_evidence.json").read_text(
+            encoding="utf-8"))
+    assert evidence["process_count"] == 1
+    assert evidence["optimizer_steps_by_process"] == [72]
+    assert evidence["cumulative_work"]["optimizer_steps"] == 72
     treatment = _payload(full_runs["fit_root"] / "fit" / "checkpoint.pt")
     assert treatment["arm_id"] == "learned_value_readout"
     assert treatment["phase"] == "fit_treatment"
@@ -152,37 +182,103 @@ def test_seven_controls_are_distinct_and_gate_as_declared(full_runs):
     assert "gate_passed" not in arms["exact_context"]
 
 
+def _assert_resume_equivalence(target: Path, baseline_root: Path) -> dict:
+    baseline = _report(baseline_root)
+    report = _report(target)
+    assert report["completed_steps"] == 24
+    assert report["resulting_state_sha256"] == baseline["resulting_state_sha256"]
+    assert report["update_records"] == baseline["update_records"]
+    # The report and receipt bind model work only; process history lives in the
+    # separate resume evidence, so resumed and uninterrupted reports agree.
+    for relative in (
+            "fit/checkpoint.pt", "fit/fit_predictions.jsonl",
+            "fit/fit_report.json", "fit_receipt.json",
+            "fit/baseline_parent_predictions.jsonl",
+            "fit/baseline_reset_predictions.jsonl",
+            "fit/control_shuffled_values.pt",
+            "fit/control_wrong_world_values.pt",
+            "fit/control_shuffled_values_predictions.jsonl",
+            "fit/control_wrong_world_values_predictions.jsonl"):
+        assert sha256_file(target / relative) == sha256_file(
+            baseline_root / relative), relative
+    for arm_id in ("shuffled_values", "wrong_world_values"):
+        resumed_payload = _payload(target / "fit" / f"control_{arm_id}.pt")
+        baseline_payload = _payload(
+            baseline_root / "fit" / f"control_{arm_id}.pt")
+        assert resumed_payload["state_sha256"] == \
+            baseline_payload["state_sha256"]
+        assert resumed_payload["update_records"] == \
+            baseline_payload["update_records"]
+    return json.loads((target / "resume_evidence.json").read_text(
+        encoding="utf-8"))
+
+
 def test_interruption_and_resume_are_bit_identical(full_runs, tmp_path):
-    baseline = _report(full_runs["fit_root"])
     target = tmp_path / "interrupted"
     with pytest.raises(RunInterrupted) as interrupted:
         run_fit(PREPARED, CONFIG_PATH, target, interrupt_after=5)
     assert interrupted.value.completed_updates == 5
     assert (target / "resume.pt").is_file()
+    state = _payload(target / "resume.pt")
+    assert state["format"] == runner_module.RESUME_FORMAT
+    assert state["cursor"]["next_arm_index"] == 0
+    assert state["cursor"]["completed_arm_ids"] == []
+    assert state["cursor"]["active_arm_id"] == "learned_value_readout"
+    assert state["processes"][-1]["status"] == "interrupted"
+    assert state["cumulative_work"]["optimizer_steps"] == 5
     resumed = run_fit(PREPARED, CONFIG_PATH, target, resume=True)
-    report = resumed["fit_report"]
-    assert report["completed_steps"] == 24
-    assert report["resulting_state_sha256"] == baseline["resulting_state_sha256"]
-    assert report["update_records"] == baseline["update_records"]
-    for relative in (
-            "fit/checkpoint.pt", "fit/fit_predictions.jsonl",
-            "fit/fit_report.json", "fit_receipt.json",
-            "fit/control_shuffled_values.pt",
-            "fit/control_wrong_world_values.pt",
-            "fit/control_shuffled_values_predictions.jsonl",
-            "fit/control_wrong_world_values_predictions.jsonl",
-            "artifact_budget.json"):
-        assert sha256_file(target / relative) == sha256_file(
-            full_runs["fit_root"] / relative), relative
-    for arm_id in ("shuffled_values", "wrong_world_values"):
-        resumed_payload = _payload(
-            target / "fit" / f"control_{arm_id}.pt")
-        baseline_payload = _payload(
-            full_runs["fit_root"] / "fit" / f"control_{arm_id}.pt")
-        assert resumed_payload["state_sha256"] == \
-            baseline_payload["state_sha256"]
-        assert resumed_payload["update_records"] == \
-            baseline_payload["update_records"]
+    evidence = _assert_resume_equivalence(target, full_runs["fit_root"])
+    assert resumed["physical_work"]["optimizer_steps"] == 72
+    assert evidence["optimizer_steps_by_process"] == [5, 67]
+    assert evidence["cumulative_work"]["optimizer_steps"] == 72
+    assert evidence["completed_arms_never_retrained"] is True
+
+
+@pytest.mark.parametrize("cut", [24, 25, 29, 48, 49])
+def test_resume_at_arm_boundaries_never_retrains(full_runs, tmp_path, cut):
+    target = tmp_path / f"boundary_{cut}"
+    with pytest.raises(RunInterrupted) as interrupted:
+        run_fit(PREPARED, CONFIG_PATH, target, interrupt_after=cut)
+    assert interrupted.value.completed_updates == cut
+    state = _payload(target / "resume.pt")
+    completed = state["cursor"]["completed_arm_ids"]
+    assert completed == list(runner_module.TRAINED_ARMS)[:cut // 24]
+    resumed = run_fit(PREPARED, CONFIG_PATH, target, resume=True)
+    evidence = _assert_resume_equivalence(target, full_runs["fit_root"])
+    assert evidence["optimizer_steps_by_process"] == [cut, 72 - cut]
+    assert evidence["cumulative_work"]["optimizer_steps"] == 72
+    assert resumed["physical_work"]["optimizer_steps"] == 72
+    assert evidence["completed_arms_never_retrained"] is True
+
+
+def test_multiple_restarts_accumulate_physical_work_without_replay(
+        full_runs, tmp_path):
+    target = tmp_path / "multiple"
+    with pytest.raises(RunInterrupted):
+        run_fit(PREPARED, CONFIG_PATH, target, interrupt_after=24)
+    with pytest.raises(RunInterrupted):
+        run_fit(PREPARED, CONFIG_PATH, target, resume=True,
+                interrupt_after=49)
+    resumed = run_fit(PREPARED, CONFIG_PATH, target, resume=True)
+    evidence = _assert_resume_equivalence(target, full_runs["fit_root"])
+    assert evidence["optimizer_steps_by_process"] == [24, 25, 23]
+    assert evidence["process_count"] == 3
+    assert evidence["restart_count"] == 2
+    assert sum(evidence["optimizer_steps_by_process"]) == 72
+    assert evidence["cumulative_work"]["backward_calls"] == 72
+    assert evidence["cumulative_work"]["training_forward_calls"] == 72
+    assert resumed["physical_work"]["training_write_events"] == 27
+
+
+def test_resume_rejects_changed_input_or_config_identity(tmp_path):
+    target = tmp_path / "identity"
+    with pytest.raises(RunInterrupted):
+        run_fit(PREPARED, CONFIG_PATH, target, interrupt_after=5)
+    state = _payload(target / "resume.pt")
+    state["identities"]["event_sequence_sha256"] = "0" * 64
+    torch.save(state, target / "resume.pt")
+    with pytest.raises(runner_module.ReadoutError):
+        run_fit(PREPARED, CONFIG_PATH, target, resume=True)
 
 
 def test_fresh_process_resume_matches_uninterrupted(full_runs, tmp_path):
@@ -208,13 +304,68 @@ def test_fresh_process_resume_matches_uninterrupted(full_runs, tmp_path):
     assert report["update_records"] == baseline["update_records"]
     for relative in ("fit/checkpoint.pt", "fit/fit_predictions.jsonl",
                      "fit/fit_report.json", "fit_receipt.json",
-                     "artifact_budget.json"):
+                     "fit/control_shuffled_values.pt",
+                     "fit/control_wrong_world_values.pt"):
         assert sha256_file(output / relative) == sha256_file(
             full_runs["fit_root"] / relative), relative
     assert json.loads((output / "fit_receipt.json").read_text(
         encoding="utf-8")) == json.loads(
             (full_runs["fit_root"] / "fit_receipt.json").read_text(
                 encoding="utf-8"))
+    evidence = json.loads((output / "resume_evidence.json").read_text(
+        encoding="utf-8"))
+    assert evidence["optimizer_steps_by_process"] == [4, 68]
+    assert evidence["process_count"] == 2
+    assert evidence["cumulative_work"]["optimizer_steps"] == 72
+
+
+def test_all_cli_interruption_and_resume_preserve_cursor(full_runs, tmp_path):
+    root = tmp_path / "all_cli"
+    env = {"PYTHONDONTWRITEBYTECODE": "1",
+           "PATH": "/usr/bin:/bin:/usr/sbin:/sbin"}
+    command = [sys.executable,
+               str(ROOT / "scripts" / "run_value_readout_abstention_v1.py"),
+               "all", "--output", str(root)]
+    first = subprocess.run(command + ["--interrupt-after", "29"], cwd=ROOT,
+                           capture_output=True, text=True, timeout=180,
+                           env=env)
+    assert first.returncode == 3, first.stderr
+    payload = json.loads(first.stdout)
+    assert payload["status"] == "interrupted"
+    assert payload["completed_updates"] == 29
+    resume_path = Path(payload["resume"])
+    assert resume_path == root / "fit" / "resume.pt"
+    assert resume_path.is_file()
+    state = _payload(resume_path)
+    assert state["cursor"]["completed_arm_ids"] == [
+        "learned_value_readout"]
+    assert state["cursor"]["next_arm_index"] == 1
+    assert state["cursor"]["active_arm_id"] == "shuffled_values"
+    assert state["cursor"]["global_optimizer_steps"] == 29
+
+    second = subprocess.run(command + ["--resume"], cwd=ROOT,
+                            capture_output=True, text=True, timeout=180,
+                            env=env)
+    assert second.returncode == 0, second.stderr
+    assert json.loads(second.stdout)["status"] == "completed"
+    assert not resume_path.exists()
+    assert not (root / "fit" / "resume_arms").exists()
+    for relative, baseline_root in (
+            ("fit/checkpoint.pt", full_runs["fit_root"]),
+            ("fit/fit_predictions.jsonl", full_runs["fit_root"]),
+            ("fit/fit_report.json", full_runs["fit_root"]),
+            ("fit_receipt.json", full_runs["fit_root"]),
+            ("dev_run/dev_receipt.json", full_runs["dev_root"]),
+            ("heldout_run/heldout_receipt.json",
+             full_runs["heldout_root"]),
+            ("controls_run/controls/dev_control_report.json",
+             full_runs["controls_root"])):
+        assert sha256_file(root / relative) == sha256_file(
+            baseline_root / relative), relative
+    evidence = json.loads((root / "fit" / "resume_evidence.json").read_text(
+        encoding="utf-8"))
+    assert evidence["optimizer_steps_by_process"] == [29, 43]
+    assert evidence["completed_arms_never_retrained"] is True
 
 
 def test_runner_reads_no_evaluation_labels_during_fit(monkeypatch, tmp_path):
@@ -260,6 +411,9 @@ def test_fit_artifact_budget_documents_and_enforces_amended_cap(full_runs):
     assert summary["old_cap_bytes"] == 16777216
     assert summary["old_cap_underprovisioned"] is True
     assert summary["resume_complete_checkpoints"] == 3
+    assert summary["resume_artifacts_included"] is True
+    assert "resume_evidence.json" in summary["resume_artifact_paths"]
+    assert summary["resume_artifact_bytes"] > 0
     assert summary["measured_bytes"] > summary["old_cap_bytes"]
     assert summary["measured_bytes"] <= summary["cap_bytes"]
     assert summary["measured_bytes"] == sum(
@@ -302,3 +456,43 @@ def test_too_small_artifact_cap_is_rejected_and_overflow_preserved(tmp_path):
     summary = json.loads((root / "artifact_budget.json").read_text(
         encoding="utf-8"))
     assert summary["status"] == "overflow"
+
+
+def test_resume_artifacts_are_in_budget_and_overflow_preserves_them(tmp_path):
+    root = tmp_path / "resume_budget"
+    with pytest.raises(RunInterrupted):
+        run_fit(PREPARED, CONFIG_PATH, root, interrupt_after=49)
+    config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+    declared_cap = config["budget"]["authorized_run_ceiling"][
+        "artifact_bytes_max"]
+    resume_files = [root / "resume.pt"] + sorted(
+        (root / "resume_arms").glob("*.pt"))
+    assert resume_files and all(path.is_file() for path in resume_files)
+    measured = enforce_resume_artifact_budget(root, config,
+                                              context="resume_regression")
+    assert measured["cap_bytes"] == declared_cap
+    assert measured["measured_bytes"] <= declared_cap
+    assert measured["resume_artifact_bytes"] == sum(
+        path.stat().st_size for path in resume_files)
+    assert set(measured["resume_artifact_paths"]) >= {
+        "resume.pt", "resume_arms/learned_value_readout.pt",
+        "resume_arms/shuffled_values.pt"}
+
+    tight = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+    tight["budget"]["authorized_run_ceiling"]["artifact_bytes_max"] = 1024
+    with pytest.raises(ArtifactBudgetExceeded) as exceeded:
+        enforce_resume_artifact_budget(root, tight, context="resume_overflow")
+    assert exceeded.value.cap_bytes == 1024
+    assert exceeded.value.measured_bytes > 1024
+    overflow = json.loads((root / "artifact_budget_overflow.json").read_text(
+        encoding="utf-8"))
+    assert overflow["context"] == "resume_overflow"
+    assert overflow["preserved"] is True
+    assert set(overflow["resume_artifacts_within_measurement"]) >= {
+        "resume.pt", "resume_arms/learned_value_readout.pt",
+        "resume_arms/shuffled_values.pt"}
+    assert overflow["deleted_artifacts"] == []
+    assert all(path.is_file() for path in resume_files)
+    # The declared 32 MiB cap was never changed by the overflow.
+    assert config["budget"]["authorized_run_ceiling"][
+        "artifact_bytes_max"] == 33554432

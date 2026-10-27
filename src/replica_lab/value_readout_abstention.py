@@ -37,7 +37,9 @@ PREDICTION_FORMAT = "replica.value_readout_abstention.prediction.v1"
 EVALUATION_REPORT_FORMAT = "replica.value_readout_abstention.evaluation_report.v1"
 CONTROL_REPORT_FORMAT = "replica.value_readout_abstention.control_report.v1"
 RUNNER_MANIFEST_FORMAT = "replica.value_readout_abstention.run_manifest.v1"
-RESUME_FORMAT = "replica.value_readout_abstention.resume.v1"
+RESUME_FORMAT = "replica.value_readout_abstention.resume.v2"
+RESUME_ARM_FORMAT = "replica.value_readout_abstention.resume_arm.v2"
+RESUME_EVIDENCE_FORMAT = "replica.value_readout_abstention.resume_evidence.v1"
 ARTIFACT_BUDGET_FORMAT = "replica.value_readout_abstention.artifact_budget.v1"
 ARTIFACT_OVERFLOW_FORMAT = "replica.value_readout_abstention.artifact_budget_overflow.v1"
 RUNNER_ENTRY_POINT = "scripts/run_value_readout_abstention_v1.py"
@@ -196,6 +198,11 @@ def enforce_artifact_budget(output: Path, config: Mapping[str, Any], *,
     overflow_path = root / "artifact_budget_overflow.json"
     files = _artifact_inventory(root, exclude=(summary_path, overflow_path))
     files_total = sum(row["bytes"] for row in files)
+    resume_rows = [row for row in files
+                   if row["path"] == "resume.pt"
+                   or row["path"].startswith("resume_arms/")
+                   or row["path"] == "resume_evidence.json"]
+    resume_bytes = sum(row["bytes"] for row in resume_rows)
     measured = files_total
     text = ""
     for _ in range(8):
@@ -211,6 +218,9 @@ def enforce_artifact_budget(output: Path, config: Mapping[str, Any], *,
                 "resume_complete_checkpoints"),
             "declared_derivation": declared.get("derivation"),
             "enforcement": "after_final_report_and_receipt_writes_all_artifacts_included",
+            "resume_artifacts_included": True,
+            "resume_artifact_bytes": resume_bytes,
+            "resume_artifact_paths": [row["path"] for row in resume_rows],
             "measured_bytes": measured,
             "files_total_bytes": files_total,
             "file_count": len(files) + 1,
@@ -323,6 +333,94 @@ def state_tensor_digests(state: Mapping[str, Tensor]) -> dict[str, str]:
 def _state_clone(state: Mapping[str, Tensor]) -> "OrderedDict[str, Tensor]":
     return OrderedDict((name, tensor.detach().clone())
                        for name, tensor in state.items())
+
+
+# Physical work counters.  A fresh process always starts at zero; resume
+# evidence accumulates one record per process so a restart cannot hide repeated
+# training behind a final logical update count.
+WORK_COUNTERS = (
+    "optimizer_steps",
+    "backward_calls",
+    "training_forward_calls",
+    "evaluation_forward_calls",
+    "retention_diagnostic_forwards",
+    "training_write_events",
+    "evaluation_write_events",
+    "checkpoint_writes",
+    "resume_artifact_writes",
+)
+
+
+def _empty_work() -> dict[str, int]:
+    return {name: 0 for name in WORK_COUNTERS}
+
+
+def _work_copy(work: Mapping[str, Any]) -> dict[str, int]:
+    return {name: int(work.get(name, 0)) for name in WORK_COUNTERS}
+
+
+def _work_add(into: dict[str, int], other: Mapping[str, Any]) -> None:
+    for name in WORK_COUNTERS:
+        into[name] = int(into.get(name, 0)) + int(other.get(name, 0))
+
+
+def _sum_work(records: Iterable[Mapping[str, Any]]) -> dict[str, int]:
+    total = _empty_work()
+    for record in records:
+        _work_add(total, record.get("work", {}))
+    return total
+
+
+def _resume_artifact_files(output: Path) -> list[Path]:
+    root = Path(output)
+    paths = []
+    resume_path = root / "resume.pt"
+    if resume_path.is_file():
+        paths.append(resume_path)
+    arms_dir = root / "resume_arms"
+    if arms_dir.is_dir():
+        paths.extend(sorted(path for path in arms_dir.rglob("*")
+                            if path.is_file()))
+    return paths
+
+
+def enforce_resume_artifact_budget(output: Path, config: Mapping[str, Any], *,
+                                   context: str = "resume") -> dict:
+    """Include live resume state in the unchanged artifact ceiling.
+
+    Completed-arm snapshots are large (full model and optimizer state), so the
+    in-flight resume tree is measured after every durable save.  Overflow keeps
+    every resume artifact and writes separate evidence instead of deleting or
+    silently raising the declared 32 MiB ceiling.
+    """
+    root = Path(output)
+    cap = int(config["budget"]["authorized_run_ceiling"]["artifact_bytes_max"])
+    files = _artifact_inventory(root)
+    measured = sum(row["bytes"] for row in files)
+    resume_files = _resume_artifact_files(root)
+    if measured > cap:
+        overflow_path = root / "artifact_budget_overflow.json"
+        overflow = {
+            "format": ARTIFACT_OVERFLOW_FORMAT,
+            "protocol_id": "value_readout_abstention_v1",
+            "context": context,
+            "status": "overflow",
+            "cap_bytes": cap,
+            "measured_bytes_before_overflow_evidence": measured,
+            "resume_artifacts_within_measurement": [
+                path.relative_to(root).as_posix() for path in resume_files],
+            "summary_path": None,
+            "files": files,
+            "preserved": True,
+            "deleted_artifacts": [],
+        }
+        _write_json_atomic(overflow_path, overflow, sort_keys=False)
+        raise ArtifactBudgetExceeded(measured, cap, overflow_path)
+    return {"cap_bytes": cap, "measured_bytes": measured,
+            "resume_artifact_bytes": sum(path.stat().st_size
+                                         for path in resume_files),
+            "resume_artifact_paths": [path.relative_to(root).as_posix()
+                                      for path in resume_files]}
 
 
 # ---------------------------------------------------------------------------
@@ -560,6 +658,11 @@ def _read_train_metadata(prepared: Path, config: Mapping[str, Any]) -> dict:
             "cases": cases, "teaching": teaching}
 
 
+def read_fit_metadata(prepared: Path, config: Mapping[str, Any]) -> dict:
+    """Public access to the exact chronological fit input sequence."""
+    return _read_train_metadata(Path(prepared), config)
+
+
 def _read_split_inputs(prepared: Path, config: Mapping[str, Any],
                        split: str) -> dict:
     files = config["prepared"]["files"]
@@ -668,9 +771,17 @@ class Arm:
         self.parent_trainable_sha256 = state_sha256(self.module.model_state())
         self.clock = TeachingClock(0)
         self.ledger = DedupLedger()
+        self.memory = FixedRecordMemory()
         self.update_records: list[dict] = []
         self.event_index = 0
         self.completed_updates = 0
+
+    def started(self) -> bool:
+        return self.event_index > 0 or self.completed_updates > 0
+
+    def state_digest(self) -> str:
+        return state_sha256({**self.module.model_state(),
+                             **self.module.fixed_state()})
 
     def snapshot(self) -> dict:
         return {
@@ -685,11 +796,17 @@ class Arm:
             "completed_updates": self.completed_updates,
             "update_records": deepcopy(self.update_records),
             "ledger": self.ledger.to_dict(),
+            "memory_records": self.memory.snapshot_records(),
+            "state_sha256": self.state_digest(),
+            "model_state_sha256": self.module.model_state_digest(),
+            "fixed_state_sha256": self.module.fixed_state_digest(),
         }
 
     def restore(self, payload: Mapping[str, Any]) -> None:
         _require(payload["arm_id"] == self.arm_id, "resume arm differs")
         _require(int(payload["seed"]) == self.seed, "resume seed differs")
+        _require(payload.get("parent_state_sha256") == self.parent_state_sha256,
+                 "resume parent state differs")
         with torch.no_grad():
             for name, tensor in payload["model_state"].items():
                 self.module.model_state()[name].copy_(tensor)
@@ -699,6 +816,18 @@ class Arm:
         self.completed_updates = int(payload["completed_updates"])
         self.update_records = deepcopy(list(payload["update_records"]))
         self.ledger = DedupLedger.from_dict(payload["ledger"])
+        self.memory = FixedRecordMemory()
+        self.memory.restore_records(payload.get("memory_records", []))
+        _require(self.state_digest() == payload.get("state_sha256"),
+                 "restored arm state digest differs")
+        _require(len(self.update_records) == self.completed_updates,
+                 "restored update record count differs")
+        if self.update_records:
+            _require(self.update_records[-1].get("state_after_sha256")
+                     == payload.get("state_sha256"),
+                     "restored arm final update hash differs from its state")
+        _require(self.clock.eligible_events == self.event_index,
+                 "restored arm clock differs from its event cursor")
 
     def checkpoint_payload(self, *, config: Mapping[str, Any],
                            config_sha256: str,
@@ -728,6 +857,7 @@ class Arm:
             "fixed_state": fixed_state,
             "trainable_state_sha256": state_tensor_digests(model_state),
             "fixed_state_sha256": state_tensor_digests(fixed_state),
+            "model_state_sha256": state_sha256(model_state),
             "parent_state_sha256": self.parent_state_sha256,
             "state_sha256": state_sha256(combined),
             "optimizer_meta": _optimizer_meta(self.module, self.optimizer),
@@ -786,14 +916,388 @@ def _features_for_event(arm_id: str, event: Mapping[str, Any],
     return features, index, record
 
 
-def _train_arm(arm: Arm, *, metadata: Mapping[str, Any],
-               vocabulary: Sequence[str], config: Mapping[str, Any],
-               resume_path: Path | None, interrupt_after: int | None,
-               total_updates_before: int) -> int:
-    memory = FixedRecordMemory()
-    if arm.event_index:
-        # Resume reconstruction is supplied by the caller before this call.
-        memory = getattr(arm, "_resume_memory", FixedRecordMemory())
+def _resume_identities(context: RunnerContext, metadata: Mapping[str, Any],
+                       vocabulary: Sequence[str]) -> dict:
+    teaching = [row["case_id"] for row in metadata["teaching"]]
+    return {
+        "protocol_id": "value_readout_abstention_v1",
+        "config_sha256": context.config_sha256,
+        "prepared_manifest_sha256": context.manifest_sha256,
+        "vocabulary_sha256": sha256_json(list(vocabulary)),
+        "seed": int(context.config["transaction"]["seed"]),
+        "event_sequence_sha256": sha256_json(metadata["events"]),
+        "teaching_sequence_sha256": sha256_json(teaching),
+        "case_sequence_sha256": sha256_json(
+            [metadata["cases"][case_id] for case_id in sorted(metadata["cases"])]),
+    }
+
+
+def _require_resume_identities(payload: Mapping[str, Any], identities: Mapping[str, Any],
+                               where: str) -> None:
+    recorded = payload.get("identities")
+    _require(isinstance(recorded, Mapping), f"{where} identities are missing")
+    _require(dict(recorded) == dict(identities),
+             f"{where} config/input identities differ")
+
+
+def _load_resume(path: Path) -> dict:
+    return torch.load(Path(path), map_location="cpu", weights_only=True)
+
+
+def _arm_is_complete(arm: Arm, metadata: Mapping[str, Any]) -> bool:
+    return (arm.event_index >= len(metadata["events"])
+            and arm.completed_updates == 24)
+
+
+class FitResumeState:
+    """Durable global arm cursor for repeated fresh-process restarts.
+
+    Semantics:
+    - ``arm_order`` is the fixed tuple of trained arms.
+    - ``cursor.next_arm_index`` is the first non-complete arm.  Every earlier
+      arm is a durable completed-arm snapshot and is never retrained.
+    - ``cursor.active_arm_id`` is the one partially trained arm, if any.  Its
+      model, NativeFusedAdamW state, event clock, update records, dedup ledger
+      and fixed-memory records are persisted after every optimizer step.
+    - ``cursor.completed_arm_ids`` is exactly ``arm_order[:next_arm_index]``.
+    - ``processes`` retains one physical-work record per process.  Cumulative
+      work is their sum, so retraining completed arms cannot be hidden by a
+      final logical count.
+    - Heavy resume snapshots are deleted only after ``resume_evidence.json``
+      records their hashes and the final artifact tree is measured.
+    """
+
+    def __init__(self, *, output: Path, context: RunnerContext,
+                 metadata: Mapping[str, Any], vocabulary: Sequence[str],
+                 arms: Mapping[str, Arm], resume_path: Path,
+                 interrupt_after: int | None):
+        self.output = Path(output)
+        self.context = context
+        self.metadata = metadata
+        self.vocabulary = list(vocabulary)
+        self.arms = dict(arms)
+        self.arm_order = tuple(TRAINED_ARMS)
+        self.resume_path = Path(resume_path)
+        self.interrupt_after = interrupt_after
+        self.identities = _resume_identities(context, metadata, vocabulary)
+        self.processes: list[dict] = []
+        self.completed_artifacts: dict[str, dict] = {}
+        self.peak_resume_bytes = 0
+        self.restored_completed_arms: list[str] = []
+
+    # -- cursor -----------------------------------------------------------
+    def completed_ids(self) -> list[str]:
+        completed = []
+        for arm_id in self.arm_order:
+            if _arm_is_complete(self.arms[arm_id], self.metadata):
+                completed.append(arm_id)
+            else:
+                break
+        return completed
+
+    def next_arm_index(self) -> int:
+        return len(self.completed_ids())
+
+    def total_updates(self) -> int:
+        return sum(int(arm.completed_updates)
+                   for arm in self.arms.values() if arm.started())
+
+    def current_process(self) -> dict:
+        _require(bool(self.processes), "resume process history is empty")
+        return self.processes[-1]
+
+    def process_work(self) -> dict:
+        return self.current_process()["work"]
+
+    def add_process(self, *, resumed_from: Mapping[str, Any]) -> None:
+        index = len(self.processes)
+        self.processes.append({
+            "process_index": index,
+            "restart_index": index,
+            "started_from": dict(resumed_from),
+            "status": "running",
+            "work": _empty_work(),
+            "optimizer_steps_at_start": self.total_updates(),
+        })
+
+    # -- persistence ------------------------------------------------------
+    def _completed_arm_path(self, arm_id: str) -> Path:
+        return self.output / "resume_arms" / f"{arm_id}.pt"
+
+    def _write_completed_arm(self, arm: Arm) -> None:
+        entry = self.completed_artifacts.get(arm.arm_id)
+        if entry is not None:
+            path = self.output / entry["path"]
+            _require(path.is_file(), "completed-arm resume artifact is missing")
+            _require(sha256_file(path) == entry["sha256"],
+                     "completed-arm resume artifact changed")
+            return
+        path = self._completed_arm_path(arm.arm_id)
+        payload = {
+            "format": RESUME_ARM_FORMAT,
+            "identities": dict(self.identities),
+            "arm_id": arm.arm_id,
+            "arm": arm.snapshot(),
+        }
+        _save_torch_atomic(path, payload)
+        work = self.process_work()
+        work["resume_artifact_writes"] = int(
+            work.get("resume_artifact_writes", 0)) + 1
+        snapshot = payload["arm"]
+        self.completed_artifacts[arm.arm_id] = {
+            "arm_id": arm.arm_id,
+            "path": path.relative_to(self.output).as_posix(),
+            "sha256": sha256_file(path),
+            "state_sha256": snapshot["state_sha256"],
+            "model_state_sha256": snapshot["model_state_sha256"],
+            "fixed_state_sha256": snapshot["fixed_state_sha256"],
+            "completed_updates": int(snapshot["completed_updates"]),
+            "event_clock_steps": int(snapshot["clock_events"]),
+            "events_processed": int(snapshot["event_index"]),
+            "memory_record_count": len(snapshot["memory_records"]),
+            "update_records_sha256": sha256_json(snapshot["update_records"]),
+        }
+
+    def _resume_payload(self, *, active_arm_id: str | None,
+                        status: str) -> dict:
+        completed = self.completed_ids()
+        for arm_id in completed:
+            self._write_completed_arm(self.arms[arm_id])
+        active = None
+        if active_arm_id is not None:
+            arm = self.arms[active_arm_id]
+            if arm.started() and not _arm_is_complete(arm, self.metadata):
+                active = arm.snapshot()
+        process = self.current_process()
+        process["status"] = status
+        process["optimizer_steps_at_exit"] = self.total_updates()
+        return {
+            "format": RESUME_FORMAT,
+            "protocol_id": "value_readout_abstention_v1",
+            "identities": dict(self.identities),
+            "arm_order": list(self.arm_order),
+            "cursor": {
+                "next_arm_index": len(completed),
+                "completed_arm_ids": list(completed),
+                "active_arm_id": (active_arm_id
+                                  if active is not None else None),
+                "global_optimizer_steps": self.total_updates(),
+            },
+            "completed_arms": [self.completed_artifacts[arm_id]
+                               for arm_id in completed],
+            "active_arm": active,
+            "processes": deepcopy(self.processes),
+            "process_count": len(self.processes),
+            "restart_count": len(self.processes) - 1,
+            "cumulative_work": _sum_work(self.processes),
+            "resume_artifact_bytes_peak": self.peak_resume_bytes,
+            "classification": {
+                "native_model": False, "tokenizer": False, "downloads": 0,
+                "device": "cpu", "scope": "deterministic_resume_state",
+            },
+        }
+
+    def save(self, *, active_arm_id: str | None,
+             status: str = "running") -> None:
+        work = self.process_work()
+        work["resume_artifact_writes"] = int(
+            work.get("resume_artifact_writes", 0)) + 1
+        payload = self._resume_payload(active_arm_id=active_arm_id,
+                                       status=status)
+        _save_torch_atomic(self.resume_path, payload)
+        budget = enforce_resume_artifact_budget(
+            self.output, self.context.config, context="resume_save")
+        self.peak_resume_bytes = max(self.peak_resume_bytes,
+                                     int(budget["resume_artifact_bytes"]))
+
+    def restore(self, payload: Mapping[str, Any]) -> None:
+        _require(payload.get("format") == RESUME_FORMAT,
+                 "resume format differs")
+        _require(payload.get("protocol_id") == "value_readout_abstention_v1",
+                 "resume protocol differs")
+        _require_resume_identities(payload, self.identities, "resume")
+        _require(list(payload.get("arm_order", [])) == list(self.arm_order),
+                 "resume arm order differs")
+        cursor = payload.get("cursor")
+        _require(isinstance(cursor, Mapping), "resume cursor is missing")
+        completed = list(cursor.get("completed_arm_ids", []))
+        next_index = int(cursor.get("next_arm_index", -1))
+        _require(completed == list(self.arm_order[:len(completed)]),
+                 "resume completed arms are not a prefix of the arm order")
+        _require(next_index == len(completed),
+                 "resume cursor and completed arm list disagree")
+        _require(next_index <= len(self.arm_order),
+                 "resume cursor exceeds the arm order")
+        completed_rows = payload.get("completed_arms", [])
+        _require(isinstance(completed_rows, list)
+                 and len(completed_rows) == len(completed),
+                 "resume completed-arm artifacts differ from the cursor")
+        by_id = {row["arm_id"]: row for row in completed_rows}
+        _require(set(by_id) == set(completed),
+                 "resume completed-arm snapshot ids differ")
+        for arm_id in completed:
+            entry = by_id[arm_id]
+            path = self.output / str(entry["path"])
+            _require(path.is_file(), "completed-arm resume artifact is missing")
+            _require(sha256_file(path) == entry["sha256"],
+                     "completed-arm resume artifact hash differs")
+            artifact = torch.load(path, map_location="cpu", weights_only=True)
+            _require(artifact.get("format") == RESUME_ARM_FORMAT,
+                     "completed-arm resume format differs")
+            _require(artifact.get("arm_id") == arm_id,
+                     "completed-arm resume id differs")
+            _require_resume_identities(artifact, self.identities,
+                                       f"completed arm {arm_id}")
+            self.arms[arm_id].restore(artifact["arm"])
+            _require(_arm_is_complete(self.arms[arm_id], self.metadata),
+                     "resume completed arm is not complete")
+            _require(self.arms[arm_id].state_digest()
+                     == entry["state_sha256"],
+                     "completed-arm state differs from its receipt")
+            _require(int(entry.get("completed_updates", -1)) == 24
+                     and int(entry.get("event_clock_steps", -1)) == 36
+                     and int(entry.get("events_processed", -1)) == 36,
+                     "completed-arm cursor evidence differs")
+            _require(entry.get("update_records_sha256")
+                     == sha256_json(self.arms[arm_id].update_records),
+                     "completed-arm update record hash differs")
+            self.completed_artifacts[arm_id] = dict(entry)
+        self.restored_completed_arms = completed
+        active_id = cursor.get("active_arm_id")
+        active_snapshot = payload.get("active_arm")
+        if active_id is None:
+            _require(active_snapshot is None,
+                     "resume active arm disagrees with the cursor")
+        else:
+            _require(active_id in self.arms, "resume active arm is unknown")
+            _require(active_id not in completed,
+                     "resume active arm is already complete")
+            _require(isinstance(active_snapshot, Mapping),
+                     "resume active arm snapshot is missing")
+            _require(active_snapshot.get("arm_id") == active_id,
+                     "resume active arm id differs")
+            self.arms[active_id].restore(active_snapshot)
+            _require(not _arm_is_complete(self.arms[active_id],
+                                          self.metadata),
+                     "resume active arm is complete")
+            for index, arm_id in enumerate(self.arm_order):
+                if index > next_index:
+                    _require(not self.arms[arm_id].started(),
+                             "resume has a started arm beyond the cursor")
+        processes = payload.get("processes")
+        _require(isinstance(processes, list) and processes,
+                 "resume process history is missing")
+        _require(int(payload.get("process_count", -1)) == len(processes),
+                 "resume process count differs")
+        _require(int(payload.get("restart_count", -1)) == len(processes) - 1,
+                 "resume restart count differs")
+        for index, row in enumerate(processes):
+            _require(int(row.get("process_index", -1)) == index,
+                     "resume process indices differ")
+            _require(int(row.get("restart_index", -1)) == index,
+                     "resume restart indices differ")
+            _require(set(row.get("work", {})) == set(WORK_COUNTERS),
+                     "resume process work schema differs")
+            for key, value in row["work"].items():
+                _require(type(value) is int and value >= 0,
+                         f"resume process work {key} is invalid")
+        cumulative = payload.get("cumulative_work")
+        _require(isinstance(cumulative, Mapping), "resume cumulative work is missing")
+        expected = _sum_work(processes)
+        _require(dict(cumulative) == expected,
+                 "resume cumulative work differs from process records")
+        _require(expected["optimizer_steps"] == self.total_updates(),
+                 "resume physical optimizer steps differ from arm cursors")
+        peak = payload.get("resume_artifact_bytes_peak")
+        if peak is not None:
+            _require(type(peak) is int and peak >= 0,
+                     "resume artifact peak is invalid")
+            self.peak_resume_bytes = max(self.peak_resume_bytes, peak)
+        self.processes = [dict(row) for row in processes]
+
+    def write_evidence(self, *, final_state_by_arm: Mapping[str, Mapping[str, Any]],
+                       final_checkpoint_sha256: Mapping[str, str]) -> Path:
+        completed = self.completed_ids()
+        _require(completed == list(self.arm_order),
+                 "resume evidence requires every arm to be complete")
+        work = self.process_work()
+        work["resume_artifact_writes"] = int(
+            work.get("resume_artifact_writes", 0)) + 1
+        self.current_process()["status"] = "completed"
+        cumulative = _sum_work(self.processes)
+        _require(cumulative["optimizer_steps"]
+                 == self.total_updates() == 72,
+                 "resume cumulative optimizer work differs from 72")
+        _require(cumulative["backward_calls"] == 72
+                 and cumulative["training_forward_calls"] == 72,
+                 "resume cumulative training work differs from one pass per update")
+        resume_rows = [
+            {"arm_id": arm_id,
+             "path": self.completed_artifacts[arm_id]["path"],
+             "sha256": self.completed_artifacts[arm_id]["sha256"],
+             "state_sha256": self.completed_artifacts[arm_id]["state_sha256"],
+             "completed_updates": self.completed_artifacts[arm_id][
+                 "completed_updates"],
+             "update_records_sha256": self.completed_artifacts[arm_id][
+                 "update_records_sha256"],
+             "final_state_sha256": final_state_by_arm[arm_id]["state_sha256"],
+             "final_model_state_sha256": final_state_by_arm[arm_id][
+                 "model_state_sha256"],
+             "final_fixed_state_sha256": final_state_by_arm[arm_id][
+                 "fixed_state_sha256"],
+             "final_checkpoint_sha256": final_checkpoint_sha256[arm_id]}
+            for arm_id in completed]
+        evidence = {
+            "format": RESUME_EVIDENCE_FORMAT,
+            "protocol_id": "value_readout_abstention_v1",
+            "status": "training_complete",
+            "identities": dict(self.identities),
+            "arm_order": list(self.arm_order),
+            "cursor": {
+                "next_arm_index": len(completed),
+                "completed_arm_ids": list(completed),
+                "active_arm_id": None,
+            },
+            "processes": deepcopy(self.processes),
+            "process_count": len(self.processes),
+            "restart_count": len(self.processes) - 1,
+            "cumulative_work": cumulative,
+            "optimizer_steps_by_process": [
+                int(row["work"]["optimizer_steps"]) for row in self.processes],
+            "completed_arms": resume_rows,
+            "completed_arms_never_retrained": True,
+            "restored_completed_arms": list(self.restored_completed_arms),
+            "resume_artifact_bytes_peak": self.peak_resume_bytes,
+            "artifact_cap_bytes": int(
+                self.context.config["budget"]["authorized_run_ceiling"][
+                    "artifact_bytes_max"]),
+            "heavy_resume_artifacts_removed_after_completion": True,
+            "retained_evidence": True,
+            "deleted_after_measurement": ["resume.pt", "resume_arms/"],
+        }
+        path = self.output / "resume_evidence.json"
+        _write_json_atomic(path, evidence)
+        self.remove_artifacts()
+        return path
+
+    def remove_artifacts(self) -> None:
+        for path in _resume_artifact_files(self.output):
+            try:
+                path.unlink()
+            except FileNotFoundError:
+                pass
+        arms_dir = self.output / "resume_arms"
+        if arms_dir.is_dir() and not any(arms_dir.iterdir()):
+            try:
+                arms_dir.rmdir()
+            except OSError:
+                pass
+
+
+def _train_arm_events(arm: Arm, *, metadata: Mapping[str, Any],
+                      vocabulary: Sequence[str], config: Mapping[str, Any],
+                      work: dict[str, int],
+                      after_update) -> None:
     events = metadata["events"]
     cases = metadata["cases"]
     torch.set_num_threads(1)
@@ -801,12 +1305,14 @@ def _train_arm(arm: Arm, *, metadata: Mapping[str, Any],
         event = events[arm.event_index]
         arm.clock = TeachingClock(arm.clock.eligible_events + 1)
         if event["kind"] != "query":
-            memory.write(event)
+            arm.memory.write(event)
+            work["training_write_events"] = int(
+                work.get("training_write_events", 0)) + 1
             arm.event_index += 1
             continue
         case = _event_case(event, cases)
         features, index, record = _features_for_event(
-            arm.arm_id, event, case, memory, vocabulary)
+            arm.arm_id, event, case, arm.memory, vocabulary)
         if int(event["optimizer_steps"]) == 1:
             fingerprint = sha256_json({
                 "event_id": event["event_id"],
@@ -820,9 +1326,12 @@ def _train_arm(arm: Arm, *, metadata: Mapping[str, Any],
                 target = torch.tensor([index], dtype=torch.long)
                 arm.optimizer.zero_grad(set_to_none=True)
                 logits = arm.module(features)
+                work["training_forward_calls"] = int(
+                    work.get("training_forward_calls", 0)) + 1
                 loss = F.cross_entropy(logits, target)
                 _require(bool(torch.isfinite(loss)), "training loss is nonfinite")
                 loss.backward()
+                work["backward_calls"] = int(work.get("backward_calls", 0)) + 1
                 gradient_norm = torch.sqrt(sum(
                     (parameter.grad.detach() ** 2).sum()
                     for _name, parameter in arm.module.trainable_parameters()
@@ -833,6 +1342,8 @@ def _train_arm(arm: Arm, *, metadata: Mapping[str, Any],
                     [parameter for _name, parameter in arm.module.trainable_parameters()],
                     float(config["transaction"]["gradient_norm_max"]))
                 arm.optimizer.step()
+                work["optimizer_steps"] = int(
+                    work.get("optimizer_steps", 0)) + 1
                 arm.completed_updates += 1
                 arm.update_records.append({
                     "step": arm.completed_updates - 1,
@@ -854,36 +1365,74 @@ def _train_arm(arm: Arm, *, metadata: Mapping[str, Any],
                     steps=1, loss=float(loss.detach().cpu()))
                 arm.ledger.commit(event["event_id"], fingerprint, outcome)
                 arm.event_index += 1
-                if resume_path is not None:
-                    _save_resume(resume_path, arm, memory)
-                total = total_updates_before + arm.completed_updates
-                if interrupt_after is not None and total >= int(interrupt_after):
-                    if resume_path is not None:
-                        _save_resume(resume_path, arm, memory)
-                    raise RunInterrupted(total, resume_path or Path("<memory>"))
+                if after_update is not None:
+                    after_update(arm)
                 continue
         arm.event_index += 1
-    return arm.completed_updates
 
 
-def _save_resume(path: Path, arm: Arm, memory: FixedRecordMemory) -> None:
-    payload = {
-        "format": RESUME_FORMAT,
-        "arm_id": arm.arm_id,
-        "arm": arm.snapshot(),
-        "memory_records": memory.snapshot_records(),
-    }
-    _save_torch_atomic(Path(path), payload)
+def _train_arm(arm: Arm, *, state: FitResumeState) -> None:
+    def after_update(current: Arm) -> None:
+        state.save(active_arm_id=current.arm_id)
+        total = state.total_updates()
+        if (state.interrupt_after is not None
+                and total >= int(state.interrupt_after)):
+            state.save(active_arm_id=current.arm_id, status="interrupted")
+            raise RunInterrupted(total, state.resume_path)
+
+    _train_arm_events(arm, metadata=state.metadata,
+                      vocabulary=state.vocabulary,
+                      config=state.context.config,
+                      work=state.process_work(),
+                      after_update=after_update)
 
 
-def _load_resume(path: Path) -> dict:
-    return torch.load(Path(path), map_location="cpu", weights_only=True)
+def replay_fit_evidence(metadata: Mapping[str, Any],
+                        config: Mapping[str, Any]) -> dict:
+    """Deterministically replay the three uninterrupted 24-update arms.
+
+    Admission uses this to bind update hashes, losses, event clocks, world and
+    epoch relationships and the final checkpoint tensors to executed work
+    rather than trusting a plausible final hash.
+    """
+    vocabulary = list(config["architecture"]["answer_vocabulary"])
+    seed = int(config["transaction"]["seed"])
+    result = {}
+    for arm_id in TRAINED_ARMS:
+        arm = Arm(arm_id, config, seed)
+        work = _empty_work()
+        _train_arm_events(arm, metadata=metadata, vocabulary=vocabulary,
+                          config=config, work=work, after_update=None)
+        _require(_arm_is_complete(arm, metadata),
+                 f"deterministic replay did not complete {arm_id}")
+        with torch.no_grad():
+            predictions = _predict_split(
+                arm_id, arm.module, split="fit", events=metadata["events"],
+                cases=list(metadata["cases"].values()), vocabulary=vocabulary,
+                update_digest=arm.module.state_digest())
+        result[arm_id] = {
+            "arm_id": arm_id,
+            "completed_updates": arm.completed_updates,
+            "event_clock_steps": arm.clock.eligible_events,
+            "events_processed": arm.event_index,
+            "parent_state_sha256": arm.parent_state_sha256,
+            "state_sha256": arm.state_digest(),
+            "model_state_sha256": arm.module.model_state_digest(),
+            "fixed_state_sha256": arm.module.fixed_state_digest(),
+            "update_records": deepcopy(arm.update_records),
+            "predictions": predictions,
+            "predictions_sha256": sha256_json(predictions),
+            "work": _work_copy(work),
+        }
+    return result
 
 
 def _predict_split(arm_id: str, module: SelectedExpertReadout, *,
                    split: str, events: Sequence[Mapping[str, Any]],
                    cases: Sequence[Mapping[str, Any]],
-                   vocabulary: Sequence[str], update_digest: str) -> list[dict]:
+                   vocabulary: Sequence[str], update_digest: str,
+                   work: dict[str, int] | None = None,
+                   reset_memory_before_queries: bool = False) -> list[dict]:
     memory = FixedRecordMemory()
     by_id = {case["case_id"]: case for case in cases}
     rows = []
@@ -894,13 +1443,24 @@ def _predict_split(arm_id: str, module: SelectedExpertReadout, *,
             clock += 1
             if event["kind"] != "query":
                 memory.write(event)
+                if work is not None:
+                    work["evaluation_write_events"] = int(
+                        work.get("evaluation_write_events", 0)) + 1
                 continue
+            if reset_memory_before_queries:
+                memory = FixedRecordMemory()
             case = dict(by_id[event["case_id"]])
             before_memory = memory.digest()
             before_state = module.state_digest()
             features, index, record = _features_for_event(
                 arm_id, event, case, memory, vocabulary)
             logits = module(features)
+            if work is not None:
+                work["evaluation_forward_calls"] = int(
+                    work.get("evaluation_forward_calls", 0)) + 1
+                if case["case_type"] == "unaffected_retention":
+                    work["retention_diagnostic_forwards"] = int(
+                        work.get("retention_diagnostic_forwards", 0)) + 1
             predicted_index = int(logits.argmax(dim=-1).item())
             _require(memory.digest() == before_memory,
                      "query mutated the fixed memory snapshot")
@@ -1010,6 +1570,42 @@ def _check_runtime_precheck(prepared: Path, config_path: Path) -> dict:
     return runtime_precheck(prepared, config_path)
 
 
+def _case_accuracy(metrics: Mapping[str, Any]) -> float:
+    counts = metrics["per_case"]["counts"]
+    total = sum(int(entry["total"]) for entry in counts.values())
+    correct = sum(int(entry["correct"]) for entry in counts.values())
+    return correct / total if total else 0.0
+
+
+def _zero_update_baseline(*, name: str, rows: list[dict],
+                          module: SelectedExpertReadout,
+                          targets: Mapping[str, Mapping[str, Any]],
+                          config: Mapping[str, Any],
+                          split: str, memory_semantics: str,
+                          path: Path) -> dict:
+    _write_jsonl(path, rows)
+    metrics = _metrics_from_predictions(rows, targets)
+    thresholds, passed = _gates_from_metrics(config, "fit",
+                                             metrics["metrics"])
+    return {
+        "arm_id": name,
+        "optimizer_steps": 0,
+        "backward_calls": 0,
+        "gradient": False,
+        "split": split,
+        "memory": memory_semantics,
+        "state_sha256": module.state_digest(),
+        "model_state_sha256": module.model_state_digest(),
+        "fixed_state_sha256": module.fixed_state_digest(),
+        "predictions_sha256": sha256_file(path),
+        "case_accuracy": _case_accuracy(metrics),
+        "per_case": metrics["per_case"],
+        "metrics": metrics["metrics"],
+        "thresholds": thresholds,
+        "all_declared_gates_passed": bool(passed),
+    }
+
+
 def run_fit(prepared: Path, config_path: Path, output: Path, *,
             interrupt_after: int | None = None,
             resume: bool = False) -> dict:
@@ -1023,43 +1619,46 @@ def run_fit(prepared: Path, config_path: Path, output: Path, *,
     output = _fresh_output(Path(output), resume=resume or bool(
         (Path(output) / "resume.pt").exists()))
     resume_path = output / "resume.pt"
-    resume_payload = _load_resume(resume_path) if resume_path.exists() else None
     arms = {arm_id: Arm(arm_id, context.config,
                         int(context.config["transaction"]["seed"]))
             for arm_id in TRAINED_ARMS}
-    total_updates = 0
-    if resume_payload is not None:
-        _require(resume_payload.get("format") == RESUME_FORMAT,
-                 "resume format differs")
-        arm_id = resume_payload["arm_id"]
-        _require(arm_id in arms, "resume arm differs")
-        arm = arms[arm_id]
-        arm.restore(resume_payload["arm"])
-        memory = FixedRecordMemory()
-        memory.restore_records(resume_payload["memory_records"])
-        arm._resume_memory = memory
-    for arm_id in TRAINED_ARMS:
-        arm = arms[arm_id]
-        remaining_before = total_updates
-        _train_arm(arm, metadata=metadata, vocabulary=vocabulary,
-                   config=context.config, resume_path=resume_path,
-                   interrupt_after=interrupt_after,
-                   total_updates_before=remaining_before)
-        total_updates = sum(len(other.update_records) for other in arms.values())
+    state = FitResumeState(
+        output=output, context=context, metadata=metadata,
+        vocabulary=vocabulary, arms=arms, resume_path=resume_path,
+        interrupt_after=interrupt_after)
+    if resume_path.exists():
+        state.restore(_load_resume(resume_path))
+        state.add_process(resumed_from={
+            "kind": "resume_artifact",
+            "resume_format": RESUME_FORMAT,
+            "completed_arm_ids": list(state.restored_completed_arms),
+            "next_arm_index": state.next_arm_index(),
+        })
+    else:
+        _require(not resume,
+                 "resume requested but no durable resume state exists")
+        state.add_process(resumed_from={"kind": "fresh_process"})
+    for index in range(state.next_arm_index(), len(TRAINED_ARMS)):
+        arm = arms[TRAINED_ARMS[index]]
+        _train_arm(arm, state=state)
+        _require(_arm_is_complete(arm, metadata),
+                 f"arm {arm.arm_id} did not complete")
+        state.save(active_arm_id=None)
+    _require(state.completed_ids() == list(TRAINED_ARMS),
+             "fit did not complete every trained arm")
     # Fit predictions are a fresh, no-update replay against the final treatment
     # checkpoint.  Each arm gets its own no-update replay for control evidence.
     fit_dir = output / "fit"
     fit_dir.mkdir(parents=True, exist_ok=True)
     targets = _fit_targets(metadata)
+    work = state.process_work()
     arm_reports = {}
-    prediction_rows = {}
     for arm_id in TRAINED_ARMS:
         arm = arms[arm_id]
         rows = _predict_split(
             arm_id, arm.module, split="fit", events=metadata["events"],
             cases=list(metadata["cases"].values()), vocabulary=vocabulary,
-            update_digest=arm.module.state_digest())
-        prediction_rows[arm_id] = rows
+            update_digest=arm.module.state_digest(), work=work)
         metrics = _metrics_from_predictions(rows, targets)
         thresholds, passed = _gates_from_metrics(
             context.config, "fit", metrics["metrics"])
@@ -1096,6 +1695,8 @@ def run_fit(prepared: Path, config_path: Path, output: Path, *,
                     events_processed=len(metadata["events"]),
                     predictions_sha256=sha256_file(
                         fit_dir / f"control_{arm_id}_predictions.jsonl")))
+            work["checkpoint_writes"] = int(
+                work.get("checkpoint_writes", 0)) + 1
     treatment = arms[TREATMENT_ARM]
     checkpoint = treatment.checkpoint_payload(
         config=context.config, config_sha256=context.config_sha256,
@@ -1103,6 +1704,55 @@ def run_fit(prepared: Path, config_path: Path, output: Path, *,
         events_processed=len(metadata["events"]),
         predictions_sha256=sha256_file(fit_dir / "fit_predictions.jsonl"))
     _save_torch_atomic(fit_dir / "checkpoint.pt", checkpoint)
+    work["checkpoint_writes"] = int(work.get("checkpoint_writes", 0)) + 1
+    # Explicit zero-update baselines: the untouched parent already solves the
+    # synthetic 22-class exact-address fit cases, so fit success is integration
+    # evidence and is not presented as learning improvement.
+    parent = SelectedExpertReadout(
+        seed=int(context.config["transaction"]["seed"]))
+    parent_rows = _predict_split(
+        TREATMENT_ARM, parent, split="fit", events=metadata["events"],
+        cases=list(metadata["cases"].values()), vocabulary=vocabulary,
+        update_digest=parent.state_digest(), work=work)
+    reset_rows = _predict_split(
+        TREATMENT_ARM, parent, split="fit", events=metadata["events"],
+        cases=list(metadata["cases"].values()), vocabulary=vocabulary,
+        update_digest=parent.state_digest(),
+        reset_memory_before_queries=True, work=work)
+    parent_baseline = _zero_update_baseline(
+        name="zero_update_parent", rows=parent_rows, module=parent,
+        targets=targets, config=context.config, split="fit",
+        memory_semantics="chronological_fixed_record_view",
+        path=fit_dir / "baseline_parent_predictions.jsonl")
+    reset_baseline = _zero_update_baseline(
+        name="zero_update_reset", rows=reset_rows, module=parent,
+        targets=targets, config=context.config, split="fit",
+        memory_semantics="reset_before_every_query",
+        path=fit_dir / "baseline_reset_predictions.jsonl")
+    final_state_by_arm = {
+        arm_id: {"state_sha256": arms[arm_id].module.state_digest(),
+                 "model_state_sha256": arms[arm_id].module.model_state_digest(),
+                 "fixed_state_sha256": arms[arm_id].module.fixed_state_digest()}
+        for arm_id in TRAINED_ARMS}
+    final_checkpoint_sha256 = {
+        TREATMENT_ARM: sha256_file(fit_dir / "checkpoint.pt"),
+        "shuffled_values": sha256_file(
+            fit_dir / "control_shuffled_values.pt"),
+        "wrong_world_values": sha256_file(
+            fit_dir / "control_wrong_world_values.pt"),
+    }
+    resume_evidence_path = state.write_evidence(
+        final_state_by_arm=final_state_by_arm,
+        final_checkpoint_sha256=final_checkpoint_sha256)
+    cumulative = _sum_work(state.processes)
+    _require(cumulative["optimizer_steps"] == 72,
+             "cumulative physical optimizer work differs from 72")
+    _require(cumulative["backward_calls"] == 72
+             and cumulative["training_forward_calls"] == 72,
+             "cumulative physical training work differs from one pass per update")
+    treatment_accuracy = _case_accuracy(
+        arm_reports[TREATMENT_ARM])
+    parent_accuracy = parent_baseline["case_accuracy"]
     fit_report = {
         "format": FIT_REPORT_FORMAT,
         "protocol_id": "value_readout_abstention_v1",
@@ -1145,6 +1795,67 @@ def run_fit(prepared: Path, config_path: Path, output: Path, *,
              "predictions_sha256": row["predictions_sha256"]}
             for row in arm_reports.values() if row["arm_id"] != TREATMENT_ARM
         ],
+        "zero_update_baselines": {
+            "parent": parent_baseline,
+            "reset": reset_baseline,
+            "integration_vs_learning": {
+                "integration_success": arm_reports[TREATMENT_ARM][
+                    "all_declared_gates_passed"],
+                "treatment_case_accuracy": treatment_accuracy,
+                "parent_case_accuracy": parent_accuracy,
+                "reset_case_accuracy": reset_baseline["case_accuracy"],
+                "parent_already_passes_all_fit_gates": parent_baseline[
+                    "all_declared_gates_passed"],
+                "case_accuracy_improvement_over_parent": (
+                    treatment_accuracy - parent_accuracy),
+                "learning_improvement_claimed": False,
+                "reason": (
+                    "The untouched zero-update parent already achieves 27/27 "
+                    "on the synthetic exact-address fit fixture; passing fit "
+                    "gates establishes software integration only and is not "
+                    "evidence of learning improvement."),
+            },
+        },
+        "physical_work": {
+            "scope": "fit_treatment_and_two_control_arms_plus_zero_update_baselines",
+            "optimizer_steps": cumulative["optimizer_steps"],
+            "backward_calls": cumulative["backward_calls"],
+            "training_forward_calls": cumulative["training_forward_calls"],
+            "evaluation_forward_calls": cumulative["evaluation_forward_calls"],
+            "retention_diagnostic_forwards": cumulative[
+                "retention_diagnostic_forwards"],
+            "training_write_events": cumulative["training_write_events"],
+            "evaluation_write_events": cumulative["evaluation_write_events"],
+            "checkpoint_writes": cumulative["checkpoint_writes"],
+            "matches_global_logical_updates": (
+                cumulative["optimizer_steps"]
+                == sum(row["optimizer_steps"]
+                       for row in arm_reports.values())),
+            "process_history": "resume_evidence.json",
+        },
+        "resume_semantics": {
+            "format": RESUME_FORMAT,
+            "arm_order": list(TRAINED_ARMS),
+            "global_arm_cursor": (
+                "cursor.next_arm_index is the first non-complete arm; "
+                "arm_order[:next_arm_index] are durable completed-arm states"),
+            "completed_arms_never_retrained": True,
+            "active_state": (
+                "active_arm persists model, NativeFusedAdamW state, event "
+                "clock, update records, dedup ledger and fixed-memory records"),
+            "clocks": (
+                "each arm owns one independent clock equal to its processed "
+                "event cursor; event clocks advance once per event"),
+            "memory": "per-arm fixed record memory snapshot",
+            "completed_arm_state": (
+                "resume_arms/<arm_id>.pt with content hash in resume.pt"),
+            "identities": dict(state.identities),
+            "process_evidence": "resume_evidence.json",
+            "heavy_resume_artifacts_removed_after_completion": True,
+            "artifact_cap_bytes": int(
+                context.config["budget"]["authorized_run_ceiling"][
+                    "artifact_bytes_max"]),
+        },
         "classification": {
             "native_model": False,
             "tokenizer": False,
@@ -1226,15 +1937,12 @@ def run_fit(prepared: Path, config_path: Path, output: Path, *,
     }
     receipt = seal_receipt(receipt_body)
     _write_json_atomic(output / "fit_receipt.json", receipt)
-    if resume_path.exists():
-        try:
-            resume_path.unlink()
-        except FileNotFoundError:
-            pass
     budget = enforce_artifact_budget(output, context.config, context="fit")
     return {"status": fit_report["status"], "output": str(output),
             "fit_evidence": str(fit_dir), "receipt": receipt,
             "fit_report": fit_report, "runtime_precheck": runtime,
+            "resume_evidence": str(resume_evidence_path),
+            "physical_work": fit_report["physical_work"],
             "artifact_budget": budget}
 
 
@@ -1256,6 +1964,14 @@ def _load_arm_from_checkpoint(arm_id: str, path: Path,
     arm.update_records = deepcopy(list(payload["update_records"]))
     _require(arm.module.state_digest() == payload["state_sha256"],
              "restored checkpoint state differs")
+    _require(len(arm.update_records) == arm.completed_updates,
+             "restored checkpoint update record count differs")
+    _require(arm.update_records[-1].get("state_after_sha256")
+             == payload["state_sha256"],
+             "restored checkpoint final update hash differs from its state")
+    _require(int(payload["events_processed"]) == 36
+             and int(payload["event_clock_steps"]) == 36,
+             "restored checkpoint clock/event count differs")
     return arm
 
 

@@ -1,0 +1,13 @@
+{
+  "format": "replica.value_readout_abstention.cli_interruption_failure.v1",
+  "created_on": "2026-10-27",
+  "command": "scripts/run_value_readout_abstention_v1.py --config configs/value_readout_abstention_protocol_v1.json --prepared data/value_readout_abstention_20261027/fixture02 all --output runs/value_readout_abstention_resume29_20261027 --interrupt-after 29",
+  "observed_exit_code": 1,
+  "expected_exit_code": 3,
+  "error": "replica_lab.value_readout_abstention.RunInterrupted: interrupted after 29 updates; resume at runs/value_readout_abstention_resume29_20261027/fit/resume.pt",
+  "cause": "The all-command path did not handle RunInterrupted, so the CLI emitted a traceback instead of the documented interrupted status.",
+  "resume_artifact_present": true,
+  "partial_output_preserved": true,
+  "resume_not_yet_executed": true,
+  "resolution": "Handle interruption in the all path and rerun with a fresh output after the fix; no automatic retry or historical evidence deletion."
+}

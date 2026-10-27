@@ -1,0 +1,367 @@
+{
+  "format": "replica.dc_r1_native_value.protocol.v1",
+  "protocol_id": "dc_r1_native_value_readout_v1",
+  "study": "DC-R1",
+  "declared_at_utc": "2026-10-27T00:00:00+00:00",
+  "seed": 20261027,
+  "status": "preparation_only_no_native_admission",
+  "classification": {
+    "package": "dc_r1_native_value_readout_protocol",
+    "preparation_only": true,
+    "native": false,
+    "model_execution": false,
+    "tokenizer_load": false,
+    "generation": false,
+    "optimizer_updates": 0,
+    "gradients": 0,
+    "checkpoints_written": 0,
+    "downloads": 0,
+    "heldout_opened": false,
+    "native_execution_allowed": false,
+    "learned_retrieval": false,
+    "storage_expansion": false,
+    "promotion": false
+  },
+  "representation": {
+    "input": "sealed native MiniCPM5 tokens for a condition prompt and selected-record evidence",
+    "output": "native generated token ids per declared layer, decoded by the sealed tokenizer/decode policy",
+    "synthetic_feature_injection": false,
+    "answer_index_bypass": false,
+    "compressed_code_is_not_an_answer_index": true,
+    "source_kv_loaded": false
+  },
+  "baseline_parity": {
+    "no_extension_is_default": true,
+    "disabled_extension_preserves_native_logits": true,
+    "disabled_extension_preserves_native_greedy_tokens": true,
+    "logit_rtol": 0.0,
+    "logit_atol": 0.0,
+    "no_memory_condition_abstains_instead_of_inventing": true
+  },
+  "hypothesis": {
+    "id": "DC-R1-H1",
+    "statement": "Before any learned-retrieval or storage-expansion interpretation, a native readout can use exact context, an exact selected literal and a compressed selected record while abstaining without memory and not accepting a wrong supplied value.",
+    "primary_evidence": "Per-case accepted-layer and complete-layer-group exact generated answers, plus exact-literal and compressed-record reconstruction, across all five declared conditions.",
+    "excluded_claims": [
+      "learned retrieval or a learned selector",
+      "storage capacity expansion",
+      "native execution in this preparation package",
+      "open-ended generation",
+      "calibrated confidence",
+      "persistent learning",
+      "promotion of any checkpoint"
+    ]
+  },
+  "integration_only_fixture": {
+    "protocol_id": "value_readout_abstention_v1",
+    "prepared_root": "data/value_readout_abstention_20261027/fixture02",
+    "status": "integration_only",
+    "modified": false,
+    "historical_evidence_preserved": true,
+    "reason": "The 22-class fixture is a deterministic CPU integration and accounting fixture whose synthetic feature block carries the selected value into the readout. It is not a native record readout, a parent, a scoring oracle or evidence for DC-R1.",
+    "used_as_parent": false,
+    "used_as_scoring_oracle": false,
+    "claims_allowed": [],
+    "forbidden_uses": [
+      "parent initialization",
+      "readout training",
+      "development or final labels",
+      "scoring oracle",
+      "evidence that corrupted controls pass"
+    ]
+  },
+  "baseline_model": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "parameter_count": 2516756480,
+    "model_path": "checkpoints/minicpm5_source",
+    "lock_path": "configs/minicpm5_sealed_lock.local.json",
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "optimizer_policy": {
+    "primary": "NativeFusedAdamW",
+    "default_name": "adamw_fused",
+    "changed": false,
+    "mps_fallback_enabled": false,
+    "optimizer_steps_in_this_protocol": 0
+  },
+  "resource_guard": {
+    "peak_driver_bytes_max": 53687091200,
+    "sustained_swap_growth_bytes_max": 536870912,
+    "min_host_free_fraction": 0.15,
+    "exclusive_worker": true,
+    "cpu_fallback": false,
+    "mps_fallback": false
+  },
+  "tokenizer_binding": {
+    "repository": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "files": {
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "load_mode": "offline_local_files_only",
+    "trust_remote_code": false,
+    "fast_tokenizer": true,
+    "decode_policy": {
+      "version": "replica.dc.generated_decode.v1",
+      "skip_special_tokens": true,
+      "clean_up_tokenization_spaces": false,
+      "strip_outer_whitespace": true,
+      "terminal_stop_tokens_excluded_before_decode": true,
+      "answer_selection_allowed": false,
+      "candidate_answers_used": false,
+      "empty_generation_credit": false,
+      "target_eos_token": 1,
+      "stop_tokens": [1, 130073]
+    }
+  },
+  "conditions": [
+    {
+      "condition": "exact_context",
+      "role": "quality_reference",
+      "evidence_kind": "source_text",
+      "source_context_present": true,
+      "source_kv_loaded": false,
+      "per_case_scoring": true,
+      "identical_output_grammar": true,
+      "same_decode_policy": true,
+      "required_layers": [13, 27, 41]
+    },
+    {
+      "condition": "selected_literal",
+      "role": "diagnostic_reference",
+      "evidence_kind": "literal",
+      "source_context_present": false,
+      "source_kv_loaded": false,
+      "per_case_scoring": true,
+      "identical_output_grammar": true,
+      "same_decode_policy": true,
+      "required_layers": [13, 27, 41]
+    },
+    {
+      "condition": "compressed_record",
+      "role": "native_compressed_readout",
+      "evidence_kind": "compressed_code",
+      "source_context_present": false,
+      "source_kv_loaded": false,
+      "per_case_scoring": true,
+      "identical_output_grammar": true,
+      "same_decode_policy": true,
+      "required_layers": [13, 27, 41]
+    },
+    {
+      "condition": "wrong_value",
+      "role": "corrupted_control",
+      "evidence_kind": "literal",
+      "source_context_present": false,
+      "source_kv_loaded": false,
+      "per_case_scoring": true,
+      "identical_output_grammar": true,
+      "same_decode_policy": true,
+      "required_layers": [13, 27, 41]
+    },
+    {
+      "condition": "no_memory",
+      "role": "abstention_control",
+      "evidence_kind": "none",
+      "source_context_present": false,
+      "source_kv_loaded": false,
+      "per_case_scoring": true,
+      "identical_output_grammar": true,
+      "same_decode_policy": true,
+      "required_layers": [13, 27, 41]
+    }
+  ],
+  "conditions_use_identical_scorer": true,
+  "readout_gate": {
+    "useful_readout_required_before_retrieval": true,
+    "learned_retrieval_interpreted": false,
+    "learned_retrieval_status": "blocked_until_useful_readout",
+    "storage_expansion_admitted": false,
+    "storage_expansion_status": "blocked_until_useful_readout",
+    "accepted_layer_and_complete_group_reported": true,
+    "per_layer_reporting": true,
+    "exact_literal_and_compressed_reconstruction_reported": true,
+    "thresholds_condition_independent": true,
+    "oracle_selector_is_diagnostic_only": true,
+    "host_enforces_scope_and_source_status_only": true
+  },
+  "anti_shortcut": {
+    "answer_index_bypass_allowed": false,
+    "answer_bearing_routing_metadata": false,
+    "corrupted_controls_must_fail": true,
+    "controls_use_identical_scorer": true,
+    "compressed_code_is_not_an_answer_index": true,
+    "target_in_query_allowed": false,
+    "target_in_condition_evidence": [
+      "exact_context",
+      "selected_literal",
+      "wrong_value"
+    ],
+    "target_conditioned_thresholds": false,
+    "globally_unique_prompt_ids_allowed_as_features": false,
+    "candidate_answer_selection_allowed": false,
+    "empty_generation_credit": false,
+    "case_id_in_prompt": false
+  },
+  "prepared": {
+    "root": "data/dc_r1_native_value_20261027",
+    "dev_cases": 12,
+    "sealed_cases": 4,
+    "layer_group": [13, 27, 41],
+    "files": {
+      "dev_cases": "dev_cases.jsonl",
+      "sealed_final_cases": "sealed_final_cases.jsonl",
+      "sealed_labels_dev": "sealed_labels_dev.jsonl",
+      "sealed_labels_final": "sealed_labels_final.jsonl",
+      "codec": "codec.json"
+    },
+    "counts": {
+      "dev_cases": 12,
+      "sealed_final_cases": 4,
+      "dev_condition_rows": 60,
+      "sealed_final_condition_rows": 20,
+      "dev_labels": 12,
+      "sealed_final_labels": 4,
+      "optimizer_steps": 0
+    },
+    "manifest_sha256": "15cc48fb9bc71e75ef66d3c741d0b7e185da1d16aedacbab66aa867280b61806"
+  },
+  "compressed_reconstruction": {
+    "dev": 0.75,
+    "sealed_final": 0.75,
+    "codec_id": "dc_r1_scalar8_v1",
+    "rule": "An 8-bit bucket code reconstructs only the bucket's canonical literal. Alternate members share a bucket and are deliberately unrecoverable; the code is not an answer index."
+  },
+  "evaluation": {
+    "generated_answer_scoring": true,
+    "tokenizer_and_decode_binding_required": true,
+    "fit_then_dev_then_sealed_final": true,
+    "sealed_final_one_shot": true,
+    "target_conditioned_thresholds": false,
+    "normalization": "strip_outer_whitespace_then_casefold_then_collapse_whitespace",
+    "accepted_layer_definition": "at least one declared layer produces the exact target and no layer is used as a substitute for the complete group",
+    "complete_group_definition": "every declared layer produces the exact target; one accepted layer is not a complete multi-layer recall",
+    "gates": {
+      "exact_context_accepted_min": 0.8,
+      "selected_literal_accepted_min": 0.9,
+      "selected_literal_complete_min": 0.7,
+      "compressed_reconstruction_min": 0.75,
+      "compressed_accepted_min": 0.6,
+      "compressed_complete_min": 0.4,
+      "no_memory_abstain_min": 0.95,
+      "no_memory_non_abstain_max": 0.05,
+      "wrong_value_correct_target_max": 0.1,
+      "no_layer_acceptance_reporting": true
+    },
+    "reporting": {
+      "per_case": true,
+      "per_layer": true,
+      "accepted_layer": true,
+      "complete_group": true,
+      "exact_literal_reconstruction": true,
+      "compressed_reconstruction": true,
+      "condition_gaps": true,
+      "wrong_value_follow_rate": true,
+      "no_memory_abstention": true
+    }
+  },
+  "budget": {
+    "preparation": {
+      "device": "cpu",
+      "network": "disabled",
+      "native_jobs": 0,
+      "model_loads": 0,
+      "tokenizer_loads": 0,
+      "optimizer_updates": 0,
+      "gradients": 0,
+      "checkpoints_written": 0,
+      "downloads": 0,
+      "wall_seconds_max": 120,
+      "rss_bytes_max": 536870912,
+      "artifact_bytes_max": 4194304
+    },
+    "physical_limits": {
+      "max_model_loads": 1,
+      "max_tokenizer_loads": 1,
+      "max_optimizer_steps": 0,
+      "max_backward_calls": 0,
+      "max_forward_calls": 240,
+      "max_generation_calls": 240,
+      "max_generated_tokens": 1920,
+      "max_prefill_tokens": 30720,
+      "max_checkpoint_writes": 0,
+      "max_downloads": 0,
+      "max_retries": 0,
+      "max_workers": 1,
+      "max_wall_seconds": 1800
+    },
+    "authorized_run_ceiling": {
+      "model_loads": 1,
+      "tokenizer_loads": 1,
+      "optimizer_updates_total": 0,
+      "backward_calls_total": 0,
+      "forward_calls_total": 240,
+      "generation_calls_total": 240,
+      "generated_tokens_total": 1920,
+      "checkpoint_writes": 0,
+      "artifact_bytes_max": 33554432,
+      "gpu_minutes_max": 15,
+      "wall_seconds_max": 1800,
+      "peak_driver_bytes_max": 53687091200,
+      "sustained_swap_growth_bytes_max": 536870912,
+      "min_host_free_fraction": 0.15,
+      "exclusive_worker": true,
+      "cpu_fallback": false,
+      "downloads": 0,
+      "retries": 0
+    },
+    "workload_derivation": {
+      "basis": "read-only per-layer generation for 16 cases across five conditions and three declared layers",
+      "dev_condition_layer_forwards": 180,
+      "sealed_final_condition_layer_forwards": 60,
+      "total_forward_calls": 240,
+      "optimizer_steps": 0,
+      "backward_calls": 0,
+      "generated_tokens_ceiling": "8 per forward",
+      "storage_expansion_operations": 0,
+      "learned_retrieval_queries": 0
+    }
+  },
+  "launch": {
+    "review_only": true,
+    "native_execution": false,
+    "review_command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/preflight_dc_r1_native_value_20261027.py --review --receipt runs/dc_r1_native_value_20261027/preflight_review01.json",
+    "review_receipt_path": "runs/dc_r1_native_value_20261027/preflight_review01.json",
+    "launch_command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/preflight_dc_r1_native_value_20261027.py --launch --receipt runs/dc_r1_native_value_20261027/preflight_launch01.json --authorization reports/dc_r1_native_value_20261027/authorization.json",
+    "fresh_output_path": true,
+    "output_root": "runs/dc_r1_native_value_20261027/native01",
+    "requires_authorization_receipt": true,
+    "authorization_receipt_format": "replica.dc_protocol.authorization.v1",
+    "authorization_fields": [
+      "format",
+      "protocol_id",
+      "config_sha256",
+      "prepared_manifest_sha256",
+      "authorized_by",
+      "native_execution_allowed",
+      "single_attempt",
+      "receipt_sha256"
+    ],
+    "on_missing_receipt": "refuse_nonzero",
+    "on_authorized_package_without_native_runner": "refuse_nonzero",
+    "native_execution_status": "refused_preparation_only"
+  },
+  "limitations": [
+    "This package is preparation only; it does not load MiniCPM5, a tokenizer, an optimizer or a native job.",
+    "The fixture is deterministic synthetic text; validation establishes protocol and label consistency, not model capability.",
+    "The 22-class fixture is explicitly integration-only and is not a parent, oracle or native record-readout result.",
+    "Compressed reconstruction is limited by the declared lossy bucket codec; a readout cannot exceed the information preserved by that code.",
+    "Accepted-layer accuracy is not complete-group recall; reports keep them separate.",
+    "Wrong-value and no-memory arms are corrupted/abstention controls and must not pass the readout gate.",
+    "Learned retrieval and storage expansion remain blocked regardless of a useful-readout result; each requires a new protocol.",
+    "Any later native run requires a separately committed protocol, a fresh output path, a separate authorization receipt and a native runner absent from this package."
+  ]
+}

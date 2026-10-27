@@ -1,0 +1,442 @@
+{
+  "format": "replica.dc_p1_native_response.protocol.v1",
+  "protocol_id": "dc_p1_native_response_v1",
+  "study": "DC-P1",
+  "declared_at_utc": "2026-10-27T00:00:00+00:00",
+  "seed": 20261027,
+  "status": "preparation_only_no_native_admission",
+  "classification": {
+    "package": "dc_p1_native_response_protocol",
+    "preparation_only": true,
+    "native": false,
+    "model_execution": false,
+    "tokenizer_load": false,
+    "generation": false,
+    "optimizer_updates": 0,
+    "gradients": 0,
+    "checkpoints_written": 0,
+    "downloads": 0,
+    "heldout_opened": false,
+    "native_execution_allowed": false,
+    "promotion": false,
+    "persistent_learning_claim": false
+  },
+  "representation": {
+    "input": "sealed native MiniCPM5 text tokens from the source-free evaluation prompt",
+    "output": "native generated token ids decoded by the sealed tokenizer/decode policy",
+    "synthetic_feature_injection": false,
+    "answer_index_bypass": false,
+    "selected_value_carrier": "none",
+    "source_context_at_scoring": false,
+    "source_kv_at_scoring": false
+  },
+  "baseline_parity": {
+    "no_extension_is_default": true,
+    "disabled_extension_preserves_native_logits": true,
+    "disabled_extension_preserves_native_greedy_tokens": true,
+    "logit_rtol": 0.0,
+    "logit_atol": 0.0,
+    "parity_required_before_teaching": true,
+    "parity_required_after_reset_P": true
+  },
+  "hypothesis": {
+    "id": "DC-P1-H1",
+    "statement": "With the parent, teaching data, optimizer, seed and one-clock budget held fixed, changing only the response objective's answer-span CE weight from 0.0 to 0.5 produces a source-free generated-answer gain on fresh paraphrases and new instances over an identical no-update arm and a reset-P arm.",
+    "primary_evidence": "Fresh paraphrase and new-instance exact generated-answer accuracy, paired by source group, measured with source context and source KV removed.",
+    "excluded_claims": [
+      "open-ended general capability",
+      "native execution in this preparation package",
+      "learned retrieval or a learned router",
+      "persistent learning across processes",
+      "promotion of any checkpoint",
+      "unaffected-skill retention beyond the declared synthetic probes",
+      "budget02 revival or any two-step-per-event recipe"
+    ]
+  },
+  "integration_only_fixture": {
+    "protocol_id": "value_readout_abstention_v1",
+    "prepared_root": "data/value_readout_abstention_20261027/fixture02",
+    "status": "integration_only",
+    "modified": false,
+    "historical_evidence_preserved": true,
+    "reason": "The 22-class fixture is retained as a deterministic CPU integration and accounting fixture only. Its synthetic feature block carries the selected value into the readout, so it cannot establish native representation learning, generated-answer behaviour or this study's learnability claim.",
+    "used_as_parent": false,
+    "used_as_scoring_oracle": false,
+    "claims_allowed": [],
+    "forbidden_uses": [
+      "parent initialization",
+      "training data",
+      "development or final labels",
+      "scoring oracle",
+      "evidence that corrupted controls pass"
+    ]
+  },
+  "baseline_model": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "parameter_count": 2516756480,
+    "model_path": "checkpoints/minicpm5_source",
+    "lock_path": "configs/minicpm5_sealed_lock.local.json",
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "optimizer_policy": {
+    "primary": "NativeFusedAdamW",
+    "default_name": "adamw_fused",
+    "changed": false,
+    "mps_fallback_enabled": false,
+    "optimizer_state_carried": true,
+    "optimizer_reset_between_events": false
+  },
+  "resource_guard": {
+    "peak_driver_bytes_max": 53687091200,
+    "sustained_swap_growth_bytes_max": 536870912,
+    "min_host_free_fraction": 0.15,
+    "exclusive_worker": true,
+    "cpu_fallback": false,
+    "mps_fallback": false
+  },
+  "tokenizer_binding": {
+    "repository": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "files": {
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "load_mode": "offline_local_files_only",
+    "trust_remote_code": false,
+    "fast_tokenizer": true,
+    "decode_policy": {
+      "version": "replica.dc.generated_decode.v1",
+      "skip_special_tokens": true,
+      "clean_up_tokenization_spaces": false,
+      "strip_outer_whitespace": true,
+      "terminal_stop_tokens_excluded_before_decode": true,
+      "answer_selection_allowed": false,
+      "candidate_answers_used": false,
+      "empty_generation_credit": false,
+      "target_eos_token": 1,
+      "stop_tokens": [1, 130073]
+    }
+  },
+  "recipe": {
+    "baseline": {
+      "objective": "mean_response_nll",
+      "steps_per_event": 1,
+      "optimizer": "NativeFusedAdamW",
+      "learning_rate": 0.0001,
+      "gradient_norm_max": 1.0,
+      "response_only_labels": true,
+      "label_shift": 1,
+      "trainable_groups": [
+        "expert_0.gate",
+        "expert_0.up",
+        "expert_0.down"
+      ],
+      "source_context_in_teaching_prompt": true,
+      "source_kv_reused_at_evaluation": false
+    },
+    "treatment": {
+      "changes": [
+        {
+          "field": "loss.answer_span_ce_weight",
+          "from": 0.0,
+          "to": 0.5,
+          "description": "The frozen response objective retains full response-token CE and adds a 0.5-weighted CE over the answer span and terminal answer EOS; no other recipe field changes."
+        }
+      ],
+      "primary_change_count": 1,
+      "budget02_revival": false,
+      "objective": "mean_response_nll",
+      "steps_per_event": 1,
+      "optimizer": "NativeFusedAdamW",
+      "learning_rate": 0.0001,
+      "gradient_norm_max": 1.0,
+      "response_only_labels": true,
+      "label_shift": 1,
+      "trainable_groups": [
+        "expert_0.gate",
+        "expert_0.up",
+        "expert_0.down"
+      ],
+      "source_context_in_teaching_prompt": true,
+      "source_kv_reused_at_evaluation": false,
+      "source_context_removed_at_evaluation": true,
+      "unchanged_vs_baseline": [
+        "gradient_norm_max",
+        "label_shift",
+        "learning_rate",
+        "objective",
+        "optimizer",
+        "response_only_labels",
+        "source_context_in_teaching_prompt",
+        "source_kv_reused_at_evaluation",
+        "steps_per_event",
+        "trainable_groups"
+      ]
+    },
+    "single_variable_rule": "Exactly one recipe field may change; the parent checkpoint, teaching rows, source text, optimizer state policy, learning rate, one-step-per-event clock and trainable groups are identical across treatment and reset-P.",
+    "rejected_recipe": {
+      "id": "nested_text_behavioral_budget02_v1",
+      "status": "rejected_not_revived",
+      "reason": "The historical two-step-per-event budget02 arm was rejected by the one-clock contract. DC-P1 retains exactly one optimizer step per teaching event.",
+      "admitted": false
+    }
+  },
+  "routing": {
+    "mode": "fixed",
+    "expert_id": 0,
+    "labels_used": false,
+    "world_uid_used": false,
+    "gold_record_ids_used": false,
+    "answer_bearing_metadata": false,
+    "adaptive_router": false
+  },
+  "prepared": {
+    "root": "data/dc_p1_native_response_20261027",
+    "groups": 12,
+    "sealed_groups": 4,
+    "files": {
+      "teaching": "teaching.jsonl",
+      "fit_cases": "fit_cases.jsonl",
+      "dev_cases": "dev_cases.jsonl",
+      "sealed_final_teaching": "sealed_final_teaching.jsonl",
+      "sealed_final_fit_cases": "sealed_final_fit_cases.jsonl",
+      "sealed_final_cases": "sealed_final_cases.jsonl",
+      "sealed_labels_fit": "sealed_labels_fit.jsonl",
+      "sealed_labels_dev": "sealed_labels_dev.jsonl",
+      "sealed_final_labels_fit": "sealed_final_labels_fit.jsonl",
+      "sealed_labels_final": "sealed_labels_final.jsonl"
+    },
+    "counts": {
+      "teaching": 36,
+      "fit_cases": 36,
+      "dev_cases": 60,
+      "sealed_final_teaching": 12,
+      "sealed_final_fit_cases": 12,
+      "sealed_final_cases": 20,
+      "labels_fit": 36,
+      "labels_dev": 60,
+      "sealed_final_labels_fit": 12,
+      "labels_final": 20,
+      "optimizer_steps": 48
+    },
+    "manifest_sha256": "f908f746eecf6e24b3ba05b7ca2a1e790adbea107e898e3bd86992046f8671b4"
+  },
+  "controls": {
+    "arms": [
+      {
+        "arm_id": "treatment",
+        "role": "treatment",
+        "recipe": "answer_span_ce_weight_0.5",
+        "updates": 36,
+        "initialization": "same_parent_checkpoint",
+        "reset_before_evaluation": false,
+        "source_context_at_evaluation": false,
+        "source_kv_at_evaluation": false
+      },
+      {
+        "arm_id": "no_update",
+        "role": "identical_no_update_control",
+        "recipe": "answer_span_ce_weight_0.5",
+        "updates": 0,
+        "initialization": "same_parent_checkpoint",
+        "reset_before_evaluation": false,
+        "source_context_at_evaluation": false,
+        "source_kv_at_evaluation": false
+      },
+      {
+        "arm_id": "reset_P",
+        "role": "reset_P_control",
+        "recipe": "answer_span_ce_weight_0.5",
+        "updates": 36,
+        "initialization": "same_parent_checkpoint",
+        "reset_before_evaluation": true,
+        "reset_scope": "expert_0.gate/up/down_and_optimizer_state_to_parent",
+        "source_context_at_evaluation": false,
+        "source_kv_at_evaluation": false
+      }
+    ],
+    "identical_data_and_budget": true,
+    "shared_teaching_exposure": true,
+    "controls_use_identical_evaluation_prompts": true,
+    "fresh_paraphrase_required": true,
+    "new_instance_required": true,
+    "control_gate_scope": "no_update and reset_P must not reach the treatment primary gates and must not exceed the predeclared control ceiling",
+    "sealed_final_stage": {
+      "requires_separate_teaching": true,
+      "sealed_teaching_events": 12,
+      "sealed_fit_cases": 12,
+      "sealed_evaluation_cases": 20,
+      "updates": 12,
+      "one_shot_after_development": true,
+      "controls_are_development_only": true,
+      "source_context_present": false,
+      "source_kv_loaded": false
+    }
+  },
+  "anti_shortcut": {
+    "answer_index_bypass_allowed": false,
+    "answer_bearing_routing_metadata": false,
+    "source_context_removed_at_scoring": true,
+    "source_kv_removed_at_scoring": true,
+    "per_case_scoring": true,
+    "controls_use_identical_scorer": true,
+    "corrupted_controls_must_fail": true,
+    "target_in_prompt_allowed": false,
+    "target_conditioned_thresholds": false,
+    "globally_unique_prompt_ids_allowed_as_features": false,
+    "candidate_answer_selection_allowed": false,
+    "empty_generation_credit": false,
+    "case_id_in_prompt": false
+  },
+  "evaluation": {
+    "source_free": true,
+    "generated_answer_scoring": true,
+    "tokenizer_and_decode_binding_required": true,
+    "fit_then_dev_then_sealed_final": true,
+    "sealed_final_one_shot": true,
+    "sealed_final_requires_separate_teaching": true,
+    "sealed_final_teaching_updates": 12,
+    "target_conditioned_thresholds": false,
+    "paired_by_source_group": true,
+    "paired_bootstrap_resamples": 2000,
+    "normalization": "strip_outer_whitespace_then_casefold_then_collapse_whitespace",
+    "gates": {
+      "fit_exact_min": 0.5,
+      "fit_nonempty_min": 0.95,
+      "fresh_paraphrase_min_gain": 0.1,
+      "new_instance_min_gain": 0.1,
+      "fresh_paraphrase_min_accuracy": 0.5,
+      "new_instance_min_accuracy": 0.5,
+      "correction_accuracy_min": 0.6,
+      "abstention_accuracy_min": 0.9,
+      "abstention_false_recall_max": 0.1,
+      "retention_accuracy_min": 0.7,
+      "retention_decline_max": 0.02,
+      "control_primary_accuracy_max": 0.25,
+      "paired_ci_low_min": 0.0
+    },
+    "fit_roles": ["fit_primary", "fit_correction", "fit_abstention"],
+    "dev_roles": ["paraphrase", "new_instance", "correction", "abstention", "retention"],
+    "primary_roles": ["paraphrase", "new_instance"],
+    "source_free_fields_required": [
+      "source_context_present",
+      "source_kv_loaded",
+      "source_prefill_tokens",
+      "source_kv_reused",
+      "prompt_source_spans"
+    ],
+    "forbidden_prediction_fields": [
+      "answer",
+      "answer_index",
+      "gold",
+      "gold_index",
+      "target",
+      "target_index",
+      "value",
+      "value_index"
+    ]
+  },
+  "budget": {
+    "preparation": {
+      "device": "cpu",
+      "network": "disabled",
+      "native_jobs": 0,
+      "model_loads": 0,
+      "tokenizer_loads": 0,
+      "optimizer_updates": 0,
+      "gradients": 0,
+      "checkpoints_written": 0,
+      "downloads": 0,
+      "wall_seconds_max": 120,
+      "rss_bytes_max": 536870912,
+      "artifact_bytes_max": 4194304
+    },
+    "physical_limits": {
+      "max_model_loads": 1,
+      "max_tokenizer_loads": 1,
+      "max_optimizer_steps": 48,
+      "max_backward_calls": 48,
+      "max_forward_calls": 368,
+      "max_generation_calls": 320,
+      "max_generated_tokens": 5120,
+      "max_prefill_tokens": 20160,
+      "max_checkpoint_writes": 4,
+      "max_downloads": 0,
+      "max_retries": 0,
+      "max_workers": 1,
+      "max_wall_seconds": 3600
+    },
+    "authorized_run_ceiling": {
+      "model_loads": 1,
+      "tokenizer_loads": 1,
+      "optimizer_updates_total": 48,
+      "backward_calls_total": 48,
+      "forward_calls_total": 368,
+      "generation_calls_total": 320,
+      "generated_tokens_total": 5120,
+      "checkpoint_writes": 4,
+      "artifact_bytes_max": 67108864,
+      "gpu_minutes_max": 30,
+      "wall_seconds_max": 3600,
+      "peak_driver_bytes_max": 53687091200,
+      "sustained_swap_growth_bytes_max": 536870912,
+      "min_host_free_fraction": 0.15,
+      "exclusive_worker": true,
+      "cpu_fallback": false,
+      "downloads": 0,
+      "retries": 0
+    },
+    "workload_derivation": {
+      "basis": "36 development teaching events plus 12 sealed-final teaching events; fit and development scored for all three arms; sealed final is one post-development treatment shot",
+      "teaching_updates": 48,
+      "development_teaching_updates": 36,
+      "sealed_final_teaching_updates": 12,
+      "fit_generations": 36,
+      "dev_generations": 60,
+      "arms_scored_dev": 3,
+      "fit_dev_generations_total": 288,
+      "sealed_final_fit_generations": 12,
+      "sealed_final_generations": 20,
+      "sealed_final_generations_total": 32,
+      "total_generation_calls": 320,
+      "generated_tokens_ceiling": "16 per call",
+      "source_context_removed_in_all_scored_generations": true,
+      "source_kv_removed_in_all_scored_generations": true
+    }
+  },
+  "launch": {
+    "review_only": true,
+    "native_execution": false,
+    "review_command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/preflight_dc_p1_native_response_20261027.py --review --receipt runs/dc_p1_native_response_20261027/preflight_review01.json",
+    "review_receipt_path": "runs/dc_p1_native_response_20261027/preflight_review01.json",
+    "launch_command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/preflight_dc_p1_native_response_20261027.py --launch --receipt runs/dc_p1_native_response_20261027/preflight_launch01.json --authorization reports/dc_p1_native_response_20261027/authorization.json",
+    "fresh_output_path": true,
+    "output_root": "runs/dc_p1_native_response_20261027/native01",
+    "requires_authorization_receipt": true,
+    "authorization_receipt_format": "replica.dc_protocol.authorization.v1",
+    "authorization_fields": [
+      "format",
+      "protocol_id",
+      "config_sha256",
+      "prepared_manifest_sha256",
+      "authorized_by",
+      "native_execution_allowed",
+      "single_attempt",
+      "receipt_sha256"
+    ],
+    "on_missing_receipt": "refuse_nonzero",
+    "on_authorized_package_without_native_runner": "refuse_nonzero",
+    "native_execution_status": "refused_preparation_only"
+  },
+  "limitations": [
+    "This package is preparation only; it does not load MiniCPM5, a tokenizer, an optimizer or a native job.",
+    "The fixture is deterministic synthetic text; validation establishes protocol and label consistency, not model capability.",
+    "The 22-class fixture is explicitly integration-only and is not a parent, oracle or learnability result.",
+    "Fresh paraphrase and new-instance cases are source-free generated-answer evaluations; they are not open-ended capability claims.",
+    "The single recipe change is answer-span CE weighting; budget02 and any two-step-per-event recipe remain rejected.",
+    "No development, sealed-final or promotion decision is made by this preparation package.",
+    "Any later native run requires a separately committed protocol, a fresh output path, a separate authorization receipt and a native runner absent from this package."
+  ]
+}

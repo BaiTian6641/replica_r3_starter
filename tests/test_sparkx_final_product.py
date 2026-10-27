@@ -114,6 +114,31 @@ def test_clean_checkout_verification_passes_without_source_cache(repository: Pat
     assert (repository / REPORT / OUTPUT).is_file()
 
 
+def test_v51_reviewed_migration_is_applied_and_pinned(repository: Path) -> None:
+    result = _run(repository)
+    assert result["status"] == "passed", result["failed"][:10]
+    applied = {entry["path"] for entry in result["reviewed_input_changes_applied"]}
+    assert {
+        "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+        "docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
+        "docs/architecture/README.md",
+    } <= applied
+    manifest = json.loads((repository / bundle.DEFAULT_FINAL_PRODUCT_MANIFEST).read_text())
+    inputs = {entry["path"]: entry for entry in manifest["inputs"]}
+    required = {
+        "docs/architecture/24_SparkX_2_6_v5_1_Refinement_Plan.md",
+        "docs/architecture/25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md",
+        "configs/sparkx_2_6_v5_1_direction_design.json",
+        "reports/sparkx_v5_1_review_20261027/README.md",
+        "reports/sparkx_v5_1_review_20261027/migration_manifest.json",
+        "reports/sparkx_v5_1_review_20261027/native_gates.json",
+        "reports/sparkx_v5_1_review_20261027/deliverables.json",
+    }
+    assert required <= set(inputs)
+    for relative in required:
+        assert inputs[relative]["sha256"] == hashlib.sha256((repository / relative).read_bytes()).hexdigest()
+
+
 def test_v4_tamper_fails_denominators(repository: Path) -> None:
     path = repository / "reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v4.json"
 

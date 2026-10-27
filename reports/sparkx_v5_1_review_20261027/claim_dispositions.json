@@ -1,0 +1,98 @@
+[
+  {
+    "id": "C1",
+    "proposal": "C1 \u2014 stronger vision",
+    "disposition": "Adopt direction; correct dimensions",
+    "reason": "So400m NaFlex has width 1152. Its pinned processor defaults to 256 patches. A 1024-patch experiment needs an explicit override; 2\u00d72 compression yields approximately 256 outputs only with the corresponding valid grid."
+  },
+  {
+    "id": "C2",
+    "proposal": "C2 \u2014 timestamps and AV interleaving",
+    "disposition": "Adopt with causal masks",
+    "reason": "Carry numeric timestamps, availability and clock identity as well as text markers. Qwen3-VL retains interleaved MRoPE; explicit timestamps are not evidence that all spatial/temporal position encoding was removed."
+  },
+  {
+    "id": "C3",
+    "proposal": "C3 \u2014 progressive full training",
+    "disposition": "Adopt",
+    "reason": "Image \u2192 video \u2192 audio \u2192 AV, with text retention. F2 establishes modalities; online memory optimization starts in F3/F4. No percentage is a paper-validated optimum for Spark."
+  },
+  {
+    "id": "C4",
+    "proposal": "C4 \u2014 grounded SFT then GRPO",
+    "disposition": "Stage",
+    "reason": "Start with supervised points/boxes/intervals and causal interventions. Add verifiable-reward RL only after the grounding model and reward checks work. Charge rollout cost."
+  },
+  {
+    "id": "C5",
+    "proposal": "C5 \u2014 retrieval/readout controls",
+    "disposition": "Adopt",
+    "reason": "Report R@16, oracle-selected readout, native accepted-correct coverage, precision and risk\u2013coverage separately. Keep exact-context, long-context and self-KV controls."
+  },
+  {
+    "id": "C6",
+    "proposal": "C6 \u2014 hybrid retrieval",
+    "disposition": "Adopt as candidate",
+    "reason": "Native dense keys + lexical hashes + entity anchors; no gold lookup in the product path. Distill a retriever offline, then qualify its own selections."
+  },
+  {
+    "id": "C7",
+    "proposal": "C7 \u2014 richer episodic records",
+    "disposition": "Adopt; recalculate",
+    "reason": "Four address keys replace the old single key; do not add them to a payload that already includes it. Charge hot sensory packets, entity tables, literal payloads and projected caches."
+  },
+  {
+    "id": "C8",
+    "proposal": "C8 \u2014 single-pass access",
+    "disposition": "Target after parity",
+    "reason": "A previous-chunk query cannot retrieve for an unseen current query. Specify a query-completion barrier and cold-start behavior; retain the two-pass control."
+  },
+  {
+    "id": "C9",
+    "proposal": "C9 \u2014 remove/replace F",
+    "disposition": "Make optional",
+    "reason": "Existing bounded `rho/eta` recurrence is not ungated. Gated DeltaNet superiority over this complete system is unproven. Test `E+P`, `E+P+F` and alternative F with matched work."
+  },
+  {
+    "id": "C10",
+    "proposal": "C10 \u2014 reset Adam momentum",
+    "disposition": "Reject \u201cP0 bug\u201d; retain ablation",
+    "reason": "Deep-RL reset evidence does not establish a universal LLM-learning defect. Existing continuation deliberately preserves moments. Reset variants require their own counters, serialization and comparison."
+  },
+  {
+    "id": "C11",
+    "proposal": "C11 \u2014 deferred self-distillation",
+    "disposition": "Adopt schedule; qualify teacher",
+    "reason": "Store evidence first; defer parametric writes. Self-generated variants are derived data, not independent confirmation. Start with verified response supervision and compare conditioned-teacher distillation."
+  },
+  {
+    "id": "C12",
+    "proposal": "C12 \u2014 dense reads, sparse writes, projection",
+    "disposition": "Split into separate experiments",
+    "reason": "Dense16 is a readout control. Sparse reads are the expansion target. AlphaEdit's preservation argument does not automatically apply to nonlinear expert gate/up updates."
+  },
+  {
+    "id": "C13",
+    "proposal": "C13 \u2014 meta-training",
+    "disposition": "Adopt; define credit path",
+    "reason": "Match deployment updates in offline episodes. First-order initialization training does not automatically learn step sizes, hard routing or the write policy."
+  },
+  {
+    "id": "C14",
+    "proposal": "C14 \u2014 trust and rollback",
+    "disposition": "Adopt with provenance",
+    "reason": "Authority comes from source/scope and explicit teaching, not repetition or a model's certainty. Candidate-generated checks cannot certify factual truth."
+  },
+  {
+    "id": "C15",
+    "proposal": "C15 \u2014 broader validation",
+    "disposition": "Adopt",
+    "reason": "Free generation, retention, unknowns, modality interventions and long-run costs supplement public benchmarks. Three derived questions are development checks, not independent generalization evidence."
+  },
+  {
+    "id": "C16",
+    "proposal": "C16 \u2014 scalable ports",
+    "disposition": "Adopt interface invariants",
+    "reason": "Width-512 evidence and width-256 plastic features are initial shared contracts, not proof of universal transfer. Repeat small native mechanism pilots on Spark before full training."
+  }
+]

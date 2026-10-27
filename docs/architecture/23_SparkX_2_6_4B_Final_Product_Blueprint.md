@@ -1,12 +1,12 @@
 # SparkX 2.6 4B — unified final-product blueprint
 
-**Version 5.0 · 26 October 2026 · Product design and engineering roadmap.**
+**Version 5.1 · 27 October 2026 · Product design and engineering roadmap.**
 
 **The target is a native multimodal learner:** a fully fine-tuned Spark language backbone with vision, audio, spatial/temporal reasoning, intrinsic experience memory, and bounded persistent learning. After release, the original backbone and perception machinery stay fixed. Designated native memory and plastic parameters can continue learning from observations and instruction.
 
-This is the **single starting document for the finished product**. It consolidates the research through architecture revision 4.5 and the newer repository evidence. It includes the reference architecture, learning algorithms, runtime contracts, training/data program, resource account, and validation sequence. Numeric choices marked **candidate** are engineering hypotheses, not validated settings or claims from a paper.
+This is the **single starting document for the finished product**. It consolidates the earlier architecture with the reviewed v5.1 direction and the 27 October repository evidence. It includes the reference architecture, learning algorithms, runtime contracts, training/data program, resource account, and validation sequence. Numeric choices marked **candidate** are engineering hypotheses, not validated settings or claims from a paper.
 
-Read the short tables first; return to the equations and implementation contracts later. The [machine-readable blueprint](../../configs/sparkx_2_6_4b_final_product_v5.json) and [review/evidence report](../../reports/sparkx_final_product_20261026/README.md) accompany this document.
+Read the short tables first; return to the equations and implementation contracts later. The [reviewed v5.1 corrections and capacity design](24_SparkX_2_6_v5_1_Refinement_Plan.md), [MiniCPM validation program](25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md), [declarative v5.1 configuration](../../configs/sparkx_2_6_v5_1_direction_design.json) and [new review report](../../reports/sparkx_v5_1_review_20261027/README.md) accompany this document. The [v5 JSON](../../configs/sparkx_2_6_4b_final_product_v5.json) remains the historical P16/base-vision control; it is not the expanded product profile.
 
 ## Navigation
 
@@ -55,7 +55,7 @@ Remembering an episode, learning a transferable rule, changing an update policy 
 
 ## 2. What is established and what is not
 
-The [repository snapshot](../../reports/sparkx_final_product_20261026/repository_snapshot.json) pins the reviewed inputs. The [reviewed-change record](../../reports/sparkx_final_product_20261026/reviewed_input_changes.json) names the pointer and receipt changes accepted as separate records; any other snapshot or historical-manifest drift fails current qualification. The workspace contains concurrent implementation work; unreviewed files are not evidence of qualified behavior. The following results are distinct populations and must not be merged into a single success rate.
+The [v5.1 repository snapshot](../../reports/sparkx_v5_1_review_20261027/repository_snapshot.json) preserves the reviewed prior documents and newer experiment records. The [historical v5 snapshot](../../reports/sparkx_final_product_20261026/repository_snapshot.json) remains unchanged. The [reviewed-change record](../../reports/sparkx_final_product_20261026/reviewed_input_changes.json) names the pointer and receipt changes accepted as separate records; any other snapshot or historical-manifest drift fails current qualification. The workspace contains concurrent implementation work; unreviewed files are not evidence of qualified behavior. The following results are distinct populations and must not be merged into a single success rate.
 
 | Area | Reviewed evidence | Consequence for this plan |
 |---|---|---|
@@ -68,15 +68,22 @@ The [repository snapshot](../../reports/sparkx_final_product_20261026/repository
 | Development acceptance calibration | Calibration selects `oracle_cannot_meet_gates` and stops: no value point passes all gates, held-out rows are unscored, and writer training/native execution are not permitted | No calibrated confidence policy, held-out confirmation or promotion |
 | Independent plastic continuation | Three fresh processes match exactly for a **16-expert, 28-event** plastic bank: 57 A/A states, exact boundary/final canonical states, zero guard stops and zero swap growth. This is not the production 381-tensor continuation | Exact small-bank restore/continuation is evidenced; learning quality, retention, a numeric envelope and promotion are not |
 | Vision learnability curve | The completed curve returns `curve_no_optimization_progress`. Answer/caption NLL fall by 65.40%/69.68% (T1), but both rise at prefix 1 (T2 fails). Answer correct and prefill-gold accuracy remain 0/14; caption F1 gain is 0.028. The gold-rank ratio passes T3, but T2 failure controls the verdict | No development, held-out, V0, promotion or retry; no learned visual reasoning or multimodal learning claim |
+| Exact-bank selected-record readout | First 72/72, restart 68/72 and one-shot held-out 148/152; zero updates | Useful bounded literal readout with explicit host selection, not learned native retrieval or parameter learning |
+| Plastic response diagnostic | NLL 10.6891→5.6083; teacher-forced exact and greedy train-fit both 0/28 | Output distribution changes, but useful learned recall remains unproven |
+| Vision step-1 reproduction | Answer/caption NLL 10.7045/9.7734→11.7419/13.4482; answers 0/14 | First-update overshoot supported; new bounded optimization hypothesis needed |
 | NL0 state/math contracts | 28 focused tests; selected-expert transactions, recurrence, persistence and numerical comparisons | Software contracts are implemented; native learned utility remains unproven |
 | Audio, combined AV learner, learned spine | Research/design in reviewed evidence | Must be built and qualified |
 | Personality | User description pending | Define the interface and neutral path; do not invent content |
 
 Sources: [acceptance v4](../../reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v4.json), [v4 receipt manifest](../../reports/memory_acceptance_20261026/receipt_manifest_v4.restart02.json), [historical acceptance v3](../../reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v3.json), [calibration rejection](../../reports/memory_acceptance_20261026/calibration_dev01.json), [continuation comparison](../../reports/nested_text_continuation_comparison_20261026/comparison.json), [vision curve summary](../../reports/vision_learnability_curve_v1_20261026/summary.json), [final verification and clean clone](../../reports/final_verification_20261027/summary.json), [historical clean export](../../reports/clean_export_20261026_final/summary.json), [vision diagnostic](../experiments/20261026_Vision_Balanced_Alignment.md), [NL0](../experiments/20261026_Nested_Learning_NL0.md), [sustained optimizer probe](../experiments/20261026_Fused_AdamW_Integration_and_Sustained_Performance.md), [Spark precision/provisioning](../experiments/20261026_Spark_Precision_and_Provisioning.md), [selected precision runs](../../reports/spark_qualification_20261026/selected_runs.json).
 
+New evidence: [exact-bank readout](../experiments/20261026_Memory_Bank_Readout_Hypothesis.md), [plastic response diagnostic](../experiments/20261026_Nested_Text_Response_Diagnostic_Budget02.md), [27 October remediation](../experiments/20261027_Remediation_and_Next_Steps.md). These are distinct experiments, not replacement scores for the rejected native memory run.
+
 **Decision:** continue modality training research and intrinsic learning development as separable workstreams. Combine them only after each has a useful independent signal. Passing a source hash, transaction test or parameter-change check cannot substitute for held-out capability.
 
 ## 3. Research grounding and design decisions
+
+The [v5.1 review](24_SparkX_2_6_v5_1_Refinement_Plan.md#10-evidence-basis-and-limits) adds sparse memory finetuning, parameter-table capacity, corrected self-distillation objectives and optimizer-state controls. It explicitly distinguishes primary-source evidence from our proposals.
 
 The combination below is **our proposed synthesis**. No reviewed paper validates the whole Spark system. The [evidence manifest](../../reports/sparkx_final_product_20261026/evidence.json) records source versions, retrieval hashes and reviewed sections.
 
@@ -112,15 +119,17 @@ flowchart TB
   EVENTS --> D
   subgraph NATIVE[Intrinsic model components]
     D <--> R[Memory attention at selected block sites]
-    R --> E[Versioned episodic engram E]
-    R --> F[Fast associative parameters F]
+    R --> E[Versioned episodic engram E2]
+    R --> F[Optional fast associative parameters F]
     D <--> P[Persistent plastic banks Pf and Ps]
+    D <--> M[Experimental Mkv sparse parameter values]
     D --> C[Recurrent workspace and appraisal C]
     C --> R
     C --> W[Native write and learning proposals]
     W --> E
     W --> F
     W --> P
+    W --> M
   end
   D --> O[Text, grounded primitives, event predictions]
   D <--> U[Optional typed spine]
@@ -130,26 +139,25 @@ flowchart TB
 
 Arrows span ordered phases. They do not permit a later decoder state to influence an earlier layer in the same forward pass. Memory is inside the model even when the spine has no attached module.
 
-### 4.1 Reference profile
+### 4.1 Current product candidate and historical control
 
-| Component | Candidate reference | Role |
+| Component | v5.1 product candidate | Role / limit |
 |---|---|---|
-| Language backbone | Spark 36 blocks, width 2560, original 4.112B parameters | Stable language, reasoning and learned use of extensions |
-| Vision frontend | SigLIP2 base patch16-224, width 768 | Patch features; full offline co-adaptation |
-| Audio frontend | SPEAR base speech/audio v2, width 512 | General acoustic and speech features; full offline co-adaptation |
-| Modality projectors | Vision 768→1024→2560; audio 512→1024→2560 | Entry into the decoder's representation space |
-| Intrinsic memory sites | Zero-based blocks 3,7,11,15,19,23,27,31,35 | Nine memory readers; compare 2/6/9/36-site designs |
-| Memory reader width | 512 | Bounded record and fast-state attention |
-| Workspace/event state | 8 workspace + 64 event slots, width 256; two shared recurrent iterations | Temporal integration, goals and control |
-| Episodic bank `E` | 4096 records; 896 BF16 elements/record plus bounded metadata | Exact identity/provenance and compressed sensory/semantic evidence |
-| Fast bank `F` | Three depth groups, eight stored experts/group, four 128-wide heads/expert | Associative experience state |
-| Plastic bank `P` | Sixteen full-rank 256→1024→256 gated experts; eight fast/eight slow | Persistent reusable knowledge; two active experts/site |
-| Address adaptation `A` | Three 128×128 matrices; **off in the first reference** | Later learned addressing experiment |
-| Dynamic vocabulary | 256 active phrases; two-layer width-256 encoder | New names/phrases without permanent base-ID growth |
-| Spine packet width | 512, with width-256 control features | Optional native component exchange |
-| Active context | Start at 8192 computed positions | Bounded working context; separate from durable experience |
+| Language backbone | Spark 36 blocks, width 2560, original 4.112B parameters | Full offline co-adaptation; stable at deployment |
+| Vision | So400m NaFlex, width 1152; base patch16-224 retained as control | Stronger detail path; tensor count and quality unqualified |
+| Audio | SPEAR v2, width 512; compare 10/12.5/25 output tokens/s | Speech, sound, music and prosody; noncausal clips first |
+| Projectors | Vision 1152→1024→2560; audio 512→1024→2560 | Native modality integration |
+| Intrinsic sites | P at 3,7,11,15,19,23,27,31,35; single-pass E candidate at 11 onward | Preserve model-specific masks and causal query availability |
+| Reader / plastic widths | 512 / 256 | Shared interfaces; wider plastic control separately costed |
+| Workspace | 8 workspace + 64 event slots, width 256; two recurrent iterations | Temporal state and functional appraisal |
+| Episodic E2 | 16384 compact + 2048 hot records; 16384 entity anchors | Sensory evidence, exact identity and provenance; 130 MiB payload |
+| Plastic P64 | 64 full-rank 256→1024→256 experts; 16 fast / 48 slow | 50,331,648 mutable parameters; active2 then active4 comparison |
+| Optional Mkv | 65536×256 learned values, product-key addressing, top8 | Separate sparse factual-parameter experiment; not yet selected |
+| Optional F / A | Existing F recurrence and address transforms retained as controls | Not required by the first useful E+P learner |
+| Vocab / UAP | 256 active phrases / separate width-512 spine | Stable lexical identities and trained native external interfaces |
+| Active context | Start at 8192 computed positions | Includes media, query barrier and latent positions |
 
-All widths above are explicit design choices. The complete final tensor inventory must be generated from the implemented graph; uncounted heads and resamplers cannot be assumed free.
+MiniCPM tests P32 first. P128, nonlinear fast memory and learned update strengths are explicitly gated expansion arms in [Doc24](24_SparkX_2_6_v5_1_Refinement_Plan.md). Stored parameters are not a claim of useful knowledge capacity. The original v5 P16/base-vision profile remains reproducible through its unchanged configuration and dated report.
 
 ## 5. Backbone integration
 
@@ -183,10 +191,11 @@ h_a     = h + a + gate_mem_l(u) * U_mem_l(m)
 v       = original_mlp_norm(h_a)
 p_in    = D_plastic_l(v) + depth_embedding_l                 # width 256
 p       = weighted_sum(Pf_selected(p_in), Ps_selected(p_in))
-h_next  = h_a + original_GELU_MLP(v) + gate_plastic_l(v) * U_plastic_l(p)
+b       = Mkv_read_l(p_in) if Mkv_enabled else 0              # width 256
+h_next  = h_a + original_GELU_MLP(v) + U_plastic_l(gate_P_l(v)*p + gate_Mkv_l(v)*b)
 ```
 
-The original branches retain their operators and masks. New gates/norms are trained offline. Establish disabled-extension parity first, then open a live gradient path during alignment; zeroing every expert matrix and every output gate would create a dead learner.
+The original branches retain their operators and masks. New gates/norms are trained offline. Establish disabled-extension parity first, then open a live gradient path during alignment; zeroing every expert matrix and every output gate would create a dead learner. Optional F is zero/absent when disabled. In the Mkv candidate, a trained 256→128 query projection addresses width-256 values; the example shares the existing plastic down/up interface. A separate output projection is a different costed variant. Earlier sites without a legal E query read only already-available workspace/F.
 
 The nine sites coincide with full-attention blocks as a starting engineering hypothesis. Shared banks avoid nine independent copies of every episode. Depth groups are sites `[3,7,11]`, `[15,19,23]`, `[27,31,35]`; they have distinct fast state and depth-aware queries.
 
@@ -208,11 +217,13 @@ The reference uses a 512-wide reader with `Q:2560→512`, `K,V:512→512`, `O:51
 
 ### 6.1 Perception pathway
 
-Start from [SigLIP2 base patch16-224](https://huggingface.co/google/siglip2-base-patch16-224/tree/75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2). Use the vision tower; the paired text tower is not an additional product encoder. The current declared vision count is 92,884,224 parameters and must be re-audited from the implemented package.
+The v5.1 candidate is [SigLIP2 So400m NaFlex at cc24074f717b612951c2dead130904ab9b65a81e](https://huggingface.co/google/siglip2-so400m-patch16-naflex/tree/cc24074f717b612951c2dead130904ab9b65a81e), with width 1152 and 27 layers. Retain only the vision tower. The model-card aggregate includes its text tower and is not the product vision parameter count; audit installed tensor headers before sealing a total.
 
-A 224×224 view yields a 14×14 patch grid: 196 visual positions before compression. Preserve that baseline for quality diagnosis. The compact candidate resamples a view to 64 features and uses selected additional crops for small details. Crop choice must come from observed pixels/native queries, not evaluation boxes.
+Its pinned processor defaults to **256 patches**. Preserve that uncompressed route and compare an explicit ≤1024-patch, valid-grid route with learned 2×2 reduction. Approximately 256 outputs require the corresponding grid; do not infer them from the encoder name. Preserve patch masks and crop transforms. A fixed 384/14 grid is 27×27, giving 196 outputs after padding to 28×28 and reducing 2×2, not 256.
 
-Every feature carries source image/frame ID, original dimensions, crop/resize/rotation transform, patch extent, source timestamp and validity. Keep the inverse transform so output coordinates can return to the original image. Normalized coordinates without a named frame are insufficient.
+The previous [base patch16-224](https://huggingface.co/google/siglip2-base-patch16-224/tree/75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2), 196-patch and 64-feature routes remain diagnostic controls. Resolve current optimization overshoot before interpreting a bigger tower as its repair. More detail crops incur encoder and decoder work.
+
+Every feature carries source image/frame ID, original dimensions, crop/resize/rotation transform, patch extent, timestamp and validity. Preserve the inverse transform for original-image output coordinates. Normalized coordinates without a named frame are insufficient.
 
 ### 6.2 Reasoning representation
 
@@ -256,7 +267,7 @@ The bridge uses both high-level content and selected lower/middle-layer acoustic
 
 ### 7.2 Temporal compression with a quality control
 
-Retain the approximately 50 Hz representation inside the encoder/bridge. The initial compression experiment groups five feature frames into one model-facing token, approximately 10 tokens/s. Do not average blindly: learned pooling receives sub-frame position and can preserve a local acoustic descriptor.
+Retain the approximately 50 Hz representation inside the encoder/bridge. Compare groups of five, four and two feature frames: approximately 10, 12.5 and 25 model-facing tokens/s. The v5.1 candidate is four-to-one grouping, subject to quality/cost qualification. Do not average blindly: learned pooling receives sub-frame position and can preserve a local acoustic descriptor.
 
 Compare full-rate features, simple pooling and learned pooling. Evaluate onset timing, pitch distinctions, brief events, overlapping sources and long music structure separately. If the compact representation fails, retain higher rate for relevant intervals or enlarge the audio branch; the parameter allowance permits that tradeoff.
 
@@ -278,9 +289,9 @@ Train soft listener labels and uncertainty where available. Evaluate speaker/lan
 
 ### 7.5 Example position budget
 
-For a **16-second coarse AV experiment**, four 64-token frames + two 64-token detail crops + 160 audio tokens + 64 event positions + 32 timing/control positions = **640 decoder positions**. This excludes text, generated answers and optional latent thoughts. It also excludes internal encoder work.
+A v5.1 **16-second coarse AV example** uses four 256-position frames + 200 audio positions at 12.5 Hz + 64 event positions + 32 timing/control positions = **1320 decoder positions**. Two additional 256-position detail crops make 1832. Text, answers, the optional query barrier, latent thoughts and internal encoder work remain additional. The prior 640-position example belongs to the historical 64-feature/10-Hz profile.
 
-The four-frame choice is an accounting example, not a validated coverage rule. Fine motion and fine acoustic timing can require more input. If an implementation keeps event state entirely in a side branch, it must remove those 64 decoder positions and account for the side-branch work instead; it must not count both architectures as the same execution.
+Four frames do not guarantee coverage of fine motion. Denser sampling has a separate charged budget. Event state kept entirely in a side branch must be removed from decoder positions and charged as side computation. Explicit timestamps complement geometry/temporal features; Qwen3-VL retains interleaved MRoPE rather than abandoning all positional structure.
 
 ## 8. State ownership and experience representation
 
@@ -292,10 +303,11 @@ The four-frame choice is an accounting example, not a validated coverage rule. F
 | `I` | Approved identity/personality snapshot and reader identity | Explicit source revision only | Separate versioned identity package |
 | `C` | Workspace, current tracks/events, goal and appraisal | Native recurrence per decision | Task/stream only; clear on independent tasks |
 | `E` | Episodic sensory/semantic records, provenance and correction lineage | Append, supersede, evict at observation barriers | Scoped durable record journal |
-| `F` | Fast associative matrices | Bounded observation update | Session by default; explicit persistent-scope arm |
+| `F` (optional) | Fast associative matrices | Bounded observation update | Session by default; explicit persistent-scope arm |
 | `Pf` | Faster plastic knowledge experts | Verified teaching updates | Across sessions within the learning scope |
 | `Ps` | Slower plastic experts | Periodic verified consolidation | Across sessions within the learning scope |
 | `O` | Optimizer moments, step counts, eligible-event counters and pending-work phase | Atomically with corresponding updates | Required for continued-learning parity |
+| `Mkv` (experimental) | Native learned sparse parameter values; fixed initial key/query machinery | Verified row-sparse updates under its own recipe | Scoped parameter checkpoint and optimizer state |
 | `A` | Optional adaptive addressing transforms | Verified ranking updates between decisions | Versioned with representation and scope |
 | `V` | Active phrase rows and slot mapping | Generation-boundary swap | Derived cache; lexical identity persists elsewhere |
 | `K` | Native KV and projected-record caches | Derived from a pinned computation | Disposable; compatibility checks required |
@@ -303,27 +315,25 @@ The four-frame choice is an accounting example, not a validated coverage rule. F
 
 These categories prevent a common ambiguity: `E` insertion, `C` recurrence, vocabulary remapping and KV caching are state changes, but not automatically optimization levels. `F/P/A` each need a specific objective and transition rule before they count as learning.
 
-### 8.2 Canonical experience record
+### 8.2 Canonical E2 experience record
 
 ```text
-ExperienceRecord
-  identity: record_uid, concept_uids[], episode_uid, scope_id, branch_id
-  provenance: source_hash, source_span, producer_hash, representation_version
-  timing: observation_start, observation_end, available_at, clock_id
-  geometry: source_view, coordinate_frame, crop_transform_ref, track_refs[]
-  state: status, supersedes_uid, revision, confidence_kind, modality_mask
-  features:
-    address_key[128]
-    semantic_value[256]
-    visual_values[2,128]
-    acoustic_values[2,128]
-  bounded_metadata: <= 512 bytes in the analytical resident profile
-  payload_refs: canonical literal/source payload and optional replay artifact
+identity: record_uid, concept_uids[], episode_uid, scope_id, branch_id
+provenance: source_hash, source_span, producer_hash, representation_version
+timing: observation_start, observation_end, available_at, clock_id
+geometry: source_view, coordinate_frame, crop_transform_ref, track_refs[]
+state: status, supersedes_uid, revision, confidence_kind, modality_mask
+features: address_keys[4,128], semantic[256], visual[2,128], audio[2,128]
+bounded metadata: 512 bytes
+lexical hashes[8]: uint64; entity references[4]: 128-bit
+literal base-token IDs[32]: uint32
+payload references: separately capped canonical bytes and optional raw media
+optional hot tier: visual[16,512], audio[16,512] BF16
 ```
 
-The feature payload contains **896 BF16 elements**. Metadata stores compact IDs and references; it cannot conceal unlimited captions, waveforms or JSON. Variable-size source text, literal bytes, masks and media require separate bounded storage and byte accounting.
+The compact payload is **3328 bytes**, not the old 896-element feature schema plus four duplicate keys. Hot evidence adds 32 KiB/selected hot record; a separate entity anchor adds 896 bytes. Spark's 16384/2048/16384 allocation totals 130 MiB, while Mini's 4096/256/4096 allocation totals 24.5 MiB, excluding variable payloads and indices. Full formulas are in [the capacity ledger](../../reports/sparkx_v5_1_review_20261027/analytical_capacity.json).
 
-Missing modalities are masked. A zero audio vector is not evidence of silence. Silence is a real observed acoustic condition with a valid interval. Separate visual and acoustic values prevent the semantic summary from becoming the only retained evidence.
+Missing modalities are masked. Zero audio is not observed silence. Retain spatial/time coordinate references and uncertainty; an entity anchor is not proof that two appearances share identity. Literal windows are bounded and do not silently retain arbitrary source documents.
 
 ### 8.3 Exact evidence and compressed experience
 
@@ -337,24 +347,19 @@ Long evidence is divided into bounded records with source-span identity. Raw med
 
 ### 9.1 Meaning of “dynamic engram” in this product
 
-The product uses a learned, writable association system: records `E`, fast associative matrices `F`, persistent plastic knowledge `P`, and their native readers/writers. This is broader than the static n-gram lookup in the Engram paper. The term names our design, not a reproduced paper implementation.
+The product uses a learned, writable association system: records `E2`, optional fast associative matrices `F`, persistent plastic knowledge `P`, experimental sparse parameter values `Mkv`, and their native readers/writers. This is broader than the static n-gram lookup in the Engram paper. The term names our design, not a reproduced paper implementation.
 
 Keep an optional static phrase/n-gram lookup as an efficiency control. It uses canonical base-token expansion or stable concept keys, never recycled dynamic-token slot numbers. Its table is trained offline and frozen unless a distinct update mechanism is declared.
 
-### 9.2 Two-stage native access
+### 9.2 Native access and causal schedule
 
-1. A causal sensing pass produces query/task/event features.
-2. Two width-128 bank queries select a **union of at most 16 eligible records** from the shared bank. Scope, source status and availability masks apply before ranking.
-3. Selected records are encoded into width-512 evidence packets. Each active decoder site performs its own small attention over those packets plus workspace/fast-memory evidence.
-4. A confidence/abstention head predicts whether eligible evidence is sufficient. Ranking score alone is not a calibrated truth score.
+Use native dense keys, lexical hashes and entity anchors to rank eligible records; the host only enforces scope, status and availability. Initially permit at most two global dense queries per decision and select a union of at most sixteen records. The current richer read budget is 64 compact packets + at most 64 selected hot visual packets + at most 64 selected hot audio packets + eight workspace packets, all width 512. Literal readout has a separate ≤512 base-position allowance. These are limits, not mandatory allocations.
 
-This avoids scanning all 4096 records at every token and every layer. Projected selected-record K/V may be cached for a pinned revision. The two bank queries, selection, encoding and cache misses are part of latency.
+Projected BF16 K/V for 200 packets is 3.515625 MiB across nine readers, or 2.734375 MiB for the seven deeper E readers. Record codec, packet selection, fusion, indices and query scans are extra. Do not let each layer silently issue another full-bank query.
 
-The reference shared record codec produces **four width-512 packets per selected record**: semantic, visual, acoustic and joint-event. It uses the retained modality-specific values and typed time/geometry features, with explicit validity masks. Thus 16 records yield at most 64 record packets; at most eight projected workspace packets are additional. These are native cross-attention inputs, not an automatically appended text prompt.
+The historical two-pass route remains the correctness control. The single-pass target forms queries near blocks 8–10, uses E at blocks 11/15/19/23/27/31/35, and gives early sites only already-available workspace/F. Process a first input chunk with empty retrieval unless a valid prior query exists. After a complete user query, one explicitly trained and charged read-barrier position permits retrieval before the first answer. No later query may be injected into earlier positions. See [Doc24 §6](24_SparkX_2_6_v5_1_Refinement_Plan.md#6-ports-retrieval-and-causal-scheduling) for cold-start and streaming constraints.
 
-At a Spark site, split the 512-wide fast-memory query into four 128-wide heads, read the selected group's `F` expert, concatenate the results, and combine that vector with the episodic/workspace read through trained gates. Record codec, workspace projection, fusion and gates belong to the unsealed extension inventory. Per-site cached K/V for 64 record packets alone adds 128 KiB BF16, or 1.125 MiB across nine sites, before workspace packets and other caches.
-
-The reference admits two global queries, not two per site. Any adaptive scheme that issues additional searches must expose its query count. A cheaper query encoder or causal single-pass route can replace the extra sensing pass only after a quality/cost comparison.
+Per-site reads consume the same pinned selection/state revision. Relevance scores do not establish truth; qualify precision and coverage separately. Cache misses, barrier positions, selections and extra passes all count toward latency.
 
 ### 9.3 Write/read alignment
 
@@ -383,15 +388,15 @@ Eviction removes active availability; it does not automatically erase learned ef
 | Level | Context flow | Candidate transition frequency | Objective |
 |---|---|---|---|
 | Working state `C` | Available features and task state | Two recurrent iterations/decision | Grounded task performance; this is recurrence, not a separate optimizer |
-| Fast association `F` | Sealed observation features | Once per eligible observation chunk | Reconstruct causal feature associations, with future-use outer supervision |
-| Faster plastic pool `Pf` | Verified current teaching + replay | Every eligible teaching transaction; ≤2 steps | Acquire new knowledge while protecting recent skills |
-| Slower plastic pool `Ps` | Recent verified teaching + age-balanced replay | Every 16 eligible teaching transactions; ≤2 steps | Retain reusable regularities across interference |
+| Optional fast association `F` | Sealed observation features | Once per eligible observation chunk | Reconstruct causal feature associations, with future-use outer supervision |
+| Faster plastic pool `Pf` | Verified current teaching + replay | After eligible verified teaching, at a bounded consolidation barrier; 1/2/4-step candidates | Acquire new knowledge while protecting recent skills |
+| Slower plastic pool `Ps` | Recent verified teaching + age-balanced replay | Every 16 eligible teaching transactions initially; separately declared step budget | Retain reusable regularities across interference |
 | Stable release `Theta/P0` | Diverse chronological learning episodes | Offline training campaign | Improve future performance after adaptation and preserve general competence |
 | Policy `Psi`, later | Independent learning episodes/outcomes | Explicit qualified revisions | Improve the learning procedure at equal total cost |
 
 The slower clock counts **eligible verified teaching transactions**. Queries, retries, decoder tokens, wall time and activation-checkpoint recomputation do not advance it. Persist its phase and at most one deferred slow job. Do not accumulate an unlimited background queue.
 
-### 10.2 Fast association control
+### 10.2 Optional fast association control
 
 For a normalized key `k` and bounded target feature `v`:
 
@@ -411,13 +416,17 @@ Train key/value/query generation and bounded coefficients offline through up to 
 
 Each `P` expert is a full-rank gated MLP with three bias-free matrices, width 256 and hidden width 1024. The reference uses a SiLU gate **inside this new branch only**; Spark's original GELU MLP remains unchanged.
 
-Sixteen stored experts provide 12,582,912 mutable weights. Eight belong to `Pf`, eight to `Ps`. One expert from each pool is selected per decision and shared across active sites with depth identity. This bounds active work and makes one update per pool well-defined. Per-token or per-site expert changes are separate costed variants.
+The v5.1 Spark candidate stores **64 experts / 50,331,648 mutable weights**, split 16 Pf / 48 Ps, with a balanced 32/32 control. Mini tests 32 experts / 25,165,824 weights first. The old 16-expert 8/8 bank remains the historical control. Initially select one expert per pool per decision, shared across sites with depth identity; active4 is a separate experiment. Larger capacity cannot repair an unqualified loss or readout by itself.
+
+The optional `Mkv-64k` branch adds 16,777,216 learned value weights behind fixed product keys; it is compared independently and in combination with P. Its row-level update and checkpoint contracts differ from expert-level P. See [Doc24 §4](24_SparkX_2_6_v5_1_Refinement_Plan.md#4-native-architecture-and-the-two-kinds-of-parametric-capacity).
 
 Offline dense-soft routing warmup can teach expert addresses and utilization. Transition to the actual top-one-per-pool route before qualification. Hard top-k selection supplies no gradient for an unselected expert's counterfactual usefulness; use declared auxiliary training objectives and routing controls rather than assuming it does.
 
 An eligible teaching transaction updates at most one fast and one slow expert. Aggregate losses across their uses before stepping. Inactive experts have `grad=None`, no step, no moment allocation/decay. Persist selected weights, moments and per-expert counters atomically.
 
 ### 10.4 Bounded inner optimization
+
+The following is the **historical v5 behavioral-control recipe**, not a change to the executed one-step Mini protocol. V5.1 compares verified CE with conditioned-teacher forward KL, bounded deferred updates and separately declared optimizer-state alternatives in [Doc24 §7](24_SparkX_2_6_v5_1_Refinement_Plan.md#7-learning-transactions-and-nested-objectives). Carrying Adam moments is not established as a bug. Reset-m/carry-v requires separate bias-correction clocks and mid-event resume state. No optimizer policy changes through this document.
 
 Reference optimizer: repository `NativeFusedAdamW`, FP32 plastic ownership, candidate learning rate `1e-4`, development choices `{1e-5, 3e-5, 1e-4}`, betas `(0.9,0.999)`, epsilon `1e-8`, weight decay `0`, global selected-gradient norm cap `1`.
 
@@ -432,7 +441,7 @@ These coefficients are preregistration candidates. Superseded or revoked targets
 
 **Cheap local candidate:** at most 128 feature examples/step, optimizing `1 - cosine(P(x), z_verified)` plus verified replay. A pinned qualified producer, with dynamic branches disabled, creates targets from real teaching evidence. Target production adds forward work. This candidate is adopted only if its downstream learning is noninferior within a proposed 2 percentage points and its measured cost improves.
 
-Both pools together permit at most four optimizer steps at an eligible boundary. A budget rejection returns “learning deferred/rejected”; the system must not acknowledge durable learning merely because it stored an observation.
+The historical v5 design permitted at most four optimizer steps at an eligible boundary. New 1/2/4-step studies need their own complete work budgets; the executed one-clock protocol remains exactly one step/event. A budget rejection returns “learning deferred/rejected”; the system must not acknowledge durable learning merely because it stored an observation.
 
 ### 10.5 Train the ability to learn
 
@@ -449,9 +458,11 @@ The initial outer estimator uses `gradient(P_T, J)` as a first-order estimate fo
 
 The `F` recurrence has its separately declared differentiable unroll. Read/controller parameters receive direct query-path gradients. During offline full training, original backbone and encoder gradients follow the declared stage; during deployed learning they remain frozen.
 
-The fused optimizer is not an exact higher-order meta-optimizer. NL0 supplies a short exact AdamW mathematical comparator, but this does not qualify native full-model exact unrolls. Compare one/two/four-step numerical references before making an exact-gradient claim. More elaborate HOPE-like learning is contingent on these baselines.
+The fused optimizer is not an exact higher-order meta-optimizer. NL0 supplies a short exact AdamW mathematical comparator, but this does not qualify native full-model exact unrolls. Compare one/two/four-step numerical references before making an exact-gradient claim. More elaborate HOPE-like learning is contingent on these baselines. V5.1 adds matrix-specific learned rates through an explicit functional update, selective sparse values, optional nonlinear F and later learning-policy revisions as separate studies. First-order initialization learning alone does not train those omitted update-policy paths. E dropout/source-free outer episodes prevent retrieval from bypassing the learning objective; compare 0/25/50% rather than assuming a fixed optimum.
 
 ### 10.6 Self-learning versus self-confirmation
+
+Store eligible E observations before deferred parameter consolidation. Derived augmentations inherit source lineage and do not independently verify their own claims; teacher consistency is not factual authority.
 
 Externally observed sensory outcomes can supply self-supervised targets after they become available. For example, predict a later event, score the prediction, then expose the actual observation at the next learning barrier. Model-generated explanations alone are not verified targets.
 
@@ -587,7 +598,7 @@ session.close_task(clear_workspace=True)
 
 An observation can legitimately be committed before a later query. For prediction tasks, the prediction is scored before the target is revealed. Teacher-forced answer tokens are loss targets and never writable observations within their own prediction pass.
 
-### 14.3 Reference decision schedule
+### 14.3 Historical two-pass control schedule
 
 1. Pin release, identity, scope, source cutoff, vocabulary mapping and dynamic revision.
 2. Decode/encode only available observations. Mark noncausal-window availability correctly.
@@ -598,7 +609,7 @@ An observation can legitimately be committed before a later query. For predictio
 7. Propose and execute bounded updates, perform mechanical validation, then atomically publish the next revision.
 8. Invalidate dependent caches and acknowledge separately whether evidence was stored, parameters updated, deferred or rejected.
 
-The two-pass schedule is a correctness reference, not the final efficiency winner. Cached sensing, a compact native query encoder and causal single-pass late-layer reading are later alternatives. Their measurements must include misses, invalidation and extra prefills.
+The v5.1 target is the causally specified single-pass/query-barrier candidate in §9.2, promoted only after quality and complete cost comparison. The two-pass control remains available. Both must charge misses, invalidation, cold starts and extra prefills.
 
 ### 14.4 Transaction and concurrency rules
 
@@ -642,6 +653,8 @@ learning/<scope_id>/<branch_id>/
   fast_state.safetensors
   plastic_weights.safetensors
   plastic_optimizer.safetensors
+  mkv_values_and_optimizer.safetensors  # optional admitted parameter-table branch
+  mkv_row_clocks_and_usage.json         # per-row update semantics; not source answers
   address_state.safetensors        # only if admitted
   clocks_and_dedup.json
   lexical_identity.json
@@ -659,7 +672,7 @@ The layout is a serialization design. Publish hashes, tensor dtypes/shapes and s
 | Continued-learning parity | Retained `P` **and** optimizer moments/counters/clock phase | Tests the subsequent learning trajectory |
 | Surface-history restart | Re-tokenized canonical history | Valid functional fallback; not exact KV/atomic-phrase parity |
 
-Checkpointing weights without Adam state is not an equivalent continuation. Conversely, moments should not become an undeclared answer channel in a read-only parameter-learning test.
+For the carry-m/v recipe, checkpointing weights without Adam state is not equivalent continuation. A reset recipe must instead persist its own event phase, separate clocks and any mid-event state needed by its declared algorithm. Conversely, moments should not become an undeclared answer channel in a read-only parameter-learning test.
 
 ### 15.3 Corrections and source removal
 
@@ -701,9 +714,9 @@ For a true parameter-transfer claim, the audit removes source media, teaching te
 |---|---|---|---|
 | F0 — qualification | Source/backend parity, masks, positions, tied head, native interfaces, checkpoint/resume | None for baseline checks; explicitly scoped diagnostic updates | Correct graph and reproducible update/resume paths |
 | F1 — extension alignment | Bridge/reader/writer initialization; make new residual paths useful | New projectors, heads, readers, core and initialization templates; original backbone/encoders initially fixed | Learnability on controlled examples; real gradients; zero/missing-input controls |
-| F2 — full multimodal competence | Images, speech/sound/music, video relations, text retention | **All original backbone parameters, both encoders, and all included extension parameters** | Held-out modality necessity, grounding, audio and text-retention gates |
+| F2 — full multimodal competence | Progressive image → video → audio → AV; text retention; zero online-memory updates | **All original backbone parameters, both encoders and included modality/grounding interfaces**; memory-learning machinery is prepared in F3/F4 | Held-out modality necessity, grounding, audio and text-retention gates |
 | F3 — native memory use | Write/read delayed observations; corrections, unknowns, temporal/AV experience | Full model and memory machinery; staged replay of F2 abilities | Native addressing/readout useful beyond diagnostic oracle routes |
-| F4 — learn to learn | Chronological support/query episodes; one clock, then two clocks; vocabulary turnover | Offline `Theta/P0` and declared controller paths; inner updates restricted to `F/P` candidate state | New-instance transfer, retention and source-free parameter contribution |
+| F4 — learn to learn | Chronological support/query episodes; one clock, then two clocks; vocabulary turnover | Offline `Theta/P0` and declared controller paths; inner updates restricted to the declared `P`, optional `F/Mkv` candidate state | New-instance transfer, retention and source-free parameter contribution |
 | F5 — product behavior | Teaching/refusal-to-overclaim, multimodal instructions, bounded effort, optional personality | Full or explicitly scoped final co-adaptation, followed by renewed F2–F4 qualification | Stable integrated behavior; all release-critical regressions pass |
 | F6 — serving qualification | Quantization, batching, cache behavior, long runs, packaging | No implicit training; any distillation is a new declared branch | Quality/cost/parity on the actual deployed artifact |
 
@@ -715,7 +728,7 @@ For F4, each offline episode starts from a declared initialization/scope state. 
 
 Start with short single-modality examples and uncompressed features. Then add multi-image relations, short clips, aligned AV events, memory delay and learning episodes. Increase context length and interference only after shorter tasks are learnable.
 
-Use a text-retention stream throughout full multimodal training. One **planning mixture by charged positions** is 30% text, 20% image, 20% audio, 15% temporal AV and 15% memory/learning episodes. This is a starting scenario, not a selected final recipe. Resolve collisions by task labels and measure the actual processed mix.
+Use a text-retention stream throughout full multimodal training. F2 establishes perception and reasoning with **0% memory-learning episodes / zero online-memory updates**. Progress from image to video to native audio to AV; adjust modality/text proportions by development retention and grounding. F3/F4 introduce memory and learning episodes while rehearsing qualified modalities. The former combined 30/20/20/15/15 mixture is historical and is not the F2 recipe. Count every pass by phase and actual processed positions.
 
 The prior 10k-image/15-hour-audio pilot and small token caps are MiniCPM experiments. They are not estimates of sufficient product training. Select final volume using 1×/4×/16× scaling curves, source diversity, held-out gains and retention. Repeated examples increase processed positions without increasing unique evidence.
 
@@ -725,7 +738,7 @@ Teachers may generate draft captions, correspondences, visual features, acoustic
 
 Use deterministic or human-grounded verification for owned geometry, time, device rules and musical controls where possible. For open-ended perceptual descriptions, audit sampled claims against actual media. Teacher-generated reasons are training signals, not proof of faithful reasoning.
 
-Teachers remain offline. Product inference must pass with them absent. Distillation corpus permissions and model-generated-data terms are part of the training lineage.
+External modality teachers remain offline; product inference must pass with them absent. The optional learning-time conditioned teacher in Doc24 is a detached internal view of the same stable model and pre-update dynamic state. It has no external service dependency, but its generation/forward/snapshot costs are charged. Distillation corpus permissions and model-generated-data terms are part of the training lineage.
 
 ## 18. Objectives, credit assignment and optimizer policy
 
@@ -834,6 +847,8 @@ Build a provenance graph across AudioSet/YouTube derivatives, Freesound derivati
 
 ## 20. MiniCPM5-first validation program
 
+The current order is defined by the [MiniCPM direction-correction program](25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md). It preserves the NL identifiers below, adds DC studies for the new proposals, and separates positive exact-bank readout from still-unqualified native retrieval/P learning.
+
 ### 20.1 Why MiniCPM is necessary but not sufficient
 
 MiniCPM5 is the mechanism testbed. Its observed backbone contains 2,516,756,480 parameters; “2B” is the model family label. It has different decoder shapes, positions, attention and ports from Spark. Transfer successful mechanisms and data recipes, then repeat Spark-specific wiring and learning checks.
@@ -923,7 +938,7 @@ These are **proposed targets**, to be preregistered with task definitions and sa
 
 Absolute public-benchmark targets are selected after measuring the unmodified and fully multimodal baselines. No universal benchmark score is invented here. Keep per-language, modality and difficulty slices; improvements on a synthetic rule set do not certify unrestricted real-world learning.
 
-**Current measured status is below these gates.** Acceptance v4 rejects the candidate at 21/384 accepted-correct facts and precision 21/138; calibration cannot find an oracle-consistent boundary and stops. The 16-expert continuation comparison checks exact state restoration only. The latest vision curve does not satisfy T2 and keeps answer accuracy at zero. No row in this table is currently satisfied for a learned product capability, and no local full Spark training fit is claimed.
+**Current native learned-product status is below these gates.** Exact-bank literal readout separately passed its bounded 148/152 held-out fixture with host selection and zero updates; it cannot qualify the native learned-product rows. Plastic train-fit free generation remains 0/28.  Acceptance v4 rejects the candidate at 21/384 accepted-correct facts and precision 21/138; calibration cannot find an oracle-consistent boundary and stops. The 16-expert continuation comparison checks exact state restoration only. The latest vision curve does not satisfy T2 and keeps answer accuracy at zero. No row in this table is currently satisfied for a learned product capability, and no local full Spark training fit is claimed.
 
 Use confidence intervals clustered by independent source/world. Predeclare primary comparisons and multiple-comparison handling. Sealed tests never select updates, early stopping, learning rates or acceptance of an individual candidate. Long-running adaptive testing needs separate feedback and audit streams.
 
@@ -944,47 +959,39 @@ When a target fails, profile whether extra prefill, encoder work, backward, spar
 
 ## 22. Parameters, memory and compute
 
-The [reconciled arithmetic ledger](../../reports/sparkx_final_product_20261026/analytical_costs.json) is a payload estimate, **not measured fit**. It removes alternatives that older inventories counted together and makes the phrase encoder's input projection explicit.
+The [v5.1 capacity ledger](../../reports/sparkx_v5_1_review_20261027/analytical_capacity.json) is an analytical partial payload/MAC account, not measured fit or latency. The unchanged [v5 ledger](../../reports/sparkx_final_product_20261026/analytical_costs.json) records the historical base-vision/P16 design. The reconciled v5.1 residency inventory — retained vision tower, base/extended weights, optimizer state, activations, restart transients, P16/P32/P64 and Mkv-4k/64k — is tabulated with evidence labels in [Doc24 §4.4](24_SparkX_2_6_v5_1_Refinement_Plan.md#44-residency-inventory-measured-analytical-and-unsealed). `measured_native`, `analytical_estimate` and `unsealed` rows stay separate; none is a measured fit.
 
-### 22.1 Partial parameter inventory
+### 22.1 Current parameter inventory
 
-| Included component | Parameter elements | Evidence/category |
-|---|---:|---|
-| Original Spark | 4,112,079,360 | Sealed BF16 headers; tied head counted once |
-| Vision encoder | 92,884,224 | Declared pinned encoder count; implementation audit pending |
-| Audio encoder | 93,289,476 | Declared pinned encoder count; implementation audit pending |
-| Vision projector | 3,411,456 | Two affine layers including biases |
-| Audio projector | 3,149,312 | Two affine layers including biases |
-| Nine width-512 readers | 28,311,552 | `9 * (2*2560*512 + 2*512*512)` |
-| Nine plastic down/up projections | 11,796,480 | `9 * 2*2560*256` |
-| Phrase encoder matrices and both projections | 2,883,584 | `2*12*256² + 2*2560*256` |
-| **Stable partial subtotal** | **4,347,805,444** | Excludes unsealed smaller modules |
-| Sixteen mutable plastic experts / offline templates | 12,582,912 | `16 * 3*256*1024` |
-| **Combined partial inventory** | **4,360,388,356** | Not the final total |
-
-Still to inventory: record encoder/fusion, resampling, temporal/core matrices, feature-fusion heads, norms/gates, router/writer/learning heads, positional features, structured output heads, identity reader and admitted spine adapters. Some may share weights; the implementation must establish that, not the prose.
-
-The earlier 4.3208B inventory described a different two-reader profile. The earlier approximately 4.3630B projection retained a legacy query/output term and used a different phrase formula. Version 5 explicitly **replaces** those reader terms and counts both phrase projections. Historical receipts remain intact. **4.4B remains a rough planning placeholder, not a cap or a sealed final count.**
-
-### 22.2 Dynamic-state payload
-
-| Item | Spark reference |
+| Component | Elements / status |
 |---|---:|
-| `E`: 4096 records × (896 BF16 elements + 512 metadata bytes) | 9 MiB |
-| `F`: 3×8×4×128×128 FP32 elements | 6 MiB |
-| `C`: 72×256 BF16 elements | 0.0352 MiB |
-| `P`: 12,582,912 FP32 elements | 48 MiB |
-| Two resident Adam moments for `P` | 96 MiB |
-| Optional `A` plus two moments | 0.5625 MiB |
-| Live total including optional `A` | 159.60 MiB |
-| Illustrated update staging/selected gradients added | Peak about 190.39 MiB |
-| Separate replay payload allowance | 64 MiB |
+| Original Spark, tied head once | 4,112,079,360 sealed original parameters |
+| So400m NaFlex vision-only tower | Final tensor count unsealed; do not use the dual-tower aggregate |
+| SPEAR audio tower | 93,289,476 declared; implementation inventory still required |
+| Vision projector 1152→1024→2560 | 3,804,672 including biases |
+| Audio projector 512→1024→2560 | 3,149,312 including biases |
+| Nine width-512 readers, if all instantiated | 28,311,552 matrices; early sites may be workspace-only |
+| Nine 256-wide plastic down/up projections | 11,796,480 |
+| Phrase matrices and both projections | 2,883,584 historical unchanged formula |
+| P64 mutable weights / initialization templates | 50,331,648 unique parameter elements |
+| Optional Mkv-64k values | 16,777,216 additional mutable weights |
+| Optional Mkv product keys | 32,768 fixed elements; projections/gates still additional |
 
-Use a **256 MiB mutable-state research envelope plus a separate 64 MiB replay envelope**, subject to actual measurement. Optional raw evidence has a separate 256 MiB candidate allowance. Canonical literal/source payloads, expanded journals, snapshots, indexes and serving buffers must have explicit caps in the deployment profile; they are not included in the table by implication.
+No final stable subtotal is sealed for v5.1. Audit resamplers, temporal/core state transforms, routers/writers, gates/norms, structured heads, identity and any admitted spine modules from the actual graph. Shared initialization templates and working copies require separate parameter-count and resident-copy accounting. The historical 4.3604B partial total and 4.4B planning placeholder are not the enlarged product count.
 
-The listed staging includes selected two-expert candidate weights/moments/gradients and bounded `F/A/C/E` staging. Full-bank gradients, multiple simultaneous candidates or a second full snapshot increase the peak. Optimizer scalar metadata, activations and allocator overhead remain additional. The old 128 MiB resident-Adam profile does not fit this bank.
+### 22.2 Expanded dynamic-state payload
 
-A 64-expert `P` bank uses 192 MiB of FP32 weights; 128 experts use 384 MiB, before moments. Sparse execution can hold active matrix work steady, but storage, routing and transfer still grow. Growth requires a different admitted profile.
+| Profile | P weights | P moments | E2 payload | P + moments + E2 subtotal | Mutable envelope; separate replay |
+|---|---:|---:|---:|---:|---|
+| Mini P32 | 96 MiB | 192 MiB | 24.5 MiB | 312.5 MiB | 512 MiB; 128 MiB |
+| Spark P64 | 192 MiB | 384 MiB | 130 MiB | 706 MiB | 1024 MiB; 256 MiB |
+| Spark P128 stretch | 384 MiB | 768 MiB | 130 MiB | 1282 MiB | 2048 MiB; 512 MiB |
+
+Updating two selected experts adds 24 MiB of candidate weight/moment/gradient payload. Optional Mkv-64k adds 192 MiB live values/moments, 0.125 MiB fixed product keys, its projections and row metadata. A dense-gradient fallback adds another 64 MiB; actual sparse optimizer residency is unqualified. Mini P32+Mkv uses a separate proposed 768 MiB dynamic envelope. None of these envelopes change current native process guards.
+
+Workspace, phrase buffers, F/A if enabled, projected reader caches, teacher snapshots/logits, indices, candidate copies, activations and allocator overhead remain additional. Canonical literal/media payloads, journals and checkpoints need separate quotas. A single selected-update copy is not permission for unlimited concurrent candidates. The initial F branch is optional; a nonlinear F study adds its own weight/velocity/unroll account.
+
+Sparse P2/P4 at nine sites costs approximately 14.16M/28.31M expert-matrix MACs per position; dense16 costs 113.25M and dense64 452.98M. These exclude projections, attention, retrieval, bandwidth and learning. Stored capacity can grow with fixed active matrix work, but its actual residency and access latency still grow.
 
 ### 22.3 KV and context
 
@@ -994,7 +1001,7 @@ If the backend retains all 8192 positions in all 36 layers, it needs **1.125 GiB
 
 ### 22.4 Full-training state
 
-For a **4.4B planning model**, persistent tensor payload before activations is:
+For the **historical 4.4B planning model**, persistent tensor payload before activations is shown below. V5.1 changes the vision tower and memory capacity; this table is a historical sensitivity, not a fit estimate for the new product. Recompute from the complete audited trainable inventory. For orientation only, 5B FP32 weight/gradient/two-moment elements would require 74.51 GiB before activations.
 
 | Ownership layout | Bytes/parameter | Approximate GiB |
 |---|---:|---:|
@@ -1005,13 +1012,15 @@ For a **4.4B planning model**, persistent tensor payload before activations is:
 
 The last row is an unqualified numerical choice, not an instruction to remove masters. These are alternatives, not additive rows. Live encoders, logits, activation checkpoints, candidate banks, replay and optimizer temporaries must be profiled on the actual graph.
 
+**Precision identity is part of the inventory.** The official BF16 release (`bf16_06`) is BF16-storage evidence with a zero-difference export/reload. The official FP8 release stores FP8 tensors but native FP8 execution was refused on MPS and never ran. The dequantized `derivative_02` is a separate BF16-storage artifact with no per-token F8 quantization; it is neither the official BF16 checkpoint nor the official FP8 artifact. Native FP8 execution has no result. FP32 `NativeFusedAdamW` parameter and optimizer-state ownership remains the training contract; BF16 source/autocast does not make residency BF16, and FP8 inference does not qualify FP8 training. See [Doc24 §4.4](24_SparkX_2_6_v5_1_Refinement_Plan.md#44-residency-inventory-measured-analytical-and-unsealed) and the [native gates](../../reports/sparkx_v5_1_review_20261027/native_gates.json).
+
 The current full Spark FP32-AdamW plan does not fit the local 50 GiB process guard. CPU offload on unified memory does not create physical RAM. A larger-memory GPU or a separately qualified sharded/offloaded training configuration is needed. Existing swap/free-memory guards are unchanged.
 
 ### 22.5 Compute planning
 
 The [full-training estimate](../experiments/20261026_SparkX_Formal_Full_Finetuning_Compute_Estimate.md) and [newer precision/hardware review](../experiments/20261026_Mixed_Precision_Muon_and_Parallel_GPU_Budget_Review.md) are conditional forecasts. Their 100M/1B/5B scenarios count **all processed positions**, including repeated epochs, replay, extra sensing and inner/outer passes.
 
-For orientation, the newer review places a **1B-position full-Spark schedule** at 118–429 H200 GPU-hours for its BF16/fused-AdamW sensitivity, or 138–501 with its candidate Muon/auxiliary-AdamW assumptions. These are not measured Spark CUDA rates or evidence that 1B positions are sufficient. Multiple training attempts and qualification add to a single schedule.
+For historical orientation only, the newer review places its **1B-position full-Spark schedule** at 118–429 H200 GPU-hours for its BF16/fused-AdamW sensitivity, or 138–501 with its candidate Muon/auxiliary-AdamW assumptions. These are not measured Spark CUDA rates or evidence that 1B positions are sufficient. They must be recomputed for v5.1: larger vision inputs/encoder, P capacity, teacher passes and sparse memory kernels change the workload. Multiple training attempts and qualification add to a single schedule.
 
 Two unlocked 3090 Ti cards are a separate hypothetical training configuration; the reviewed estimate is 627–2349 GPU-hours, approximately 313–1174 wall hours for one 1B-position full-Spark schedule. It assumes a qualified low-precision optimizer, useful kernels and memory management. Dense GEMM gains do not multiply the entire model speed, and two 24 GiB devices are not one contiguous 48 GiB allocation.
 
@@ -1100,8 +1109,8 @@ The DeepSeek report's unresolved original provenance is an evidence limitation, 
 
 ### 26.2 Authority and compatibility
 
-This version 5 blueprint is the unified **product target**. [Document 21](21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md) preserves the revision history and companion research links. [Document 22](22_State_Mechanism_and_RSI_Contracts.md) remains the normative state/transaction/RSI contract; its current execution restrictions still apply. Existing experiment protocols and admission records determine what may actually run.
+This version 5.1 blueprint is the unified **product target**. [Doc24](24_SparkX_2_6_v5_1_Refinement_Plan.md) owns the reviewed corrections and capacity alternatives; [Doc25](25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md) owns their MiniCPM validation sequence. [Document 21](21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md) preserves the revision history and companion research links. [Document 22](22_State_Mechanism_and_RSI_Contracts.md) remains the normative state/transaction/RSI contract; its current execution restrictions still apply. Existing experiment protocols and admission records determine what may actually run.
 
-The v5 JSON is a declarative research specification, not a runtime configuration. New choices here—such as the reconciled reader/phrase inventory, explicit sparse routing profile and serving targets—must be implemented and preregistered before execution. They do not retroactively change earlier receipts.
+The v5.1 JSON is a declarative design, not a runtime configuration. The unchanged v5 JSON is its historical control. New choices here—such as the reconciled reader/phrase inventory, explicit sparse routing profile and serving targets—must be implemented and preregistered before execution. They do not retroactively change earlier receipts.
 
-The [review report](../../reports/sparkx_final_product_20261026/README.md) records fresh source checks, reconciled evidence, reviewed input changes, the portable verifier and the additive final-product manifest. It also lists what was not run. The historical 117-input research manifest remains readable and is not rewritten; current evidence is pinned separately, and unexplained snapshot drift fails current qualification. A complete plan closes the design connections and names the remaining experiments; it does not turn unmeasured capabilities into established product facts.
+The [v5.1 report](../../reports/sparkx_v5_1_review_20261027/README.md) records this correction, source/claim checks and changed-document snapshots. The older [v5 review report](../../reports/sparkx_final_product_20261026/README.md) records its original source checks, reconciled evidence, reviewed input changes, the portable verifier and the additive final-product manifest. It also lists what was not run. The historical 117-input research manifest remains readable and is not rewritten; current evidence is pinned separately, and unexplained snapshot drift fails current qualification. A complete plan closes the design connections and names the remaining experiments; it does not turn unmeasured capabilities into established product facts.

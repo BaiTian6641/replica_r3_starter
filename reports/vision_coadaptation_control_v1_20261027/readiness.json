@@ -1,0 +1,456 @@
+{
+  "assessment_sha256": "79f18b2d3f7ffc361e8629588a5b641dbc4f09e0eba74e8ae60168cd8e60ebe4",
+  "authorization": {
+    "commit_bound": false,
+    "native_execution_authorized": false,
+    "path": "reports/vision_coadaptation_control_v1_20261027/authorization.json",
+    "present": false,
+    "protocol_commit": null,
+    "receipt_sha256": null,
+    "status": "absent",
+    "violations": [
+      "authorization_receipt_missing"
+    ]
+  },
+  "authorization_created": false,
+  "budget": {
+    "additional_artifact_bytes": 0,
+    "additional_backward_calls": 0,
+    "additional_forward_calls": 0,
+    "additional_optimizer_steps": 0,
+    "additional_wall_seconds": 0,
+    "artifact_bytes": 33554432,
+    "campaign_cumulative": {
+      "backward_calls": 4,
+      "decoder_forward_calls": 4824,
+      "explicit_logits_forwards": 400,
+      "generated_tokens": 3800,
+      "generation_decode_calls": 3604,
+      "generation_prefill_calls": 196,
+      "logical_scoring_cells": 196,
+      "logical_scoring_operations": 588,
+      "optimizer_steps": 1,
+      "prepare_sense_passes": 596,
+      "processed_text_positions": 2003600,
+      "processed_visual_positions": 945504,
+      "projector_passes": 4824,
+      "visual_encoder_cache_hits": 168,
+      "visual_encoder_cache_misses": 168,
+      "visual_encoder_calls": 168,
+      "visual_forward_calls": 4824,
+      "visual_observation_calls": 168
+    },
+    "expected_measured_work": {
+      "backward_calls": 4,
+      "decoder_forward_calls": 4804,
+      "explicit_logits_forwards": 400,
+      "generated_tokens": 3800,
+      "generation_decode_calls": 3604,
+      "generation_prefill_calls": 196,
+      "optimizer_steps": 1,
+      "prepare_sense_passes": 596,
+      "projector_passes": 4824,
+      "readout_stages": 5,
+      "update_batch_evaluations": 2,
+      "updates": 1,
+      "visual_encoder_cache_misses_max": 168,
+      "visual_encoder_calls_max": 168,
+      "visual_forward_calls": 4824,
+      "visual_observation_calls": 168,
+      "wider_readouts": 2
+    },
+    "limits": {
+      "artifact_bytes": 33554432,
+      "caption_max_new_tokens": 32,
+      "checkpoint_writes": 0,
+      "downloads": 0,
+      "extension_loads": 0,
+      "extension_writes": 0,
+      "grad_accum": 1,
+      "max_decoder_forwards": 4824,
+      "max_decoder_forwards_per_readout": 2400,
+      "max_explicit_logits": 400,
+      "max_explicit_logits_per_readout": 196,
+      "max_generated_tokens": 3800,
+      "max_generated_tokens_per_readout": 1900,
+      "max_new_tokens": 8,
+      "max_optimizer_steps": 1,
+      "max_prepares": 596,
+      "max_prepares_per_readout": 294,
+      "max_probe_backward_calls": 0,
+      "max_projector_passes": 4824,
+      "max_prompt_tokens": 256,
+      "max_readouts": 4,
+      "max_scoring_generations": 196,
+      "max_seconds": 1200,
+      "max_sequence_tokens": 288,
+      "max_stages": 5,
+      "max_teacher_forced_cells": 204,
+      "max_total_backward_calls": 4,
+      "max_update_backward_calls": 4,
+      "max_updates": 1,
+      "max_visual_encoder_calls": 168,
+      "max_visual_encoder_calls_per_readout": 78,
+      "model_loads": 1,
+      "readout_weight_writes": 0,
+      "retries": 0,
+      "workers": 1
+    },
+    "relation_to_smaller_step": "identical_not_larger",
+    "wall_limit_seconds": 1200
+  },
+  "checks": [
+    {
+      "id": "protocol_schema",
+      "requirement": "the co-adaptation protocol matches its declared schema",
+      "status": "passed"
+    },
+    {
+      "id": "parent_unchanged",
+      "requirement": "the sealed MiniCPM5 parent and SigLIP2 encoder weights are the same objects as the smaller-step arm",
+      "status": "passed"
+    },
+    {
+      "id": "data_and_schedule_unchanged",
+      "requirement": "prepared04 inputs, update batch and one-update schedule are identical",
+      "status": "passed"
+    },
+    {
+      "id": "initialization_and_optimizer_unchanged",
+      "requirement": "seed 29 initialization and NativeFusedAdamW hyperparameters, including lr 3e-05, are identical",
+      "status": "passed"
+    },
+    {
+      "id": "loss_unchanged",
+      "requirement": "response-only mean NLL with no auxiliary term is the same loss",
+      "status": "passed"
+    },
+    {
+      "id": "readouts_unchanged",
+      "requirement": "five-stage readouts, raw generations, controls and empty-text accounting are identical",
+      "status": "passed"
+    },
+    {
+      "id": "budget_not_larger",
+      "requirement": "4824 decoder forwards, 168 visual observations, 4 backward calls, 1 optimizer step, 1200 seconds and 33554432 bytes are identical, with zero additional work declared",
+      "status": "passed"
+    },
+    {
+      "id": "single_axis_scope",
+      "requirement": "gradient scope is the only changed axis: six projector tensors plus eighteen last-block and post-layernorm tensors",
+      "status": "passed"
+    },
+    {
+      "id": "encoder_scope_grounded",
+      "requirement": "the eighteen encoder tensors and 7,089,408 parameters follow from the preserved SiglipVisionModel manifest",
+      "status": "passed"
+    },
+    {
+      "id": "gates_preserved",
+      "requirement": "0.25 nat optimization deltas, functional thresholds, control margins and empty-text gates are unchanged, with encoder drift bounded at 1e-4 absolute and 0.25 L2",
+      "status": "passed"
+    },
+    {
+      "id": "decision_closed",
+      "requirement": "development, held-out, V0, promotion, retry and further co-adaptation remain closed",
+      "status": "passed"
+    },
+    {
+      "id": "distinctness_declared",
+      "requirement": "the control explains why it is a distinct hypothesis and not a disguised expansion",
+      "status": "passed"
+    },
+    {
+      "id": "precondition_state",
+      "requirement": "smaller-step failure report present=False, diagnosis present=False, eligible=False",
+      "status": "observed"
+    },
+    {
+      "id": "authorization_state",
+      "requirement": "receipt state is absent",
+      "status": "observed"
+    },
+    {
+      "id": "runner_not_implemented",
+      "requirement": "runner scripts/vision_coadaptation_control_runner_v1.py does not exist",
+      "status": "observed"
+    },
+    {
+      "id": "no_native_execution",
+      "requirement": "no model load, backward call, optimizer step, generation or native command is performed",
+      "status": "passed"
+    }
+  ],
+  "claims": {
+    "budget_increased": false,
+    "development_authorized": false,
+    "encoder_swapped": false,
+    "generated_answer_conversion_claim": false,
+    "heldout_authorized": false,
+    "hypothesis_scope": "frozen_visual_feature_coadaptation_only",
+    "native_execution_authorized": false,
+    "new_loss_introduced": false,
+    "promotion": false,
+    "rank_improvement_is_conversion": false,
+    "retry_authorized": false,
+    "semantic_audit_authorized": false,
+    "smaller_step_retry": false,
+    "v0_authorized": false
+  },
+  "decision": {
+    "authorization_created": false,
+    "eligible": false,
+    "launch_allowed": false,
+    "model_loads": 0,
+    "native_execution": false,
+    "preparation_complete": true,
+    "reason": "preparation_complete_but_the_smaller_step_failure_report_and_frozen_feature_diagnosis_are_absent"
+  },
+  "deterministic": true,
+  "distinctness": {
+    "closure_on_failure": "No further co-adaptation retry, larger budget, new loss or encoder swap is authorized; a new predeclared protocol and a new external authorization are required.",
+    "not_a_retry_of": "vision_smaller_step_lr3e5_v1",
+    "predictions": {
+      "frozen_features_insufficient": "The update-batch mean response NLL moves toward the pre-update value or the wider train-fit loss falls while encoder drift stays inside the declared bounds.",
+      "frozen_features_sufficient": "The same loss excursion or the same functional failure recurs while encoder drift stays near zero, which closes frozen-feature insufficiency under this budget."
+    },
+    "retry_of_completed_or_failed_arm": false,
+    "same_encoder_weights": true,
+    "same_forward_and_backward_counts": true,
+    "same_generated_tokens": 3800,
+    "same_loss": true,
+    "same_lr": 3e-05,
+    "same_update_count": 1,
+    "same_update_rows": true,
+    "single_changed_axis": "gradient_scope_encoder_last_block_and_post_layernorm",
+    "why_distinct_hypothesis": "The smaller-step arm asks whether step size alone explains the overshoot while visual features stay frozen. This control asks a different question with a different falsifier: whether the frozen features themselves prevent any learnable projector update. It predicts a bounded encoder drift and a directional loss change that the smaller-step arm cannot produce by construction, so a failure here closes frozen-feature insufficiency under this budget instead of repeating a step-size test.",
+    "why_not_an_expansion": "Nothing that normally accompanies an expansion changes: no encoder swap, no new loss or auxiliary term, no extra data, no extra update, no extra backward call, no extra forward call, no extra generated token, no extra second, no extra byte, no development access and no retry. The only new capability is gradient flow into eighteen already-loaded encoder tensors."
+  },
+  "format": "replica.vision_coadaptation_control.assessment.v1",
+  "gates": {
+    "decision": {
+      "development_authorized_here": false,
+      "development_eligibility": "functional_fit_gate_passed_only",
+      "heldout_authorized": false,
+      "more_coadaptation_authorized": false,
+      "promotion": false,
+      "requires_all_gates": true,
+      "retry_authorized": false,
+      "v0_authorized": false
+    },
+    "functional_fit": {
+      "answer_correct_accuracy_min": 0.07142857142857142,
+      "answer_correct_denominator": 14,
+      "answer_correct_metric": "exact normalized generated answer match; EOS-only and whitespace-only outputs are never correct",
+      "answer_correct_min": 1,
+      "answer_prefill_gold_accuracy_min": 0.07142857142857142,
+      "answer_prefill_gold_min": 1,
+      "caption_quality_metric": "caption token F1 gain and caption semantic descriptor F1 on generated captions",
+      "caption_semantic_f1_min": 0.05,
+      "caption_token_f1_gain_min": 0.1,
+      "correct_vs_noimage_accuracy_margin_min": 0.05,
+      "correct_vs_shuffled_accuracy_margin_min": 0.05,
+      "correct_vs_sibling_accuracy_margin_min": 0.05,
+      "development_on_fail": "closed",
+      "development_on_pass": "requires_new_predeclared_protocol",
+      "empty_text_policy": "separate_eos_only_from_whitespace_only",
+      "eos_only_not_counted_correct": true,
+      "eos_only_rate_max": 0.5,
+      "evaluated_on": "prefix_1 wider training cohort with prefix_0 reference and matched correct/sibling/shuffled/no-image controls",
+      "rank_or_loss_movement_is_not_conversion": true,
+      "status_on_fail": "coadaptation_functional_fit_failed",
+      "whitespace_only_not_counted_correct": true,
+      "whitespace_only_rate_max": 0.1
+    },
+    "optimization": {
+      "backbone_gradient_tensors": 0,
+      "backward_calls": 4,
+      "declared_scope_tensors_only_changed": true,
+      "decoder_gradient_tensors": 0,
+      "delta_definition": "post_minus_pre",
+      "encoder_tensors": 18,
+      "evaluated_on": [
+        "update_batch_pre",
+        "update_batch_post",
+        "prefix_0",
+        "prefix_1"
+      ],
+      "finite_grad_norm": true,
+      "finite_losses": true,
+      "loss_movement_is_not_conversion": true,
+      "max_encoder_abs_update": 0.0001,
+      "max_encoder_delta_l2": 0.25,
+      "max_update_batch_mean_nll_delta": 0.25,
+      "max_wider_answer_mean_nll_delta": 0.25,
+      "max_wider_caption_mean_nll_delta": 0.25,
+      "optimizer_owned_tensors": 24,
+      "optimizer_steps": 1,
+      "projector_tensors": 6,
+      "status_on_fail": "coadaptation_optimization_gate_failed",
+      "update_count": 1
+    }
+  },
+  "model_loads": 0,
+  "name": "vision_coadaptation_control_v1",
+  "native_execution": false,
+  "parent": {
+    "comparison_arm": "vision_smaller_step_lr3e5_v1",
+    "comparison_report": "reports/vision_smaller_step_lr3e5_v1_20261027/report.json",
+    "encoder_swap": false,
+    "model_path": "checkpoints/minicpm5_source",
+    "model_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "vision_source_manifest": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+    "vision_source_manifest_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+    "vision_weights_sha256": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b"
+  },
+  "precondition": {
+    "diagnosis": {
+      "conclusion": null,
+      "path": "reports/vision_smaller_step_frozen_feature_diagnosis_v1_20261027/diagnosis.json",
+      "present": false,
+      "valid": false,
+      "violations": [
+        "diagnosis_report_missing"
+      ]
+    },
+    "eligibility_rule": "the preserved smaller-step report must record optimization_gate_failed or smaller_step_functional_fit_failed and the preserved diagnosis must conclude frozen_backbone_projection_insufficient while excluding step size, labels/masking, accounting, precondition and seed/initialization",
+    "eligible": false,
+    "note": "An engineering stop, a retry, a passing smaller-step arm or a missing diagnosis is not eligibility.",
+    "required": true,
+    "smaller_step_report": {
+      "failure_accepted": false,
+      "path": "reports/vision_smaller_step_lr3e5_v1_20261027/report.json",
+      "present": false,
+      "sha256": null,
+      "status": "absent"
+    }
+  },
+  "protocol": {
+    "output": "runs/vision_coadaptation_control_v1_20261027",
+    "path": "configs/vision_coadaptation_control_v1.json",
+    "report_root": "reports/vision_coadaptation_control_v1_20261027",
+    "sha256": "e25931664441457210cab4500c113da45378641ef934a4b7f10faa93a0d2b922"
+  },
+  "remaining_requirements": [
+    {
+      "blocking": true,
+      "id": "smaller_step_failure_preserved",
+      "owner": "authorized_operator",
+      "requirement": "A preserved smaller-step report must record optimization_gate_failed or smaller_step_functional_fit_failed; no report exists and an engineering stop does not qualify.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "frozen_feature_diagnosis_preserved",
+      "owner": "authorized_operator",
+      "requirement": "A preserved diagnosis must conclude frozen_backbone_projection_insufficient while excluding step size, labels/masking, accounting, precondition and seed/initialization; no diagnosis exists.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "coadaptation_runner_implemented",
+      "owner": "engineer",
+      "requirement": "A separate native runner must implement exactly this scope, loss, data, readouts and identical budget; none is implemented.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "separate_authorization_receipt_issued",
+      "owner": "external_user",
+      "requirement": "A separate external receipt must exist at the co-adaptation receipt path, bind the exact config, authorize native execution and keep every other role false.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "protocol_commit_recorded",
+      "owner": "external_user",
+      "requirement": "The receipt must record a full 40-character commit whose co-adaptation config blob hashes to the receipt config SHA-256.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "review_launch_gate_passed",
+      "owner": "authorized_operator",
+      "requirement": "A review-launch gate equivalent to the smaller-step runner must pass receipt, commit, diagnosis and fresh-output checks before any native import.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "fresh_output_available",
+      "owner": "authorized_operator",
+      "requirement": "runs/vision_coadaptation_control_v1_20261027 must not exist; it is absent now.",
+      "satisfied_by_preparation": true
+    },
+    {
+      "blocking": true,
+      "id": "exclusive_worker_and_capacity_guard",
+      "owner": "authorized_operator",
+      "requirement": "The single exclusive MPS worker and the 50 GiB driver, 512 MiB swap-growth and 15% host-free guard must be proven natively.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "native_execution_within_identical_budget",
+      "owner": "authorized_operator",
+      "requirement": "The native run must stay inside the identical 4824 forwards, 168 visual observations, 4 backward calls, 1 step, 1200 seconds and 33554432 bytes including the report.",
+      "satisfied_by_preparation": false
+    }
+  ],
+  "scope": {
+    "adapted_layer_index": 11,
+    "changed_axis": "gradient_scope_encoder_last_block_and_post_layernorm",
+    "decoder_gradient_tensors": 0,
+    "encoder_parameter_count": 7089408,
+    "encoder_tensors": 18,
+    "encoder_update_bounds": {
+      "max_abs_update": 0.0001,
+      "max_delta_l2": 0.25
+    },
+    "optimizer_owned_tensors": 24,
+    "projector_parameter_count": 11542016,
+    "projector_tensors": 6,
+    "single_axis": {
+      "changed_block": "gradient_scope",
+      "unchanged_blocks": [
+        "prepared",
+        "schedule",
+        "initialization",
+        "optimizer",
+        "update_batch",
+        "readouts",
+        "accounting",
+        "limits",
+        "policy",
+        "access"
+      ]
+    },
+    "trainable_parameter_count": 18631424,
+    "trainable_tensors": [
+      "vision_projector.0.weight",
+      "vision_projector.0.bias",
+      "vision_projector.1.weight",
+      "vision_projector.1.bias",
+      "vision_projector.3.weight",
+      "vision_projector.3.bias",
+      "vision_model.encoder.layers.11.self_attn.q_proj.weight",
+      "vision_model.encoder.layers.11.self_attn.q_proj.bias",
+      "vision_model.encoder.layers.11.self_attn.k_proj.weight",
+      "vision_model.encoder.layers.11.self_attn.k_proj.bias",
+      "vision_model.encoder.layers.11.self_attn.v_proj.weight",
+      "vision_model.encoder.layers.11.self_attn.v_proj.bias",
+      "vision_model.encoder.layers.11.self_attn.out_proj.weight",
+      "vision_model.encoder.layers.11.self_attn.out_proj.bias",
+      "vision_model.encoder.layers.11.layer_norm1.weight",
+      "vision_model.encoder.layers.11.layer_norm1.bias",
+      "vision_model.encoder.layers.11.layer_norm2.weight",
+      "vision_model.encoder.layers.11.layer_norm2.bias",
+      "vision_model.encoder.layers.11.mlp.fc1.weight",
+      "vision_model.encoder.layers.11.mlp.fc1.bias",
+      "vision_model.encoder.layers.11.mlp.fc2.weight",
+      "vision_model.encoder.layers.11.mlp.fc2.bias",
+      "vision_model.post_layernorm.weight",
+      "vision_model.post_layernorm.bias"
+    ]
+  },
+  "version": "1"
+}

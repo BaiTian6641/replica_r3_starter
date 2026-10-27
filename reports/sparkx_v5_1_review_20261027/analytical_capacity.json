@@ -1,0 +1,271 @@
+{
+  "kind": "analytical_partial_payload_not_latency_or_fit",
+  "expert_parameters": 786432,
+  "record_bytes": {
+    "compact": 3328,
+    "hot": 32768,
+    "entity": 896
+  },
+  "profiles": {
+    "mini_P32": {
+      "P_parameters": 25165824,
+      "P_weight_mib": 96.0,
+      "P_two_moment_mib": 192.0,
+      "P_live_mib": 288.0,
+      "E2_payload_mib": 24.5,
+      "two_global_dense_query_MAC": 4194304,
+      "P_plus_E2_payload_mib": 312.5,
+      "selected_two_expert_weight_moment_gradient_staging_mib": 24.0,
+      "mutable_envelope_mib": 512,
+      "separate_replay_envelope_mib": 128,
+      "measured_fit": false
+    },
+    "spark_P64": {
+      "P_parameters": 50331648,
+      "P_weight_mib": 192.0,
+      "P_two_moment_mib": 384.0,
+      "P_live_mib": 576.0,
+      "E2_payload_mib": 130.0,
+      "two_global_dense_query_MAC": 16777216,
+      "P_plus_E2_payload_mib": 706.0,
+      "selected_two_expert_weight_moment_gradient_staging_mib": 24.0,
+      "mutable_envelope_mib": 1024,
+      "separate_replay_envelope_mib": 256,
+      "measured_fit": false
+    },
+    "spark_P128_stretch": {
+      "P_parameters": 100663296,
+      "P_weight_mib": 384.0,
+      "P_two_moment_mib": 768.0,
+      "P_live_mib": 1152.0,
+      "E2_payload_mib": 130.0,
+      "two_global_dense_query_MAC": 16777216,
+      "P_plus_E2_payload_mib": 1282.0,
+      "selected_two_expert_weight_moment_gradient_staging_mib": 24.0,
+      "mutable_envelope_mib": 2048,
+      "separate_replay_envelope_mib": 512,
+      "measured_fit": false
+    }
+  },
+  "wide_P16_parameters": 50331648,
+  "P_expert_matrix_MAC_per_position_at_9_sites": {
+    "2": 14155776,
+    "4": 28311552,
+    "16": 113246208,
+    "64": 452984832
+  },
+  "reader_packets_max": 200,
+  "projected_reader_KV_mib": {
+    "7": 2.734375,
+    "9": 3.515625
+  },
+  "Mkv": {
+    "value_parameters": 16777216,
+    "value_weight_mib": 64.0,
+    "value_two_moment_mib": 128.0,
+    "value_live_mib": 192.0,
+    "fixed_product_key_parameters": 32768,
+    "fixed_product_key_FP32_mib": 0.125,
+    "dense_gradient_fallback_mib": 64.0,
+    "subkey_score_MAC_per_query": 32768,
+    "joint_candidates": 64,
+    "selected_row_weight_moment_gradient_staging_mib": 1.0
+  },
+  "Mkv_growth": {
+    "65536": {
+      "value_parameters": 16777216,
+      "FP32_values_two_moments_mib": 192.0,
+      "subkeys_per_half": 256,
+      "subkey_score_MAC_per_query": 32768
+    },
+    "262144": {
+      "value_parameters": 67108864,
+      "FP32_values_two_moments_mib": 768.0,
+      "subkeys_per_half": 512,
+      "subkey_score_MAC_per_query": 65536
+    },
+    "1048576": {
+      "value_parameters": 268435456,
+      "FP32_values_two_moments_mib": 3072.0,
+      "subkeys_per_half": 1024,
+      "subkey_score_MAC_per_query": 131072
+    }
+  },
+  "nonlinear_F_candidate": {
+    "parameters": 6291456,
+    "FP32_weight_mib": 24,
+    "same_size_velocity_mib": 24
+  },
+  "P64_rate_scalars": 192,
+  "P64_full_parameterwise_rate_FP32_mib": 192.0,
+  "AV_16s_example_positions": {
+    "coarse": 1320.0,
+    "two_extra_crops": 1832.0
+  },
+  "residency_inventory": {
+    "kind": "analytical_partial_residency_not_measured_fit_or_training_admission",
+    "measured_fit": false,
+    "full_training_qualified": false,
+    "components": {
+      "base_backbone_bf16_storage": {
+        "parameter_elements": 4112079360,
+        "bytes_per_element": 2,
+        "mib": 7843.1689453125,
+        "precision": "official_bf16",
+        "evidence_class": "measured_native",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_backbone_fp32_weights": {
+        "parameter_elements": 4112079360,
+        "bytes_per_element": 4,
+        "mib": 15686.337890625,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_backbone_fp32_gradients": {
+        "parameter_elements": 4112079360,
+        "bytes_per_element": 4,
+        "mib": 15686.337890625,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_backbone_fp32_adam_moments": {
+        "parameter_elements": 4112079360,
+        "bytes_per_element": 8,
+        "mib": 31372.67578125,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "vision_projector_1152_1024_2560": {
+        "parameter_elements": 3804672,
+        "bytes_per_element": 12,
+        "mib": 43.541015625,
+        "precision": "training_fp32_weights_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "P16_historical": {
+        "parameter_elements": 12582912,
+        "bytes_per_element": 12,
+        "mib": 144.0,
+        "precision": "training_fp32_weights_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "P32": {
+        "parameter_elements": 25165824,
+        "bytes_per_element": 12,
+        "mib": 288.0,
+        "precision": "training_fp32_weights_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "P64": {
+        "parameter_elements": 50331648,
+        "bytes_per_element": 12,
+        "mib": 576.0,
+        "precision": "training_fp32_weights_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "P128_stretch": {
+        "parameter_elements": 100663296,
+        "bytes_per_element": 12,
+        "mib": 1152.0,
+        "precision": "training_fp32_weights_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "Mkv_4k_values_and_moments": {
+        "parameter_elements": 1048576,
+        "bytes_per_element": 12,
+        "mib": 12.0,
+        "precision": "training_fp32_values_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "Mkv_64k_values_and_moments": {
+        "parameter_elements": 16777216,
+        "bytes_per_element": 12,
+        "mib": 192.0,
+        "precision": "training_fp32_values_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "Mkv_fixed_product_keys": {
+        "parameter_elements": 32768,
+        "bytes_per_element": 4,
+        "mib": 0.125,
+        "precision": "training_fp32_fixed_keys",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "Mkv_nine_query_projections": {
+        "parameter_elements": 294912,
+        "bytes_per_element": 4,
+        "mib": 1.125,
+        "precision": "training_fp32_fixed_projections",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "selected_two_expert_update_staging": {
+        "parameter_elements": 1572864,
+        "bytes_per_element": 16,
+        "mib": 24.0,
+        "precision": "training_fp32_weight_moment_gradient",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "selected_256_row_Mkv_staging": {
+        "parameter_elements": 65536,
+        "bytes_per_element": 16,
+        "mib": 1.0,
+        "precision": "training_fp32_row_weight_moment_gradient",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      }
+    },
+    "unsealed": {
+      "retained_vision_tower_so400m": "unsealed",
+      "activations": "not_measured",
+      "restart_transient_full_checkpoint_copy": "not_measured",
+      "variable_literal_media_payloads": "not_measured"
+    },
+    "restart_transients": {
+      "rule": "duplicate the live state during checkpoint write/reload; do not treat paging as free residency",
+      "selected_two_expert_update_staging_mib": 24,
+      "selected_256_row_Mkv_staging_mib": 1,
+      "small_bank_restart_evidence": "independent 16-expert continuation matched weights, optimizer state and clocks",
+      "full_model_restart_measured": false
+    }
+  },
+  "exclusions": [
+    "unsealed stable encoders and heads",
+    "decoder KV",
+    "activations",
+    "teacher snapshots/logits",
+    "variable literal/media payloads",
+    "indices and journals",
+    "allocator/kernel temporaries",
+    "full candidate copies beyond selected staging",
+    "measured sparse-kernel bandwidth"
+  ]
+}

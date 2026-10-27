@@ -1,5 +1,7 @@
 # SparkX 2.6 4B: nested-learning review
 
+**Current direction:** [the reviewed v5.1 plan](../../architecture/24_SparkX_2_6_v5_1_Refinement_Plan.md) expands learning capacity, corrects optimizer/distillation claims and makes F optional. [The MiniCPM program](../../architecture/25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md) preserves existing NL IDs and adds new studies. The revision 4.5 tables below are historical controls, not the current expanded capacity profile. Existing executable contracts remain in force.
+
 **26 October 2026 · Architecture revision 4.5 companion · Design review, not a trained capability.**
 
 ## Quick reading
@@ -29,7 +31,7 @@ The revised product has three practical learning speeds: observation-level assoc
 4. [Audit report](../../../reports/sparkx_nested_learning_20261026/README.md): repository observations, source hashes and resource corrections.
 5. [Machine-readable candidate](../../../configs/sparkx_2_6_4b_nested_learning_v1.json): research specification; not a runnable training configuration.
 
-The [consolidated product plan](../../architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md) remains the entry point. [State and RSI contracts](../../architecture/22_State_Mechanism_and_RSI_Contracts.md) continue to govern ownership, transactions and promotion. This companion refines their learning algorithm and evidence requirements; it does not replace them.
+The [unified v5.1 blueprint](../../architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md) is the current entry point. [State and RSI contracts](../../architecture/22_State_Mechanism_and_RSI_Contracts.md) continue to govern ownership, transactions and promotion. This companion refines their learning algorithm and evidence requirements; it does not replace them.
 
 ## Current evidence
 

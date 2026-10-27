@@ -648,6 +648,134 @@ FINAL_PRODUCT_INPUT_ROLES: list[tuple[str, str]] = [
         "tracked pinned Spark modeling code",
     ),
     (
+        "docs/architecture/18_MiniCPM5_Vision_Training_and_Continual_Learning.md",
+        "v5.1 MiniCPM direction pointer with historical V0-V4 material",
+    ),
+    (
+        "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+        "v5.1-reviewed revision-4.5 consolidated plan with historical receipts",
+    ),
+    (
+        "docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
+        "v5.1-reviewed state, transaction and RSI contracts with pending Mkv namespace",
+    ),
+    (
+        "docs/architecture/24_SparkX_2_6_v5_1_Refinement_Plan.md",
+        "v5.1 refinement, residency inventory and staged learning plan",
+    ),
+    (
+        "docs/architecture/25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md",
+        "v5.1 MiniCPM direction-correction and capacity program",
+    ),
+    (
+        "docs/architecture/README.md",
+        "v5.1 architecture index",
+    ),
+    (
+        "docs/research/sparkx_nested_learning_20261026/README.md",
+        "v5.1 nested-learning direction pointer",
+    ),
+    (
+        "configs/sparkx_2_6_v5_1_direction_design.json",
+        "v5.1 declarative design, residency inventory and staging gates",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/README.md",
+        "v5.1 review report and verification scope",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/migration_manifest.json",
+        "v5.1 reviewed old/new identity and arithmetic migration manifest",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/native_gates.json",
+        "v5.1 unresolved native-gate register",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/deliverables.json",
+        "v5.1 authored-output hash pins",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/analytical_capacity.json",
+        "v5.1 analytical capacity and residency ledger",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/calculate_capacity.py",
+        "v5.1 analytical calculator",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/verify.py",
+        "v5.1 portable document, arithmetic and migration verifier",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/repository_snapshot.json",
+        "v5.1 preserved-input snapshot",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/evidence.json",
+        "v5.1 primary-source manifest",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/claim_dispositions.json",
+        "v5.1 C1-C16 disposition register",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/attachment_reference_inventory.json",
+        "v5.1 attachment reference inventory",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/inputs/attachment_v5_1_draft.txt",
+        "preserved v5.1 draft source material",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/inputs/00_23_SparkX_2_6_4B_Final_Product_Blueprint.txt",
+        "preserved pre-change blueprint v5.0 snapshot",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/inputs/01_18_MiniCPM5_Vision_Training_and_Continual_Learning.txt",
+        "preserved pre-change MiniCPM vision snapshot",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/inputs/02_22_State_Mechanism_and_RSI_Contracts.txt",
+        "preserved pre-change state/RSI snapshot",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/inputs/03_README.txt",
+        "preserved pre-change architecture index snapshot",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/inputs/04_21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.txt",
+        "preserved pre-change revision-4.5 snapshot",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/inputs/05_README.txt",
+        "preserved pre-change nested-learning guide snapshot",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/inputs/06_20261027_Remediation_and_Next_Steps.txt",
+        "preserved remediation experiment snapshot",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/inputs/07_20261026_Memory_Bank_Readout_Hypothesis.txt",
+        "preserved exact-bank readout snapshot",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/inputs/08_20261026_Nested_Text_Response_Diagnostic_Budget02.txt",
+        "preserved response-diagnostic snapshot",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/inputs/09_20261026_Nested_Text_Independent_Continuation.txt",
+        "preserved independent-continuation snapshot",
+    ),
+    (
+        "reports/sparkx_v5_1_review_20261027/inputs/10_sparkx_2_6_4b_final_product_v5.txt",
+        "preserved historical v5 configuration snapshot",
+    ),
+    (
+        "tests/test_sparkx_v5_1_review.py",
+        "v5.1 clean-checkout and tamper tests",
+    ),
+    (
         "tests/test_sparkx_final_product.py",
         "portable verifier, evidence-tamper and manifest tests",
     ),

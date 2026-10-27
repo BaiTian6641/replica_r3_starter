@@ -1,0 +1,617 @@
+{
+  "schema": "sparkx-v5.1-direction-design-1",
+  "date": "2026-10-27",
+  "status": "design_only",
+  "executable": false,
+  "runtime_admission_changed": false,
+  "historical_control": "configs/sparkx_2_6_4b_final_product_v5.json",
+  "original_backbone_parameters": 4112079360,
+  "mini_original_backbone_parameters": 2516756480,
+  "stable_at_deployment": [
+    "original_backbone",
+    "encoders",
+    "bridges",
+    "native_readers_writers",
+    "initial_routing_policy"
+  ],
+  "offline_multimodal_training": "full_finetuning",
+  "F2_online_memory_updates": 0,
+  "vision": {
+    "candidate": "google/siglip2-so400m-patch16-naflex",
+    "revision": "cc24074f717b612951c2dead130904ab9b65a81e",
+    "hidden_size": 1152,
+    "processor_default_max_patches": 256,
+    "candidate_override_max_patches": 1024,
+    "candidate_merge": [
+      2,
+      2
+    ],
+    "vision_only_parameter_count": "unsealed",
+    "spark_projector": [
+      1152,
+      1024,
+      2560
+    ],
+    "mini_projector": [
+      1152,
+      1024,
+      2048
+    ]
+  },
+  "audio": {
+    "candidate": "marcoyang/spear-base-speech-audio-v2",
+    "internal_hz_approx": 50,
+    "model_hz_controls": [
+      10,
+      12.5,
+      25
+    ],
+    "default_streaming_claim": false
+  },
+  "plastic": {
+    "input_width": 256,
+    "hidden_width": 1024,
+    "bias": false,
+    "matrices": 3,
+    "active_experts_controls": [
+      2,
+      4
+    ],
+    "dense_read_control": 16,
+    "max_updated_experts_per_pool_per_transaction": 1,
+    "profiles": {
+      "mini_P32": {
+        "experts": 32,
+        "fast": 16,
+        "slow": 16,
+        "records": 4096,
+        "hot_records": 256,
+        "entities": 4096,
+        "mutable_envelope_mib": 512,
+        "replay_envelope_mib": 128
+      },
+      "spark_P64": {
+        "experts": 64,
+        "fast": 16,
+        "slow": 48,
+        "records": 16384,
+        "hot_records": 2048,
+        "entities": 16384,
+        "mutable_envelope_mib": 1024,
+        "replay_envelope_mib": 256
+      },
+      "spark_P128_stretch": {
+        "experts": 128,
+        "fast": 32,
+        "slow": 96,
+        "records": 16384,
+        "hot_records": 2048,
+        "entities": 16384,
+        "mutable_envelope_mib": 2048,
+        "replay_envelope_mib": 512
+      }
+    },
+    "P64_balanced_split_control": [
+      32,
+      32
+    ],
+    "wide_capacity_control": {
+      "experts": 16,
+      "input_width": 512,
+      "hidden_width": 2048
+    },
+    "optimizer_reference": "NativeFusedAdamW_FP32_carry_m_v",
+    "optimizer_comparators": [
+      "reset_both_event_local",
+      "reset_m_carry_v_two_bias_clocks",
+      "frozen_v_separate_recipe",
+      "SGD_requires_separate_admission"
+    ],
+    "steps_per_event_controls": [
+      1,
+      2,
+      4
+    ],
+    "historical_one_clock_steps_per_event": 1,
+    "slow_event_interval_controls": [
+      8,
+      16,
+      64
+    ],
+    "slow_event_interval_initial": 16
+  },
+  "Mkv": {
+    "status": "separate_experimental_branch",
+    "smoke_rows": 4096,
+    "rows": 65536,
+    "value_width": 256,
+    "subkey_tables": 2,
+    "subkeys_per_table": 256,
+    "subkey_width": 64,
+    "read_top_k": 8,
+    "online_trainable": "values_only",
+    "fixed_online": [
+      "keys",
+      "query_projection",
+      "output_projection"
+    ],
+    "shared_across_sites": true,
+    "optimizer_residency": "count_full_FP32_values_and_two_moments",
+    "sparse_optimizer_qualified": false,
+    "background_statistics": "training_only",
+    "mini_combined_mutable_envelope_mib": 768,
+    "max_unique_updated_rows_per_transaction": 256,
+    "write_row_budget_controls": [
+      64,
+      256,
+      1024
+    ],
+    "later_row_capacity_controls": [
+      65536,
+      262144,
+      1048576
+    ],
+    "growth_requires_new_profile_and_migration": true
+  },
+  "E2": {
+    "address_keys": 4,
+    "key_width": 128,
+    "semantic_width": 256,
+    "visual_compact": [
+      2,
+      128
+    ],
+    "audio_compact": [
+      2,
+      128
+    ],
+    "feature_bytes": 2,
+    "metadata_bytes": 512,
+    "lexical_hashes": 8,
+    "hash_bytes": 8,
+    "entity_refs": 4,
+    "entity_ref_bytes": 16,
+    "literal_ids": 32,
+    "literal_id_bytes": 4,
+    "hot_visual": [
+      16,
+      512
+    ],
+    "hot_audio": [
+      16,
+      512
+    ],
+    "entity_modal_keys": [
+      3,
+      128
+    ],
+    "entity_metadata_bytes": 128,
+    "max_selected_records": 16,
+    "compact_read_packets": 64,
+    "hot_visual_read_packets": 64,
+    "hot_audio_read_packets": 64,
+    "workspace_read_packets": 8,
+    "packet_width": 512,
+    "literal_read_position_cap": 512,
+    "max_global_dense_queries_per_decision": 2
+  },
+  "ports": {
+    "spark_P": [
+      3,
+      7,
+      11,
+      15,
+      19,
+      23,
+      27,
+      31,
+      35
+    ],
+    "spark_E_single_pass": [
+      11,
+      15,
+      19,
+      23,
+      27,
+      31,
+      35
+    ],
+    "mini_initial_active": [
+      13,
+      27
+    ],
+    "mini_observer": 41,
+    "single_pass_status": "candidate_requires_trained_query_completion_barrier",
+    "two_pass": "historical_control_retained"
+  },
+  "nested": {
+    "F_default_required": false,
+    "first_outer_estimator": "first_order_initialization_only",
+    "learned_rates_candidate": "three_offline_scalars_per_expert_with_explicit_update_gradient",
+    "self_distillation": "on_policy_prefix_forward_KL_teacher_to_student",
+    "teacher": "detached_preupdate_dynamic_snapshot_shared_stable_backbone",
+    "source_free_outer_fraction_controls": [
+      0,
+      0.25,
+      0.5
+    ],
+    "max_pending_slow_jobs": 1
+  },
+  "vocabulary": {
+    "base_ids_unchanged": 131072,
+    "active_phrase_rows": 256,
+    "durable_identity": "concept_uid_and_lexeme_uid",
+    "swap_boundary": "generation_boundary"
+  },
+  "precision_identities": {
+    "official_bf16": {
+      "id": "spark_x2_6_4b_official_bf16",
+      "storage_dtype": "BF16",
+      "release": "XHToken/Spark-X2.6-4B",
+      "revision": "bf16_06",
+      "parameter_elements": 4112079360,
+      "native_execution": true,
+      "execution_evidence": "load_then_export_reload_with_zero_logit_difference",
+      "output_equivalence_across_arms_claimed": false,
+      "full_training_qualified": false
+    },
+    "official_fp8_storage": {
+      "id": "spark_x2_6_4b_official_fp8_storage",
+      "storage_dtype": "FP8",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "native_execution": false,
+      "execution_status": "refused_on_mps_never_executed",
+      "full_training_qualified": false
+    },
+    "dequantized_fp8_derivative": {
+      "id": "spark_x2_6_4b_derivative_02",
+      "storage_dtype": "BF16",
+      "source_revision": "c52c6cc5e6aababa94105cf4612a09013cffd841c71d53d16356e6dc49966882",
+      "per_token_f8_quantization": false,
+      "native_execution": false,
+      "execution_evidence": "export_and_reload_only",
+      "is_official_bf16_release": false,
+      "is_official_fp8_storage": false,
+      "full_training_qualified": false
+    },
+    "native_fp8_execution": {
+      "id": "spark_native_fp8_execution",
+      "executed": false,
+      "status": "never_executed_refused_on_mps",
+      "precision_equivalence_claimed": false,
+      "full_training_qualified": false
+    },
+    "training_stack": {
+      "optimizer": "NativeFusedAdamW",
+      "parameter_and_optimizer_state_ownership": "FP32",
+      "bf16_source_or_autocast_is_not_bf16_residency": true,
+      "fp8_inference_is_not_fp8_training": true,
+      "full_training_qualified": false
+    }
+  },
+  "residency_inventory": {
+    "scope": "analytical partial payload and explicit unsealed components; not measured fit or a full-training admission",
+    "measured_fit": false,
+    "full_training_qualified": false,
+    "components": {
+      "base_backbone_bf16_storage": {
+        "parameter_elements": 4112079360,
+        "bytes_per_element": 2,
+        "precision": "official_bf16",
+        "evidence_class": "measured_native",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_backbone_fp32_weights": {
+        "parameter_elements": 4112079360,
+        "bytes_per_element": 4,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_backbone_fp32_gradients": {
+        "parameter_elements": 4112079360,
+        "bytes_per_element": 4,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_backbone_fp32_adam_moments": {
+        "parameter_elements": 4112079360,
+        "bytes_per_element": 8,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "vision_projector_1152_1024_2560": {
+        "parameter_elements": 3804672,
+        "bytes_per_element": 12,
+        "precision": "training_fp32_weights_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "P16_historical": {
+        "parameter_elements": 12582912,
+        "bytes_per_element": 12,
+        "precision": "training_fp32_weights_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "P32": {
+        "parameter_elements": 25165824,
+        "bytes_per_element": 12,
+        "precision": "training_fp32_weights_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "P64": {
+        "parameter_elements": 50331648,
+        "bytes_per_element": 12,
+        "precision": "training_fp32_weights_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "P128_stretch": {
+        "parameter_elements": 100663296,
+        "bytes_per_element": 12,
+        "precision": "training_fp32_weights_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "Mkv_4k_values_and_moments": {
+        "parameter_elements": 1048576,
+        "bytes_per_element": 12,
+        "precision": "training_fp32_values_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "Mkv_64k_values_and_moments": {
+        "parameter_elements": 16777216,
+        "bytes_per_element": 12,
+        "precision": "training_fp32_values_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "Mkv_fixed_product_keys": {
+        "parameter_elements": 32768,
+        "bytes_per_element": 4,
+        "precision": "training_fp32_fixed_keys",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "Mkv_nine_query_projections": {
+        "parameter_elements": 294912,
+        "bytes_per_element": 4,
+        "precision": "training_fp32_fixed_projections",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "selected_two_expert_update_staging": {
+        "parameter_elements": 1572864,
+        "bytes_per_element": 16,
+        "precision": "training_fp32_weight_moment_gradient",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "selected_256_row_Mkv_staging": {
+        "parameter_elements": 65536,
+        "bytes_per_element": 16,
+        "precision": "training_fp32_row_weight_moment_gradient",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      }
+    },
+    "unsealed_components": {
+      "retained_vision_tower_so400m": {
+        "parameter_elements": null,
+        "precision": "BF16_candidate",
+        "evidence_class": "unsealed",
+        "reason": "the public aggregate includes a text tower; audit installed vision tensors before sealing a total"
+      },
+      "activations": {
+        "bytes": null,
+        "evidence_class": "not_measured",
+        "reason": "sequence, modality, replay and teacher passes change activation residency; no measured profile exists"
+      },
+      "restart_transient_full_checkpoint_copy": {
+        "bytes": null,
+        "evidence_class": "not_measured",
+        "reason": "charge a full live-state copy plus allocator, journal and staging transients and measure per checkpoint"
+      },
+      "variable_literal_media_payloads": {
+        "bytes": null,
+        "evidence_class": "not_measured",
+        "reason": "canonical bytes, indices and journals carry separate quotas"
+      }
+    },
+    "restart_transients": {
+      "rule": "duplicate the live state during checkpoint write/reload; do not treat paging as free residency",
+      "selected_two_expert_update_staging_mib": 24,
+      "selected_256_row_Mkv_staging_mib": 1,
+      "small_bank_restart_evidence": "independent 16-expert continuation matched weights, optimizer state and clocks",
+      "full_model_restart_measured": false
+    }
+  },
+  "staging": {
+    "order": [
+      "small_useful_learner",
+      "P16_historical_control",
+      "P32",
+      "P64",
+      "Mkv_4k_smoke",
+      "Mkv_64k",
+      "P_plus_Mkv"
+    ],
+    "preconditions": {
+      "P32_requires": [
+        "small_useful_learner"
+      ],
+      "P64_requires": [
+        "P32_learning_or_retention_improvement_at_fixed_active_work_or_lower_cost_at_matched_quality"
+      ],
+      "Mkv_4k_requires": [
+        "small_useful_learner",
+        "native_disabled_parity",
+        "declared_sparse_optimizer_contract"
+      ],
+      "Mkv_64k_requires": [
+        "Mkv_4k_mechanism_pass",
+        "measured_actual_allocation"
+      ],
+      "P_plus_Mkv_requires": [
+        "independent_P_signal",
+        "independent_Mkv_signal"
+      ]
+    },
+    "sparse_preconditions": {
+      "inactive_rows_immutable_under_momentum_and_decay": true,
+      "optimizer_state_preservation_required": true,
+      "duplicate_index_gradient_aggregation_required": true,
+      "per_row_step_clocks_required": true,
+      "restart_semantics_required": true,
+      "actual_allocation_and_staging_measurement_required": true,
+      "dense_gradient_fallback_charged_until_qualified": true,
+      "newly_trainable_keys_or_projections_require_separate_protocol": true
+    },
+    "data_lineage": {
+      "split_units": [
+        "independent_world",
+        "source_document",
+        "entity_family",
+        "audio_clip_or_speaker",
+        "video_scene"
+      ],
+      "derived_examples_inherit_source_split": true,
+      "audit_sealed_before_selection": true,
+      "audit_recycling_prohibited": true,
+      "development_commit_probes_are_not_heldout_proof": true
+    }
+  },
+  "learning_dependency_order": [
+    {
+      "order": 1,
+      "id": "small_useful_inner_learner",
+      "requires": [
+        "fixed_initialization",
+        "post_teaching_new_instance_gain"
+      ],
+      "declares": [
+        "inner_protocol",
+        "trainable_groups",
+        "step_count",
+        "replay_policy"
+      ]
+    },
+    {
+      "order": 2,
+      "id": "teacher_competence_and_work_declaration",
+      "requires": [
+        "small_useful_inner_learner"
+      ],
+      "declares": [
+        "teacher_competence_check",
+        "teacher_forward_positions",
+        "student_rollouts",
+        "replay_passes",
+        "evaluation_positions",
+        "target_checking_work"
+      ]
+    },
+    {
+      "order": 3,
+      "id": "gradient_approximation_declaration",
+      "requires": [
+        "teacher_competence_and_work_declaration"
+      ],
+      "declares": [
+        "first_order_identity_jacobian_or_exact_short_unroll_or_truncated_unroll",
+        "omitted_derivative_path"
+      ]
+    },
+    {
+      "order": 4,
+      "id": "outer_loop_training",
+      "requires": [
+        "gradient_approximation_declaration",
+        "single_clock_control"
+      ],
+      "declares": [
+        "outer_episode_support_future_query_split",
+        "source_free_fraction",
+        "retention_endpoint"
+      ]
+    },
+    {
+      "order": 5,
+      "id": "multiple_clocks",
+      "requires": [
+        "single_clock_control",
+        "equal_total_parameter_and_work_control"
+      ],
+      "declares": [
+        "clock_objectives",
+        "transition_rules",
+        "slow_pool_population_rule"
+      ]
+    },
+    {
+      "order": 6,
+      "id": "self_distillation",
+      "requires": [
+        "teacher_competence_check_passed",
+        "all_teacher_rollout_replay_evaluation_work_declared"
+      ],
+      "declares": [
+        "forward_KL_primary_and_reverse_KL_separate_arm",
+        "teacher_snapshot_identity"
+      ]
+    },
+    {
+      "order": 7,
+      "id": "rsi_policy_improvement",
+      "requires": [
+        "verified_single_clock_and_multi_clock_evidence",
+        "no_verifier_source_label_or_promotion_self_modification"
+      ],
+      "declares": [
+        "independent_learning_episode_work_at_equal_cost",
+        "separate_evaluation_roles"
+      ]
+    }
+  ],
+  "personality": {
+    "specified_separately": true,
+    "evaluated_separately": true,
+    "status": "pending_user_description",
+    "inferred_from_research_or_affect_labels": false
+  },
+  "references": {
+    "migration_manifest": "reports/sparkx_v5_1_review_20261027/migration_manifest.json",
+    "native_gates": "reports/sparkx_v5_1_review_20261027/native_gates.json",
+    "review": "reports/sparkx_v5_1_review_20261027/README.md",
+    "blueprint": "docs/architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md",
+    "reviewed_plan": "docs/architecture/24_SparkX_2_6_v5_1_Refinement_Plan.md",
+    "mini_plan": "docs/architecture/25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md",
+    "historical_control": "configs/sparkx_2_6_4b_final_product_v5.json"
+  },
+  "deferred": [
+    "per_layer_unique_banks",
+    "online_backbone_updates",
+    "automatic_runtime_expert_growth",
+    "autonomous_verifier_modification"
+  ]
+}

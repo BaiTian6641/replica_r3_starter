@@ -45,6 +45,8 @@ def _fit(args) -> int:
     _print({"status": result["status"], "output": result["output"],
             "receipt_sha256": result["receipt"]["receipt_sha256"],
             "optimizer_steps": 24,
+            "physical_work": result["physical_work"],
+            "resume_evidence": result["resume_evidence"],
             "control_fits": result["fit_report"]["control_fits"]})
     return 0 if result["status"] == "passed" else 4
 
@@ -71,8 +73,15 @@ def _all(args) -> int:
     root = Path(args.output)
     root.mkdir(parents=True, exist_ok=True)
     fit_root = root / "fit"
-    fit = run_fit(args.prepared, args.config, fit_root,
-                  interrupt_after=args.interrupt_after, resume=args.resume)
+    try:
+        fit = run_fit(args.prepared, args.config, fit_root,
+                      interrupt_after=args.interrupt_after,
+                      resume=args.resume)
+    except RunInterrupted as interrupted:
+        _print({"status": "interrupted",
+                "completed_updates": interrupted.completed_updates,
+                "resume": str(interrupted.resume_path)})
+        return 3
     if fit["status"] != "passed":
         _print({"status": "stopped_at_fit", "fit": fit["status"]})
         return 4

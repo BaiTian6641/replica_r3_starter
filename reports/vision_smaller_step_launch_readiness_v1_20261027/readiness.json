@@ -1,0 +1,408 @@
+{
+  "authorization": {
+    "closed_roles_respected": null,
+    "commit_bound": false,
+    "config_sha256_bound": false,
+    "inspected_existing_receipts": [
+      {
+        "binds_subject_config": false,
+        "config_sha256": "8487e1c4cc9b4b818b7d46513daa5c149bfc1e2a8af2bd8dcdac787d3f2827b8",
+        "path": "reports/remediation_20261027/vision_learnability_step1_authorization.json",
+        "protocol_commit": "dfe39a077269e11f328895c9a20ff2e3cca337a3",
+        "protocol_name": "vision_learnability_step1_reproduction_v1",
+        "status": "authorized"
+      },
+      {
+        "binds_subject_config": false,
+        "config_sha256": "8487e1c4cc9b4b818b7d46513daa5c149bfc1e2a8af2bd8dcdac787d3f2827b8",
+        "path": "reports/remediation_20261027/vision_learnability_step1_authorization_attempt02.json",
+        "protocol_commit": "dfe39a077269e11f328895c9a20ff2e3cca337a3",
+        "protocol_name": "vision_learnability_step1_reproduction_v1",
+        "status": "authorized"
+      },
+      {
+        "binds_subject_config": false,
+        "config_sha256": "b7bb9ded894ba053fa17f380a408697317b8d6862a4cac53c8b8f6ec80b1e32a",
+        "path": "reports/remediation_20261027/vision_learnability_step1_authorization_attempt03.json",
+        "protocol_commit": "ca8669b90ce394581cdf3ecbf6709226439898c9",
+        "protocol_name": "vision_learnability_step1_reproduction_v1",
+        "status": "authorized"
+      }
+    ],
+    "native_execution_authorized": false,
+    "note": "The readiness checker never mints or infers a receipt.",
+    "path": "reports/vision_smaller_step_lr3e5_v1_20261027/authorization.json",
+    "present": false,
+    "protocol_commit": null,
+    "receipt_sha256": null,
+    "status": "absent",
+    "violations": [
+      "authorization_receipt_missing"
+    ]
+  },
+  "authorization_created": false,
+  "checks": [
+    {
+      "id": "declaration_schema",
+      "requirement": "readiness declaration matches its declared schema",
+      "status": "passed"
+    },
+    {
+      "id": "protocol_config_sha256",
+      "requirement": "the exact lr 3e-05 protocol bytes are bound",
+      "status": "passed"
+    },
+    {
+      "id": "packet_current",
+      "requirement": "the launch packet recomputes from the repository with no drift",
+      "status": "passed"
+    },
+    {
+      "id": "packet_subject_binding",
+      "requirement": "packet protocol, lr, completed lr and update batch match the declaration",
+      "status": "passed"
+    },
+    {
+      "id": "preserved_limits",
+      "requirement": "4824 decoder forwards, 168 visual observations, 4 backward calls, 1 optimizer step, 1200 seconds and 33554432 artifact bytes including the report",
+      "status": "passed"
+    },
+    {
+      "id": "preserved_campaign_accounting",
+      "requirement": "campaign cumulative accounting matches the protocol",
+      "status": "passed"
+    },
+    {
+      "id": "preserved_optimization_gate",
+      "requirement": "the 0.25 nat optimization gate and projector-only scope are unchanged",
+      "status": "passed"
+    },
+    {
+      "id": "preserved_functional_fit_gate",
+      "requirement": "generated-answer, caption, control-margin, EOS-only and whitespace-only gates are unchanged",
+      "status": "passed"
+    },
+    {
+      "id": "preserved_decision_closure",
+      "requirement": "development, held-out, V0, promotion and retry remain closed",
+      "status": "passed"
+    },
+    {
+      "id": "preserved_raw_generation",
+      "requirement": "all raw generation and control evidence paths, counts and empty-text rules are preserved",
+      "status": "passed"
+    },
+    {
+      "id": "reviewed_commit_blobs",
+      "requirement": "reviewed commit 4c5a84851009898bc876c0b8aa3ccb596e04037d contains the exact current protocol, runner, builder, both contract tests and packet bytes",
+      "status": "passed"
+    },
+    {
+      "id": "config_commit_blob",
+      "requirement": "the config-introducing commit contains the exact protocol bytes",
+      "status": "passed"
+    },
+    {
+      "id": "authorization_state",
+      "requirement": "receipt state is absent; a receipt is never minted or inferred",
+      "status": "observed"
+    },
+    {
+      "id": "existing_authorizations_inspected",
+      "requirement": "3 existing receipt(s) were inspected; all bind vision_learnability_step1_reproduction_v1 and a different config, and none binds the smaller-step protocol",
+      "status": "passed"
+    },
+    {
+      "id": "fresh_output",
+      "requirement": "output runs/vision_smaller_step_lr3e5_v1_20261027 exists=False",
+      "status": "observed"
+    },
+    {
+      "id": "no_native_execution",
+      "requirement": "no model load, backward call, optimizer step, generation or launch command is performed",
+      "status": "passed"
+    }
+  ],
+  "closed_roles": {
+    "development": false,
+    "heldout": false,
+    "promotion": false,
+    "retry": false,
+    "semantic_audit": false,
+    "v0": false
+  },
+  "commit_binding": {
+    "commit_bound": false,
+    "config_blob_sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad",
+    "config_introducing_commit": "46af5dd463e03d723f37afee8347a328db5302df",
+    "receipt_protocol_commit": null,
+    "recorded_in_receipt": false,
+    "reviewed_commit": "4c5a84851009898bc876c0b8aa3ccb596e04037d",
+    "reviewed_paths": [
+      {
+        "commit_blob_sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad",
+        "matches": true,
+        "path": "configs/vision_smaller_step_lr3e5_v1.json",
+        "sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad"
+      },
+      {
+        "commit_blob_sha256": "1942da8d1dde53b7fcc5e4084a41724408869351a55a10da7c00599511e886f7",
+        "matches": true,
+        "path": "scripts/vision_smaller_step_v1.py",
+        "sha256": "1942da8d1dde53b7fcc5e4084a41724408869351a55a10da7c00599511e886f7"
+      },
+      {
+        "commit_blob_sha256": "af12fee9c83e0c392449464e25af06d9766437240988e6391c00734b54267b2f",
+        "matches": true,
+        "path": "scripts/build_vision_smaller_step_launch_packet_v1.py",
+        "sha256": "af12fee9c83e0c392449464e25af06d9766437240988e6391c00734b54267b2f"
+      },
+      {
+        "commit_blob_sha256": "1c63cf429007455d354d048bd2d3d738ed972beedff0d3b162e72284fd3c4408",
+        "matches": true,
+        "path": "tests/test_vision_smaller_step_v1.py",
+        "sha256": "1c63cf429007455d354d048bd2d3d738ed972beedff0d3b162e72284fd3c4408"
+      },
+      {
+        "commit_blob_sha256": "48a6f86b1b323cec28a26e2670ea2ea8bf88f8b23803fd431bc6c61919f55c40",
+        "matches": true,
+        "path": "tests/test_vision_smaller_step_launch_packet_v1.py",
+        "sha256": "48a6f86b1b323cec28a26e2670ea2ea8bf88f8b23803fd431bc6c61919f55c40"
+      },
+      {
+        "commit_blob_sha256": "e19e5995f90cab2c54033b2673e583761c9148697fce1eaa200c79bc8f54af6c",
+        "matches": true,
+        "path": "reports/vision_smaller_step_launch_packet_v1_20261027/launch_packet.json",
+        "sha256": "e19e5995f90cab2c54033b2673e583761c9148697fce1eaa200c79bc8f54af6c"
+      }
+    ]
+  },
+  "decision": {
+    "authorization_created": false,
+    "launch_allowed": false,
+    "model_loads": 0,
+    "native_execution": false,
+    "preparation_complete": true,
+    "reason": "preparation_is_complete_but_the_external_authorization_receipt_is_absent_and_the_protocol_commit_is_unrecorded"
+  },
+  "declaration": {
+    "path": "configs/vision_smaller_step_launch_readiness_v1.json",
+    "sha256": "893d85b657b88bd6e2426e274d9a2f53b65b11f25a169ef93ee8663209284c32"
+  },
+  "deterministic": true,
+  "format": "replica.vision_smaller_step.launch_readiness.assessment.v1",
+  "launch": {
+    "argv": [
+      "python",
+      "scripts/vision_smaller_step_v1.py",
+      "run",
+      "--config",
+      "configs/vision_smaller_step_lr3e5_v1.json",
+      "--output",
+      "runs/vision_smaller_step_lr3e5_v1_20261027",
+      "--model-path",
+      "checkpoints/minicpm5_source",
+      "--model-lock",
+      "configs/minicpm5_sealed_lock.local.json",
+      "--authorization",
+      "reports/vision_smaller_step_lr3e5_v1_20261027/authorization.json"
+    ],
+    "authorization_checked_before_native_imports": true,
+    "disposition": "review_only_launch_refused",
+    "environment": {
+      "HF_DATASETS_OFFLINE": "1",
+      "HF_HUB_OFFLINE": "1",
+      "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+      "TRANSFORMERS_OFFLINE": "1"
+    },
+    "output": "runs/vision_smaller_step_lr3e5_v1_20261027",
+    "output_exists": false,
+    "refusals": [
+      "packet_is_not_an_authorization_receipt",
+      "packet_is_preparation_only",
+      "authorization_receipt_missing",
+      "protocol_commit_unbound",
+      "commit_binding_unverified",
+      "native_execution_not_authorized"
+    ],
+    "review_command": [
+      "python",
+      "scripts/vision_smaller_step_v1.py",
+      "review-launch",
+      "--config",
+      "configs/vision_smaller_step_lr3e5_v1.json",
+      "--authorization",
+      "reports/vision_smaller_step_lr3e5_v1_20261027/authorization.json"
+    ]
+  },
+  "model_loads": 0,
+  "name": "vision_smaller_step_launch_readiness_v1",
+  "native_execution": false,
+  "preserved_contract": {
+    "campaign_cumulative": {
+      "backward_calls": 4,
+      "decoder_forward_calls": 4824,
+      "generated_tokens": 3800,
+      "optimizer_steps": 1,
+      "projector_passes": 4824,
+      "visual_encoder_cache_misses": 168,
+      "visual_encoder_calls": 168,
+      "visual_forward_calls": 4824,
+      "visual_observation_calls": 168
+    },
+    "decision": {
+      "development_authorized_here": false,
+      "development_eligibility": "functional_fit_gate_passed_only",
+      "heldout_authorized": false,
+      "promotion": false,
+      "requires_all_gates": true,
+      "retry_authorized": false,
+      "v0_authorized": false
+    },
+    "functional_fit_gate": {
+      "answer_correct_denominator": 14,
+      "answer_correct_min": 1,
+      "answer_prefill_gold_min": 1,
+      "caption_semantic_f1_min": 0.05,
+      "caption_token_f1_gain_min": 0.1,
+      "correct_vs_noimage_accuracy_margin_min": 0.05,
+      "correct_vs_shuffled_accuracy_margin_min": 0.05,
+      "correct_vs_sibling_accuracy_margin_min": 0.05,
+      "development_on_fail": "closed",
+      "eos_only_not_counted_correct": true,
+      "eos_only_rate_max": 0.5,
+      "status_on_fail": "smaller_step_functional_fit_failed",
+      "whitespace_only_not_counted_correct": true,
+      "whitespace_only_rate_max": 0.1
+    },
+    "limits": {
+      "artifact_bytes": 33554432,
+      "artifact_includes_final_report": true,
+      "backward_calls": 4,
+      "cpu_fallback": false,
+      "decoder_forward_calls": 4824,
+      "downloads": 0,
+      "model_loads": 1,
+      "optimizer_steps": 1,
+      "retries": 0,
+      "visual_observation_calls": 168,
+      "wall_seconds": 1200,
+      "workers": 1
+    },
+    "optimization_gate": {
+      "backbone_gradient_tensors": 0,
+      "backward_calls": 4,
+      "delta_definition": "post_minus_pre",
+      "finite_grad_norm": true,
+      "finite_losses": true,
+      "max_update_batch_mean_nll_delta": 0.25,
+      "max_wider_answer_mean_nll_delta": 0.25,
+      "max_wider_caption_mean_nll_delta": 0.25,
+      "optimizer_owned_tensors": 6,
+      "optimizer_steps": 1,
+      "projector_tensors_only_changed": true,
+      "status_on_fail": "optimization_gate_failed",
+      "update_count": 1
+    },
+    "raw_generation": {
+      "controls": [
+        "correct",
+        "sibling",
+        "shuffled",
+        "noimage"
+      ],
+      "empty_text_policy": "separate_eos_only_from_whitespace_only",
+      "eos_only_not_counted_correct": true,
+      "expected_generated_tokens": 3800,
+      "generation_roles": [
+        "answer",
+        "caption"
+      ],
+      "readouts": [
+        "prefix_0",
+        "prefix_1"
+      ],
+      "required_paths": [
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_0/readout.json",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_0/records.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_0/train_answer_generations.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_0/train_caption_generations.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_1/readout.json",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_1/records.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_1/train_answer_generations.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_1/train_caption_generations.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/update_batch_pre/records.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/update_batch_post/records.jsonl"
+      ],
+      "whitespace_only_not_counted_correct": true
+    }
+  },
+  "readiness_sha256": "0dd2abe1056178bd2f2163c409be94d316dc28729063434d5e237dc2370cb853",
+  "remaining_requirements": [
+    {
+      "blocking": true,
+      "id": "authorization_receipt_issued",
+      "owner": "external_user",
+      "requirement": "A separate external receipt with exactly the declared fields must exist at the declared path, record status authorized and config_sha256 931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad, authorize native execution and keep every other role false.",
+      "satisfied": false,
+      "satisfied_by_readiness": false
+    },
+    {
+      "blocking": true,
+      "id": "protocol_commit_recorded",
+      "owner": "external_user",
+      "requirement": "The receipt must record a full 40-character commit whose configs/vision_smaller_step_lr3e5_v1.json blob hashes to the same config SHA-256; the reviewed commit is known but no receipt records it.",
+      "satisfied": false,
+      "satisfied_by_readiness": false
+    },
+    {
+      "blocking": true,
+      "id": "review_launch_gate_passed",
+      "owner": "authorized_operator",
+      "requirement": "scripts/vision_smaller_step_v1.py review-launch must pass receipt schema, config hash, commit binding and fresh-output checks before any native import; it has not been run because no receipt exists.",
+      "satisfied": false,
+      "satisfied_by_readiness": false
+    },
+    {
+      "blocking": true,
+      "id": "fresh_output_available",
+      "owner": "authorized_operator",
+      "requirement": "runs/vision_smaller_step_lr3e5_v1_20261027 must not exist at launch; it is absent now and must stay absent until an authorized launch.",
+      "satisfied": true,
+      "satisfied_by_readiness": false
+    },
+    {
+      "blocking": true,
+      "id": "exclusive_worker_and_capacity_guard",
+      "owner": "authorized_operator",
+      "requirement": "The launch must acquire the single exclusive MPS worker and prove 50 GiB driver, 512 MiB sustained swap growth and 15% host-free with MPS CPU fallback disabled; none of this is observable during preparation.",
+      "satisfied": false,
+      "satisfied_by_readiness": false
+    },
+    {
+      "blocking": true,
+      "id": "native_execution_within_declared_budget",
+      "owner": "authorized_operator",
+      "requirement": "The native run must perform exactly 4 backward calls and 1 NativeFusedAdamW step at lr 3e-05, stay within 4824 decoder forwards, 168 visual observations, 1200 seconds and 33554432 artifact bytes including the final report, and preserve the optimization, functional and raw-generation evidence declared here.",
+      "satisfied": false,
+      "satisfied_by_readiness": false
+    }
+  ],
+  "subject": {
+    "completed_lr": 0.0003,
+    "lr": 3e-05,
+    "packet_canonical_sha256": "9be3a8d2edc7d0b4d819197e22cd316a82affd7b83345cc95c2b2ef7d591a770",
+    "packet_current": true,
+    "packet_file_sha256": "e19e5995f90cab2c54033b2673e583761c9148697fce1eaa200c79bc8f54af6c",
+    "packet_path": "reports/vision_smaller_step_launch_packet_v1_20261027/launch_packet.json",
+    "protocol_path": "configs/vision_smaller_step_lr3e5_v1.json",
+    "protocol_sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad",
+    "update_batch_example_ids": [
+      "caption:vba2-w013-p0-a",
+      "caption:vba2-w025-p0-a",
+      "answer:vba2-w000-p0-a",
+      "answer:vba2-w036-p0-b"
+    ]
+  },
+  "version": "1"
+}

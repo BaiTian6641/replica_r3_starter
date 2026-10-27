@@ -1,6 +1,6 @@
 # Replica architecture research and design
 
-**Start with the [SparkX 2.6 4B final-product blueprint, version 5.0](23_SparkX_2_6_4B_Final_Product_Blueprint.md)** for the unified target: full offline multimodal training, native spatial/temporal reasoning, intrinsic memory and nested learning, swappable vocabulary, semi-cognition, the separate neural spine, system design and MiniCPM-first validation. The [consolidation report](../../reports/sparkx_final_product_20261026/README.md) records current evidence, source checks and reconciled costs. Historical implementation priorities below retain their dated context; current execution protocols and [state contracts](22_State_Mechanism_and_RSI_Contracts.md) still govern runs.
+**Start with the [SparkX 2.6 4B final-product blueprint, version 5.1](23_SparkX_2_6_4B_Final_Product_Blueprint.md)** for the unified target: full offline multimodal training, native spatial/temporal reasoning, intrinsic memory and nested learning, swappable vocabulary, semi-cognition, the separate neural spine, system design and MiniCPM-first validation. The [v5.1 review](24_SparkX_2_6_v5_1_Refinement_Plan.md), [MiniCPM direction correction](25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md) and [new evidence/capacity report](../../reports/sparkx_v5_1_review_20261027/README.md) record the current direction. The dated [v5 consolidation report](../../reports/sparkx_final_product_20261026/README.md) preserves its original control profile. Historical implementation priorities below retain their dated context; current execution protocols and [state contracts](22_State_Mechanism_and_RSI_Contracts.md) still govern runs.
 
 For the requested detailed Spark target analysis, see the
 [integrated Spark research report](../research/sparkx_2_6_4b_20261024/README.md):
@@ -36,7 +36,7 @@ separate optional pretrained reference/teacher. Spark needs a new width-2560
 connector and dedicated native adapter; its preparation does not wait for RSI,
 and its native/backend gates do not delay MiniCPM5.
 
-The current Spark product target is [version 5.0](23_SparkX_2_6_4B_Final_Product_Blueprint.md). [Revision 4.5](21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md) and its [nested-learning reading guide](../research/sparkx_nested_learning_20261026/README.md) preserve the detailed research lineage and earlier mechanism contracts.
+The current Spark product target is [version 5.1](23_SparkX_2_6_4B_Final_Product_Blueprint.md). [Revision 4.5](21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md) and its [nested-learning reading guide](../research/sparkx_nested_learning_20261026/README.md) preserve the detailed research lineage and earlier mechanism contracts.
 
 ## Read in this order
 

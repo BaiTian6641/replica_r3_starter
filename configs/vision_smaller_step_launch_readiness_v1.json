@@ -1,0 +1,334 @@
+{
+  "format": "replica.vision_smaller_step.launch_readiness.v1",
+  "version": "1",
+  "name": "vision_smaller_step_launch_readiness_v1",
+  "declared_at_utc": "2026-10-27T00:00:00+00:00",
+  "purpose": "Declaration that the lr 3e-05 smaller-step protocol and its preparation-only launch packet are complete and current, that the optimization and functional-output gates and every raw generation requirement are preserved, and that native launch is blocked by exactly two missing external artifacts: an authorization receipt and the commit binding recorded inside it. This file never authorizes, executes, retries, mints a receipt or opens development, held-out, semantic-audit, V0, promotion or retry access.",
+  "subject": {
+    "protocol_path": "configs/vision_smaller_step_lr3e5_v1.json",
+    "protocol_sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad",
+    "lr": 3e-05,
+    "completed_lr": 0.0003,
+    "update_batch_example_ids": [
+      "caption:vba2-w013-p0-a",
+      "caption:vba2-w025-p0-a",
+      "answer:vba2-w000-p0-a",
+      "answer:vba2-w036-p0-b"
+    ],
+    "packet_path": "reports/vision_smaller_step_launch_packet_v1_20261027/launch_packet.json",
+    "packet_file_sha256": "e19e5995f90cab2c54033b2673e583761c9148697fce1eaa200c79bc8f54af6c",
+    "packet_canonical_sha256": "9be3a8d2edc7d0b4d819197e22cd316a82affd7b83345cc95c2b2ef7d591a770",
+    "packet_format": "replica.vision_smaller_step.launch_packet.v1",
+    "packet_kind": "preparation_only_launch_evidence",
+    "packet_native_execution": false,
+    "packet_model_loads": 0,
+    "packet_authorization_created": false
+  },
+  "commit_binding": {
+    "required": true,
+    "reviewed_commit": "4c5a84851009898bc876c0b8aa3ccb596e04037d",
+    "reviewed_paths": [
+      "configs/vision_smaller_step_lr3e5_v1.json",
+      "scripts/vision_smaller_step_v1.py",
+      "scripts/build_vision_smaller_step_launch_packet_v1.py",
+      "tests/test_vision_smaller_step_v1.py",
+      "tests/test_vision_smaller_step_launch_packet_v1.py",
+      "reports/vision_smaller_step_launch_packet_v1_20261027/launch_packet.json"
+    ],
+    "config_introducing_commit": "46af5dd463e03d723f37afee8347a328db5302df",
+    "config_commit_blob_sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad",
+    "receipt_protocol_commit": null,
+    "recorded_in_receipt": false,
+    "verification_rule": "git cat-file blob <commit>:<path> must hash to the exact current bytes; the receipt's protocol_commit must be a full 40-character commit whose config blob matches the receipt config_sha256",
+    "note": "The reviewed commit already contains the exact config, runner, builder, both contract tests and the launch packet. What is missing is not the commit but its recording inside an external receipt."
+  },
+  "authorization": {
+    "required": true,
+    "path": "reports/vision_smaller_step_lr3e5_v1_20261027/authorization.json",
+    "format": "replica.vision_smaller_step.authorization.v1",
+    "required_status": "authorized",
+    "status_at_declaration": "absent",
+    "present_at_declaration": false,
+    "receipt_sha256_at_declaration": null,
+    "protocol_commit_at_declaration": null,
+    "native_execution_authorized_at_declaration": false,
+    "minted_here": false,
+    "separate_from_packet": true,
+    "required_fields": [
+      "format",
+      "status",
+      "protocol_name",
+      "protocol_path",
+      "protocol_commit",
+      "config_sha256",
+      "native_execution_authorized",
+      "dev_authorized",
+      "heldout_authorized",
+      "v0_authorized",
+      "semantic_audit_authorized",
+      "promotion_authorized",
+      "retry_authorized",
+      "issued_at_utc"
+    ],
+    "closed_fields": {
+      "dev_authorized": false,
+      "heldout_authorized": false,
+      "v0_authorized": false,
+      "semantic_audit_authorized": false,
+      "promotion_authorized": false,
+      "retry_authorized": false
+    },
+    "commit_binding_required": true,
+    "config_sha256_binding_required": true,
+    "authority": "external_user_decision_only",
+    "note": "Readiness may observe and validate an existing receipt but can never create one, infer one from a packet, or convert an absent receipt into authorization. The three receipts under reports/remediation_20261027 bind vision_learnability_step1_reproduction_v1 and a different config SHA-256, so none covers this protocol.",
+    "inspected_existing_receipts": [
+      {
+        "path": "reports/remediation_20261027/vision_learnability_step1_authorization.json",
+        "protocol_name": "vision_learnability_step1_reproduction_v1",
+        "protocol_commit": "dfe39a077269e11f328895c9a20ff2e3cca337a3",
+        "config_sha256": "8487e1c4cc9b4b818b7d46513daa5c149bfc1e2a8af2bd8dcdac787d3f2827b8",
+        "binds_subject_config": false
+      },
+      {
+        "path": "reports/remediation_20261027/vision_learnability_step1_authorization_attempt02.json",
+        "protocol_name": "vision_learnability_step1_reproduction_v1",
+        "protocol_commit": "dfe39a077269e11f328895c9a20ff2e3cca337a3",
+        "config_sha256": "8487e1c4cc9b4b818b7d46513daa5c149bfc1e2a8af2bd8dcdac787d3f2827b8",
+        "binds_subject_config": false
+      },
+      {
+        "path": "reports/remediation_20261027/vision_learnability_step1_authorization_attempt03.json",
+        "protocol_name": "vision_learnability_step1_reproduction_v1",
+        "protocol_commit": "ca8669b90ce394581cdf3ecbf6709226439898c9",
+        "config_sha256": "b7bb9ded894ba053fa17f380a408697317b8d6862a4cac53c8b8f6ec80b1e32a",
+        "binds_subject_config": false
+      }
+    ]
+  },
+  "launch": {
+    "argv": [
+      "python",
+      "scripts/vision_smaller_step_v1.py",
+      "run",
+      "--config",
+      "configs/vision_smaller_step_lr3e5_v1.json",
+      "--output",
+      "runs/vision_smaller_step_lr3e5_v1_20261027",
+      "--model-path",
+      "checkpoints/minicpm5_source",
+      "--model-lock",
+      "configs/minicpm5_sealed_lock.local.json",
+      "--authorization",
+      "reports/vision_smaller_step_lr3e5_v1_20261027/authorization.json"
+    ],
+    "review_command": [
+      "python",
+      "scripts/vision_smaller_step_v1.py",
+      "review-launch",
+      "--config",
+      "configs/vision_smaller_step_lr3e5_v1.json",
+      "--authorization",
+      "reports/vision_smaller_step_lr3e5_v1_20261027/authorization.json"
+    ],
+    "environment": {
+      "HF_HUB_OFFLINE": "1",
+      "TRANSFORMERS_OFFLINE": "1",
+      "HF_DATASETS_OFFLINE": "1",
+      "PYTORCH_ENABLE_MPS_FALLBACK": "0"
+    },
+    "output": "runs/vision_smaller_step_lr3e5_v1_20261027",
+    "output_must_not_exist": true,
+    "output_exists_at_declaration": false,
+    "authorization_checked_before_native_imports": true,
+    "disposition_at_declaration": "review_only_launch_refused",
+    "refusals_at_declaration": [
+      "packet_is_not_an_authorization_receipt",
+      "packet_is_preparation_only",
+      "authorization_receipt_missing",
+      "protocol_commit_unbound",
+      "commit_binding_unverified",
+      "native_execution_not_authorized"
+    ]
+  },
+  "preserved_contract": {
+    "limits": {
+      "decoder_forward_calls": 4824,
+      "visual_observation_calls": 168,
+      "backward_calls": 4,
+      "optimizer_steps": 1,
+      "wall_seconds": 1200,
+      "artifact_bytes": 33554432,
+      "artifact_includes_final_report": true,
+      "model_loads": 1,
+      "downloads": 0,
+      "retries": 0,
+      "workers": 1,
+      "cpu_fallback": false
+    },
+    "campaign_cumulative": {
+      "decoder_forward_calls": 4824,
+      "visual_observation_calls": 168,
+      "visual_encoder_calls": 168,
+      "visual_encoder_cache_misses": 168,
+      "visual_forward_calls": 4824,
+      "projector_passes": 4824,
+      "backward_calls": 4,
+      "optimizer_steps": 1,
+      "generated_tokens": 3800
+    },
+    "optimization_gate": {
+      "update_count": 1,
+      "backward_calls": 4,
+      "optimizer_steps": 1,
+      "optimizer_owned_tensors": 6,
+      "backbone_gradient_tensors": 0,
+      "projector_tensors_only_changed": true,
+      "finite_losses": true,
+      "finite_grad_norm": true,
+      "max_update_batch_mean_nll_delta": 0.25,
+      "max_wider_answer_mean_nll_delta": 0.25,
+      "max_wider_caption_mean_nll_delta": 0.25,
+      "delta_definition": "post_minus_pre",
+      "status_on_fail": "optimization_gate_failed"
+    },
+    "functional_fit_gate": {
+      "answer_correct_min": 1,
+      "answer_correct_denominator": 14,
+      "answer_prefill_gold_min": 1,
+      "caption_token_f1_gain_min": 0.1,
+      "caption_semantic_f1_min": 0.05,
+      "correct_vs_sibling_accuracy_margin_min": 0.05,
+      "correct_vs_shuffled_accuracy_margin_min": 0.05,
+      "correct_vs_noimage_accuracy_margin_min": 0.05,
+      "eos_only_rate_max": 0.5,
+      "whitespace_only_rate_max": 0.1,
+      "eos_only_not_counted_correct": true,
+      "whitespace_only_not_counted_correct": true,
+      "development_on_fail": "closed",
+      "status_on_fail": "smaller_step_functional_fit_failed"
+    },
+    "decision": {
+      "requires_all_gates": true,
+      "development_authorized_here": false,
+      "development_eligibility": "functional_fit_gate_passed_only",
+      "heldout_authorized": false,
+      "v0_authorized": false,
+      "promotion": false,
+      "retry_authorized": false
+    },
+    "raw_generation": {
+      "required": true,
+      "raw_generation_required": true,
+      "generation_roles": [
+        "answer",
+        "caption"
+      ],
+      "controls": [
+        "correct",
+        "sibling",
+        "shuffled",
+        "noimage"
+      ],
+      "readouts": [
+        "prefix_0",
+        "prefix_1"
+      ],
+      "records_per_readout": 104,
+      "available_per_readout": 98,
+      "placeholders_per_readout": 6,
+      "logical_scoring_cells_per_readout": 98,
+      "logical_scoring_operations_per_readout": 294,
+      "expected_generated_tokens": 3800,
+      "max_new_tokens_by_kind": {
+        "answer": 8,
+        "caption": 32
+      },
+      "empty_text_policy": "separate_eos_only_from_whitespace_only",
+      "eos_only_not_counted_correct": true,
+      "whitespace_only_not_counted_correct": true,
+      "update_batch_generation": false,
+      "required_paths": [
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_0/readout.json",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_0/records.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_0/train_answer_generations.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_0/train_caption_generations.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_1/readout.json",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_1/records.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_1/train_answer_generations.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_1/train_caption_generations.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/update_batch_pre/records.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/update_batch_post/records.jsonl"
+      ]
+    }
+  },
+  "remaining_requirements": [
+    {
+      "id": "authorization_receipt_issued",
+      "blocking": true,
+      "requirement": "A separate external receipt with exactly the declared fields must exist at the declared path, record status authorized and config_sha256 931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad, authorize native execution and keep every other role false.",
+      "owner": "external_user",
+      "satisfied_by_readiness": false
+    },
+    {
+      "id": "protocol_commit_recorded",
+      "blocking": true,
+      "requirement": "The receipt must record a full 40-character commit whose configs/vision_smaller_step_lr3e5_v1.json blob hashes to the same config SHA-256; the reviewed commit is known but no receipt records it.",
+      "owner": "external_user",
+      "satisfied_by_readiness": false
+    },
+    {
+      "id": "review_launch_gate_passed",
+      "blocking": true,
+      "requirement": "scripts/vision_smaller_step_v1.py review-launch must pass receipt schema, config hash, commit binding and fresh-output checks before any native import; it has not been run because no receipt exists.",
+      "owner": "authorized_operator",
+      "satisfied_by_readiness": false
+    },
+    {
+      "id": "fresh_output_available",
+      "blocking": true,
+      "requirement": "runs/vision_smaller_step_lr3e5_v1_20261027 must not exist at launch; it is absent now and must stay absent until an authorized launch.",
+      "owner": "authorized_operator",
+      "satisfied_by_readiness": false
+    },
+    {
+      "id": "exclusive_worker_and_capacity_guard",
+      "blocking": true,
+      "requirement": "The launch must acquire the single exclusive MPS worker and prove 50 GiB driver, 512 MiB sustained swap growth and 15% host-free with MPS CPU fallback disabled; none of this is observable during preparation.",
+      "owner": "authorized_operator",
+      "satisfied_by_readiness": false
+    },
+    {
+      "id": "native_execution_within_declared_budget",
+      "blocking": true,
+      "requirement": "The native run must perform exactly 4 backward calls and 1 NativeFusedAdamW step at lr 3e-05, stay within 4824 decoder forwards, 168 visual observations, 1200 seconds and 33554432 artifact bytes including the final report, and preserve the optimization, functional and raw-generation evidence declared here.",
+      "owner": "authorized_operator",
+      "satisfied_by_readiness": false
+    }
+  ],
+  "closed_roles": {
+    "development": false,
+    "heldout": false,
+    "v0": false,
+    "semantic_audit": false,
+    "promotion": false,
+    "retry": false
+  },
+  "decision": {
+    "preparation_complete": true,
+    "launch_allowed": false,
+    "native_execution": false,
+    "model_loads": 0,
+    "authorization_created": false,
+    "reason": "preparation_is_complete_but_the_external_authorization_receipt_is_absent_and_the_protocol_commit_is_unrecorded"
+  },
+  "verification": {
+    "command": [
+      "python",
+      "scripts/check_vision_smaller_step_launch_readiness_v1.py",
+      "verify"
+    ],
+    "report": "reports/vision_smaller_step_launch_readiness_v1_20261027/readiness.json",
+    "note": "The checker recomputes the packet, config, commit blobs, receipt state and fresh-output state; it never imports a native runtime, loads a model, writes a receipt or runs a launch."
+  }
+}

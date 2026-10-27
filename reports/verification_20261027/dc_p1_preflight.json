@@ -1,0 +1,41 @@
+{
+  "config_path": "/Users/flare/replica_r3_starter/configs/dc_p1_native_response_protocol_v1.json",
+  "config_sha256": "df2012ad2eaf1ac23d50ecca24aaa36ecc27a55b8a554f0080e8bcafd68df036",
+  "downloads": 0,
+  "exit_code": 0,
+  "format": "replica.dc_protocol.preflight_receipt.v1",
+  "heldout_opened": false,
+  "launch_requested": false,
+  "launch_requirements": {
+    "authorization_fields": [
+      "format",
+      "protocol_id",
+      "config_sha256",
+      "prepared_manifest_sha256",
+      "authorized_by",
+      "native_execution_allowed",
+      "single_attempt",
+      "receipt_sha256"
+    ],
+    "authorization_receipt_format": "replica.dc_protocol.authorization.v1",
+    "fresh_output_path": true,
+    "launch_command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/preflight_dc_p1_native_response_20261027.py --launch --receipt runs/dc_p1_native_response_20261027/preflight_launch01.json --authorization reports/dc_p1_native_response_20261027/authorization.json",
+    "native_execution": false,
+    "native_execution_status": "refused_preparation_only",
+    "on_authorized_package_without_native_runner": "refuse_nonzero",
+    "on_missing_receipt": "refuse_nonzero",
+    "output_root": "runs/dc_p1_native_response_20261027/native01",
+    "requires_authorization_receipt": true,
+    "review_command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/preflight_dc_p1_native_response_20261027.py --review --receipt runs/dc_p1_native_response_20261027/preflight_review01.json",
+    "review_only": true,
+    "review_receipt_path": "runs/dc_p1_native_response_20261027/preflight_review01.json"
+  },
+  "model_loaded": false,
+  "native_execution": false,
+  "native_execution_status": "refused_preparation_only",
+  "prepared_manifest_path": "/Users/flare/replica_r3_starter/data/dc_p1_native_response_20261027/manifest.json",
+  "prepared_manifest_sha256": "f908f746eecf6e24b3ba05b7ca2a1e790adbea107e898e3bd86992046f8671b4",
+  "protocol_id": "dc_p1_native_response_v1",
+  "status": "review_ready",
+  "tokenizer_loaded": false
+}

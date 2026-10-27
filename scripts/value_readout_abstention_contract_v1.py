@@ -176,6 +176,19 @@ CASE_TYPE_NAMES = (
     "unknown_abstention",
     "wrong_world_abstention",
 )
+RESUME_EVIDENCE_FORMAT = (
+    "replica.value_readout_abstention.resume_evidence.v1")
+REQUIRED_RESUME_WORK_KEYS = (
+    "optimizer_steps",
+    "backward_calls",
+    "training_forward_calls",
+    "evaluation_forward_calls",
+    "retention_diagnostic_forwards",
+    "training_write_events",
+    "evaluation_write_events",
+    "checkpoint_writes",
+    "resume_artifact_writes",
+)
 
 FIT_METRIC_KEYS = (
     "future_answer_accuracy",
@@ -2441,6 +2454,14 @@ def _check_artifact_budget(output_root: Path, config: Mapping[str, Any],
              "artifact budget cap differs from the amended ceiling")
     _require(summary.get("resume_complete_checkpoints") == 3, title,
              "artifact budget does not cover three checkpoints")
+    if check == "fit_receipt":
+        _require(summary.get("resume_artifacts_included") is True, title,
+                 "artifact budget excluded resume artifacts")
+        _require("resume_evidence.json" in summary.get(
+            "resume_artifact_paths", []), title,
+            "artifact budget did not include resume evidence")
+        _require(summary.get("resume_artifact_bytes", 0) > 0, title,
+                 "artifact budget omitted resume evidence bytes")
     measured = summary.get("measured_bytes")
     _require(type(measured) is int and measured >= 0, title,
              "artifact budget measurement is invalid")
@@ -2568,14 +2589,12 @@ def _fail_closed(check: str):
 
 
 @_fail_closed("fit_evidence")
-def _validate_checkpoint(checkpoint: Mapping[str, Any], *,
-                         report: Mapping[str, Any],
-                         config: Mapping[str, Any],
-                         config_sha256: str,
-                         prepared_manifest_sha256: str,
-                         predictions_sha256: str,
-                         report_state_sha256: str,
-                         check: str) -> dict:
+def _validate_checkpoint_common(checkpoint: Mapping[str, Any], *,
+                                config: Mapping[str, Any],
+                                config_sha256: str,
+                                prepared_manifest_sha256: str,
+                                arm_id: str, phase: str,
+                                check: str) -> dict:
     import torch
     names = list(config["architecture"]["trainable_parameters"])
     fixed_names = ["read_projection", "decoder"]
@@ -2588,14 +2607,14 @@ def _validate_checkpoint(checkpoint: Mapping[str, Any], *,
     _require(checkpoint.get("prepared_manifest_sha256")
              == prepared_manifest_sha256, check,
              "checkpoint manifest hash differs")
-    _require(checkpoint.get("arm_id") == "learned_value_readout", check,
-             "checkpoint is not the treatment arm")
-    _require(checkpoint.get("phase") == "fit_treatment", check,
-             "checkpoint phase is not fit_treatment")
+    _require(checkpoint.get("arm_id") == arm_id, check,
+             f"checkpoint is not arm {arm_id}")
+    _require(checkpoint.get("phase") == phase, check,
+             f"checkpoint phase is not {phase}")
     _require(checkpoint.get("seed") == int(config["transaction"]["seed"]), check,
              "checkpoint seed differs")
     _require(checkpoint.get("completed_steps") == 24, check,
-             "checkpoint did not complete exactly 24 treatment updates")
+             "checkpoint did not complete exactly 24 updates")
     _require(checkpoint.get("event_clock_steps") == 36, check,
              "checkpoint event clock differs")
     _require(checkpoint.get("events_processed") == 36, check,
@@ -2625,14 +2644,10 @@ def _validate_checkpoint(checkpoint: Mapping[str, Any], *,
     state_sha = _state_digest(combined, check)
     _require(checkpoint.get("state_sha256") == state_sha, check,
              "checkpoint resulting state digest differs")
-    _require(report_state_sha256 == state_sha, check,
-             "fit report resulting state digest differs")
     parent = _parent_state(config, check)
     expected_parent = _state_digest(parent, check)
     _require(checkpoint.get("parent_state_sha256") == expected_parent, check,
              "checkpoint parent state differs from the deterministic parent")
-    _require(report.get("parent_state_sha256") == expected_parent, check,
-             "fit report parent state differs")
     for name in fixed_names:
         expected_fixed = _tensor_digest(name, parent[name], check)
         _require(_tensor_digest(name, fixed_state[name], check)
@@ -2647,18 +2662,55 @@ def _validate_checkpoint(checkpoint: Mapping[str, Any], *,
                  == digest, check,
                  f"trainable state receipt {name} differs")
     _validate_optimizer(checkpoint, config, check)
-    _require(checkpoint.get("predictions_sha256") == predictions_sha256, check,
-             "checkpoint does not bind the preserved predictions")
     classification = checkpoint.get("classification", {})
     _require(classification.get("native_model") is False, check,
              "checkpoint claims native model execution")
     updates = checkpoint.get("update_records")
     _require(isinstance(updates, list) and len(updates) == 24, check,
              "checkpoint does not preserve exactly 24 update records")
-    _require(updates == report.get("update_records"), check,
-             "fit report update records differ from the checkpoint")
+    _require(updates[-1].get("state_after_sha256") == state_sha, check,
+             "checkpoint final update hash differs from its actual state")
     return {"state_sha256": state_sha, "parent_state_sha256": expected_parent,
-            "model_state": model_state, "fixed_state": fixed_state}
+            "model_state": model_state, "fixed_state": fixed_state,
+            "model_state_digest": _state_digest(model_state, check),
+            "fixed_state_digest": _state_digest(fixed_state, check),
+            "update_records": updates}
+
+
+@_fail_closed("fit_evidence")
+def _validate_checkpoint(checkpoint: Mapping[str, Any], *,
+                         report: Mapping[str, Any],
+                         config: Mapping[str, Any],
+                         config_sha256: str,
+                         prepared_manifest_sha256: str,
+                         predictions_sha256: str,
+                         report_state_sha256: str,
+                         replay_arm: Mapping[str, Any],
+                         check: str) -> dict:
+    verified = _validate_checkpoint_common(
+        checkpoint, config=config, config_sha256=config_sha256,
+        prepared_manifest_sha256=prepared_manifest_sha256,
+        arm_id="learned_value_readout", phase="fit_treatment", check=check)
+    _require(report_state_sha256 == verified["state_sha256"], check,
+             "fit report resulting state digest differs")
+    _require(report.get("parent_state_sha256")
+             == verified["parent_state_sha256"], check,
+             "fit report parent state differs")
+    _require(checkpoint.get("predictions_sha256") == predictions_sha256, check,
+             "checkpoint does not bind the preserved predictions")
+    _require(verified["update_records"] == report.get("update_records"), check,
+             "fit report update records differ from the checkpoint")
+    _require(verified["update_records"] == replay_arm["update_records"], check,
+             "checkpoint update hashes differ from deterministic replay")
+    _require(verified["state_sha256"] == replay_arm["state_sha256"], check,
+             "checkpoint final state differs from deterministic replay")
+    _require(verified["model_state_digest"]
+             == replay_arm["model_state_sha256"], check,
+             "checkpoint trainable state differs from deterministic replay")
+    _require(verified["fixed_state_digest"]
+             == replay_arm["fixed_state_sha256"], check,
+             "checkpoint fixed state differs from deterministic replay")
+    return verified
 
 
 def _case_targets(cases: Sequence[Mapping[str, Any]]) -> dict[str, dict]:
@@ -2803,24 +2855,80 @@ def _compare_claimed_metrics(claimed: Mapping[str, Any],
                  check, f"claimed {name} differs from the per-case recomputation")
 
 
-def _validate_update_records(report: Mapping[str, Any],
-                             teaching_cases: Sequence[Mapping[str, Any]],
+def _expected_update_sequence(metadata: Mapping[str, Any],
+                              config: Mapping[str, Any],
+                              check: str) -> list[dict]:
+    """Bind every update to its event, case, world, epoch and global clock."""
+    events = list(metadata["events"])
+    cases = metadata["cases"]
+    _require(len(events) == 36, check,
+             "training event sequence length differs")
+    positions = {}
+    for index, event in enumerate(events):
+        _require(event["event_id"] not in positions, check,
+                 "training event ids are duplicated")
+        _require(int(event["clock_step"]) == int(event["epoch"]), check,
+                 "training event clock differs from its epoch")
+        positions[event["event_id"]] = index + 1
+    teaching = [event for event in events
+                if event["kind"] == "query"
+                and int(event["optimizer_steps"]) == 1]
+    _require(len(teaching) == 24, check,
+             "training teaching event count differs")
+    rows = []
+    seen_cases = set()
+    for index, event in enumerate(teaching):
+        case_id = event["case_id"]
+        _require(case_id in cases, check,
+                 f"teaching event {event['event_id']} has no case")
+        case = cases[case_id]
+        _require(case_id not in seen_cases, check,
+                 f"teaching case {case_id} is duplicated")
+        seen_cases.add(case_id)
+        _require(case.get("event_id") == event["event_id"], check,
+                 f"{case_id} event binding differs")
+        _require(case.get("world_id") == event["world_id"], check,
+                 f"{case_id} world binding differs")
+        _require(int(case.get("epoch", -1)) == int(event["epoch"]), check,
+                 f"{case_id} epoch binding differs")
+        _require(case.get("case_type") == event["case_type"], check,
+                 f"{case_id} case type differs")
+        _require(case.get("address") == event.get("address"), check,
+                 f"{case_id} address differs from its event")
+        _require(case.get("loss_name") == event.get("loss_name"), check,
+                 f"{case_id} loss binding differs")
+        _require(int(case.get("optimizer_steps", -1)) == 1
+                 and event.get("gradient") is True, check,
+                 f"{case_id} is not a one-step gradient case")
+        rows.append({
+            "step": index,
+            "event_id": event["event_id"],
+            "case_id": case_id,
+            "world_id": event["world_id"],
+            "epoch": int(event["epoch"]),
+            "clock_step": positions[event["event_id"]],
+        })
+    return rows
+
+
+def _validate_update_records(updates: Sequence[Mapping[str, Any]],
+                             expected: Sequence[Mapping[str, Any]],
                              config: Mapping[str, Any], check: str) -> None:
-    updates = report.get("update_records")
     _require(isinstance(updates, list) and len(updates) == 24, check,
-             "fit report does not contain exactly 24 updates")
-    expected_ids = [case["case_id"] for case in teaching_cases]
-    _require([row["case_id"] for row in updates] == expected_ids, check,
-             "update records do not cover the chronological teaching cases")
+             "evidence does not contain exactly 24 updates")
     _require([int(row["step"]) for row in updates] == list(range(24)), check,
              "update step indices differ")
-    clock_steps = [int(row["clock_step"]) for row in updates]
-    _require(clock_steps == sorted(set(clock_steps)) and len(clock_steps) == 24,
-             check, "one event clock was not preserved")
+    _require([int(row["clock_step"]) for row in updates]
+             == [int(row["clock_step"]) for row in expected], check,
+             "exact event clock progression differs")
     limit = float(config["transaction"]["gradient_norm_max"]) + 1e-6
-    for row in updates:
-        _require(isinstance(row.get("event_id"), str) and row["event_id"], check,
-                 "update lacks an event id")
+    for row, reference in zip(updates, expected):
+        for key in ("event_id", "case_id", "world_id", "epoch", "clock_step"):
+            value = row.get(key)
+            if key == "epoch":
+                value = int(value)
+            _require(value == reference[key], check,
+                     f"update {reference['step']} {key} binding differs")
         _require(bool(row.get("gradient_finite")) is True, check,
                  "update gradient was not finite")
         _require(math.isfinite(float(row["loss"])), check,
@@ -2830,12 +2938,18 @@ def _validate_update_records(report: Mapping[str, Any],
                  "update gradient norm exceeds the cap")
         _require(_hex_digest(row.get("state_after_sha256")), check,
                  "update lacks a resulting state digest")
+    _require(len({row["clock_step"] for row in updates}) == 24, check,
+             "event clock steps are not exactly one per update")
 
 
 def _validate_control_fits(report: Mapping[str, Any], evidence: Path,
                            config: Mapping[str, Any],
+                           config_sha256: str,
+                           prepared_manifest_sha256: str,
                            treatment_checkpoint_sha256: str,
                            treatment_state_sha256: str,
+                           expected_updates: Sequence[Mapping[str, Any]],
+                           replay: Mapping[str, Any],
                            check: str) -> list[dict]:
     fits = report.get("control_fits")
     _require(isinstance(fits, list) and len(fits) == 2, check,
@@ -2846,6 +2960,7 @@ def _validate_control_fits(report: Mapping[str, Any], evidence: Path,
     seen_hashes = set()
     seen_states = set()
     for row in fits:
+        arm_id = row["arm_id"]
         _require(row.get("phase") == "control_fit", check,
                  "control fit phase differs")
         _require(row.get("optimizer_steps") == 24, check,
@@ -2858,21 +2973,302 @@ def _validate_control_fits(report: Mapping[str, Any], evidence: Path,
         _require(digest not in seen_hashes, check,
                  "control checkpoints are not distinct")
         seen_hashes.add(digest)
-        path = Path(evidence) / f"control_{row['arm_id']}.pt"
+        path = Path(evidence) / f"control_{arm_id}.pt"
         _require(path.is_file() and sha256_file(path) == digest, check,
                  "control checkpoint artifact does not resolve")
         payload = _load_checkpoint(path, check)
-        _require(payload.get("arm_id") == row["arm_id"], check,
-                 "control checkpoint arm differs")
-        _require(payload.get("completed_steps") == 24, check,
-                 "control checkpoint did not complete 24 updates")
+        verified = _validate_checkpoint_common(
+            payload, config=config, config_sha256=config_sha256,
+            prepared_manifest_sha256=prepared_manifest_sha256,
+            arm_id=arm_id, phase="control_fit", check=check)
+        _validate_update_records(verified["update_records"],
+                                 expected_updates, config, check)
+        _require(verified["update_records"]
+                 == replay[arm_id]["update_records"], check,
+                 f"control {arm_id} update hashes differ from deterministic replay")
+        _require(verified["state_sha256"] == replay[arm_id]["state_sha256"],
+                 check, f"control {arm_id} state differs from deterministic replay")
+        _require(verified["model_state_digest"]
+                 == replay[arm_id]["model_state_sha256"], check,
+                 f"control {arm_id} trainable state differs from replay")
+        _require(verified["fixed_state_digest"]
+                 == replay[arm_id]["fixed_state_sha256"], check,
+                 f"control {arm_id} fixed state differs from replay")
         state = payload.get("state_sha256")
         _require(_hex_digest(state) and state != treatment_state_sha256, check,
                  "control checkpoint state equals the treatment")
         _require(state not in seen_states, check,
                  "control checkpoint states are not distinct")
         seen_states.add(state)
+        predictions_path = Path(evidence) / f"control_{arm_id}_predictions.jsonl"
+        _require(predictions_path.is_file(), check,
+                 f"control {arm_id} predictions are missing")
+        _require(payload.get("predictions_sha256")
+                 == sha256_file(predictions_path), check,
+                 f"control {arm_id} checkpoint does not bind its predictions")
+        predictions = _read_evidence_jsonl(predictions_path, check)
+        _require(row.get("predictions_sha256") == sha256_json(predictions), check,
+                 f"control {arm_id} prediction receipt differs")
+        _require(predictions == replay[arm_id]["predictions"], check,
+                 f"control {arm_id} predictions differ from deterministic replay")
     return fits
+
+
+def _expected_physical_work(metadata: Mapping[str, Any]) -> dict:
+    events = list(metadata["events"])
+    cases = list(metadata["cases"].values())
+    teaching = [event for event in events
+                if event["kind"] == "query"
+                and int(event["optimizer_steps"]) == 1]
+    write_events = [event for event in events if event["kind"] != "query"]
+    retention = [case for case in cases
+                 if case["case_type"] == "unaffected_retention"]
+    arms = 3
+    baseline_arms = 2
+    return {
+        "optimizer_steps": len(teaching) * arms,
+        "backward_calls": len(teaching) * arms,
+        "training_forward_calls": len(teaching) * arms,
+        "evaluation_forward_calls": (len(cases) * arms
+                                     + len(cases) * baseline_arms),
+        "retention_diagnostic_forwards": (len(retention) * arms
+                                          + len(retention) * baseline_arms),
+        "training_write_events": len(write_events) * arms,
+        "evaluation_write_events": (len(write_events) * arms
+                                    + len(write_events) * baseline_arms),
+        "checkpoint_writes": 3,
+    }
+
+
+def _expected_identities(config: Mapping[str, Any],
+                         config_sha256: str,
+                         prepared_manifest_sha256: str,
+                         metadata: Mapping[str, Any]) -> dict:
+    teaching = [row["case_id"] for row in metadata["teaching"]]
+    return {
+        "protocol_id": PROTOCOL_ID,
+        "config_sha256": config_sha256,
+        "prepared_manifest_sha256": prepared_manifest_sha256,
+        "vocabulary_sha256": sha256_json(
+            list(config["architecture"]["answer_vocabulary"])),
+        "seed": int(config["transaction"]["seed"]),
+        "event_sequence_sha256": sha256_json(metadata["events"]),
+        "teaching_sequence_sha256": sha256_json(teaching),
+        "case_sequence_sha256": sha256_json(
+            [metadata["cases"][case_id]
+             for case_id in sorted(metadata["cases"])]),
+    }
+
+
+def _validate_physical_work(report: Mapping[str, Any],
+                            metadata: Mapping[str, Any],
+                            check: str) -> dict:
+    work = report.get("physical_work")
+    _require(isinstance(work, Mapping), check,
+             "fit report lacks cumulative physical work")
+    expected = _expected_physical_work(metadata)
+    for key, value in expected.items():
+        _require(work.get(key) == value, check,
+                 f"physical {key} differs from executed work")
+    _require(work.get("matches_global_logical_updates") is True, check,
+             "physical work does not match the global logical updates")
+    return expected
+
+
+def _validate_resume_evidence(evidence_dir: Path, report: Mapping[str, Any],
+                              config: Mapping[str, Any],
+                              config_sha256: str,
+                              prepared_manifest_sha256: str,
+                              metadata: Mapping[str, Any],
+                              replay: Mapping[str, Any],
+                              expected_work: Mapping[str, int],
+                              final_checkpoint_sha256: Mapping[str, str],
+                              check: str) -> dict:
+    path = Path(evidence_dir).parent / "resume_evidence.json"
+    _require(path.is_file(), check,
+             "resume evidence is missing from the finished fit")
+    evidence = _read_evidence_json(path, check)
+    _require(evidence.get("format") == RESUME_EVIDENCE_FORMAT, check,
+             "resume evidence format differs")
+    _require(evidence.get("protocol_id") == PROTOCOL_ID, check,
+             "resume evidence protocol differs")
+    _require(evidence.get("status") == "training_complete", check,
+             "resume evidence is not complete")
+    _require(evidence.get("identities") == _expected_identities(
+        config, config_sha256, prepared_manifest_sha256, metadata), check,
+        "resume evidence config/input identities differ")
+    _require(evidence.get("arm_order") == ["learned_value_readout",
+                                           "shuffled_values",
+                                           "wrong_world_values"], check,
+             "resume evidence arm order differs")
+    cursor = evidence.get("cursor")
+    _require(isinstance(cursor, Mapping), check,
+             "resume evidence cursor is missing")
+    _require(cursor.get("completed_arm_ids") == evidence["arm_order"], check,
+             "resume evidence did not complete every arm")
+    _require(cursor.get("next_arm_index") == 3
+             and cursor.get("active_arm_id") is None, check,
+             "resume cursor is not at the completed boundary")
+    processes = evidence.get("processes")
+    _require(isinstance(processes, list) and processes, check,
+             "resume process history is missing")
+    _require(evidence.get("process_count") == len(processes), check,
+             "resume process count differs")
+    _require(evidence.get("restart_count") == len(processes) - 1, check,
+             "resume restart count differs")
+    for index, row in enumerate(processes):
+        _require(row.get("process_index") == index
+                 and row.get("restart_index") == index, check,
+                 "resume process indices differ")
+        _require(row.get("status") in ("interrupted", "completed"), check,
+                 "resume process status differs")
+        _require(index == len(processes) - 1
+                 if row.get("status") == "completed" else True, check,
+                 "resume completed process is not last")
+        work = row.get("work")
+        _require(isinstance(work, Mapping)
+                 and set(work) == set(REQUIRED_RESUME_WORK_KEYS), check,
+                 "resume process work schema differs")
+        for key in REQUIRED_RESUME_WORK_KEYS:
+            _require(type(work[key]) is int and work[key] >= 0, check,
+                     f"resume process work {key} is invalid")
+        _require(work["optimizer_steps"] == work["backward_calls"]
+                 == work["training_forward_calls"], check,
+                 "resume process training work is inconsistent")
+    cumulative = evidence.get("cumulative_work")
+    _require(isinstance(cumulative, Mapping), check,
+             "resume cumulative work is missing")
+    for key, value in expected_work.items():
+        _require(cumulative.get(key) == value, check,
+                 f"resume cumulative {key} differs from executed work")
+    _require(sum(row["work"]["optimizer_steps"] for row in processes) == 72,
+             check, "resume processes did not perform exactly 72 updates")
+    _require(evidence.get("optimizer_steps_by_process")
+             == [row["work"]["optimizer_steps"] for row in processes], check,
+             "resume per-process optimizer steps differ")
+    _require(evidence.get("completed_arms_never_retrained") is True, check,
+             "resume evidence does not assert no completed-arm retraining")
+    _require(evidence.get("heavy_resume_artifacts_removed_after_completion")
+             is True, check, "heavy resume artifacts were not removed")
+    _require(evidence.get("retained_evidence") is True, check,
+             "resume evidence was not retained")
+    cap = int(config["budget"]["authorized_run_ceiling"]["artifact_bytes_max"])
+    _require(evidence.get("artifact_cap_bytes") == cap, check,
+             "resume evidence cap differs from the declared ceiling")
+    _require(type(evidence.get("resume_artifact_bytes_peak")) is int
+             and 0 <= evidence["resume_artifact_bytes_peak"] <= cap, check,
+             "resume artifact peak exceeds the unchanged ceiling")
+    completed = evidence.get("completed_arms")
+    _require(isinstance(completed, list) and len(completed) == 3, check,
+             "resume completed-arm evidence is incomplete")
+    _require({row["arm_id"] for row in completed}
+             == {"learned_value_readout", "shuffled_values",
+                 "wrong_world_values"}, check,
+             "resume completed-arm ids differ")
+    for row in completed:
+        arm_id = row["arm_id"]
+        _require(row.get("completed_updates") == 24, check,
+                 "resume completed arm count differs")
+        _require(row.get("state_sha256") == replay[arm_id]["state_sha256"],
+                 check, f"resume {arm_id} state differs from replay")
+        _require(row.get("final_state_sha256")
+                 == replay[arm_id]["state_sha256"], check,
+                 f"resume {arm_id} final state differs from replay")
+        _require(row.get("final_checkpoint_sha256")
+                 == final_checkpoint_sha256[arm_id], check,
+                 f"resume {arm_id} final checkpoint binding differs")
+        _require(_hex_digest(row.get("sha256")), check,
+                 f"resume {arm_id} artifact hash is invalid")
+    _require(report.get("resume_semantics", {}).get(
+        "completed_arms_never_retrained") is True, check,
+        "fit report resume semantics differ")
+    _require(report.get("resume_semantics", {}).get("identities")
+             == evidence["identities"], check,
+             "fit report resume identities differ")
+    return evidence
+
+
+def _validate_zero_update_baselines(report: Mapping[str, Any],
+                                    evidence_dir: Path,
+                                    metadata: Mapping[str, Any],
+                                    config: Mapping[str, Any],
+                                    cases_by_id: Mapping[str, Mapping[str, Any]],
+                                    targets: Mapping[str, Mapping[str, Any]],
+                                    check: str) -> dict:
+    baselines = report.get("zero_update_baselines")
+    _require(isinstance(baselines, Mapping), check,
+             "fit report lacks zero-update baselines")
+    parent = _parent_state(config, check)
+    parent_sha = _state_digest(parent, check)
+    trainable_names = list(config["architecture"]["trainable_parameters"])
+    model_sha = _state_digest(
+        {name: parent[name] for name in trainable_names}, check)
+    fixed_sha = _state_digest(
+        {name: parent[name] for name in ("read_projection", "decoder")}, check)
+    vocabulary = config["architecture"]["answer_vocabulary"]
+    outputs = {}
+    for name, filename, expected_acc, gates in (
+            ("parent", "baseline_parent_predictions.jsonl", 1.0, True),
+            ("reset", "baseline_reset_predictions.jsonl", 4 / 9, False)):
+        block = baselines.get(name)
+        _require(isinstance(block, Mapping), check,
+                 f"zero-update {name} baseline is missing")
+        _require(block.get("optimizer_steps") == 0
+                 and block.get("backward_calls") == 0
+                 and block.get("gradient") is False, check,
+                 f"zero-update {name} baseline trained")
+        _require(block.get("split") == "fit", check,
+                 f"zero-update {name} baseline split differs")
+        _require(block.get("state_sha256") == parent_sha
+                 and block.get("model_state_sha256") == model_sha
+                 and block.get("fixed_state_sha256") == fixed_sha, check,
+                 f"zero-update {name} baseline state differs from the parent")
+        path = Path(evidence_dir) / filename
+        _require(path.is_file(), check,
+                 f"zero-update {name} predictions are missing")
+        _require(block.get("predictions_sha256") == sha256_file(path), check,
+                 f"zero-update {name} prediction hash differs")
+        rows = _read_evidence_jsonl(path, check)
+        _require(len(rows) == 27, check,
+                 f"zero-update {name} prediction count differs")
+        _validate_predictions(
+            rows, cases_by_id=cases_by_id, split="fit",
+            vocabulary=vocabulary, state_sha256=parent_sha, check=check)
+        for row in rows:
+            _require(row.get("model_state_sha256") == parent_sha, check,
+                     f"zero-update {name} prediction state differs")
+        computed = _evidence_metrics(rows, targets)
+        _require(abs(float(block.get("case_accuracy", -1))
+                     - expected_acc) <= 1e-12, check,
+                 f"zero-update {name} case accuracy differs")
+        _require(block.get("per_case") == computed["per_case"], check,
+                 f"zero-update {name} coverage differs")
+        thresholds = _metric_thresholds(config, "fit")
+        _compare_claimed_metrics(block.get("metrics", {}),
+                                 computed["metrics"], thresholds, check)
+        _require(block.get("all_declared_gates_passed") is gates, check,
+                 f"zero-update {name} gate disposition differs")
+        if name == "reset":
+            _require(all(row["predicted_token"] == "UNKNOWN" for row in rows),
+                     check, "reset baseline did not abstain on every case")
+        outputs[name] = block
+    learning = baselines.get("integration_vs_learning")
+    _require(isinstance(learning, Mapping), check,
+             "integration/learning separation is missing")
+    _require(learning.get("integration_success") is True, check,
+             "integration success is not recorded")
+    _require(learning.get("parent_already_passes_all_fit_gates") is True, check,
+             "parent baseline gate result differs")
+    _require(learning.get("parent_case_accuracy") == 1.0
+             and learning.get("reset_case_accuracy") == 4 / 9, check,
+             "zero-update baseline accuracies differ")
+    _require(learning.get("treatment_case_accuracy") == 1.0, check,
+             "treatment accuracy differs from the integration evidence")
+    _require(learning.get("case_accuracy_improvement_over_parent") == 0.0,
+             check, "parent already solves the fit fixture")
+    _require(learning.get("learning_improvement_claimed") is False, check,
+             "fit claims learning improvement over the untouched parent")
+    return baselines
 
 
 @_fail_closed("fit_receipt")
@@ -2938,32 +3334,53 @@ def admit_fit_receipt(receipt: Mapping[str, Any],
     _require(report.get("predictions_sha256")
              == receipt["artifacts"]["fit_predictions_sha256"], check,
              "fit report predictions hash differs")
+    _require(report.get("event_clock_steps") == 36
+             and report.get("events_processed") == 36, check,
+             "fit report event clock/count differs")
+    # Training metadata (cases and replay cases) is allowed before admission.
+    # The exact chronological sequence is rebuilt from the preserved fixture.
+    from replica_lab.value_readout_abstention import (  # local import
+        read_fit_metadata, replay_fit_evidence)
+    metadata = read_fit_metadata(Path(prepared_dir), config)
+    cases_by_id = dict(metadata["cases"])
+    _require(len(cases_by_id) == 27
+             and len(metadata["teaching"]) == 24, check,
+             "training metadata coverage differs")
+    expected_updates = _expected_update_sequence(metadata, config, check)
+    replay = replay_fit_evidence(metadata, config)
+    final_checkpoint_sha256 = {
+        "learned_value_readout": receipt["artifacts"]["checkpoint_sha256"],
+        **{row["arm_id"]: row["checkpoint_sha256"]
+           for row in report.get("control_fits", [])},
+    }
     checkpoint = _load_checkpoint(paths["checkpoint_sha256"], check)
+    _validate_update_records(
+        checkpoint["update_records"], expected_updates, config, check)
+    _validate_update_records(
+        report["update_records"], expected_updates, config, check)
     verified = _validate_checkpoint(
         checkpoint, report=report, config=config,
         config_sha256=precheck["config_sha256"],
         prepared_manifest_sha256=precheck["prepared_manifest_sha256"],
         predictions_sha256=receipt["artifacts"]["fit_predictions_sha256"],
         report_state_sha256=report.get("resulting_state_sha256"),
-        check=check)
+        replay_arm=replay["learned_value_readout"], check=check)
     _require(report.get("optimizer_meta") == checkpoint.get("optimizer_meta"),
              check, "fit report optimizer metadata differs from the checkpoint")
-    # Training metadata (cases and replay cases) is allowed before admission.
-    files = config["prepared"]["files"]
-    train_rows = read_jsonl(Path(prepared_dir) / files["cases_train"])
-    replay_rows = read_jsonl(Path(prepared_dir) / files["cases_train_replay"])
-    all_cases = train_rows + replay_rows
-    cases_by_id = {case["case_id"]: case for case in all_cases}
-    teaching = [case for case in all_cases
-                if int(case["optimizer_steps"]) == 1]
-    teaching.sort(key=lambda case: (case["world_id"], int(case["epoch"])))
-    _require(len(all_cases) == 27 and len(teaching) == 24, check,
-             "training metadata coverage differs")
-    _validate_update_records(report, teaching, config, check)
-    _validate_control_fits(report, Path(evidence_dir), config,
-                           receipt["artifacts"]["checkpoint_sha256"],
-                           verified["state_sha256"], check)
-    targets = _case_targets(all_cases)
+    _validate_control_fits(
+        report, Path(evidence_dir), config,
+        precheck["config_sha256"], precheck["prepared_manifest_sha256"],
+        receipt["artifacts"]["checkpoint_sha256"], verified["state_sha256"],
+        expected_updates, replay, check)
+    expected_work = _validate_physical_work(report, metadata, check)
+    resume_evidence = _validate_resume_evidence(
+        Path(evidence_dir), report, config, precheck["config_sha256"],
+        precheck["prepared_manifest_sha256"], metadata, replay,
+        expected_work, final_checkpoint_sha256, check)
+    targets = _case_targets(list(cases_by_id.values()))
+    _validate_zero_update_baselines(
+        report, Path(evidence_dir), metadata, config, cases_by_id,
+        targets, check)
     predictions = _read_evidence_jsonl(paths["fit_predictions_sha256"], check)
     _require(len(predictions) == 27, check,
              "fit predictions do not cover all fit cases")
@@ -2971,6 +3388,8 @@ def admit_fit_receipt(receipt: Mapping[str, Any],
         predictions, cases_by_id=cases_by_id, split="fit",
         vocabulary=config["architecture"]["answer_vocabulary"],
         state_sha256=verified["state_sha256"], check=check)
+    _require(predictions == replay["learned_value_readout"]["predictions"],
+             check, "fit predictions differ from deterministic replay")
     computed = _evidence_metrics(predictions, targets)
     thresholds = _metric_thresholds(config, "fit")
     gated = _thresholds_pass(computed["metrics"], thresholds, check)
@@ -3017,6 +3436,15 @@ def admit_fit_receipt(receipt: Mapping[str, Any],
         "metrics": computed["metrics"],
         "gates_passed": True,
         "control_fits": report["control_fits"],
+        "physical_work": expected_work,
+        "resume": {
+            "process_count": resume_evidence["process_count"],
+            "restart_count": resume_evidence["restart_count"],
+            "optimizer_steps_by_process": resume_evidence[
+                "optimizer_steps_by_process"],
+            "completed_arms_never_retrained": True,
+        },
+        "zero_update_baselines": report["zero_update_baselines"],
         "artifact_budget": budget,
         "heldout_opened": False,
         "dev_labels_read": False,

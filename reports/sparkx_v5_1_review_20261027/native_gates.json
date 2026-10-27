@@ -1,0 +1,124 @@
+{
+  "format": "replica.sparkx_v5_1_review.native_gates.v1",
+  "date": "2026-10-27",
+  "scope": "Unresolved native measurements. None of these gates was executed, passed or converted into a documentation check by this review.",
+  "policy": "A gate becomes passed only from a separately admitted native protocol with sealed inputs, evidence and failure conditions. Documentation and arithmetic checks never satisfy a gate.",
+  "gates": [
+    {
+      "id": "NG1",
+      "name": "response_learning_repair",
+      "requirement": "A new DC-P1 protocol must obtain useful post-teaching free-generation and fresh-instance output, not only lower NLL or teacher-forced fit.",
+      "status": "unresolved",
+      "executed": false,
+      "measured": null,
+      "previous_evidence": "P response diagnostic: NLL 10.6891 to 5.6083, teacher-forced exact 0/28, greedy train-fit 0/28",
+      "blocks": ["P32", "P64", "Mkv-4k", "Mkv-64k", "outer_loop", "multiple_clocks", "self_distillation", "RSI"],
+      "owner": "new MiniCPM DC-P1 protocol"
+    },
+    {
+      "id": "NG2",
+      "name": "vision_first_update_overshoot",
+      "requirement": "A bounded DC-V1 protocol must show loss and meaningful answer/caption progress without the first-step overshoot.",
+      "status": "unresolved",
+      "executed": false,
+      "measured": null,
+      "previous_evidence": "first update raised answer/caption NLL 10.7045/9.7734 to 11.7419/13.4482; answers 0/14",
+      "blocks": ["larger_vision_campaign", "full_multimodal_training"],
+      "owner": "new MiniCPM DC-V1 protocol"
+    },
+    {
+      "id": "NG3",
+      "name": "native_episodic_retrieval_and_readout",
+      "requirement": "Learned native selection, compressed readout, abstention and complete-fact recall must pass on new role-sealed fixtures.",
+      "status": "unresolved",
+      "executed": false,
+      "measured": null,
+      "previous_evidence": "exact selected-record fixture 148/152 held-out with host selection and zero updates; learned-memory acceptance v4 rejected at 21/384 accepted-correct",
+      "blocks": ["E2_product", "Mkv", "joint_E_P_vocab"],
+      "owner": "new MiniCPM DC-R1/DC-R2 protocols"
+    },
+    {
+      "id": "NG4",
+      "name": "P_capacity_fit_and_learning",
+      "requirement": "P32 then P64 must improve learning or retention at fixed active work, or lower cost at matched quality, with measured residency inside a declared profile.",
+      "status": "unresolved",
+      "executed": false,
+      "measured": null,
+      "previous_evidence": "P16 continuation/restart matched exactly; no capacity result exists",
+      "blocks": ["P64_product", "P128_stretch"],
+      "owner": "DC-P2 after DC-P1"
+    },
+    {
+      "id": "NG5",
+      "name": "Mkv_sparse_execution",
+      "requirement": "A declared row-sparse optimizer must preserve inactive rows, preserve selected-row state across restart, aggregate duplicate indices, keep per-row clocks and measure actual allocation.",
+      "status": "unresolved",
+      "executed": false,
+      "measured": null,
+      "previous_evidence": "no Mkv implementation exists",
+      "blocks": ["Mkv-4k", "Mkv-64k", "P+Mkv", "Mkv_capacity_growth"],
+      "owner": "DC-M1 protocol after DC-P1"
+    },
+    {
+      "id": "NG6",
+      "name": "teacher_competence_and_self_distillation",
+      "requirement": "The evidence-conditioned teacher must answer the task before distillation, with all teacher, rollout, replay and checking work measured at equal total cost.",
+      "status": "unresolved",
+      "executed": false,
+      "measured": null,
+      "previous_evidence": "no teacher-competence or distillation run exists",
+      "blocks": ["self_distillation", "RSI"],
+      "owner": "DC-N3 after a useful inner learner"
+    },
+    {
+      "id": "NG7",
+      "name": "outer_loop_gradient_and_clocks",
+      "requirement": "First-order and functional short-unroll outer objectives must declare their omitted paths and beat matched controls; two clocks must beat one at equal total parameters and work.",
+      "status": "unresolved",
+      "executed": false,
+      "measured": null,
+      "previous_evidence": "no outer-loop or multi-clock run exists",
+      "blocks": ["multiple_clocks", "RSI"],
+      "owner": "DC-N1/DC-N2 protocols"
+    },
+    {
+      "id": "NG8",
+      "name": "spark_full_training_qualification",
+      "requirement": "The actual v5.1 graph must be profiled for residency, throughput and precision, and pass Spark-native parity and learning gates before full training.",
+      "status": "unresolved",
+      "executed": false,
+      "measured": null,
+      "previous_evidence": "historical 4.4B/65.57 GiB estimate predates the encoder, P and Mkv changes; does not fit the 50 GiB driver guard",
+      "blocks": ["full_multimodal_training", "P8_full_training"],
+      "owner": "P0/P8 native qualification"
+    },
+    {
+      "id": "NG9",
+      "name": "official_fp8_and_native_fp8_execution",
+      "requirement": "Official FP8 storage and native FP8 execution must be qualified separately from official BF16 and the dequantized BF16-storage derivative.",
+      "status": "unresolved",
+      "executed": false,
+      "measured": null,
+      "previous_evidence": "native FP8 was refused on MPS and never executed; derivative_02 export/reload is not native FP8 execution",
+      "blocks": ["fp8_training", "fp8_product_profile"],
+      "owner": "precision/backend qualification"
+    },
+    {
+      "id": "NG10",
+      "name": "personality_specification_and_evaluation",
+      "requirement": "Personality must be supplied as a separate specification and evaluated separately; it is not inferred from research or affect labels.",
+      "status": "unresolved",
+      "executed": false,
+      "measured": null,
+      "previous_evidence": "user-supplied description pending; neutral conditioning path preserved",
+      "blocks": ["personality_release"],
+      "owner": "product specification pending"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "unresolved": 10,
+    "executed": 0,
+    "passed": 0
+  }
+}
