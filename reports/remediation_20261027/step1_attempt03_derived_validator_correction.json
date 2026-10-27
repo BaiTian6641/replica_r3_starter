@@ -1,0 +1,253 @@
+{
+  "format": "replica.vision_learnability_step1.derived_receipt.v1",
+  "version": "replica.vision_learnability_curve.v2",
+  "receipt_class": "derived_validator_correction",
+  "status": "derived_validator_correction",
+  "original_status": "stopped_engineering_failure",
+  "original_status_preserved": true,
+  "original_report_unchanged": true,
+  "no_native_execution": true,
+  "native_execution": false,
+  "source_bindings": {
+    "accounting": {
+      "role": "accounting",
+      "path": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03/accounting.json",
+      "sha256": "137fffb001a3ad653a33181e5819aee4cb46669ffe404585f3d60ca2b90c4e5c"
+    },
+    "executed_config": {
+      "role": "executed_config",
+      "path": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03/config.json",
+      "sha256": "b7bb9ded894ba053fa17f380a408697317b8d6862a4cac53c8b8f6ec80b1e32a"
+    },
+    "readout_0:prefix_0": {
+      "role": "readout",
+      "path": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03/readouts/prefix_0/readout.json",
+      "sha256": "00356062f9a03e0848ad1284e1c0dfda582ab00a57ba9d9cc6e0717a7c912d12"
+    },
+    "readout_1:prefix_0_null": {
+      "role": "readout",
+      "path": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03/readouts/prefix_0_null/readout.json",
+      "sha256": "7d82b3227fd6ea72b1be82b04f430f251682e88c4be3c0a86b4726e5e28af672"
+    },
+    "readout_2:prefix_1": {
+      "role": "readout",
+      "path": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03/readouts/prefix_1/readout.json",
+      "sha256": "a0f2e521ebce973e62aca3122502da0e461ea473b0a35c555e0419371abe2a62"
+    },
+    "report": {
+      "role": "original_report",
+      "path": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03/report.json",
+      "sha256": "4a6a79a77ffaf3800cc6a625974489d475a23c28627805ce77edec7550554100"
+    },
+    "response_mask_audit": {
+      "role": "response_mask",
+      "path": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03/response_mask_audit.json",
+      "sha256": "021808df40d41694b96c2f172db9784d30d416226de6507cc13f3bb7637f3f25"
+    },
+    "training_trace": {
+      "role": "update_trace",
+      "path": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03/training_trace.jsonl",
+      "sha256": "e9cf35094c178acf2282b32d313d71d425e3af04bbe18316dc8059022dd1c894"
+    },
+    "validator_config": {
+      "role": "validator_config",
+      "path": "configs/vision_learnability_step1_reproduction_v1.json",
+      "sha256": "4aa95a61dca94e8b69d6b31eb24e2c8e6287d2b306b77faffeb186efb86d259a"
+    }
+  },
+  "validator_correction": {
+    "problem": "validate_step1_accounting summed per-readout visual counters and then added the same cumulative training_global counters",
+    "resolution": "visual observation/encoder/projector totals now come from the whole-run cumulative counters exactly once",
+    "expected_visual_observation_calls": 220,
+    "encoder_and_miss_cap": 220,
+    "cache_identity": "misses == encoder_calls; misses + hits == observations"
+  },
+  "accounting": {
+    "ok": true,
+    "violations": [],
+    "totals": {
+      "decoder_forward_calls": 5644,
+      "generated_tokens": 4166,
+      "prepare_sense_passes": 882,
+      "explicit_logits_forwards": 588,
+      "update_forwards": 8,
+      "backward_calls": 4,
+      "optimizer_steps": 1,
+      "visual_observation_calls": 220,
+      "visual_encoder_calls": 218,
+      "visual_encoder_cache_misses": 218,
+      "visual_encoder_cache_hits": 2,
+      "projector_passes": 4594
+    },
+    "expected": {
+      "decoder_forward_calls": 5644,
+      "generated_tokens": 4166,
+      "prepare_sense_passes": 882,
+      "explicit_logits_forwards": 588,
+      "update_forwards": 8,
+      "backward_calls": 4,
+      "optimizer_steps": 1,
+      "readouts": 3,
+      "generation_lengths_by_readout": [
+        1362,
+        1362,
+        1442
+      ],
+      "declared_readout_decoder_passes": [
+        1852,
+        1852,
+        1932
+      ],
+      "projector_passes_max": 5644,
+      "visual_observation_calls": 220,
+      "visual_encoder_calls_max": 220,
+      "visual_encoder_cache_misses_max": 220
+    },
+    "visual_observation_calls": 220,
+    "visual_encoder_calls": 218,
+    "visual_encoder_cache_misses": 218,
+    "visual_encoder_cache_hits": 2,
+    "projector_passes": 4594,
+    "arithmetic": "4,166 generated + 882 prepares + 588 logits + 8 update forwards = 5,644 decoder passes"
+  },
+  "nondeterminism": {
+    "ok": true,
+    "violations": [],
+    "tolerance": 1e-06,
+    "fields": [
+      {
+        "role": "answer",
+        "first": 10.704498972211566,
+        "second": 10.704498972211566,
+        "absolute_delta": 0.0
+      },
+      {
+        "role": "caption",
+        "first": 9.773420969645182,
+        "second": 9.773420969645182,
+        "absolute_delta": 0.0
+      }
+    ],
+    "deterministic": true
+  },
+  "decision": {
+    "curve_v1_verdict": "curve_no_optimization_progress",
+    "curve_verdict_preserved": true,
+    "verdict_change": false,
+    "dev_authorized": false,
+    "heldout_authorized": false,
+    "v0_authorized": false,
+    "promotion": false,
+    "retry_authorized": false,
+    "generated_answer_conversion_claim": false,
+    "status": "step1_reproduction_supported",
+    "nondeterminism": {
+      "ok": true,
+      "violations": [],
+      "tolerance": 1e-06,
+      "fields": [
+        {
+          "role": "answer",
+          "first": 10.704498972211566,
+          "second": 10.704498972211566,
+          "absolute_delta": 0.0
+        },
+        {
+          "role": "caption",
+          "first": 9.773420969645182,
+          "second": 9.773420969645182,
+          "absolute_delta": 0.0
+        }
+      ],
+      "deterministic": true
+    },
+    "accounting": {
+      "ok": true,
+      "violations": [],
+      "totals": {
+        "decoder_forward_calls": 5644,
+        "generated_tokens": 4166,
+        "prepare_sense_passes": 882,
+        "explicit_logits_forwards": 588,
+        "update_forwards": 8,
+        "backward_calls": 4,
+        "optimizer_steps": 1,
+        "visual_observation_calls": 220,
+        "visual_encoder_calls": 218,
+        "visual_encoder_cache_misses": 218,
+        "visual_encoder_cache_hits": 2,
+        "projector_passes": 4594
+      },
+      "expected": {
+        "decoder_forward_calls": 5644,
+        "generated_tokens": 4166,
+        "prepare_sense_passes": 882,
+        "explicit_logits_forwards": 588,
+        "update_forwards": 8,
+        "backward_calls": 4,
+        "optimizer_steps": 1,
+        "readouts": 3,
+        "generation_lengths_by_readout": [
+          1362,
+          1362,
+          1442
+        ],
+        "declared_readout_decoder_passes": [
+          1852,
+          1852,
+          1932
+        ],
+        "projector_passes_max": 5644,
+        "visual_observation_calls": 220,
+        "visual_encoder_calls_max": 220,
+        "visual_encoder_cache_misses_max": 220
+      },
+      "visual_observation_calls": 220,
+      "visual_encoder_calls": 218,
+      "visual_encoder_cache_misses": 218,
+      "visual_encoder_cache_hits": 2,
+      "projector_passes": 4594,
+      "arithmetic": "4,166 generated + 882 prepares + 588 logits + 8 update forwards = 5,644 decoder passes"
+    },
+    "prefix0_teacher_forced": {
+      "answer": 10.704498972211566,
+      "caption": 9.773420969645182
+    },
+    "prefix1_teacher_forced": {
+      "answer": 11.74190446308681,
+      "caption": 13.448152462641398
+    },
+    "overshoot_observed": true,
+    "reason": "the first NativeFusedAdamW step increases both readout losses"
+  },
+  "corrected_status": "step1_reproduction_supported",
+  "curve_v1_verdict": "curve_no_optimization_progress",
+  "curve_verdict_preserved": true,
+  "generated_answer_correctness": {
+    "claimed": false,
+    "note": "rank/loss movement is not generated-answer conversion"
+  },
+  "image_dependence": {
+    "claimed": false,
+    "note": "the derived receipt audits accounting, not perceptual quality"
+  },
+  "dev_authorized": false,
+  "dev_accessed": false,
+  "heldout_authorized": false,
+  "heldout_accessed": false,
+  "v0_authorized": false,
+  "v0_run": false,
+  "promotion": false,
+  "retry_authorized": false,
+  "replay": {
+    "command": "python scripts/run_vision_learnability_curve_v2.py replay-step1 --run runs/vision_learnability_step1_reproduction_v1_20261027_attempt03 --config configs/vision_learnability_step1_reproduction_v1.json",
+    "deterministic": true,
+    "native_execution": false,
+    "compares": [
+      "source_bindings",
+      "corrected accounting",
+      "nondeterminism",
+      "derived decision"
+    ]
+  }
+}

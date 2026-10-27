@@ -22,6 +22,7 @@ import hashlib
 import json
 from pathlib import Path
 import sys
+from typing import Any
 import time
 import traceback
 
@@ -103,6 +104,87 @@ def replay_accounting(args) -> dict:
         "grand_total_events": evidence["correction"]["grand_total_events"],
     }, indent=2))
     return evidence
+
+
+def _binding(root: Path, path: Path, role: str) -> dict[str, Any]:
+    resolved = path.resolve()
+    try:
+        relative = str(resolved.relative_to(root.resolve()))
+    except ValueError:
+        relative = str(path)
+    return {
+        "role": role,
+        "path": relative,
+        "sha256": _sha(path),
+    }
+
+
+def replay_step1(args) -> dict:
+    """Recompute the corrected step-1 receipt without native execution."""
+    config = curve_v2.load_config(args.config)
+    learn.require(config["mode"] == curve_v2.STEP1_MODE,
+                  "replay-step1 requires the curve_step1 config")
+    run = Path(args.run)
+    learn.require(run.is_dir(), f"Attempt run is missing: {run}")
+    report_path = run / "report.json"
+    accounting_path = run / "accounting.json"
+    trace_path = run / "training_trace.jsonl"
+    mask_path = run / "response_mask_audit.json"
+    for path in (report_path, accounting_path, trace_path, mask_path):
+        learn.require(path.is_file(), f"Attempt artifact is missing: {path}")
+    readout_paths = [run / "readouts" / label / "readout.json"
+                     for label in ("prefix_0", "prefix_0_null", "prefix_1")]
+    for path in readout_paths:
+        learn.require(path.is_file(), f"Attempt readout is missing: {path}")
+    report = _read_json(report_path)
+    accounting = _read_json(accounting_path)
+    readouts = [_read_json(path) for path in readout_paths]
+    trace = _read_jsonl(trace_path)
+    learn.require(len(trace) == 1, "Exactly one attempt update is required")
+    command = (
+        "python scripts/run_vision_learnability_curve_v2.py replay-step1 "
+        f"--run {args.run} --config {args.config}")
+    bindings = {
+        "report": _binding(ROOT, report_path, "original_report"),
+        "executed_config": _binding(ROOT, run / "config.json",
+                                    "executed_config"),
+        "validator_config": _binding(ROOT, Path(args.config),
+                                     "validator_config"),
+        "accounting": _binding(ROOT, accounting_path, "accounting"),
+        "training_trace": _binding(ROOT, trace_path, "update_trace"),
+        "response_mask_audit": _binding(ROOT, mask_path, "response_mask"),
+    }
+    for index, (label, path) in enumerate(zip(
+            ("prefix_0", "prefix_0_null", "prefix_1"), readout_paths)):
+        bindings[f"readout_{index}:{label}"] = _binding(
+            ROOT, path, "readout")
+    receipt = curve_v2.build_derived_step1_receipt(
+        config=config, readouts=readouts, accounting=accounting,
+        update=trace[0], original_report=report,
+        source_bindings=bindings, replay_command=command)
+    curve_v2.validate_derived_step1_receipt(receipt, root=ROOT)
+    destination = Path(args.output)
+    if args.check is not None:
+        expected = _read_json(args.check)
+        if expected != receipt:
+            raise RuntimeError(
+                "Derived step-1 replay differs from the preserved receipt")
+        print(json.dumps({
+            "status": "replay_matches",
+            "path": str(args.check),
+            "corrected_status": receipt["corrected_status"],
+            "original_status": receipt["original_status"],
+        }, indent=2))
+        return receipt
+    _write_json(destination, receipt)
+    print(json.dumps({
+        "status": "derived_receipt_written",
+        "path": str(destination),
+        "corrected_status": receipt["corrected_status"],
+        "original_status": receipt["original_status"],
+    }, indent=2))
+    return receipt
+
 
 
 # ---------------------------------------------------------------------------
@@ -792,6 +874,20 @@ def build_parser():
         default="reports/remediation_20261027/"
                 "vision_learnability_curve_v1_accounting_correction.json")
     replay.add_argument("--check", default=None)
+    replay_step = sub.add_parser(
+        "replay-step1", help="CPU-only derived correction of a preserved run")
+    replay_step.add_argument(
+        "--run",
+        default="runs/vision_learnability_step1_reproduction_v1_20261027_"
+                "attempt03")
+    replay_step.add_argument(
+        "--config",
+        default="configs/vision_learnability_step1_reproduction_v1.json")
+    replay_step.add_argument(
+        "--output",
+        default="reports/remediation_20261027/"
+                "step1_attempt03_derived_validator_correction.json")
+    replay_step.add_argument("--check", default=None)
     run = sub.add_parser("run", help="fail-closed native step-1 execution")
     run.add_argument("--config", required=True)
     run.add_argument("--output", required=True)
@@ -806,6 +902,9 @@ def main() -> int:
     args = parser.parse_args()
     if args.command == "replay-accounting":
         replay_accounting(args)
+        return 0
+    if args.command == "replay-step1":
+        replay_step1(args)
         return 0
     config = curve_v2.load_config(args.config)
     if config["mode"] != curve_v2.STEP1_MODE:

@@ -215,8 +215,8 @@
     ],
     "projector_passes_max": 5644,
     "visual_observation_calls": 220,
-    "visual_encoder_calls": 220,
-    "visual_encoder_cache_misses": 220
+    "visual_encoder_calls_max": 220,
+    "visual_encoder_cache_misses_max": 220
   },
   "accounting": {
     "format": "replica.vision_forward_accounting.budget.v2",
@@ -381,8 +381,8 @@
     },
     "new_files": {
       "src/replica_lab/vision_forward_accounting.py": "b85fff6436ebbdbbcb36566051e4a284a82a0eee8d1bdd5354ed66e355df455a",
-      "src/replica_lab/vision_learnability_curve_v2.py": "10e1c4a3ad78ce799db4a9218126687d872e43e51faf8ce0eea334df7008462b",
-      "scripts/run_vision_learnability_curve_v2.py": "34752ad1040b10b42fbae9883ea511e09878a451e4b208a5a728be0c5da116cb"
+      "src/replica_lab/vision_learnability_curve_v2.py": "afda84c044cfb95f4df48f52a0f720e395fe6f4cbee12d004fe16e428126c466",
+      "scripts/run_vision_learnability_curve_v2.py": "43948066342a704db1514b05c5791479374e40e440af21f97060985808e77a79"
     }
   },
   "authorization": {
@@ -416,7 +416,7 @@
     "Expected historical NLLs, digests and norms are hypotheses and anchors, not pass/fail gates; the only causal read is the repeated prefix-0 null readout and the first update's effect on prefix-1 loss.",
     "No probes, prefix 2/4/7, extension/checkpoint writes, downloads or model reloads are allowed.",
     "Native execution is refused until an external authorization receipt binds the committed config SHA-256.",
-    "The measured 5,660 decoder passes are physical calls; 882 prepares is not the scoring-forward total."
+    "The measured 5,644 decoder passes are physical calls; 882 prepares is not the scoring-forward total."
   ],
   "output": "runs/vision_learnability_step1_reproduction_v1_20261027",
   "report_root": "reports/vision_learnability_step1_reproduction_v1_20261027"

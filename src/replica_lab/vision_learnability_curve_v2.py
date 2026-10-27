@@ -44,6 +44,8 @@ STEP1_READOUT_FORMAT = "replica.vision_learnability_step1.readout.v1"
 CORRECTION_FORMAT = fwd.HISTORICAL_FORMAT
 REPORT_FORMAT = "replica.vision_learnability_curve.report.v2"
 STEP1_REPORT_FORMAT = "replica.vision_learnability_step1.report.v1"
+DERIVED_STEP1_FORMAT = "replica.vision_learnability_step1.derived_receipt.v1"
+DERIVED_STEP1_CLASS = "derived_validator_correction"
 AUTHORIZATION_FORMAT = "replica.vision_learnability_step1.authorization.v1"
 
 V1_VERDICT = "curve_no_optimization_progress"
@@ -100,8 +102,8 @@ STEP1_EXPECTED_WORK = {
     "generation_lengths_by_readout": [1362, 1362, 1442],
     "declared_readout_decoder_passes": [1852, 1852, 1932],
     "visual_observation_calls": 220,
-    "visual_encoder_calls": 220,
-    "visual_encoder_cache_misses": 220,
+    "visual_encoder_calls_max": 220,
+    "visual_encoder_cache_misses_max": 220,
     "projector_passes_max": 5644,
 }
 
@@ -1471,9 +1473,6 @@ def validate_step1_accounting(
         "generated_tokens": 0,
         "prepare_sense_passes": 0,
         "explicit_logits_forwards": 0,
-        "visual_observation_calls": 0,
-        "visual_encoder_calls": 0,
-        "visual_encoder_cache_misses": 0,
     }
     for readout in readouts:
         measured = readout.get("measured") or {}
@@ -1489,10 +1488,20 @@ def validate_step1_accounting(
     totals["backward_calls"] = int(training_global.get("backward_calls", 0))
     totals["optimizer_steps"] = int(
         training_global.get("optimizer_steps", 0))
+    # These are whole-run cumulative counters in accounting.json.  Adding the
+    # per-readout counters again double-counted every readout observation.
     for key in ("visual_observation_calls", "visual_encoder_calls",
-                "visual_encoder_cache_misses"):
-        totals[key] += int(training_global.get(key, 0))
-    for key in totals:
+                "visual_encoder_cache_misses",
+                "visual_encoder_cache_hits", "projector_passes"):
+        value = training_global.get(key)
+        if type(value) is not int or value < 0:
+            violations.append(f"{key}:missing_or_invalid")
+            totals[key] = -1
+        else:
+            totals[key] = value
+    for key in ("decoder_forward_calls", "generated_tokens",
+                "prepare_sense_passes", "explicit_logits_forwards",
+                "update_forwards", "backward_calls", "optimizer_steps"):
         expected_value = int(expected[key])
         if int(totals[key]) != expected_value:
             violations.append(f"{key}:{totals[key]}!={expected_value}")
@@ -1502,10 +1511,28 @@ def validate_step1_accounting(
         "generated_tokens", -1)) for readout in readouts]
     if lengths != list(expected["generation_lengths_by_readout"]):
         violations.append(f"generation_lengths:{lengths}")
-    projectors = sum(int(((readout.get("measured") or {}).get(
-        "counters") or {}).get("projector_passes", 0))
-        for readout in readouts) + int(training_global.get(
-            "projector_passes", 0))
+    observations = int(totals["visual_observation_calls"])
+    encoder = int(totals["visual_encoder_calls"])
+    misses = int(totals["visual_encoder_cache_misses"])
+    hits = int(totals["visual_encoder_cache_hits"])
+    if observations != int(expected["visual_observation_calls"]):
+        violations.append(
+            f"visual_observation_calls:{observations}!="
+            f"{expected['visual_observation_calls']}")
+    if encoder != misses:
+        violations.append(f"visual_encoder_calls!=cache_misses:{encoder}!={misses}")
+    if misses + hits != observations:
+        violations.append(
+            f"cache_misses+hits!=observations:{misses}+{hits}!={observations}")
+    if encoder > int(expected["visual_encoder_calls_max"]):
+        violations.append(
+            f"visual_encoder_calls:{encoder}>"
+            f"{expected['visual_encoder_calls_max']}")
+    if misses > int(expected["visual_encoder_cache_misses_max"]):
+        violations.append(
+            f"visual_encoder_cache_misses:{misses}>"
+            f"{expected['visual_encoder_cache_misses_max']}")
+    projectors = int(totals["projector_passes"])
     if projectors > int(expected["projector_passes_max"]):
         violations.append(f"projector_passes:{projectors}")
     return {
@@ -1513,10 +1540,10 @@ def validate_step1_accounting(
         "violations": violations,
         "totals": totals,
         "expected": dict(expected),
-        "visual_observation_calls": totals["visual_observation_calls"],
-        "visual_encoder_calls": totals["visual_encoder_calls"],
-        "visual_encoder_cache_misses":
-            totals["visual_encoder_cache_misses"],
+        "visual_observation_calls": observations,
+        "visual_encoder_calls": encoder,
+        "visual_encoder_cache_misses": misses,
+        "visual_encoder_cache_hits": hits,
         "projector_passes": projectors,
         "arithmetic":
             "4,166 generated + 882 prepares + 588 logits + 8 update "
@@ -1624,6 +1651,165 @@ def step1_decision(
                    else "the first step does not increase both readout "
                         "losses"),
     }
+
+
+def build_derived_step1_receipt(
+        *, config: Mapping[str, Any],
+        readouts: Sequence[Mapping[str, Any]],
+        accounting: Mapping[str, Any],
+        update: Mapping[str, Any],
+        original_report: Mapping[str, Any],
+        source_bindings: Mapping[str, Mapping[str, Any]],
+        replay_command: str,
+) -> dict[str, Any]:
+    """Recompute a corrected step-1 receipt from preserved attempt artifacts.
+
+    The original report is never modified.  This function is CPU-only and
+    requires the corrected accounting validator to reconcile before it records
+    a derived decision.
+    """
+    for path, binding in source_bindings.items():
+        _require_sha256(binding.get("sha256"), f"source sha256:{path}")
+    require(original_report.get("status") == STEP1_STATUS_ENGINEERING,
+            "The preserved report is not the expected failed original")
+    nondeterminism = readout_nondeterminism_report(
+        readouts[0], readouts[1],
+        tolerance=float(config["nondeterminism_stop"]
+                        ["teacher_forced_abs_tolerance"]))
+    accounting_report = validate_step1_accounting(
+        readouts, accounting,
+        expected=config["expected_measured_work"])
+    require(accounting_report["ok"],
+            f"Corrected accounting does not reconcile: "
+            f"{accounting_report['violations']}")
+    decision = step1_decision(
+        prefix0=readouts[0], prefix0_null=readouts[1],
+        prefix1=readouts[2], update=update,
+        accounting=accounting_report, nondeterminism=nondeterminism)
+    require(decision["status"] == STEP1_STATUS_SUPPORTED,
+            f"Corrected decision is not supported: {decision['status']}")
+    return {
+        "format": DERIVED_STEP1_FORMAT,
+        "version": VERSION,
+        "receipt_class": DERIVED_STEP1_CLASS,
+        "status": DERIVED_STEP1_CLASS,
+        "original_status": STEP1_STATUS_ENGINEERING,
+        "original_status_preserved": True,
+        "original_report_unchanged": True,
+        "no_native_execution": True,
+        "native_execution": False,
+        "source_bindings": {
+            str(path): dict(binding)
+            for path, binding in sorted(source_bindings.items())
+        },
+        "validator_correction": {
+            "problem": (
+                "validate_step1_accounting summed per-readout visual counters "
+                "and then added the same cumulative training_global counters"),
+            "resolution": (
+                "visual observation/encoder/projector totals now come from "
+                "the whole-run cumulative counters exactly once"),
+            "expected_visual_observation_calls": 220,
+            "encoder_and_miss_cap": 220,
+            "cache_identity": "misses == encoder_calls; misses + hits == observations",
+        },
+        "accounting": accounting_report,
+        "nondeterminism": nondeterminism,
+        "decision": decision,
+        "corrected_status": decision["status"],
+        "curve_v1_verdict": V1_VERDICT,
+        "curve_verdict_preserved": True,
+        "generated_answer_correctness": {
+            "claimed": False,
+            "note": "rank/loss movement is not generated-answer conversion",
+        },
+        "image_dependence": {
+            "claimed": False,
+            "note": "the derived receipt audits accounting, not perceptual quality",
+        },
+        "dev_authorized": False,
+        "dev_accessed": False,
+        "heldout_authorized": False,
+        "heldout_accessed": False,
+        "v0_authorized": False,
+        "v0_run": False,
+        "promotion": False,
+        "retry_authorized": False,
+        "replay": {
+            "command": replay_command,
+            "deterministic": True,
+            "native_execution": False,
+            "compares": [
+                "source_bindings",
+                "corrected accounting",
+                "nondeterminism",
+                "derived decision",
+            ],
+        },
+    }
+
+
+def validate_derived_step1_receipt(
+        receipt: Mapping[str, Any], *, root: str | Path | None = None
+) -> dict[str, Any]:
+    require(isinstance(receipt, Mapping), "Derived receipt is missing")
+    require(receipt.get("format") == DERIVED_STEP1_FORMAT,
+            "Derived receipt format differs")
+    require(receipt.get("receipt_class") == DERIVED_STEP1_CLASS
+            and receipt.get("status") == DERIVED_STEP1_CLASS,
+            "Derived receipt is not labelled derived_validator_correction")
+    require(receipt.get("original_status") == STEP1_STATUS_ENGINEERING
+            and receipt.get("original_status_preserved") is True,
+            "Original failed status is not preserved")
+    require(receipt.get("original_report_unchanged") is True
+            and receipt.get("no_native_execution") is True
+            and receipt.get("native_execution") is False,
+            "Derived receipt must not claim native execution")
+    bindings = receipt.get("source_bindings")
+    require(isinstance(bindings, Mapping) and bindings,
+            "Derived receipt lacks source bindings")
+    for path, binding in bindings.items():
+        require(isinstance(binding, Mapping)
+                and isinstance(binding.get("sha256"), str)
+                and len(binding["sha256"]) == 64,
+                f"Source binding differs: {path}")
+        if root is not None:
+            bound_path = Path(root) / str(binding.get("path"))
+            require(bound_path.is_file()
+                    and _sha256_file(bound_path) == binding["sha256"],
+                    f"Bound source bytes differ: {path}")
+    require((receipt.get("accounting") or {}).get("ok") is True,
+            "Derived accounting is not ok")
+    decision = receipt.get("decision") or {}
+    require(decision.get("status") == STEP1_STATUS_SUPPORTED,
+            "Derived decision is not supported")
+    require(decision.get("curve_v1_verdict") == V1_VERDICT
+            and decision.get("curve_verdict_preserved") is True,
+            "Derived decision changes the v1 verdict")
+    for key in ("dev_authorized", "heldout_authorized", "v0_authorized",
+                "promotion", "retry_authorized"):
+        require(decision.get(key) is False,
+                f"Derived decision authorizes {key}")
+    first = decision.get("prefix0_teacher_forced") or {}
+    second = decision.get("prefix1_teacher_forced") or {}
+    require(first.get("answer") == STEP1_ANCHORS[
+        "prefix0_teacher_forced_loss"]["answer"]
+        and first.get("caption") == STEP1_ANCHORS[
+            "prefix0_teacher_forced_loss"]["caption"],
+        "Prefix-0 derived losses differ")
+    require(second.get("answer") == STEP1_ANCHORS[
+        "prefix1_teacher_forced_loss"]["answer"]
+        and second.get("caption") == STEP1_ANCHORS[
+            "prefix1_teacher_forced_loss"]["caption"],
+        "Prefix-1 derived losses differ")
+    return {
+        "ok": True,
+        "receipt_class": DERIVED_STEP1_CLASS,
+        "corrected_status": STEP1_STATUS_SUPPORTED,
+        "original_status": STEP1_STATUS_ENGINEERING,
+        "sources": len(bindings),
+    }
+
 
 
 def validate_authorization_receipt(

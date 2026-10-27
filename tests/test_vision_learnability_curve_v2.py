@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 import torch
@@ -33,6 +35,15 @@ V1_PRESERVED_HASHES = {
 
 def _sha(relative):
     return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+
+
+def _runner_module():
+    spec = importlib.util.spec_from_file_location(
+        "vision_curve_v2_runner_for_replay",
+        ROOT / "scripts/run_vision_learnability_curve_v2.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 # ---------------------------------------------------------------------------
@@ -472,10 +483,11 @@ def _step1_readouts():
 def _training_totals():
     counters = {key: 0 for key in fwd.COUNTER_KEYS}
     counters.update({"backward_calls": 4, "optimizer_steps": 1,
-                     "visual_observation_calls": 4,
-                     "visual_encoder_calls": 4,
-                     "visual_encoder_cache_misses": 4,
-                     "projector_passes": 4})
+                     "visual_observation_calls": 220,
+                     "visual_encoder_calls": 218,
+                     "visual_encoder_cache_misses": 218,
+                     "visual_encoder_cache_hits": 2,
+                     "projector_passes": 4594})
     return {
         "format": fwd.ACCOUNTING_FORMAT,
         "counters": counters,
@@ -502,8 +514,71 @@ def test_step1_accounting_reconciles_5644_decoder_passes():
     assert report["totals"]["backward_calls"] == 4
     assert report["totals"]["optimizer_steps"] == 1
     assert report["visual_observation_calls"] == 220
-    assert report["visual_encoder_calls"] == 220
-    assert report["visual_encoder_cache_misses"] == 220
+    assert report["visual_encoder_calls"] == 218
+    assert report["visual_encoder_cache_misses"] == 218
+    assert report["visual_encoder_cache_hits"] == 2
+    assert report["projector_passes"] == 4594
+
+
+def test_step1_accounting_uses_cumulative_visuals_once_not_readouts_plus_total():
+    readouts = _step1_readouts()
+    readout_observations = sum(
+        int((readout["measured"]["counters"])["visual_observation_calls"])
+        for readout in readouts)
+    assert readout_observations == 216
+    report = curve_v2.validate_step1_accounting(
+        readouts, _training_totals())
+    assert report["ok"] is True, report["violations"]
+    assert report["visual_observation_calls"] == 220
+    assert report["visual_observation_calls"] != (
+        readout_observations + 220)
+
+
+def test_step1_accounting_accepts_valid_cache_hits():
+    report = curve_v2.validate_step1_accounting(
+        _step1_readouts(), _training_totals())
+    assert report["ok"] is True
+    assert report["visual_encoder_cache_misses"] == 218
+    assert report["visual_encoder_cache_hits"] == 2
+    assert (report["visual_encoder_cache_misses"]
+            + report["visual_encoder_cache_hits"]) == 220
+
+
+def test_step1_accounting_rejects_visual_caps_and_cache_identity():
+    totals = _training_totals()
+    totals["counters"]["visual_encoder_calls"] = 221
+    totals["counters"]["visual_encoder_cache_misses"] = 221
+    totals["counters"]["visual_encoder_cache_hits"] = 0
+    totals["counters"]["visual_observation_calls"] = 221
+    report = curve_v2.validate_step1_accounting(
+        _step1_readouts(), totals)
+    assert report["ok"] is False
+    joined = " ".join(report["violations"])
+    assert "visual_encoder_calls" in joined
+    assert "visual_observation_calls" in joined
+    totals = _training_totals()
+    totals["counters"]["visual_encoder_cache_hits"] = 1
+    report = curve_v2.validate_step1_accounting(
+        _step1_readouts(), totals)
+    assert report["ok"] is False
+    assert "cache_misses+hits" in " ".join(report["violations"])
+
+
+def test_step1_accounting_rejects_missing_or_invalid_visual_counters():
+    totals = _training_totals()
+    del totals["counters"]["visual_encoder_calls"]
+    report = curve_v2.validate_step1_accounting(
+        _step1_readouts(), totals)
+    assert report["ok"] is False
+    assert "visual_encoder_calls:missing_or_invalid" in (
+        " ".join(report["violations"]))
+    totals = _training_totals()
+    totals["counters"]["visual_observation_calls"] = -1
+    report = curve_v2.validate_step1_accounting(
+        _step1_readouts(), totals)
+    assert report["ok"] is False
+    assert "visual_observation_calls:missing_or_invalid" in (
+        " ".join(report["violations"]))
 
 
 def test_step1_accounting_fails_closed_on_length_or_update_drift():
@@ -633,3 +708,69 @@ def test_historical_correction_reconstructs_7695_and_audits_receipts():
         "reports/vision_learnability_curve_v1_20261026/summary.json"] == _sha(
             "reports/vision_learnability_curve_v1_20261026/summary.json")
     assert evidence["v1_verdict"] == curve_v2.V1_VERDICT
+
+
+@require_local_artifacts(
+    "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03",
+    "configs/vision_learnability_step1_reproduction_v1.json",
+)
+def test_replay_step1_derives_supported_receipt_and_preserves_failure(
+        tmp_path):
+    run = ("runs/vision_learnability_step1_reproduction_v1_20261027_"
+           "attempt03")
+    report_path = ROOT / run / "report.json"
+    before = _sha(f"{run}/report.json")
+    output = tmp_path / "derived.json"
+    receipt = _runner_module().replay_step1(SimpleNamespace(
+        run=run,
+        config="configs/vision_learnability_step1_reproduction_v1.json",
+        output=str(output),
+        check=None))
+    assert output.is_file()
+    assert receipt["status"] == "derived_validator_correction"
+    assert receipt["receipt_class"] == "derived_validator_correction"
+    assert receipt["original_status"] == "stopped_engineering_failure"
+    assert receipt["original_status_preserved"] is True
+    assert receipt["no_native_execution"] is True
+    assert receipt["corrected_status"] == "step1_reproduction_supported"
+    assert receipt["decision"]["prefix0_teacher_forced"] == {
+        "answer": 10.704498972211566, "caption": 9.773420969645182}
+    assert receipt["decision"]["prefix1_teacher_forced"] == {
+        "answer": 11.74190446308681, "caption": 13.448152462641398}
+    assert receipt["accounting"]["visual_observation_calls"] == 220
+    assert receipt["accounting"]["visual_encoder_calls"] == 218
+    assert receipt["accounting"]["visual_encoder_cache_hits"] == 2
+    assert receipt["accounting"]["projector_passes"] == 4594
+    assert "report" in receipt["source_bindings"]
+    assert "accounting" in receipt["source_bindings"]
+    curve_v2.validate_derived_step1_receipt(receipt, root=ROOT)
+    assert _sha(f"{run}/report.json") == before
+
+
+@require_local_artifacts(
+    "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03",
+    "configs/vision_learnability_step1_reproduction_v1.json",
+)
+def test_replay_step1_rejects_source_hash_and_decision_tampering(tmp_path):
+    run = ("runs/vision_learnability_step1_reproduction_v1_20261027_"
+           "attempt03")
+    receipt = _runner_module().replay_step1(SimpleNamespace(
+        run=run,
+        config="configs/vision_learnability_step1_reproduction_v1.json",
+        output=str(tmp_path / "derived.json"),
+        check=None))
+    tampered = copy.deepcopy(receipt)
+    tampered["source_bindings"]["report"]["sha256"] = "0" * 64
+    with pytest.raises(learn.LearnabilityDiagnosticError,
+                       match="Bound source bytes differ"):
+        curve_v2.validate_derived_step1_receipt(tampered, root=ROOT)
+    tampered = copy.deepcopy(receipt)
+    tampered["decision"]["status"] = "step1_reproduction_refuted"
+    with pytest.raises(learn.LearnabilityDiagnosticError,
+                       match="not supported"):
+        curve_v2.validate_derived_step1_receipt(tampered)
+    tampered = copy.deepcopy(receipt)
+    tampered["original_status"] = "completed"
+    with pytest.raises(learn.LearnabilityDiagnosticError,
+                       match="failed status"):
+        curve_v2.validate_derived_step1_receipt(tampered)
