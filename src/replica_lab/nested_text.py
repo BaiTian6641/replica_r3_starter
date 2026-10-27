@@ -40,7 +40,7 @@ import torch
 from torch import Tensor
 
 from .architecture.contracts import (DifferentiablePlasticRead, PlasticRead,
-                                     PlasticSpec, fingerprint)
+                                     PlasticSpec, TaskGraph, fingerprint)
 from .architecture.plastic import fixed_projection, projection_digest
 from .nested_learning import (ChunkOutcome, DuplicateObservation, ExpertBank,
                               NestedLearningError, Observation,
@@ -717,7 +717,8 @@ class NestedTextLearner:
                     attention_mask: Tensor | None = None,
                     response_mask: Tensor | None = None,
                     reader_ids: Sequence[str] | None = None,
-                    sealed_at: float | None = None) -> TextEventOutcome:
+                    sealed_at: float | None = None,
+                    loss_gradients=None) -> TextEventOutcome:
         """Apply exactly one transaction and seal exactly one observation chunk."""
         _require(isinstance(event, TextTeachingEvent), "event contract required")
         _require(event.scope == self.protocol.scope,
@@ -772,7 +773,8 @@ class NestedTextLearner:
         transaction = self.controller.apply_teaching_transaction(
             event_id=event.event_id, expert_id=expert_id,
             features=feature_tensor, target=target_tensor,
-            steps=self.protocol.steps_per_event, scope=self.protocol.scope)
+            steps=self.protocol.steps_per_event, scope=self.protocol.scope,
+            loss_gradients=loss_gradients)
         _require(transaction.expert_id == expert_id,
                  "transaction route differs from the selected expert")
         mean_feature = feature_tensor.mean(dim=0)
@@ -812,7 +814,49 @@ class NestedTextLearner:
         self._last_event = outcome
         return outcome
 
+    def learn_event_response_ce(self, session, event: TextTeachingEvent, *,
+                                scope, prompt_ids: Tensor, prompt_mask: Tensor,
+                                input_ids: Tensor, attention_mask: Tensor,
+                                response_mask: Tensor,
+                                reader_ids: Sequence[str] | None = None,
+                                sealed_at: float | None = None) -> TextEventOutcome:
+        """Commit one event using verified response CE through the frozen decoder.
+
+        Detached ``prompt_features``/``response_targets`` remain observation
+        evidence only.  This callback constructs a fresh autograd read and never
+        reuses those detached inference helpers as its training graph.
+        """
+        def response_gradients(expert):
+            read = self.differentiable_plastic_read(prompt_ids, prompt_mask)
+            task = TaskGraph(task_id=f"response-ce:{event.event_id}",
+                             goal=event.event_id, revision=0)
+            labels = input_ids.clone()
+            labels[~response_mask] = -100
+            with session.training_request(
+                    prompt_ids=prompt_ids, prompt_mask=prompt_mask,
+                    query=task.goal, scope=scope, task=task,
+                    enabled_ports=(), core_impl="none",
+                    enabled_branches=("plastic",), plastic=read,
+                    identity=None, identity_enabled=False) as request:
+                output = session.forward(
+                    request, input_ids, labels=labels,
+                    attention_mask=attention_mask)
+                _require(output.loss is not None and output.loss.requires_grad,
+                         "response CE must retain an autograd path")
+                gradients = torch.autograd.grad(output.loss, tuple(expert.parameters()))
+                return output.loss.detach(), {
+                    name: gradient.detach()
+                    for (name, _), gradient in zip(expert.named_parameters(), gradients)}
+
+        return self.learn_event(
+            event, prompt_ids=prompt_ids, prompt_mask=prompt_mask,
+            input_ids=input_ids, attention_mask=attention_mask,
+            response_mask=response_mask, reader_ids=reader_ids,
+            sealed_at=sealed_at, loss_gradients=response_gradients)
+
+
     def extract_site_features(self, prompt_ids: Tensor,
+
                               prompt_mask: Tensor) -> dict[int, Tensor]:
         """Declared compatibility name for detached site features."""
         return self.prompt_features(prompt_ids, prompt_mask)

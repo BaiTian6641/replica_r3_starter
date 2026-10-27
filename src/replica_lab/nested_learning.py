@@ -1489,9 +1489,12 @@ class PlasticLearningController:
     def apply_teaching_transaction(
             self, *, event_id: str, expert_id: int, features: Tensor,
             target: Tensor, steps: int = 1, scope: str | None = None,
-            hooks: TransactionHooks | None = None) -> TransactionOutcome:
+            hooks: TransactionHooks | None = None,
+            loss_gradients=None) -> TransactionOutcome:
         """Commit one selected-expert transaction or restore the prior state."""
         expected_scope = self.scope if scope is None else scope
+        _require(loss_gradients is None or callable(loss_gradients),
+                 "loss_gradients must be callable or null")
         if expected_scope != self.scope:
             raise ScopeViolation(
                 f"transaction scope {expected_scope!r} differs from {self.scope!r}")
@@ -1530,9 +1533,12 @@ class PlasticLearningController:
         loss_value = math.inf
         try:
             for step_index in range(steps):
-                bank.zero_gradients()
-                loss, gradients = expert_loss_gradients(
-                    expert, feature_tensor, target_tensor)
+                if loss_gradients is None:
+                    loss, gradients = expert_loss_gradients(
+                        expert, feature_tensor, target_tensor)
+                else:
+                    loss, gradients = loss_gradients(expert)
+                _require(bool(torch.isfinite(loss)), "transaction loss is nonfinite")
                 loss_value = float(loss)
                 gradients, _raw_norm, _scale = clip_gradients_to_norm(
                     gradients, max_norm=self.gradient_norm_max)

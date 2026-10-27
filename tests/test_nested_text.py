@@ -614,8 +614,16 @@ def test_response_loss_reaches_prompt_sites_and_selected_expert(tmp_path):
                                         route_seed=0, projection_seed=1,
                                         read_gain=0.5))
     protocol_value = protocol(seed=1, hidden_size=16, feature_sites=(0, 2))
-    learner = NestedTextLearner(adapter, bank=bank(),
-                                protocol=protocol_value)
+    expert_bank = bank()
+    coordinator = ObservationCoordinator(scope=protocol_value.scope, width=WIDTH)
+    controller = PlasticLearningController(
+        expert_bank, scope=protocol_value.scope, coordinator=coordinator,
+        max_steps=2, total_step_cap=4,
+        clock_period=protocol_value.clock_period)
+    learner = NestedTextLearner(adapter, bank=expert_bank,
+                                protocol=protocol_value,
+                                controller=controller,
+                                coordinator=coordinator)
     for expert in learner.bank.experts:
         expert.down.data.normal_(0.0, 0.05)
     captured = {}
@@ -641,6 +649,8 @@ def test_response_loss_reaches_prompt_sites_and_selected_expert(tmp_path):
     labels = torch.full((1, 5), -100, dtype=torch.long)
     labels[:, 3:] = input_ids[:, 3:]
     mask = torch.ones_like(input_ids, dtype=torch.bool)
+    response_mask = torch.zeros_like(input_ids, dtype=torch.bool)
+    response_mask[:, 3:] = True
     ledger = RecordLedger(tmp_path / "ledger.sqlite")
     session = MemorySession(adapter, None, ledger)
     scope = EligibilityScope(subject_id="subject", branch_id="branch",
@@ -668,6 +678,17 @@ def test_response_loss_reaches_prompt_sites_and_selected_expert(tmp_path):
     assert sensor.grad is not None and bool(sensor.grad.abs().sum() > 0)
     assert all(parameter.grad is None for parameter in adapter.base.parameters())
     assert request.state == "released"
+    outcome = learner.learn_event_response_ce(
+        session, event("response-ce", protocol_value, prompt_ids, available=1.0),
+        scope=scope, prompt_ids=prompt_ids, prompt_mask=prompt_ids.bool(),
+        input_ids=input_ids, attention_mask=mask, response_mask=response_mask)
+    assert outcome.status == "committed"
+    assert outcome.transaction.status == "committed"
+    assert outcome.transaction.revision == 1
+    assert outcome.chunk.transition_count == 1
+    assert outcome.chunk.post_revision == 1
+    assert learner.controller.clock.eligible_events == 1
+    assert learner.bank.expert_steps[read.expert_id] == 1
 
     with pytest.raises(ValueError, match="requires a training request"):
         session.prepare(
