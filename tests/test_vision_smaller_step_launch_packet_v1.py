@@ -12,15 +12,29 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import shutil
 import subprocess
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = ROOT / "configs/vision_smaller_step_lr3e5_v1.json"
+CONFIG = "configs/vision_smaller_step_lr3e5_v1.json"
+CONFIG_PATH = ROOT / CONFIG
 PACKET = (ROOT / "reports/vision_smaller_step_launch_packet_v1_20261027/"
                  "launch_packet.json")
 BUILDER = ROOT / "scripts/build_vision_smaller_step_launch_packet_v1.py"
+MANIFEST_FIXTURE = (ROOT / "tests/fixtures/"
+                           "vision_smaller_step_launch_packet/"
+                           "siglip2_base_patch16_224_source/"
+                           "source_manifest.json")
+PINNED_MANIFEST = ("checkpoints/siglip2_base_patch16_224_source/"
+                   "source_manifest.json")
+CLEAN_INPUTS = ("scripts", "src", "tests", "data", "reports", "runs")
+CONFIG_INPUTS = (
+    "configs/minicpm5_sealed_lock.local.json",
+    "configs/vision_mean_only_ablation_v1.json",
+    "configs/vision_learnability_step1_reproduction_v1.json",
+)
 
 
 def _module():
@@ -31,19 +45,54 @@ def _module():
     return module
 
 
+def _populate_clean_root(root):
+    """Provide only tracked inputs plus a metadata-only checkpoints fixture."""
+    config_directory = root / "configs"
+    config_directory.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ROOT / CONFIG, root / CONFIG)
+    for name in CONFIG_INPUTS:
+        (root / name).parent.mkdir(parents=True, exist_ok=True)
+        (root / name).symlink_to(ROOT / name)
+    for name in CLEAN_INPUTS:
+        source = ROOT / name
+        if not source.exists():
+            continue
+        destination = root / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.symlink_to(source, target_is_directory=True)
+    model_directory = root / "checkpoints/minicpm5_source"
+    model_directory.mkdir(parents=True, exist_ok=True)
+    manifest = root / PINNED_MANIFEST
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(MANIFEST_FIXTURE, manifest)
+    return root
+
+
 @pytest.fixture(scope="module")
 def builder():
     return _module()
 
 
 @pytest.fixture(scope="module")
-def protocol(builder):
-    return builder._protocol_module().load_protocol(CONFIG)
+def clean_root(tmp_path_factory):
+    return _populate_clean_root(
+        tmp_path_factory.mktemp("vision_smaller_step_clean_root"))
 
 
 @pytest.fixture(scope="module")
-def packet(builder):
-    return builder.build_packet(CONFIG)
+def clean_config(clean_root):
+    return clean_root / CONFIG
+
+
+@pytest.fixture(scope="module")
+def protocol(builder, clean_config, clean_root):
+    return builder._protocol_module().load_protocol(
+        clean_config, root=clean_root)
+
+
+@pytest.fixture(scope="module")
+def packet(builder, clean_config, clean_root):
+    return builder.build_packet(clean_config, root=clean_root)
 
 
 def _tamper(builder, packet, mutate):
@@ -58,10 +107,9 @@ def _sha256(path):
 
 
 def test_packet_is_deterministic_complete_and_matches_the_repository(
-        builder, packet):
-    rebuilt = builder.build_packet(CONFIG)
-    relative = builder.build_packet(
-        "configs/vision_smaller_step_lr3e5_v1.json")
+        builder, packet, clean_config, clean_root):
+    rebuilt = builder.build_packet(clean_config, root=clean_root)
+    relative = builder.build_packet(CONFIG, root=clean_root)
     assert builder.packet_bytes(packet) == builder.packet_bytes(rebuilt)
     assert builder.packet_bytes(packet) == builder.packet_bytes(relative)
     assert set(packet) == builder.PACKET_KEYS
@@ -71,8 +119,10 @@ def test_packet_is_deterministic_complete_and_matches_the_repository(
     assert packet["native_execution"] is False
     assert packet["model_loads"] == 0
     assert packet["authorization_created"] is False
-    assert packet["protocol"]["config_sha256"] == _sha256(CONFIG)
-    assert packet["implementation"]["config"]["sha256"] == _sha256(CONFIG)
+    assert packet["protocol"]["config_sha256"] == _sha256(clean_config)
+    assert packet["protocol"]["config_sha256"] == _sha256(CONFIG_PATH)
+    assert packet["implementation"]["config"]["sha256"] == _sha256(
+        clean_config)
     assert packet["implementation"]["runner"]["sha256"] == _sha256(
         ROOT / builder.RUNNER_PATH)
     assert packet["implementation"]["packet_builder"]["sha256"] == _sha256(
@@ -211,7 +261,8 @@ def test_image_controls_and_raw_generation_evidence_are_required(packet):
     ]
 
 
-def test_launch_command_offline_environment_and_fresh_output(packet):
+def test_launch_command_offline_environment_and_fresh_output(
+        packet, clean_root):
     launch = packet["launch"]
     assert launch["cwd"] == "."
     assert launch["argv"] == [
@@ -244,11 +295,12 @@ def test_launch_command_offline_environment_and_fresh_output(packet):
         "checked_before_model_load": True,
     }
     assert launch["preflight_command"][2] == "review-launch"
+    assert not (clean_root / launch["fresh_output"]["path"]).exists()
     assert not (ROOT / launch["fresh_output"]["path"]).exists()
 
 
-def test_authorization_is_separate_declared_and_never_minted(builder, packet,
-                                                             protocol):
+def test_authorization_is_separate_declared_and_never_minted(
+        builder, packet, protocol, clean_root):
     authorization = packet["authorization"]
     assert authorization["required"] is True
     assert authorization["created"] is False
@@ -285,6 +337,7 @@ def test_authorization_is_separate_declared_and_never_minted(builder, packet,
     for role in ("dev", "heldout", "v0", "semantic_audit", "promotion",
                  "retry"):
         assert schema["properties"][f"{role}_authorized"]["const"] is False
+    assert not (clean_root / authorization["path"]).exists()
     assert not (ROOT / authorization["path"]).exists()
 
 
@@ -318,11 +371,13 @@ def test_preflight_lists_every_check_and_native_gap(packet):
         in limitations
 
 
-def test_packet_hash_tamper_is_refused(builder, packet):
+def test_packet_hash_tamper_is_refused(builder, packet, clean_config,
+                                       clean_root):
     broken = copy.deepcopy(packet)
     broken["limits"]["decoder_forward_calls"] = 4825
     with pytest.raises(builder.StalePacketError, match="packet sha256"):
-        builder.verify_packet(broken, config_path=CONFIG)
+        builder.verify_packet(broken, config_path=clean_config,
+                              root=clean_root)
 
 
 @pytest.mark.parametrize("mutate, section", [
@@ -341,10 +396,11 @@ def test_packet_hash_tamper_is_refused(builder, packet):
         {"lr": 0.0003}), "protocol"),
 ])
 def test_stale_hashes_and_config_bindings_are_refused(
-        builder, packet, mutate, section):
+        builder, packet, mutate, section, clean_config, clean_root):
     tampered = _tamper(builder, packet, mutate)
     with pytest.raises(builder.StalePacketError, match=section):
-        builder.verify_packet(tampered, config_path=CONFIG)
+        builder.verify_packet(tampered, config_path=clean_config,
+                              root=clean_root)
 
 
 @pytest.mark.parametrize("key, value", [
@@ -361,11 +417,13 @@ def test_stale_hashes_and_config_bindings_are_refused(
     ("workers", 2),
     ("cpu_fallback", True),
 ])
-def test_wrong_limits_are_refused(builder, packet, key, value):
+def test_wrong_limits_are_refused(builder, packet, key, value, clean_config,
+                                  clean_root):
     tampered = _tamper(
         builder, packet, lambda item: item["limits"].update({key: value}))
     with pytest.raises(builder.StalePacketError, match="limits"):
-        builder.verify_packet(tampered, config_path=CONFIG)
+        builder.verify_packet(tampered, config_path=clean_config,
+                              root=clean_root)
 
 
 @pytest.mark.parametrize("mutate, section", [
@@ -408,14 +466,15 @@ def test_wrong_limits_are_refused(builder, packet, key, value):
         {"created": True}), "authorization"),
 ])
 def test_wrong_gates_scope_environment_and_authorization_are_refused(
-        builder, packet, mutate, section):
+        builder, packet, mutate, section, clean_config, clean_root):
     tampered = _tamper(builder, packet, mutate)
     with pytest.raises(builder.StalePacketError, match=section):
-        builder.verify_packet(tampered, config_path=CONFIG)
+        builder.verify_packet(tampered, config_path=clean_config,
+                              root=clean_root)
 
 
 def test_launch_is_refused_before_any_native_loading(
-        builder, packet, monkeypatch):
+        builder, packet, monkeypatch, clean_config, clean_root):
     calls = []
 
     def boom(*args, **kwargs):
@@ -426,9 +485,11 @@ def test_launch_is_refused_before_any_native_loading(
     monkeypatch.setattr(protocol_module, "run_protocol", boom)
     monkeypatch.setattr(protocol_module, "_execute_native_schedule", boom)
     monkeypatch.setattr(subprocess, "run", boom)
-    rebuilt = builder.build_packet(CONFIG)
-    builder.verify_packet(rebuilt, config_path=CONFIG)
-    disposition = builder.launch_preflight(rebuilt, config_path=CONFIG)
+    rebuilt = builder.build_packet(clean_config, root=clean_root)
+    builder.verify_packet(rebuilt, config_path=clean_config,
+                          root=clean_root)
+    disposition = builder.launch_preflight(
+        rebuilt, config_path=clean_config, root=clean_root)
     assert calls == []
     assert disposition["format"] == (
         "replica.vision_smaller_step.launch_preflight.v1")
@@ -452,15 +513,41 @@ def test_launch_is_refused_before_any_native_loading(
 
 
 def test_builder_and_preflight_create_no_authorization_or_run_artifacts(
-        builder, packet):
+        builder, packet, clean_config, clean_root):
+    assert not (clean_root / packet["launch"]["fresh_output"][
+        "path"]).exists()
+    assert not (clean_root / packet["authorization"]["path"]).exists()
+    assert not (clean_root / "runs/vision_smaller_step_lr3e5_v1_20261027/"
+                             "report.json").exists()
     assert not (ROOT / packet["launch"]["fresh_output"]["path"]).exists()
     assert not (ROOT / packet["authorization"]["path"]).exists()
-    assert not (ROOT / "runs/vision_smaller_step_lr3e5_v1_20261027/"
-                       "report.json").exists()
     assert packet["authorization"]["minted_by_packet"] is False
     assert packet["authorization_created"] is False
     assert packet["native_execution"] is False
     assert packet["model_loads"] == 0
-    disposition = builder.launch_preflight(packet, config_path=CONFIG)
+    disposition = builder.launch_preflight(
+        packet, config_path=clean_config, root=clean_root)
     assert disposition["launch_allowed"] is False
-    assert not (ROOT / packet["authorization"]["path"]).exists()
+    assert not (clean_root / packet["authorization"]["path"]).exists()
+
+
+def test_clean_root_rebuild_is_byte_identical_to_the_checked_in_packet(
+        builder, packet, protocol, clean_config, clean_root):
+    manifest = clean_root / PINNED_MANIFEST
+    assert manifest.is_file()
+    assert manifest.read_bytes() == MANIFEST_FIXTURE.read_bytes()
+    assert _sha256(manifest) == protocol["source"][
+        "vision_source_manifest_sha256"]
+    model_directory = clean_root / "checkpoints/minicpm5_source"
+    assert model_directory.is_dir()
+    assert not any(model_directory.iterdir())
+    assert not (clean_root / "checkpoints/siglip2_base_patch16_224_source"
+                             "/model.safetensors").exists()
+    rebuilt = builder.build_packet(clean_config, root=clean_root)
+    builder.verify_packet(rebuilt, config_path=clean_config,
+                          root=clean_root)
+    assert rebuilt["lineage"]["parent"]["model_path_present"] is True
+    assert rebuilt["authorization"]["present_at_build"] is False
+    assert rebuilt == packet
+    assert builder.packet_bytes(rebuilt) == PACKET.read_bytes()
+    assert rebuilt["packet_sha256"] == packet["packet_sha256"]
