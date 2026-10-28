@@ -31,6 +31,51 @@ Current declarations and their provisioning:
 | `data/external_caption_tranche_20261025_v2/raw/images` | `.venv/bin/python scripts/prepare_external_tranche.py --config configs/external_caption_tranche_v1.json`, or copy the verified ignored `raw/images` directory from the provisioned workspace | `test_vision_curriculum.py::test_external_final_seal_is_derived_from_manifest_rows`, `test_vision_curriculum.py::test_external_final_preflight_resolves_external_root` |
 | `checkpoints/minicpm5_source` | sealed local MiniCPM5-2B acquisition (`scripts/pin_model.py`) | `test_capacity*_data.py`, `test_e4_contextual_data.py::test_native_tokenizer_observation_budget` |
 
+## MiniCPM tokenizer/config integration metadata
+
+Unit orchestration tests use `tests/tokenizer_fixtures.py`; it is deterministic,
+reversible and explicitly not the sealed tokenizer. Only genuine sealed-tokenizer
+integration tests use the following metadata. CPU tests never require the full
+weight tensor or a download.
+
+The sealed revision is `f97400052a43d642bbc6e9975e2397e3ae6a6b52`.
+`config.json` declares `LlamaForCausalLM`, `model_type=llama`, 42 layers,
+hidden width 2048, vocabulary 130560 and EOS IDs 1 and 130073. The tokenizer is
+fast, does not add BOS/EOS automatically, uses `</s>` for ID 1 and `<|im_end|>`
+for ID 130073, and uses the separate `chat_template.jinja` for chat rendering.
+
+| File | SHA-256 |
+|---|---|
+| `config.json` | `59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180` |
+| `generation_config.json` | `9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1` |
+| `model.safetensors.index.json` | `6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756` |
+| `special_tokens_map.json` | `82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db` |
+| `tokenizer.json` | `3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81` |
+| `tokenizer_config.json` | `e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b` |
+| `chat_template.jinja` | `bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd` |
+
+Provision only these files from an existing verified sealed source or metadata
+directory:
+
+```bash
+.venv/bin/python scripts/provision_minicpm_metadata.py \
+  --source /path/to/verified/minicpm5_source \
+  --output checkpoints/minicpm5_source \
+  --receipt reports/reproducibility_20261028/metadata_provisioning_attempt01.json
+```
+
+The script verifies every hash, refuses mismatched output, copies no weights and
+performs no downloads or model loads. Native model loading still requires the
+separately sealed full snapshot and `configs/minicpm5_sealed_lock.local.json`.
+
+The original tracked-only run at `f85b3c5e` failed eight tests because this
+ignored directory was absent: one DC-R1 tiny-model test, two DC-P1 production-
+factory tests and five scoring-CLI tests. Those are unit contracts and now use
+the self-contained fixture. The separate
+`test_sealed_tokenizer_metadata_integration_without_weights` test remains an
+explicit `integration` test and skips with these provisioning instructions when
+the metadata is absent.
+
 ## Historical verdict replay (outside the unit suite)
 
 V0, V1 and memory-diagnostic verdicts are reproduced by checking out each

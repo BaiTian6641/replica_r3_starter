@@ -16,12 +16,16 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT / "tests"))
+
+from tokenizer_fixtures import tiny_tokenizer
 
 from dc_protocol_common_20261027 import (  # noqa: E402
     ProtocolError, read_json, read_jsonl, seal_record, sha256_file, sha256_json,
 )
 import dc_r1_native_value_v2_20261027 as protocol  # noqa: E402
 from replica_lab import dc_r1_native_runner as runner  # noqa: E402
+from conftest import require_local_artifacts  # noqa: E402
 
 CONFIG = ROOT / "configs" / "dc_r1_native_value_protocol_v2.json"
 PREPARED = ROOT / "data" / "dc_r1_native_value_v2_20261027"
@@ -376,12 +380,11 @@ def test_launch_preflight_rejects_unsealed_authorization(tmp_path):
 
 def test_native_backend_real_tiny_llama_forward_decode_and_work(tmp_path):
     from types import SimpleNamespace
-    from transformers import AutoTokenizer, LlamaConfig, LlamaForCausalLM
+    from transformers import LlamaConfig, LlamaForCausalLM
     from replica_lab.dc_r1_native_backend import NativeR1Backend
 
-    tokenizer = AutoTokenizer.from_pretrained(
-        str(ROOT / "checkpoints/minicpm5_source"), local_files_only=True,
-        trust_remote_code=False)
+    case = read_jsonl(PREPARED / "dev_conditions_exact_context.jsonl")[0]
+    tokenizer = tiny_tokenizer(texts=[case["prompt"]])
     model = LlamaForCausalLM(LlamaConfig(
         vocab_size=131072, hidden_size=16, intermediate_size=32,
         num_hidden_layers=42, num_attention_heads=2, num_key_value_heads=2,
@@ -397,7 +400,6 @@ def test_native_backend_real_tiny_llama_forward_decode_and_work(tmp_path):
 
     context = SimpleNamespace(
         config=read_json(CONFIG), root=ROOT, output=tmp_path)
-    case = read_jsonl(PREPARED / "dev_conditions_exact_context.jsonl")[0]
     backend = NativeR1Backend(
         context, "dev", adapter=TinyAdapter(model), tokenizer=tokenizer)
     try:
@@ -415,3 +417,29 @@ def test_native_backend_real_tiny_llama_forward_decode_and_work(tmp_path):
         assert backend.assert_backbone_unchanged() == {"backbone_unchanged": True}
     finally:
         backend.close()
+
+
+@require_local_artifacts("checkpoints/minicpm5_source")
+@pytest.mark.integration
+def test_sealed_tokenizer_metadata_integration_without_weights():
+    from transformers import AutoTokenizer
+    tokenizer = AutoTokenizer.from_pretrained(
+        str(ROOT / "checkpoints/minicpm5_source"), local_files_only=True,
+        trust_remote_code=False)
+    assert tokenizer.is_fast
+    assert tokenizer.convert_tokens_to_ids("</s>") == 1
+    assert tokenizer.convert_tokens_to_ids("<|im_end|>") == 130073
+    rendered = tokenizer.apply_chat_template(
+        [{"role": "user", "content": "Return UNKNOWN."}], tokenize=False,
+        add_generation_prompt=True, enable_thinking=False)
+    ids = tokenizer(rendered, add_special_tokens=False)["input_ids"]
+    assert ids and isinstance(tokenizer.decode(ids), str)
+    expected = {
+        "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+        "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+        "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b",
+        "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+        "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+    }
+    for name, digest in expected.items():
+        assert sha256_file(ROOT / "checkpoints/minicpm5_source" / name) == digest

@@ -15,6 +15,9 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT / "tests"))
+
+from tokenizer_fixtures import tiny_tokenizer
 
 from replica_lab import dc_p1_native_runner as runner
 from replica_lab import artifact_publication as publication
@@ -24,6 +27,14 @@ from dc_protocol_common_20261027 import (
 CONFIG = ROOT / "configs" / "dc_p1_native_response_protocol_v2.json"
 PREPARED = ROOT / "data" / "dc_p1_native_response_v2_20261027"
 COMMIT = "a" * 40
+
+@pytest.fixture(autouse=True)
+def _self_contained_fallback_decode(monkeypatch):
+    from replica_lab import dc_p1_evidence as evidence
+    monkeypatch.setattr(
+        evidence, "tokenizer_decode",
+        lambda binding, tokenizer_dir: tiny_tokenizer(
+            phrases=[*_labels().values(), "wrong"]).decode)
 
 class InjectedPublication(runner.RunInterrupted):
     def __init__(self, message: str):
@@ -237,13 +248,10 @@ class ProductionFakeBackend(FakeBackend):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        from transformers import AutoTokenizer
-
         config = read_json(CONFIG)
+        self._tokenizer = tiny_tokenizer(
+            phrases=[*_labels().values(), "wrong"])
         binding = config["tokenizer_binding"]
-        self._tokenizer = AutoTokenizer.from_pretrained(
-            str(ROOT / "checkpoints/minicpm5_source"), local_files_only=True,
-            trust_remote_code=False, revision=binding["revision"])
         self._decode_policy = binding["decode_policy"]
         self._eos_id = int(config["generation"]["terminal_eos_token"])
         self.parent_sha256 = self._state_hash(0)

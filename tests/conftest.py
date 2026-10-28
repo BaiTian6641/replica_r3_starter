@@ -16,7 +16,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 PROVISIONING = {
-    "checkpoints/minicpm5_source": "scripts/pin_model.py (sealed MiniCPM5-2B acquisition; ignored local payload)",
+    "checkpoints/minicpm5_source": "scripts/provision_minicpm_metadata.py --source <verified sealed source or metadata directory> --output checkpoints/minicpm5_source (tokenizer/config only; native weights use scripts/pin_model.py separately)",
     "configs/minicpm5_sealed_lock.local.json": "scripts/seal_snapshot.py over the sealed local source snapshot",
     "PIL": "python -m venv .venv-vision && .venv-vision/bin/pip install -r requirements-vision-overlay.txt",
     "checkpoints/siglip2_base_patch16_224_source": "scripts/prepare_vision_encoder.py --offline",

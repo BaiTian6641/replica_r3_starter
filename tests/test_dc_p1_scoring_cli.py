@@ -17,6 +17,19 @@ from replica_lab import dc_p1_evidence as evidence  # noqa: E402
 from replica_lab import dc_staged_evaluation as staged  # noqa: E402
 import score_dc_p1_generated_v2_20261027 as cli  # noqa: E402
 import test_dc_p1_native_runner_v2 as fixture  # noqa: E402
+from tokenizer_fixtures import tiny_tokenizer  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _self_contained_fallback_decode(monkeypatch):
+    monkeypatch.setattr(
+        cli, "_decode_fn",
+        lambda tokenizer_dir, binding: tiny_tokenizer(
+            phrases=[*fixture._labels().values(), "wrong"]).decode)
+    monkeypatch.setattr(
+        evidence, "tokenizer_decode",
+        lambda binding, tokenizer_dir: tiny_tokenizer(
+            phrases=[*fixture._labels().values(), "wrong"]).decode)
 
 
 def _write_json(path: Path, value: dict) -> None:
