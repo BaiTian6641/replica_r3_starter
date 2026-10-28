@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import subprocess
+from types import SimpleNamespace
 import shlex
 import sys
 
@@ -86,11 +88,18 @@ def preflight(config_path: Path = CONFIG_PATH, prepared: Path = PREPARED_DIR,
     if not output.is_absolute():
         output = ROOT / output
     output = output.resolve()
+    protocol_commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True,
+        capture_output=True, check=True).stdout.strip()
+    declared = SimpleNamespace(
+        config_path=config_path, prepared=prepared, output=output,
+        authorization={"path": str(ROOT / config["launch"]["authorization_path"])})
     report = {
         "format": "replica.dc_r1_native_value.review.v3",
         "protocol_id": scoring.PROTOCOL_ID,
         "status": "review_ready",
         "config_sha256": sha256_file(config_path),
+        "protocol_commit": protocol_commit,
         "prepared_manifest_sha256": manifest["manifest_sha256"],
         "workload": workload(config),
         "physical_limits": config["budget"]["physical_limits"],
@@ -106,8 +115,14 @@ def preflight(config_path: Path = CONFIG_PATH, prepared: Path = PREPARED_DIR,
         "output_root": str(output),
         "fresh_output_available": not output.exists(),
         "runner_path": config["launch"]["runner_path"],
+        "implementation_sha256": {
+            relative: sha256_file(ROOT / relative)
+            for relative in runner.IMPLEMENTATION_RELATIVES},
+        "next_eligible_command": _command(
+            declared, "dev", output.parent / "preflight_receipt.json"),
+        "sealed_final_command": _command(
+            declared, "sealed_final", output.parent / "preflight_receipt.json"),
         "native_command": None,
-        "sealed_final_command": None,
     }
     if not launch:
         report["native_execution_status"] = "refused_preparation_only"
