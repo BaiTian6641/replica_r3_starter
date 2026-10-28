@@ -1,6 +1,46 @@
 # Execution state — integrated memory, cognition and learning
 
 
+## Resume repair and staged learning — 27 October 2026
+
+**Current status — experiment-level resume and resulting-state evidence are
+repaired. The 22-class parent baseline proves integration only. DC-P1/DC-R1,
+smaller-step vision and Spark v5.1 are prepared but unexecuted.** MiniCPM5 and
+NativeFusedAdamW remain the baseline/default, with all native guards unchanged.
+
+- Update-29 resume records 29+43=72 physical optimizer/backward/training-forward
+  calls. Completed arms are not retrained; global cursor, completed-arm snapshots,
+  active optimizer state, clocks, memory and input/config identities survive
+  repeated fresh-process restarts. Checkpoint, predictions, fit report, fit
+  receipt, control checkpoints and control predictions match uninterrupted bytes.
+  The `all` CLI now returns exit 3 on interruption and resumes correctly.
+- Resulting-state validation rejects valid-looking final update hashes that do
+  not match checkpoint state, contradictory event/case/world/epoch/clock records,
+  rehashed controls and truncated histories. Treatment and trained controls use
+  the same checks. Strict tokenizer decoding and fit-before-development-before-
+  held-out access remain intact. **47 memory tests pass.**
+- The 22-class parent baseline is explicitly **27/27** with zero updates; reset
+  is **12/27**. This is integration evidence, not learned improvement. DC-P1
+  changes only answer-span CE weight and requires fresh paraphrase/new-instance
+  gains over no-update/reset-P with source context/KV removed. DC-R1 compares
+  exact context, selected literal, compressed record, wrong value and no memory.
+  **33 DC tests pass.** No native runner or authorization exists.
+- The smaller-step authorization is absent. Its readiness packet preserves lr
+  3e-5, one optimizer step, four backward calls, 4,824 forwards, 168 visual
+  observations, 1,200 seconds and 32 MiB including the final report. A separate
+  authorized receipt and full protocol commit are still required before native
+  loading. The conditional co-adaptation control is prepared but ineligible.
+  **161 vision tests pass.**
+- Spark v5.1 now has a reviewed migration with 694 checks, a 508-check final
+  verifier and a 75-input bundle. Residency includes retained vision, optimizer
+  state, activations and restart transients. Official BF16/FP8, dequantized
+  derivatives and native FP8 remain separate. P32/P64/Mkv and outer-loop/RSI are
+  deferred until a smaller useful learner exists. All ten native gates remain
+  unresolved. **29 migration/final-product tests pass.**
+
+Read the [complete repair and staged-learning handoff](docs/experiments/20261027_Resume_Repair_and_Staged_Learning.md).
+
+
 ## Evidence hardening and minimal memory runner — 27 October 2026
 
 **Current status — tokenizer-backed fit evidence and the 22-class CPU memory

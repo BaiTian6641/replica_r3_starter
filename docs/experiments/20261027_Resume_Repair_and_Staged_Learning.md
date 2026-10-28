@@ -2,7 +2,8 @@
 
 ## Scope and authority
 
-Starting HEAD: `4c5a8485`. Implementation commit: `f0fff3e4`. MiniCPM5 remains
+Prior implementation base: `f0fff3e4`. Starting HEAD for this repair: `4c5a8485`.
+Resume/staging implementation commit: `71955206`. MiniCPM5 remains
 baseline and NativeFusedAdamW/`adamw_fused` default. The 50 GiB driver, 512 MiB
 sustained swap-growth, 15% host-free, exclusive-worker and disabled-fallback
 policies are unchanged. The protected runtime pilot was not read, imported,

@@ -2,14 +2,15 @@
 
 
 **Current priority — 27 October 2026:** read
-[evidence hardening and the minimal memory runner](docs/experiments/20261027_Evidence_Hardening_and_Minimal_Memory_Runner.md).
-Fit evidence now requires exact tokenizer decoding before scoring, with EOS-only
-and mismatched-text rejection. The 22-class CPU memory runner is implemented and
-passes fit/dev/held-out with independent admission and byte-identical resume, but
-establishes no learned retrieval or general persistent learning. The smaller-step
-vision launch packet and nine-row data admission are complete; neither authorizes
-native execution. NativeFusedAdamW remains the default; historical Muon and eager
-AdamW remain separate. Keep the 50 GiB / 512 MiB / 15% guard and protected draft.
+[resume repair and staged learning](docs/experiments/20261027_Resume_Repair_and_Staged_Learning.md).
+Update-29 resume now restores completed arms, active optimizer state, clocks,
+memory and input identities without retraining them, and records 29+43=72
+physical updates with byte-identical artifacts. The 22-class parent baseline is
+27/27, so integration is not learning improvement. DC-P1/DC-R1 add separate
+native-representation protocols; no native runner or authorization exists.
+The smaller-step authorization is absent, and Spark v5.1 remains design and
+analytical preparation, not native qualification. Keep all native guards and the
+protected draft restriction.
 
 **Current priority — 26 October 2026:** preserve sealed evaluation and keep
 mechanical acceptance separate from learned quality. The

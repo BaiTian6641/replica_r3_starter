@@ -1,0 +1,63 @@
+{
+  "format": "replica.sparkx_documentation_migration.v1",
+  "kind": "receipt_regeneration_manifest_not_native_measurement",
+  "migration_id": "sparkx_v5_1_documentation_migration",
+  "migrated_on": "2026-10-27",
+  "reason": "v5.1 migration and native-gate clarification; analytical residency inputs unchanged",
+  "receipts": {
+    "previous": {
+      "path": "reports/sparkx_residency_20261026/residency_v2_pre_sparkx_v5_1.json",
+      "sha256": "0d3c4dc574a9dddab9593663970fb49b85bd6d135a81a275bbaf92891b78c644",
+      "role": "byte-for-byte preservation of the pre-migration residency_v2.json receipt"
+    },
+    "current": {
+      "path": "reports/sparkx_residency_20261026/residency_v2.json",
+      "sha256": "6b5a661ade99e74e0e87dc33fa814f212404333abaf118cab16570d2e4b0d8d1",
+      "role": "deterministic calculator output regenerated from current committed inputs"
+    }
+  },
+  "architecture_document": {
+    "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+    "previous_sha256": "9ec5c8d0c2245456b94782c78c5110a297d9b9ac019d23b10ed6b62c9e4ed741",
+    "current_sha256": "dfff370ff3b394b2360e813fafef7e73806f601566aa7c97aa5b2af4f17b6544"
+  },
+  "change_scope": {
+    "only_changed_field": "documentation_validation.sha256",
+    "field_changes": 1,
+    "arithmetic_changed": false,
+    "gates_changed": false,
+    "documentation_presence_checks_unchanged": true,
+    "verification": "unified diff of the preserved and regenerated receipts shows exactly one changed line: documentation_validation.sha256"
+  },
+  "inputs_unchanged": {
+    "calculator": {
+      "path": "reports/sparkx_residency_20261026/calculate_residency.py",
+      "sha256": "187323e71d8277ae4005271ef2136b0508d39a7e3029e2889218a08455b1d25d",
+      "changed": false
+    },
+    "component_inventory": {
+      "path": "configs/sparkx_residency_components_v1.json",
+      "sha256": "001d76b7e5728302e6f62cb0dd9ce8197b6d09d8c80c09048f321283757dc731",
+      "changed": false
+    },
+    "regeneration_invocation": "python3 reports/sparkx_residency_20261026/calculate_residency.py"
+  },
+  "preserved_artifacts": {
+    "historical_receipt": {
+      "path": "reports/sparkx_residency_20261026/residency.json",
+      "sha256": "f85215b2d39a5d3424d2111b14674d1a077e7eb4e58a4346feeb6709b23ed456",
+      "untouched": true,
+      "statement": "the historical residency.json receipt remains untouched"
+    },
+    "legacy_markdown_receipt": {
+      "path": "reports/sparkx_residency_20261026/residency_v2_markdown_legacy.json",
+      "sha256": "38a379eaaa18592c886c543246cfe0c5d1e469d21e3a92acc31d26d703f0363b",
+      "untouched": true,
+      "statement": "residency_v2_markdown_legacy.json remains untouched"
+    }
+  },
+  "native_execution": {
+    "performed": false,
+    "statement": "no native execution occurred; the receipt remains an analytical ledger with no weight payload, model code or runtime involved"
+  }
+}

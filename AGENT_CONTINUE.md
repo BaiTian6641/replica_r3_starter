@@ -2,19 +2,16 @@
 
 
 **Current priority — 27 October 2026:** use
-[evidence hardening and the minimal memory runner](docs/experiments/20261027_Evidence_Hardening_and_Minimal_Memory_Runner.md).
-Fit scoring now requires sealed-tokenizer decoding and rejects EOS-only or
-mismatched saved text before any native/development access. The memory runner
-writes real checkpoints, per-case predictions and chained fit/dev/held-out
-receipts; only the treatment's 24 updates admits development, while control fits
-remain separate. Actual CPU smoke and independent admission pass 27/27 fit,
-10/10 dev and 10/10 held-out, with exact resume and a measured 32 MiB budget.
-This is synthetic software integration, not learned retrieval or persistent
-learning. The smaller-step launch packet remains unauthorized. Nine-row data
-admission and Spark tolerance/resource scopes are complete; RSI/personality stay
-deferred.
-
-
+[resume repair and staged learning](docs/experiments/20261027_Resume_Repair_and_Staged_Learning.md).
+Update-29 resume now records 29+43=72 physical updates and preserves completed
+arms, active optimizer state, clocks, memory and input identities; checkpoint,
+prediction, report and receipt bytes match uninterrupted execution. The `all`
+interruption path is fixed and budget accounting includes resume artifacts.
+The 22-class parent baseline remains 27/27, so integration is not learning.
+DC-P1/DC-R1 prepare separate native-representation protocols and nonlearning
+controls. Vision authorization is absent; co-adaptation is only a conditional
+future control. Spark v5.1 migration and residency inventory are complete, but
+native gates remain unresolved. No native run, RSI or personality adaptation.
 
 **Current priority — 26 October 2026:** preserve sealed evaluation and failed
 quality results. Native one-clock integration is `1648f72d`; the vision

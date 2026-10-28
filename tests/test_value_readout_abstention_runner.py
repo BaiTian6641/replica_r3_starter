@@ -350,18 +350,19 @@ def test_all_cli_interruption_and_resume_preserve_cursor(full_runs, tmp_path):
     assert json.loads(second.stdout)["status"] == "completed"
     assert not resume_path.exists()
     assert not (root / "fit" / "resume_arms").exists()
-    for relative, baseline_root in (
-            ("fit/checkpoint.pt", full_runs["fit_root"]),
-            ("fit/fit_predictions.jsonl", full_runs["fit_root"]),
-            ("fit/fit_report.json", full_runs["fit_root"]),
-            ("fit_receipt.json", full_runs["fit_root"]),
-            ("dev_run/dev_receipt.json", full_runs["dev_root"]),
-            ("heldout_run/heldout_receipt.json",
-             full_runs["heldout_root"]),
-            ("controls_run/controls/dev_control_report.json",
-             full_runs["controls_root"])):
+    for relative, baseline_key, baseline_relative in (
+            ("fit/fit/checkpoint.pt", "fit_root", "fit/checkpoint.pt"),
+            ("fit/fit/fit_predictions.jsonl", "fit_root",
+             "fit/fit_predictions.jsonl"),
+            ("fit/fit/fit_report.json", "fit_root", "fit/fit_report.json"),
+            ("fit/fit_receipt.json", "fit_root", "fit_receipt.json"),
+            ("dev_run/dev_receipt.json", "dev_root", "dev_receipt.json"),
+            ("heldout_run/heldout_receipt.json", "heldout_root",
+             "heldout_receipt.json"),
+            ("controls_run/controls/dev_control_report.json", "controls_root",
+             "controls/dev_control_report.json")):
         assert sha256_file(root / relative) == sha256_file(
-            baseline_root / relative), relative
+            full_runs[baseline_key] / baseline_relative), relative
     evidence = json.loads((root / "fit" / "resume_evidence.json").read_text(
         encoding="utf-8"))
     assert evidence["optimizer_steps_by_process"] == [29, 43]

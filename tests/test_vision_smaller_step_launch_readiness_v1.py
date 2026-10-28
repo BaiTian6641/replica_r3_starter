@@ -17,6 +17,8 @@ from pathlib import Path
 
 import pytest
 
+from test_vision_smaller_step_launch_packet_v1 import _populate_clean_root
+
 ROOT = Path(__file__).resolve().parents[1]
 CHECKER = ROOT / "scripts/check_vision_smaller_step_launch_readiness_v1.py"
 DECLARATION = "configs/vision_smaller_step_launch_readiness_v1.json"
@@ -58,8 +60,27 @@ def checker():
 
 
 @pytest.fixture(scope="module")
-def report(checker):
-    return checker.assess(root=ROOT)
+def clean_root(tmp_path_factory):
+    # The launch packet pins the shared fixture module's own bytes, so its
+    # CONFIG_INPUTS cannot be extended without invalidating the checked-in
+    # packet and readiness report.  Add the declaration and repository
+    # metadata this assessment binds on top of the shared root.
+    root = _populate_clean_root(
+        tmp_path_factory.mktemp("vision_smaller_step_launch_readiness_root"))
+    declaration = root / DECLARATION
+    declaration.parent.mkdir(parents=True, exist_ok=True)
+    if not declaration.exists() and not declaration.is_symlink():
+        declaration.symlink_to(ROOT / DECLARATION)
+    repository = ROOT / ".git"
+    if repository.is_dir() and not (root / ".git").exists() \
+            and not (root / ".git").is_symlink():
+        (root / ".git").write_text(f"gitdir: {repository}\n")
+    return root
+
+
+@pytest.fixture(scope="module")
+def report(checker, clean_root):
+    return checker.assess(root=clean_root)
 
 
 @pytest.fixture(scope="module")
@@ -68,8 +89,8 @@ def declaration(checker):
 
 
 def test_assessment_is_deterministic_current_and_preparation_only(
-        checker, report):
-    rebuilt = checker.assess(root=ROOT)
+        checker, report, clean_root):
+    rebuilt = checker.assess(root=clean_root)
     assert checker.report_bytes(report) == checker.report_bytes(rebuilt)
     assert report["format"] == checker.FORMAT
     assert report["deterministic"] is True
@@ -85,7 +106,7 @@ def test_assessment_is_deterministic_current_and_preparation_only(
     checked_in = ROOT / REPORT
     assert checked_in.is_file()
     assert checked_in.read_bytes() == checker.report_bytes(report)
-    assert checker.verify_report(report=report, root=ROOT) == report
+    assert checker.verify_report(report=report, root=clean_root) == report
 
 
 def test_subject_binds_the_exact_protocol_and_packet(checker, report):
@@ -390,17 +411,18 @@ def test_invalid_receipts_are_recorded_but_never_upgraded(
      lambda item: item.update(output="runs/some_other_arm")),
     ("closed_roles", lambda item: item.update(development=True)),
 ])
-def test_tampered_declaration_is_refused(checker, tmp_path, section, mutate):
+def test_tampered_declaration_is_refused(checker, clean_root, tmp_path,
+                                         section, mutate):
     declaration = json.loads((ROOT / DECLARATION).read_text())
     mutate(declaration[section])
     target = tmp_path / "readiness.json"
     target.write_text(json.dumps(declaration) + "\n")
     with pytest.raises(checker.ReadinessError):
-        checker.assess(target, root=ROOT)
+        checker.assess(target, root=clean_root)
 
 
 def test_declaration_cannot_allow_launch_or_reorder_requirements(
-        checker, tmp_path):
+        checker, clean_root, tmp_path):
     for mutate in (
             lambda item: item["decision"].update(launch_allowed=True),
             lambda item: item["decision"].update(native_execution=True),
@@ -414,7 +436,7 @@ def test_declaration_cannot_allow_launch_or_reorder_requirements(
         target = tmp_path / "readiness.json"
         target.write_text(json.dumps(declaration) + "\n")
         with pytest.raises(checker.ReadinessError):
-            checker.assess(target, root=ROOT)
+            checker.assess(target, root=clean_root)
 
 
 def test_fresh_output_presence_blocks_the_launch(
@@ -432,18 +454,19 @@ def test_fresh_output_presence_blocks_the_launch(
 
 
 def test_stale_and_malformed_assessments_are_refused(
-        checker, report, tmp_path):
+        checker, report, clean_root, tmp_path):
     clone = copy.deepcopy(report)
     clone["preserved_contract"]["limits"]["decoder_forward_calls"] = 1
     clone["readiness_sha256"] = checker._readiness_sha256(clone)
     with pytest.raises(checker.StaleReadinessError):
-        checker.verify_report(report=clone, root=ROOT)
+        checker.verify_report(report=clone, root=clean_root)
     bad_hash = copy.deepcopy(report)
     bad_hash["readiness_sha256"] = "0" * 64
     with pytest.raises(checker.ReadinessError):
-        checker.verify_report(report=bad_hash, root=ROOT)
+        checker.verify_report(report=bad_hash, root=clean_root)
     with pytest.raises(checker.ReadinessError):
-        checker.verify_report(report_path=tmp_path / "missing.json", root=ROOT)
+        checker.verify_report(report_path=tmp_path / "missing.json",
+                              root=clean_root)
 
 def test_scan_detects_a_receipt_that_binds_the_subject(
         checker, tmp_path):

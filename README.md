@@ -2,15 +2,14 @@
 
 
 **Current priority — 27 October 2026:** use
-[evidence hardening and the minimal memory runner](docs/experiments/20261027_Evidence_Hardening_and_Minimal_Memory_Runner.md).
-Fit scoring now requires sealed-tokenizer decoding and rejects EOS-only or
-mismatched text before native or development access. The 22-class CPU memory
-runner and independent fit/dev/held-out admission are implemented with exact
-resume and measured artifact limits; this is not learned retrieval or general
-persistent learning. The smaller-step launch packet remains unauthorized.
-Nine-row data admission and Spark tolerance/resource scopes are complete.
-NativeFusedAdamW is the default; neural RSI and personality stay deferred.
-
+[resume repair and staged learning](docs/experiments/20261027_Resume_Repair_and_Staged_Learning.md).
+Update-29 resume now restores completed arms and exact cumulative work without
+retraining, with byte-identical checkpoint, prediction, report and receipt
+artifacts. The 22-class parent already achieves 27/27, so integration is not
+learning improvement. DC-P1/DC-R1 prepare separate native-representation
+protocols with nonlearning controls. Vision authorization is absent; Spark v5.1
+is design/analytical preparation, not native qualification. No native run,
+RSI or personality adaptation.
 
 The [comprehensive Spark research report](docs/research/sparkx_2_6_4b_20261024/README.md)
 adds a current-code audit, model-native spatial/temporal vision and learning

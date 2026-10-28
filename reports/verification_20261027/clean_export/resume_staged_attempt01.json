@@ -1,0 +1,26 @@
+{
+  "schema": "replica.clean_verification_attempt.v1",
+  "attempt": "resume_staged_clean_attempt01",
+  "commit": "71955206",
+  "checkout": "fresh_no_hardlinks_clone",
+  "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=reports/verification_20261027/clean_export/tests.xml",
+  "junit_xml": "reports/verification_20261027/clean_export/tests_resume_staged_attempt01.xml",
+  "result": {
+    "status": "failed",
+    "passed": 2913,
+    "failed": 17,
+    "errors": 11,
+    "skipped": 95,
+    "subtests_passed": 21,
+    "seconds": 505.12
+  },
+  "failure_groups": {
+    "stale_spark_residency_documentation_hash": 2,
+    "incorrect_all_cli_test_baseline_paths": 1,
+    "vision_readiness_missing_isolated_metadata_root": 20,
+    "vision_coadaptation_missing_isolated_metadata_root": 5
+  },
+  "repair_policy": "Preserve the failed XML; correct the test path pairs, route vision tests through tracked metadata-only fixtures, and preserve then regenerate the derived residency receipt. Do not weaken production validation or authorization gates.",
+  "native_execution": false,
+  "model_loads": 0
+}

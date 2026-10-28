@@ -33,6 +33,11 @@
   "RSI_conditional": "candidate improvement plan freezes independent evaluation, rollback, rejection examples and total-compute accounting; 19 contract tests pass; neural RSI remains deferred pending useful recall, correction, unaffected retention and visual grounding",
   "fit_receipt_independence": "implemented and independently verified: correctness, minimum accuracy, unique coverage, stop/truncation evidence, generation failures and source-free audit are recomputed from targets and generation evidence; fit candidates exclude development/unaffected/sealed labels; 255 tests pass",
   "tokenizer_fit_evidence": "schema v2 binds sealed tokenizer files and decode policy; IDs are decoded before scoring with EOS-only, mismatch, invalid-ID and impossible-stop rejection; 272 tests pass; current continuation receipt migrated without historical changes",
+  "resume_repair": "update-29 resume records 29+43=72 physical optimizer/backward/training-forward calls with completed-arm snapshots, active optimizer state, clocks, memory and input identities; completed arms never retrain; checkpoint/prediction/report/receipt bytes match uninterrupted; all interruption path fixed and resume artifacts counted; 47 tests pass",
+  "dc_p1_protocol": "prepared only: answer-span CE weight 0.0 to 0.5 is the sole recipe change; fresh paraphrase/new-instance gains over no-update/reset-P with source context/KV removed plus correction, abstention and unaffected retention are required; 33 DC tests pass; no native runner or authorization",
+  "dc_r1_protocol": "prepared only: exact context, selected literal, compressed record, wrong value and no memory across layers 13/27/41; accepted-layer and complete-group metrics separate; useful readout required before retrieval/storage expansion",
+  "vision_readiness": "authorization absent for smaller-step lr 3e-5; readiness and co-adaptation verifiers current with 161 tests; exact remaining receipt/commit/fresh-output/guard requirements recorded; conditional co-adaptation is ineligible and not an expansion",
+  "spark_v5_1_migration": "reviewed migration sparkx-2.6-v5.1-review-migration-20261027 with 694 checks and final-product 508 checks; 75-input bundle digest 3299e1e6f6c38a3d4007f96490aa754ef7cec30532f202274ff120c4d8f587ab; residency includes vision, optimizer, activations and restart transients; all ten native gates unresolved",
   "memory_value_readout_protocol": "implemented and CPU-verified: 22-class selected-expert readout, fixed addressing, one event clock per arm and three independent 24-update arms; fit 27/27, dev 10/10, heldout 10/10 with independent admission and byte-identical resume; measured 32 MiB artifact cap enforced; synthetic integration is not learned retrieval or persistent learning",
   "vision_smaller_step_protocol": "launch packet complete but unexecuted: lr 3e-5 versus completed 3e-4 with same parent/seed/batch/projector/NativeFusedAdamW; exact limits and offline run command bound in reports/vision_smaller_step_launch_packet_v1_20261027/launch_packet.json; 85 tests pass; separate protocol commit and authorization required",
   "caption_lineage_and_sealed_eval": "trusted local reviewed receipt admits exactly nine eligible rows with 21 exclusions and eight exposed rows preserved; 24 scenes remain diagnostic synthetic evaluation only; receipt digest 8ca183142d8af706d61ca3c12ba9cf089c4e1e7622228fff33190c612a3cb955; 54 lineage/Spark tests pass",
@@ -84,6 +89,12 @@
   "admission_preparation_verification": "reports/admission_preparation_20261027/summary.json",
   "evidence_hardening_report": "docs/experiments/20261027_Evidence_Hardening_and_Minimal_Memory_Runner.md",
   "evidence_hardening_verification": "reports/verification_20261027/summary.json",
+  "resume_repair_report": "docs/experiments/20261027_Resume_Repair_and_Staged_Learning.md",
+  "dc_p1_protocol_config": "configs/dc_p1_native_response_protocol_v1.json",
+  "dc_r1_protocol_config": "configs/dc_r1_native_value_protocol_v1.json",
+  "vision_readiness_receipt": "reports/vision_smaller_step_launch_readiness_v1_20261027/readiness.json",
+  "spark_v5_1_migration_manifest": "reports/sparkx_v5_1_review_20261027/migration_manifest.json",
+  "spark_v5_1_native_gates": "reports/sparkx_v5_1_review_20261027/native_gates.json",
   "memory_fit_receipt": "runs/value_readout_abstention_cpu_20261027_final/fit/fit_receipt.json",
   "memory_development_receipt": "runs/value_readout_abstention_cpu_20261027_final/dev_run/dev_receipt.json",
   "memory_heldout_receipt": "runs/value_readout_abstention_cpu_20261027_final/heldout_run/heldout_receipt.json",
@@ -324,14 +335,15 @@
       "qualified": "none"
     }
   },
-  "reviewed_code_head": "1702a1ff",
-  "review_scope": "Tokenizer-backed fit evidence and the 22-class CPU memory runner are implemented and independently verified with actual fit/dev/heldout admission and exact resume; smaller-step launch packet and nine-row data admission are complete; native MiniCPM/Spark execution, learned retrieval, general persistent learning and neural RSI/personality remain unqualified or deferred.",
+  "reviewed_code_head": "71955206",
+  "review_scope": "Experiment-level resume and resulting-state evidence repaired with exact cumulative work and deterministic replay; 22-class integration separated from learning; DC-P1/DC-R1 and smaller-step vision are prepared but unexecuted; Spark v5.1 migration/residency verified while native qualification, learned retrieval, persistent learning and RSI remain blocked.",
   "loop_agent_instructions": "docs/architecture/16_Loop_Agent_Instructions.md",
   "current_construction_order": [
-    "analyze_constant_output_priors_and_caption_alignment_on_fresh_sealed_data; no scaling",
-    "qualify_full_native_resume_only_after optimizer-state transfer fits the 512MiB swap guard",
+    "DC_P1_single_authorized_answer_span_CE_probe_after_exact_protocol_commit; report outcome without retry",
+    "vision_smaller_step_lr3e5_separate_authorization; coadaptation_only_after_preserved_failure_and_diagnosis",
+    "qualify_full_native_resume_only_after_optimizer_state_transfer_fits_the_512MiB_swap_guard",
     "V3_exact_visual_retrieval_then_qualified_learned_visual_memory",
-    "V4_bounded_verified_candidate_learning_then_matched_longitudinal_RSI"
+    "defer_P32_P64_Mkv_Spark_native_and_RSI_until_a_smaller_useful_learner_and_declared_teacher_work"
   ],
   "parallel_tracks": [
     "Spark_S0_official_FP8_and_BF16_source_backend_and_adapter_preparation_now; native_qualification_after_reusable_V0_interfaces_and_own_gates_not_RSI_success",
@@ -341,11 +353,14 @@
     "success_uncertainty_calibration_before_control_authority"
   ],
   "last_recorded_validation": {
-    "passed": 2804,
+    "passed": 2913,
+    "failed": 17,
+    "errors": 11,
+    "skipped": 95,
     "subtests": 21,
-    "seconds": 428.443,
-    "evidence": "reports/verification_20261027/summary.json",
-    "scope": "Clean 1702a1ff suite: 2804 passed, 95 explicit skips, no failures; tracked metadata fixtures preserve packet assertions; 11122-file artifact guard and 436 clean Spark checks pass."
+    "seconds": 505.12,
+    "evidence": "reports/verification_20261027/clean_export/resume_staged_attempt01.json",
+    "scope": "Clean 71955206 suite failed on a stale derived residency documentation hash, one incorrect all-CLI test baseline path, and vision readiness/co-adaptation tests that bypassed tracked metadata-only fixtures; failed XML is preserved and repairs require a subsequent clean run."
   },
   "current_guard_validation": {
     "date": "2026-10-23",

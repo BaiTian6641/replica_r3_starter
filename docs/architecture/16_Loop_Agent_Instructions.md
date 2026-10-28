@@ -9,18 +9,18 @@ Continue TAIS Obsidian / Replica R3 in the existing checkout. Keep sealed
 MiniCPM5-2B as the baseline and the 50 GiB native guard. New training uses
 NativeFusedAdamW/`adamw_fused` after integration checks; historical Muon and
 custom eager AdamW retain their provenance. The current priority is **exact
-generation/tokenizer evidence, independently verifiable memory admission and
-minimal CPU integration**, not architecture expansion. Native full-size resume,
+experiment-level resume, resulting-state evidence and useful small-scale
+learning**, not capacity or architecture expansion. Native full-size resume,
 visual memory, Spark training and RSI remain unqualified or gated. Prepare Spark
-FP8/BF16 interfaces alongside this work without replacing the MiniCPM5 baseline.
+v5.1 interfaces alongside this work without replacing the MiniCPM5 baseline.
 
-Read [evidence hardening and the minimal memory runner](../experiments/20261027_Evidence_Hardening_and_Minimal_Memory_Runner.md).
-Fit scoring must decode preserved IDs with the sealed tokenizer before scoring;
-saved text alone is not evidence. The 22-class runner must preserve one event
-clock per arm, treatment-only 24-step fit admission, separate control fits,
-query-time immutability and exact resume. Its synthetic CPU pass is not learned
-retrieval or persistent learning. The smaller-step launch packet and reviewed
-nine-row data admission do not authorize native execution.
+Read [resume repair and staged learning](../experiments/20261027_Resume_Repair_and_Staged_Learning.md).
+Persist completed-arm snapshots, active optimizer state, global cursors, clocks,
+memory and input identities across repeated fresh-process restarts. Completed
+arms never retrain, and actual cumulative work and resume bytes must reconcile
+with final artifacts. The 22-class parent baseline (27/27) is not learned
+improvement. DC-P1/DC-R1 and the smaller-step vision protocol require separate
+authorization before any native execution.
 
 ## 1. Establish current evidence once
 

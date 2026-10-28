@@ -17,6 +17,8 @@ from pathlib import Path
 
 import pytest
 
+from test_vision_smaller_step_launch_packet_v1 import _populate_clean_root
+
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "scripts/vision_coadaptation_control_v1.py"
 CONFIG = "configs/vision_coadaptation_control_v1.json"
@@ -60,13 +62,26 @@ def smaller():
 
 
 @pytest.fixture(scope="module")
-def assessment(control):
-    return control.assess(root=ROOT)
+def clean_root(tmp_path_factory):
+    # The launch packet pins the shared fixture module's own bytes, so add the
+    # co-adaptation config here instead of editing its CONFIG_INPUTS.
+    root = _populate_clean_root(
+        tmp_path_factory.mktemp("vision_coadaptation_control_root"))
+    config_path = root / CONFIG
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    if not config_path.exists() and not config_path.is_symlink():
+        config_path.symlink_to(ROOT / CONFIG)
+    return root
+
+
+@pytest.fixture(scope="module")
+def assessment(control, clean_root):
+    return control.assess(root=clean_root)
 
 
 def test_assessment_is_deterministic_current_and_preparation_only(
-        control, assessment):
-    rebuilt = control.assess(root=ROOT)
+        control, assessment, clean_root):
+    rebuilt = control.assess(root=clean_root)
     assert control.assessment_bytes(assessment) == (
         control.assessment_bytes(rebuilt))
     assert assessment["format"] == control.FORMAT
@@ -84,15 +99,16 @@ def test_assessment_is_deterministic_current_and_preparation_only(
     checked_in = ROOT / REPORT
     assert checked_in.is_file()
     assert checked_in.read_bytes() == control.assessment_bytes(assessment)
-    assert control.verify_assessment(report=assessment, root=ROOT) == assessment
+    assert control.verify_assessment(report=assessment,
+                                     root=clean_root) == assessment
 
 
 def test_scope_is_grounded_in_the_preserved_encoder_manifest(
-        control, config, assessment):
+        control, config, assessment, clean_root):
     scope = config["gradient_scope"]
     structure = scope["encoder_structure"]
     manifest = json.loads(
-        (ROOT / config["parent"]["vision_source_manifest"]).read_text())
+        (clean_root / config["parent"]["vision_source_manifest"]).read_text())
     model = manifest["model"]
     assert structure["architecture"] == model["architecture"] == (
         "SiglipVisionModel")
@@ -236,7 +252,8 @@ def test_claims_and_distinctness_forbid_expansion(config):
         distinctness["closure_on_failure"].lower())
 
 
-def test_control_is_not_eligible_and_unauthorized(control, assessment):
+def test_control_is_not_eligible_and_unauthorized(control, assessment,
+                                                  clean_root):
     precondition = assessment["precondition"]
     assert precondition["required"] is True
     assert precondition["smaller_step_report"]["present"] is False
@@ -261,14 +278,14 @@ def test_control_is_not_eligible_and_unauthorized(control, assessment):
     fresh = next(item for item in assessment["remaining_requirements"]
                  if item["id"] == "fresh_output_available")
     assert fresh["satisfied_by_preparation"] is True
-    assert not (ROOT / OUTPUT).exists()
+    assert not (clean_root / OUTPUT).exists()
     authorization = assessment["authorization"]
     assert authorization["present"] is False
     assert authorization["status"] == "absent"
     assert authorization["protocol_commit"] is None
     assert authorization["commit_bound"] is False
-    assert not (ROOT / config_receipt(control)).exists()
-    assert not (ROOT / RUNNER).exists()
+    assert not (clean_root / config_receipt(control)).exists()
+    assert not (clean_root / RUNNER).exists()
     assert assessment["decision"]["reason"].startswith("preparation_complete")
 
 
@@ -396,26 +413,26 @@ def test_receipts_cannot_upgrade_an_ineligible_control(
     ("budget", lambda item: item.update(relation_to_smaller_step="larger")),
 ])
 def test_expansion_or_tampering_is_refused(
-        control, config, tmp_path, section, mutate):
+        control, config, clean_root, tmp_path, section, mutate):
     tampered = copy.deepcopy(config)
     mutate(tampered[section])
     target = tmp_path / "coadaptation.json"
     target.write_text(json.dumps(tampered) + "\n")
     with pytest.raises(control.CoadaptationError):
-        control.assess(target, root=ROOT)
+        control.assess(target, root=clean_root)
 
 
 def test_stale_and_malformed_assessments_are_refused(
-        control, assessment, tmp_path):
+        control, assessment, clean_root, tmp_path):
     clone = copy.deepcopy(assessment)
     clone["budget"]["additional_forward_calls"] = 1
     clone["assessment_sha256"] = control._assessment_sha256(clone)
     with pytest.raises(control.StaleCoadaptationError):
-        control.verify_assessment(report=clone, root=ROOT)
+        control.verify_assessment(report=clone, root=clean_root)
     bad_hash = copy.deepcopy(assessment)
     bad_hash["assessment_sha256"] = "0" * 64
     with pytest.raises(control.CoadaptationError):
-        control.verify_assessment(report=bad_hash, root=ROOT)
+        control.verify_assessment(report=bad_hash, root=clean_root)
     with pytest.raises(control.CoadaptationError):
         control.verify_assessment(report_path=tmp_path / "missing.json",
-                                 root=ROOT)
+                                  root=clean_root)
