@@ -1,0 +1,579 @@
+{
+  "accounting_amendment": {
+    "campaign_cumulative": {
+      "backward_calls": 4,
+      "decoder_forward_calls": 4804,
+      "explicit_logits_forwards": 400,
+      "generated_tokens": 3800,
+      "generation_decode_calls": 3604,
+      "generation_prefill_calls": 196,
+      "logical_scoring_cells": 196,
+      "logical_scoring_operations": 588,
+      "optimizer_steps": 1,
+      "prepare_sense_passes": 596,
+      "processed_text_positions": 1380240,
+      "processed_visual_positions": 890624,
+      "projector_passes": 4544,
+      "visual_encoder_cache_hits": 156,
+      "visual_encoder_cache_misses": 156,
+      "visual_encoder_calls": 156,
+      "visual_forward_calls": 4544,
+      "visual_observation_calls": 156
+    },
+    "derivation": {
+      "update": {
+        "backward_calls": 4,
+        "optimizer_steps": 1,
+        "rows": 4
+      },
+      "update_batch": {
+        "evaluations": 2,
+        "rows_per_evaluation": 4
+      },
+      "wider": {
+        "available_per_readout": 98,
+        "expected_cache_hits_per_readout": 0,
+        "expected_cache_misses_per_readout": 72,
+        "explicit_logits_per_cell": 2,
+        "generated_tokens_per_readout": 1900,
+        "image_cells_per_readout": 72,
+        "max_sequence_tokens": 288,
+        "noimage_cells_per_readout": 26,
+        "placeholders_per_readout": 6,
+        "prepares_per_cell": 3,
+        "records_per_readout": 104,
+        "visual_tokens_per_pass": 196
+      }
+    },
+    "derived_caps": {
+      "campaign": {
+        "backward_calls": 4,
+        "decoder_forward_calls": 4804,
+        "explicit_logits_forwards": 400,
+        "generated_tokens": 3800,
+        "generation_decode_calls": 3604,
+        "generation_prefill_calls": 196,
+        "logical_scoring_cells": 196,
+        "logical_scoring_operations": 588,
+        "optimizer_steps": 1,
+        "prepare_sense_passes": 596,
+        "processed_text_positions": 1380240,
+        "processed_visual_positions": 890624,
+        "projector_passes": 4544,
+        "visual_encoder_cache_hits": 156,
+        "visual_encoder_cache_misses": 156,
+        "visual_encoder_calls": 156,
+        "visual_forward_calls": 4544,
+        "visual_observation_calls": 156
+      },
+      "wider_readout": {
+        "backward_calls": 0,
+        "decoder_forward_calls": 2390,
+        "explicit_logits_forwards": 196,
+        "generated_tokens": 1900,
+        "generation_decode_calls": 1802,
+        "generation_prefill_calls": 98,
+        "logical_scoring_cells": 98,
+        "logical_scoring_operations": 294,
+        "optimizer_steps": 0,
+        "prepare_sense_passes": 294,
+        "processed_text_positions": 688320,
+        "processed_visual_positions": 442960,
+        "projector_passes": 2260,
+        "visual_encoder_cache_hits": 72,
+        "visual_encoder_cache_misses": 72,
+        "visual_encoder_calls": 72,
+        "visual_forward_calls": 2260,
+        "visual_observation_calls": 72
+      }
+    },
+    "expected_counts": {
+      "campaign": {
+        "identity": "156 observations = 0 expected hits + 156 misses",
+        "visual_encoder_cache_hits": 0,
+        "visual_encoder_cache_misses": 156,
+        "visual_observation_calls": 156
+      },
+      "wider_per_readout": {
+        "identity": "72 observations = 0 expected hits + 72 misses",
+        "visual_encoder_cache_hits": 0,
+        "visual_encoder_cache_misses": 72,
+        "visual_observation_calls": 72
+      }
+    },
+    "expected_measured_work": {
+      "backward_calls": 4,
+      "decoder_forward_calls": 4804,
+      "explicit_logits_forwards": 400,
+      "generated_tokens": 3800,
+      "generation_decode_calls": 3604,
+      "generation_prefill_calls": 196,
+      "optimizer_steps": 1,
+      "prepare_sense_passes": 596,
+      "projector_passes": 4544,
+      "readout_stages": 5,
+      "update_batch_evaluations": 2,
+      "updates": 1,
+      "visual_encoder_cache_misses_max": 156,
+      "visual_encoder_calls_max": 156,
+      "visual_forward_calls": 4544,
+      "visual_observation_calls": 156,
+      "wider_readouts": 2
+    },
+    "format": "replica.vision_smaller_step.accounting.v2",
+    "identities": [
+      "wider.decoder = wider.prepares + wider.explicit_logits + wider.generated_tokens",
+      "wider.generated = wider.prefill + wider.decode",
+      "wider.visual_observations = wider.cache_hits_recorded + wider.cache_misses_recorded",
+      "wider.visual_encoder_calls = wider.cache_misses_recorded",
+      "wider.visual_forward = wider.decoder - 5 * wider.noimage_cells",
+      "wider.processed_visual = 196 * wider.visual_forward",
+      "wider.projector_passes = wider.visual_forward",
+      "update_batch.decoder = update_batch.prepares + update_batch.explicit_logits",
+      "update_batch.visual_forward = update_batch.decoder",
+      "update.decoder = 8 (four rows, one sense and one logits pass)",
+      "update.visual_forward = update.decoder",
+      "campaign.decoder = campaign.prepares + campaign.explicit_logits + campaign.generated_tokens + 8 update forwards",
+      "campaign = wider.cumulative + update_batch.cumulative + update",
+      "campaign.visual_observations = campaign.cache_hits_recorded + campaign.cache_misses_recorded",
+      "campaign.visual_encoder_calls = campaign.cache_misses_recorded",
+      "campaign.processed_visual = 196 * campaign.visual_forward"
+    ],
+    "supersedes_v1": {
+      "corrections": [
+        {
+          "counter": "wider_readout_template.per_readout.decoder_forward_calls",
+          "new": 2390,
+          "old": 2400,
+          "reason": "294 prepares + 196 explicit logits + 1,900 generated tokens = 2,390, not 2,400."
+        },
+        {
+          "counter": "campaign_cumulative.decoder_forward_calls",
+          "new": 4804,
+          "old": 4824,
+          "reason": "2x2,390 wider passes + 2x8 update-batch passes + 8 update forwards = 4,804, not 4,824."
+        },
+        {
+          "counter": "visual_observation_calls per wider readout",
+          "new": 72,
+          "old": 78,
+          "reason": "98 available cells minus the 26 no-image controls equals 72 observations; 78 counted six unmatched sibling placeholders as observations."
+        },
+        {
+          "counter": "visual_encoder_cache_hits plus visual_encoder_cache_misses per wider readout",
+          "new": "72 hit cap plus 72 misses against 72 observations; runtime enforces observations = hits + misses and encoder calls = misses.",
+          "old": "78 + 78 = 156 against 78 observations",
+          "reason": "An observation is exactly one cache hit or one cache miss; it cannot be both."
+        },
+        {
+          "counter": "visual_forward_calls and projector_passes",
+          "new": 2260,
+          "old": 2400,
+          "reason": "Only visual-bearing decoder passes advance the projector; the 26 no-image cells contribute five visual-less passes each. Projector passes equal visual-bearing passes, never all decoder passes."
+        },
+        {
+          "counter": "update_batch_evaluation prepare/logits",
+          "new": "4 prepares and 4 explicit logits",
+          "old": "0 prepares and 0 explicit logits for 8 decoder passes",
+          "reason": "Each of the four rows performs one prepare/sense pass and one teacher-forced logits pass; the v1 zero caps contradicted its own eight decoder passes."
+        }
+      ],
+      "notice": "The v1 declaration and launch packet remain preserved and unmodified. These caps are superseded only inside this v2 amendment, which derives each value from the schedule and enforces the identities below.",
+      "old_caps": {
+        "campaign_cumulative.decoder_forward_calls": 4824,
+        "campaign_cumulative.projector_passes": 4824,
+        "campaign_cumulative.visual_encoder_cache_hits": 168,
+        "campaign_cumulative.visual_encoder_cache_misses": 168,
+        "campaign_cumulative.visual_encoder_calls": 168,
+        "campaign_cumulative.visual_forward_calls": 4824,
+        "campaign_cumulative.visual_observation_calls": 168,
+        "limits.max_decoder_forwards_per_readout": 2400,
+        "limits.max_visual_encoder_calls": 168,
+        "limits.max_visual_encoder_calls_per_readout": 78,
+        "wider_readout_template.cumulative.decoder_forward_calls": 4800,
+        "wider_readout_template.cumulative.projector_passes": 4800,
+        "wider_readout_template.cumulative.visual_encoder_cache_hits": 156,
+        "wider_readout_template.cumulative.visual_encoder_cache_misses": 156,
+        "wider_readout_template.cumulative.visual_encoder_calls": 156,
+        "wider_readout_template.cumulative.visual_forward_calls": 4800,
+        "wider_readout_template.cumulative.visual_observation_calls": 156,
+        "wider_readout_template.per_readout.decoder_forward_calls": 2400,
+        "wider_readout_template.per_readout.projector_passes": 2400,
+        "wider_readout_template.per_readout.visual_encoder_cache_hits": 78,
+        "wider_readout_template.per_readout.visual_encoder_cache_misses": 78,
+        "wider_readout_template.per_readout.visual_encoder_calls": 78,
+        "wider_readout_template.per_readout.visual_forward_calls": 2400,
+        "wider_readout_template.per_readout.visual_observation_calls": 78
+      }
+    },
+    "update": {
+      "backward_calls": 4,
+      "decoder_forward_calls": 8,
+      "explicit_logits_forwards": 0,
+      "generated_tokens": 0,
+      "generation_decode_calls": 0,
+      "generation_prefill_calls": 0,
+      "logical_scoring_cells": 0,
+      "logical_scoring_operations": 0,
+      "optimizer_steps": 1,
+      "prepare_sense_passes": 0,
+      "processed_text_positions": 1200,
+      "processed_visual_positions": 1568,
+      "projector_passes": 8,
+      "visual_encoder_cache_hits": 4,
+      "visual_encoder_cache_misses": 4,
+      "visual_encoder_calls": 4,
+      "visual_forward_calls": 8,
+      "visual_observation_calls": 4
+    },
+    "update_batch_evaluation": {
+      "cumulative": {
+        "backward_calls": 0,
+        "decoder_forward_calls": 16,
+        "explicit_logits_forwards": 8,
+        "generated_tokens": 0,
+        "generation_decode_calls": 0,
+        "generation_prefill_calls": 0,
+        "logical_scoring_cells": 0,
+        "logical_scoring_operations": 0,
+        "optimizer_steps": 0,
+        "prepare_sense_passes": 8,
+        "processed_text_positions": 2400,
+        "processed_visual_positions": 3136,
+        "projector_passes": 16,
+        "visual_encoder_cache_hits": 8,
+        "visual_encoder_cache_misses": 8,
+        "visual_encoder_calls": 8,
+        "visual_forward_calls": 16,
+        "visual_observation_calls": 8
+      },
+      "per_evaluation": {
+        "backward_calls": 0,
+        "decoder_forward_calls": 8,
+        "explicit_logits_forwards": 4,
+        "generated_tokens": 0,
+        "generation_decode_calls": 0,
+        "generation_prefill_calls": 0,
+        "logical_scoring_cells": 0,
+        "logical_scoring_operations": 0,
+        "optimizer_steps": 0,
+        "prepare_sense_passes": 4,
+        "processed_text_positions": 1200,
+        "processed_visual_positions": 1568,
+        "projector_passes": 8,
+        "visual_encoder_cache_hits": 4,
+        "visual_encoder_cache_misses": 4,
+        "visual_encoder_calls": 4,
+        "visual_forward_calls": 8,
+        "visual_observation_calls": 4
+      }
+    },
+    "validated_live_identities": {
+      "backward_calls": 4,
+      "decoder_forward_calls": 4804,
+      "explicit_logits_forwards": 400,
+      "generated_tokens": 3800,
+      "generation_decode_calls": 3604,
+      "generation_prefill_calls": 196,
+      "logical_scoring_cells": 196,
+      "logical_scoring_operations": 588,
+      "optimizer_steps": 1,
+      "prepare_sense_passes": 596,
+      "processed_text_positions": 1380240,
+      "processed_visual_positions": 890624,
+      "projector_passes": 4544,
+      "visual_encoder_cache_hits": 0,
+      "visual_encoder_cache_misses": 156,
+      "visual_encoder_calls": 156,
+      "visual_forward_calls": 4544,
+      "visual_observation_calls": 156
+    },
+    "wider_readout_template": {
+      "cumulative": {
+        "backward_calls": 0,
+        "decoder_forward_calls": 4780,
+        "explicit_logits_forwards": 392,
+        "generated_tokens": 3800,
+        "generation_decode_calls": 3604,
+        "generation_prefill_calls": 196,
+        "logical_scoring_cells": 196,
+        "logical_scoring_operations": 588,
+        "optimizer_steps": 0,
+        "prepare_sense_passes": 588,
+        "processed_text_positions": 1376640,
+        "processed_visual_positions": 885920,
+        "projector_passes": 4520,
+        "visual_encoder_cache_hits": 144,
+        "visual_encoder_cache_misses": 144,
+        "visual_encoder_calls": 144,
+        "visual_forward_calls": 4520,
+        "visual_observation_calls": 144
+      },
+      "per_readout": {
+        "backward_calls": 0,
+        "decoder_forward_calls": 2390,
+        "explicit_logits_forwards": 196,
+        "generated_tokens": 1900,
+        "generation_decode_calls": 1802,
+        "generation_prefill_calls": 98,
+        "logical_scoring_cells": 98,
+        "logical_scoring_operations": 294,
+        "optimizer_steps": 0,
+        "prepare_sense_passes": 294,
+        "processed_text_positions": 688320,
+        "processed_visual_positions": 442960,
+        "projector_passes": 2260,
+        "visual_encoder_cache_hits": 72,
+        "visual_encoder_cache_misses": 72,
+        "visual_encoder_calls": 72,
+        "visual_forward_calls": 2260,
+        "visual_observation_calls": 72
+      },
+      "wall_check_every_calls": 64,
+      "wall_limit_seconds": 1200
+    }
+  },
+  "authorization": {
+    "closed_roles": {
+      "development": false,
+      "heldout": false,
+      "promotion": false,
+      "retry": false,
+      "semantic_audit": false,
+      "v0": false
+    },
+    "config_sha256": "030a909f4f6a3cfcb6fd8698551ac8555d47e07686a3fb7a0ceae593cb296ec7",
+    "format": "replica.vision_smaller_step.authorization.v1",
+    "minted_by_packet": false,
+    "native_execution_authorized": false,
+    "note": "Readiness may observe and validate an existing receipt but never creates one. The three preserved vision_learnability_step1 receipts bind a different protocol and config.",
+    "path": "reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json",
+    "present_at_build": false,
+    "protocol_commit": null,
+    "required": true,
+    "separate_from_packet": true,
+    "status": "absent"
+  },
+  "authorization_created": false,
+  "decision": {
+    "authorization_created": false,
+    "launch_allowed": false,
+    "model_loads": 0,
+    "native_execution": false,
+    "preparation_complete": true,
+    "reason": "preparation_is_complete_but_the_external_authorization_receipt_is_absent_and_the_v2_protocol_commit_is_unrecorded"
+  },
+  "deterministic": true,
+  "format": "replica.vision_smaller_step.launch_packet.v2",
+  "implementation": {
+    "accounting_module": {
+      "path": "src/replica_lab/vision_smaller_step_accounting_v2.py",
+      "sha256": "eed1f92cbac46538531698d2618690bc1279749e5208505bc7c905075fb574ba"
+    },
+    "builder": {
+      "path": "scripts/build_vision_smaller_step_launch_packet_v2.py",
+      "sha256": "2da3a39d1be0283dae2eb1e716a1c8a3874de8fa1dc37a46b50240a9b9a061dd"
+    },
+    "config": {
+      "bytes": 32274,
+      "path": "configs/vision_smaller_step_lr3e5_v2.json",
+      "sha256": "030a909f4f6a3cfcb6fd8698551ac8555d47e07686a3fb7a0ceae593cb296ec7"
+    },
+    "runner": {
+      "bytes": 117015,
+      "path": "scripts/vision_smaller_step_v2.py",
+      "sha256": "21ad36286f5c13465fe53cc2ada4a6cd98ef4579771eee5c5661eadd56e01a06"
+    }
+  },
+  "kind": "preparation_only_launch_evidence",
+  "launch": {
+    "argv": [
+      "python",
+      "scripts/vision_smaller_step_v2.py",
+      "run",
+      "--config",
+      "configs/vision_smaller_step_lr3e5_v2.json",
+      "--output",
+      "runs/vision_smaller_step_lr3e5_v2_20261027",
+      "--model-path",
+      "checkpoints/minicpm5_source",
+      "--model-lock",
+      "configs/minicpm5_sealed_lock.local.json",
+      "--authorization",
+      "reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json"
+    ],
+    "authorization_checked_before_native_imports": true,
+    "disposition_at_build": "review_only_launch_refused",
+    "environment": {
+      "HF_DATASETS_OFFLINE": "1",
+      "HF_HUB_OFFLINE": "1",
+      "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+      "TRANSFORMERS_OFFLINE": "1"
+    },
+    "output": "runs/vision_smaller_step_lr3e5_v2_20261027",
+    "output_exists_at_build": false,
+    "output_must_not_exist": true,
+    "refusals_at_build": [
+      "packet_is_not_an_authorization_receipt",
+      "packet_is_preparation_only",
+      "authorization_receipt_missing",
+      "protocol_commit_unbound",
+      "commit_binding_unverified",
+      "native_execution_not_authorized"
+    ],
+    "review_command": [
+      "python",
+      "scripts/vision_smaller_step_v2.py",
+      "review-launch",
+      "--config",
+      "configs/vision_smaller_step_lr3e5_v2.json",
+      "--authorization",
+      "reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json"
+    ]
+  },
+  "limitations": [
+    "Preparation only: no native command, model load, backward, optimizer step or generation has been executed by this packet.",
+    "The authorization receipt is absent and the v2 protocol commit is unrecorded, so launch is refused before native loading.",
+    "Numeric losses, gate outcomes, wall time and artifact bytes are unobserved; the derived caps are declarations with exact identity checks, not measurements.",
+    "The v1 packet, config, readiness and evidence remain preserved and unchanged; this v2 packet supersedes only their accounting caps and never rewrites the v1 files.",
+    "Development, held-out, semantic-audit, V0, promotion and retry access remain closed regardless of this packet or any result.",
+    "This packet is evidence, never an authorization receipt or a promotion decision."
+  ],
+  "model_loads": 0,
+  "native_execution": false,
+  "packet_sha256": "08f3e6bdf1d319249f4d5747495d9673f62050fe6bf231d5473b3b83303c4d53",
+  "preflight": [
+    {
+      "id": "protocol_contract",
+      "requirement": "v2 config validates exactly on CPU",
+      "status": "passed"
+    },
+    {
+      "id": "accounting_derived",
+      "requirement": "every v2 counter equals its schedule derivation and identities hold",
+      "status": "passed"
+    },
+    {
+      "id": "decoder_identity",
+      "requirement": "decoder = prepares + logits + tokens + 8 update forwards (4,804, not 4,824)",
+      "status": "passed"
+    },
+    {
+      "id": "visual_identity",
+      "requirement": "observations = hits + misses; encoder calls = misses; visual-bearing passes are fewer than all decoder passes",
+      "status": "passed"
+    },
+    {
+      "id": "projector_identity",
+      "requirement": "projector passes equal visual-bearing passes, never all decoder passes",
+      "status": "passed"
+    },
+    {
+      "id": "v1_preserved",
+      "requirement": "v1 config, packet and readiness hashes match",
+      "status": "passed"
+    },
+    {
+      "id": "authorization_receipt",
+      "requirement": "a separate external receipt must authorize this exact v2 config; none exists",
+      "status": "pending"
+    },
+    {
+      "id": "protocol_commit",
+      "requirement": "the receipt must record a full commit whose v2 config blob matches the config SHA-256",
+      "status": "pending"
+    },
+    {
+      "id": "fresh_output",
+      "requirement": "the v2 output path must not exist at launch",
+      "status": "pending"
+    },
+    {
+      "id": "native_execution",
+      "requirement": "no model load, backward, step or native command is performed during packet preparation",
+      "status": "not_performed"
+    }
+  ],
+  "preserved_v1": {
+    "config": {
+      "path": "configs/vision_smaller_step_lr3e5_v1.json",
+      "sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad"
+    },
+    "overwritten_here": false,
+    "packet": {
+      "canonical_sha256": "9be3a8d2edc7d0b4d819197e22cd316a82affd7b83345cc95c2b2ef7d591a770",
+      "path": "reports/vision_smaller_step_launch_packet_v1_20261027/launch_packet.json",
+      "sha256": "e19e5995f90cab2c54033b2673e583761c9148697fce1eaa200c79bc8f54af6c"
+    },
+    "readiness_declaration": {
+      "path": "configs/vision_smaller_step_launch_readiness_v1.json",
+      "sha256": "893d85b657b88bd6e2426e274d9a2f53b65b11f25a169ef93ee8663209284c32"
+    },
+    "v1_caps_preserved_in_v1_packet": {
+      "campaign_decoder_forward_calls": 4824,
+      "wider_decoder_forward_calls": 2400,
+      "wider_projector_passes": 2400,
+      "wider_visual_encoder_cache_hits": 78,
+      "wider_visual_encoder_cache_misses": 78,
+      "wider_visual_forward_calls": 2400,
+      "wider_visual_observation_calls": 78
+    }
+  },
+  "protocol": {
+    "completed_lr": 0.0003,
+    "format": "replica.vision_smaller_step_config.v2",
+    "lr": 3e-05,
+    "mode": "smaller_step",
+    "name": "vision_smaller_step_lr3e5_v2",
+    "native_execution_authorized": false,
+    "path": "configs/vision_smaller_step_lr3e5_v2.json",
+    "sha256": "030a909f4f6a3cfcb6fd8698551ac8555d47e07686a3fb7a0ceae593cb296ec7",
+    "version": "replica.vision_smaller_step.v2"
+  },
+  "purpose": "Versioned amendment of the lr 3e-05 smaller-step launch packet. It preserves the v1 config, packet, readiness declaration and evidence, re-derives every accounting counter from the declared schedule, records the superseded stale caps, and still refuses native launch because no external authorization receipt exists.",
+  "remaining_requirements": [
+    {
+      "blocking": true,
+      "id": "authorization_receipt_issued",
+      "owner": "external_user",
+      "requirement": "A separate external receipt must exist at reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json, bind config_sha256 030a909f4f6a3cfcb6fd8698551ac8555d47e07686a3fb7a0ceae593cb296ec7, authorize native execution and keep every other role false.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "protocol_commit_recorded",
+      "owner": "external_user",
+      "requirement": "The receipt must record a full 40-character commit whose v2 config blob hashes to the same config SHA-256.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "review_launch_gate_passed",
+      "owner": "authorized_operator",
+      "requirement": "scripts/vision_smaller_step_v2.py review-launch must pass receipt, config, commit and fresh-output checks before any native import; no receipt exists.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "fresh_output_available",
+      "owner": "authorized_operator",
+      "requirement": "runs/vision_smaller_step_lr3e5_v2_20261027 must not exist at launch.",
+      "satisfied_by_preparation": true
+    },
+    {
+      "blocking": true,
+      "id": "exclusive_worker_and_capacity_guard",
+      "owner": "authorized_operator",
+      "requirement": "The launch must acquire the exclusive MPS worker and prove 50 GiB driver, 512 MiB sustained swap growth and 15% host free with no CPU fallback.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "native_execution_within_derived_budget",
+      "owner": "authorized_operator",
+      "requirement": "Execute exactly 4 backward calls and 1 NativeFusedAdamW step within 4,804 decoder forwards, 156 visual observations, 1,200 seconds and 33,554,432 artifact bytes.",
+      "satisfied_by_preparation": false
+    }
+  ],
+  "version": "2"
+}

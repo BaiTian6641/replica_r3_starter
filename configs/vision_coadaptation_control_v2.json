@@ -1,0 +1,1041 @@
+{
+  "format": "replica.vision_coadaptation_control.protocol.v2",
+  "version": "replica.vision_coadaptation_control.v2",
+  "mode": "coadaptation_control",
+  "name": "vision_coadaptation_control_v2",
+  "declared_at_utc": "2026-10-27T00:00:00+00:00",
+  "purpose": "Conditional, preparation-only co-adaptation control at the identical lr 3e-05, data, loss, readouts and budget as the amended smaller-step arm. Its only changed axis is gradient scope: the six projector tensors plus the last SigLIP2 encoder block (16 tensors) and vision_model.post_layernorm (2 tensors) receive gradients, for 24 tensors and 18,631,424 parameters. The sealed MiniCPM5 decoder and frozen encoder layers 0-10, embeddings and head never receive gradients. This file amends the v1 accounting to derived identities, implements a conditional native runner, and remains ineligible and unauthorized until the preserved smaller-step failure, the frozen-feature diagnosis and a separate external receipt all exist.",
+  "hypothesis": {
+    "statement": "If the smaller-step failure is caused by projector-only adaptation over frozen visual features rather than by step size, then allowing the last SigLIP2 encoder block and post-layernorm to receive gradients at the identical lr 3e-05, loss, data, batch and budget should move the update-batch post-update mean response NLL toward its pre-update value or lower the wider train-fit loss, while encoder parameter drift stays inside the declared bounds.",
+    "arm": "coadaptation",
+    "changed_axis": "gradient_scope",
+    "lr": 3e-05,
+    "same_lr_as_smaller_step": true,
+    "requires_diagnosed_smaller_step_failure": true,
+    "frozen_feature_insufficiency_is_the_only_question": true,
+    "not_a_step_size_test": true,
+    "not_an_encoder_swap": true,
+    "not_a_new_loss": true,
+    "not_a_larger_budget": true,
+    "rank_or_loss_movement_is_not_conversion": true
+  },
+  "parent": {
+    "model_path": "checkpoints/minicpm5_source",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "model_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "model_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "vision_source_manifest": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+    "vision_source_manifest_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+    "vision_weights_sha256": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b",
+    "sealed_parent": true,
+    "downloads": 0,
+    "encoder_swap": false,
+    "comparison_arm": "vision_smaller_step_lr3e5_v1",
+    "comparison_config": "configs/vision_smaller_step_lr3e5_v2.json",
+    "comparison_report": "reports/vision_smaller_step_lr3e5_v1_20261027/report.json",
+    "same_parent_as_smaller_step": true,
+    "same_encoder_weights_as_smaller_step": true,
+    "comparison_config_sha256": "030a909f4f6a3cfcb6fd8698551ac8555d47e07686a3fb7a0ceae593cb296ec7",
+    "comparison_v1_config": "configs/vision_smaller_step_lr3e5_v1.json",
+    "comparison_v1_config_sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad"
+  },
+  "prepared": {
+    "root": "data/vision_balanced_alignment_v2_20261026/prepared04",
+    "protocol": "data/vision_balanced_alignment_v2_20261026/prepared04/protocol.json",
+    "protocol_sha256": "3bf636f00dce4e73168eb5f4b2c2454560276b32dfb1122b91d58ffcd44c2d77",
+    "manifest": "data/vision_balanced_alignment_v2_20261026/prepared04/manifest.json",
+    "manifest_sha256": "12f43b081e147a0c678e2137a321b709eb528099411b46b913735198563e0227",
+    "training": "data/vision_balanced_alignment_v2_20261026/prepared04/training/alignment.jsonl",
+    "training_sha256": "be6d62e32e688b7e4fc14ff327ec41df7062747e13d4c4d041cd7d05caa00bd8",
+    "training_examples": 26,
+    "answer_examples": 14,
+    "caption_examples": 12,
+    "answer_pairs": 5,
+    "caption_pair_ids": 7,
+    "read_only_training": true,
+    "forbidden_access": [
+      "evaluation/",
+      "dev",
+      "heldout",
+      "semantic_audit"
+    ]
+  },
+  "schedule": {
+    "source": "training/batches.jsonl",
+    "source_sha256": "08484a4dbc000488c94c54510fad655c06251598a87294837e24d80cad09433a",
+    "caption_labels": "training/train_caption_labels.jsonl",
+    "caption_labels_sha256": "84788b08bd6c3a66f9c241e18db73ca8828c8dd15b62aad83e8d3bdf235b1954",
+    "update_index": 1,
+    "updates_planned": 1,
+    "batch_size": 4,
+    "answer_per_update": 2,
+    "caption_per_update": 2,
+    "unique_rows": 26,
+    "slots": 4,
+    "expected_answer_rows": 14,
+    "expected_caption_rows": 12,
+    "expected_repeated_rows": 2,
+    "smallest_full_coverage_prefix": false,
+    "completed_batch_reused": true
+  },
+  "initialization": {
+    "init_seed": 29,
+    "recipe": "fresh_seeded_normal_std0.02",
+    "warm_start": null,
+    "forbidden_parent_weights_sha256": [
+      "bdc367424b2afcb2e88dba04b6b29495e3a440b5d850f8ae5bc55dbfa428c3a4"
+    ],
+    "projector_tensors": [
+      "vision_projector.0.weight",
+      "vision_projector.0.bias",
+      "vision_projector.1.weight",
+      "vision_projector.1.bias",
+      "vision_projector.3.weight",
+      "vision_projector.3.bias"
+    ],
+    "parameter_count": 11542016,
+    "expected_init_sha256": "511ba5c7648851424649962467972f0e926303d64873dfce08ecd3de299314b9"
+  },
+  "optimizer": {
+    "name": "adamw_fused",
+    "wrapper": "NativeFusedAdamW",
+    "optimizer_class": "torch.optim.AdamW",
+    "lr": 3e-05,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "max_grad_norm": 1.0,
+    "grad_accum": 1
+  },
+  "loss_contract": {
+    "name": "response_only_mean_nll",
+    "metric": "mean_response_nll",
+    "label_scope": "response_only",
+    "teacher_forced_only_for_loss": true,
+    "auxiliary_terms": [],
+    "auxiliary_loss_weight": 0.0,
+    "new_loss_introduced": false,
+    "same_loss_as_smaller_step": true,
+    "same_label_policy_as_smaller_step": true
+  },
+  "gradient_scope": {
+    "trainable_tensors": [
+      "vision_projector.0.weight",
+      "vision_projector.0.bias",
+      "vision_projector.1.weight",
+      "vision_projector.1.bias",
+      "vision_projector.3.weight",
+      "vision_projector.3.bias",
+      "vision_model.encoder.layers.11.self_attn.q_proj.weight",
+      "vision_model.encoder.layers.11.self_attn.q_proj.bias",
+      "vision_model.encoder.layers.11.self_attn.k_proj.weight",
+      "vision_model.encoder.layers.11.self_attn.k_proj.bias",
+      "vision_model.encoder.layers.11.self_attn.v_proj.weight",
+      "vision_model.encoder.layers.11.self_attn.v_proj.bias",
+      "vision_model.encoder.layers.11.self_attn.out_proj.weight",
+      "vision_model.encoder.layers.11.self_attn.out_proj.bias",
+      "vision_model.encoder.layers.11.layer_norm1.weight",
+      "vision_model.encoder.layers.11.layer_norm1.bias",
+      "vision_model.encoder.layers.11.layer_norm2.weight",
+      "vision_model.encoder.layers.11.layer_norm2.bias",
+      "vision_model.encoder.layers.11.mlp.fc1.weight",
+      "vision_model.encoder.layers.11.mlp.fc1.bias",
+      "vision_model.encoder.layers.11.mlp.fc2.weight",
+      "vision_model.encoder.layers.11.mlp.fc2.bias",
+      "vision_model.post_layernorm.weight",
+      "vision_model.post_layernorm.bias"
+    ],
+    "projector_tensors": [
+      "vision_projector.0.weight",
+      "vision_projector.0.bias",
+      "vision_projector.1.weight",
+      "vision_projector.1.bias",
+      "vision_projector.3.weight",
+      "vision_projector.3.bias"
+    ],
+    "encoder_tensors": [
+      "vision_model.encoder.layers.11.self_attn.q_proj.weight",
+      "vision_model.encoder.layers.11.self_attn.q_proj.bias",
+      "vision_model.encoder.layers.11.self_attn.k_proj.weight",
+      "vision_model.encoder.layers.11.self_attn.k_proj.bias",
+      "vision_model.encoder.layers.11.self_attn.v_proj.weight",
+      "vision_model.encoder.layers.11.self_attn.v_proj.bias",
+      "vision_model.encoder.layers.11.self_attn.out_proj.weight",
+      "vision_model.encoder.layers.11.self_attn.out_proj.bias",
+      "vision_model.encoder.layers.11.layer_norm1.weight",
+      "vision_model.encoder.layers.11.layer_norm1.bias",
+      "vision_model.encoder.layers.11.layer_norm2.weight",
+      "vision_model.encoder.layers.11.layer_norm2.bias",
+      "vision_model.encoder.layers.11.mlp.fc1.weight",
+      "vision_model.encoder.layers.11.mlp.fc1.bias",
+      "vision_model.encoder.layers.11.mlp.fc2.weight",
+      "vision_model.encoder.layers.11.mlp.fc2.bias",
+      "vision_model.post_layernorm.weight",
+      "vision_model.post_layernorm.bias"
+    ],
+    "projector_parameter_count": 11542016,
+    "encoder_parameter_count": 7089408,
+    "trainable_parameter_count": 18631424,
+    "optimizer_param_groups": 1,
+    "optimizer_owned_parameters": 24,
+    "encoder_structure": {
+      "architecture": "SiglipVisionModel",
+      "base_model_prefix": "vision_model",
+      "feature_version": "siglip_patch_last_hidden.v1",
+      "num_hidden_layers": 12,
+      "hidden_size": 768,
+      "intermediate_size": 3072,
+      "adapted_layer_index": 11,
+      "adapted_layer_modules": [
+        "self_attn.q_proj",
+        "self_attn.k_proj",
+        "self_attn.v_proj",
+        "self_attn.out_proj",
+        "layer_norm1",
+        "layer_norm2",
+        "mlp.fc1",
+        "mlp.fc2"
+      ],
+      "post_layernorm": true,
+      "frozen_layers": "0-10 plus embeddings and head"
+    },
+    "frozen_components": [
+      "sealed MiniCPM5 parent",
+      "frozen SigLIP2 vision encoder layers 0-10, embeddings and head"
+    ],
+    "backbone_gradient_tensors_allowed": 0,
+    "decoder_gradient_tensors_allowed": 0,
+    "non_scope_gradient_names_allowed": [],
+    "gradient_accumulation": 1,
+    "update_rows": 4,
+    "answer_rows": 2,
+    "caption_rows": 2,
+    "backward_calls": 4,
+    "optimizer_steps": 1,
+    "clip_grad_norm": 1.0,
+    "changed_tensors_must_be_subset_of_trainable": true,
+    "declared_scope_tensors_only_changed": true,
+    "encoder_update_bounds": {
+      "max_abs_update": 0.0001,
+      "max_delta_l2": 0.25
+    },
+    "cache_versioning": {
+      "mode": "frozen_prefix_cache_with_producer_version",
+      "frozen_prefix": "embeddings plus encoder.layers[0..10]",
+      "adapted_suffix": "encoder.layers[11] plus post_layernorm",
+      "invalidate_on": [
+        "frozen_prefix_tensor_change",
+        "source_or_manifest_change",
+        "processor_change",
+        "adapted_tensor_change"
+      ],
+      "never_serve_cross_producer": true
+    }
+  },
+  "scope_axis": {
+    "changed": "gradient_scope",
+    "from": "six projector tensors only",
+    "to": "six projector tensors plus the last SigLIP2 encoder block and post-layernorm",
+    "relative_to": "vision_smaller_step_lr3e5_v1",
+    "unchanged": [
+      "parent",
+      "encoder_weights",
+      "data",
+      "update_batch",
+      "seed",
+      "initialization",
+      "lr",
+      "optimizer_hyperparameters",
+      "loss",
+      "decoding",
+      "readout_protocol",
+      "generation_policy",
+      "budget",
+      "closed_roles"
+    ],
+    "encoder_swap": false,
+    "new_loss": false,
+    "budget_increase": false
+  },
+  "update_batch": {
+    "source": "training/batches.jsonl",
+    "update_index": 1,
+    "example_ids": [
+      "caption:vba2-w013-p0-a",
+      "caption:vba2-w025-p0-a",
+      "answer:vba2-w000-p0-a",
+      "answer:vba2-w036-p0-b"
+    ],
+    "case_ids": [
+      "vba2-w013-p0-a",
+      "vba2-w025-p0-a",
+      "vba2-w000-p0-a",
+      "vba2-w036-p0-b"
+    ],
+    "rows": 4,
+    "roles": {
+      "answer": 2,
+      "caption": 2
+    },
+    "pre_evaluation_label": "update_batch_pre",
+    "post_evaluation_label": "update_batch_post",
+    "evaluation_scope": "teacher_forced_loss_only",
+    "evaluation_controls": [
+      "correct"
+    ],
+    "evaluation_records": 4,
+    "separate_from_wider_cohort": true,
+    "loss_metric": "mean_response_nll"
+  },
+  "readouts": {
+    "format": "replica.vision_smaller_step.readout.v1",
+    "sequence": [
+      "prefix_0",
+      "update_batch_pre",
+      "update_1",
+      "update_batch_post",
+      "prefix_1"
+    ],
+    "wider": {
+      "labels": [
+        "prefix_0",
+        "prefix_1"
+      ],
+      "prefixes": [
+        0,
+        1
+      ],
+      "available_per_readout": 98,
+      "records_per_readout": 104,
+      "placeholders_per_readout": 6,
+      "controls": [
+        "correct",
+        "sibling",
+        "shuffled",
+        "noimage"
+      ],
+      "teacher_forced_roles": [
+        "answer",
+        "caption"
+      ],
+      "generation_roles": [
+        "answer",
+        "caption"
+      ],
+      "max_new_tokens_by_kind": {
+        "answer": 8,
+        "caption": 32
+      },
+      "empty_text_policy": "separate_eos_only_from_whitespace_only",
+      "eos_only_not_counted_correct": true,
+      "whitespace_only_not_counted_correct": true,
+      "logical_scoring_cells_per_readout": 98,
+      "logical_scoring_operations_per_readout": 294
+    },
+    "update_batch": {
+      "labels": [
+        "update_batch_pre",
+        "update_batch_post"
+      ],
+      "records_per_evaluation": 4,
+      "available_per_evaluation": 4,
+      "controls": [
+        "correct"
+      ],
+      "teacher_forced_roles": [
+        "answer",
+        "caption"
+      ],
+      "generation": false,
+      "metrics": [
+        "mean_response_nll",
+        "per_role_mean_response_nll"
+      ],
+      "separate_evaluations": 2
+    },
+    "expected_measured_work": {
+      "wider_readouts": 2,
+      "update_batch_evaluations": 2,
+      "updates": 1,
+      "readout_stages": 5,
+      "decoder_forward_calls": 4804,
+      "prepare_sense_passes": 596,
+      "explicit_logits_forwards": 400,
+      "generation_prefill_calls": 196,
+      "generation_decode_calls": 3604,
+      "generated_tokens": 3800,
+      "visual_observation_calls": 156,
+      "visual_encoder_calls_max": 156,
+      "visual_encoder_cache_misses_max": 156,
+      "visual_forward_calls": 4544,
+      "projector_passes": 4544,
+      "backward_calls": 4,
+      "optimizer_steps": 1
+    }
+  },
+  "gates": {
+    "optimization": {
+      "evaluated_on": [
+        "update_batch_pre",
+        "update_batch_post",
+        "prefix_0",
+        "prefix_1"
+      ],
+      "update_count": 1,
+      "backward_calls": 4,
+      "optimizer_steps": 1,
+      "optimizer_owned_tensors": 24,
+      "backbone_gradient_tensors": 0,
+      "projector_tensors": 6,
+      "encoder_tensors": 18,
+      "decoder_gradient_tensors": 0,
+      "declared_scope_tensors_only_changed": true,
+      "finite_losses": true,
+      "finite_grad_norm": true,
+      "max_update_batch_mean_nll_delta": 0.25,
+      "max_wider_answer_mean_nll_delta": 0.25,
+      "max_wider_caption_mean_nll_delta": 0.25,
+      "max_encoder_abs_update": 0.0001,
+      "max_encoder_delta_l2": 0.25,
+      "delta_definition": "post_minus_pre",
+      "loss_movement_is_not_conversion": true,
+      "status_on_fail": "coadaptation_optimization_gate_failed"
+    },
+    "functional_fit": {
+      "evaluated_on": "prefix_1 wider training cohort with prefix_0 reference and matched correct/sibling/shuffled/no-image controls",
+      "answer_correct_min": 1,
+      "answer_correct_denominator": 14,
+      "answer_correct_accuracy_min": 0.07142857142857142,
+      "answer_prefill_gold_min": 1,
+      "answer_prefill_gold_accuracy_min": 0.07142857142857142,
+      "caption_token_f1_gain_min": 0.1,
+      "caption_semantic_f1_min": 0.05,
+      "correct_vs_sibling_accuracy_margin_min": 0.05,
+      "correct_vs_shuffled_accuracy_margin_min": 0.05,
+      "correct_vs_noimage_accuracy_margin_min": 0.05,
+      "eos_only_rate_max": 0.5,
+      "whitespace_only_rate_max": 0.1,
+      "empty_text_policy": "separate_eos_only_from_whitespace_only",
+      "eos_only_not_counted_correct": true,
+      "whitespace_only_not_counted_correct": true,
+      "answer_correct_metric": "exact normalized generated answer match; EOS-only and whitespace-only outputs are never correct",
+      "caption_quality_metric": "caption token F1 gain and caption semantic descriptor F1 on generated captions",
+      "rank_or_loss_movement_is_not_conversion": true,
+      "development_on_pass": "requires_new_predeclared_protocol",
+      "development_on_fail": "closed",
+      "status_on_fail": "coadaptation_functional_fit_failed"
+    },
+    "decision": {
+      "requires_all_gates": true,
+      "development_authorized_here": false,
+      "development_eligibility": "functional_fit_gate_passed_only",
+      "heldout_authorized": false,
+      "v0_authorized": false,
+      "promotion": false,
+      "retry_authorized": false,
+      "more_coadaptation_authorized": false
+    }
+  },
+  "accounting": {
+    "format": "replica.vision_smaller_step.accounting.v2",
+    "derivation": {
+      "wider": {
+        "records_per_readout": 104,
+        "available_per_readout": 98,
+        "placeholders_per_readout": 6,
+        "noimage_cells_per_readout": 26,
+        "image_cells_per_readout": 72,
+        "generated_tokens_per_readout": 1900,
+        "prepares_per_cell": 3,
+        "explicit_logits_per_cell": 2,
+        "max_sequence_tokens": 288,
+        "visual_tokens_per_pass": 196,
+        "expected_cache_hits_per_readout": 0,
+        "expected_cache_misses_per_readout": 72
+      },
+      "update_batch": {
+        "evaluations": 2,
+        "rows_per_evaluation": 4
+      },
+      "update": {
+        "rows": 4,
+        "backward_calls": 4,
+        "optimizer_steps": 1
+      }
+    },
+    "supersedes_v1": {
+      "notice": "The v1 declaration and launch packet remain preserved and unmodified. These caps are superseded only inside this v2 amendment, which derives each value from the schedule and enforces the identities below.",
+      "old_caps": {
+        "wider_readout_template.per_readout.decoder_forward_calls": 2400,
+        "wider_readout_template.per_readout.visual_forward_calls": 2400,
+        "wider_readout_template.per_readout.projector_passes": 2400,
+        "wider_readout_template.per_readout.visual_observation_calls": 78,
+        "wider_readout_template.per_readout.visual_encoder_calls": 78,
+        "wider_readout_template.per_readout.visual_encoder_cache_hits": 78,
+        "wider_readout_template.per_readout.visual_encoder_cache_misses": 78,
+        "wider_readout_template.cumulative.decoder_forward_calls": 4800,
+        "wider_readout_template.cumulative.visual_forward_calls": 4800,
+        "wider_readout_template.cumulative.projector_passes": 4800,
+        "wider_readout_template.cumulative.visual_observation_calls": 156,
+        "wider_readout_template.cumulative.visual_encoder_calls": 156,
+        "wider_readout_template.cumulative.visual_encoder_cache_hits": 156,
+        "wider_readout_template.cumulative.visual_encoder_cache_misses": 156,
+        "campaign_cumulative.decoder_forward_calls": 4824,
+        "campaign_cumulative.visual_forward_calls": 4824,
+        "campaign_cumulative.projector_passes": 4824,
+        "campaign_cumulative.visual_observation_calls": 168,
+        "campaign_cumulative.visual_encoder_calls": 168,
+        "campaign_cumulative.visual_encoder_cache_hits": 168,
+        "campaign_cumulative.visual_encoder_cache_misses": 168,
+        "limits.max_decoder_forwards_per_readout": 2400,
+        "limits.max_visual_encoder_calls_per_readout": 78,
+        "limits.max_visual_encoder_calls": 168
+      },
+      "corrections": [
+        {
+          "counter": "wider_readout_template.per_readout.decoder_forward_calls",
+          "old": 2400,
+          "new": 2390,
+          "reason": "294 prepares + 196 explicit logits + 1,900 generated tokens = 2,390, not 2,400."
+        },
+        {
+          "counter": "campaign_cumulative.decoder_forward_calls",
+          "old": 4824,
+          "new": 4804,
+          "reason": "2x2,390 wider passes + 2x8 update-batch passes + 8 update forwards = 4,804, not 4,824."
+        },
+        {
+          "counter": "visual_observation_calls per wider readout",
+          "old": 78,
+          "new": 72,
+          "reason": "98 available cells minus the 26 no-image controls equals 72 observations; 78 counted six unmatched sibling placeholders as observations."
+        },
+        {
+          "counter": "visual_encoder_cache_hits plus visual_encoder_cache_misses per wider readout",
+          "old": "78 + 78 = 156 against 78 observations",
+          "new": "72 hit cap plus 72 misses against 72 observations; runtime enforces observations = hits + misses and encoder calls = misses.",
+          "reason": "An observation is exactly one cache hit or one cache miss; it cannot be both."
+        },
+        {
+          "counter": "visual_forward_calls and projector_passes",
+          "old": 2400,
+          "new": 2260,
+          "reason": "Only visual-bearing decoder passes advance the projector; the 26 no-image cells contribute five visual-less passes each. Projector passes equal visual-bearing passes, never all decoder passes."
+        },
+        {
+          "counter": "update_batch_evaluation prepare/logits",
+          "old": "0 prepares and 0 explicit logits for 8 decoder passes",
+          "new": "4 prepares and 4 explicit logits",
+          "reason": "Each of the four rows performs one prepare/sense pass and one teacher-forced logits pass; the v1 zero caps contradicted its own eight decoder passes."
+        }
+      ]
+    },
+    "units": {
+      "decoder_forward_calls": "decoder_forward_call",
+      "prepare_sense_passes": "prepare_sense_pass",
+      "explicit_logits_forwards": "explicit_logits_forward",
+      "generation_prefill_calls": "generation_prefill_call",
+      "generation_decode_calls": "generation_decode_call",
+      "generated_tokens": "generated_token",
+      "processed_text_positions": "processed_text_position",
+      "processed_visual_positions": "processed_visual_position",
+      "visual_forward_calls": "visual_forward_call",
+      "projector_passes": "projector_pass",
+      "visual_observation_calls": "visual_observation_call",
+      "visual_encoder_calls": "visual_encoder_call",
+      "visual_encoder_cache_hits": "visual_encoder_cache_hit",
+      "visual_encoder_cache_misses": "visual_encoder_cache_miss",
+      "backward_calls": "backward_call",
+      "optimizer_steps": "optimizer_step",
+      "logical_scoring_cells": "logical_scoring_cell",
+      "logical_scoring_operations": "logical_scoring_operation"
+    },
+    "wider_readout_template": {
+      "per_readout": {
+        "decoder_forward_calls": 2390,
+        "prepare_sense_passes": 294,
+        "explicit_logits_forwards": 196,
+        "generation_prefill_calls": 98,
+        "generation_decode_calls": 1802,
+        "generated_tokens": 1900,
+        "processed_text_positions": 688320,
+        "processed_visual_positions": 442960,
+        "visual_forward_calls": 2260,
+        "projector_passes": 2260,
+        "visual_observation_calls": 72,
+        "visual_encoder_calls": 72,
+        "visual_encoder_cache_hits": 72,
+        "visual_encoder_cache_misses": 72,
+        "backward_calls": 0,
+        "optimizer_steps": 0,
+        "logical_scoring_cells": 98,
+        "logical_scoring_operations": 294
+      },
+      "cumulative": {
+        "decoder_forward_calls": 4780,
+        "prepare_sense_passes": 588,
+        "explicit_logits_forwards": 392,
+        "generation_prefill_calls": 196,
+        "generation_decode_calls": 3604,
+        "generated_tokens": 3800,
+        "processed_text_positions": 1376640,
+        "processed_visual_positions": 885920,
+        "visual_forward_calls": 4520,
+        "projector_passes": 4520,
+        "visual_observation_calls": 144,
+        "visual_encoder_calls": 144,
+        "visual_encoder_cache_hits": 144,
+        "visual_encoder_cache_misses": 144,
+        "backward_calls": 0,
+        "optimizer_steps": 0,
+        "logical_scoring_cells": 196,
+        "logical_scoring_operations": 588
+      },
+      "wall_limit_seconds": 1200,
+      "wall_check_every_calls": 64
+    },
+    "update_batch_evaluation": {
+      "per_evaluation": {
+        "decoder_forward_calls": 8,
+        "prepare_sense_passes": 4,
+        "explicit_logits_forwards": 4,
+        "generation_prefill_calls": 0,
+        "generation_decode_calls": 0,
+        "generated_tokens": 0,
+        "processed_text_positions": 1200,
+        "processed_visual_positions": 1568,
+        "visual_forward_calls": 8,
+        "projector_passes": 8,
+        "visual_observation_calls": 4,
+        "visual_encoder_calls": 4,
+        "visual_encoder_cache_hits": 4,
+        "visual_encoder_cache_misses": 4,
+        "backward_calls": 0,
+        "optimizer_steps": 0,
+        "logical_scoring_cells": 0,
+        "logical_scoring_operations": 0
+      },
+      "cumulative": {
+        "decoder_forward_calls": 16,
+        "prepare_sense_passes": 8,
+        "explicit_logits_forwards": 8,
+        "generation_prefill_calls": 0,
+        "generation_decode_calls": 0,
+        "generated_tokens": 0,
+        "processed_text_positions": 2400,
+        "processed_visual_positions": 3136,
+        "visual_forward_calls": 16,
+        "projector_passes": 16,
+        "visual_observation_calls": 8,
+        "visual_encoder_calls": 8,
+        "visual_encoder_cache_hits": 8,
+        "visual_encoder_cache_misses": 8,
+        "backward_calls": 0,
+        "optimizer_steps": 0,
+        "logical_scoring_cells": 0,
+        "logical_scoring_operations": 0
+      }
+    },
+    "update": {
+      "decoder_forward_calls": 8,
+      "prepare_sense_passes": 0,
+      "explicit_logits_forwards": 0,
+      "generation_prefill_calls": 0,
+      "generation_decode_calls": 0,
+      "generated_tokens": 0,
+      "processed_text_positions": 1200,
+      "processed_visual_positions": 1568,
+      "visual_forward_calls": 8,
+      "projector_passes": 8,
+      "visual_observation_calls": 4,
+      "visual_encoder_calls": 4,
+      "visual_encoder_cache_hits": 4,
+      "visual_encoder_cache_misses": 4,
+      "backward_calls": 4,
+      "optimizer_steps": 1,
+      "logical_scoring_cells": 0,
+      "logical_scoring_operations": 0
+    },
+    "campaign_cumulative": {
+      "decoder_forward_calls": 4804,
+      "prepare_sense_passes": 596,
+      "explicit_logits_forwards": 400,
+      "generation_prefill_calls": 196,
+      "generation_decode_calls": 3604,
+      "generated_tokens": 3800,
+      "processed_text_positions": 1380240,
+      "processed_visual_positions": 890624,
+      "visual_forward_calls": 4544,
+      "projector_passes": 4544,
+      "visual_observation_calls": 156,
+      "visual_encoder_calls": 156,
+      "visual_encoder_cache_hits": 156,
+      "visual_encoder_cache_misses": 156,
+      "backward_calls": 4,
+      "optimizer_steps": 1,
+      "logical_scoring_cells": 196,
+      "logical_scoring_operations": 588
+    },
+    "expected_counts": {
+      "wider_per_readout": {
+        "visual_observation_calls": 72,
+        "visual_encoder_cache_hits": 0,
+        "visual_encoder_cache_misses": 72,
+        "identity": "72 observations = 0 expected hits + 72 misses"
+      },
+      "campaign": {
+        "visual_observation_calls": 156,
+        "visual_encoder_cache_hits": 0,
+        "visual_encoder_cache_misses": 156,
+        "identity": "156 observations = 0 expected hits + 156 misses"
+      }
+    },
+    "wall_limit_seconds": 1200,
+    "artifact_bytes": 33554432,
+    "wall_check_every_calls": 64,
+    "identities": [
+      "wider.decoder = wider.prepares + wider.explicit_logits + wider.generated_tokens",
+      "wider.generated = wider.prefill + wider.decode",
+      "wider.visual_observations = wider.cache_hits_recorded + wider.cache_misses_recorded",
+      "wider.visual_encoder_calls = wider.cache_misses_recorded",
+      "wider.visual_forward = wider.decoder - 5 * wider.noimage_cells",
+      "wider.processed_visual = 196 * wider.visual_forward",
+      "wider.projector_passes = wider.visual_forward",
+      "update_batch.decoder = update_batch.prepares + update_batch.explicit_logits",
+      "update_batch.visual_forward = update_batch.decoder",
+      "update.decoder = 8 (four rows, one sense and one logits pass)",
+      "update.visual_forward = update.decoder",
+      "campaign.decoder = campaign.prepares + campaign.explicit_logits + campaign.generated_tokens + 8 update forwards",
+      "campaign = wider.cumulative + update_batch.cumulative + update",
+      "campaign.visual_observations = campaign.cache_hits_recorded + campaign.cache_misses_recorded",
+      "campaign.visual_encoder_calls = campaign.cache_misses_recorded",
+      "campaign.processed_visual = 196 * campaign.visual_forward"
+    ],
+    "amends": {
+      "protocol_path": "configs/vision_coadaptation_control_v1.json",
+      "protocol_sha256": "e25931664441457210cab4500c113da45378641ef934a4b7f10faa93a0d2b922",
+      "protocol_version": "replica.vision_coadaptation_control.v1",
+      "protocol_name": "vision_coadaptation_control_v1",
+      "amendment_only": true,
+      "changes_scope": false,
+      "changes_data_loss_lr_or_budget": false,
+      "runner_added": true
+    }
+  },
+  "budget": {
+    "format": "replica.vision_coadaptation_control.budget.v2",
+    "relation_to_smaller_step": "identical_not_larger",
+    "additional_forward_calls": 0,
+    "additional_backward_calls": 0,
+    "additional_optimizer_steps": 0,
+    "additional_wall_seconds": 0,
+    "additional_artifact_bytes": 0,
+    "campaign_cumulative": {
+      "decoder_forward_calls": 4804,
+      "prepare_sense_passes": 596,
+      "explicit_logits_forwards": 400,
+      "generation_prefill_calls": 196,
+      "generation_decode_calls": 3604,
+      "generated_tokens": 3800,
+      "processed_text_positions": 1380240,
+      "processed_visual_positions": 890624,
+      "visual_forward_calls": 4544,
+      "projector_passes": 4544,
+      "visual_observation_calls": 156,
+      "visual_encoder_calls": 156,
+      "visual_encoder_cache_hits": 156,
+      "visual_encoder_cache_misses": 156,
+      "backward_calls": 4,
+      "optimizer_steps": 1,
+      "logical_scoring_cells": 196,
+      "logical_scoring_operations": 588
+    },
+    "expected_measured_work": {
+      "wider_readouts": 2,
+      "update_batch_evaluations": 2,
+      "updates": 1,
+      "readout_stages": 5,
+      "decoder_forward_calls": 4804,
+      "prepare_sense_passes": 596,
+      "explicit_logits_forwards": 400,
+      "generation_prefill_calls": 196,
+      "generation_decode_calls": 3604,
+      "generated_tokens": 3800,
+      "visual_observation_calls": 156,
+      "visual_encoder_calls_max": 156,
+      "visual_encoder_cache_misses_max": 156,
+      "visual_forward_calls": 4544,
+      "projector_passes": 4544,
+      "backward_calls": 4,
+      "optimizer_steps": 1
+    },
+    "limits": {
+      "max_updates": 1,
+      "max_optimizer_steps": 1,
+      "max_update_backward_calls": 4,
+      "max_probe_backward_calls": 0,
+      "max_total_backward_calls": 4,
+      "max_readouts": 4,
+      "max_stages": 5,
+      "max_scoring_generations": 196,
+      "max_teacher_forced_cells": 204,
+      "max_decoder_forwards_per_readout": 2400,
+      "max_decoder_forwards": 4824,
+      "max_prepares_per_readout": 294,
+      "max_prepares": 596,
+      "max_explicit_logits_per_readout": 196,
+      "max_explicit_logits": 400,
+      "max_generated_tokens_per_readout": 1900,
+      "max_generated_tokens": 3800,
+      "max_visual_encoder_calls": 168,
+      "max_visual_encoder_calls_per_readout": 78,
+      "max_projector_passes": 4824,
+      "readout_weight_writes": 0,
+      "max_seconds": 1200,
+      "artifact_bytes": 33554432,
+      "max_prompt_tokens": 256,
+      "max_sequence_tokens": 288,
+      "max_new_tokens": 8,
+      "caption_max_new_tokens": 32,
+      "model_loads": 1,
+      "extension_loads": 0,
+      "extension_writes": 0,
+      "checkpoint_writes": 0,
+      "downloads": 0,
+      "retries": 0,
+      "workers": 1,
+      "grad_accum": 1
+    }
+  },
+  "limits": {
+    "max_updates": 1,
+    "max_optimizer_steps": 1,
+    "max_update_backward_calls": 4,
+    "max_probe_backward_calls": 0,
+    "max_total_backward_calls": 4,
+    "max_readouts": 4,
+    "max_stages": 5,
+    "max_scoring_generations": 196,
+    "max_teacher_forced_cells": 204,
+    "max_decoder_forwards_per_readout": 2390,
+    "max_decoder_forwards": 4804,
+    "max_prepares_per_readout": 294,
+    "max_prepares": 596,
+    "max_explicit_logits_per_readout": 196,
+    "max_explicit_logits": 400,
+    "max_generated_tokens_per_readout": 1900,
+    "max_generated_tokens": 3800,
+    "max_visual_encoder_calls": 156,
+    "max_visual_encoder_calls_per_readout": 72,
+    "max_projector_passes": 4544,
+    "readout_weight_writes": 0,
+    "max_seconds": 1200,
+    "artifact_bytes": 33554432,
+    "max_prompt_tokens": 256,
+    "max_sequence_tokens": 288,
+    "max_new_tokens": 8,
+    "caption_max_new_tokens": 32,
+    "model_loads": 1,
+    "extension_loads": 0,
+    "extension_writes": 0,
+    "checkpoint_writes": 0,
+    "downloads": 0,
+    "retries": 0,
+    "workers": 1,
+    "grad_accum": 1
+  },
+  "policy": {
+    "device": "mps",
+    "cpu_fallback": false,
+    "exclusive_mps_worker": true,
+    "capacity_guard_required": true,
+    "profiler_required": true,
+    "fresh_output": true,
+    "one_model_load": true,
+    "no_retry": true,
+    "no_downloads": true,
+    "no_extension_save": true,
+    "no_checkpoint_writes": true,
+    "single_hypothesis": true,
+    "memory_guard": {
+      "driver_bytes": 53687091200,
+      "swap_growth_bytes": 536870912,
+      "host_free_fraction": 0.15,
+      "exclusive_worker": true,
+      "cpu_fallback": false
+    }
+  },
+  "access": {
+    "training_roles": [
+      "answer",
+      "caption"
+    ],
+    "readout_roles": [
+      "train_fit",
+      "train_update_batch"
+    ],
+    "training_paths": [
+      "training/alignment.jsonl",
+      "training/batches.jsonl",
+      "training/train_caption_labels.jsonl"
+    ],
+    "forbidden_paths": [
+      "evaluation/",
+      "dev",
+      "heldout",
+      "semantic_audit"
+    ],
+    "forbidden_calls": [
+      "_load_dev_v2",
+      "_load_heldout",
+      "load_v0",
+      "score_sealed"
+    ],
+    "order": [
+      "train",
+      "train_update_batch_pre",
+      "update_1",
+      "train_update_batch_post",
+      "train_fit"
+    ],
+    "development": "forbidden",
+    "heldout": "forbidden",
+    "semantic_audit": "forbidden",
+    "v0": "forbidden",
+    "sealed_evaluation_access": 0,
+    "extension_writes": 0,
+    "checkpoint_writes": 0,
+    "downloads": 0
+  },
+  "precondition": {
+    "required": true,
+    "eligible": false,
+    "eligibility_rule": "a preserved smaller-step report must record optimization_gate_failed or smaller_step_functional_fit_failed AND a preserved diagnosis must conclude frozen_backbone_projection_insufficient while excluding step size, labels/masking, accounting, precondition and seed/initialization",
+    "requires_diagnosed_smaller_step_failure": true,
+    "smaller_step_config": "configs/vision_smaller_step_lr3e5_v2.json",
+    "smaller_step_config_sha256": "030a909f4f6a3cfcb6fd8698551ac8555d47e07686a3fb7a0ceae593cb296ec7",
+    "smaller_step_report": {
+      "path": "reports/vision_smaller_step_lr3e5_v2_20261027/report.json",
+      "present": false,
+      "sha256": null,
+      "accepted_statuses": [
+        "optimization_gate_failed",
+        "smaller_step_functional_fit_failed"
+      ]
+    },
+    "diagnosis": {
+      "path": "reports/vision_smaller_step_frozen_feature_diagnosis_v1_20261027/diagnosis.json",
+      "format": "replica.vision_smaller_step.frozen_feature_diagnosis.v1",
+      "required_conclusion": "frozen_backbone_projection_insufficient",
+      "required_excluded_causes": [
+        "step_size",
+        "labels_or_masking",
+        "accounting",
+        "precondition",
+        "seed_or_initialization"
+      ],
+      "present": false
+    },
+    "diagnosis_created_here": false,
+    "note": "No smaller-step v2 report, no diagnosis and no co-adaptation receipt exist; an engineering stop, a retry or a passing arm is not eligibility."
+  },
+  "implementation": {
+    "mode": "real_conditional_native_runner",
+    "runner_path": "scripts/vision_coadaptation_control_runner_v2.py",
+    "library_path": "src/replica_lab/vision_coadaptation.py",
+    "runner_implemented": true,
+    "native_execution": false,
+    "checkpoint_migration": {
+      "parent_manifest": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+      "parent_manifest_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+      "extension": "six_projector_plus_last_block_and_post_layernorm",
+      "requires_parent_tensor_verification": true,
+      "writes_checkpoint_during_arm": false
+    },
+    "note": "The runner executes the same five-stage schedule as the smaller-step runner and always refuses before native imports unless failure, diagnosis, receipt and commit all pass."
+  },
+  "authorization": {
+    "native_execution_authorized": false,
+    "requires_protocol_commit": true,
+    "protocol_commit": null,
+    "receipt_path": "reports/vision_coadaptation_control_v2_20261027/authorization.json",
+    "receipt_format": "replica.vision_coadaptation.authorization.v2",
+    "required_status": "authorized",
+    "requires_exact_config_sha256": true,
+    "requires_commit_binding": true,
+    "requires_diagnosis_precondition": true,
+    "separate_from_smaller_step_receipt": true,
+    "required_receipt_fields": [
+      "format",
+      "status",
+      "protocol_name",
+      "protocol_path",
+      "protocol_commit",
+      "config_sha256",
+      "native_execution_authorized",
+      "dev_authorized",
+      "heldout_authorized",
+      "v0_authorized",
+      "semantic_audit_authorized",
+      "promotion_authorized",
+      "retry_authorized",
+      "issued_at_utc"
+    ]
+  },
+  "statuses": [
+    "coadaptation_optimization_gate_passed",
+    "coadaptation_optimization_gate_failed",
+    "coadaptation_functional_fit_passed",
+    "coadaptation_functional_fit_failed",
+    "stopped_engineering_failure"
+  ],
+  "claims": {
+    "hypothesis_scope": "frozen_visual_feature_coadaptation_only",
+    "smaller_step_retry": false,
+    "encoder_swapped": false,
+    "new_loss_introduced": false,
+    "budget_increased": false,
+    "generated_answer_conversion_claim": false,
+    "rank_improvement_is_conversion": false,
+    "development_authorized": false,
+    "heldout_authorized": false,
+    "v0_authorized": false,
+    "semantic_audit_authorized": false,
+    "promotion": false,
+    "retry_authorized": false,
+    "native_execution_authorized": false,
+    "more_coadaptation_authorized": false
+  },
+  "distinctness": {
+    "not_a_retry_of": "vision_smaller_step_lr3e5_v1",
+    "retry_of_completed_or_failed_arm": false,
+    "single_changed_axis": "gradient_scope_encoder_last_block_and_post_layernorm",
+    "same_lr": 3e-05,
+    "same_update_rows": true,
+    "same_update_count": 1,
+    "same_generated_tokens": 3800,
+    "same_forward_and_backward_counts": true,
+    "same_loss": true,
+    "same_encoder_weights": true,
+    "why_distinct_hypothesis": "The smaller-step arm asks whether step size alone explains the overshoot while visual features stay frozen. This control asks a different question with a different falsifier: whether the frozen features themselves prevent any learnable projector update. It predicts a bounded encoder drift and a directional loss change that the smaller-step arm cannot produce by construction, so a failure here closes frozen-feature insufficiency under this budget instead of repeating a step-size test.",
+    "why_not_an_expansion": "Nothing that normally accompanies an expansion changes: no encoder swap, no new loss or auxiliary term, no extra data, no extra update, no extra backward call, no extra forward call, no extra generated token, no extra second, no extra byte, no development access and no retry. The only new capability is gradient flow into eighteen already-loaded encoder tensors.",
+    "predictions": {
+      "frozen_features_sufficient": "The same loss excursion or the same functional failure recurs while encoder drift stays near zero, which closes frozen-feature insufficiency under this budget.",
+      "frozen_features_insufficient": "The update-batch mean response NLL moves toward the pre-update value or the wider train-fit loss falls while encoder drift stays inside the declared bounds."
+    },
+    "closure_on_failure": "No further co-adaptation retry, larger budget, new loss or encoder swap is authorized; a new predeclared protocol and a new external authorization are required."
+  },
+  "limitations": [
+    "The control is conditional: it cannot run until the preserved smaller-step failure, the frozen-feature diagnosis and a separate external receipt bound to this exact config and commit all exist.",
+    "The v1 co-adaptation config, assessment and all smaller-step v1/v2 evidence remain preserved; v2 supersedes only the accounting caps and adds the runner.",
+    "The control introduces no additional decoder pass, backward call, optimizer step, generated token, wall second or artifact byte relative to the matched smaller-step arm.",
+    "Encoder drift gates (1e-4 max absolute, 0.25 L2) bound any adaptation; exceeding them fails the optimization gate.",
+    "Development, held-out, semantic-audit, V0, promotion, retry and further co-adaptation remain closed regardless of any result.",
+    "Broader alignment, instruction and visual-memory stages remain later work with source-disjoint data and retention evidence."
+  ],
+  "output": "runs/vision_coadaptation_control_v2_20261027",
+  "report_root": "reports/vision_coadaptation_control_v2_20261027"
+}

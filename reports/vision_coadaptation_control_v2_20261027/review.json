@@ -1,0 +1,76 @@
+{
+  "authorization": {
+    "path": "/Users/flare/replica_r3_starter/reports/vision_coadaptation_control_v2_20261027/authorization.json",
+    "present": false,
+    "protocol_commit": null,
+    "status": "absent"
+  },
+  "config": "configs/vision_coadaptation_control_v2.json",
+  "config_sha256": "cc230f83642b293d6530772b4f2b4be6978e01ea5fe591ce44d2afd14467080f",
+  "eligibility": {
+    "diagnosis": {
+      "conclusion": null,
+      "path": "/Users/flare/replica_r3_starter/reports/vision_smaller_step_frozen_feature_diagnosis_v1_20261027/diagnosis.json",
+      "present": false,
+      "valid": false
+    },
+    "eligible": false,
+    "note": "Eligibility requires a preserved failed smaller-step report and a preserved frozen-feature diagnosis; an engineering stop, a passing arm or a missing diagnosis is not eligibility.",
+    "smaller_step_report": {
+      "failed": false,
+      "path": "/Users/flare/replica_r3_starter/reports/vision_smaller_step_lr3e5_v2_20261027/report.json",
+      "present": false,
+      "sha256": null
+    },
+    "violations": [
+      "smaller_step_report_missing",
+      "frozen_feature_diagnosis_missing"
+    ]
+  },
+  "eligible": false,
+  "format": "replica.vision_coadaptation.review.v2",
+  "handoff": {
+    "development_heldout_v0_semantic_promotion_retry_closed": true,
+    "requires_fresh_output": true,
+    "requires_frozen_feature_diagnosis": true,
+    "requires_full_commit_binding": true,
+    "requires_preserved_smaller_step_failure": true,
+    "requires_separate_authorization": true
+  },
+  "launch_allowed": false,
+  "launch_command": [
+    "python",
+    "scripts/vision_coadaptation_control_runner_v2.py",
+    "run",
+    "--config",
+    "configs/vision_coadaptation_control_v2.json",
+    "--output",
+    "runs/vision_coadaptation_control_v2_20261027",
+    "--model-path",
+    "checkpoints/minicpm5_source",
+    "--model-lock",
+    "configs/minicpm5_sealed_lock.local.json",
+    "--vision-source",
+    "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+    "--authorization",
+    "/Users/flare/replica_r3_starter/reports/vision_coadaptation_control_v2_20261027/authorization.json"
+  ],
+  "model_loads": 0,
+  "native_execution": false,
+  "protocol_name": "vision_coadaptation_control_v2",
+  "refusals": [
+    "smaller_step_report_missing",
+    "frozen_feature_diagnosis_missing",
+    "authorization_receipt_missing"
+  ],
+  "review_command": [
+    "python",
+    "scripts/vision_coadaptation_control_runner_v2.py",
+    "review-launch",
+    "--config",
+    "configs/vision_coadaptation_control_v2.json",
+    "--authorization",
+    "/Users/flare/replica_r3_starter/reports/vision_coadaptation_control_v2_20261027/authorization.json"
+  ],
+  "status": "review_only_launch_refused"
+}

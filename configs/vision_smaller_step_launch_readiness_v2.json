@@ -1,0 +1,414 @@
+{
+  "format": "replica.vision_smaller_step.launch_readiness.v2",
+  "version": "2",
+  "name": "vision_smaller_step_launch_readiness_v2",
+  "declared_at_utc": "2026-10-27T00:00:00+00:00",
+  "purpose": "Declaration that the lr 3e-05 smaller-step v2 accounting amendment and its preparation-only launch packet are current, that every counter is derived from the declared schedule and validated by exact identities, that the v1 config/packet/readiness/evidence remain preserved, and that native launch is blocked by exactly two missing external artifacts: an authorization receipt bound to the exact v2 config and the full commit recorded inside it.",
+  "subject": {
+    "protocol_path": "configs/vision_smaller_step_lr3e5_v2.json",
+    "protocol_sha256": "030a909f4f6a3cfcb6fd8698551ac8555d47e07686a3fb7a0ceae593cb296ec7",
+    "protocol_name": "vision_smaller_step_lr3e5_v2",
+    "packet_path": "reports/vision_smaller_step_launch_packet_v2_20261027/launch_packet.json",
+    "packet_file_sha256": "e3e93a4875442a88a7019f94f27dde8e4e4e467a9bfe0049b78f0918e029484b",
+    "packet_canonical_sha256": "08f3e6bdf1d319249f4d5747495d9673f62050fe6bf231d5473b3b83303c4d53",
+    "packet_format": "replica.vision_smaller_step.launch_packet.v2",
+    "packet_kind": "preparation_only_launch_evidence",
+    "packet_native_execution": false,
+    "packet_model_loads": 0,
+    "packet_authorization_created": false
+  },
+  "preserved_v1": {
+    "config_path": "configs/vision_smaller_step_lr3e5_v1.json",
+    "config_sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad",
+    "packet_path": "reports/vision_smaller_step_launch_packet_v1_20261027/launch_packet.json",
+    "packet_sha256": "e19e5995f90cab2c54033b2673e583761c9148697fce1eaa200c79bc8f54af6c",
+    "readiness_path": "configs/vision_smaller_step_launch_readiness_v1.json",
+    "readiness_sha256": "893d85b657b88bd6e2426e274d9a2f53b65b11f25a169ef93ee8663209284c32",
+    "v1_caps_preserved": {
+      "campaign_decoder_forward_calls": 4824,
+      "wider_decoder_forward_calls": 2400,
+      "wider_visual_observation_calls": 78,
+      "wider_visual_encoder_cache_hits": 78,
+      "wider_visual_encoder_cache_misses": 78,
+      "wider_visual_forward_calls": 2400,
+      "wider_projector_passes": 2400
+    },
+    "overwritten_here": false
+  },
+  "accounting_amendment": {
+    "format": "replica.vision_smaller_step.accounting.v2",
+    "derivation": {
+      "update": {
+        "backward_calls": 4,
+        "optimizer_steps": 1,
+        "rows": 4
+      },
+      "update_batch": {
+        "evaluations": 2,
+        "rows_per_evaluation": 4
+      },
+      "wider": {
+        "available_per_readout": 98,
+        "expected_cache_hits_per_readout": 0,
+        "expected_cache_misses_per_readout": 72,
+        "explicit_logits_per_cell": 2,
+        "generated_tokens_per_readout": 1900,
+        "image_cells_per_readout": 72,
+        "max_sequence_tokens": 288,
+        "noimage_cells_per_readout": 26,
+        "placeholders_per_readout": 6,
+        "prepares_per_cell": 3,
+        "records_per_readout": 104,
+        "visual_tokens_per_pass": 196
+      }
+    },
+    "campaign_cumulative": {
+      "backward_calls": 4,
+      "decoder_forward_calls": 4804,
+      "explicit_logits_forwards": 400,
+      "generated_tokens": 3800,
+      "generation_decode_calls": 3604,
+      "generation_prefill_calls": 196,
+      "logical_scoring_cells": 196,
+      "logical_scoring_operations": 588,
+      "optimizer_steps": 1,
+      "prepare_sense_passes": 596,
+      "processed_text_positions": 1380240,
+      "processed_visual_positions": 890624,
+      "projector_passes": 4544,
+      "visual_encoder_cache_hits": 156,
+      "visual_encoder_cache_misses": 156,
+      "visual_encoder_calls": 156,
+      "visual_forward_calls": 4544,
+      "visual_observation_calls": 156
+    },
+    "expected_counts": {
+      "campaign": {
+        "identity": "156 observations = 0 expected hits + 156 misses",
+        "visual_encoder_cache_hits": 0,
+        "visual_encoder_cache_misses": 156,
+        "visual_observation_calls": 156
+      },
+      "wider_per_readout": {
+        "identity": "72 observations = 0 expected hits + 72 misses",
+        "visual_encoder_cache_hits": 0,
+        "visual_encoder_cache_misses": 72,
+        "visual_observation_calls": 72
+      }
+    },
+    "identities": [
+      "wider.decoder = wider.prepares + wider.explicit_logits + wider.generated_tokens",
+      "wider.generated = wider.prefill + wider.decode",
+      "wider.visual_observations = wider.cache_hits_recorded + wider.cache_misses_recorded",
+      "wider.visual_encoder_calls = wider.cache_misses_recorded",
+      "wider.visual_forward = wider.decoder - 5 * wider.noimage_cells",
+      "wider.processed_visual = 196 * wider.visual_forward",
+      "wider.projector_passes = wider.visual_forward",
+      "update_batch.decoder = update_batch.prepares + update_batch.explicit_logits",
+      "update_batch.visual_forward = update_batch.decoder",
+      "update.decoder = 8 (four rows, one sense and one logits pass)",
+      "update.visual_forward = update.decoder",
+      "campaign.decoder = campaign.prepares + campaign.explicit_logits + campaign.generated_tokens + 8 update forwards",
+      "campaign = wider.cumulative + update_batch.cumulative + update",
+      "campaign.visual_observations = campaign.cache_hits_recorded + campaign.cache_misses_recorded",
+      "campaign.visual_encoder_calls = campaign.cache_misses_recorded",
+      "campaign.processed_visual = 196 * campaign.visual_forward"
+    ],
+    "supersedes_v1": {
+      "corrections": [
+        {
+          "counter": "wider_readout_template.per_readout.decoder_forward_calls",
+          "new": 2390,
+          "old": 2400,
+          "reason": "294 prepares + 196 explicit logits + 1,900 generated tokens = 2,390, not 2,400."
+        },
+        {
+          "counter": "campaign_cumulative.decoder_forward_calls",
+          "new": 4804,
+          "old": 4824,
+          "reason": "2x2,390 wider passes + 2x8 update-batch passes + 8 update forwards = 4,804, not 4,824."
+        },
+        {
+          "counter": "visual_observation_calls per wider readout",
+          "new": 72,
+          "old": 78,
+          "reason": "98 available cells minus the 26 no-image controls equals 72 observations; 78 counted six unmatched sibling placeholders as observations."
+        },
+        {
+          "counter": "visual_encoder_cache_hits plus visual_encoder_cache_misses per wider readout",
+          "new": "72 hit cap plus 72 misses against 72 observations; runtime enforces observations = hits + misses and encoder calls = misses.",
+          "old": "78 + 78 = 156 against 78 observations",
+          "reason": "An observation is exactly one cache hit or one cache miss; it cannot be both."
+        },
+        {
+          "counter": "visual_forward_calls and projector_passes",
+          "new": 2260,
+          "old": 2400,
+          "reason": "Only visual-bearing decoder passes advance the projector; the 26 no-image cells contribute five visual-less passes each. Projector passes equal visual-bearing passes, never all decoder passes."
+        },
+        {
+          "counter": "update_batch_evaluation prepare/logits",
+          "new": "4 prepares and 4 explicit logits",
+          "old": "0 prepares and 0 explicit logits for 8 decoder passes",
+          "reason": "Each of the four rows performs one prepare/sense pass and one teacher-forced logits pass; the v1 zero caps contradicted its own eight decoder passes."
+        }
+      ],
+      "notice": "The v1 declaration and launch packet remain preserved and unmodified. These caps are superseded only inside this v2 amendment, which derives each value from the schedule and enforces the identities below.",
+      "old_caps": {
+        "campaign_cumulative.decoder_forward_calls": 4824,
+        "campaign_cumulative.projector_passes": 4824,
+        "campaign_cumulative.visual_encoder_cache_hits": 168,
+        "campaign_cumulative.visual_encoder_cache_misses": 168,
+        "campaign_cumulative.visual_encoder_calls": 168,
+        "campaign_cumulative.visual_forward_calls": 4824,
+        "campaign_cumulative.visual_observation_calls": 168,
+        "limits.max_decoder_forwards_per_readout": 2400,
+        "limits.max_visual_encoder_calls": 168,
+        "limits.max_visual_encoder_calls_per_readout": 78,
+        "wider_readout_template.cumulative.decoder_forward_calls": 4800,
+        "wider_readout_template.cumulative.projector_passes": 4800,
+        "wider_readout_template.cumulative.visual_encoder_cache_hits": 156,
+        "wider_readout_template.cumulative.visual_encoder_cache_misses": 156,
+        "wider_readout_template.cumulative.visual_encoder_calls": 156,
+        "wider_readout_template.cumulative.visual_forward_calls": 4800,
+        "wider_readout_template.cumulative.visual_observation_calls": 156,
+        "wider_readout_template.per_readout.decoder_forward_calls": 2400,
+        "wider_readout_template.per_readout.projector_passes": 2400,
+        "wider_readout_template.per_readout.visual_encoder_cache_hits": 78,
+        "wider_readout_template.per_readout.visual_encoder_cache_misses": 78,
+        "wider_readout_template.per_readout.visual_encoder_calls": 78,
+        "wider_readout_template.per_readout.visual_forward_calls": 2400,
+        "wider_readout_template.per_readout.visual_observation_calls": 78
+      }
+    }
+  },
+  "commit_binding": {
+    "required": true,
+    "reviewed_commit": null,
+    "receipt_protocol_commit": null,
+    "recorded_in_receipt": false,
+    "verification_rule": "git cat-file blob <commit>:configs/vision_smaller_step_lr3e5_v2.json must hash to the exact current config bytes; the receipt must record that full commit."
+  },
+  "authorization": {
+    "required": true,
+    "path": "reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json",
+    "format": "replica.vision_smaller_step.authorization.v1",
+    "required_status": "authorized",
+    "status_at_declaration": "absent",
+    "present_at_declaration": false,
+    "receipt_sha256_at_declaration": null,
+    "protocol_commit_at_declaration": null,
+    "native_execution_authorized_at_declaration": false,
+    "minted_here": false,
+    "authority": "external_user_decision_only",
+    "note": "No receipt binds vision_smaller_step_lr3e5_v2. The preserved vision_learnability_step1 receipts bind a different protocol and config and do not cover this amendment."
+  },
+  "launch": {
+    "argv": [
+      "python",
+      "scripts/vision_smaller_step_v2.py",
+      "run",
+      "--config",
+      "configs/vision_smaller_step_lr3e5_v2.json",
+      "--output",
+      "runs/vision_smaller_step_lr3e5_v2_20261027",
+      "--model-path",
+      "checkpoints/minicpm5_source",
+      "--model-lock",
+      "configs/minicpm5_sealed_lock.local.json",
+      "--authorization",
+      "reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json"
+    ],
+    "review_command": [
+      "python",
+      "scripts/vision_smaller_step_v2.py",
+      "review-launch",
+      "--config",
+      "configs/vision_smaller_step_lr3e5_v2.json",
+      "--authorization",
+      "reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json"
+    ],
+    "environment": {
+      "HF_DATASETS_OFFLINE": "1",
+      "HF_HUB_OFFLINE": "1",
+      "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+      "TRANSFORMERS_OFFLINE": "1"
+    },
+    "output": "runs/vision_smaller_step_lr3e5_v2_20261027",
+    "output_must_not_exist": true,
+    "output_exists_at_declaration": false,
+    "authorization_checked_before_native_imports": true,
+    "disposition_at_declaration": "review_only_launch_refused",
+    "refusals_at_declaration": [
+      "packet_is_not_an_authorization_receipt",
+      "packet_is_preparation_only",
+      "authorization_receipt_missing",
+      "protocol_commit_unbound",
+      "commit_binding_unverified",
+      "native_execution_not_authorized"
+    ]
+  },
+  "preserved_contract": {
+    "limits": {
+      "backward_calls": 4,
+      "decoder_forward_calls": 4804,
+      "explicit_logits_forwards": 400,
+      "generated_tokens": 3800,
+      "generation_decode_calls": 3604,
+      "generation_prefill_calls": 196,
+      "logical_scoring_cells": 196,
+      "logical_scoring_operations": 588,
+      "optimizer_steps": 1,
+      "prepare_sense_passes": 596,
+      "processed_text_positions": 1380240,
+      "processed_visual_positions": 890624,
+      "projector_passes": 4544,
+      "visual_encoder_cache_hits": 156,
+      "visual_encoder_cache_misses": 156,
+      "visual_encoder_calls": 156,
+      "visual_forward_calls": 4544,
+      "visual_observation_calls": 156
+    },
+    "wider_readout": {
+      "backward_calls": 0,
+      "decoder_forward_calls": 2390,
+      "explicit_logits_forwards": 196,
+      "generated_tokens": 1900,
+      "generation_decode_calls": 1802,
+      "generation_prefill_calls": 98,
+      "logical_scoring_cells": 98,
+      "logical_scoring_operations": 294,
+      "optimizer_steps": 0,
+      "prepare_sense_passes": 294,
+      "processed_text_positions": 688320,
+      "processed_visual_positions": 442960,
+      "projector_passes": 2260,
+      "visual_encoder_cache_hits": 72,
+      "visual_encoder_cache_misses": 72,
+      "visual_encoder_calls": 72,
+      "visual_forward_calls": 2260,
+      "visual_observation_calls": 72
+    },
+    "optimization_gate": {
+      "evaluated_on": [
+        "update_batch_pre",
+        "update_batch_post",
+        "prefix_0",
+        "prefix_1"
+      ],
+      "update_count": 1,
+      "backward_calls": 4,
+      "optimizer_steps": 1,
+      "optimizer_owned_tensors": 6,
+      "projector_tensors_only_changed": true,
+      "backbone_gradient_tensors": 0,
+      "finite_losses": true,
+      "finite_grad_norm": true,
+      "max_update_batch_mean_nll_delta": 0.25,
+      "max_wider_answer_mean_nll_delta": 0.25,
+      "max_wider_caption_mean_nll_delta": 0.25,
+      "delta_definition": "post_minus_pre",
+      "loss_movement_is_not_conversion": true,
+      "status_on_fail": "optimization_gate_failed"
+    },
+    "functional_fit_gate": {
+      "evaluated_on": "prefix_1 wider training cohort with prefix_0 reference and matched correct/sibling/shuffled/no-image controls",
+      "answer_correct_min": 1,
+      "answer_correct_denominator": 14,
+      "answer_correct_accuracy_min": 0.07142857142857142,
+      "answer_prefill_gold_min": 1,
+      "answer_prefill_gold_accuracy_min": 0.07142857142857142,
+      "caption_token_f1_gain_min": 0.1,
+      "caption_semantic_f1_min": 0.05,
+      "correct_vs_sibling_accuracy_margin_min": 0.05,
+      "correct_vs_shuffled_accuracy_margin_min": 0.05,
+      "correct_vs_noimage_accuracy_margin_min": 0.05,
+      "eos_only_rate_max": 0.5,
+      "whitespace_only_rate_max": 0.1,
+      "empty_text_policy": "separate_eos_only_from_whitespace_only",
+      "eos_only_not_counted_correct": true,
+      "whitespace_only_not_counted_correct": true,
+      "answer_correct_metric": "exact normalized generated answer match; EOS-only and whitespace-only outputs are never correct",
+      "caption_quality_metric": "caption token F1 gain and caption semantic descriptor F1 on generated captions",
+      "rank_or_loss_movement_is_not_conversion": true,
+      "development_on_pass": "requires_new_predeclared_protocol",
+      "development_on_fail": "closed",
+      "status_on_fail": "smaller_step_functional_fit_failed"
+    },
+    "raw_generation_required": true,
+    "required_generated_tokens": 3800,
+    "required_backward_calls": 4,
+    "required_optimizer_steps": 1,
+    "artifact_bytes": 33554432,
+    "wall_seconds": 1200,
+    "closed_roles": {
+      "development": false,
+      "heldout": false,
+      "v0": false,
+      "semantic_audit": false,
+      "promotion": false,
+      "retry": false
+    }
+  },
+  "remaining_requirements": [
+    {
+      "blocking": true,
+      "id": "authorization_receipt_issued",
+      "owner": "external_user",
+      "requirement": "A separate external receipt must exist at reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json, bind config_sha256 030a909f4f6a3cfcb6fd8698551ac8555d47e07686a3fb7a0ceae593cb296ec7, authorize native execution and keep every other role false.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "protocol_commit_recorded",
+      "owner": "external_user",
+      "requirement": "The receipt must record a full 40-character commit whose v2 config blob hashes to the same config SHA-256.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "review_launch_gate_passed",
+      "owner": "authorized_operator",
+      "requirement": "scripts/vision_smaller_step_v2.py review-launch must pass receipt, config, commit and fresh-output checks before any native import; no receipt exists.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "fresh_output_available",
+      "owner": "authorized_operator",
+      "requirement": "runs/vision_smaller_step_lr3e5_v2_20261027 must not exist at launch.",
+      "satisfied_by_preparation": true
+    },
+    {
+      "blocking": true,
+      "id": "exclusive_worker_and_capacity_guard",
+      "owner": "authorized_operator",
+      "requirement": "The launch must acquire the exclusive MPS worker and prove 50 GiB driver, 512 MiB sustained swap growth and 15% host free with no CPU fallback.",
+      "satisfied_by_preparation": false
+    },
+    {
+      "blocking": true,
+      "id": "native_execution_within_derived_budget",
+      "owner": "authorized_operator",
+      "requirement": "Execute exactly 4 backward calls and 1 NativeFusedAdamW step within 4,804 decoder forwards, 156 visual observations, 1,200 seconds and 33,554,432 artifact bytes.",
+      "satisfied_by_preparation": false
+    }
+  ],
+  "decision": {
+    "preparation_complete": true,
+    "launch_allowed": false,
+    "native_execution": false,
+    "model_loads": 0,
+    "authorization_created": false,
+    "reason": "preparation_is_complete_but_the_external_authorization_receipt_is_absent_and_the_v2_protocol_commit_is_unrecorded"
+  },
+  "verification": {
+    "command": [
+      "python",
+      "scripts/check_vision_smaller_step_launch_readiness_v2.py",
+      "verify"
+    ],
+    "report": "reports/vision_smaller_step_launch_readiness_v2_20261027/readiness.json",
+    "note": "The checker recomputes the packet, config, derived accounting identities, v1 preserved hashes, receipt state and fresh-output state; it never imports a native runtime, loads a model, writes a receipt or runs a launch."
+  }
+}
