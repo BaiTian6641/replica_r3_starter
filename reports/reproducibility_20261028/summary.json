@@ -1,0 +1,62 @@
+{
+  "format": "replica.reproducibility.tokenizer_metadata.v1",
+  "baseline_commit": "f85b3c5e56a63fa8510c54c0627693c51df102db",
+  "repair_commit": "d8aa7a9c",
+  "status": "fresh_and_metadata_provisioned_passed",
+  "original": {
+    "checkout": "tracked-only git archive at f85b3c5e",
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=/Users/flare/replica_r3_starter/reports/reproducibility_20261028/fresh_original_attempt01.xml tests/test_dc_r1_native_runner_v2.py tests/test_dc_p1_native_runner_v2.py tests/test_dc_p1_scoring_cli.py",
+    "collected": 33,
+    "passed": 25,
+    "failed": 8,
+    "skipped": 0,
+    "junit_sha256": "f71abca61eac2fa5460eede70b9a71e9c9afcc3ead83334f79739de86bea87d6",
+    "cause": "The eight new unit-contract tests called AutoTokenizer.from_pretrained on ignored checkpoints/minicpm5_source metadata. The tracked-only export had no config/tokenizer files, producing configuration/OSError failures instead of an explicit provisioning skip.",
+    "failed_tests": [
+      "tests/test_dc_r1_native_runner_v2.py::test_native_backend_real_tiny_llama_forward_decode_and_work",
+      "tests/test_dc_p1_native_runner_v2.py::test_production_factory_classifies_native_for_all_stages",
+      "tests/test_dc_p1_native_runner_v2.py::test_production_factory_failure_closes_later_stages",
+      "tests/test_dc_p1_scoring_cli.py::test_scoring_cli_valid_prerequisites_and_real_label_spies",
+      "tests/test_dc_p1_scoring_cli.py::test_scoring_cli_missing_prerequisites_never_reads_labels",
+      "tests/test_dc_p1_scoring_cli.py::test_scoring_cli_resealed_contradiction_blocks_development_labels",
+      "tests/test_dc_p1_scoring_cli.py::test_scoring_cli_false_decode_blocks_development_labels",
+      "tests/test_dc_p1_scoring_cli.py::test_scoring_cli_final_reused_receipt_is_refused_before_labels"
+    ]
+  },
+  "fresh_repaired": {
+    "checkout": "tracked-only git archive at d8aa7a9c",
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=/Users/flare/replica_r3_starter/reports/reproducibility_20261028/fresh_repaired_attempt01.xml tests/test_dc_r1_native_runner_v2.py tests/test_dc_p1_native_runner_v2.py tests/test_dc_p1_scoring_cli.py",
+    "collected": 34,
+    "passed": 33,
+    "failed": 0,
+    "skipped": 1,
+    "junit_sha256": "3895e02aa3c09d7a9cc93610262e18e67a84472300029bc33a0e73d334edee81",
+    "skip_reason": "Only the genuine sealed-tokenizer integration test is skipped with the explicit metadata provisioning command; all unit contracts execute with tests/tokenizer_fixtures.py."
+  },
+  "fresh_metadata_provisioned": {
+    "checkout": "the same d8aa7a9c tracked-only archive after metadata-only provisioning",
+    "provisioning_command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python scripts/provision_minicpm_metadata.py --source /Users/flare/replica_r3_starter/checkpoints/minicpm5_source --output /tmp/replica_repro_d8aa_fresh/checkpoints/minicpm5_source --receipt /Users/flare/replica_r3_starter/reports/reproducibility_20261028/fresh_metadata_provisioning_attempt01.json",
+    "test_command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=/Users/flare/replica_r3_starter/reports/reproducibility_20261028/fresh_metadata_provisioned_attempt01.xml tests/test_dc_r1_native_runner_v2.py tests/test_dc_p1_native_runner_v2.py tests/test_dc_p1_scoring_cli.py",
+    "collected": 34,
+    "passed": 34,
+    "failed": 0,
+    "skipped": 0,
+    "junit_sha256": "31dd447f87f6b727692a1ddfc593acac07db59f7eb7709e13005658b3038696b",
+    "weights_copied": false,
+    "weights_read": false,
+    "downloads": 0,
+    "model_loaded": false
+  },
+  "metadata": {
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requirements_document": "docs/maintenance/20261025_Test_Provisioning.md",
+    "provisioning_script": "scripts/provision_minicpm_metadata.py",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "tokenizer_sha256": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+    "tokenizer_config_sha256": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b",
+    "special_tokens_map_sha256": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+    "chat_template_sha256": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd"
+  },
+  "native_execution": false,
+  "capability_claim": "reproducible software fixtures only; no native tokenizer/model quality claim"
+}
