@@ -38,7 +38,9 @@ def test_v2_packet_is_deterministic_and_preserves_v1_lineage(tmp_path):
     assert builder.build_packet(root=tmp_path) == on_disk
     assert on_disk["implementation"]["runner"]["path"].endswith(
         "vision_smaller_step_v2.py")
-    assert on_disk["launch"]["argv"][1].endswith("vision_smaller_step_v2.py")
+    assert on_disk["launch"]["argv"][1].endswith("run_capacity_preflight.py")
+    assert on_disk["launch"]["argv"][3] == "vision_smaller_step_v2.py"
+    assert "--device" in on_disk["launch"]["argv"]
     assert on_disk["launch"]["review_command"][1].endswith(
         "vision_smaller_step_v2.py")
 
@@ -111,5 +113,23 @@ def test_v2_bound_review_emits_v2_commands_without_native_work(tmp_path):
         root=tmp_path, verify_commit=False)
     assert review["native_execution"] is False
     assert review["model_loads"] == 0
-    assert review["launch_command"][1].endswith("vision_smaller_step_v2.py")
+    assert review["launch_command"][1].endswith("run_capacity_preflight.py")
+    assert review["launch_command"][3] == "vision_smaller_step_v2.py"
+    assert review["launch_command"][-2:] == ["--device", "mps"]
     assert review["review_command"][1].endswith("vision_smaller_step_v2.py")
+
+
+def test_v2_implementation_binding_rejects_runner_drift(monkeypatch):
+    real_git = ss._git
+
+    def drifted_git(root, *args):
+        if (args[:2] == ("cat-file", "blob")
+                and args[2].endswith(":scripts/vision_smaller_step_v2.py")):
+            import subprocess
+            return subprocess.CompletedProcess(args, 0, stdout=b"drifted",
+                                               stderr=b"")
+        return real_git(root, *args)
+
+    monkeypatch.setattr(ss, "_git", drifted_git)
+    with pytest.raises(ss.ProtocolError, match="Implementation differs"):
+        ss.verify_implementation_binding("a" * 40)

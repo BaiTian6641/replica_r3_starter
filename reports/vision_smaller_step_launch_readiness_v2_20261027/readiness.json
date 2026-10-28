@@ -212,6 +212,7 @@
   },
   "commit_binding": {
     "commit_bound": false,
+    "implementation_bound": false,
     "reason": "no receipt records a commit",
     "receipt_protocol_commit": null,
     "recorded_in_receipt": false
@@ -226,14 +227,19 @@
   },
   "declaration": {
     "path": "configs/vision_smaller_step_launch_readiness_v2.json",
-    "sha256": "c12b46a2019d999baaf8f17cb0ab06557ecf59692aadc006ec8b1463e94b8d00"
+    "sha256": "170a743ac4f65097a6d3a9fd245bbe0bc3dc4f18ccc13ffd191a3ab36ba7bc97"
   },
   "deterministic": true,
   "format": "replica.vision_smaller_step.launch_readiness.assessment.v2",
   "launch": {
     "argv": [
       "python",
-      "scripts/vision_smaller_step_v2.py",
+      "scripts/run_capacity_preflight.py",
+      "--entry-point",
+      "vision_smaller_step_v2.py",
+      "--report",
+      "reports/vision_smaller_step_lr3e5_v2_20261027/guard_smaller_step01.json",
+      "--",
       "run",
       "--config",
       "configs/vision_smaller_step_lr3e5_v2.json",
@@ -244,7 +250,9 @@
       "--model-lock",
       "configs/minicpm5_sealed_lock.local.json",
       "--authorization",
-      "reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json"
+      "reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json",
+      "--device",
+      "mps"
     ],
     "authorization_checked_before_native_imports": true,
     "disposition": "review_only_launch_refused",
@@ -262,6 +270,7 @@
       "authorization_receipt_missing",
       "protocol_commit_unbound",
       "commit_binding_unverified",
+      "implementation_binding_unverified",
       "native_execution_not_authorized",
       "fresh_output_absent"
     ],
@@ -404,7 +413,7 @@
       "wider_visual_observation_calls": 78
     }
   },
-  "readiness_sha256": "ce28e383f011147fca8f994592b11db514e7eb2a75d161dfe797bf749150bd01",
+  "readiness_sha256": "7c36da2146e894e79ffb5fa62302ca8e4836a62d4f725ffa13d4242db21ad29c",
   "remaining_requirements": [
     {
       "blocking": true,
@@ -417,14 +426,14 @@
       "blocking": true,
       "id": "protocol_commit_recorded",
       "owner": "external_user",
-      "requirement": "The receipt must record a full 40-character commit whose v2 config blob hashes to the same config SHA-256.",
+      "requirement": "The receipt must record a full 40-character commit whose v2 config blob hashes to the same config SHA-256 and whose committed runner and dependency blobs match the working tree.",
       "satisfied_by_preparation": false
     },
     {
       "blocking": true,
       "id": "review_launch_gate_passed",
       "owner": "authorized_operator",
-      "requirement": "scripts/vision_smaller_step_v2.py review-launch must pass receipt, config, commit and fresh-output checks before any native import; no receipt exists.",
+      "requirement": "scripts/vision_smaller_step_v2.py review-launch must pass receipt, config, commit, implementation and fresh-output checks before any native import; no receipt exists.",
       "satisfied_by_preparation": false
     },
     {
@@ -450,9 +459,9 @@
     }
   ],
   "subject": {
-    "packet_canonical_sha256": "08f3e6bdf1d319249f4d5747495d9673f62050fe6bf231d5473b3b83303c4d53",
+    "packet_canonical_sha256": "820790baadce4a32d95f711264d0b347bf4ffc25e1dea09a68c7d0a4abf7a4c2",
     "packet_current": true,
-    "packet_file_sha256": "e3e93a4875442a88a7019f94f27dde8e4e4e467a9bfe0049b78f0918e029484b",
+    "packet_file_sha256": "7886be304c0860a082cf4fe5ed4874007d95ce2f33cb66f720c1a53da87d5efa",
     "packet_path": "reports/vision_smaller_step_launch_packet_v2_20261027/launch_packet.json",
     "protocol_amends_v1_sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad",
     "protocol_name": "vision_smaller_step_lr3e5_v2",

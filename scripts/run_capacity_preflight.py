@@ -105,7 +105,7 @@ def main():
                                                  "analyze_overfit_fit.py",
                                                  "run_m4_pattern.py",
                                                  "run_m4_restart.py",
-                                                 "run_e2_cross_rerank.py", "run_dc_p1_native_response_v2_20261027.py", "run_dc_r1_native_value_v3_20261028.py", "run_dc_p1_source_free_feature_alignment_v2.py"),
+                                                 "run_e2_cross_rerank.py", "run_dc_p1_native_response_v2_20261027.py", "run_dc_r1_native_value_v3_20261028.py", "run_dc_p1_source_free_feature_alignment_v2.py", "vision_smaller_step_v2.py"),
                         default="train_text.py")
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--driver-limit-gib", type=float,

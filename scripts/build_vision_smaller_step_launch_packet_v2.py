@@ -105,14 +105,8 @@ def build_packet(*, root: str | Path = ROOT) -> dict[str, Any]:
                 "build_vision_smaller_step_launch_packet_v2.py"),
         },
     }
-    launch_argv = [
-        "python", "scripts/vision_smaller_step_v2.py", "run",
-        "--config", CONFIG_PATH,
-        "--output", OUTPUT_PATH,
-        "--model-path", config["source"]["model_path"],
-        "--model-lock", config["source"]["model_lock"],
-        "--authorization", AUTHORIZATION_PATH,
-    ]
+    launch_argv = ss.native_launch_command(config, CONFIG_PATH,
+                                           AUTHORIZATION_PATH)
     review_command = [
         "python", "scripts/vision_smaller_step_v2.py", "review-launch",
         "--config", CONFIG_PATH,

@@ -71,6 +71,21 @@ NATIVE_ENVIRONMENT = {
     "HF_DATASETS_OFFLINE": "1",
     "PYTORCH_ENABLE_MPS_FALLBACK": "0",
 }
+IMPLEMENTATION_RELATIVES = (
+    "scripts/vision_smaller_step_v2.py",
+    "scripts/run_capacity_preflight.py",
+    "src/replica_lab/capacity_guard.py",
+    "src/replica_lab/profiling.py",
+    "src/replica_lab/optimizers.py",
+    "src/replica_lab/nested_learning.py",
+    "src/replica_lab/artifact_publication.py",
+    "src/replica_lab/vision_forward_accounting.py",
+    "src/replica_lab/vision_smaller_step_accounting_v2.py",
+    "src/replica_lab/vision_learnability_curve_v2.py",
+    "src/replica_lab/vision_learnability_diagnostic.py",
+    "src/replica_lab/architecture/loading.py",
+    "src/replica_lab/architecture/plastic.py",
+)
 LR = 0.00003
 COMPLETED_LR = 0.0003
 PROJECTOR_TENSORS = [
@@ -1646,6 +1661,28 @@ def verify_commit_binding(config_path: str | Path, protocol_sha256_value: str,
              "bytes do not match the authorization receipt")
 
 
+def verify_implementation_binding(protocol_commit: str, *,
+                                  root: str | Path = ROOT) -> dict[str, str]:
+    """Require committed runner/dependency bytes to equal the working tree."""
+    root_path = Path(root).resolve()
+    hashes: dict[str, str] = {}
+    for relative in IMPLEMENTATION_RELATIVES:
+        path = root_path / relative
+        if not path.is_file():
+            raise AuthorizationRefused(
+                f"Implementation file missing before model load: {relative}")
+        result = _git(root_path, "cat-file", "blob",
+                      f"{protocol_commit}:{relative}")
+        if result.returncode != 0:
+            raise AuthorizationRefused(
+                f"Implementation is not present at protocol commit: {relative}")
+        if _sha256_bytes(result.stdout) != _sha256_file(path):
+            raise AuthorizationRefused(
+                f"Implementation differs from protocol commit: {relative}")
+        hashes[relative] = _sha256_file(path)
+    return hashes
+
+
 def _validate_receipt(receipt: Mapping[str, Any], *,
                       protocol_sha256_value: str,
                       config: Mapping[str, Any],
@@ -1700,6 +1737,7 @@ def _authorize_native(config_path: str | Path,
     if verify_commit:
         verify_commit_binding(config_path, digest, receipt["protocol_commit"],
                               root=root)
+        verify_implementation_binding(receipt["protocol_commit"], root=root)
     return config, digest, receipt, receipt_path
 
 
@@ -2311,8 +2349,10 @@ def run_protocol(config_path: str | Path = DEFAULT_CONFIG, *,
                  output: str | Path, model_path: str | Path,
                  model_lock: str | Path,
                  authorization_path: str | Path | None = None,
-                 root: str | Path = ROOT) -> dict[str, Any]:
-    """Authorized native entrypoint.  Authorization precedes native imports."""
+                 root: str | Path = ROOT, device: str = "mps") -> dict[str, Any]:
+    """Authorized native entrypoint. Authorization precedes native imports."""
+    if device != "mps":
+        raise ProtocolError("Native vision execution requires device=mps")
     config, digest, receipt, receipt_path = _authorize_native(
         config_path, authorization_path, root=root)
     try:
@@ -2330,6 +2370,23 @@ def run_protocol(config_path: str | Path = DEFAULT_CONFIG, *,
         model_path=model_path, model_lock=model_lock, root=root)
 
 
+def native_launch_command(config: Mapping[str, Any], config_path: str | Path,
+                          receipt_path: str | Path) -> list[str]:
+    """Return the exact capacity-guarded native command; do not execute it."""
+    return [
+        "python", "scripts/run_capacity_preflight.py",
+        "--entry-point", "vision_smaller_step_v2.py",
+        "--report", f"{config['report_root']}/guard_smaller_step01.json",
+        "--", "run",
+        "--config", str(config_path),
+        "--output", config["output"],
+        "--model-path", config["source"]["model_path"],
+        "--model-lock", config["source"]["model_lock"],
+        "--authorization", str(receipt_path),
+        "--device", "mps",
+    ]
+
+
 def review_launch(config_path: str | Path = DEFAULT_CONFIG, *,
                   authorization_path: str | Path | None = None,
                   root: str | Path = ROOT,
@@ -2343,14 +2400,7 @@ def review_launch(config_path: str | Path = DEFAULT_CONFIG, *,
         raise AuthorizationRefused(
             "Native execution refused before model load; fresh output is "
             f"required: {config['output']}")
-    launch_command = [
-        "python", "scripts/vision_smaller_step_v2.py", "run",
-        "--config", str(config_path),
-        "--output", config["output"],
-        "--model-path", config["source"]["model_path"],
-        "--model-lock", config["source"]["model_lock"],
-        "--authorization", str(receipt_path),
-    ]
+    launch_command = native_launch_command(config, config_path, receipt_path)
     return {
         "format": REVIEW_FORMAT,
         "status": "review_only_no_native_execution",
@@ -2359,6 +2409,11 @@ def review_launch(config_path: str | Path = DEFAULT_CONFIG, *,
         "config": str(config_path),
         "protocol_sha256": digest,
         "protocol_commit": receipt["protocol_commit"],
+        "implementation_bound": verify_commit,
+        "implementation_sha256": {
+            relative: _sha256_file(Path(root) / relative)
+            for relative in IMPLEMENTATION_RELATIVES
+        },
         "protocol_name": config["name"],
         "authorization": {
             "status": receipt["status"],
@@ -2426,6 +2481,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--authorization", default=None,
                      help="external authorization receipt bound to the "
                           "committed protocol")
+    run.add_argument("--device", choices=["mps"], default="mps")
     return parser
 
 
@@ -2450,7 +2506,7 @@ def main(argv: list[str] | None = None) -> int:
             report = run_protocol(
                 args.config, output=args.output, model_path=args.model_path,
                 model_lock=args.model_lock,
-                authorization_path=args.authorization)
+                authorization_path=args.authorization, device=args.device)
             print(json.dumps({
                 "status": report["status"],
                 "native_execution": True,

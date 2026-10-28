@@ -372,7 +372,7 @@
     },
     "builder": {
       "path": "scripts/build_vision_smaller_step_launch_packet_v2.py",
-      "sha256": "2da3a39d1be0283dae2eb1e716a1c8a3874de8fa1dc37a46b50240a9b9a061dd"
+      "sha256": "0fc3e62a9bab6ec08c9a9d2c059aeafe306145694580b305fb32a54d3e0ed6cc"
     },
     "config": {
       "bytes": 32274,
@@ -380,16 +380,21 @@
       "sha256": "030a909f4f6a3cfcb6fd8698551ac8555d47e07686a3fb7a0ceae593cb296ec7"
     },
     "runner": {
-      "bytes": 117015,
+      "bytes": 119621,
       "path": "scripts/vision_smaller_step_v2.py",
-      "sha256": "21ad36286f5c13465fe53cc2ada4a6cd98ef4579771eee5c5661eadd56e01a06"
+      "sha256": "50b6f901210a372d65e3a8edd1ff27f7d9a17cde7bf46a6d1c1852245cd221f1"
     }
   },
   "kind": "preparation_only_launch_evidence",
   "launch": {
     "argv": [
       "python",
-      "scripts/vision_smaller_step_v2.py",
+      "scripts/run_capacity_preflight.py",
+      "--entry-point",
+      "vision_smaller_step_v2.py",
+      "--report",
+      "reports/vision_smaller_step_lr3e5_v2_20261027/guard_smaller_step01.json",
+      "--",
       "run",
       "--config",
       "configs/vision_smaller_step_lr3e5_v2.json",
@@ -400,7 +405,9 @@
       "--model-lock",
       "configs/minicpm5_sealed_lock.local.json",
       "--authorization",
-      "reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json"
+      "reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json",
+      "--device",
+      "mps"
     ],
     "authorization_checked_before_native_imports": true,
     "disposition_at_build": "review_only_launch_refused",
@@ -441,7 +448,7 @@
   ],
   "model_loads": 0,
   "native_execution": false,
-  "packet_sha256": "08f3e6bdf1d319249f4d5747495d9673f62050fe6bf231d5473b3b83303c4d53",
+  "packet_sha256": "820790baadce4a32d95f711264d0b347bf4ffc25e1dea09a68c7d0a4abf7a4c2",
   "preflight": [
     {
       "id": "protocol_contract",

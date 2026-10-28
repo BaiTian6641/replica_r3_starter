@@ -3,14 +3,14 @@
   "version": "2",
   "name": "vision_smaller_step_launch_readiness_v2",
   "declared_at_utc": "2026-10-27T00:00:00+00:00",
-  "purpose": "Declaration that the lr 3e-05 smaller-step v2 accounting amendment and its preparation-only launch packet are current, that every counter is derived from the declared schedule and validated by exact identities, that the v1 config/packet/readiness/evidence remain preserved, and that native launch is blocked by exactly two missing external artifacts: an authorization receipt bound to the exact v2 config and the full commit recorded inside it.",
+  "purpose": "Declaration that the lr 3e-05 smaller-step v2 accounting amendment and its preparation-only launch packet are current, that every counter is derived from the declared schedule and validated by exact identities, that the v1 config/packet/readiness/evidence remain preserved, that the native command is capacity-guarded and bound to the committed runner and dependency bytes, and that native launch remains blocked by the missing external authorization receipt and its full commit binding.",
   "subject": {
     "protocol_path": "configs/vision_smaller_step_lr3e5_v2.json",
     "protocol_sha256": "030a909f4f6a3cfcb6fd8698551ac8555d47e07686a3fb7a0ceae593cb296ec7",
     "protocol_name": "vision_smaller_step_lr3e5_v2",
     "packet_path": "reports/vision_smaller_step_launch_packet_v2_20261027/launch_packet.json",
-    "packet_file_sha256": "e3e93a4875442a88a7019f94f27dde8e4e4e467a9bfe0049b78f0918e029484b",
-    "packet_canonical_sha256": "08f3e6bdf1d319249f4d5747495d9673f62050fe6bf231d5473b3b83303c4d53",
+    "packet_file_sha256": "7886be304c0860a082cf4fe5ed4874007d95ce2f33cb66f720c1a53da87d5efa",
+    "packet_canonical_sha256": "820790baadce4a32d95f711264d0b347bf4ffc25e1dea09a68c7d0a4abf7a4c2",
     "packet_format": "replica.vision_smaller_step.launch_packet.v2",
     "packet_kind": "preparation_only_launch_evidence",
     "packet_native_execution": false,
@@ -187,7 +187,9 @@
     "reviewed_commit": null,
     "receipt_protocol_commit": null,
     "recorded_in_receipt": false,
-    "verification_rule": "git cat-file blob <commit>:configs/vision_smaller_step_lr3e5_v2.json must hash to the exact current config bytes; the receipt must record that full commit."
+    "verification_rule": "git cat-file blob <commit>:configs/vision_smaller_step_lr3e5_v2.json must hash to the exact current config bytes; the receipt must record that full commit.",
+    "implementation_rule": "For every path in scripts/vision_smaller_step_v2.py:IMPLEMENTATION_RELATIVES, the committed blob must hash to the exact working-tree bytes before review or native execution.",
+    "implementation_bound_at_declaration": false
   },
   "authorization": {
     "required": true,
@@ -206,7 +208,12 @@
   "launch": {
     "argv": [
       "python",
-      "scripts/vision_smaller_step_v2.py",
+      "scripts/run_capacity_preflight.py",
+      "--entry-point",
+      "vision_smaller_step_v2.py",
+      "--report",
+      "reports/vision_smaller_step_lr3e5_v2_20261027/guard_smaller_step01.json",
+      "--",
       "run",
       "--config",
       "configs/vision_smaller_step_lr3e5_v2.json",
@@ -217,7 +224,9 @@
       "--model-lock",
       "configs/minicpm5_sealed_lock.local.json",
       "--authorization",
-      "reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json"
+      "reports/vision_smaller_step_lr3e5_v2_20261027/authorization.json",
+      "--device",
+      "mps"
     ],
     "review_command": [
       "python",
@@ -245,6 +254,7 @@
       "authorization_receipt_missing",
       "protocol_commit_unbound",
       "commit_binding_unverified",
+      "implementation_binding_unverified",
       "native_execution_not_authorized"
     ]
   },
@@ -362,14 +372,14 @@
       "blocking": true,
       "id": "protocol_commit_recorded",
       "owner": "external_user",
-      "requirement": "The receipt must record a full 40-character commit whose v2 config blob hashes to the same config SHA-256.",
+      "requirement": "The receipt must record a full 40-character commit whose v2 config blob hashes to the same config SHA-256 and whose committed runner and dependency blobs match the working tree.",
       "satisfied_by_preparation": false
     },
     {
       "blocking": true,
       "id": "review_launch_gate_passed",
       "owner": "authorized_operator",
-      "requirement": "scripts/vision_smaller_step_v2.py review-launch must pass receipt, config, commit and fresh-output checks before any native import; no receipt exists.",
+      "requirement": "scripts/vision_smaller_step_v2.py review-launch must pass receipt, config, commit, implementation and fresh-output checks before any native import; no receipt exists.",
       "satisfied_by_preparation": false
     },
     {

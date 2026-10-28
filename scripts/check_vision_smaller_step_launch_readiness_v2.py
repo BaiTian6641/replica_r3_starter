@@ -98,7 +98,8 @@ def _commit_state(root: Path, config_sha: str,
                   receipt: Mapping[str, Any]) -> dict[str, Any]:
     commit = receipt.get("protocol_commit")
     if not commit:
-        return {"commit_bound": False, "receipt_protocol_commit": None,
+        return {"commit_bound": False, "implementation_bound": False,
+                "receipt_protocol_commit": None,
                 "recorded_in_receipt": False,
                 "reason": "no receipt records a commit"}
     import subprocess
@@ -108,12 +109,26 @@ def _commit_state(root: Path, config_sha: str,
              f"{commit}:{builder.CONFIG_PATH}"],
             check=False, capture_output=True)
     except OSError:
-        return {"commit_bound": False, "receipt_protocol_commit": commit,
+        return {"commit_bound": False, "implementation_bound": False,
+                "receipt_protocol_commit": commit,
                 "recorded_in_receipt": True, "reason": "git unavailable"}
     actual = (hashlib.sha256(blob.stdout).hexdigest()
               if blob.returncode == 0 else None)
+    implementation_bound = False
+    implementation_error = None
+    implementation_sha256: dict[str, str] = {}
+    if actual == config_sha:
+        try:
+            implementation_sha256 = ss.verify_implementation_binding(
+                commit, root=root)
+            implementation_bound = True
+        except ss.ProtocolError as error:
+            implementation_error = str(error)
     return {
         "commit_bound": actual == config_sha,
+        "implementation_bound": implementation_bound,
+        "implementation_sha256": implementation_sha256,
+        "implementation_error": implementation_error,
         "receipt_protocol_commit": commit,
         "recorded_in_receipt": True,
         "commit_config_blob_sha256": actual,
@@ -182,6 +197,8 @@ def assess(*, root: str | Path = ROOT) -> dict[str, Any]:
         else "commit_binding_verified",
         "commit_binding_unverified" if not commit["commit_bound"]
         else "commit_binding_verified",
+        "implementation_binding_unverified"
+        if not commit["implementation_bound"] else "implementation_binding_verified",
         "native_execution_not_authorized",
         "fresh_output_required" if output_exists else "fresh_output_absent",
     ]
@@ -244,6 +261,7 @@ def assess(*, root: str | Path = ROOT) -> dict[str, Any]:
             "disposition": ("review_only_launch_refused"
                             if not (receipt["binds_subject"]
                                     and commit["commit_bound"]
+                                    and commit["implementation_bound"]
                                     and not output_exists)
                             else "review_only_launch_ready"),
             "refusals": refusals,
