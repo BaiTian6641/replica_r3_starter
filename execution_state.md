@@ -3,16 +3,16 @@
 ## DC-R1 v2 native readout runner — 28 October 2026
 
 **Current status — implementation and CPU verification are committed at
-`deba2428`; no native authorization or MPS execution occurred.** See the
+`deba2428` and `14b6ecf7`; no native authorization or MPS execution occurred.** See the
 [runner report](docs/experiments/20261028_DC_R1_V2_Native_Runner.md).
 
 - Added sealed-source, no-cache per-layer generation at 13/27/41, exact
   authorization/config/fixture checks, sequential work accounting, canonical
-  scoring, staged publication, and durable interrupted-progress journals.
+  scoring, staged publication, and durable raw-trajectory/progress journals.
 - Final-label hashing/parsing is deferred until independent development
   admission; final backend construction follows that boundary. Launch preflight
   emits a capacity-guarded external command but remains non-native itself.
-- Focused verification passes **126 tests**, including a real tiny-Llama
+- Focused verification passes **127 tests**, including a real tiny-Llama
   forward/decode smoke and CPU-only orchestration fixtures. These do not
   establish MiniCPM5 native quality, calibrated abstention or learned retrieval.
 - Native compressed gates, native costs, raw MPS trajectories and all learned

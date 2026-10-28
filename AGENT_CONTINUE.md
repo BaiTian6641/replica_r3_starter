@@ -1,9 +1,10 @@
 # Coding-agent continuation instruction
 
 **Current priority — 28 October 2026, DC-R1 native runner:** implementation
-commit `deba2428` adds the authorized MPS-only readout backend, staged runner,
-launch-preflight integration and lazy final-label admission. The focused
-DC/Publication suite passes 126 tests, including a tiny real-Llama CPU smoke;
+commits `deba2428` and `14b6ecf7` add the authorized MPS-only readout backend,
+staged runner, launch-preflight integration, raw-trace recovery and lazy
+final-label admission. The focused DC/Publication suite passes 127 tests,
+including a tiny real-Llama CPU smoke;
 no native authorization or execution occurred. Read
 [the runner report](docs/experiments/20261028_DC_R1_V2_Native_Runner.md).
 Native compressed readout, native costs and learned capability remain closed.

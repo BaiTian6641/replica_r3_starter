@@ -1,8 +1,8 @@
 # DC-R1 v2 native readout runner
 
 **28 October 2026. Status: runner implemented and CPU-tested; no native
-authorization or MPS execution occurred.** Implementation commit:
-`deba2428`.
+authorization or MPS execution occurred.** Implementation commits:
+`deba2428` and `14b6ecf7`.
 
 ## Delivered
 
@@ -25,9 +25,10 @@ authorization or MPS execution occurred.** Implementation commit:
   before final labels are hashed or parsed and before the final backend is
   constructed. Development validation defers `sealed_labels_final.jsonl`
   hashing through the shared `skip_hash_files` manifest API.
-- Stage journals persist progress after each charged layer. Resume skips
-  completed `(condition, case_id)` pairs, retains partial-case work in the
-  cumulative budget, and preserves failed/incomplete state. The declared DC-R1
+- Stage journals persist progress and raw layer trajectories after each charged
+  layer, plus the last attempted layer on failure. Resume skips completed
+  `(condition, case_id)` pairs and retains partial-case work in the cumulative
+  budget. The declared DC-R1
   budget still has zero retries and one model load; resume is not an implicit
   native retry or reload authorization.
 - `scripts/run_dc_r1_native_value_v2_20261027.py` is the separate MPS-only
@@ -53,7 +54,7 @@ The following completed successfully:
   tests/test_dc_p1_native_runner_v2.py \
   tests/test_dc_p1_scoring_cli.py \
   tests/test_artifact_publication.py -q
-# 126 passed
+# 127 passed
 ```
 
 Coverage includes authorization refusal before backend work, source-free
