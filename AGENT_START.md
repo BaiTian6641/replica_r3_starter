@@ -1,5 +1,13 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
+**Current priority — 28 October 2026, DC-R1:** read
+[DC-R1 readout and compressed-channel preparation](docs/experiments/20261028_DC_R1_V2_Readout_Preparation.md).
+Commit `ed923e01` preserves all-layer abstention and per-layer actual-output
+scoring, sequential 240-request/1,920-forward accounting, and the boundary that
+native compressed input is only `codec_id` plus an integer. Host reconstruction
+(75%) is an audit control, not learned readout. Tests pass 24 and review is ready;
+no native runner, authorization or compressed-channel receipt exists.
+
 **Current priority — 28 October 2026, vision v2:** read
 [vision accounting and co-adaptation preparation](docs/experiments/20261028_Vision_V2_Accounting_and_Coadaptation.md).
 Commit `e8579c04` separates the v2 runner from the byte-preserved v1 lineage,

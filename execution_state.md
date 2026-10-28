@@ -1,5 +1,24 @@
 # Execution state — integrated memory, cognition and learning
 
+## DC-R1 v2 readout and compressed-channel preparation — 28 October 2026
+
+**Current status — versioned preparation and CPU validation pass; native readout
+remains unimplemented and unauthorized.** Commit is `ed923e01`.
+
+- All-layer abstention and complete-group recall are distinct. Per-layer
+  non-abstention and hallucination come from actual re-decoded outputs, not host
+  flags. Wrong-value and no-memory controls fail closed, and final labels require
+  admitted development evidence.
+- The corrected schedule is 240 requests/prefill/layer streams, 1,680 decode
+  forwards, 1,920 forward calls and 252,480 processed positions, with zero
+  optimizer/backward/checkpoint work. The old 240-forward claim is historical.
+- Native compressed input is only `codec_id` plus an integer. Host reconstruction
+  is a separate 75% audit, not learned readout; native compressed gates remain
+  blocked without a separate channel receipt. Tests pass **24/24** and review is
+  `review_ready`; no native runner, authorization or model execution exists.
+
+Read the [complete DC-R1 preparation report](docs/experiments/20261028_DC_R1_V2_Readout_Preparation.md).
+
 ## Vision v2 accounting and co-adaptation preparation — 28 October 2026
 
 **Current status — versioned CPU preparation and clean integration pass; both

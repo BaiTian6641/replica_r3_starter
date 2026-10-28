@@ -1,5 +1,14 @@
 # Coding-agent continuation instruction
 
+**Current priority — 28 October 2026, DC-R1:** use
+[DC-R1 readout and compressed-channel preparation](docs/experiments/20261028_DC_R1_V2_Readout_Preparation.md).
+Commit `ed923e01` versions the fixture, scorer and review receipt. Group
+abstention requires all layers to emit `UNKNOWN`; mixed non-UNKNOWN layers are
+not abstention. The compressed native channel exposes only `codec_id` and an
+integer; host reconstruction remains a separate 75% audit and native compressed
+gates stay blocked. Tests pass 24 and preflight is review-ready with zero model,
+tokenizer or native work. No native runner or authorization exists.
+
 **Current priority — 28 October 2026, vision v2:** use
 [vision accounting and co-adaptation preparation](docs/experiments/20261028_Vision_V2_Accounting_and_Coadaptation.md).
 Commit `e8579c04` restores the sealed v1 runner, moves v2 work to its own runner,
