@@ -612,19 +612,12 @@ def teaching_rows(context: RunContext, stage: str) -> list[dict]:
 
 
 def _expectation(context: RunContext) -> Any:
-    from replica_lab.dc_staged_evaluation import ReceiptExpectation
+    from replica_lab.dc_p1_evidence import receipt_expectation
 
-    counts = {stage: len(stage_cases(context, stage)) for stage in STAGES}
-    return ReceiptExpectation(
-        protocol_id=PROTOCOL_ID,
-        config_sha256=context.config_sha256,
-        manifest_sha256=context.manifest_sha256,
-        protocol_commit=context.protocol_commit,
-        tokenizer_binding_sha256=context.binding_sha256,
-        decode_policy_sha256=context.decode_policy_sha256,
-        arms=tuple(spec["arm_id"] for spec in context.arm_specs("fit")),
-        cases_expected=counts,
-    )
+    return receipt_expectation(
+        config=context.config, config_path=context.config_path,
+        manifest=context.manifest, binding=context.binding,
+        protocol_commit=context.protocol_commit)
 
 
 # ---------------------------------------------------------------------------
@@ -805,14 +798,24 @@ def _score_report(*, context: RunContext, stage: str,
         evidence_class == "native_mps" and report["status"] == "passed")
     return report
 def _receipt_and_admission(*, context: RunContext, stage: str, report: dict,
-                           expectation: Any, attempt: str) -> tuple[
+                           expectation: Any, attempt: str, publish: Any,
+                           decode_fn: Callable[[Sequence[int]], str]) -> tuple[
                                dict, Any, Exception | None, dict | None]:
+    from replica_lab import dc_p1_evidence as evidence
     from replica_lab import dc_staged_evaluation as staged
 
     receipt = staged.build_stage_receipt(
         report=report, expectation=expectation, attempt_id=attempt)
     staged.verify_stage_receipt(receipt, stage=stage,
                                 expectation=expectation)
+    publish.write_json(context.output, f"{stage}/receipt.json", receipt)
+    evidence.verify_stage_evidence(
+        stage=stage, output_root=context.output, prepared=context.prepared,
+        config=context.config, config_path=context.config_path,
+        manifest=context.manifest, protocol_commit=context.protocol_commit,
+        binding=context.binding, decode_fn=decode_fn,
+        expected_evidence_class=report["evidence_class"],
+        expected_attempt_id=attempt, require_publication=False)
     admission = staged.StagedAdmission(expectation)
     if report.get("evidence_class") != "native_mps":
         return receipt, admission, Refused(
@@ -834,33 +837,39 @@ def _receipt_and_admission(*, context: RunContext, stage: str, report: dict,
             admission.admit_development(dev_receipt)
             admission.require("final")
             admitted = admission.admit_final(receipt)
-    except Exception as caught:  # StageError from the shared admission module
+    except Exception as caught:
         return receipt, admission, caught, None
     return receipt, admission, None, admitted
 
 
 def _prior_admission(context: RunContext, stage: str, *,
-                     evidence_class: str = "native_mps") -> Any:
-    """Verify earlier receipts and evidence class; reads no label bytes."""
+                     evidence_class: str = "native_mps",
+                     decode_fn: Callable[[Sequence[int]], str] | None = None
+                     ) -> Any:
+    """Resolve and recompute earlier evidence; reads no current-stage labels."""
+    from replica_lab import dc_p1_evidence as evidence
     from replica_lab import dc_staged_evaluation as staged
 
-    def require_class(receipt):
-        require(receipt.get("evidence_class") == evidence_class, "evidence_class",
-                f"receipt evidence class differs from {evidence_class}")
-        if evidence_class == "native_mps":
-            require(receipt.get("native_execution_admissible") is True,
-                    "evidence_class", "receipt does not admit native execution")
-
-    expectation = _expectation(context)
-    admission = staged.StagedAdmission(expectation)
-    fit_receipt = read_json(stage_root(context.output, "fit") / "receipt.json")
-    require_class(fit_receipt)
-    admission.admit_fit(fit_receipt)
+    admission = staged.StagedAdmission(_expectation(context))
+    fit_evidence = evidence.verify_stage_evidence(
+        stage="fit", output_root=context.output, prepared=context.prepared,
+        config=context.config, config_path=context.config_path,
+        manifest=context.manifest, protocol_commit=context.protocol_commit,
+        binding=context.binding, decode_fn=decode_fn,
+        expected_evidence_class=evidence_class,
+        expected_attempt_id=attempt_id(context, "fit"),
+        require_publication=True)
+    admission.admit_fit(fit_evidence["receipt"])
     if stage == "final":
-        dev_receipt = read_json(
-            stage_root(context.output, "development") / "receipt.json")
-        require_class(dev_receipt)
-        admission.admit_development(dev_receipt)
+        development_evidence = evidence.verify_stage_evidence(
+            stage="development", output_root=context.output,
+            prepared=context.prepared, config=context.config,
+            config_path=context.config_path, manifest=context.manifest,
+            protocol_commit=context.protocol_commit, binding=context.binding,
+            decode_fn=decode_fn, expected_evidence_class=evidence_class,
+            expected_attempt_id=attempt_id(context, "development"),
+            require_publication=True)
+        admission.admit_development(development_evidence["receipt"])
     return admission
 
 
@@ -1733,7 +1742,7 @@ def _train_arm(state: StageState, backend: Backend,
 def _generate_arm(state: StageState, backend: Backend,
                   arm_spec: Mapping[str, Any], cases: Sequence[dict], *,
                   resume: bool, publish: Any, check_arm: bool,
-                  budget_arm: str | None = None) -> list[dict]:
+                  evidence_class: str, budget_arm: str | None = None) -> list[dict]:
     arm = arm_spec["arm_id"]
     arm_key = (budget_arm or arm) if check_arm else None
     record = _arm_journal(state.journal, arm)
@@ -1776,7 +1785,7 @@ def _generate_arm(state: StageState, backend: Backend,
         row = prediction_row(
             context=state.context, stage=state.stage, arm_spec=arm_spec,
             case=case, result=result, decode_fn=backend.decode_fn,
-            evidence_class=("native_mps" if backend is None else "cpu_fixture"))
+            evidence_class=evidence_class)
         rows.append(row)
         done.append(case["case_id"])
         record["generated_cases"] = list(done)
@@ -2048,6 +2057,7 @@ def _already_complete(state: StageState, verified: Mapping[str, Any]) -> dict:
 
 def _run_fit(context: RunContext, verified: Mapping[str, Any], *,
              resume: bool, backend: Backend | None) -> dict:
+    execution_class = "native_mps" if backend is None else "cpu_fixture"
     state, complete = _stage_setup(context, "fit", resume=resume,
                                    enforce_budget=backend is None)
     if complete:
@@ -2070,19 +2080,21 @@ def _run_fit(context: RunContext, verified: Mapping[str, Any], *,
                 _parity_after_reset(state, backend, parity_example)
             predictions.extend(_generate_arm(
                 state, backend, arm_spec, cases, resume=resume,
-                publish=publication, check_arm=True))
+                publish=publication, check_arm=True,
+                evidence_class=execution_class))
         labels = stage_labels(context, "fit")
         report = _score_report(
             context=context, stage="fit", cases=cases, labels=labels,
             predictions=predictions, arm_specs=arms,
             objective_audit=state.journal["objective_audit"],
             decode_fn=backend.decode_fn,
-            evidence_class=("native_mps" if backend is None else "cpu_fixture"))
+            evidence_class=execution_class)
+        report["attempt_id"] = state.attempt
         publication.write_json(context.output, "fit/fit_report.json", report)
         receipt, admission, error, admitted = _receipt_and_admission(
             context=context, stage="fit", report=report,
-            expectation=_expectation(context), attempt=state.attempt)
-        publication.write_json(context.output, "fit/receipt.json", receipt)
+            expectation=_expectation(context), attempt=state.attempt,
+            publish=publication, decode_fn=backend.decode_fn)
         if admitted is not None:
             publication.write_json(context.output, "fit/admission.json",
                                    admission.state())
@@ -2139,10 +2151,11 @@ def _load_fit_checkpoint(state: StageState, backend: Backend,
 
 def _run_development(context: RunContext, verified: Mapping[str, Any], *,
                      resume: bool, backend: Backend | None) -> dict:
+    execution_class = "native_mps" if backend is None else "cpu_fixture"
     # Fit admission is verified before any native import or dev label read.
-    _prior_admission(context, "development",
-                     evidence_class=("native_mps" if backend is None
-                                     else backend.evidence_class))
+    _prior_admission(
+        context, "development", evidence_class=execution_class,
+        decode_fn=backend.decode_fn if backend is not None else None)
     state, complete = _stage_setup(
         context, "development", resume=resume,
         enforce_budget=backend is None)
@@ -2162,23 +2175,23 @@ def _run_development(context: RunContext, verified: Mapping[str, Any], *,
             _load_fit_checkpoint(state, backend, arm_spec, publication)
             predictions.extend(_generate_arm(
                 state, backend, arm_spec, cases, resume=resume,
-                publish=publication, check_arm=True))
+                publish=publication, check_arm=True,
+                evidence_class=execution_class))
         labels = stage_labels(context, "development")
         report = _score_report(
             context=context, stage="development", cases=cases, labels=labels,
             predictions=predictions, arm_specs=arms,
             objective_audit=state.journal["objective_audit"],
             decode_fn=backend.decode_fn,
-            evidence_class=("native_mps" if backend is None else "cpu_fixture"))
+            evidence_class=execution_class)
         report["attempt_id"] = state.attempt
         publication.write_json(context.output,
                                    "development/development_report.json",
                                    report)
         receipt, admission, error, admitted = _receipt_and_admission(
             context=context, stage="development", report=report,
-            expectation=_expectation(context), attempt=state.attempt)
-        publication.write_json(context.output, "development/receipt.json",
-                                   receipt)
+            expectation=_expectation(context), attempt=state.attempt,
+            publish=publication, decode_fn=backend.decode_fn)
         if admitted is not None:
             publication.write_json(context.output,
                                    "development/admission.json",
@@ -2219,9 +2232,10 @@ def _run_development(context: RunContext, verified: Mapping[str, Any], *,
 
 def _run_final(context: RunContext, verified: Mapping[str, Any], *,
                resume: bool, backend: Backend | None) -> dict:
+    execution_class = "native_mps" if backend is None else "cpu_fixture"
     admission = _prior_admission(
-        context, "final", evidence_class=(
-            "native_mps" if backend is None else backend.evidence_class))
+        context, "final", evidence_class=execution_class,
+        decode_fn=backend.decode_fn if backend is not None else None)
     state, complete = _stage_setup(
         context, "final", resume=resume,
         enforce_budget=backend is None)
@@ -2245,22 +2259,22 @@ def _run_final(context: RunContext, verified: Mapping[str, Any], *,
                    budget_arm="treatment_final")
         predictions = _generate_arm(
             state, backend, arm_spec, cases, resume=resume,
-            publish=publication, check_arm=True, budget_arm="treatment_final")
+            publish=publication, check_arm=True,
+            evidence_class=execution_class, budget_arm="treatment_final")
         labels = stage_labels(context, "final")
         report = _score_report(
             context=context, stage="final", cases=cases, labels=labels,
             predictions=predictions, arm_specs=arms,
             objective_audit=objective_audit, decode_fn=backend.decode_fn,
-            evidence_class=("native_mps" if backend is None else "cpu_fixture"))
+            evidence_class=execution_class)
         report["attempt_id"] = state.attempt
         report["confirmation_only"] = True
         publication.write_json(context.output, "final/final_report.json",
                                    report)
         receipt, admission, error, admitted = _receipt_and_admission(
             context=context, stage="final", report=report,
-            expectation=_expectation(context), attempt=state.attempt)
-        publication.write_json(context.output, "final/receipt.json",
-                                   receipt)
+            expectation=_expectation(context), attempt=state.attempt,
+            publish=publication, decode_fn=backend.decode_fn)
         if admitted is not None:
             publication.write_json(context.output, "final/admission.json",
                                    admission.state())

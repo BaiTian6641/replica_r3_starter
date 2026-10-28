@@ -205,10 +205,12 @@ class FakeBackend(runner.Backend):
         state = self.states.get(arm, 0)
         return {
             "format": runner.CHECKPOINT_FORMAT,
+            "protocol_id": runner.PROTOCOL_ID,
             "meta": dict(meta),
             "expert_state": {"value": state},
             "optimizer_state": {"steps": self.optimizer_steps.get(arm, 0)},
             "extension_state_sha256": sha256_json({"value": state}),
+            "parent_state_sha256": self.parent_sha256,
             "_estimated_bytes": 8192,
             "backbone_saved": False,
             "base_saved": False,
@@ -228,6 +230,114 @@ class FakeBackend(runner.Backend):
     @property
     def decode_fn(self):
         return _decode
+
+
+class ProductionFakeBackend(FakeBackend):
+    """Factory stand-in whose declared teaching work fits the sealed cap."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from transformers import AutoTokenizer
+
+        config = read_json(CONFIG)
+        binding = config["tokenizer_binding"]
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            str(ROOT / "checkpoints/minicpm5_source"), local_files_only=True,
+            trust_remote_code=False, revision=binding["revision"])
+        self._decode_policy = binding["decode_policy"]
+        self._eos_id = int(config["generation"]["terminal_eos_token"])
+        self.parent_sha256 = self._state_hash(0)
+
+    def _decode_tokens(self, ids):
+        return self._tokenizer.decode(
+            list(ids),
+            skip_special_tokens=self._decode_policy["skip_special_tokens"],
+            clean_up_tokenization_spaces=self._decode_policy[
+                "clean_up_tokenization_spaces"])
+
+    @property
+    def decode_fn(self):
+        return self._decode_tokens
+
+    def evaluate(self, case, *, arm, prepared=None):
+        text = self.labels.get(case["case_id"], "UNKNOWN")
+        if arm in self.wrong_primary_for_arms and case["role"] in {
+                "post_correction_current", "new_instance_current"}:
+            text = "wrong"
+        raw = self._tokenizer(text, add_special_tokens=False)["input_ids"] + [
+            self._eos_id]
+        content = raw[:-1]
+        prompt_ids = list(prepared["prompt_ids"])
+        processed = sum(len(prompt_ids) + offset
+                        for offset in range(len(raw)))
+        return {
+            "generated_ids": content,
+            "generated_text": self._decode_tokens(content).strip(),
+            "stopped": True,
+            "stop_reason": "eos",
+            "generated_tokens": len(raw),
+            "prefill_tokens": len(prompt_ids),
+            "prefill_forwards": 1,
+            "decode_forwards": len(raw) - 1,
+            "processed_positions": processed,
+            "query_epoch": case.get("query_epoch"),
+            "resolution_mode": case.get("resolution_mode"),
+            "resolved_event_position": (
+                case.get("historical_event_position")
+                if case.get("resolution_mode") == "historical_explicit_event"
+                else case.get("event_position", 1)
+                if case["role"].startswith("fit_")
+                else 2 if case["role"] in ("new_instance_current", "abstention")
+                else None if case["role"] == "retention" else 1),
+            "reader_state_sha256": self._state_hash(self.states.get(arm, 0)),
+            "evaluation_owner": "cpu_fixture",
+        }
+    def _state_hash(self, value):
+        import torch
+
+        digest = hashlib.sha256()
+        for name in ("down", "gate", "up"):
+            payload = torch.tensor([float(value)], dtype=torch.float32)
+            digest.update(name.encode())
+            digest.update(b"[1]")
+            digest.update(payload.numpy().tobytes())
+        return digest.hexdigest()
+
+    def capture_checkpoint(self, meta):
+        import torch
+
+        payload = super().capture_checkpoint(meta)
+        state = self.states.get(meta["arm_id"], 0)
+        payload["expert_state"] = {
+            name: torch.tensor([float(state)], dtype=torch.float32)
+            for name in ("gate", "up", "down")
+        }
+        payload["extension_state_sha256"] = self._state_hash(state)
+        payload["trainable_names"] = ["gate", "up", "down"]
+        payload["parent_state_sha256"] = self.parent_sha256
+        payload["plastic_spec_sha256"] = hashlib.sha256(
+            b"production_fixture_plastic").hexdigest()
+        payload["decoder_digest"] = hashlib.sha256(
+            b"production_fixture_decoder").hexdigest()
+        return payload
+
+    def restore_checkpoint(self, payload, meta):
+        arm = meta["arm_id"]
+        self.current_arm = arm
+        self.states[arm] = int(payload["expert_state"]["gate"].item())
+        self.optimizer_steps[arm] = int(payload["optimizer_state"]["steps"])
+        if payload["meta"].get("restored"):
+            self.states[arm] = 0
+
+    def encode_teaching(self, row):
+        encoding = super().encode_teaching(row)
+        encoding["input_tokens"] = min(int(encoding["input_tokens"]), 128)
+        return encoding
+
+
+def _production_backend(*, wrong_primary_for_arms=()):
+    return ProductionFakeBackend(
+        _labels(), wrong_primary_for_arms=set(wrong_primary_for_arms))
 
 
 def _labels() -> dict[str, str]:
@@ -426,6 +536,69 @@ def test_failed_development_receipt_blocks_final_backend_and_labels(
     assert "sealed_final_teaching.jsonl" not in calls
     assert "sealed_final_labels_fit.jsonl" not in calls
     assert "sealed_labels_final.jsonl" not in calls
+
+
+def test_production_factory_classifies_native_for_all_stages(tmp_path, monkeypatch):
+    output = tmp_path / "native01"
+    authorization = _authorization(tmp_path)
+    calls = []
+
+    def factory(context, stage):
+        calls.append(stage)
+        # A backend tag cannot change the caller-selected production class.
+        return _production_backend(wrong_primary_for_arms={
+            "matched_trained", "no_update", "reset_P"})
+
+    monkeypatch.setattr(runner, "build_native_backend", factory)
+    for stage in ("fit", "development", "final"):
+        result = runner.run_stage(
+            stage, config_path=CONFIG, prepared=PREPARED,
+            authorization_path=authorization, protocol_commit=COMMIT,
+            output=output, backend=None, require_head=False,
+            commit_verifier=_commit_verifier)
+        assert result["status"] == "passed"
+        assert result["admitted"] is True
+        report_name = {
+            "fit": "fit_report.json",
+            "development": "development_report.json",
+            "final": "final_report.json",
+        }[stage]
+        report = read_json(output / stage / report_name)
+        assert report["evidence_class"] == "native_mps"
+        assert report["native_execution_admissible"] is True
+    assert calls == ["fit", "development", "final"]
+
+
+def test_production_factory_failure_closes_later_stages(tmp_path, monkeypatch):
+    from replica_lab.dc_staged_evaluation import StageError
+
+    output = tmp_path / "native01"
+    authorization = _authorization(tmp_path)
+    calls = []
+
+    def factory(context, stage):
+        calls.append(stage)
+        return ProductionFakeBackend({case_id: "wrong" for case_id in _labels()})
+
+    monkeypatch.setattr(runner, "build_native_backend", factory)
+    result = runner.run_fit(
+        config_path=CONFIG, prepared=PREPARED,
+        authorization_path=authorization, protocol_commit=COMMIT,
+        output=output, backend=None, require_head=False,
+        commit_verifier=_commit_verifier)
+    assert result["status"] == "failed"
+    assert result["admitted"] is False
+    report = read_json(output / "fit" / "fit_report.json")
+    assert report["evidence_class"] == "native_mps"
+    assert report["native_execution_admissible"] is False
+    for stage in ("development", "final"):
+        with pytest.raises((StageError, ProtocolError)):
+            runner.run_stage(
+                stage, config_path=CONFIG, prepared=PREPARED,
+                authorization_path=authorization, protocol_commit=COMMIT,
+                output=output, backend=None, require_head=False,
+                commit_verifier=_commit_verifier)
+    assert calls == ["fit"]
 
 
 def test_injected_backend_cannot_claim_native_evidence(tmp_path):
