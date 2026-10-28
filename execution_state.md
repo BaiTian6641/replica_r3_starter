@@ -1,5 +1,42 @@
 # Execution state — integrated memory, cognition and learning
 
+## Vision acceptance and expansion readiness — 28 October 2026
+
+**Current status — CPU implementation and report validation are committed;
+native execution remains unauthorized and unrun.** Read the
+[vision acceptance and expansion report](docs/experiments/20261028_Vision_Acceptance_and_Expansion_Readiness.md).
+Implementation commits are `6bccb8373a407e9054f1f5a6ed7bc37da06891b1` and
+`97866da0bc4d599d3c23ba58d7e6a3c4a50efb6c`.
+
+- Smaller-step review now verifies the config and 13 committed implementation
+  blobs and emits a capacity-guarded `--device mps` command. The packet is
+  current; actual review refuses before model load because the external receipt
+  is absent. No native command was launched.
+- The new acceptance evaluator requires matched generated-answer improvement,
+  explicit correct/wrong-or-sibling/shuffled/no-image controls and provenance,
+  paired text retention and candidate-bound fresh-process reload. It separates
+  learned and engineering evidence; missing evidence is inconclusive, never a
+  pass. The real CLI smoke used synthetic reports only and returned accepted
+  with zero model loads and no promotion.
+- Expansion readiness independently replays acceptance evidence and preserves
+  exactly 9 admitted, 21 exclusions, 8 exposed and 24 synthetic scenes. Current
+  partition/source checks pass; the sole refusal is
+  `positive_diagnostic_missing`. The initial overly strict overlap assessment
+  is preserved as `readiness_attempt01.json` and was corrected to recognize that
+  exposed groups belong to the exclusion ledger.
+- Co-adaptation review explicitly records zero memory/personality trainables
+  and refuses for missing smaller-step failure, frozen-feature diagnosis and
+  receipt. No memory, personality or encoder update ran.
+- Affected vision/caption/guard tests pass **339**. Existing preservation suites
+  pass **99 memory**, **135 Spark**, **134 RSI/provenance/clock/compilation** and
+  **81 visual-boundary** tests. These are CPU contract results, not native
+  capability or cost measurements. No new MPS memory/runtime measurement or
+  positive MPS diagnostic exists.
+
+Next eligible work is an externally authorized smaller-step attempt only after
+its exact receipt/commit/fresh-output prerequisites are satisfied. Co-adaptation
+and expansion remain conditional; no new native authorization is inferred.
+
 ## Bounded milestone readiness and clean integration — 28 October 2026
 
 **Current status — implementation, independent preparation and clean CPU
@@ -11,8 +48,9 @@ capability is qualified.** Read the
   source-free alternative are committed at `8ac42b3f`. The audit proves exact
   1.5× global CE rescaling, epsilon-sensitive updates, clipping to norm 1.0,
   nonzero source-free feature shift and logit influence, but zero changed
-  tokens in all tiny generated-behavior probes. The alternative runner remains
-  unimplemented and development/final labels stay closed.
+  tokens in all tiny generated-behavior probes. The alternative runner is
+  implemented at `bdb9cb1f` and launch-bound at `38dc1659`; its CPU fixture is
+  learnability-only, native execution is unrun and development/final labels stay closed.
 - DC-R1 (`deba2428`, `14b6ecf7`), artifact overlap (`4aca7b02`) and vision
   runtime (`cdf168a2`) are integrated. Readiness (`454f89ea`) binds exact
   committed inputs and budgets. `native_command` is null; DC-R1 and alternative
@@ -23,7 +61,8 @@ capability is qualified.** Read the
   artifact guard on 11,371 files. JUnit and the consistency-checked summary are
   under `reports/verification_20261028/`.
 - Next native action requires an exact external DC-R1 receipt and one guarded
-  attempt. Alternative native execution requires its own runner/review first.
+  attempt. Alternative native execution requires its own external receipt and
+  authorized guarded attempt; its runner/review are implemented.
   Spark native training, learned capability, RSI, outer loop, distillation,
   promotion and personality remain unexecuted and unqualified.
 

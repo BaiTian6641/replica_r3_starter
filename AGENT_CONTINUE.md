@@ -1,5 +1,17 @@
 # Coding-agent continuation instruction
 
+**Current priority — 28 October 2026, vision acceptance and expansion:** read
+[the vision acceptance and expansion handoff](docs/experiments/20261028_Vision_Acceptance_and_Expansion_Readiness.md).
+Commits `6bccb837` and `97866da0` add committed-implementation launch binding,
+fail-closed vision acceptance and positive-diagnostic expansion readiness. The
+current partition/source checks preserve 9 admitted, 21 exclusions, 8 exposed
+and 24 synthetic scenes; expansion is blocked only by the missing accepted MPS
+diagnostic. Co-adaptation remains behind its failed-smaller-step, diagnosis and
+receipt prerequisites with explicit zero memory/personality trainables. The
+affected 339 tests and later 99/135/134/81 preservation suites pass. No native
+execution, learned visual improvement, Spark training, RSI or personality work
+occurred. Keep the exact authorization and fresh-output gates unchanged.
+
 **Current priority — 28 October 2026, bounded milestone complete:** read
 [the integration report](docs/experiments/20261028_Bounded_Milestone_Integration.md).
 DC-P1 evidence/audit, DC-R1, artifact, vision and readiness commits are
