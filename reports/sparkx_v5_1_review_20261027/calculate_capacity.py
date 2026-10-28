@@ -17,6 +17,12 @@ def inventory(c):
             "mib": value["parameter_elements"] * value["bytes_per_element"] / MIB,
             "precision": value["precision"],
             "evidence_class": value["evidence_class"],
+            "tensor_count": value.get("tensor_count"),
+            "trainable_in_offline_full_finetuning":
+                value.get("trainable_in_offline_full_finetuning", False),
+            "missing_prerequisite": value.get("missing_prerequisite"),
+            "sealed_source_manifest": value.get("sealed_source_manifest"),
+            "sealed_source_sha256": value.get("sealed_source_sha256"),
             "measured_fit": False,
             "full_training_qualified": False,
         }
@@ -25,11 +31,138 @@ def inventory(c):
         "measured_fit": False,
         "full_training_qualified": False,
         "components": components,
+        "sealed_source_inventory": inv["sealed_source_inventory"],
         "unsealed": {
-            name: value["evidence_class"]
+            name: {
+                "evidence_class": value["evidence_class"],
+                "missing_prerequisite": value.get("missing_prerequisite"),
+                "reason": value.get("reason"),
+            }
             for name, value in inv["unsealed_components"].items()
         },
         "restart_transients": inv["restart_transients"],
+        "training_contract": inv["training_contract"],
+        "feasibility": inv["feasibility"],
+    }
+
+
+def activation_workloads(c):
+    """Derive per-view activation arithmetic from declared patch scenarios."""
+    declared = c["residency_inventory"]["activation_workloads"]
+    routes = {}
+    for name, value in declared.items():
+        if not isinstance(value, dict):
+            continue
+        patches = value.get("patches", value.get("padded_patches"))
+        merge = value.get("merge", [1, 1])
+        outputs = value.get("outputs")
+        width = value["width"]
+        pre_merge = patches if merge != [1, 1] else None
+        route = {
+            "encoder": value["encoder"],
+            "width": width,
+            "patch_size": value.get("patch_size"),
+            "image_size": value.get("image_size"),
+            "patches": patches,
+            "merge": merge,
+            "outputs": outputs,
+            "elements_per_view_per_layer": outputs * width,
+            "bf16_bytes_per_view_per_layer": outputs * width * 2,
+            "attention_pair_work_per_layer": outputs * outputs,
+        }
+        if pre_merge is not None:
+            route["pre_merge_elements_per_view_per_layer"] = pre_merge * width
+            route["pre_merge_bf16_bytes_per_view_per_layer"] = pre_merge * width * 2
+        if "valid_patches" in value:
+            route["valid_patches"] = value["valid_patches"]
+            route["padded_patches"] = value["padded_patches"]
+        if "expected_256" in value:
+            route["expected_256"] = value["expected_256"]
+        routes[name] = route
+    return {
+        "kind": declared["kind"],
+        "measured": False,
+        "routes": routes,
+    }
+
+
+def precision_bytes(c):
+    """Reconcile storage bytes for each distinct precision identity."""
+    rows = {}
+    for name in ("official_bf16", "official_fp8_storage",
+                 "dequantized_fp8_derivative", "native_fp8_execution"):
+        reconciliation = c["precision_identities"][name].get("byte_reconciliation")
+        if reconciliation is None:
+            continue
+        row = dict(reconciliation)
+        payload = reconciliation.get("payload_bytes")
+        if payload is not None:
+            row["computed_payload_mib"] = payload / MIB
+        row["reconciled"] = _precision_reconciled(name, reconciliation)
+        rows[name] = row
+    return rows
+
+
+def _precision_reconciled(name, value):
+    if name == "official_bf16":
+        return (value["payload_bytes"]
+                == value["unique_parameter_elements"] * 2
+                and value["payload_mib"] == value["payload_bytes"] / MIB)
+    if name == "official_fp8_storage":
+        return (value["f8_e4m3_payload_bytes"]
+                + value["bf16_payload_bytes"] == value["payload_bytes"]
+                and value["quantized_parameter_elements"]
+                + value["bf16_unquantized_elements"]
+                == value["declared_unique_model_parameter_elements"]
+                and value["scale_tensor_elements"]
+                == value["serialized_element_elements"]
+                - value["declared_unique_model_parameter_elements"]
+                and value["payload_mib"] == value["payload_bytes"] / MIB)
+    if name == "dequantized_fp8_derivative":
+        return (value["dtype_payload_bytes"]["BF16"]
+                == value["unique_parameter_elements"] * 2
+                == value["payload_bytes"]
+                and value["serialized_file_bytes"] >= value["payload_bytes"]
+                and value["payload_bytes"] != value["source_fp8_payload_bytes"])
+    if name == "native_fp8_execution":
+        return value["residency_bytes"] is None
+    return False
+
+
+def dependency_order(c):
+    """Resolve every requires entry against earlier nodes and declarations."""
+    contract = c["dependency_contract"]
+    available: set[str] = set()
+    declared: dict[str, str] = {}
+    nodes = []
+    for node in c["learning_dependency_order"]:
+        unresolved = [item for item in node["requires"] if item not in available]
+        for item in node.get("declares", []) + node.get("provides", []):
+            declared.setdefault(item, node["id"])
+        nodes.append({
+            "order": node["order"],
+            "id": node["id"],
+            "requires": node["requires"],
+            "preconditions": node.get("preconditions", []),
+            "constraints": node.get("constraints", []),
+            "declares": node["declares"],
+            "provides": node.get("provides", []),
+            "unresolved_requires": unresolved,
+        })
+        available |= ({node["id"]} | set(node.get("declares", []))
+                      | set(node.get("provides", [])))
+    return {
+        "format": contract["format"],
+        "required_sequence": contract["required_sequence"],
+        "sequence": [node["id"] for node in nodes],
+        "nodes": nodes,
+        "all_requires_resolved": all(not node["unresolved_requires"]
+                                     for node in nodes),
+        "declared_capabilities": dict(sorted(declared.items())),
+        "native_gate_refs": contract["native_gate_refs"],
+        "rs_gates": contract["rs_gates"],
+        "gate_status": contract["gate_status"],
+        "promotion": contract["promotion"],
     }
 
 
@@ -97,6 +230,9 @@ def calculate():
         "P64_rate_scalars": 64 * 3,
         "P64_full_parameterwise_rate_FP32_mib": 64 * n * 4 / MIB,
         "AV_16s_example_positions": {"coarse": 4 * 256 + 16 * 12.5 + 64 + 32, "two_extra_crops": 4 * 256 + 2 * 256 + 16 * 12.5 + 64 + 32},
+        "activation_workloads": activation_workloads(c),
+        "precision_byte_reconciliation": precision_bytes(c),
+        "dependency_order": dependency_order(c),
         "residency_inventory": inventory(c),
         "exclusions": ["unsealed stable encoders and heads", "decoder KV", "activations", "teacher snapshots/logits", "variable literal/media payloads", "indices and journals", "allocator/kernel temporaries", "full candidate copies beyond selected staging", "measured sparse-kernel bandwidth"],
     }

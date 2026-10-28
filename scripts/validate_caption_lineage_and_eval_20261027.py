@@ -59,8 +59,13 @@ SEAL_FORMAT = "replica.synthetic_scene_eval_seal.v1"
 RECEIPT_FORMAT = "replica.caption_training_admission_receipt.v1"
 RECEIPT_SCOPE = "training_admission"
 PACKET_FORMAT = "replica.caption_training_admission_packet.v1"
-PACKET_STATUS = "prepared_unsigned_awaiting_review"
+PACKET_STATUS_UNSIGNED = "prepared_unsigned_awaiting_review"
+PACKET_STATUS_RECEIPT = "unsigned_preparation_receipt_observed"
+PACKET_STATUSES = {PACKET_STATUS_UNSIGNED, PACKET_STATUS_RECEIPT}
 PACKET_PATH = "reports/caption_admission_preparation_20261027/admission_packet.json"
+PARTITION_IDENTITY_FORMAT = "replica.caption_partition_identity.v1"
+PARTITION_IDENTITY_PATH = "reports/caption_admission_preparation_20261027/partition_identity.json"
+PARTITION_IDENTITY_VERSION = "1.0.0"
 PACKET_PENDING_FIELDS = ("decision", "decided_by", "decided_at",
                          "conditions", "receipt_sha256")
 PACKET_FIELDS = {
@@ -1169,10 +1174,69 @@ def _packet_bindings(*, lineage_config_sha256: str, eval_config_sha256: str,
     return bindings
 
 
+def _receipt_observation(admission: Mapping[str, Any], *, project_root: Path,
+                         lineage_id: str, lineage_config_sha256: str,
+                         eval_config_sha256: str,
+                         lineage: Mapping[str, Any],
+                         evals: Mapping[str, Any]) -> dict[str, Any]:
+    """Record the actual receipt state without turning the packet into a receipt."""
+    receipt_path = project_root / admission["receipt_path"]
+    if not receipt_path.is_file():
+        return {
+            "receipt_created": False,
+            "receipt_status": "absent",
+            "receipt_decision": None,
+            "receipt_sha256": None,
+            "receipt_error": None,
+            "training_admitted_row_ids": [],
+        }
+    try:
+        receipt = load_json(receipt_path)
+        verified = verify_admission_receipt(
+            receipt,
+            admission=admission,
+            lineage_id=lineage_id,
+            lineage_config_sha256=lineage_config_sha256,
+            eval_config_sha256=eval_config_sha256,
+            lineage_manifest_sha256=lineage["manifest"]["manifest_sha256"],
+            rows_sha256=lineage["manifest"]["rows_sha256"],
+            exclusions_sha256=lineage["manifest"]["exclusions_sha256"],
+            eval_manifest_sha256=evals["seal"]["sealed_artifacts"]["manifest_sha256"],
+            eval_rows_sha256=evals["seal"]["sealed_artifacts"]["rows_sha256"],
+            eval_seal_sha256=evals["seal"]["seal_sha256"],
+            eligible_row_ids=[row["row_id"] for row in lineage["rows"]],
+        )
+    except GuardError as error:
+        try:
+            receipt = load_json(receipt_path)
+            decision = receipt.get("decision")
+            digest = receipt.get("receipt_sha256")
+        except (OSError, ValueError):
+            decision = None
+            digest = None
+        return {
+            "receipt_created": True,
+            "receipt_status": "blocked",
+            "receipt_decision": decision if isinstance(decision, str) else None,
+            "receipt_sha256": digest if _is_hex64(digest) else None,
+            "receipt_error": f"{error.check}: {error.message}",
+            "training_admitted_row_ids": [],
+        }
+    return {
+        "receipt_created": True,
+        "receipt_status": verified["status"],
+        "receipt_decision": verified["decision"],
+        "receipt_sha256": verified["receipt_sha256"],
+        "receipt_error": None,
+        "training_admitted_row_ids": list(verified["admitted_row_ids"]),
+    }
+
+
 def _packet_evidence(*, config: Mapping[str, Any],
                      eval_config: Mapping[str, Any],
                      lineage: Mapping[str, Any],
-                     evals: Mapping[str, Any]) -> dict[str, Any]:
+                     evals: Mapping[str, Any],
+                     admission_state: Mapping[str, Any]) -> dict[str, Any]:
     eligible = sorted(
         (
             {
@@ -1287,8 +1351,14 @@ def _packet_evidence(*, config: Mapping[str, Any],
             "requires_separate_reviewed_receipt":
                 config["admission"]["requires_separate_reviewed_receipt"],
             "receipt_path": config["admission"]["receipt_path"],
-            "receipt_created": False,
-            "training_admitted_row_ids": [],
+            "receipt_created": admission_state["receipt_created"],
+            "receipt_status": admission_state["receipt_status"],
+            "receipt_decision": admission_state["receipt_decision"],
+            "receipt_sha256": admission_state["receipt_sha256"],
+            "receipt_error": admission_state["receipt_error"],
+            "training_admitted_row_ids":
+                list(admission_state["training_admitted_row_ids"]),
+            "not_a_signature": True,
         },
     }
 
@@ -1296,7 +1366,8 @@ def _packet_evidence(*, config: Mapping[str, Any],
 def _packet_payload(*, admission: Mapping[str, Any], config: Mapping[str, Any],
                     eval_config: Mapping[str, Any],
                     lineage: Mapping[str, Any], evals: Mapping[str, Any],
-                    bindings: Mapping[str, str]) -> dict[str, Any]:
+                    bindings: Mapping[str, str],
+                    admission_state: Mapping[str, Any]) -> dict[str, Any]:
     receipt_fields = {
         "format": RECEIPT_FORMAT,
         "scope": RECEIPT_SCOPE,
@@ -1316,7 +1387,9 @@ def _packet_payload(*, admission: Mapping[str, Any], config: Mapping[str, Any],
     return {
         "format": PACKET_FORMAT,
         "created_on": config["created_on"],
-        "status": PACKET_STATUS,
+        "status": (PACKET_STATUS_RECEIPT
+                   if admission_state["receipt_created"]
+                   else PACKET_STATUS_UNSIGNED),
         "not_a_receipt": True,
         "unsigned": True,
         "signature_present": False,
@@ -1326,7 +1399,8 @@ def _packet_payload(*, admission: Mapping[str, Any], config: Mapping[str, Any],
         "receipt_fields": receipt_fields,
         "pending_reviewer_fields": list(PACKET_PENDING_FIELDS),
         "evidence": _packet_evidence(config=config, eval_config=eval_config,
-                                     lineage=lineage, evals=evals),
+                                     lineage=lineage, evals=evals,
+                                     admission_state=admission_state),
         "reviewer_instructions": [
             "Review the lineage manifest, rows/exclusions hashes, the preserved "
             "exposure incident and the sealed diagnostic evaluation.",
@@ -1361,13 +1435,22 @@ def build_admission_packet(lineage_config_path: str | Path,
                           lineage=lineage, checks=checks)
     validate_separation(lineage, evals, config, checks=checks)
     admission = config["admission"]
+    lineage_config_sha256 = sha256_file(lineage_config_path)
+    eval_config_sha256 = sha256_file(eval_config_path)
     bindings = _packet_bindings(
-        lineage_config_sha256=sha256_file(lineage_config_path),
-        eval_config_sha256=sha256_file(eval_config_path),
+        lineage_config_sha256=lineage_config_sha256,
+        eval_config_sha256=eval_config_sha256,
         lineage=lineage, evals=evals, admission=admission)
+    admission_state = _receipt_observation(
+        admission, project_root=project_root,
+        lineage_id=config["lineage_id"],
+        lineage_config_sha256=lineage_config_sha256,
+        eval_config_sha256=eval_config_sha256,
+        lineage=lineage, evals=evals)
     return _packet_payload(admission=admission, config=config,
                            eval_config=eval_config, lineage=lineage,
-                           evals=evals, bindings=bindings)
+                           evals=evals, bindings=bindings,
+                           admission_state=admission_state)
 
 
 def _first_difference(left: Any, right: Any, path: str = "") -> str | None:
@@ -1402,15 +1485,17 @@ def verify_admission_packet(packet: Mapping[str, Any], *,
                             lineage: Mapping[str, Any],
                             evals: Mapping[str, Any],
                             lineage_config_sha256: str,
-                            eval_config_sha256: str) -> dict[str, Any]:
+                            eval_config_sha256: str,
+                            project_root: str | Path = ROOT) -> dict[str, Any]:
     """Fail closed unless the packet is the current unsigned preparation."""
+    project_root = Path(project_root)
     _require("admission.packet.fields", isinstance(packet, dict)
              and set(packet) == PACKET_FIELDS,
              "packet fields differ from the declared unsigned schema")
     _require("admission.packet.format", packet.get("format") == PACKET_FORMAT,
              "unexpected admission packet format")
-    _require("admission.packet.status", packet.get("status") == PACKET_STATUS,
-             "packet is not in prepared-unsigned state")
+    _require("admission.packet.status", packet.get("status") in PACKET_STATUSES,
+             "packet is not in a declared unsigned state")
     _require("admission.packet.unsigned",
              packet.get("not_a_receipt") is True
              and packet.get("unsigned") is True
@@ -1448,23 +1533,428 @@ def verify_admission_packet(packet: Mapping[str, Any], *,
         lineage_config_sha256=lineage_config_sha256,
         eval_config_sha256=eval_config_sha256,
         lineage=lineage, evals=evals, admission=admission)
+    admission_state = _receipt_observation(
+        admission, project_root=project_root,
+        lineage_id=config["lineage_id"],
+        lineage_config_sha256=lineage_config_sha256,
+        eval_config_sha256=eval_config_sha256,
+        lineage=lineage, evals=evals)
     expected = _packet_payload(admission=admission, config=config,
                                eval_config=eval_config, lineage=lineage,
-                               evals=evals, bindings=bindings)
+                               evals=evals, bindings=bindings,
+                               admission_state=admission_state)
     difference = _first_difference(packet, expected)
     _require("admission.packet.content", difference is None,
              f"packet differs from the current artifacts at {difference}")
     return {
-        "status": "prepared_unsigned",
+        "status": packet["status"],
         "path": PACKET_PATH,
         "format": PACKET_FORMAT,
         "unsigned": True,
         "receipt_path": admission["receipt_path"],
+        "receipt_created": admission_state["receipt_created"],
+        "receipt_status": admission_state["receipt_status"],
+        "receipt_sha256": admission_state["receipt_sha256"],
         "eligible_row_ids": list(receipt_fields["admitted_row_ids"]),
+        "training_admitted_row_ids":
+            list(admission_state["training_admitted_row_ids"]),
         "exclusions": len(packet["evidence"]["lineage"]["exclusions"]),
         "exposed_rows": len(packet["evidence"]["lineage"]["exposure"][
             "exposed_row_ids"]),
     }
+
+
+def _partition_record(*, corpus_row: Mapping[str, Any],
+                      exclusion: Mapping[str, Any] | None,
+                      child: Mapping[str, Any] | None,
+                      config: Mapping[str, Any],
+                      admission_state: Mapping[str, Any],
+                      partition: str) -> dict[str, Any]:
+    parent_id = corpus_row["row_id"]
+    upstream_id = corpus_row["source"]["upstream_id"] \
+        if "upstream_id" in corpus_row["source"] \
+        else corpus_row["provenance"]["upstream_id"]
+    parent_sha = sha256_text(canonical_json(corpus_row))
+    caption = corpus_row["target"]["caption"]
+    target_sha = sha256_text(caption)
+    image_sha = corpus_row["root_asset"]["image_sha256"]
+    normalized_sha = _normalized_caption_sha(caption)
+    group_key = corpus_row["split"]["group_key"]
+    terms = corpus_row.get("terms")
+    if isinstance(terms, Mapping):
+        license_terms = {
+            "status": "available_from_parent_tranche_row",
+            "permitted_use": terms.get("permitted_use"),
+            "research_use_only": terms.get("research_use_only"),
+            "redistribution": terms.get("redistribution"),
+            "commercial_use": terms.get("commercial_use", False),
+            "acknowledgements": list(terms.get("acknowledgements", [])),
+        }
+    else:
+        license_terms = {
+            "status": "unavailable",
+            "reason": "the pinned parent tranche row carries no terms block",
+        }
+    if child is not None:
+        child_id = child["row_id"]
+        group_key = child["group_key"]
+        target_sha = child["target"]["caption_sha256"]
+        image_sha = child["asset"]["image_sha256"]
+        normalized_sha = child["provenance"]["normalized_caption_sha256"]
+        local_image = child["asset"]["local_path"]
+        role = child["role"]
+        training_eligible = True
+        reason_code = "admitted"
+        recorded_verdict = child["parent"]["recorded_verdict"]
+    else:
+        child_id = None
+        local_image = (f"{config['parents']['image_root']['path']}/"
+                       f"{upstream_id}.jpg")
+        role = corpus_row["split"]["role"]
+        training_eligible = False
+        reason_code = exclusion["reason_code"]
+        recorded_verdict = exclusion["recorded_verdict"]
+    receipt_listed = (child["row_id"] in admission_state["training_admitted_row_ids"]
+                      if child is not None else False)
+    return {
+        "partition": partition,
+        "parent_row_id": parent_id,
+        "child_row_id": child_id,
+        "group_key": group_key,
+        "role": role,
+        "recorded_verdict": recorded_verdict,
+        "source": {
+            "id": corpus_row["source"]["id"],
+            "revision": corpus_row["source"]["revision"],
+            "split": corpus_row["source"]["split"],
+            "family": corpus_row["source"]["family"],
+            "upstream_id": upstream_id,
+        },
+        "image": {
+            "sha256": image_sha,
+            "bytes": corpus_row["root_asset"]["image_bytes"],
+            "local_path": local_image,
+            "upstream_image_path": corpus_row["root_asset"]["upstream_image_path"],
+        },
+        "target": {
+            "sha256": target_sha,
+            "normalized_caption_sha256": normalized_sha,
+        },
+        "parent_row_sha256": parent_sha,
+        "license_terms": license_terms,
+        "dedup_role": {
+            "keys": {
+                "row_sha256": child["row_sha256"] if child else parent_sha,
+                "target_sha256": target_sha,
+                "image_sha256": image_sha,
+                "normalized_caption_sha256": normalized_sha,
+                "root_group_key": group_key,
+            },
+            "admitted_collision": False,
+        },
+        "admission_role": {
+            "training_eligible": training_eligible,
+            "reason_code": reason_code,
+            "receipt_listed": receipt_listed,
+        },
+        "pins": {
+            "tranche_manifest_sha256":
+                config["parents"]["tranche_manifest"]["sha256"],
+            "qa_decision_sha256": config["parents"]["qa_decision"]["sha256"],
+            "exposure_incident_sha256":
+                config["parents"]["exposure_incident"]["sha256"],
+        },
+        "quarantined": parent_id in set(lineage_exposed_ids(config)),
+    }
+
+
+def lineage_exposed_ids(config: Mapping[str, Any]) -> tuple[str, ...]:
+    return tuple(config["parents"]["exposure_incident"]["exposed_row_ids"])
+
+
+def _partition_identity_payload(
+        *, config: Mapping[str, Any], eval_config: Mapping[str, Any],
+        lineage: Mapping[str, Any], evals: Mapping[str, Any],
+        admission_state: Mapping[str, Any],
+        lineage_config_sha256: str,
+        eval_config_sha256: str) -> dict[str, Any]:
+    children_by_parent = {
+        row["parent"]["tranche_row_id"]: row for row in lineage["rows"]}
+    exclusions_by_id = {row["row_id"]: row for row in lineage["exclusions"]}
+    exposed = set(lineage["exposed"])
+    admitted_records = []
+    exclusion_records = []
+    exposed_records = []
+    for parent_id in sorted(lineage["corpus"]):
+        corpus_row = lineage["corpus"][parent_id]
+        child = children_by_parent.get(parent_id)
+        exclusion = exclusions_by_id.get(parent_id)
+        if child is not None:
+            record = _partition_record(
+                corpus_row=corpus_row, exclusion=None, child=child,
+                config=config, admission_state=admission_state,
+                partition="admitted")
+            admitted_records.append(record)
+        elif exclusion is not None:
+            record = _partition_record(
+                corpus_row=corpus_row, exclusion=exclusion, child=None,
+                config=config, admission_state=admission_state,
+                partition="exclusion")
+            exclusion_records.append(record)
+            if parent_id in exposed:
+                exposed_record = dict(record)
+                exposed_record["partition"] = "exposed_quarantine"
+                exposed_record["quarantined"] = True
+                exposed_records.append(exposed_record)
+        else:
+            raise GuardError("partition.identity.coverage",
+                             f"parent row {parent_id} has no partition role")
+
+    admitted_keys = [record["dedup_role"]["keys"] for record in admitted_records]
+    def _collisions(rows, keys):
+        found = []
+        for index, left in enumerate(rows):
+            for right in rows[index + 1:]:
+                for key in keys:
+                    if left[key] != right[key]:
+                        continue
+                    found.append({"key": key, "value": left[key],
+                                  "members": [left["row_sha256"],
+                                              right["row_sha256"]]})
+        return found
+    duplicate_keys = config["lineage_policy"]["duplicate_checks"]["keys"]
+    admitted_collisions = _collisions(admitted_keys, duplicate_keys)
+    eval_keys = [{
+        "row_sha256": row["row_sha256"],
+        "target_sha256": row["target"]["caption_sha256"],
+        "image_sha256": row["asset"]["image_sha256"],
+        "normalized_caption_sha256":
+            row["provenance"]["normalized_caption_sha256"],
+        "root_group_key": row["group_key"],
+    } for row in evals["rows"]]
+    admitted_eval_collisions = []
+    for admitted, evaluated in ((a, e) for a in admitted_keys for e in eval_keys):
+        for key in duplicate_keys:
+            if admitted[key] == evaluated[key]:
+                admitted_eval_collisions.append(
+                    {"key": key, "value": admitted[key]})
+    exposed_ids = set(lineage["exposed"])
+    admitted_ids = {record["parent_row_id"] for record in admitted_records}
+    payload = {
+        "format": PARTITION_IDENTITY_FORMAT,
+        "version": PARTITION_IDENTITY_VERSION,
+        "created_on": config["created_on"],
+        "lineage_id": config["lineage_id"],
+        "kind": "deterministic_partition_identity_sidecar_not_training_receipt",
+        "pins": {
+            "lineage_config_sha256": lineage_config_sha256,
+            "eval_config_sha256": eval_config_sha256,
+            "tranche_manifest_sha256":
+                config["parents"]["tranche_manifest"]["sha256"],
+            "corpus_sha256": config["parents"]["corpus"]["sha256"],
+            "train_manifest_sha256":
+                config["parents"]["train_manifest"]["sha256"],
+            "development_manifest_sha256":
+                config["parents"]["development_manifest"]["sha256"],
+            "sealed_eval_manifest_sha256":
+                config["parents"]["sealed_eval_manifest"]["sha256"],
+            "qa_decision_sha256": config["parents"]["qa_decision"]["sha256"],
+            "exposure_incident_sha256":
+                config["parents"]["exposure_incident"]["sha256"],
+            "lineage_manifest_sha256": lineage["manifest"]["manifest_sha256"],
+            "lineage_rows_sha256": lineage["manifest"]["rows_sha256"],
+            "lineage_exclusions_sha256":
+                lineage["manifest"]["exclusions_sha256"],
+            "eval_manifest_sha256":
+                evals["seal"]["sealed_artifacts"]["manifest_sha256"],
+            "eval_rows_sha256":
+                evals["seal"]["sealed_artifacts"]["rows_sha256"],
+            "eval_seal_sha256": evals["seal"]["seal_sha256"],
+        },
+        "counts": {
+            "admitted": len(admitted_records),
+            "exclusions": len(exclusion_records),
+            "exposed": len(exposed_records),
+            "records": (len(admitted_records) + len(exclusion_records)
+                        + len(exposed_records)),
+            "unique_parent_rows": len(lineage["corpus"]),
+            "diagnostic_eval_scenes": len(evals["rows"]),
+        },
+        "admission": {
+            "status": admission_state["receipt_status"],
+            "receipt_created": admission_state["receipt_created"],
+            "receipt_decision": admission_state["receipt_decision"],
+            "receipt_sha256": admission_state["receipt_sha256"],
+            "admitted_row_ids":
+                list(admission_state["training_admitted_row_ids"]),
+            "not_a_signature": True,
+        },
+        "dedup": {
+            "keys_checked": list(duplicate_keys),
+            "admitted_collisions": admitted_collisions,
+            "admitted_vs_eval_collisions": admitted_eval_collisions,
+            "admitted_vs_exposed_collisions": sorted(admitted_ids & exposed_ids),
+        },
+        "partitions": {
+            "admitted": admitted_records,
+            "exclusions": exclusion_records,
+            "exposed": exposed_records,
+        },
+        "non_claims": {
+            "model_execution": False,
+            "native_execution": False,
+            "training_admitted_by_this_file": False,
+            "relabels_rejected_decision": False,
+            "clears_exposure_incident": False,
+            "benchmark_quality": "none",
+        },
+    }
+    return payload
+
+
+def build_partition_identity(lineage_config_path: str | Path,
+                             eval_config_path: str | Path, *,
+                             project_root: str | Path = ROOT) -> dict[str, Any]:
+    """Build the deterministic identity sidecar from the pinned partitions."""
+    project_root = Path(project_root)
+    lineage_config_path = Path(lineage_config_path)
+    eval_config_path = Path(eval_config_path)
+    if not lineage_config_path.is_absolute():
+        lineage_config_path = project_root / lineage_config_path
+    if not eval_config_path.is_absolute():
+        eval_config_path = project_root / eval_config_path
+    checks: list[dict[str, str]] = []
+    config = load_json(lineage_config_path)
+    eval_config = load_json(eval_config_path)
+    lineage = validate_lineage(config, project_root=project_root, checks=checks)
+    evals = validate_eval(eval_config, project_root=project_root,
+                          lineage=lineage, checks=checks)
+    validate_separation(lineage, evals, config, checks=checks)
+    admission = config["admission"]
+    lineage_config_sha256 = sha256_file(lineage_config_path)
+    eval_config_sha256 = sha256_file(eval_config_path)
+    admission_state = _receipt_observation(
+        admission, project_root=project_root,
+        lineage_id=config["lineage_id"],
+        lineage_config_sha256=lineage_config_sha256,
+        eval_config_sha256=eval_config_sha256,
+        lineage=lineage, evals=evals)
+    return _partition_identity_payload(
+        config=config, eval_config=eval_config, lineage=lineage, evals=evals,
+        admission_state=admission_state,
+        lineage_config_sha256=lineage_config_sha256,
+        eval_config_sha256=eval_config_sha256)
+
+
+def verify_partition_identity(
+        payload: Mapping[str, Any], *,
+        config: Mapping[str, Any], eval_config: Mapping[str, Any],
+        lineage: Mapping[str, Any], evals: Mapping[str, Any],
+        admission_state: Mapping[str, Any],
+        lineage_config_sha256: str,
+        eval_config_sha256: str) -> dict[str, Any]:
+    """Fail closed unless the sidecar is the exact current partition identity."""
+    expected_fields = {
+        "format", "version", "created_on", "lineage_id", "kind", "pins",
+        "counts", "admission", "dedup", "partitions", "non_claims",
+    }
+    _require("partition.identity.fields", isinstance(payload, dict)
+             and set(payload) == expected_fields,
+             "partition identity fields differ from the declared schema")
+    _require("partition.identity.format",
+             payload.get("format") == PARTITION_IDENTITY_FORMAT,
+             "unexpected partition identity format")
+    _require("partition.identity.version",
+             payload.get("version") == PARTITION_IDENTITY_VERSION,
+             "unexpected partition identity version")
+    _require("partition.identity.lineage",
+             payload.get("lineage_id") == config["lineage_id"],
+             "partition identity lineage mismatch")
+    counts = payload.get("counts", {})
+    _require("partition.identity.counts",
+             counts == {"admitted": 9, "exclusions": 21, "exposed": 8,
+                        "records": 38, "unique_parent_rows": 30,
+                        "diagnostic_eval_scenes": 24},
+             "partition identity counts are not 9/21/8/38/30/24")
+    admitted = payload.get("partitions", {}).get("admitted", [])
+    exclusions = payload.get("partitions", {}).get("exclusions", [])
+    exposed = payload.get("partitions", {}).get("exposed", [])
+    _require("partition.identity.admitted", len(admitted) == 9
+             and all(row["admission_role"]["training_eligible"] is True
+                     for row in admitted),
+             "admitted partition must contain exactly nine eligible rows")
+    _require("partition.identity.exclusions", len(exclusions) == 21,
+             "exclusion partition must contain exactly twenty-one rows")
+    _require("partition.identity.exposed", len(exposed) == 8
+             and all(row["partition"] == "exposed_quarantine"
+                     and row["quarantined"] is True
+                     for row in exposed),
+             "exposed partition must contain eight quarantined rows")
+    admitted_ids = {row["parent_row_id"] for row in admitted}
+    exclusion_ids = {row["parent_row_id"] for row in exclusions}
+    exposed_ids = {row["parent_row_id"] for row in exposed}
+    _require("partition.identity.exposed_quarantined",
+             exposed_ids <= exclusion_ids and not (exposed_ids & admitted_ids),
+             "exposed rows must remain quarantined and never admitted")
+    _require("partition.identity.admitted_disjoint",
+             not (admitted_ids & exclusion_ids),
+             "an admitted row also appears as an exclusion")
+    _require("partition.identity.dedup",
+             payload.get("dedup", {}).get("admitted_collisions") == []
+             and payload.get("dedup", {}).get(
+                 "admitted_vs_eval_collisions") == []
+             and payload.get("dedup", {}).get(
+                 "admitted_vs_exposed_collisions") == [],
+             "partition identity reports a collision")
+    _require("partition.identity.eval_diagnostic",
+             len(evals["rows"]) == 24
+             and evals["seal"]["attestations"][
+                 "sealed_before_any_model_use"] is True
+             and evals["seal"]["attestations"]["model_executions_at_seal"] == 0,
+             "the twenty-four scene diagnostic evaluation is not sealed")
+    expected = _partition_identity_payload(
+        config=config, eval_config=eval_config, lineage=lineage, evals=evals,
+        admission_state=admission_state,
+        lineage_config_sha256=lineage_config_sha256,
+        eval_config_sha256=eval_config_sha256)
+    difference = _first_difference(payload, expected)
+    _require("partition.identity.content", difference is None,
+             f"partition identity differs from current artifacts at {difference}")
+    return {
+        "status": "valid",
+        "path": PARTITION_IDENTITY_PATH,
+        "format": PARTITION_IDENTITY_FORMAT,
+        "counts": dict(counts),
+        "admitted_row_ids": sorted(admitted_ids),
+        "exposed_row_ids": sorted(exposed_ids),
+    }
+
+
+def resolve_partition_identity(
+        lineage: Mapping[str, Any], evals: Mapping[str, Any],
+        config: Mapping[str, Any], eval_config: Mapping[str, Any], *,
+        lineage_config_path: Path, eval_config_path: Path,
+        project_root: Path, checks: list[dict[str, str]]) -> dict[str, Any]:
+    path = project_root / PARTITION_IDENTITY_PATH
+    _require("partition.identity.present", path.is_file(),
+             "the partition identity sidecar is missing")
+    admission = config["admission"]
+    admission_state = _receipt_observation(
+        admission, project_root=project_root,
+        lineage_id=config["lineage_id"],
+        lineage_config_sha256=sha256_file(lineage_config_path),
+        eval_config_sha256=sha256_file(eval_config_path),
+        lineage=lineage, evals=evals)
+    info = verify_partition_identity(
+        load_json(path), config=config, eval_config=eval_config,
+        lineage=lineage, evals=evals, admission_state=admission_state,
+        lineage_config_sha256=sha256_file(lineage_config_path),
+        eval_config_sha256=sha256_file(eval_config_path))
+    info["identity_sha256"] = sha256_file(path)
+    checks.append({"id": "partition.identity", "status": "pass",
+                   "detail": "9 admitted, 21 exclusions, 8 exposed, 24 "
+                             "diagnostic scenes; no admitted/eval collision"})
+    return info
 
 
 def resolve_packet(lineage: Mapping[str, Any], evals: Mapping[str, Any],
@@ -1482,7 +1972,8 @@ def resolve_packet(lineage: Mapping[str, Any], evals: Mapping[str, Any],
         packet, admission=config["admission"], config=config,
         eval_config=eval_config, lineage=lineage, evals=evals,
         lineage_config_sha256=sha256_file(lineage_config_path),
-        eval_config_sha256=sha256_file(eval_config_path))
+        eval_config_sha256=sha256_file(eval_config_path),
+        project_root=project_root)
     info["packet_sha256"] = sha256_file(path)
     checks.append({"id": "admission.packet", "status": "pass",
                    "detail": "unsigned packet matches the validated artifacts"})
@@ -1598,6 +2089,11 @@ def validate(lineage_config_path: str | Path, eval_config_path: str | Path, *,
             lineage_config_path=lineage_config_path,
             eval_config_path=eval_config_path,
             project_root=project_root, checks=checks)
+        partition_identity = resolve_partition_identity(
+            lineage, evals, lineage_config, eval_config,
+            lineage_config_path=lineage_config_path,
+            eval_config_path=eval_config_path,
+            project_root=project_root, checks=checks)
     except GuardError as error:
         report = {
             "format": VALIDATION_FORMAT,
@@ -1644,6 +2140,7 @@ def validate(lineage_config_path: str | Path, eval_config_path: str | Path, *,
         "separation": separation,
         "admission": admission,
         "admission_packet": packet,
+        "partition_identity": partition_identity,
         "as_of": as_of,
         "non_claims": {
             "model_execution": False,
@@ -1673,6 +2170,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                         help="write the deterministic unsigned admission packet "
                              "to this path (default: the prepared packet path) "
                              "after validation passes")
+    parser.add_argument("--write-partition-identity",
+                        nargs="?", const=PARTITION_IDENTITY_PATH,
+                        default=None,
+                        help="write the deterministic partition identity "
+                             "sidecar to this path (default: the prepared path)")
     args = parser.parse_args(argv)
     try:
         if args.write_packet:
@@ -1683,6 +2185,15 @@ def main(argv: Sequence[str] | None = None) -> int:
                                             args.eval_config)
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(json.dumps(packet, indent=2, sort_keys=True) + "\n",
+                              encoding="utf-8")
+        if args.write_partition_identity:
+            target = Path(args.write_partition_identity)
+            if not target.is_absolute():
+                target = ROOT / target
+            identity = build_partition_identity(args.lineage_config,
+                                                args.eval_config)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(json.dumps(identity, indent=2, sort_keys=True) + "\n",
                               encoding="utf-8")
         report = validate(args.lineage_config, args.eval_config,
                           as_of=args.as_of, require_admission=args.require_admission)

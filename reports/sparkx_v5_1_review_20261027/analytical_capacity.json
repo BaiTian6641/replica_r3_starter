@@ -102,6 +102,412 @@
     "coarse": 1320.0,
     "two_extra_crops": 1832.0
   },
+  "activation_workloads": {
+    "kind": "analytical_activation_workload_scenarios_not_measured",
+    "measured": false,
+    "routes": {
+      "old_base_vision": {
+        "encoder": "google/siglip2-base-patch16-224",
+        "width": 768,
+        "patch_size": 16,
+        "image_size": 224,
+        "patches": 196,
+        "merge": [
+          1,
+          1
+        ],
+        "outputs": 196,
+        "elements_per_view_per_layer": 150528,
+        "bf16_bytes_per_view_per_layer": 301056,
+        "attention_pair_work_per_layer": 38416
+      },
+      "candidate_naflex_default": {
+        "encoder": "google/siglip2-so400m-patch16-naflex",
+        "width": 1152,
+        "patch_size": null,
+        "image_size": null,
+        "patches": 256,
+        "merge": [
+          1,
+          1
+        ],
+        "outputs": 256,
+        "elements_per_view_per_layer": 294912,
+        "bf16_bytes_per_view_per_layer": 589824,
+        "attention_pair_work_per_layer": 65536
+      },
+      "candidate_naflex_override_1024": {
+        "encoder": "google/siglip2-so400m-patch16-naflex",
+        "width": 1152,
+        "patch_size": null,
+        "image_size": null,
+        "patches": 1024,
+        "merge": [
+          2,
+          2
+        ],
+        "outputs": 256,
+        "elements_per_view_per_layer": 294912,
+        "bf16_bytes_per_view_per_layer": 589824,
+        "attention_pair_work_per_layer": 65536,
+        "pre_merge_elements_per_view_per_layer": 1179648,
+        "pre_merge_bf16_bytes_per_view_per_layer": 2359296
+      },
+      "candidate_fixed_384_patch14_counterexample": {
+        "encoder": "google/siglip2-so400m-patch16-naflex",
+        "width": 1152,
+        "patch_size": 14,
+        "image_size": 384,
+        "patches": 784,
+        "merge": [
+          2,
+          2
+        ],
+        "outputs": 196,
+        "elements_per_view_per_layer": 225792,
+        "bf16_bytes_per_view_per_layer": 451584,
+        "attention_pair_work_per_layer": 38416,
+        "pre_merge_elements_per_view_per_layer": 903168,
+        "pre_merge_bf16_bytes_per_view_per_layer": 1806336,
+        "valid_patches": 729,
+        "padded_patches": 784,
+        "expected_256": false
+      }
+    }
+  },
+  "precision_byte_reconciliation": {
+    "official_bf16": {
+      "source_index": "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json",
+      "source_index_sha256": "05fa1b80b4888f319b2c42233b95ce43b5c1783ed335e830667298a1da91e590",
+      "tensor_count": 290,
+      "unique_parameter_elements": 4112079360,
+      "dtype_tensor_counts": {
+        "BF16": 290
+      },
+      "dtype_payload_bytes": {
+        "BF16": 8224158720
+      },
+      "payload_bytes": 8224158720,
+      "payload_mib": 7843.1689453125,
+      "bytes_per_parameter_effective": 2,
+      "accounting_note": "serialized official BF16 storage only; gradients, moments and activations are separate analytical rows, and this file is not training residency",
+      "computed_payload_mib": 7843.1689453125,
+      "reconciled": true
+    },
+    "official_fp8_storage": {
+      "source_index": "reports/spark_preparation_20261025/run_01/headers/official_fp8_adaptation_base/tensor_index.json",
+      "source_index_sha256": "ca2757aadaa1c9eb8cfa296b0651b4612004d0d063279bcb435d89b5d1f4ac9f",
+      "tensor_count": 470,
+      "quantized_tensor_count": 180,
+      "quantized_parameter_elements": 3774873600,
+      "f8_e4m3_payload_bytes": 3774873600,
+      "scale_tensor_count": 180,
+      "scale_tensor_elements": 1142784,
+      "bf16_unquantized_elements": 337205760,
+      "bf16_payload_bytes": 676697088,
+      "declared_unique_model_parameter_elements": 4112079360,
+      "serialized_element_elements": 4113222144,
+      "scale_elements_not_model_parameters": 1142784,
+      "payload_bytes": 4451570688,
+      "payload_mib": 4245.3486328125,
+      "bytes_per_parameter_effective": 1.082565541414432,
+      "accounting_note": "mixed-dtype artifact: F8_E4M3 weight matrices plus BF16 per-channel scales, tied embedding, norms and attention gates; it is not parameters times one byte",
+      "computed_payload_mib": 4245.3486328125,
+      "reconciled": true
+    },
+    "dequantized_fp8_derivative": {
+      "manifest": "checkpoints/spark_fp8_derivative_v1/derivative_manifest.json",
+      "manifest_sha256": "73d82478abe90391f3ca9c67be079931a6dd46a1e9991bfbda1de0f682055bdc",
+      "tensor_count": 290,
+      "unique_parameter_elements": 4112079360,
+      "dtype_payload_bytes": {
+        "BF16": 8224158720
+      },
+      "payload_bytes": 8224158720,
+      "payload_mib": 7843.1689453125,
+      "serialized_file_bytes": 8224192264,
+      "serialized_file_mib": 7843.200935363769,
+      "source_fp8_payload_bytes": 4451570688,
+      "accounting_note": "a distinct BF16-storage dequantized export: same weight element count as official BF16 but reconstructed from the FP8 artifact, with no per-token F8 activation quantization; it is neither the official BF16 release nor the official FP8 storage",
+      "computed_payload_mib": 7843.1689453125,
+      "reconciled": true
+    },
+    "native_fp8_execution": {
+      "residency_bytes": null,
+      "accounting_note": "execution dtype and kernel behavior have no measured storage identity here; no byte figure is invented for native FP8 execution or its activation quantization",
+      "reconciled": true
+    }
+  },
+  "dependency_order": {
+    "format": "sparkx-rsi-dependency-order-1",
+    "required_sequence": [
+      "small_useful_inner_learner",
+      "teacher_competence_and_work_declaration",
+      "gradient_approximation_declaration",
+      "outer_loop_training",
+      "multiple_clocks",
+      "self_distillation",
+      "rsi_policy_improvement"
+    ],
+    "sequence": [
+      "small_useful_inner_learner",
+      "teacher_competence_and_work_declaration",
+      "gradient_approximation_declaration",
+      "outer_loop_training",
+      "multiple_clocks",
+      "self_distillation",
+      "rsi_policy_improvement"
+    ],
+    "nodes": [
+      {
+        "order": 1,
+        "id": "small_useful_inner_learner",
+        "requires": [],
+        "preconditions": [
+          "fixed_initialization"
+        ],
+        "constraints": [],
+        "declares": [
+          "inner_protocol",
+          "trainable_groups",
+          "step_count",
+          "replay_policy",
+          "post_teaching_new_instance_gain"
+        ],
+        "provides": [
+          "small_useful_inner_learner",
+          "fixed_initialization",
+          "post_teaching_new_instance_gain"
+        ],
+        "unresolved_requires": []
+      },
+      {
+        "order": 2,
+        "id": "teacher_competence_and_work_declaration",
+        "requires": [
+          "small_useful_inner_learner"
+        ],
+        "preconditions": [],
+        "constraints": [],
+        "declares": [
+          "teacher_competence_check",
+          "teacher_forward_positions",
+          "student_rollouts",
+          "replay_passes",
+          "evaluation_positions",
+          "target_checking_work"
+        ],
+        "provides": [
+          "teacher_competence_and_work_declaration",
+          "teacher_competence_check",
+          "teacher_competence_check_passed",
+          "all_teacher_rollout_replay_evaluation_work_declared"
+        ],
+        "unresolved_requires": []
+      },
+      {
+        "order": 3,
+        "id": "gradient_approximation_declaration",
+        "requires": [
+          "teacher_competence_and_work_declaration"
+        ],
+        "preconditions": [],
+        "constraints": [],
+        "declares": [
+          "first_order_identity_jacobian_or_exact_short_unroll_or_truncated_unroll",
+          "omitted_derivative_path"
+        ],
+        "provides": [
+          "gradient_approximation_declaration"
+        ],
+        "unresolved_requires": []
+      },
+      {
+        "order": 4,
+        "id": "outer_loop_training",
+        "requires": [
+          "gradient_approximation_declaration"
+        ],
+        "preconditions": [],
+        "constraints": [],
+        "declares": [
+          "outer_episode_support_future_query_split",
+          "source_free_fraction",
+          "retention_endpoint",
+          "single_clock_control",
+          "equal_total_parameter_and_work_control"
+        ],
+        "provides": [
+          "outer_loop_training",
+          "single_clock_control",
+          "equal_total_parameter_and_work_control"
+        ],
+        "unresolved_requires": []
+      },
+      {
+        "order": 5,
+        "id": "multiple_clocks",
+        "requires": [
+          "outer_loop_training",
+          "single_clock_control",
+          "equal_total_parameter_and_work_control"
+        ],
+        "preconditions": [],
+        "constraints": [],
+        "declares": [
+          "clock_objectives",
+          "transition_rules",
+          "slow_pool_population_rule"
+        ],
+        "provides": [
+          "multiple_clocks",
+          "verified_single_clock_and_multi_clock_evidence"
+        ],
+        "unresolved_requires": []
+      },
+      {
+        "order": 6,
+        "id": "self_distillation",
+        "requires": [
+          "multiple_clocks",
+          "teacher_competence_check_passed",
+          "all_teacher_rollout_replay_evaluation_work_declared"
+        ],
+        "preconditions": [],
+        "constraints": [],
+        "declares": [
+          "forward_KL_primary_and_reverse_KL_separate_arm",
+          "teacher_snapshot_identity"
+        ],
+        "provides": [
+          "self_distillation"
+        ],
+        "unresolved_requires": []
+      },
+      {
+        "order": 7,
+        "id": "rsi_policy_improvement",
+        "requires": [
+          "self_distillation",
+          "verified_single_clock_and_multi_clock_evidence"
+        ],
+        "preconditions": [],
+        "constraints": [
+          "no_verifier_source_label_or_promotion_self_modification"
+        ],
+        "declares": [
+          "independent_learning_episode_work_at_equal_cost",
+          "separate_evaluation_roles"
+        ],
+        "provides": [
+          "rsi_policy_improvement"
+        ],
+        "unresolved_requires": []
+      }
+    ],
+    "all_requires_resolved": true,
+    "declared_capabilities": {
+      "all_teacher_rollout_replay_evaluation_work_declared": "teacher_competence_and_work_declaration",
+      "clock_objectives": "multiple_clocks",
+      "equal_total_parameter_and_work_control": "outer_loop_training",
+      "evaluation_positions": "teacher_competence_and_work_declaration",
+      "first_order_identity_jacobian_or_exact_short_unroll_or_truncated_unroll": "gradient_approximation_declaration",
+      "fixed_initialization": "small_useful_inner_learner",
+      "forward_KL_primary_and_reverse_KL_separate_arm": "self_distillation",
+      "gradient_approximation_declaration": "gradient_approximation_declaration",
+      "independent_learning_episode_work_at_equal_cost": "rsi_policy_improvement",
+      "inner_protocol": "small_useful_inner_learner",
+      "multiple_clocks": "multiple_clocks",
+      "omitted_derivative_path": "gradient_approximation_declaration",
+      "outer_episode_support_future_query_split": "outer_loop_training",
+      "outer_loop_training": "outer_loop_training",
+      "post_teaching_new_instance_gain": "small_useful_inner_learner",
+      "replay_passes": "teacher_competence_and_work_declaration",
+      "replay_policy": "small_useful_inner_learner",
+      "retention_endpoint": "outer_loop_training",
+      "rsi_policy_improvement": "rsi_policy_improvement",
+      "self_distillation": "self_distillation",
+      "separate_evaluation_roles": "rsi_policy_improvement",
+      "single_clock_control": "outer_loop_training",
+      "slow_pool_population_rule": "multiple_clocks",
+      "small_useful_inner_learner": "small_useful_inner_learner",
+      "source_free_fraction": "outer_loop_training",
+      "step_count": "small_useful_inner_learner",
+      "student_rollouts": "teacher_competence_and_work_declaration",
+      "target_checking_work": "teacher_competence_and_work_declaration",
+      "teacher_competence_and_work_declaration": "teacher_competence_and_work_declaration",
+      "teacher_competence_check": "teacher_competence_and_work_declaration",
+      "teacher_competence_check_passed": "teacher_competence_and_work_declaration",
+      "teacher_forward_positions": "teacher_competence_and_work_declaration",
+      "teacher_snapshot_identity": "self_distillation",
+      "trainable_groups": "small_useful_inner_learner",
+      "transition_rules": "multiple_clocks",
+      "verified_single_clock_and_multi_clock_evidence": "multiple_clocks"
+    },
+    "native_gate_refs": {
+      "small_useful_inner_learner": [
+        "NG1"
+      ],
+      "teacher_competence_and_work_declaration": [
+        "NG6"
+      ],
+      "gradient_approximation_declaration": [
+        "NG7"
+      ],
+      "outer_loop_training": [
+        "NG7"
+      ],
+      "multiple_clocks": [
+        "NG7"
+      ],
+      "self_distillation": [
+        "NG6"
+      ],
+      "rsi_policy_improvement": [
+        "NG6",
+        "NG7"
+      ]
+    },
+    "rs_gates": [
+      {
+        "id": "RS0",
+        "name": "independently_verified_practice",
+        "status": "unresolved"
+      },
+      {
+        "id": "RS1",
+        "name": "actual_candidate_updates",
+        "status": "unresolved"
+      },
+      {
+        "id": "RS2",
+        "name": "causal_update_effect",
+        "status": "unresolved"
+      },
+      {
+        "id": "RS3",
+        "name": "unseen_later_task_gain",
+        "status": "unresolved"
+      },
+      {
+        "id": "RS4",
+        "name": "successive_cycles",
+        "status": "unresolved"
+      },
+      {
+        "id": "RS5",
+        "name": "reset_ablations",
+        "status": "unresolved"
+      },
+      {
+        "id": "RS6",
+        "name": "rollback_and_audit",
+        "status": "unresolved"
+      }
+    ],
+    "gate_status": "unresolved_not_promoted",
+    "promotion": "none"
+  },
   "residency_inventory": {
     "kind": "analytical_partial_residency_not_measured_fit_or_training_admission",
     "measured_fit": false,
@@ -113,6 +519,11 @@
         "mib": 7843.1689453125,
         "precision": "official_bf16",
         "evidence_class": "measured_native",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -122,6 +533,11 @@
         "mib": 15686.337890625,
         "precision": "training_fp32",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -131,6 +547,11 @@
         "mib": 15686.337890625,
         "precision": "training_fp32",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -140,6 +561,123 @@
         "mib": 31372.67578125,
         "precision": "training_fp32",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_vision_siglip2_base_bf16_storage": {
+        "parameter_elements": 92884224,
+        "bytes_per_element": 2,
+        "mib": 177.16259765625,
+        "precision": "official_bf16",
+        "evidence_class": "measured_native",
+        "tensor_count": 208,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+        "sealed_source_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_vision_siglip2_base_fp32_weights": {
+        "parameter_elements": 92884224,
+        "bytes_per_element": 4,
+        "mib": 354.3251953125,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": true,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_vision_siglip2_base_fp32_gradients": {
+        "parameter_elements": 92884224,
+        "bytes_per_element": 4,
+        "mib": 354.3251953125,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": true,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_vision_siglip2_base_fp32_adam_moments": {
+        "parameter_elements": 92884224,
+        "bytes_per_element": 8,
+        "mib": 708.650390625,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": true,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_audio_spear_declared_bf16_storage": {
+        "parameter_elements": 93289476,
+        "bytes_per_element": 2,
+        "mib": 177.93555450439453,
+        "precision": "declared_metadata",
+        "evidence_class": "declared_metadata",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": "no sealed local SPEAR tensor index exists in the repository; the count is official repository metadata, not a local tensor-header audit",
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_audio_spear_fp32_weights": {
+        "parameter_elements": 93289476,
+        "bytes_per_element": 4,
+        "mib": 355.87110900878906,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": true,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_audio_spear_fp32_gradients": {
+        "parameter_elements": 93289476,
+        "bytes_per_element": 4,
+        "mib": 355.87110900878906,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": true,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_audio_spear_fp32_adam_moments": {
+        "parameter_elements": 93289476,
+        "bytes_per_element": 8,
+        "mib": 711.7422180175781,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": true,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -149,6 +687,53 @@
         "mib": 43.541015625,
         "precision": "training_fp32_weights_two_moments",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "vision_projector_1152_1024_2560_fp32_gradients": {
+        "parameter_elements": 3804672,
+        "bytes_per_element": 4,
+        "mib": 14.513671875,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": true,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "audio_projector_512_1024_2560": {
+        "parameter_elements": 3149312,
+        "bytes_per_element": 12,
+        "mib": 36.041015625,
+        "precision": "training_fp32_weights_two_moments",
+        "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "audio_projector_512_1024_2560_fp32_gradients": {
+        "parameter_elements": 3149312,
+        "bytes_per_element": 4,
+        "mib": 12.013671875,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": true,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -158,6 +743,11 @@
         "mib": 144.0,
         "precision": "training_fp32_weights_two_moments",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -167,6 +757,11 @@
         "mib": 288.0,
         "precision": "training_fp32_weights_two_moments",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -176,6 +771,11 @@
         "mib": 576.0,
         "precision": "training_fp32_weights_two_moments",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -185,6 +785,11 @@
         "mib": 1152.0,
         "precision": "training_fp32_weights_two_moments",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -194,6 +799,11 @@
         "mib": 12.0,
         "precision": "training_fp32_values_two_moments",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -203,6 +813,11 @@
         "mib": 192.0,
         "precision": "training_fp32_values_two_moments",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -212,6 +827,11 @@
         "mib": 0.125,
         "precision": "training_fp32_fixed_keys",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -221,6 +841,11 @@
         "mib": 1.125,
         "precision": "training_fp32_fixed_projections",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -230,6 +855,11 @@
         "mib": 24.0,
         "precision": "training_fp32_weight_moment_gradient",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -239,15 +869,71 @@
         "mib": 1.0,
         "precision": "training_fp32_row_weight_moment_gradient",
         "evidence_class": "analytical_estimate",
+        "tensor_count": null,
+        "trainable_in_offline_full_finetuning": false,
+        "missing_prerequisite": null,
+        "sealed_source_manifest": null,
+        "sealed_source_sha256": null,
         "measured_fit": false,
         "full_training_qualified": false
       }
     },
+    "sealed_source_inventory": {
+      "scope": "actual base encoder inventories retained in the v5.1 account; not a final v5.1 total and not a weight-only feasibility claim",
+      "base_vision_siglip2": {
+        "repo_id": "google/siglip2-base-patch16-224",
+        "revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+        "status": "sealed_local_tensor_inventory",
+        "vision_tensor_count": 208,
+        "total_acquired_tensor_count": 408,
+        "text_tensor_count": 198,
+        "other_tensor_count": 2,
+        "parameter_elements": 92884224,
+        "evidence_class": "measured_native",
+        "source_manifest": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+        "source_manifest_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+        "seal_digest": "ee6274db57b3b590c3b1abf99c849afc349374d9abd9ae693e720b8634065e1d"
+      },
+      "base_audio_spear": {
+        "repo_id": "marcoyang/spear-base-speech-audio-v2",
+        "revision": "7447901d44bf265b3c304cc4ccf25ca741527b6c",
+        "status": "official_metadata_only",
+        "tensor_count": null,
+        "parameter_elements": 93289476,
+        "evidence_class": "declared_metadata",
+        "missing_prerequisite": "no sealed local SPEAR tensor index exists in the repository; do not invent tensor counts or a local header audit"
+      },
+      "candidate_so400m_naflex": {
+        "repo_id": "google/siglip2-so400m-patch16-naflex",
+        "revision": "cc24074f717b612951c2dead130904ab9b65a81e",
+        "status": "unsealed_missing_local_tensor_index",
+        "tensor_count": null,
+        "parameter_elements": null,
+        "evidence_class": "unsealed",
+        "missing_prerequisite": "no local So400m NaFlex tensor index or sealed source manifest exists; audit installed vision tensors before any total"
+      }
+    },
     "unsealed": {
-      "retained_vision_tower_so400m": "unsealed",
-      "activations": "not_measured",
-      "restart_transient_full_checkpoint_copy": "not_measured",
-      "variable_literal_media_payloads": "not_measured"
+      "retained_vision_tower_so400m": {
+        "evidence_class": "unsealed",
+        "missing_prerequisite": "no local So400m NaFlex tensor index or sealed source manifest exists; audit installed vision tensors before sealing any total",
+        "reason": "the public aggregate includes a text tower; this review does not invent a vision-only count or a final v5.1 total"
+      },
+      "activations": {
+        "evidence_class": "not_measured",
+        "missing_prerequisite": null,
+        "reason": "sequence, modality, replay and teacher passes change activation residency; no measured profile exists"
+      },
+      "restart_transient_full_checkpoint_copy": {
+        "evidence_class": "not_measured",
+        "missing_prerequisite": null,
+        "reason": "charge a full live-state copy plus allocator, journal and staging transients and measure per checkpoint"
+      },
+      "variable_literal_media_payloads": {
+        "evidence_class": "not_measured",
+        "missing_prerequisite": null,
+        "reason": "canonical bytes, indices and journals carry separate quotas"
+      }
     },
     "restart_transients": {
       "rule": "duplicate the live state during checkpoint write/reload; do not treat paging as free residency",
@@ -255,6 +941,69 @@
       "selected_256_row_Mkv_staging_mib": 1,
       "small_bank_restart_evidence": "independent 16-expert continuation matched weights, optimizer state and clocks",
       "full_model_restart_measured": false
+    },
+    "training_contract": {
+      "kind": "explicit_staged_trainable_storage_contract",
+      "preserves": "existing 50 GiB driver guard, 512 MiB sustained swap-growth limit, 15 percent free-host rule, exclusive worker and no silent fallback or budget increase",
+      "stages": {
+        "frozen_inference": {
+          "trainable": false,
+          "fp32_gradients": false,
+          "optimizer_moments": false,
+          "counts": [
+            "base_*_bf16_storage",
+            "projector weights",
+            "P weights",
+            "Mkv values"
+          ]
+        },
+        "offline_full_finetuning": {
+          "trainable": true,
+          "trainable_groups": [
+            "base_backbone",
+            "base_vision_siglip2_base",
+            "base_audio_spear",
+            "vision_projector_1152_1024_2560",
+            "audio_projector_512_1024_2560",
+            "P_experts",
+            "Mkv_values"
+          ],
+          "fp32_weights_required": true,
+          "fp32_gradients_required": true,
+          "two_fp32_adam_moments_required": true,
+          "bytes_per_trainable_parameter": 16,
+          "charged_components": [
+            "base_vision_siglip2_base_fp32_weights",
+            "base_vision_siglip2_base_fp32_gradients",
+            "base_vision_siglip2_base_fp32_adam_moments",
+            "base_audio_spear_fp32_weights",
+            "base_audio_spear_fp32_gradients",
+            "base_audio_spear_fp32_adam_moments",
+            "vision_projector_1152_1024_2560",
+            "vision_projector_1152_1024_2560_fp32_gradients",
+            "audio_projector_512_1024_2560",
+            "audio_projector_512_1024_2560_fp32_gradients"
+          ]
+        }
+      },
+      "staged_requirement": "a component without an explicit FP32 gradient and optimizer-moment contract is inference-only and is never counted as full-training residency"
+    },
+    "feasibility": {
+      "weight_only_total_mib": null,
+      "weight_only_feasibility_claim": false,
+      "driver_limit_gib": 50,
+      "driver_limit_preserved": true,
+      "sustained_swap_growth_limit_mib": 512,
+      "minimum_free_percent": 15,
+      "gates": {
+        "P32": "NG4",
+        "P64": "NG4",
+        "Mkv": "NG5",
+        "native_spark": "NG8",
+        "official_and_native_fp8": "NG9"
+      },
+      "gate_status": "unresolved",
+      "statement": "no weight-only subtotal is a fit, throughput, learning or training admission for P32, P64, Mkv or native Spark"
     }
   },
   "exclusions": [

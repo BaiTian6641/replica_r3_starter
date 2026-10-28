@@ -46,11 +46,14 @@ AS_OF = "2026-10-27"
 FILES = (
     LINEAGE_CONFIG,
     EVAL_CONFIG,
+    RECEIPT_PATH,
     "configs/external_caption_asset_qa_v1.json",
     "reports/external_caption_asset_qa_20261027/admission_decision.json",
     "reports/remediation_20261027/sealed_caption_review_exposure.json",
     "reports/caption_admission_preparation_20261027/admission_packet.json",
+    "reports/caption_admission_preparation_20261027/partition_identity.json",
     "scripts/build_caption_lineage_20261027.py",
+    "scripts/build_caption_partition_identity_20261027.py",
     "scripts/build_synthetic_scene_eval_20261027.py",
     "scripts/validate_caption_lineage_and_eval_20261027.py",
 )
@@ -78,7 +81,20 @@ def _write_json(path: Path, value: dict) -> None:
                     encoding="utf-8")
 
 
-def _workspace(tmp_path: Path) -> Path:
+def _refresh_evidence(root: Path) -> None:
+    """Regenerate the packet and sidecar so they match the current receipt."""
+    _write_json(root / VALIDATOR.PACKET_PATH,
+                VALIDATOR.build_admission_packet(
+                    root / LINEAGE_CONFIG, root / EVAL_CONFIG,
+                    project_root=root))
+    _write_json(root / VALIDATOR.PARTITION_IDENTITY_PATH,
+                VALIDATOR.build_partition_identity(
+                    root / LINEAGE_CONFIG, root / EVAL_CONFIG,
+                    project_root=root))
+
+
+def _workspace(tmp_path: Path, *, include_receipt: bool = False,
+               refresh_evidence: bool = True) -> Path:
     root = tmp_path / "ws"
     for relative in FILES:
         target = root / relative
@@ -95,6 +111,10 @@ def _workspace(tmp_path: Path) -> Path:
                     tranche / "raw/images")
     for relative in TREES:
         shutil.copytree(ROOT / relative, root / relative)
+    if not include_receipt:
+        (root / RECEIPT_PATH).unlink(missing_ok=True)
+    if refresh_evidence:
+        _refresh_evidence(root)
     return root
 
 
@@ -455,6 +475,7 @@ def test_missing_receipt_never_admits(tmp_path):
 def test_reviewed_receipt_admits_only_the_nine_rows(tmp_path):
     root = _workspace(tmp_path)
     receipt = _receipt(root)
+    _refresh_evidence(root)
     assert receipt["receipt_sha256"] == _seal_receipt(receipt)["receipt_sha256"]
     report = _validate(root)
     assert report["status"] == "valid"
@@ -481,6 +502,7 @@ def test_tampered_or_unknown_receipt_fields_are_blocked(tmp_path):
     receipt = _receipt(root)
     receipt["decision"] = "admit_training "
     _write_json(root / RECEIPT_PATH, receipt)
+    _refresh_evidence(root)
     report = _validate(root)
     assert report["admission"]["status"] == "blocked"
     assert "self-digest" in report["admission"]["reason"]
@@ -489,6 +511,7 @@ def test_tampered_or_unknown_receipt_fields_are_blocked(tmp_path):
     receipt = _receipt(root)
     receipt.pop("conditions")
     _write_json(root / RECEIPT_PATH, _seal_receipt(receipt))
+    _refresh_evidence(root)
     report = _validate(root)
     assert report["admission"]["status"] == "blocked"
     assert "fields" in report["admission"]["reason"]
@@ -500,6 +523,7 @@ def test_stale_receipt_bindings_are_blocked(tmp_path):
     receipt = _receipt(root)
     receipt["bindings"]["lineage_manifest_sha256"] = "0" * 64
     _write_json(root / RECEIPT_PATH, _seal_receipt(receipt))
+    _refresh_evidence(root)
     report = _validate(root)
     assert report["admission"]["status"] == "blocked"
     assert "binding" in report["admission"]["reason"]
@@ -508,6 +532,7 @@ def test_stale_receipt_bindings_are_blocked(tmp_path):
     receipt = _receipt(root)
     receipt["bindings"]["lineage_rows_sha256"] = "0" * 64
     _write_json(root / RECEIPT_PATH, _seal_receipt(receipt))
+    _refresh_evidence(root)
     report = _validate(root)
     assert report["admission"]["status"] == "blocked"
     assert "binding" in report["admission"]["reason"]
@@ -516,6 +541,7 @@ def test_stale_receipt_bindings_are_blocked(tmp_path):
     receipt = _receipt(root)
     receipt["bindings"]["lineage_config_sha256"] = "0" * 64
     _write_json(root / RECEIPT_PATH, _seal_receipt(receipt))
+    _refresh_evidence(root)
     report = _validate(root)
     assert report["admission"]["status"] == "blocked"
     assert "binding" in report["admission"]["reason"]
@@ -527,12 +553,14 @@ def test_wrong_rows_or_review_fields_are_blocked(tmp_path):
     receipt = _receipt(root)
     receipt["admitted_row_ids"] = receipt["admitted_row_ids"][:8]
     _write_json(root / RECEIPT_PATH, _seal_receipt(receipt))
+    _refresh_evidence(root)
     report = _validate(root)
     assert report["admission"]["status"] == "blocked"
     assert "rows" in report["admission"]["reason"]
 
     root = _workspace(tmp_path / "exposed")
     receipt = _receipt(root)
+    _refresh_evidence(root)
     report_before = _validate(root)
     exposed_id = json.loads(
         (root / "reports/remediation_20261027/sealed_caption_review_exposure.json")
@@ -540,6 +568,7 @@ def test_wrong_rows_or_review_fields_are_blocked(tmp_path):
     receipt["admitted_row_ids"] = \
         receipt["admitted_row_ids"][:8] + [exposed_id]
     _write_json(root / RECEIPT_PATH, _seal_receipt(receipt))
+    _refresh_evidence(root)
     report = _validate(root)
     assert report_before["status"] == "valid"
     assert report["admission"]["status"] == "blocked"
@@ -548,6 +577,7 @@ def test_wrong_rows_or_review_fields_are_blocked(tmp_path):
     root = _workspace(tmp_path / "reviewer")
     receipt = _receipt(root, decided_by="")
     _write_json(root / RECEIPT_PATH, _seal_receipt(receipt))
+    _refresh_evidence(root)
     report = _validate(root)
     assert report["admission"]["status"] == "blocked"
     assert "decided_by" in report["admission"]["reason"]
@@ -555,6 +585,7 @@ def test_wrong_rows_or_review_fields_are_blocked(tmp_path):
     root = _workspace(tmp_path / "timestamp")
     receipt = _receipt(root, decided_at="yesterday")
     _write_json(root / RECEIPT_PATH, _seal_receipt(receipt))
+    _refresh_evidence(root)
     report = _validate(root)
     assert report["admission"]["status"] == "blocked"
     assert "decided_at" in report["admission"]["reason"]
@@ -564,6 +595,7 @@ def test_wrong_rows_or_review_fields_are_blocked(tmp_path):
 def test_rejecting_receipt_is_valid_but_never_admits(tmp_path):
     root = _workspace(tmp_path)
     _receipt(root, decision="reject_training")
+    _refresh_evidence(root)
     report = _validate(root)
     assert report["status"] == "valid"
     assert report["admission"]["status"] == "not_admitted"
@@ -596,7 +628,8 @@ def _verify_packet(root: Path, packet: dict):
         packet, admission=config["admission"], config=config,
         eval_config=eval_config, lineage=lineage, evals=evals,
         lineage_config_sha256=_sha((root / LINEAGE_CONFIG).read_bytes()),
-        eval_config_sha256=_sha((root / EVAL_CONFIG).read_bytes()))
+        eval_config_sha256=_sha((root / EVAL_CONFIG).read_bytes()),
+        project_root=root)
 
 
 @require_local_artifacts(CAPTION_ARTIFACTS)
@@ -610,7 +643,7 @@ def test_unsigned_packet_matches_receipt_schema_without_signing(tmp_path):
     assert not (root / RECEIPT_PATH).exists()
 
     assert packet["format"] == VALIDATOR.PACKET_FORMAT
-    assert packet["status"] == "prepared_unsigned_awaiting_review"
+    assert packet["status"] == VALIDATOR.PACKET_STATUS_UNSIGNED
     assert packet["not_a_receipt"] is True and packet["unsigned"] is True
     assert packet["signature_present"] is False
     assert set(packet["receipt_fields"]) == \
@@ -641,6 +674,8 @@ def test_unsigned_packet_matches_receipt_schema_without_signing(tmp_path):
     assert exposure["untouched_eval_status_restored"] is False
     assert evidence["admission"]["training_admitted_row_ids"] == []
     assert evidence["admission"]["receipt_created"] is False
+    assert evidence["admission"]["receipt_status"] == "absent"
+    assert evidence["admission"]["receipt_decision"] is None
 
     diagnostic = evidence["evaluation"]["diagnostic_scope"]
     assert diagnostic["diagnostic_only"] is True
@@ -652,7 +687,8 @@ def test_unsigned_packet_matches_receipt_schema_without_signing(tmp_path):
 
     report = _validate(root)
     assert report["status"] == "valid"
-    assert report["admission_packet"]["status"] == "prepared_unsigned"
+    assert report["admission_packet"]["status"] == VALIDATOR.PACKET_STATUS_UNSIGNED
+    assert report["admission_packet"]["receipt_created"] is False
     assert report["admission_packet"]["unsigned"] is True
     assert report["admission_packet"]["packet_sha256"] == _sha(
         (root / VALIDATOR.PACKET_PATH).read_bytes())
@@ -795,7 +831,7 @@ def test_packet_and_missing_receipt_never_admit_training(tmp_path):
     root = _workspace(tmp_path)
     report = _validate(root)
     assert report["status"] == "valid"
-    assert report["admission_packet"]["status"] == "prepared_unsigned"
+    assert report["admission_packet"]["status"] == VALIDATOR.PACKET_STATUS_UNSIGNED
     assert report["admission"]["status"] == "not_admitted"
     assert report["admission"]["admitted_row_ids"] == []
     assert not (root / RECEIPT_PATH).exists()
@@ -831,9 +867,160 @@ def test_packet_copied_to_receipt_path_is_refused_as_unsigned(tmp_path):
     root = _workspace(tmp_path)
     packet = _packet(root)
     _write_json(root / RECEIPT_PATH, packet)
+    _refresh_evidence(root)
     report = _validate(root)
     assert report["status"] == "valid"
     assert report["admission"]["status"] == "blocked"
     assert "fields" in report["admission"]["reason"]
     assert report["admission"]["admitted_row_ids"] == []
     assert report["non_claims"]["training_admitted"] is False
+
+
+# ---------------------------------------------------------------------------
+# Existing reviewed receipt and partition identity
+
+
+def _identity(root: Path) -> dict:
+    return json.loads((root / VALIDATOR.PARTITION_IDENTITY_PATH)
+                      .read_text(encoding="utf-8"))
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_tracked_packet_and_identity_reflect_existing_receipt():
+    packet = _packet(ROOT)
+    expected = VALIDATOR.build_admission_packet(
+        ROOT / LINEAGE_CONFIG, ROOT / EVAL_CONFIG, project_root=ROOT)
+    assert packet == expected
+    assert packet["status"] == VALIDATOR.PACKET_STATUS_RECEIPT
+    admission = packet["evidence"]["admission"]
+    receipt = json.loads((ROOT / RECEIPT_PATH).read_text(encoding="utf-8"))
+    assert admission["receipt_created"] is True
+    assert admission["receipt_status"] == "admitted"
+    assert admission["receipt_decision"] == "admit_training"
+    assert admission["receipt_sha256"] == receipt["receipt_sha256"]
+    assert len(admission["training_admitted_row_ids"]) == 9
+
+    identity = _identity(ROOT)
+    assert identity == VALIDATOR.build_partition_identity(
+        ROOT / LINEAGE_CONFIG, ROOT / EVAL_CONFIG, project_root=ROOT)
+    assert identity["counts"] == {
+        "admitted": 9, "exclusions": 21, "exposed": 8, "records": 38,
+        "unique_parent_rows": 30, "diagnostic_eval_scenes": 24}
+    assert identity["admission"]["status"] == "admitted"
+    assert all(row["admission_role"]["receipt_listed"] is True
+               and row["admission_role"]["training_eligible"] is True
+               for row in identity["partitions"]["admitted"])
+    assert all(row["quarantined"] is True
+               and row["partition"] == "exposed_quarantine"
+               and row["admission_role"]["training_eligible"] is False
+               for row in identity["partitions"]["exposed"])
+    assert identity["dedup"]["admitted_collisions"] == []
+    assert identity["dedup"]["admitted_vs_eval_collisions"] == []
+    assert identity["dedup"]["admitted_vs_exposed_collisions"] == []
+    assert all(row["license_terms"]["status"]
+               == "available_from_parent_tranche_row"
+               for row in identity["partitions"]["admitted"])
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_stale_packet_after_receipt_change_fails_closed(tmp_path):
+    root = _workspace(tmp_path, include_receipt=True)
+    assert _packet(root)["status"] == VALIDATOR.PACKET_STATUS_RECEIPT
+    _receipt(root, decision="reject_training")
+    report = _validate(root)
+    assert report["status"] == "invalid"
+    assert report["failed_check"].startswith("admission.packet.")
+    assert report["non_claims"]["training_admitted"] is False
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_partition_identity_is_deterministic_and_complete(tmp_path):
+    first = VALIDATOR.build_partition_identity(
+        ROOT / LINEAGE_CONFIG, ROOT / EVAL_CONFIG, project_root=ROOT)
+    second = VALIDATOR.build_partition_identity(
+        ROOT / LINEAGE_CONFIG, ROOT / EVAL_CONFIG, project_root=ROOT)
+    assert first == second
+    assert first["counts"]["records"] == 38
+    assert len(first["partitions"]["admitted"]) == 9
+    assert len(first["partitions"]["exclusions"]) == 21
+    assert len(first["partitions"]["exposed"]) == 8
+    exposed = {row["parent_row_id"] for row in first["partitions"]["exposed"]}
+    exclusions = {row["parent_row_id"] for row in first["partitions"]["exclusions"]}
+    admitted = {row["parent_row_id"] for row in first["partitions"]["admitted"]}
+    assert exposed <= exclusions
+    assert not (exposed & admitted)
+    assert all(row["pins"]["exposure_incident_sha256"]
+               == first["pins"]["exposure_incident_sha256"]
+               for row in first["partitions"]["exposed"])
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_missing_partition_identity_fails_closed(tmp_path):
+    root = _workspace(tmp_path)
+    (root / VALIDATOR.PARTITION_IDENTITY_PATH).unlink()
+    report = _validate(root)
+    assert report["status"] == "invalid"
+    assert report["failed_check"] == "partition.identity.present"
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_partition_identity_count_tamper_fails(tmp_path):
+    root = _workspace(tmp_path)
+    identity = _identity(root)
+    identity["counts"]["admitted"] = 8
+    _write_json(root / VALIDATOR.PARTITION_IDENTITY_PATH, identity)
+    report = _validate(root)
+    assert report["status"] == "invalid"
+    assert report["failed_check"] == "partition.identity.counts"
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_partition_identity_cannot_promote_exposed_rows(tmp_path):
+    root = _workspace(tmp_path)
+    identity = _identity(root)
+    promoted = identity["partitions"]["exposed"][0]
+    promoted["partition"] = "admitted"
+    promoted["quarantined"] = False
+    promoted["admission_role"]["training_eligible"] = True
+    identity["partitions"]["admitted"][0] = promoted
+    _write_json(root / VALIDATOR.PARTITION_IDENTITY_PATH, identity)
+    report = _validate(root)
+    assert report["status"] == "invalid"
+    assert report["failed_check"].startswith("partition.identity.")
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_partition_identity_collision_is_rejected():
+    config = json.loads((ROOT / LINEAGE_CONFIG).read_text(encoding="utf-8"))
+    eval_config = json.loads((ROOT / EVAL_CONFIG).read_text(encoding="utf-8"))
+    lineage = VALIDATOR.validate_lineage(config, project_root=ROOT, checks=[])
+    evals = VALIDATOR.validate_eval(eval_config, project_root=ROOT,
+                                    lineage=lineage, checks=[])
+    admission_state = VALIDATOR._receipt_observation(
+        config["admission"], project_root=ROOT,
+        lineage_id=config["lineage_id"],
+        lineage_config_sha256=_sha((ROOT / LINEAGE_CONFIG).read_bytes()),
+        eval_config_sha256=_sha((ROOT / EVAL_CONFIG).read_bytes()),
+        lineage=lineage, evals=evals)
+    identity = VALIDATOR.build_partition_identity(
+        ROOT / LINEAGE_CONFIG, ROOT / EVAL_CONFIG, project_root=ROOT)
+    identity["dedup"]["admitted_vs_eval_collisions"] = [
+        {"key": "target_sha256", "value": "x"}]
+    with pytest.raises(VALIDATOR.GuardError) as error:
+        VALIDATOR.verify_partition_identity(
+            identity, config=config, eval_config=eval_config,
+            lineage=lineage, evals=evals, admission_state=admission_state,
+            lineage_config_sha256=_sha((ROOT / LINEAGE_CONFIG).read_bytes()),
+            eval_config_sha256=_sha((ROOT / EVAL_CONFIG).read_bytes()))
+    assert error.value.check == "partition.identity.dedup"
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_partition_identity_requires_valid_diagnostic_eval(tmp_path):
+    root = _workspace(tmp_path)
+    identity = _identity(root)
+    identity["pins"]["eval_seal_sha256"] = "0" * 64
+    _write_json(root / VALIDATOR.PARTITION_IDENTITY_PATH, identity)
+    report = _validate(root)
+    assert report["status"] == "invalid"
+    assert report["failed_check"] == "partition.identity.content"

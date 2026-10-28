@@ -3,10 +3,25 @@
   "evidence": {
     "admission": {
       "default_status": "not_admitted",
-      "receipt_created": false,
+      "not_a_signature": true,
+      "receipt_created": true,
+      "receipt_decision": "admit_training",
+      "receipt_error": null,
       "receipt_path": "configs/caption_admission_receipt_20261027.json",
+      "receipt_sha256": "8ca183142d8af706d61ca3c12ba9cf089c4e1e7622228fff33190c612a3cb955",
+      "receipt_status": "admitted",
       "requires_separate_reviewed_receipt": true,
-      "training_admitted_row_ids": []
+      "training_admitted_row_ids": [
+        "caption-corrected-20261027:000284813#raw_caption",
+        "caption-corrected-20261027:000456905#raw_caption",
+        "caption-corrected-20261027:000764186#raw_caption",
+        "caption-corrected-20261027:001719881#raw_caption",
+        "caption-corrected-20261027:001939145#raw_caption",
+        "caption-corrected-20261027:002709185#raw_caption",
+        "caption-corrected-20261027:002710233#raw_caption",
+        "caption-corrected-20261027:002878530#raw_caption",
+        "caption-corrected-20261027:005525460#raw_caption"
+      ]
     },
     "evaluation": {
       "counts": {
@@ -371,6 +386,6 @@
     "The receipt is a trusted local review decision, not a cryptographic signature, and grants no benchmark claim."
   ],
   "signature_present": false,
-  "status": "prepared_unsigned_awaiting_review",
+  "status": "unsigned_preparation_receipt_observed",
   "unsigned": true
 }

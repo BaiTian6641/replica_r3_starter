@@ -357,6 +357,43 @@ def verify(root: Path = ROOT, out: Path = HERE, *, write: bool = True,
           < min(positions["multiple_clocks"], positions["self_distillation"], positions["rsi_policy_improvement"]))
     check("self_distillation_after_clocks", positions["self_distillation"] > positions["multiple_clocks"])
     check("rsi_last", ids[-1] == "rsi_policy_improvement")
+    available: set[str] = set()
+    unresolved_requires = []
+    for node in ladder:
+        for requirement in node["requires"]:
+            if requirement not in available:
+                unresolved_requires.append({"node": node["id"],
+                                            "requires": requirement})
+        available |= ({node["id"]} | set(node["declares"])
+                      | set(node.get("provides", [])))
+    check("learning_dependency_requires_resolved", not unresolved_requires,
+          unresolved_requires or None)
+    contract = config["dependency_contract"]
+    check("learning_dependency_sequence",
+          ids == contract["required_sequence"]
+          and [node["order"] for node in ladder] == list(range(1, len(ladder) + 1)))
+    gate_rows = {gate["id"]: gate for gate in gates.get("gates", [])}
+    referenced_gates = {gate for refs in contract["native_gate_refs"].values()
+                        for gate in refs}
+    check("learning_dependency_gate_refs",
+          referenced_gates <= set(gate_rows) and {"NG6", "NG7"} <= referenced_gates)
+    check("learning_dependency_gates_unresolved",
+          all(gate_rows[gate]["status"] == "unresolved"
+              and gate_rows[gate]["executed"] is False
+              and gate_rows[gate]["measured"] is None
+              for gate in referenced_gates))
+    rs_gates = contract["rs_gates"]
+    check("rsi_gates_complete",
+          [row["id"] for row in rs_gates] == [f"RS{i}" for i in range(7)])
+    check("rsi_gates_unresolved",
+          all(row["status"] == "unresolved" for row in rs_gates))
+    check("learning_dependency_no_promotion",
+          contract["gate_status"] == "unresolved_not_promoted"
+          and contract["promotion"] == "none")
+    check("personality_outside_ladder",
+          "personality" not in ids
+          and contract["personality"]
+          == "separate_pending_not_in_learning_dependency_order")
     check("teacher_work_items_declared", {"teacher_forward_positions", "student_rollouts", "replay_passes",
                                           "evaluation_positions", "target_checking_work"} <= set(
         ladder[1]["declares"]))
@@ -374,6 +411,43 @@ def verify(root: Path = ROOT, out: Path = HERE, *, write: bool = True,
     }
     a = _calculator(out, root)
     check("ledger_reproduces", a == load(out / "analytical_capacity.json"))
+
+    reconciliation = a["precision_byte_reconciliation"]
+    check("precision_byte_identities", set(reconciliation) == {
+        "official_bf16", "official_fp8_storage",
+        "dequantized_fp8_derivative", "native_fp8_execution"})
+    check("precision_byte_reconciled",
+          all(row["reconciled"] is True for row in reconciliation.values()))
+    bf16_bytes = reconciliation["official_bf16"]
+    check("precision_bf16_bytes",
+          bf16_bytes["unique_parameter_elements"] == 4112079360
+          and bf16_bytes["tensor_count"] == 290
+          and bf16_bytes["payload_bytes"] == 8224158720
+          and bf16_bytes["payload_mib"] == 7843.1689453125)
+    fp8_bytes = reconciliation["official_fp8_storage"]
+    check("precision_fp8_bytes",
+          fp8_bytes["tensor_count"] == 470
+          and fp8_bytes["quantized_tensor_count"] == 180
+          and fp8_bytes["quantized_parameter_elements"] == 3774873600
+          and fp8_bytes["scale_tensor_count"] == 180
+          and fp8_bytes["scale_tensor_elements"] == 1142784
+          and fp8_bytes["bf16_payload_bytes"] == 676697088
+          and fp8_bytes["f8_e4m3_payload_bytes"] == 3774873600
+          and fp8_bytes["payload_bytes"] == 4451570688
+          and fp8_bytes["payload_mib"] == 4245.3486328125
+          and fp8_bytes["bytes_per_parameter_effective"] != 1)
+    derivative_bytes = reconciliation["dequantized_fp8_derivative"]
+    check("precision_derivative_bytes",
+          derivative_bytes["payload_bytes"] == 8224158720
+          and derivative_bytes["source_fp8_payload_bytes"] == 4451570688
+          and derivative_bytes["serialized_file_bytes"] == 8224192264
+          and derivative_bytes["payload_bytes"] != derivative_bytes["source_fp8_payload_bytes"])
+    check("precision_native_fp8_no_invented_bytes",
+          reconciliation["native_fp8_execution"]["residency_bytes"] is None)
+    declared_order = a["dependency_order"]
+    check("learning_dependency_ledger",
+          declared_order["sequence"] == config["dependency_contract"]["required_sequence"]
+          and declared_order["all_requires_resolved"] is True)
     check("E2_fields_no_duplicate_old_key", a["record_bytes"] == {"compact": 3328, "hot": 32768, "entity": 896})
     for name, (parameters, live, episodic, query_mac) in expected.items():
         value = a["profiles"][name]
@@ -397,6 +471,32 @@ def verify(root: Path = ROOT, out: Path = HERE, *, write: bool = True,
     check("AV_positions", a["AV_16s_example_positions"] == {"coarse": 1320, "two_extra_crops": 1832})
     check("fixed_384_patch14_counterexample", ((384 // 14 + 1) // 2) ** 2 == 196)
 
+    routes = a["activation_workloads"]["routes"]
+    check("activation_workloads_not_measured",
+          a["activation_workloads"]["measured"] is False)
+    check("activation_old_base_route",
+          routes["old_base_vision"]["width"] == 768
+          and routes["old_base_vision"]["outputs"] == 196
+          and routes["old_base_vision"]["elements_per_view_per_layer"] == 150528
+          and routes["old_base_vision"]["bf16_bytes_per_view_per_layer"] == 301056)
+    check("activation_candidate_default_route",
+          routes["candidate_naflex_default"]["width"] == 1152
+          and routes["candidate_naflex_default"]["outputs"] == 256
+          and routes["candidate_naflex_default"]["elements_per_view_per_layer"] == 294912
+          and routes["candidate_naflex_default"]["bf16_bytes_per_view_per_layer"] == 589824)
+    check("activation_candidate_override_route",
+          routes["candidate_naflex_override_1024"]["merge"] == [2, 2]
+          and routes["candidate_naflex_override_1024"]["patches"] == 1024
+          and routes["candidate_naflex_override_1024"]["outputs"] == 256
+          and routes["candidate_naflex_override_1024"][
+              "pre_merge_elements_per_view_per_layer"] == 1179648)
+    counterexample = routes["candidate_fixed_384_patch14_counterexample"]
+    check("activation_fixed_384_counterexample",
+          counterexample["valid_patches"] == 729
+          and counterexample["padded_patches"] == 784
+          and counterexample["outputs"] == 196
+          and counterexample["expected_256"] is False)
+
     inventory_arith = a["residency_inventory"]
     components = inventory_arith["components"]
     check("residency_not_measured_fit", inventory_arith["measured_fit"] is False
@@ -406,7 +506,18 @@ def verify(root: Path = ROOT, out: Path = HERE, *, write: bool = True,
         "base_backbone_fp32_weights": 15686.337890625,
         "base_backbone_fp32_gradients": 15686.337890625,
         "base_backbone_fp32_adam_moments": 31372.67578125,
+        "base_vision_siglip2_base_bf16_storage": 177.16259765625,
+        "base_vision_siglip2_base_fp32_weights": 354.3251953125,
+        "base_vision_siglip2_base_fp32_gradients": 354.3251953125,
+        "base_vision_siglip2_base_fp32_adam_moments": 708.650390625,
+        "base_audio_spear_declared_bf16_storage": 177.93555450439453,
+        "base_audio_spear_fp32_weights": 355.87110900878906,
+        "base_audio_spear_fp32_gradients": 355.87110900878906,
+        "base_audio_spear_fp32_adam_moments": 711.7422180175781,
         "vision_projector_1152_1024_2560": 43.541015625,
+        "vision_projector_1152_1024_2560_fp32_gradients": 14.513671875,
+        "audio_projector_512_1024_2560": 36.041015625,
+        "audio_projector_512_1024_2560_fp32_gradients": 12.013671875,
         "P16_historical": 144.0,
         "P32": 288.0,
         "P64": 576.0,
@@ -419,17 +530,59 @@ def verify(root: Path = ROOT, out: Path = HERE, *, write: bool = True,
         "selected_256_row_Mkv_staging": 1.0,
     }
     for name, mib in expected_components.items():
-        check("residency_component:" + name, components.get(name, {}).get("mib") == mib)
-        check("residency_not_qualified:" + name, components[name]["full_training_qualified"] is False
-              and components[name]["measured_fit"] is False)
-    check("residency_evidence_classes", {row["evidence_class"] for row in components.values()}
-          <= {"measured_native", "analytical_estimate"})
-    check("residency_measured_only_bf16_storage", [name for name, row in components.items()
-                                                   if row["evidence_class"] == "measured_native"]
-          == ["base_backbone_bf16_storage"])
+        row = components.get(name, {})
+        check("residency_component:" + name, row.get("mib") == mib)
+        check("residency_not_qualified:" + name,
+              row.get("full_training_qualified") is False
+              and row.get("measured_fit") is False)
+    check("residency_evidence_classes",
+          {row["evidence_class"] for row in components.values()}
+          <= {"measured_native", "analytical_estimate", "declared_metadata"})
+    check("residency_measured_only_sealed_sources",
+          [name for name, row in components.items()
+           if row["evidence_class"] == "measured_native"]
+          == ["base_backbone_bf16_storage",
+              "base_vision_siglip2_base_bf16_storage"])
+    check("residency_vision_tensor_inventory",
+          components["base_vision_siglip2_base_bf16_storage"]["parameter_elements"] == 92884224
+          and components["base_vision_siglip2_base_bf16_storage"]["tensor_count"] == 208)
+    check("residency_audio_declared_inventory",
+          components["base_audio_spear_declared_bf16_storage"]["parameter_elements"] == 93289476
+          and components["base_audio_spear_declared_bf16_storage"]["evidence_class"]
+          == "declared_metadata"
+          and bool(components["base_audio_spear_declared_bf16_storage"][
+              "missing_prerequisite"]))
+    check("residency_patch_widths",
+          config["vision"]["base_control"]["hidden_size"] == 768
+          and config["vision"]["hidden_size"] == 1152)
+    check("residency_training_gradients_staged",
+          all(components[name]["bytes_per_element"] == 4
+              and components[name]["trainable_in_offline_full_finetuning"] is True
+              for name in (
+                  "base_vision_siglip2_base_fp32_gradients",
+                  "base_audio_spear_fp32_gradients",
+                  "vision_projector_1152_1024_2560_fp32_gradients",
+                  "audio_projector_512_1024_2560_fp32_gradients"))
+          and inventory_arith["training_contract"]["stages"][
+              "offline_full_finetuning"]["bytes_per_trainable_parameter"] == 16)
     unsealed = inventory_arith["unsealed"]
     check("residency_unsealed_named", {"retained_vision_tower_so400m", "activations",
                                        "restart_transient_full_checkpoint_copy"} <= set(unsealed))
+    check("residency_so400m_unsealed",
+          unsealed["retained_vision_tower_so400m"]["evidence_class"] == "unsealed"
+          and "no local So400m NaFlex tensor index" in (
+              unsealed["retained_vision_tower_so400m"]["missing_prerequisite"] or ""))
+    sealed = inventory_arith["sealed_source_inventory"]
+    check("residency_sealed_inventory",
+          sealed["base_vision_siglip2"]["vision_tensor_count"] == 208
+          and sealed["base_vision_siglip2"]["parameter_elements"] == 92884224
+          and sealed["base_audio_spear"]["parameter_elements"] == 93289476
+          and sealed["candidate_so400m_naflex"]["status"]
+          == "unsealed_missing_local_tensor_index")
+    check("residency_feasibility_not_weight_only",
+          inventory_arith["feasibility"]["weight_only_feasibility_claim"] is False
+          and inventory_arith["feasibility"]["weight_only_total_mib"] is None
+          and inventory_arith["feasibility"]["gate_status"] == "unresolved")
     check("residency_restart_transients", inventory_arith["restart_transients"]["selected_two_expert_update_staging_mib"] == 24
           and inventory_arith["restart_transients"]["selected_256_row_Mkv_staging_mib"] == 1)
 

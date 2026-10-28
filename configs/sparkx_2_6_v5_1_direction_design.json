@@ -5,6 +5,36 @@
   "executable": false,
   "runtime_admission_changed": false,
   "historical_control": "configs/sparkx_2_6_4b_final_product_v5.json",
+  "amendment": {
+    "version": "1.1",
+    "previous_version": "1.0",
+    "kind": "additive_residency_precision_activation_and_rsi_dependency_repair",
+    "preserves": [
+      "P32, P64 and P128 profile parameter and envelope caps",
+      "Mkv-4k and Mkv-64k row, value-width and staging caps",
+      "50 GiB sampled driver guard",
+      "512 MiB sustained swap-growth limit",
+      "15 percent minimum free-host rule",
+      "exclusive worker and no silent fallback or budget increase",
+      "all ten native gates remain unresolved and unexecuted",
+      "historical v5 configuration and earlier receipts"
+    ],
+    "corrects": [
+      "records the sealed base SigLIP2 vision inventory of 208 tensors and 92,884,224 parameters",
+      "distinguishes official BF16, official FP8 storage, dequantized derivative_02 and native FP8 execution with byte reconciliation",
+      "adds explicit FP32 gradient and staged-contract rows rather than treating weights and moments as full training",
+      "corrects activation workload widths and patch scenarios for the 768-wide base and 1152-wide candidate routes",
+      "leaves So400m NaFlex unsealed because no local tensor index exists",
+      "makes every RSI dependency-order requires entry resolve to an earlier node or declared capability"
+    ],
+    "missing_prerequisites": [
+      "local So400m NaFlex tensor index or sealed source manifest",
+      "sealed local SPEAR audio tensor index",
+      "measured full-graph residency, activation and throughput profile",
+      "native execution receipts for P32, P64, Mkv, Spark training and FP8"
+    ],
+    "does_not_change": "no cap, guard, admission or weight-only feasibility claim is relaxed or added"
+  },
   "original_backbone_parameters": 4112079360,
   "mini_original_backbone_parameters": 2516756480,
   "stable_at_deployment": [
@@ -27,6 +57,16 @@
       2
     ],
     "vision_only_parameter_count": "unsealed",
+    "base_control": {
+      "model": "google/siglip2-base-patch16-224",
+      "revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+      "parameter_elements": 92884224,
+      "vision_tensor_count": 208,
+      "hidden_size": 768,
+      "patches_per_view": 196,
+      "evidence_class": "measured_native",
+      "sealed_source_manifest": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json"
+    },
     "spark_projector": [
       1152,
       1024,
@@ -46,7 +86,10 @@
       12.5,
       25
     ],
-    "default_streaming_claim": false
+    "default_streaming_claim": false,
+    "declared_parameter_elements": 93289476,
+    "tensor_inventory_status": "official_metadata_only_no_sealed_local_tensor_index",
+    "revision": "7447901d44bf265b3c304cc4ccf25ca741527b6c"
   },
   "plastic": {
     "input_width": 256,
@@ -253,7 +296,23 @@
       "native_execution": true,
       "execution_evidence": "load_then_export_reload_with_zero_logit_difference",
       "output_equivalence_across_arms_claimed": false,
-      "full_training_qualified": false
+      "full_training_qualified": false,
+      "byte_reconciliation": {
+        "source_index": "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json",
+        "source_index_sha256": "05fa1b80b4888f319b2c42233b95ce43b5c1783ed335e830667298a1da91e590",
+        "tensor_count": 290,
+        "unique_parameter_elements": 4112079360,
+        "dtype_tensor_counts": {
+          "BF16": 290
+        },
+        "dtype_payload_bytes": {
+          "BF16": 8224158720
+        },
+        "payload_bytes": 8224158720,
+        "payload_mib": 7843.1689453125,
+        "bytes_per_parameter_effective": 2,
+        "accounting_note": "serialized official BF16 storage only; gradients, moments and activations are separate analytical rows, and this file is not training residency"
+      }
     },
     "official_fp8_storage": {
       "id": "spark_x2_6_4b_official_fp8_storage",
@@ -261,7 +320,26 @@
       "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
       "native_execution": false,
       "execution_status": "refused_on_mps_never_executed",
-      "full_training_qualified": false
+      "full_training_qualified": false,
+      "byte_reconciliation": {
+        "source_index": "reports/spark_preparation_20261025/run_01/headers/official_fp8_adaptation_base/tensor_index.json",
+        "source_index_sha256": "ca2757aadaa1c9eb8cfa296b0651b4612004d0d063279bcb435d89b5d1f4ac9f",
+        "tensor_count": 470,
+        "quantized_tensor_count": 180,
+        "quantized_parameter_elements": 3774873600,
+        "f8_e4m3_payload_bytes": 3774873600,
+        "scale_tensor_count": 180,
+        "scale_tensor_elements": 1142784,
+        "bf16_unquantized_elements": 337205760,
+        "bf16_payload_bytes": 676697088,
+        "declared_unique_model_parameter_elements": 4112079360,
+        "serialized_element_elements": 4113222144,
+        "scale_elements_not_model_parameters": 1142784,
+        "payload_bytes": 4451570688,
+        "payload_mib": 4245.3486328125,
+        "bytes_per_parameter_effective": 1.082565541414432,
+        "accounting_note": "mixed-dtype artifact: F8_E4M3 weight matrices plus BF16 per-channel scales, tied embedding, norms and attention gates; it is not parameters times one byte"
+      }
     },
     "dequantized_fp8_derivative": {
       "id": "spark_x2_6_4b_derivative_02",
@@ -272,14 +350,33 @@
       "execution_evidence": "export_and_reload_only",
       "is_official_bf16_release": false,
       "is_official_fp8_storage": false,
-      "full_training_qualified": false
+      "full_training_qualified": false,
+      "byte_reconciliation": {
+        "manifest": "checkpoints/spark_fp8_derivative_v1/derivative_manifest.json",
+        "manifest_sha256": "73d82478abe90391f3ca9c67be079931a6dd46a1e9991bfbda1de0f682055bdc",
+        "tensor_count": 290,
+        "unique_parameter_elements": 4112079360,
+        "dtype_payload_bytes": {
+          "BF16": 8224158720
+        },
+        "payload_bytes": 8224158720,
+        "payload_mib": 7843.1689453125,
+        "serialized_file_bytes": 8224192264,
+        "serialized_file_mib": 7843.200935363769,
+        "source_fp8_payload_bytes": 4451570688,
+        "accounting_note": "a distinct BF16-storage dequantized export: same weight element count as official BF16 but reconstructed from the FP8 artifact, with no per-token F8 activation quantization; it is neither the official BF16 release nor the official FP8 storage"
+      }
     },
     "native_fp8_execution": {
       "id": "spark_native_fp8_execution",
       "executed": false,
       "status": "never_executed_refused_on_mps",
       "precision_equivalence_claimed": false,
-      "full_training_qualified": false
+      "full_training_qualified": false,
+      "byte_reconciliation": {
+        "residency_bytes": null,
+        "accounting_note": "execution dtype and kernel behavior have no measured storage identity here; no byte figure is invented for native FP8 execution or its activation quantization"
+      }
     },
     "training_stack": {
       "optimizer": "NativeFusedAdamW",
@@ -326,11 +423,115 @@
         "measured_fit": false,
         "full_training_qualified": false
       },
+      "base_vision_siglip2_base_bf16_storage": {
+        "parameter_elements": 92884224,
+        "bytes_per_element": 2,
+        "precision": "official_bf16",
+        "evidence_class": "measured_native",
+        "tensor_count": 208,
+        "sealed_source_manifest": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+        "sealed_source_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+        "seal_digest": "ee6274db57b3b590c3b1abf99c849afc349374d9abd9ae693e720b8634065e1d",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_vision_siglip2_base_fp32_weights": {
+        "parameter_elements": 92884224,
+        "bytes_per_element": 4,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "trainable_in_offline_full_finetuning": true,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_vision_siglip2_base_fp32_gradients": {
+        "parameter_elements": 92884224,
+        "bytes_per_element": 4,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "trainable_in_offline_full_finetuning": true,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_vision_siglip2_base_fp32_adam_moments": {
+        "parameter_elements": 92884224,
+        "bytes_per_element": 8,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "trainable_in_offline_full_finetuning": true,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_audio_spear_declared_bf16_storage": {
+        "parameter_elements": 93289476,
+        "bytes_per_element": 2,
+        "precision": "declared_metadata",
+        "evidence_class": "declared_metadata",
+        "tensor_count": null,
+        "declared_source_config": "configs/sparkx_2_6_4b_final_product_v5.json",
+        "source_revision": "7447901d44bf265b3c304cc4ccf25ca741527b6c",
+        "missing_prerequisite": "no sealed local SPEAR tensor index exists in the repository; the count is official repository metadata, not a local tensor-header audit",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_audio_spear_fp32_weights": {
+        "parameter_elements": 93289476,
+        "bytes_per_element": 4,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "trainable_in_offline_full_finetuning": true,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_audio_spear_fp32_gradients": {
+        "parameter_elements": 93289476,
+        "bytes_per_element": 4,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "trainable_in_offline_full_finetuning": true,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "base_audio_spear_fp32_adam_moments": {
+        "parameter_elements": 93289476,
+        "bytes_per_element": 8,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "trainable_in_offline_full_finetuning": true,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
       "vision_projector_1152_1024_2560": {
         "parameter_elements": 3804672,
         "bytes_per_element": 12,
         "precision": "training_fp32_weights_two_moments",
         "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "vision_projector_1152_1024_2560_fp32_gradients": {
+        "parameter_elements": 3804672,
+        "bytes_per_element": 4,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "trainable_in_offline_full_finetuning": true,
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "audio_projector_512_1024_2560": {
+        "parameter_elements": 3149312,
+        "bytes_per_element": 12,
+        "precision": "training_fp32_weights_two_moments",
+        "evidence_class": "analytical_estimate",
+        "measured_fit": false,
+        "full_training_qualified": false
+      },
+      "audio_projector_512_1024_2560_fp32_gradients": {
+        "parameter_elements": 3149312,
+        "bytes_per_element": 4,
+        "precision": "training_fp32",
+        "evidence_class": "analytical_estimate",
+        "trainable_in_offline_full_finetuning": true,
         "measured_fit": false,
         "full_training_qualified": false
       },
@@ -420,7 +621,10 @@
         "parameter_elements": null,
         "precision": "BF16_candidate",
         "evidence_class": "unsealed",
-        "reason": "the public aggregate includes a text tower; audit installed vision tensors before sealing a total"
+        "missing_prerequisite": "no local So400m NaFlex tensor index or sealed source manifest exists; audit installed vision tensors before sealing any total",
+        "reason": "the public aggregate includes a text tower; this review does not invent a vision-only count or a final v5.1 total",
+        "not_substitutable_with": "base SigLIP2 vision inventory (208 tensors, 92,884,224 parameters)",
+        "full_training_qualified": false
       },
       "activations": {
         "bytes": null,
@@ -444,6 +648,147 @@
       "selected_256_row_Mkv_staging_mib": 1,
       "small_bank_restart_evidence": "independent 16-expert continuation matched weights, optimizer state and clocks",
       "full_model_restart_measured": false
+    },
+    "sealed_source_inventory": {
+      "scope": "actual base encoder inventories retained in the v5.1 account; not a final v5.1 total and not a weight-only feasibility claim",
+      "base_vision_siglip2": {
+        "repo_id": "google/siglip2-base-patch16-224",
+        "revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+        "status": "sealed_local_tensor_inventory",
+        "vision_tensor_count": 208,
+        "total_acquired_tensor_count": 408,
+        "text_tensor_count": 198,
+        "other_tensor_count": 2,
+        "parameter_elements": 92884224,
+        "evidence_class": "measured_native",
+        "source_manifest": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+        "source_manifest_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+        "seal_digest": "ee6274db57b3b590c3b1abf99c849afc349374d9abd9ae693e720b8634065e1d"
+      },
+      "base_audio_spear": {
+        "repo_id": "marcoyang/spear-base-speech-audio-v2",
+        "revision": "7447901d44bf265b3c304cc4ccf25ca741527b6c",
+        "status": "official_metadata_only",
+        "tensor_count": null,
+        "parameter_elements": 93289476,
+        "evidence_class": "declared_metadata",
+        "missing_prerequisite": "no sealed local SPEAR tensor index exists in the repository; do not invent tensor counts or a local header audit"
+      },
+      "candidate_so400m_naflex": {
+        "repo_id": "google/siglip2-so400m-patch16-naflex",
+        "revision": "cc24074f717b612951c2dead130904ab9b65a81e",
+        "status": "unsealed_missing_local_tensor_index",
+        "tensor_count": null,
+        "parameter_elements": null,
+        "evidence_class": "unsealed",
+        "missing_prerequisite": "no local So400m NaFlex tensor index or sealed source manifest exists; audit installed vision tensors before any total"
+      }
+    },
+    "activation_workloads": {
+      "kind": "analytical_activation_workload_scenarios_not_measured",
+      "measured": false,
+      "old_base_vision": {
+        "encoder": "google/siglip2-base-patch16-224",
+        "width": 768,
+        "patch_size": 16,
+        "image_size": 224,
+        "valid_grid": [14, 14],
+        "patches": 196,
+        "merge": [1, 1],
+        "outputs": 196,
+        "uncompressed": true
+      },
+      "candidate_naflex_default": {
+        "encoder": "google/siglip2-so400m-patch16-naflex",
+        "width": 1152,
+        "depth": 27,
+        "ffn_width": 4304,
+        "processor_default_max_patches": 256,
+        "patches": 256,
+        "merge": [1, 1],
+        "outputs": 256
+      },
+      "candidate_naflex_override_1024": {
+        "encoder": "google/siglip2-so400m-patch16-naflex",
+        "width": 1152,
+        "depth": 27,
+        "max_patches": 1024,
+        "patches": 1024,
+        "merge": [2, 2],
+        "outputs": 256
+      },
+      "candidate_fixed_384_patch14_counterexample": {
+        "encoder": "google/siglip2-so400m-patch16-naflex",
+        "width": 1152,
+        "patch_size": 14,
+        "image_size": 384,
+        "valid_grid": [27, 27],
+        "valid_patches": 729,
+        "padded_grid": [28, 28],
+        "padded_patches": 784,
+        "merge": [2, 2],
+        "outputs": 196,
+        "expected_256": false,
+        "note": "padded 28x28 then 2x2 reduction yields 196, not 256"
+      }
+    },
+    "training_contract": {
+      "kind": "explicit_staged_trainable_storage_contract",
+      "preserves": "existing 50 GiB driver guard, 512 MiB sustained swap-growth limit, 15 percent free-host rule, exclusive worker and no silent fallback or budget increase",
+      "stages": {
+        "frozen_inference": {
+          "trainable": false,
+          "fp32_gradients": false,
+          "optimizer_moments": false,
+          "counts": ["base_*_bf16_storage", "projector weights", "P weights", "Mkv values"]
+        },
+        "offline_full_finetuning": {
+          "trainable": true,
+          "trainable_groups": [
+            "base_backbone",
+            "base_vision_siglip2_base",
+            "base_audio_spear",
+            "vision_projector_1152_1024_2560",
+            "audio_projector_512_1024_2560",
+            "P_experts",
+            "Mkv_values"
+          ],
+          "fp32_weights_required": true,
+          "fp32_gradients_required": true,
+          "two_fp32_adam_moments_required": true,
+          "bytes_per_trainable_parameter": 16,
+          "charged_components": [
+            "base_vision_siglip2_base_fp32_weights",
+            "base_vision_siglip2_base_fp32_gradients",
+            "base_vision_siglip2_base_fp32_adam_moments",
+            "base_audio_spear_fp32_weights",
+            "base_audio_spear_fp32_gradients",
+            "base_audio_spear_fp32_adam_moments",
+            "vision_projector_1152_1024_2560",
+            "vision_projector_1152_1024_2560_fp32_gradients",
+            "audio_projector_512_1024_2560",
+            "audio_projector_512_1024_2560_fp32_gradients"
+          ]
+        }
+      },
+      "staged_requirement": "a component without an explicit FP32 gradient and optimizer-moment contract is inference-only and is never counted as full-training residency"
+    },
+    "feasibility": {
+      "weight_only_total_mib": null,
+      "weight_only_feasibility_claim": false,
+      "driver_limit_gib": 50,
+      "driver_limit_preserved": true,
+      "sustained_swap_growth_limit_mib": 512,
+      "minimum_free_percent": 15,
+      "gates": {
+        "P32": "NG4",
+        "P64": "NG4",
+        "Mkv": "NG5",
+        "native_spark": "NG8",
+        "official_and_native_fp8": "NG9"
+      },
+      "gate_status": "unresolved",
+      "statement": "no weight-only subtotal is a fit, throughput, learning or training admission for P32, P64, Mkv or native Spark"
     }
   },
   "staging": {
@@ -505,15 +850,21 @@
     {
       "order": 1,
       "id": "small_useful_inner_learner",
-      "requires": [
-        "fixed_initialization",
-        "post_teaching_new_instance_gain"
+      "requires": [],
+      "preconditions": [
+        "fixed_initialization"
       ],
       "declares": [
         "inner_protocol",
         "trainable_groups",
         "step_count",
-        "replay_policy"
+        "replay_policy",
+        "post_teaching_new_instance_gain"
+      ],
+      "provides": [
+        "small_useful_inner_learner",
+        "fixed_initialization",
+        "post_teaching_new_instance_gain"
       ]
     },
     {
@@ -529,6 +880,12 @@
         "replay_passes",
         "evaluation_positions",
         "target_checking_work"
+      ],
+      "provides": [
+        "teacher_competence_and_work_declaration",
+        "teacher_competence_check",
+        "teacher_competence_check_passed",
+        "all_teacher_rollout_replay_evaluation_work_declared"
       ]
     },
     {
@@ -540,25 +897,35 @@
       "declares": [
         "first_order_identity_jacobian_or_exact_short_unroll_or_truncated_unroll",
         "omitted_derivative_path"
+      ],
+      "provides": [
+        "gradient_approximation_declaration"
       ]
     },
     {
       "order": 4,
       "id": "outer_loop_training",
       "requires": [
-        "gradient_approximation_declaration",
-        "single_clock_control"
+        "gradient_approximation_declaration"
       ],
       "declares": [
         "outer_episode_support_future_query_split",
         "source_free_fraction",
-        "retention_endpoint"
+        "retention_endpoint",
+        "single_clock_control",
+        "equal_total_parameter_and_work_control"
+      ],
+      "provides": [
+        "outer_loop_training",
+        "single_clock_control",
+        "equal_total_parameter_and_work_control"
       ]
     },
     {
       "order": 5,
       "id": "multiple_clocks",
       "requires": [
+        "outer_loop_training",
         "single_clock_control",
         "equal_total_parameter_and_work_control"
       ],
@@ -566,33 +933,81 @@
         "clock_objectives",
         "transition_rules",
         "slow_pool_population_rule"
+      ],
+      "provides": [
+        "multiple_clocks",
+        "verified_single_clock_and_multi_clock_evidence"
       ]
     },
     {
       "order": 6,
       "id": "self_distillation",
       "requires": [
+        "multiple_clocks",
         "teacher_competence_check_passed",
         "all_teacher_rollout_replay_evaluation_work_declared"
       ],
       "declares": [
         "forward_KL_primary_and_reverse_KL_separate_arm",
         "teacher_snapshot_identity"
+      ],
+      "provides": [
+        "self_distillation"
       ]
     },
     {
       "order": 7,
       "id": "rsi_policy_improvement",
       "requires": [
-        "verified_single_clock_and_multi_clock_evidence",
+        "self_distillation",
+        "verified_single_clock_and_multi_clock_evidence"
+      ],
+      "constraints": [
         "no_verifier_source_label_or_promotion_self_modification"
       ],
       "declares": [
         "independent_learning_episode_work_at_equal_cost",
         "separate_evaluation_roles"
+      ],
+      "provides": [
+        "rsi_policy_improvement"
       ]
     }
   ],
+  "dependency_contract": {
+    "format": "sparkx-rsi-dependency-order-1",
+    "required_sequence": [
+      "small_useful_inner_learner",
+      "teacher_competence_and_work_declaration",
+      "gradient_approximation_declaration",
+      "outer_loop_training",
+      "multiple_clocks",
+      "self_distillation",
+      "rsi_policy_improvement"
+    ],
+    "resolution_rule": "every requires entry names an earlier node id or a capability declared or provided by an earlier node; preconditions and constraints are explicit declarations, not hidden requires",
+    "native_gate_refs": {
+      "small_useful_inner_learner": ["NG1"],
+      "teacher_competence_and_work_declaration": ["NG6"],
+      "gradient_approximation_declaration": ["NG7"],
+      "outer_loop_training": ["NG7"],
+      "multiple_clocks": ["NG7"],
+      "self_distillation": ["NG6"],
+      "rsi_policy_improvement": ["NG6", "NG7"]
+    },
+    "rs_gates": [
+      {"id": "RS0", "name": "independently_verified_practice", "status": "unresolved"},
+      {"id": "RS1", "name": "actual_candidate_updates", "status": "unresolved"},
+      {"id": "RS2", "name": "causal_update_effect", "status": "unresolved"},
+      {"id": "RS3", "name": "unseen_later_task_gain", "status": "unresolved"},
+      {"id": "RS4", "name": "successive_cycles", "status": "unresolved"},
+      {"id": "RS5", "name": "reset_ablations", "status": "unresolved"},
+      {"id": "RS6", "name": "rollback_and_audit", "status": "unresolved"}
+    ],
+    "gate_status": "unresolved_not_promoted",
+    "promotion": "none",
+    "personality": "separate_pending_not_in_learning_dependency_order"
+  },
   "personality": {
     "specified_separately": true,
     "evaluated_separately": true,

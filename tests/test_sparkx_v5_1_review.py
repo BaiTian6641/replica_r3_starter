@@ -232,3 +232,79 @@ def test_local_artifact_absence_is_allowed_only_when_declared(repository: Path) 
     path = repository / "docs/architecture/25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md"
     path.write_text(path.read_text(encoding="utf-8") + "\n[missing](missing_run.json)\n", encoding="utf-8")
     assert any(name.startswith("local_link:") for name in _failed(_run(repository)))
+
+
+def test_residency_vision_inventory_tamper_fails(repository: Path) -> None:
+    path = repository / "configs/sparkx_2_6_v5_1_direction_design.json"
+
+    def mutate(data):
+        data["residency_inventory"]["components"][
+            "base_vision_siglip2_base_bf16_storage"]["parameter_elements"] = 92884225
+
+    _mutate_json(path, mutate)
+    failed = _failed(_run(repository))
+    assert "residency_component:base_vision_siglip2_base_bf16_storage" in failed
+    assert "ledger_reproduces" in failed
+
+
+def test_precision_byte_reconciliation_tamper_fails(repository: Path) -> None:
+    path = repository / "configs/sparkx_2_6_v5_1_direction_design.json"
+
+    def mutate(data):
+        reconciliation = data["precision_identities"]["official_fp8_storage"][
+            "byte_reconciliation"]
+        reconciliation["payload_bytes"] = 4112079360
+        reconciliation["payload_mib"] = 4112079360 / 1024 / 1024
+
+    _mutate_json(path, mutate)
+    failed = _failed(_run(repository))
+    assert "precision_byte_reconciled" in failed
+    assert "precision_fp8_bytes" in failed
+
+
+def test_activation_route_width_tamper_fails(repository: Path) -> None:
+    path = repository / "configs/sparkx_2_6_v5_1_direction_design.json"
+
+    def mutate(data):
+        data["residency_inventory"]["activation_workloads"][
+            "candidate_naflex_default"]["width"] = 1024
+
+    _mutate_json(path, mutate)
+    failed = _failed(_run(repository))
+    assert "activation_candidate_default_route" in failed
+
+
+def test_so400m_unsealed_prerequisite_tamper_fails(repository: Path) -> None:
+    path = repository / "configs/sparkx_2_6_v5_1_direction_design.json"
+
+    def mutate(data):
+        data["residency_inventory"]["unsealed_components"][
+            "retained_vision_tower_so400m"]["missing_prerequisite"] = "none"
+
+    _mutate_json(path, mutate)
+    failed = _failed(_run(repository))
+    assert "residency_so400m_unsealed" in failed
+
+
+def test_dependency_order_dangling_require_fails(repository: Path) -> None:
+    path = repository / "configs/sparkx_2_6_v5_1_direction_design.json"
+
+    def mutate(data):
+        data["learning_dependency_order"][2]["requires"].append(
+            "dangling_capability")
+
+    _mutate_json(path, mutate)
+    failed = _failed(_run(repository))
+    assert "learning_dependency_requires_resolved" in failed
+    assert "learning_dependency_ledger" in failed
+
+
+def test_rsi_gate_promotion_fails(repository: Path) -> None:
+    path = repository / "configs/sparkx_2_6_v5_1_direction_design.json"
+
+    def mutate(data):
+        data["dependency_contract"]["rs_gates"][0]["status"] = "passed"
+
+    _mutate_json(path, mutate)
+    failed = _failed(_run(repository))
+    assert "rsi_gates_unresolved" in failed

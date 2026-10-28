@@ -5,7 +5,7 @@
     "date": "2026-10-27",
     "head": "4c5a84851009898bc876c0b8aa3ccb596e04037d",
     "digest_scope": "canonical JSON of the entries array",
-    "digest_sha256": "cbaab9e20320bb4b4811d6d7568838f4547c1ec22e117373ce50892f7db0eb02"
+    "digest_sha256": "9c0d1c30bae3e5f2b2d72fd99bc77c645fd281b72bc509093ba7799ec5b19d87"
   },
   "policy": "Only the identities below are treated as reviewed. A changed existing document must match its recorded old hash and current new hash; an added identity must not exist in the historical snapshot; a retained identity must remain byte-identical. Any other drift fails the portable verifier. Historical failed receipts are not rewritten, and no validator is weakened.",
   "historical_control": "configs/sparkx_2_6_4b_final_product_v5.json",
@@ -123,7 +123,7 @@
       "kind": "added",
       "old": null,
       "new": {
-        "sha256": "8b0a69dd7fce14f5b1d507dcc2c32dbbcc635b13f87e4e435f87ed6aa0663f0e",
+        "sha256": "119382bd054fbafbf5bb793f04255b628de2bd7ba8ac3c381fcbb15f6d8bc713",
         "identity": "sparkx-v5.1-direction-design-1"
       },
       "reason": "Declarative non-executable v5.1 design; it does not replace the historical v5 configuration or authorize execution."
@@ -143,7 +143,7 @@
       "kind": "added",
       "old": null,
       "new": {
-        "sha256": "e44c8409c9f9f069d7762704cfe503a389ade9873caeb3409637391ae31b352a",
+        "sha256": "9a55fd2c4d4ba0d4c9c7a3d9b47d5c32fc3bd2c289fb9dab6a222f5a4c15361b",
         "identity": "v5.1 analytical capacity and residency ledger"
       },
       "reason": "Generated analytical arithmetic for E2, profiles, Mkv and the reconciled residency inventory; not measured fit."
@@ -163,7 +163,7 @@
       "kind": "added",
       "old": null,
       "new": {
-        "sha256": "c6ec1be841b94f083683f2577710ebeba3494d5e42afb03d0aa16e8b42cf3dc1",
+        "sha256": "faeaf96c2c55fa2e5fbfacffd12abdd25ff25a5ab653450d2018d0b3f9e6cbed",
         "identity": "v5.1 analytical calculator"
       },
       "reason": "Deterministic arithmetic for the capacity and residency ledger; imports no model code."
@@ -213,7 +213,7 @@
       "kind": "added",
       "old": null,
       "new": {
-        "sha256": "37bba9c6f044d2bd8d711938b79ba9144e46b25c014d01de7170bf73d7627e39",
+        "sha256": "f19427e6e3d3ae9ed8986747ce856f9dca9fcc94d07c722238a017b9bfa14de0",
         "identity": "v5.1 portable verifier v2"
       },
       "reason": "Clean-checkout, link/reference, arithmetic and migration verification with native gates kept separate."
@@ -223,7 +223,7 @@
       "kind": "added",
       "old": null,
       "new": {
-        "sha256": "0c35f7dc0b96044a6149e075113a418945847c9e17ea6b2003deb7d1ff2fb9d5",
+        "sha256": "c79a45ab437b07dc15dcd85391be02239060919899cc4c9e457fe0bc4b55c64f",
         "identity": "v5.1 clean-checkout and tamper tests"
       },
       "reason": "Proves a clean fixture passes deterministically and document/config/migration/input/gate tampering fails."
@@ -487,6 +487,18 @@
       "old": "revised teaching total 2,670 processed positions",
       "new": "corrected 3,429 processed positions",
       "reason": "Adds the missing target-production passes; the historical receipt is retained rather than overwritten."
+    },
+    {
+      "path": "configs/sparkx_2_6_v5_1_direction_design.json",
+      "old": "retained vision tower So400m unsealed; base encoders absent from the account; no activation patch-width scenarios; learning_dependency_order used dangling requires",
+      "new": "sealed base SigLIP2 inventory 208 tensors / 92,884,224 parameters; SPEAR 93,289,476 official metadata with a declared missing local index; explicit FP32 gradient/moment contracts; byte reconciliation for BF16/FP8/derivative/native FP8; 768/196 and 1152/256/<=1024 activation routes; resolved RSI requires graph",
+      "reason": "Additive correction: P32/P64/P128, Mkv, driver and guard caps are unchanged, So400m remains unsealed, and no weight-only feasibility or native gate is promoted."
+    },
+    {
+      "path": "reports/sparkx_v5_1_review_20261027/analytical_capacity.json",
+      "old": "profile and Mkv ledger only; unsealed vision tower named but no base encoder, gradient, activation-route or precision-byte rows",
+      "new": "adds sealed/declared encoder residency, staged FP32 gradients, precision byte reconciliation, activation workload routes and resolved dependency-order ledger",
+      "reason": "Calculated from the versioned design; analytical only, not measured fit or training admission."
     }
   ]
 }
