@@ -3,6 +3,7 @@
   "date": "2026-10-27",
   "reviewed_commit": "56134099",
   "followup_commit": "dc83f56f",
+  "spark_integration_commit": "fad6edfd",
   "reviewer": "independent_read_only_reviewer",
   "reviewer_ran_tests": false,
   "findings": {
@@ -45,6 +46,33 @@
     "first_tranche_bundle_digest": "3b3d9dcb80e403efa5db94c57537a3f14d29925105ad4eabebff72d3b277db09",
     "final_product_bundle_digest": "b2319d2bfd70a09c5f39e1a16102cb69d7982e079016a9f73cfce1e5284585b7",
     "native_execution": false
+  },
+  "integrated_spark_review": {
+    "commit": "fad6edfd",
+    "verdict": "No correctness, evidence-lineage, gate-weakening or test-quality blocker found",
+    "confidence": 0.97,
+    "reviewer_ran_tests": false,
+    "confirmed": [
+      "The real CLI regression fails on the former historical-profile KeyError and validates the written 117-input bundle.",
+      "Snapshot, preserved-manifest, portable-evidence and current-receipt hash chains match.",
+      "Both preserved manifests match their dc83f56f predecessors; current manifest hashes, digests and byte totals reconcile.",
+      "Only eight obsolete historical_manifest_reviewed_update checks disappear; identity and no-unreviewed-drift gates remain.",
+      "Historical verification.json, residency arithmetic, calculator, component inventory and gates are unchanged."
+    ],
+    "residual_at_review": "The complete no-hardlinks clean suite was still running; the reviewer performed read-only diff and hash inspection only."
+  },
+  "final_clean_main_observed": {
+    "commit": "fad6edfd63f1de4ca1213e9e52b66934fc0efd59",
+    "passed": 2942,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 95,
+    "subtests_passed": 21,
+    "seconds": 513.89,
+    "junit_xml": "reports/verification_20261027/clean_export/tests_resume_staged_final.xml",
+    "junit_sha256": "620add4cdc28e43fc5282ad0b3d8a3cedb8052b824bf15b557d7768a1f4f8486",
+    "git_status": "clean",
+    "summary": "reports/verification_20261027/resume_staged_summary.json"
   },
   "native_execution": false,
   "model_loads": 0

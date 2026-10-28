@@ -13,6 +13,10 @@ controls. Vision authorization is absent; co-adaptation is only a conditional
 future control. Spark v5.1 migration and residency inventory are complete, but
 native gates remain unresolved. No native run, RSI or personality adaptation.
 
+Clean `fad6edfd` passes 2,942 tests with 95 explicit skips and 21 subtests;
+failed attempts stay preserved. Final evidence:
+`reports/verification_20261027/resume_staged_summary.json`.
+
 **Current priority — 26 October 2026:** preserve sealed evaluation and failed
 quality results. Native one-clock integration is `1648f72d`; the vision
 diagnostics were predeclared at `0caf14fa`. Earlier evidence commits include

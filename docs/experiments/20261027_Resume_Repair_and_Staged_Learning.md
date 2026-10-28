@@ -4,8 +4,8 @@
 
 Prior implementation base: `f0fff3e4`. Starting HEAD for this repair: `4c5a8485`.
 Resume/staging implementation commit: `71955206`.
-Clean-verification repair commits: `56134099` and `dc83f56f` (linked-worktree
-fixture follow-up).
+Clean-verification repair commits: `56134099`, `dc83f56f` (linked-worktree
+fixture), and `fad6edfd` (Spark evidence integration).
 MiniCPM5 remains
 baseline and NativeFusedAdamW/`adamw_fused` default. The 50 GiB driver, 512 MiB
 sustained swap-growth, 15% host-free, exclusive-worker and disabled-fallback
@@ -182,6 +182,7 @@ Focused results:
 | Vision readiness/contract | 161 passed |
 | Data/Spark | 54 passed |
 | Spark residency/CLI/bundles/final product/v5.1 | 77 passed |
+| Final no-hardlinks clean suite at `fad6edfd` | 2942 passed; 95 skipped; 21 subtests |
 
 A no-hardlinks clean clone of `71955206` preserved a failed first attempt at
 `reports/verification_20261027/clean_export/resume_staged_attempt01.json` and
@@ -204,11 +205,22 @@ regression verifies exit 0, `profile=historical`, and the written bundle. Prior
 manifests are preserved, both current manifests pass `--check`, and the final
 verifier passes 500/500 with no unexplained drift.
 
+A second read-only review of `fad6edfd` found no correctness, evidence-lineage,
+gate-weakening or test-quality blocker. It independently checked the hash
+chains, preserved manifests, CLI regression and eight-check accounting delta.
+
 Independent targeted review found no blocker in the original repair scope and
 confirmed the path, fixture and receipt-lineage repairs. Its linked-worktree
 portability finding was reproduced on `56134099` and fixed in `dc83f56f`; all
 28 readiness tests then passed in a real linked worktree. See
 `reports/verification_20261027/resume_staged_repair_review.json`.
+
+Final acceptance is bound to
+`fad6edfd63f1de4ca1213e9e52b66934fc0efd59`: the clean clone remained clean,
+and the 513.89-second run produced JUnit SHA-256
+`620add4cdc28e43fc5282ad0b3d8a3cedb8052b824bf15b557d7768a1f4f8486`.
+See `reports/verification_20261027/resume_staged_summary.json`; both failed
+attempts and their XML remain preserved.
 
 Historical continuation replay is `exact_match`; accounting replay is 7,695/7,755;
 corrected step-1 preserves original engineering failure and derived supported

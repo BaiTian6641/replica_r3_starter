@@ -37,6 +37,10 @@ NativeFusedAdamW remain the baseline/default, with all native guards unchanged.
   derivatives and native FP8 remain separate. P32/P64/Mkv and outer-loop/RSI are
   deferred until a smaller useful learner exists. All ten native gates remain
   unresolved. **77 Spark residency/CLI/bundle/final-product/v5.1 tests pass.**
+- Final no-hardlinks clean verification at `fad6edfd` passes **2,942 tests**,
+  with 95 explicit skips, 21 subtests and zero failures/errors in 513.89 seconds;
+  the clone remained clean. Both failed attempts are preserved. See
+  `reports/verification_20261027/resume_staged_summary.json`.
 
 Read the [complete repair and staged-learning handoff](docs/experiments/20261027_Resume_Repair_and_Staged_Learning.md).
 

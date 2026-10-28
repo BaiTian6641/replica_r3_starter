@@ -1,0 +1,99 @@
+{
+  "schema": "replica.resume_staged_final_verification.v1",
+  "date": "2026-10-27",
+  "implementation_base": "f0fff3e4",
+  "repair_commits": [
+    "71955206",
+    "56134099",
+    "dc83f56f",
+    "fad6edfd"
+  ],
+  "tested_clean_commit": "fad6edfd63f1de4ca1213e9e52b66934fc0efd59",
+  "native_execution": false,
+  "native_model_loads": 0,
+  "downloads": false,
+  "protected_runtime_pilot_read_imported_modified_or_staged": false,
+  "focused": {
+    "token_evidence": "272 passed",
+    "source_provenance": "174 passed",
+    "memory_resume_and_admission": "47 passed",
+    "dc_protocols": "33 passed",
+    "vision_packet_readiness_coadaptation": "161 passed",
+    "vision_readiness_real_linked_worktree": "28 passed",
+    "residency_and_all_cli_repair": "27 passed",
+    "data_and_spark_preparation": "54 passed",
+    "spark_residency_cli_bundles_final_product_v5_1": "77 passed"
+  },
+  "clean_export": {
+    "source": "git clone --no-hardlinks . /tmp/replica_resume_clean_integrated_20261027; git -C /tmp/replica_resume_clean_integrated_20261027 checkout fad6edfd",
+    "clone": "/tmp/replica_resume_clean_integrated_20261027",
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=/Users/flare/replica_r3_starter/reports/verification_20261027/clean_export/tests_resume_staged_final.xml",
+    "junit_xml": "reports/verification_20261027/clean_export/tests_resume_staged_final.xml",
+    "junit_sha256": "620add4cdc28e43fc5282ad0b3d8a3cedb8052b824bf15b557d7768a1f4f8486",
+    "junit_bytes": 481899,
+    "junit_tests": 3058,
+    "passed": 2942,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 95,
+    "subtests_passed": 21,
+    "junit_time_seconds": 513.752,
+    "console_seconds": 513.89,
+    "wall_seconds": 514.65,
+    "warnings": 1,
+    "git_status": "clean",
+    "skip_scope": "Explicit missing local model/data/run artifacts and Pillow provisioning. Vision packet, readiness and co-adaptation contracts use tracked metadata fixtures and are not skipped."
+  },
+  "failure_history": {
+    "attempt01": {
+      "commit": "71955206",
+      "summary": "reports/verification_20261027/clean_export/resume_staged_attempt01.json",
+      "junit_xml": "reports/verification_20261027/clean_export/tests_resume_staged_attempt01.xml",
+      "junit_sha256": "492134680975094ec5ea00b0f53d418188a44bd873022e088c4427ebc2a7a9e1",
+      "junit_bytes": 702803,
+      "result": "17 failed, 11 errors, 2913 passed, 95 skipped, 21 subtests passed",
+      "resolution": "Correct all-CLI baseline path pairs; use tracked metadata-only vision roots; preserve and regenerate the derived residency receipt. Linked-worktree portability was subsequently repaired at dc83f56f."
+    },
+    "attempt02": {
+      "commit": "56134099",
+      "summary": "reports/verification_20261027/clean_export/resume_staged_attempt02.json",
+      "junit_xml": "reports/verification_20261027/clean_export/tests_resume_staged_attempt02.xml",
+      "junit_sha256": "db1b82bcf885f493f079c2940c2281cd9b31196079371363cb6e418db6fa6027",
+      "junit_bytes": 484574,
+      "result": "3 failed, 0 errors, 2938 passed, 95 skipped, 21 subtests passed",
+      "resolution": "Propagate the reviewed residency migration through snapshot drift authorization, portable evidence and both generated bundle profiles; repair the historical CLI post-write profile crash and add a real subprocess regression."
+    }
+  },
+  "independent_review": {
+    "receipt": "reports/verification_20261027/resume_staged_repair_review.json",
+    "initial_review": "No blocker in the original targeted repair scope; one linked-worktree P2 reproduced and fixed.",
+    "integrated_review": "No correctness, evidence-lineage, gate-weakening or test-quality blocker at fad6edfd; confidence 0.97. Reviewer was read-only and did not rerun tests."
+  },
+  "spark_migration": {
+    "receipt": "reports/sparkx_residency_20261026/documentation_migration_sparkx_v5_1.json",
+    "residency_receipt_sha256": "6b5a661ade99e74e0e87dc33fa814f212404333abaf118cab16570d2e4b0d8d1",
+    "first_tranche": {
+      "inputs": 117,
+      "input_bytes": 5285826,
+      "bundle_digest": "3b3d9dcb80e403efa5db94c57537a3f14d29925105ad4eabebff72d3b277db09"
+    },
+    "final_product": {
+      "inputs": 75,
+      "input_bytes": 4513053,
+      "bundle_digest": "b2319d2bfd70a09c5f39e1a16102cb69d7982e079016a9f73cfce1e5284585b7",
+      "verification": "500/500 passed; zero failed checks, unexplained drift or historical unreviewed drift",
+      "check_count_explanation": "The 508-to-500 delta is exactly eight historical_manifest_reviewed_update checks no longer emitted after their reviewed hashes enter the regenerated manifest; identity and no-unreviewed-drift gates remain."
+    },
+    "arithmetic_changed": false,
+    "gates_changed": false,
+    "native_gates_resolved": 0,
+    "native_gates_total": 10
+  },
+  "implemented_but_not_learning_claims": {
+    "resume": "Update-29 fresh-process resume records 29+43=72 optimizer/backward/training-forward calls, preserves completed arms and active state, and reproduces final artifacts byte-for-byte.",
+    "integration_baseline": "The zero-update 22-class parent is 27/27 and reset is 12/27; this is integration evidence, not learned improvement.",
+    "prepared_only": "DC-P1, DC-R1 and the smaller-step vision diagnostic have no native execution authorization. Spark residency is analytical, not measured training fit.",
+    "still_unqualified": "Learned retrieval, general persistent learning, native Spark/FP8 training, neural RSI and personality adaptation remain unqualified or deferred."
+  },
+  "next_bounded_step": "DC-P1 only after its exact protocol commit and separate authorization; evaluate fresh paraphrase/new-instance generated answers against identical no-update and reset-P controls with source context/KV removed, without automatic retry or held-out reopening."
+}

@@ -35,7 +35,9 @@ and the final-product verifier run; preserve the prior manifests and hashes.
 ## 1. Establish current evidence once
 
 Inspect Git status/logs, applicable instructions and active artifacts. The current
-repair commit is `dc83f56f`; verify what another session changed before acting.
+repair commit is `fad6edfd`; verify what another session changed before acting.
+Its no-hardlinks clean suite records 2,942 passes, 95 explicit skips and 21
+subtests with no failures; see `reports/verification_20261027/resume_staged_summary.json`.
 Preserve unrelated work and historical negative evidence. Read:
 
 1. [Execution state](../../execution_state.md) and [continuation](../../AGENT_CONTINUE.md).

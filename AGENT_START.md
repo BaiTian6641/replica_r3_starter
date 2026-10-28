@@ -12,6 +12,10 @@ The smaller-step authorization is absent, and Spark v5.1 remains design and
 analytical preparation, not native qualification. Keep all native guards and the
 protected draft restriction.
 
+Clean `fad6edfd` passes 2,942 tests with 95 explicit skips and 21 subtests;
+linked-worktree readiness passes 28 and Spark focused checks pass 77. See
+`reports/verification_20261027/resume_staged_summary.json`.
+
 **Current priority — 26 October 2026:** preserve sealed evaluation and keep
 mechanical acceptance separate from learned quality. The
 [one-clock text baseline](docs/experiments/20261026_Nested_Text_One_Clock.md)

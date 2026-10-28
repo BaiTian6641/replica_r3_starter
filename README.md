@@ -11,6 +11,10 @@ protocols with nonlearning controls. Vision authorization is absent; Spark v5.1
 is design/analytical preparation, not native qualification. No native run,
 RSI or personality adaptation.
 
+Clean `fad6edfd` passes 2,942 tests with 95 explicit skips and 21 subtests;
+Spark final-product verification is 500/500 with no unexplained drift. See
+`reports/verification_20261027/resume_staged_summary.json`.
+
 The [comprehensive Spark research report](docs/research/sparkx_2_6_4b_20261024/README.md)
 adds a current-code audit, model-native spatial/temporal vision and learning
 architecture, a 12-stage proposal, resource estimates and primary-source review.
