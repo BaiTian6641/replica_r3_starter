@@ -5,7 +5,8 @@
 Commits `6bccb837` and `97866da0` bind the smaller-step launch to 13 committed
 implementation files, add fail-closed generated-answer/control/retention/reload
 acceptance, and gate expansion on a positive MPS diagnostic. The affected suite
-passes 339 tests; later preservation suites pass 99 memory, 135 Spark, 134 RSI
+passes 339 tests; a detached clean worktree passes 295 with 44 explicit
+provisioning skips. Later preservation suites pass 99 memory, 135 Spark, 134 RSI
 and 81 visual-boundary tests. Current expansion readiness is blocked only by
 the absent positive diagnostic. No native model job, training, promotion or
 new capability claim occurred. The protected runtime pilot remains untouched.

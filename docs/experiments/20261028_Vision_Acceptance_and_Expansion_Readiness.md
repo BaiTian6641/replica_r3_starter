@@ -103,6 +103,14 @@ The actual co-adaptation review refused with `smaller_step_report_missing`, `fro
 
 The 339-test run took 127.50 seconds; the memory, Spark and RSI runs took 69.88, 71.46 and 27.33 seconds respectively. These are CPU test wall times, not model latency. No new MPS memory, native runtime, energy or artifact-storage measurement exists. New readiness artifacts are small JSON reports (3,104 bytes current and 3,152 bytes preserved attempt01); source/config sizes are tracked in Git, not native checkpoints.
 
+The detached clean worktree at `e1e7dafad9fbccb45ab6079a4e46239613af529c`
+passed **295 tests with 44 explicit skips** in 6.84 seconds and was removed.
+The skips require provisioning ignored MiniCPM5/SigLIP2 metadata, preserved
+native extension/diagnostic evidence or external caption raw images; no download
+or provisioning was attempted. The provisioned workspace result is 339/339.
+The exact commands, counts and skip scope are recorded in
+`reports/verification_20261028/vision_acceptance_summary.json`.
+
 ## 6. Current blockers and next eligible action
 
 1. **Smaller-step native diagnostic:** external authorization and a fresh output are missing. The guarded command above is the only prepared native action; it was not run.

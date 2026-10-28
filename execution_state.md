@@ -32,6 +32,10 @@ Implementation commits are `6bccb8373a407e9054f1f5a6ed7bc37da06891b1` and
   **81 visual-boundary** tests. These are CPU contract results, not native
   capability or cost measurements. No new MPS memory/runtime measurement or
   positive MPS diagnostic exists.
+- A detached clean worktree at `e1e7dafa` passes **295 tests with 44 explicit
+  provisioning skips**; the provisioned workspace passes all 339. Skips concern
+  ignored model/metadata/native evidence and external raw images, not failures.
+  Commands and counts are in `reports/verification_20261028/vision_acceptance_summary.json`.
 
 Next eligible work is an externally authorized smaller-step attempt only after
 its exact receipt/commit/fresh-output prerequisites are satisfied. Co-adaptation

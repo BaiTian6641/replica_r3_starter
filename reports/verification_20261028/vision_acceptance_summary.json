@@ -1,0 +1,76 @@
+{
+  "format": "replica.vision_acceptance.verification.v1",
+  "documentation_commit": "e1e7dafad9fbccb45ab6079a4e46239613af529c",
+  "implementation_commits": [
+    "6bccb8373a407e9054f1f5a6ed7bc37da06891b1",
+    "97866da0bc4d599d3c23ba58d7e6a3c4a50efb6c"
+  ],
+  "native_execution": false,
+  "native_model_loads": 0,
+  "native_optimizer_steps": 0,
+  "provisioned_workspace": {
+    "tested_at_commit": "97866da0bc4d599d3c23ba58d7e6a3c4a50efb6c",
+    "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_vision_acceptance.py tests/test_vision_expansion_readiness.py tests/test_vision_smaller_step_v2.py tests/test_vision_smaller_step_v1.py tests/test_vision_smaller_step_launch_readiness_v1.py tests/test_vision_smaller_step_launch_packet_v1.py tests/test_vision_coadaptation_control_v2.py tests/test_vision_coadaptation_control_v1.py tests/test_vision_coadaptation_runtime.py tests/test_vision_forward_accounting.py tests/test_vision_learnability_curve_v2.py tests/test_vision_learnability_diagnostic.py tests/test_vision_balanced_alignment.py tests/test_caption_lineage_and_eval_20261027.py tests/test_capacity_guard.py",
+    "passed": 339,
+    "skipped": 0,
+    "failed": 0,
+    "wall_seconds": 127.50
+  },
+  "clean_worktree": {
+    "tested_at_commit": "e1e7dafad9fbccb45ab6079a4e46239613af529c",
+    "command": "detached git worktree at e1e7dafad9fbccb45ab6079a4e46239613af529c; PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -rs -p no:cacheprovider tests/test_vision_acceptance.py tests/test_vision_expansion_readiness.py tests/test_vision_smaller_step_v2.py tests/test_vision_smaller_step_v1.py tests/test_vision_smaller_step_launch_readiness_v1.py tests/test_vision_smaller_step_launch_packet_v1.py tests/test_vision_coadaptation_control_v2.py tests/test_vision_coadaptation_control_v1.py tests/test_vision_coadaptation_runtime.py tests/test_vision_forward_accounting.py tests/test_vision_learnability_curve_v2.py tests/test_vision_learnability_diagnostic.py tests/test_vision_balanced_alignment.py tests/test_caption_lineage_and_eval_20261027.py tests/test_capacity_guard.py",
+    "passed": 295,
+    "skipped": 44,
+    "failed": 0,
+    "wall_seconds": 6.84,
+    "temporary_worktree_removed": true,
+    "skip_scope": "Explicit missing-local-artifact provisioning skips, not failures: ignored MiniCPM5/SigLIP2 metadata, preserved native extension/diagnostic evidence and external caption raw images. No download or provisioning was attempted.",
+    "skip_categories": [
+      "vision_learnability_curve_v2 native artifact provisioning",
+      "vision_learnability_diagnostic sealed metadata/extension provisioning",
+      "caption lineage external raw-image provisioning"
+    ]
+  },
+  "additional_preservation_suites": [
+    {"name": "conditional_memory_restart", "passed": 99, "wall_seconds": 69.88},
+    {"name": "spark_backend_tracks", "passed": 135, "wall_seconds": 71.46},
+    {"name": "rsi_provenance_clock_compilation", "passed": 134, "wall_seconds": 27.33},
+    {"name": "spark_visual_boundaries", "passed": 81, "wall_seconds": 4.33}
+  ],
+  "implementation_binding": {
+    "commit": "6bccb8373a407e9054f1f5a6ed7bc37da06891b1",
+    "implementation_files_verified": 13,
+    "native_execution": false
+  },
+  "readiness": {
+    "smaller_step_status": "readiness_current_launch_refused",
+    "smaller_step_packet_sha256": "820790baadce4a32d95f711264d0b347bf4ffc25e1dea09a68c7d0a4abf7a4c2",
+    "expansion_status": "review_ready_expansion_blocked",
+    "expansion_refusals": ["positive_diagnostic_missing"],
+    "positive_diagnostic_present": false,
+    "co_adaptation_refusals": [
+      "smaller_step_report_missing",
+      "frozen_feature_diagnosis_missing",
+      "authorization_receipt_missing"
+    ]
+  },
+  "artifact_bytes": {
+    "smaller_step_launch_packet": 23689,
+    "smaller_step_readiness": 19715,
+    "expansion_readiness": 3104,
+    "expansion_readiness_attempt01_preserved": 3152,
+    "native_checkpoint_writes": 0,
+    "duplicate_base_saves": 0
+  },
+  "preserved_failures": [
+    "reports/vision_expansion_readiness_20261028/readiness_attempt01.json"
+  ],
+  "claims": {
+    "cpu_contracts_implemented": true,
+    "native_visual_learning_measured": false,
+    "positive_mps_diagnostic_measured": false,
+    "expansion_training_authorized": false,
+    "promotion": false,
+    "calibrated_confidence": false
+  }
+}

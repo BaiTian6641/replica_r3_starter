@@ -8,7 +8,9 @@ current partition/source checks preserve 9 admitted, 21 exclusions, 8 exposed
 and 24 synthetic scenes; expansion is blocked only by the missing accepted MPS
 diagnostic. Co-adaptation remains behind its failed-smaller-step, diagnosis and
 receipt prerequisites with explicit zero memory/personality trainables. The
-affected 339 tests and later 99/135/134/81 preservation suites pass. No native
+affected 339 tests pass in the provisioned workspace; a detached clean worktree
+passes 295 with 44 explicit provisioning skips. Later 99/135/134/81 preservation
+suites pass. No native
 execution, learned visual improvement, Spark training, RSI or personality work
 occurred. Keep the exact authorization and fresh-output gates unchanged.
 
