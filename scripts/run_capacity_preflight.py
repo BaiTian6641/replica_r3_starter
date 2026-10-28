@@ -61,7 +61,7 @@ def continuation_requested(arguments):
     position = arguments.index("--stage")
     if position + 1 >= len(arguments):
         return False
-    return arguments[position + 1] in ("development", "final")
+    return arguments[position + 1] in ("development", "final", "sealed_final")
 
 
 def stop_child(child):
@@ -105,7 +105,7 @@ def main():
                                                  "analyze_overfit_fit.py",
                                                  "run_m4_pattern.py",
                                                  "run_m4_restart.py",
-                                                 "run_e5_neural_candidate.py", "run_e2_reader_candidate.py", "run_e4_delayed_use.py", "run_e4_compositional_eval.py", "run_e3_policy_probe.py", "run_e3_policy_head.py", "run_e3_mixed_controls.py", "run_e3_mixed_core_controls.py", "run_e2_copy_head.py", "run_e2_pointer_head.py", "run_e4_contextual.py", "run_e2_pointer_service.py", "run_e2_pointer_scope_train.py", "run_e2_pointer_context.py", "run_e2_pointer_context_service.py", "run_e2_cross_template_retrieval.py", "run_e2_cross_rerank.py", "run_dc_p1_native_response_v2_20261027.py"),
+                                                 "run_e2_cross_rerank.py", "run_dc_p1_native_response_v2_20261027.py", "run_dc_r1_native_value_v3_20261028.py"),
                         default="train_text.py")
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--driver-limit-gib", type=float,
@@ -113,11 +113,15 @@ def main():
     parser.add_argument("--swap-growth-limit-mib", type=float, default=512)
     parser.add_argument("--minimum-free-percent", type=float, default=15)
     parser.add_argument("--sustained-host-samples", type=int, default=3)
+    parser.add_argument("--telemetry-timeout-seconds", type=float, default=30,
+                        help="missing/stale driver telemetry timeout; production default 30s")
     parser.add_argument("--continue-existing-output", action="store_true",
                         help="allow an existing output only for --resume or "
                              "--stage development|final")
     parser.add_argument("trainer_args", nargs=argparse.REMAINDER)
     args = parser.parse_args()
+    if args.telemetry_timeout_seconds <= 0:
+        parser.error("telemetry timeout must be positive")
     if sys.platform != "darwin":
         parser.error("This watchdog uses macOS host telemetry")
     try:
@@ -149,7 +153,8 @@ def main():
               "continue_existing_output": bool(args.continue_existing_output),
               "continuation_requested": continuation, "child_log": str(log_path),
               "host_samples": str(host_path), "host_poll_seconds": 2,
-              "profile_poll_seconds": 0.25, "missing_driver_sample_timeout_seconds": 30,
+              "profile_poll_seconds": 0.25,
+              "missing_driver_sample_timeout_seconds": args.telemetry_timeout_seconds,
               "implementation_sha256": {
                   name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
                   for name in ("scripts/run_capacity_preflight.py", "src/replica_lab/capacity_guard.py")},
@@ -203,7 +208,7 @@ def main():
                     break
                 if child.poll() is not None:
                     break
-                if now - last_driver_at > 30:
+                if now - last_driver_at > args.telemetry_timeout_seconds:
                     guard.stop_reason = "mps_driver_telemetry_stale_or_missing"
                     stop_child(child)
                     break

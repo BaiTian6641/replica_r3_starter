@@ -1,0 +1,220 @@
+{
+  "format": "replica.dc_r1_native_value.protocol.v3",
+  "protocol_id": "dc_r1_native_value_readout_v3",
+  "status": "preparation_only_no_native_admission",
+  "study": "DC-R1",
+  "declared_at_utc": "2026-10-28T00:00:00+00:00",
+  "parent": {
+    "protocol_id": "dc_r1_native_value_readout_v2",
+    "config_sha256": "308aedb7b5c2258e22a8cdf4e8a0cca82e5e7c227544942c2e64046dab30ec25",
+    "prepared_manifest_sha256": "aead85097ad8d9078cbcb34b7c7e9c2d848a72f03d1cda0c1a032d19a01ed1d6",
+    "historical_receipts_preserved": true,
+    "changes": [
+      "raw generated IDs, terminal stop IDs and scored content IDs are separate",
+      "EOS and immediate EOS are charged as executed forwards and positions; immediate EOS is scored empty failure",
+      "development evidence must be independently verified native evidence before final loading or labels",
+      "authorization binds commit, attempt and output and is single-attempt across output directories",
+      "one cumulative ledger includes dev, final, admission and bounded recovery work"
+    ]
+  },
+  "baseline_model": {
+    "local_bytes_sealed": true,
+    "lock_path": "configs/minicpm5_sealed_lock.local.json",
+    "model_path": "checkpoints/minicpm5_source",
+    "parameter_count": 2516756480,
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "upstream_authenticity_independently_verified": false
+  },
+  "optimizer_policy": {
+    "primary": "NativeFusedAdamW",
+    "default_name": "adamw_fused",
+    "changed": false,
+    "mps_fallback_enabled": false,
+    "optimizer_steps_in_this_protocol": 0
+  },
+  "resource_guard": {
+    "cpu_fallback": false,
+    "exclusive_worker": true,
+    "min_host_free_fraction": 0.15,
+    "mps_fallback": false,
+    "peak_driver_bytes_max": 53687091200,
+    "sustained_swap_growth_bytes_max": 536870912
+  },
+  "prepared": {
+    "root": "data/dc_r1_native_value_v2_20261027",
+    "manifest_sha256": "aead85097ad8d9078cbcb34b7c7e9c2d848a72f03d1cda0c1a032d19a01ed1d6",
+    "layer_group": [13, 27, 41],
+    "dev_cases": 12,
+    "sealed_final_cases": 4,
+    "conditions": ["exact_context", "selected_literal", "compressed_record", "wrong_value", "no_memory"]
+  },
+  "schedule": {
+    "mode": "sequential_per_layer_no_shared_prefill",
+    "max_generated_tokens_per_request": 8,
+    "prefill_token_ceiling_per_request": 128,
+    "development_model_loads": 1,
+    "development_tokenizer_loads": 1,
+    "final_model_loads": 1,
+    "final_admission_tokenizer_loads": 1,
+    "final_backend_tokenizer_loads": 1,
+    "recovery_max": 1,
+    "recovery_model_loads": 1,
+    "recovery_tokenizer_loads": 1,
+    "recovery_replay_layer_streams_max": 3,
+    "recovery_forward_calls_max": 24,
+    "recovery_generated_tokens_max": 24,
+    "recovery_processed_positions_max": 3156
+  },
+  "budget": {
+    "physical_limits": {
+      "max_model_loads": 3,
+      "max_tokenizer_loads": 4,
+      "max_generation_requests": 240,
+      "max_prefill_forwards": 240,
+      "max_decode_forwards": 1680,
+      "max_forward_calls": 1920,
+      "max_generated_tokens": 1920,
+      "max_prefill_tokens": 30720,
+      "max_processed_positions": 252480,
+      "max_layer_readout_streams": 240,
+      "max_optimizer_steps": 0,
+      "max_backward_calls": 0,
+      "max_checkpoint_writes": 0,
+      "max_restarts": 1,
+      "max_recovery_forward_calls": 24,
+      "max_recovery_generated_tokens": 24,
+      "max_recovery_processed_positions": 3156,
+      "max_recovery_generation_requests": 3,
+      "max_recovery_prefill_forwards": 3,
+      "max_recovery_layer_readout_streams": 3,
+      "max_recovery_prefill_tokens": 384,
+      "max_failed_forward_calls": 2,
+      "max_failed_processed_positions": 2104,
+      "max_wall_seconds": 1800,
+      "max_artifact_bytes": 33554432,
+      "max_workers": 1
+    },
+    "authorized_run_ceiling": {
+      "artifact_bytes_max": 33554432,
+      "model_loads": 3,
+      "tokenizer_loads": 4,
+      "generation_requests_total": 240,
+      "prefill_forwards_total": 240,
+      "decode_forwards_total": 1680,
+      "forward_calls_total": 1944,
+      "generated_tokens_total": 1944,
+      "prefill_tokens_total": 30720,
+      "processed_positions_total": 255636,
+      "layer_readout_streams_total": 240,
+      "recovery_restarts": 1,
+      "recovery_forward_calls": 24,
+      "recovery_generated_tokens": 24,
+      "recovery_processed_positions": 3156,
+      "optimizer_updates_total": 0,
+      "backward_calls_total": 0,
+      "checkpoint_writes": 0,
+      "downloads": 0,
+      "retries": 0,
+      "wall_seconds_max": 1800,
+      "gpu_minutes_max": 30,
+      "peak_driver_bytes_max": 53687091200,
+      "sustained_swap_growth_bytes_max": 536870912,
+      "min_host_free_fraction": 0.15,
+      "exclusive_worker": true,
+      "cpu_fallback": false
+    }
+  },
+  "evaluation": {
+    "gates": {
+      "compressed_accepted_native_min": 0.6,
+      "compressed_complete_native_min": 0.4,
+      "compressed_reconstruction_control_min": 0.75,
+      "exact_context_accepted_min": 0.8,
+      "no_memory_group_abstain_min": 0.95,
+      "no_memory_group_non_abstain_max": 0.05,
+      "no_memory_hallucination_max": 0.05,
+      "no_memory_per_layer_non_abstain_max": 0.05,
+      "per_layer_reporting_required": true,
+      "selected_literal_accepted_min": 0.9,
+      "selected_literal_complete_min": 0.7,
+      "wrong_value_correct_target_max": 0.1
+    },
+    "group_abstention_requires_all_layers": true,
+    "accepted_layer_substitute_for_complete_group": false,
+    "accepted_layer_substitute_for_group_abstention": false,
+    "host_reconstruction_is_native_readout_evidence": false
+  },
+  "compressed_channel": {
+    "native_input_fields": ["codec_id", "code"],
+    "host_codec_table_visible_to_model": false,
+    "native_gate_status": "blocked_no_native_compressed_channel_receipt",
+    "host_decode_role": "reconstruction_audit_control_only"
+  },
+  "tokenizer_binding": {
+    "decode_policy": {
+      "answer_selection_allowed": false,
+      "candidate_answers_used": false,
+      "clean_up_tokenization_spaces": false,
+      "empty_generation_credit": false,
+      "skip_special_tokens": true,
+      "stop_tokens": [1, 130073],
+      "strip_outer_whitespace": true,
+      "target_eos_token": 1,
+      "terminal_stop_tokens_excluded_before_decode": true,
+      "version": "replica.dc.generated_decode.v1"
+    },
+    "fast_tokenizer": true,
+    "files": {
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "load_mode": "offline_local_files_only",
+    "repository": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "trust_remote_code": false
+  },
+  "launch": {
+    "review_only": true,
+    "native_execution": false,
+    "runner_path": "scripts/run_dc_r1_native_value_v3_20261028.py",
+    "output_root": "runs/dc_r1_native_value_v3_20261028/native01",
+    "authorization_path": "reports/dc_r1_native_value_v3_20261028/authorization.json",
+    "authorization_format": "replica.dc_protocol.authorization.v3",
+    "authorization_fields": [
+      "format",
+      "protocol_id",
+      "config_sha256",
+      "prepared_manifest_sha256",
+      "protocol_commit",
+      "attempt_id",
+      "output_root",
+      "authorized_by",
+      "native_execution_allowed",
+      "single_attempt",
+      "restart_allowance",
+      "receipt_sha256"
+    ],
+    "requires_authorization_receipt": true,
+    "fresh_output_path": true,
+    "implementation_relatives": [
+      "configs/dc_r1_native_value_protocol_v3.json",
+      "data/dc_r1_native_value_v2_20261027/manifest.json",
+      "scripts/dc_r1_native_value_v3_20261028.py",
+      "scripts/preflight_dc_r1_native_value_v3_20261028.py",
+      "scripts/run_dc_r1_native_value_v3_20261028.py",
+      "src/replica_lab/dc_r1_v3_backend.py",
+      "src/replica_lab/dc_r1_v3_scoring.py",
+      "src/replica_lab/dc_r1_v3_runner.py"
+    ]
+  },
+  "claims": {
+    "implemented_protocol": true,
+    "implemented_native_runner": true,
+    "trained": false,
+    "calibrated": false,
+    "native_execution": false,
+    "capability_qualified": false
+  },
+  "seed": 20261027
+}
