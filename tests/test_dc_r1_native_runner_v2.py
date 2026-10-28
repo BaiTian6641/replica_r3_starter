@@ -185,6 +185,8 @@ def test_interrupted_stage_resumes_completed_cases_without_repeating_them(tmp_pa
     assert journal["stage_complete"] is False
     assert journal["status"] == "failed"
     assert len(journal["predictions"]["exact_context"]) == 1
+    assert len(journal["trajectories"]) == 4
+    assert journal["last_attempt"]["layer"] == 27
     resumed = FakeBackend(
         _labels(), vocab=(first.text_to_token, first.token_to_text))
     # This injected CPU backend represents an already-loaded process on resume;
@@ -355,6 +357,21 @@ def test_launch_preflight_emits_guarded_external_command(tmp_path):
     assert "--stage dev" in report["next_command"]
     assert read_json(receipt)["status"] == "launch_admitted"
     assert not (ROOT / "runs/dc_r1_native_value_v2_20261027/native01").exists()
+
+
+def test_launch_preflight_rejects_unsealed_authorization(tmp_path):
+    script = ROOT / "scripts" / "preflight_dc_r1_native_value_v2_20261027.py"
+    authorization = _authorization(tmp_path)
+    payload = read_json(authorization)
+    payload["receipt_sha256"] = "2" * 64
+    authorization.write_text(json.dumps(payload), encoding="utf-8")
+    completed = subprocess.run(
+        [sys.executable, str(script), "--launch", "--receipt",
+         str(tmp_path / "rejected_launch.json"), "--authorization",
+         str(authorization)], cwd=ROOT, text=True, capture_output=True,
+        check=False)
+    assert completed.returncode == 2
+    assert json.loads(completed.stdout)["check"] == "authorization"
 
 
 def test_native_backend_real_tiny_llama_forward_decode_and_work(tmp_path):

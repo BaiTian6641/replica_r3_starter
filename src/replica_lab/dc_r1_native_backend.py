@@ -36,14 +36,22 @@ class NativeR1Backend:
         self.profiler = None
         if adapter is None:
             self._worker = exclusive_mps_worker(Path(context.root))
-            self._worker.__enter__()
-            profile_dir = Path(context.output) / stage
-            profile_dir.mkdir(parents=True, exist_ok=True)
-            self.profiler = RunProfiler("mps", profile_dir).start()
-            model_path = Path(context.root) / context.config["baseline_model"]["model_path"]
-            lock_path = Path(context.root) / context.config["baseline_model"]["lock_path"]
-            self.adapter, self.tokenizer, self.lock = load_local_mps(
-                model_path, lock_path, profiler=self.profiler)
+            try:
+                self._worker.__enter__()
+                profile_dir = Path(context.output) / stage
+                profile_dir.mkdir(parents=True, exist_ok=True)
+                self.profiler = RunProfiler("mps", profile_dir).start()
+                model_path = Path(context.root) / context.config["baseline_model"]["model_path"]
+                lock_path = Path(context.root) / context.config["baseline_model"]["lock_path"]
+                self.adapter, self.tokenizer, self.lock = load_local_mps(
+                    model_path, lock_path, profiler=self.profiler)
+            except BaseException:
+                try:
+                    self.close()
+                finally:
+                    self._worker = None
+                    self.profiler = None
+                raise
         else:
             self.adapter = adapter
             self.tokenizer = tokenizer
@@ -59,8 +67,10 @@ class NativeR1Backend:
     def close(self) -> None:
         if self.profiler is not None:
             self.profiler.stop()
+            self.profiler = None
         if self._worker is not None:
             self._worker.__exit__(None, None, None)
+            self._worker = None
 
     @property
     def decode_fn(self):

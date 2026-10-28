@@ -2134,6 +2134,11 @@ def preflight(config_path: str | Path = CONFIG_PATH,
         authorization_path=authorization,
         launch=launch)
     if launch and native_runner is not None:
+        sealed = read_json(authorization)
+        require(sha256_json({key: value for key, value in sealed.items()
+                             if key != "receipt_sha256"})
+                == sealed.get("receipt_sha256"), "authorization",
+                "authorization self digest differs")
         runner = Path(native_runner)
         if not runner.is_absolute():
             runner = ROOT / runner

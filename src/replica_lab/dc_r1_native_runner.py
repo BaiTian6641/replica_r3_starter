@@ -321,9 +321,19 @@ def _generate(context: RunContext, stage: str, backend: Any,
                 continue
             layer_results = []
             for layer in LAYERS:
+                if journal is not None:
+                    journal["last_attempt"] = {
+                        "condition": condition, "case_id": case["case_id"],
+                        "layer": layer,
+                    }
                 plan = backend.estimate_evaluation_work(condition_row)
                 reservation = meter.reserve(plan["work"])
                 result = backend.evaluate(condition_row, layer=layer, prepared=plan)
+                if journal is not None:
+                    journal.setdefault("trajectories", []).append({
+                        "condition": condition, "case_id": case["case_id"],
+                        "layer": layer, "result": dict(result),
+                    })
                 actual = {
                     "generation_requests": 1,
                     "generation_prefill_forwards": 1,
