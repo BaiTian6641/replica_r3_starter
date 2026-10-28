@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import subprocess
 import shlex
 import sys
 
@@ -163,12 +164,19 @@ def preflight(config_path: Path = CONFIG_PATH, prepared: Path = PREPARED_DIR,
     if not output.is_absolute():
         output = ROOT / output
     output = output.resolve()
+    protocol_commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True,
+        capture_output=True, check=True).stdout.strip()
     report = {
         "format": "replica.dc_p1_source_free_feature_alignment.review.v2",
         "protocol_id": PROTOCOL_ID,
         "status": "review_ready_preparation_only",
         "config_path": str(config_path),
         "config_sha256": sha256_file(config_path),
+        "protocol_commit": protocol_commit,
+        "implementation_sha256": {
+            relative: sha256_file(ROOT / relative)
+            for relative in runner.IMPLEMENTATION_RELATIVES},
         "prepared_manifest_path": str(prepared / "manifest.json"),
         "prepared_manifest_sha256": config["prepared"]["manifest_sha256"],
         "prepared_validation": prepared_report,
