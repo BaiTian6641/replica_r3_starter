@@ -13,6 +13,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -71,10 +72,12 @@ def clean_root(tmp_path_factory):
     declaration.parent.mkdir(parents=True, exist_ok=True)
     if not declaration.exists() and not declaration.is_symlink():
         declaration.symlink_to(ROOT / DECLARATION)
-    repository = ROOT / ".git"
-    if repository.is_dir() and not (root / ".git").exists() \
-            and not (root / ".git").is_symlink():
-        (root / ".git").write_text(f"gitdir: {repository}\n")
+    repository = subprocess.check_output(
+        ["git", "-C", str(ROOT), "rev-parse", "--absolute-git-dir"],
+        text=True).strip()
+    git_metadata = root / ".git"
+    if not git_metadata.exists() and not git_metadata.is_symlink():
+        git_metadata.write_text(f"gitdir: {repository}\n")
     return root
 
 
