@@ -1,5 +1,33 @@
 # Execution state — integrated memory, cognition and learning
 
+## DC-P1 v2 native preparation — 28 October 2026
+
+**Current status — the versioned protocol and real native code path are
+implemented and CPU-qualified; native training/evaluation remains unauthorized
+and unrun.** Protocol/implementation commit is
+`792c878f62d454ab702887680ef66b914698d79a`.
+
+- The runner trains only `expert_0.gate/up/down`; the backbone and fixed read
+  path stay frozen. P-only evaluation removes source context/KV, optimizer
+  moments and teaching rows. Event prefixes, historical/current resolution,
+  matched controls and the global-CE-rescale audit are explicit.
+- Actual counters now include autoregressive forwards, restart model/tokenizer
+  loads and retained artifacts. The reconciled schedule is 120 updates, 416
+  generation requests, 121 checkpoint writes, four retained checkpoints and a
+  6,961-second wall ceiling. Live publication observes temporary files.
+- The broad focused suite passes **136/136**. Fresh-process CPU attempt03
+  completes fit/development/final and interrupted resume: 108 fit updates, 120
+  cumulative updates, one recovery reload, one restart backward and zero
+  repeated optimizer work. Peak live storage is 985,890 bytes. Every admission
+  is false because this is `cpu_fixture` evidence, not learned/native evidence.
+- Review attempt02 is `review_ready` with no labels, tokenizer, model or native
+  work. Missing authorization and a dirty tracked worktree both refuse before
+  native execution. The external receipt remains absent; no MPS job, download,
+  native held-out result or model-quality claim exists.
+
+Read the [complete DC-P1 implementation and evidence report](docs/experiments/20261028_DC_P1_V2_Native_Preparation.md).
+Raw evidence is under `reports/dc_p1_native_response_v2_20261028/`.
+
 
 ## Resume repair and staged learning — 27 October 2026
 

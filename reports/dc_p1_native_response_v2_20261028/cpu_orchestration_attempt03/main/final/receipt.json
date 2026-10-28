@@ -1,0 +1,289 @@
+{
+  "arms": {
+    "treatment": {
+      "answer_span_ce_weight": 0.5,
+      "cases": 32,
+      "checkpoint_id": "dcp1v2:arm:treatment:final12",
+      "decode_verified": 32,
+      "exact_accuracy": 1.0,
+      "prediction_sha256": "4c1683b716013690817641898e7c3b6315e668ec057477e3ed94c8e258a99465"
+    }
+  },
+  "attempt_id": "dcp1v2:4fea10eb953a20468de6c0e76146cfe8",
+  "cases": {
+    "count": 32,
+    "stage": "final"
+  },
+  "config_sha256": "67d9060ec2b69e1eb49e11010d16a55b25b06d71d3074ee8c3f306d907e5f304",
+  "decode_policy_sha256": "cf8405614e15cf258a55fcfc57f9adfc6677a31bfdd7e5fe7ddc07b146fdeb59",
+  "evidence_class": "cpu_fixture",
+  "evidence_counts": {
+    "arms": 1,
+    "count": 32,
+    "prediction_sha256_by_arm": {
+      "treatment": "4c1683b716013690817641898e7c3b6315e668ec057477e3ed94c8e258a99465"
+    },
+    "predictions": 32,
+    "split_role_counts": {
+      "final_fit": 12,
+      "sealed_final": 20
+    },
+    "stage": "final"
+  },
+  "format": "replica.dc_stage_receipt.v2",
+  "gates": {
+    "final_confirmation_only": {
+      "arms": [
+        "treatment"
+      ],
+      "comparison": null,
+      "passed": true
+    },
+    "final_fit_exact": {
+      "min": 0.5,
+      "passed": true,
+      "value": 1.0
+    },
+    "final_fit_nonempty": {
+      "min": 0.95,
+      "passed": true,
+      "value": 1.0
+    },
+    "mask_audit_present": {
+      "passed": true,
+      "value": true
+    },
+    "objective_claim_consistent": {
+      "added_term_changes_learning_signal": null,
+      "expected_claim": null,
+      "passed": true,
+      "rescaled_only": true,
+      "value": "global_ce_rescale"
+    },
+    "treatment_final_abstention_accuracy": {
+      "min": 0.9,
+      "passed": true,
+      "value": 1.0
+    },
+    "treatment_final_historical_state_accuracy": {
+      "min": 0.6,
+      "passed": true,
+      "value": 1.0
+    },
+    "treatment_final_new_instance_current_accuracy": {
+      "min": 0.5,
+      "passed": true,
+      "value": 1.0
+    },
+    "treatment_final_post_correction_current_accuracy": {
+      "min": 0.5,
+      "passed": true,
+      "value": 1.0
+    },
+    "treatment_final_retention_accuracy": {
+      "min": 0.7,
+      "passed": true,
+      "value": 1.0
+    }
+  },
+  "manifest_sha256": "e8668aa72d77a1cc64d8662eeea0dc9f7eca94f60d6bcd2702fd431117bb02be",
+  "native_execution_admissible": false,
+  "objective_audit": {
+    "answer_span_ce_weight": 0.5,
+    "claim": "global_ce_rescale",
+    "coincident_rows": 12,
+    "format": "replica.dc_response_objective_audit.v2.collection",
+    "per_row": [
+      {
+        "added_term_changes_learning_signal": false,
+        "answer_span_ce_weight": 0.5,
+        "answer_span_tokens": 11,
+        "claim": "global_ce_rescale",
+        "constant_rescale_factor": 1.5,
+        "format": "replica.dc_response_objective_audit.v2",
+        "gradient_cosine": null,
+        "masks_coincide": true,
+        "objective_format": "replica.dc_response_objective.v2",
+        "per_token_weight_constant": true,
+        "per_token_weight_spread": 1.0,
+        "rescaled_only": true,
+        "response_tokens": 11
+      },
+      {
+        "added_term_changes_learning_signal": false,
+        "answer_span_ce_weight": 0.5,
+        "answer_span_tokens": 11,
+        "claim": "global_ce_rescale",
+        "constant_rescale_factor": 1.5,
+        "format": "replica.dc_response_objective_audit.v2",
+        "gradient_cosine": null,
+        "masks_coincide": true,
+        "objective_format": "replica.dc_response_objective.v2",
+        "per_token_weight_constant": true,
+        "per_token_weight_spread": 1.0,
+        "rescaled_only": true,
+        "response_tokens": 11
+      },
+      {
+        "added_term_changes_learning_signal": false,
+        "answer_span_ce_weight": 0.5,
+        "answer_span_tokens": 8,
+        "claim": "global_ce_rescale",
+        "constant_rescale_factor": 1.5,
+        "format": "replica.dc_response_objective_audit.v2",
+        "gradient_cosine": null,
+        "masks_coincide": true,
+        "objective_format": "replica.dc_response_objective.v2",
+        "per_token_weight_constant": true,
+        "per_token_weight_spread": 1.0,
+        "rescaled_only": true,
+        "response_tokens": 8
+      },
+      {
+        "added_term_changes_learning_signal": false,
+        "answer_span_ce_weight": 0.5,
+        "answer_span_tokens": 11,
+        "claim": "global_ce_rescale",
+        "constant_rescale_factor": 1.5,
+        "format": "replica.dc_response_objective_audit.v2",
+        "gradient_cosine": null,
+        "masks_coincide": true,
+        "objective_format": "replica.dc_response_objective.v2",
+        "per_token_weight_constant": true,
+        "per_token_weight_spread": 1.0,
+        "rescaled_only": true,
+        "response_tokens": 11
+      },
+      {
+        "added_term_changes_learning_signal": false,
+        "answer_span_ce_weight": 0.5,
+        "answer_span_tokens": 11,
+        "claim": "global_ce_rescale",
+        "constant_rescale_factor": 1.5,
+        "format": "replica.dc_response_objective_audit.v2",
+        "gradient_cosine": null,
+        "masks_coincide": true,
+        "objective_format": "replica.dc_response_objective.v2",
+        "per_token_weight_constant": true,
+        "per_token_weight_spread": 1.0,
+        "rescaled_only": true,
+        "response_tokens": 11
+      },
+      {
+        "added_term_changes_learning_signal": false,
+        "answer_span_ce_weight": 0.5,
+        "answer_span_tokens": 8,
+        "claim": "global_ce_rescale",
+        "constant_rescale_factor": 1.5,
+        "format": "replica.dc_response_objective_audit.v2",
+        "gradient_cosine": null,
+        "masks_coincide": true,
+        "objective_format": "replica.dc_response_objective.v2",
+        "per_token_weight_constant": true,
+        "per_token_weight_spread": 1.0,
+        "rescaled_only": true,
+        "response_tokens": 8
+      },
+      {
+        "added_term_changes_learning_signal": false,
+        "answer_span_ce_weight": 0.5,
+        "answer_span_tokens": 11,
+        "claim": "global_ce_rescale",
+        "constant_rescale_factor": 1.5,
+        "format": "replica.dc_response_objective_audit.v2",
+        "gradient_cosine": null,
+        "masks_coincide": true,
+        "objective_format": "replica.dc_response_objective.v2",
+        "per_token_weight_constant": true,
+        "per_token_weight_spread": 1.0,
+        "rescaled_only": true,
+        "response_tokens": 11
+      },
+      {
+        "added_term_changes_learning_signal": false,
+        "answer_span_ce_weight": 0.5,
+        "answer_span_tokens": 11,
+        "claim": "global_ce_rescale",
+        "constant_rescale_factor": 1.5,
+        "format": "replica.dc_response_objective_audit.v2",
+        "gradient_cosine": null,
+        "masks_coincide": true,
+        "objective_format": "replica.dc_response_objective.v2",
+        "per_token_weight_constant": true,
+        "per_token_weight_spread": 1.0,
+        "rescaled_only": true,
+        "response_tokens": 11
+      },
+      {
+        "added_term_changes_learning_signal": false,
+        "answer_span_ce_weight": 0.5,
+        "answer_span_tokens": 8,
+        "claim": "global_ce_rescale",
+        "constant_rescale_factor": 1.5,
+        "format": "replica.dc_response_objective_audit.v2",
+        "gradient_cosine": null,
+        "masks_coincide": true,
+        "objective_format": "replica.dc_response_objective.v2",
+        "per_token_weight_constant": true,
+        "per_token_weight_spread": 1.0,
+        "rescaled_only": true,
+        "response_tokens": 8
+      },
+      {
+        "added_term_changes_learning_signal": false,
+        "answer_span_ce_weight": 0.5,
+        "answer_span_tokens": 11,
+        "claim": "global_ce_rescale",
+        "constant_rescale_factor": 1.5,
+        "format": "replica.dc_response_objective_audit.v2",
+        "gradient_cosine": null,
+        "masks_coincide": true,
+        "objective_format": "replica.dc_response_objective.v2",
+        "per_token_weight_constant": true,
+        "per_token_weight_spread": 1.0,
+        "rescaled_only": true,
+        "response_tokens": 11
+      },
+      {
+        "added_term_changes_learning_signal": false,
+        "answer_span_ce_weight": 0.5,
+        "answer_span_tokens": 11,
+        "claim": "global_ce_rescale",
+        "constant_rescale_factor": 1.5,
+        "format": "replica.dc_response_objective_audit.v2",
+        "gradient_cosine": null,
+        "masks_coincide": true,
+        "objective_format": "replica.dc_response_objective.v2",
+        "per_token_weight_constant": true,
+        "per_token_weight_spread": 1.0,
+        "rescaled_only": true,
+        "response_tokens": 11
+      },
+      {
+        "added_term_changes_learning_signal": false,
+        "answer_span_ce_weight": 0.5,
+        "answer_span_tokens": 8,
+        "claim": "global_ce_rescale",
+        "constant_rescale_factor": 1.5,
+        "format": "replica.dc_response_objective_audit.v2",
+        "gradient_cosine": null,
+        "masks_coincide": true,
+        "objective_format": "replica.dc_response_objective.v2",
+        "per_token_weight_constant": true,
+        "per_token_weight_spread": 1.0,
+        "rescaled_only": true,
+        "response_tokens": 8
+      }
+    ],
+    "rescaled_only": true,
+    "rows": 12,
+    "span_specific_rows": 0
+  },
+  "protocol_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "protocol_id": "dc_p1_native_response_v2",
+  "receipt_sha256": "0b77c5d1346ea4ef3d2c2fba452e4f5fa4780b4b132533173f26d50c3cfe748a",
+  "score_report_sha256": "4bae0687ff59f7314b0da266835a649adb2f2e09082cdc8a798ed94c181260ab",
+  "stage": "final",
+  "status": "passed",
+  "tokenizer_binding_sha256": "b8235daddfb640da28a818af1b663e319fffa27d8a8a7c4a57cc97d565d97501"
+}

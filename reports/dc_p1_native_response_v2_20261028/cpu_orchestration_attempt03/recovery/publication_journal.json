@@ -1,0 +1,85 @@
+{
+  "format": "replica.artifact_publication.journal.v1",
+  "identity": {
+    "protocol_id": "dc_p1_native_response_v2",
+    "config_sha256": "67d9060ec2b69e1eb49e11010d16a55b25b06d71d3074ee8c3f306d907e5f304",
+    "prepared_manifest_sha256": "e8668aa72d77a1cc64d8662eeea0dc9f7eca94f60d6bcd2702fd431117bb02be",
+    "protocol_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "authorization_receipt_sha256": "41b3ef67a46674598b0ae8d7aeb7067cab274e7e36fdedb49eed69378b9123af"
+  },
+  "cap_bytes": 67108864,
+  "stages": [
+    {
+      "stage": "fit",
+      "artifacts": [
+        {
+          "path": "fit/receipt.json",
+          "sha256": "fda8ab6fc352f4cde7b28c28da591459049e0aefaf1cb7825e6d03974c1dc4a3",
+          "bytes": 23850
+        },
+        {
+          "path": "fit/predictions_treatment.jsonl",
+          "sha256": "cdc15e24e5570024ff9c8eb63ea83a0b8ed2c4651e6ce84c5016c4822a186650",
+          "bytes": 58169
+        },
+        {
+          "path": "fit/checkpoints/treatment.pt",
+          "sha256": "2713ec553342f38b230c5dbd4374d00ff66d87a0f0cc1f7e8f2043f698978d29",
+          "bytes": 6161
+        },
+        {
+          "path": "fit/predictions_matched_trained.jsonl",
+          "sha256": "f09c996e8274aec3e901ac13efbbdf672c0cc0347a74289ac5649afb0af51700",
+          "bytes": 58601
+        },
+        {
+          "path": "fit/checkpoints/matched_trained.pt",
+          "sha256": "27fcaa8fccbf3b32897ea18f707d0e15a087a9463c08ceb2df33b3d7d9a79e7c",
+          "bytes": 6197
+        },
+        {
+          "path": "fit/predictions_no_update.jsonl",
+          "sha256": "866395f999e55b4287b0f5b16262aa535172ab1e1bc3a7014b7b024b633c88dd",
+          "bytes": 58169
+        },
+        {
+          "path": "fit/predictions_reset_P.jsonl",
+          "sha256": "f60afb5d309d722447aca4bfc6a462091da5b6f6a7a26e883aff2e3ddf54b69e",
+          "bytes": 58601
+        },
+        {
+          "path": "fit/checkpoints/reset_P.pt",
+          "sha256": "44ec422da9b599ce03b40f6f08113886d49dc83f7cef57b8d6d9502d0782813d",
+          "bytes": 6149
+        },
+        {
+          "path": "fit/fit_report.json",
+          "sha256": "a6b9f78af20bdaa0cea03a5e2e00d1dbecdf94c1b66c71a301f2acd9aca5d8cc",
+          "bytes": 25094
+        }
+      ]
+    }
+  ],
+  "recovery_artifacts": [],
+  "live_peak": {
+    "label": "dc_p1_v2",
+    "peak_live_bytes": 352218,
+    "peak_live_files": [
+      ".publication_journal.json.tmp",
+      "fit/checkpoints/matched_trained.pt",
+      "fit/checkpoints/reset_P.pt",
+      "fit/checkpoints/treatment.pt",
+      "fit/fit_report.json",
+      "fit/journal.json",
+      "fit/predictions_matched_trained.jsonl",
+      "fit/predictions_no_update.jsonl",
+      "fit/predictions_reset_P.jsonl",
+      "fit/predictions_treatment.jsonl",
+      "fit/receipt.json"
+    ],
+    "peak_live_file_count": 11,
+    "observations": 510,
+    "includes_temporary_files": true,
+    "includes_recovery_artifacts": true
+  }
+}

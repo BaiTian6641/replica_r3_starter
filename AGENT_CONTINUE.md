@@ -1,5 +1,18 @@
 # Coding-agent continuation instruction
 
+**Current priority — 28 October 2026:** use
+[DC-P1 v2 native preparation](docs/experiments/20261028_DC_P1_V2_Native_Preparation.md).
+Commit `792c878f` contains the versioned fixture, exact event/checkpoint and
+temporal semantics, matched controls, narrowed objective claim, selected-expert
+native runner, source-free evaluation and staged receipts. Actual accounting
+now covers autoregressive forwards, recovery reloads, 121 physical checkpoint
+writes, four retained artifacts and temporary-file live peaks. The broad focused
+suite passes 136 tests; review attempt02 is ready. CPU attempt03 preserves all
+stages and interrupted resume, with native admission false throughout. The
+external native receipt remains absent: do not launch, synthesize authorization,
+or claim learned/native benefit. Continue isolated vision/Spark preparation and
+clean-checkout verification without changing those gates.
+
 
 **Current priority — 27 October 2026:** use
 [resume repair and staged learning](docs/experiments/20261027_Resume_Repair_and_Staged_Learning.md).

@@ -1,5 +1,15 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
+**Current priority — 28 October 2026:** read
+[DC-P1 v2 native preparation](docs/experiments/20261028_DC_P1_V2_Native_Preparation.md).
+The protocol, selected-expert native runner, source-free P-only evaluation,
+per-event recovery and live publication accounting are committed at `792c878f`.
+The focused suites pass 136 tests and review-only preflight is ready. Preserved
+CPU fixtures complete fit/development/final and interrupted resume, but every
+native admission is false and no learned claim is made. External native
+authorization is absent; no MPS job, download or sealed-final native evaluation
+was run. Vision, Spark and RSI gates remain unchanged.
+
 
 **Current priority — 27 October 2026:** read
 [resume repair and staged learning](docs/experiments/20261027_Resume_Repair_and_Staged_Learning.md).
