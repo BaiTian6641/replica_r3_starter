@@ -1,0 +1,246 @@
+{
+  "format": "replica.dc_p1_source_free_feature_alignment.protocol.v1",
+  "protocol_id": "dc_p1_source_free_feature_alignment_v1",
+  "parent_protocol_id": "dc_p1_native_response_v2",
+  "version": "1",
+  "declared_at_utc": "2026-10-28T00:00:00+00:00",
+  "purpose": "Train-only test of source-free query-feature alignment after the CPU audit showed exact 1.5 global CE rescaling, epsilon-sensitive updates, a nonzero source-free feature shift and selected-expert logit contribution. The alternative is not span-specific supervision, a memory-repair claim or permission for a blind retry.",
+  "justification": {
+    "gradient_ratio": 1.5,
+    "source_free_feature_shift_l2": 0.6931585073471069,
+    "selected_expert_max_logit_delta": 2.0,
+    "clip_scale_observed": 0.67108864,
+    "clip_resulting_norm": 1.0,
+    "epsilon_sensitivity_observed": true
+  },
+  "parent": {
+    "config_path": "configs/dc_p1_native_response_protocol_v2.json",
+    "config_sha256": "67d9060ec2b69e1eb49e11010d16a55b25b06d71d3074ee8c3f306d907e5f304",
+    "prepared_manifest_sha256": "e8668aa72d77a1cc64d8662eeea0dc9f7eca94f60d6bcd2702fd431117bb02be"
+  },
+  "prepared": {
+    "root": "data/dc_p1_native_response_v2_20261027",
+    "manifest_sha256": "e8668aa72d77a1cc64d8662eeea0dc9f7eca94f60d6bcd2702fd431117bb02be",
+    "source_groups": ["p1v2src_dev_00", "p1v2src_dev_01"],
+    "event_ordinals": [0, 1, 2, 3, 4, 5],
+    "roles": ["primary", "correction", "abstention"],
+    "fit_case_ids": [
+      "p1v2src_dev_00_fit_primary",
+      "p1v2src_dev_00_fit_correction",
+      "p1v2src_dev_00_fit_abstention",
+      "p1v2src_dev_01_fit_primary",
+      "p1v2src_dev_01_fit_correction",
+      "p1v2src_dev_01_fit_abstention"
+    ],
+    "development_labels": "closed",
+    "sealed_final_labels": "closed",
+    "source_context_at_evaluation": false,
+    "source_kv_at_evaluation": false
+  },
+  "objective": {
+    "name": "source_free_query_ce",
+    "treatment_weight": 0.25,
+    "matched_trained_weight": 0.0,
+    "formula": "source_conditioned_response_ce + weight * source_free_query_ce",
+    "matched_control_formula": "source_conditioned_response_ce + 0.0 * source_free_query_ce",
+    "no_update_formula": "parent_only_no_optimizer_work",
+    "reset_P_formula": "trained_then_exact_parent_reset",
+    "span_specific_supervision": false,
+    "memory_repair_claimed": false,
+    "global_ce_rescale_is_not_span_specific": true
+  },
+  "controls": {
+    "arms": [
+      {
+        "arm_id": "treatment",
+        "updates": 6,
+        "source_free_query_ce_weight": 0.25,
+        "checkpoint_id": "dcp1sf1:arm:treatment:source_groups_00_01:6"
+      },
+      {
+        "arm_id": "matched_trained",
+        "updates": 6,
+        "source_free_query_ce_weight": 0.0,
+        "checkpoint_id": "dcp1sf1:arm:matched_trained:source_groups_00_01:6"
+      },
+      {
+        "arm_id": "no_update",
+        "updates": 0,
+        "source_free_query_ce_weight": 0.25,
+        "checkpoint_id": "dcp1sf1:arm:no_update:parent"
+      },
+      {
+        "arm_id": "reset_P",
+        "updates": 6,
+        "source_free_query_ce_weight": 0.25,
+        "checkpoint_id": "dcp1sf1:arm:reset_P:restored_parent",
+        "restore_parent_before_evaluation": true
+      }
+    ]
+  },
+  "plastic_spec": {
+    "bank": {
+      "experts": 1,
+      "width": 256,
+      "hidden_width": 1024,
+      "optimizer": "NativeFusedAdamW",
+      "dtype": "FP32",
+      "lr": 0.0001,
+      "seed": 0,
+      "p_init": "zero_read_down"
+    },
+    "features": {
+      "sites": [13, 27],
+      "extraction": "masked_mean_then_fixed_projection",
+      "feature_version": "sites_masked_mean_projection.v1",
+      "detached": true,
+      "no_grad_feature_pass": true,
+      "projection_seed": 20261027
+    },
+    "read_path": {
+      "decoder": "same_fixed_projection_transpose",
+      "gain": 0.1,
+      "trainable": false,
+      "initial_null": true
+    },
+    "trainable_groups": ["expert_0.gate", "expert_0.up", "expert_0.down"],
+    "frozen_backbone": true,
+    "delta_site": "final_hidden_before_lm_head"
+  },
+  "baseline_model": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "model_path": "checkpoints/minicpm5_source",
+    "lock_path": "configs/minicpm5_sealed_lock.local.json",
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "optimizer_policy": {
+    "primary": "NativeFusedAdamW",
+    "default_name": "adamw_fused",
+    "changed": false,
+    "mps_fallback_enabled": false,
+    "optimizer_state_carried": true,
+    "optimizer_reset_between_events": false,
+    "steps_per_event": 1,
+    "reset_P_restores_weights_and_optimizer_state": true,
+    "lr": 0.0001,
+    "epsilon": 1e-08,
+    "betas": [0.9, 0.999],
+    "clip_grad_norm": 1.0,
+    "weight_decay": 0.01
+  },
+  "generation": {
+    "max_new_tokens_per_call": 16,
+    "terminal_eos_token": 1,
+    "stop_tokens": [1, 130073],
+    "evaluation_prompt_tokens_max": 35,
+    "teaching_tokens_per_event_max": 95,
+    "parity_probe_tokens_max": 35,
+    "fit_behavior_requests_per_arm": 6,
+    "greedy": true,
+    "use_cache": false
+  },
+  "budget": {
+    "declared_total_updates": 18,
+    "source_free_query_forwards": 18,
+    "parity_probes": {
+      "fit_before_teaching": 2,
+      "fit_after_reset_P": 1
+    },
+    "physical_limits": {
+      "max_model_loads": 2,
+      "max_tokenizer_loads": 2,
+      "max_training_forwards": 18,
+      "max_source_free_query_forwards": 18,
+      "max_backward_calls": 18,
+      "max_optimizer_steps": 18,
+      "max_generation_requests": 24,
+      "max_generation_prefill_forwards": 24,
+      "max_generation_decode_forwards": 360,
+      "max_autoregressive_forwards": 384,
+      "max_generated_tokens": 384,
+      "max_teaching_processed_positions": 1710,
+      "max_source_free_query_processed_positions": 630,
+      "max_generation_processed_positions": 16320,
+      "max_parity_probe_forwards": 3,
+      "max_parity_processed_positions": 105,
+      "max_restart_training_forwards": 1,
+      "max_restart_backward_calls": 1,
+      "max_restart_processed_text_positions": 95,
+      "max_restart_model_loads": 1,
+      "max_restart_tokenizer_loads": 1,
+      "max_restarts": 1,
+      "max_forward_calls": 424,
+      "max_processed_text_positions": 18860,
+      "max_per_event_checkpoint_writes": 18,
+      "max_artifact_checkpoint_writes": 1,
+      "max_checkpoint_writes": 19,
+      "max_retained_checkpoint_artifacts": 4,
+      "max_temporary_storage_bytes": 33554432,
+      "max_artifact_bytes": 33554432,
+      "max_wall_seconds": 1200,
+      "max_downloads": 0,
+      "max_retries": 0,
+      "max_workers": 1,
+      "max_control_evaluations": 0
+    },
+    "artifact_bytes_max": 33554432,
+    "peak_driver_bytes_max": 53687091200,
+    "sustained_swap_growth_bytes_max": 536870912,
+    "min_host_free_fraction": 0.15,
+    "exclusive_worker": true
+  },
+  "launch": {
+    "review_only": true,
+    "native_execution": false,
+    "native_execution_status": "preparation_only_no_runner_or_authorization",
+    "runner_status": "not_implemented",
+    "runner_path": null,
+    "authorization_path": "reports/dc_p1_source_free_feature_alignment_v1_20261028/authorization.json",
+    "fresh_output_path": true,
+    "output_root": "runs/dc_p1_source_free_feature_alignment_v1_20261028/native01",
+    "requires_authorization_receipt": true,
+    "authorization_receipt_present_at_declaration": false,
+    "authorization_receipt_format": "replica.dc_protocol.authorization.v2",
+    "authorization_fields": [
+      "format",
+      "protocol_id",
+      "config_sha256",
+      "prepared_manifest_sha256",
+      "protocol_commit",
+      "authorized_by",
+      "native_execution_allowed",
+      "single_attempt",
+      "max_optimizer_steps",
+      "max_generation_requests",
+      "restart_allowance",
+      "receipt_sha256"
+    ],
+    "missing_receipt_fields": [
+      "format",
+      "protocol_id",
+      "config_sha256",
+      "prepared_manifest_sha256",
+      "protocol_commit",
+      "authorized_by",
+      "native_execution_allowed",
+      "single_attempt",
+      "max_optimizer_steps",
+      "max_generation_requests",
+      "restart_allowance",
+      "receipt_sha256"
+    ]
+  },
+  "claims": {
+    "implemented_protocol": true,
+    "implemented_native_runner": false,
+    "trained": false,
+    "calibrated": false,
+    "useful_learning": false,
+    "memory_repair": false,
+    "native_execution": false,
+    "development_or_final_access": false,
+    "promotion": false
+  }
+}

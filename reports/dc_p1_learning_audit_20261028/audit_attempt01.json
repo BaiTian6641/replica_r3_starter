@@ -1,0 +1,146 @@
+{
+  "alternative_justified": true,
+  "alternative_protocol": "dc_p1_source_free_feature_alignment_v1",
+  "feature": {
+    "query_feature_norm": 1.2624380588531494,
+    "source_conditioned_prompt_tokens": 4,
+    "source_free_feature_shift_l2": 0.6931585073471069,
+    "source_free_prompt_tokens": 2,
+    "teaching_feature_norm": 0.7577722072601318
+  },
+  "final_labels_read": false,
+  "format": "replica.dc_p1_learning_audit.v1",
+  "gradient": {
+    "claim": "global_ce_rescale",
+    "gradient_ratio": 1.5,
+    "masks_coincide": true,
+    "matched_gradient": 1.3208162784576416,
+    "treatment_gradient": 1.9812244176864624
+  },
+  "model_loaded": false,
+  "native_execution": false,
+  "selected_expert_max_logit_delta": 2.0,
+  "status": "diagnostic_only_no_native_learning_claim",
+  "updates": [
+    {
+      "after_tokens": [
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "answer_span_ce_weight": 0.0,
+      "before_tokens": [
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "changed_token_count": 0,
+      "clip": false,
+      "clip_scale": 1.0,
+      "clipped_gradient_norm": 7.450580596923828e-09,
+      "epsilon": 1e-08,
+      "gradient_amplification": 1,
+      "loss": 0.7148587107658386,
+      "max_logit_delta": 0.00042700767517089844,
+      "optimizer_class": "NativeFusedAdamW",
+      "raw_gradient_norm": 7.450580596923828e-09,
+      "scale_after": 0.000426953163696453
+    },
+    {
+      "after_tokens": [
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "answer_span_ce_weight": 0.5,
+      "before_tokens": [
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "changed_token_count": 0,
+      "clip": false,
+      "clip_scale": 1.0,
+      "clipped_gradient_norm": 1.4901161193847656e-08,
+      "epsilon": 1e-08,
+      "gradient_amplification": 1,
+      "loss": 1.0722880363464355,
+      "max_logit_delta": 0.0005984306335449219,
+      "optimizer_class": "NativeFusedAdamW",
+      "raw_gradient_norm": 1.4901161193847656e-08,
+      "scale_after": -0.0005984122981317341
+    },
+    {
+      "after_tokens": [
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "answer_span_ce_weight": 0.5,
+      "before_tokens": [
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "changed_token_count": 0,
+      "clip": false,
+      "clip_scale": 1.0,
+      "clipped_gradient_norm": 1.4901161193847656e-08,
+      "epsilon": 0.01,
+      "gradient_amplification": 1,
+      "loss": 1.0722880363464355,
+      "max_logit_delta": 0.0,
+      "optimizer_class": "NativeFusedAdamW",
+      "raw_gradient_norm": 1.4901161193847656e-08,
+      "scale_after": -1.4901140321654793e-09
+    },
+    {
+      "after_tokens": [
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "answer_span_ce_weight": 0.5,
+      "before_tokens": [
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "changed_token_count": 0,
+      "clip": true,
+      "clip_scale": 0.67108864,
+      "clipped_gradient_norm": 1.0,
+      "epsilon": 1e-08,
+      "gradient_amplification": 100000000,
+      "loss": 1.0722880363464355,
+      "max_logit_delta": 0.001000046730041504,
+      "optimizer_class": "NativeFusedAdamW",
+      "raw_gradient_norm": 1.4901161193847656,
+      "scale_after": -0.0009999999310821295
+    }
+  ]
+}
