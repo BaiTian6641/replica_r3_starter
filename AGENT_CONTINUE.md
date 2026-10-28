@@ -1,5 +1,14 @@
 # Coding-agent continuation instruction
 
+**Current priority — 28 October 2026, Spark and data lineage:** use
+[Spark v5.1, caption lineage and deferred learning](docs/experiments/20261028_Spark_V5_1_Caption_and_Deferred_Learning.md).
+The migration is committed at `d65a36ff`, with passing receipts at `48e8d49e`:
+721 v5.1 checks, 500 final-product checks and 112 tests with one skip. Caption
+partition identity admits exactly nine reviewed rows and preserves 21 exclusions,
+eight exposed rows and 24 diagnostic-only scenes. The 499/500 unstaged failure is
+preserved. Analytical residency and data admission are not native learning. All
+ten native gates and deferred RSI/outer/distillation/personality work stay closed.
+
 **Current priority — 28 October 2026, DC-R1:** use
 [DC-R1 readout and compressed-channel preparation](docs/experiments/20261028_DC_R1_V2_Readout_Preparation.md).
 Commit `ed923e01` versions the fixture, scorer and review receipt. Group

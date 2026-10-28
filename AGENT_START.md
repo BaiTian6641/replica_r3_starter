@@ -1,5 +1,14 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
+**Current priority — 28 October 2026, Spark and data lineage:** read
+[Spark v5.1, caption lineage and deferred learning](docs/experiments/20261028_Spark_V5_1_Caption_and_Deferred_Learning.md).
+Commits `d65a36ff` and `48e8d49e` preserve the reviewed migration and passing
+receipts: v5.1 tracked verification 721/721, final product 500/500, and 112 tests
+with one explicit skip. Caption admission is exactly nine rows; 21 exclusions,
+eight exposed rows and 24 diagnostic scenes stay separate. Official BF16/FP8,
+dequantized derivatives and native FP8 remain distinct. All ten native gates,
+RSI, outer training, self-distillation and personality remain unresolved/unrun.
+
 **Current priority — 28 October 2026, DC-R1:** read
 [DC-R1 readout and compressed-channel preparation](docs/experiments/20261028_DC_R1_V2_Readout_Preparation.md).
 Commit `ed923e01` preserves all-layer abstention and per-layer actual-output

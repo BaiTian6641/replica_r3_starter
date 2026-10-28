@@ -1,5 +1,29 @@
 # Execution state — integrated memory, cognition and learning
 
+## Spark v5.1, caption lineage and deferred learning — 28 October 2026
+
+**Current status — migration, residency arithmetic, data lineage and CPU
+validation pass; all native learning gates remain unresolved.** Implementation
+commit is `d65a36ff`; passing-receipt commit is `48e8d49e`.
+
+- Spark v5.1 tracked verification passes **721/721** and final-product
+  verification **500/500**. Focused tests pass **112 with one explicit skip**.
+  The earlier 499/500 unstaged-input failure is preserved. Official BF16/FP8,
+  dequantized derivatives and native FP8 are separate; analytical residency is
+  not measured fit or full-training qualification.
+- Caption admission is exactly nine reviewed rows with 21 exclusions, eight
+  quarantined exposed rows and 24 diagnostic-only synthetic scenes. The parent
+  QA rejection and exposure incident are not relabelled. Partition identity is
+  evidence, not an admission receipt or a broad visual-quality claim.
+- All ten native gates remain unresolved. Useful inner learning, teacher
+  competence, complete work accounting, retention/rollback and separate
+  personality evaluation still gate outer training, self-distillation, RSI and
+  promotion. No native Spark, dataset download, outer-loop or personality run
+  occurred. Separate value-readout recovery is committed at `a0453b3f` with 11
+  dedicated publication-recovery tests.
+
+Read the [complete Spark, caption and deferred-learning report](docs/experiments/20261028_Spark_V5_1_Caption_and_Deferred_Learning.md).
+
 ## DC-R1 v2 readout and compressed-channel preparation — 28 October 2026
 
 **Current status — versioned preparation and CPU validation pass; native readout
