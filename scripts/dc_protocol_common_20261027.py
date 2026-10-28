@@ -572,8 +572,8 @@ def validate_manifest(root: str | Path, config: Mapping[str, Any], *,
                       expected_files: Sequence[str],
                       manifest_format: str,
                       protocol_id: str,
-                      require_config_binding: bool = True) -> dict:
-    root = Path(root)
+                      require_config_binding: bool = True,
+                      skip_hash_files: Sequence[str] = ()) -> dict:
     manifest_path = root / "manifest.json"
     manifest = read_json(manifest_path)
     require(manifest.get("format") == manifest_format, "manifest",
@@ -592,11 +592,16 @@ def validate_manifest(root: str | Path, config: Mapping[str, Any], *,
             "manifest must declare closed held-out labels")
     require(isinstance(manifest.get("files"), Mapping), "manifest",
             "manifest files must be an object")
+    skipped = set(skip_hash_files)
+    require(skipped <= set(expected_files), "manifest",
+            f"files deferred for later access are not declared: {sorted(skipped)}")
     require(set(manifest["files"]) == set(expected_files), "manifest",
             "manifest file set differs from the declared file set")
     for name, digest in manifest["files"].items():
         path = root / name
         require(path.is_file(), "manifest", f"missing prepared file {path}")
+        if name in skipped:
+            continue
         require(sha256_file(path) == digest, "manifest",
                 f"prepared file hash differs: {name}")
     body = {key: value for key, value in manifest.items()

@@ -32,6 +32,7 @@ from copy import deepcopy
 import hashlib
 from pathlib import Path
 import sys
+import shlex
 from typing import Any, Callable, Mapping, Sequence
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -1742,7 +1743,8 @@ def admit_dev_report(dev_report_path: str | Path | None, *,
                      prepared_manifest_sha256: str,
                      dev_predictions_path: str | Path | None,
                      prepared: str | Path = PREPARED_DIR,
-                     decode_fn: Callable[[Sequence[int]], str]) -> dict:
+                     decode_fn: Callable[[Sequence[int]], str],
+                     native_execution: bool = False) -> dict:
     """Independently recompute development evidence before final-label access."""
     boundary = check_dev_report_boundary(
         dev_report_path, config_path=config_path,
@@ -1751,7 +1753,7 @@ def admit_dev_report(dev_report_path: str | Path | None, *,
             "development predictions are required for independent admission")
     expected = score_dev(
         dev_predictions_path, prepared=prepared, config_path=config_path,
-        decode_fn=decode_fn)
+        decode_fn=decode_fn, native_execution=native_execution)
     actual = read_json(boundary["dev_report_path"])
     require(canonical(actual) == canonical(expected), "final_admission",
             "development report differs from independently recomputed evidence")
@@ -1805,10 +1807,13 @@ def _score_split(
             dev_report_path, config_path=config_path,
             prepared_manifest_sha256=manifest_sha,
             dev_predictions_path=dev_predictions_path,
-            prepared=prepared_dir, decode_fn=decode_fn)
+            prepared=prepared_dir, decode_fn=decode_fn,
+            native_execution=native_execution)
     validate_manifest(
         prepared_dir, config, expected_files=FILES,
-        manifest_format=MANIFEST_FORMAT, protocol_id=PROTOCOL_ID)
+        manifest_format=MANIFEST_FORMAT, protocol_id=PROTOCOL_ID,
+        skip_hash_files=(("sealed_labels_final.jsonl",)
+                         if split == "dev" else ()))
     binding = validate_tokenizer_binding(config["tokenizer_binding"])
     require(callable(decode_fn), "scoring",
             "a sealed-tokenizer decode function is required")
@@ -2088,13 +2093,14 @@ def score_r1_v2(
         predictions_path: str | Path, *, split: str,
         prepared: str | Path = PREPARED_DIR,
         decode_fn: Callable[[Sequence[int]], str],
+        config_path: str | Path = CONFIG_PATH,
         dev_report_path: str | Path | None = None,
         dev_predictions_path: str | Path | None = None,
         native_execution: bool = False) -> dict:
     if split == "dev":
         return score_dev(
             predictions_path, prepared=prepared, config_path=config_path,
-            decode_fn=decode_fn)
+            decode_fn=decode_fn, native_execution=native_execution)
     if split == "sealed_final":
         return score_sealed_final(
             predictions_path, dev_report_path=dev_report_path,
@@ -2111,7 +2117,8 @@ def score_r1_v2(
 def preflight(config_path: str | Path = CONFIG_PATH,
               prepared: str | Path = PREPARED_DIR,
               *, launch: bool = False,
-              authorization: str | Path | None = None) -> dict:
+              authorization: str | Path | None = None,
+              native_runner: str | Path | None = None) -> dict:
     config = read_json(config_path)
     validate_config(config)
     prepared_dir = Path(prepared)
@@ -2126,6 +2133,34 @@ def preflight(config_path: str | Path = CONFIG_PATH,
         manifest_sha256=manifest["manifest_sha256"],
         authorization_path=authorization,
         launch=launch)
+    if launch and native_runner is not None:
+        runner = Path(native_runner)
+        if not runner.is_absolute():
+            runner = ROOT / runner
+        require(runner.is_file(), "native_runner",
+                f"declared native runner is missing: {runner}")
+        try:
+            executor = runner.relative_to(ROOT).as_posix()
+        except ValueError:
+            executor = str(runner)
+        output_root = config["launch"]["output_root"]
+        report_root = Path(output_root).parent
+        receipt.update({
+            "status": "launch_admitted",
+            "native_execution_status": (
+                "external authorization admitted; the separate native runner, "
+                "not this preflight, performs the work"),
+            "executor": executor,
+            "next_command": shlex.join([
+                "PYTHONDONTWRITEBYTECODE=1", "python3",
+                "scripts/run_capacity_preflight.py", "--entry-point",
+                Path(executor).name, "--report",
+                str(report_root / "guard_dev01.json"), "--", "--stage", "dev",
+                "--device", "mps", "--output", output_root,
+                "--authorization", str(authorization), "--report",
+                str(report_root / "dev_result01.json")]),
+        })
+        exit_code = 0
     receipt["budget_readiness"] = {
         "physical_limits": deepcopy(config["budget"]["physical_limits"]),
         "derived_workload": workload_derivation()["total"],

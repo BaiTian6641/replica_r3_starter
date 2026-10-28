@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Review-only preflight for DC-R1 v2; launch fails closed.
+"""Review-only DC-R1 v2 preflight with external-runner launch admission.
 
 ``--review`` validates the v2 config, corrected physical-work budget, resource
 guards, tokenizer binding, amendment lineage, manifest and file hashes, then
 writes a fresh deterministic receipt.  It parses no sealed evaluation label and
 executes no model, tokenizer or native work.  ``--launch`` requires a separate
-authorization receipt binding the exact config and fixture bytes; even then it
-refuses, because this package intentionally contains no native runner and no
-native compressed-channel receipt.
+authorization receipt binding the exact config and fixture bytes.  With the
+declared runner present it admits a capacity-guarded external command; the
+preflight itself still performs no native execution.  Native compressed gates
+remain blocked.
 """
 from __future__ import annotations
 
@@ -40,7 +41,9 @@ def main(argv=None) -> int:
     try:
         report = preflight(
             args.config, args.prepared, launch=bool(args.launch),
-            authorization=args.authorization)
+            authorization=args.authorization,
+            native_runner=(ROOT / "scripts/run_dc_r1_native_value_v2_20261027.py"
+                           if args.launch else None))
         target = require_fresh_path(args.receipt, "preflight_receipt")
         write_json_atomic(target, report)
     except ProtocolError as error:
