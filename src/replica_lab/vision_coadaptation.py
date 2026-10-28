@@ -1208,6 +1208,15 @@ def review_launch(config_path: str | Path = "configs/vision_coadaptation_control
             "python", "scripts/vision_coadaptation_control_runner_v2.py",
             "review-launch", "--config", str(config_path),
             "--authorization", str(receipt_path)],
+        "isolation": {
+            "scope": "vision_projector_plus_last_encoder_block_and_post_layernorm",
+            "optimizer_owned_tensors": list(SCOPE_TENSORS),
+            "trainable_memory_tensors": 0,
+            "trainable_personality_tensors": 0,
+            "memory_optimizer_groups": 0,
+            "personality_components_in_protocol": False,
+            "memory_or_personality_learning_authorized": False,
+        },
         "handoff": {
             "requires_preserved_smaller_step_failure": True,
             "requires_frozen_feature_diagnosis": True,

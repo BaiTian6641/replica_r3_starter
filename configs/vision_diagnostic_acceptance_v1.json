@@ -1,0 +1,66 @@
+{
+  "format": "replica.vision_acceptance.protocol.v1",
+  "version": "1",
+  "name": "vision_diagnostic_acceptance_v1",
+  "declared_at_utc": "2026-10-28T00:00:00+00:00",
+  "purpose": "Predeclared, preparation-only acceptance contract for a bounded vision diagnostic. It requires matched generated-answer improvement, explicit causal image controls, paired text retention and a candidate-bound fresh-process reload before a diagnostic can be called accepted. It is not a native launch authorization or a promotion decision.",
+  "roles": {
+    "baseline": "pre-update report containing the same answer cases and score schema",
+    "candidate": "post-update report containing generated answers, control provenance and text retention",
+    "reload": "separate fresh-process zero-update reload receipt bound to the candidate report digest",
+    "evaluation_role": "dev"
+  },
+  "thresholds": {
+    "min_answer_accuracy_gain": 0.05,
+    "min_correct_margin_wrong": 0.05,
+    "min_correct_margin_shuffled": 0.05,
+    "min_correct_margin_noimage": 0.05,
+    "max_retention_decline": 0.02
+  },
+  "control_provenance": {
+    "correct": ["correct_image"],
+    "wrong": ["wrong_image", "changed_sibling_image"],
+    "shuffled": ["cross_pair_shuffled_image", "shuffled_image"],
+    "noimage": ["no_image", "blank_image"]
+  },
+  "required_reload_comparisons": [
+    "train_fit_answer_generations.jsonl",
+    "train_fit_caption_generations.jsonl",
+    "retention_after.jsonl",
+    "scores/retention.json",
+    "gates/train_fit.json"
+  ],
+  "required_evidence": {
+    "matched_answer_case_identity": true,
+    "generated_answer_accuracy_gain": true,
+    "correct_wrong_shuffled_noimage_controls": true,
+    "explicit_control_provenance": true,
+    "paired_text_only_retention": true,
+    "fresh_process_zero_update_extension_reload": true,
+    "candidate_report_digest_binding": true,
+    "raw_output_and_gate_comparisons": true
+  },
+  "policy": {
+    "diagnostic_only": true,
+    "promotion": false,
+    "development_authorized": false,
+    "heldout_authorized": false,
+    "retry_authorized": false,
+    "native_execution_authorized": false,
+    "missing_evidence_status": "inconclusive",
+    "measured_threshold_failure_status": "rejected",
+    "engineering_and_learned_evidence_separate": true,
+    "historical_reports_rewritten": false,
+    "labels_or_gold_outcomes_fabricated": false
+  },
+  "implementation": [
+    "src/replica_lab/vision_acceptance.py",
+    "scripts/validate_vision_acceptance.py"
+  ],
+  "limitations": [
+    "This is a CPU report validator, not a native training or generation run.",
+    "A passing assessment is bounded diagnostic evidence only; it is not generalization, calibrated confidence, visual competence or promotion.",
+    "Existing reports without a pre-update baseline, explicit control provenance or the required reload fields remain inconclusive; no field is inferred to make them pass.",
+    "The validator does not authorize development, held-out labels, encoder co-adaptation, retries or a new native job."
+  ]
+}

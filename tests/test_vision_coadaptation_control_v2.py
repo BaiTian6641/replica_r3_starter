@@ -80,6 +80,11 @@ def test_protocol_and_real_run_refuse_missing_prerequisites(tmp_path):
     assert review["model_loads"] == 0
     assert {"smaller_step_report_missing", "frozen_feature_diagnosis_missing",
             "authorization_receipt_missing"} <= set(review["refusals"])
+    assert review["isolation"]["trainable_memory_tensors"] == 0
+    assert review["isolation"]["trainable_personality_tensors"] == 0
+    assert review["isolation"]["memory_optimizer_groups"] == 0
+    assert review["isolation"]["personality_components_in_protocol"] is False
+    assert review["isolation"]["optimizer_owned_tensors"] == list(co.SCOPE_TENSORS)
 
     output = tmp_path / "native"
     with pytest.raises(co.CoadaptationError, match="before model load"):

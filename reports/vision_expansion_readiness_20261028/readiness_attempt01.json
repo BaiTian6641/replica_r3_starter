@@ -1,0 +1,85 @@
+{
+  "format": "replica.vision_expansion_readiness.assessment.v1",
+  "name": "vision_expansion_readiness_v1",
+  "status": "review_ready_expansion_blocked",
+  "expansion_preparation_allowed": false,
+  "native_execution": false,
+  "training_authorized": false,
+  "development_authorized": false,
+  "heldout_authorized": false,
+  "promotion": false,
+  "retry_authorized": false,
+  "model_loads": 0,
+  "config_path": "/Users/flare/replica_r3_starter/configs/vision_expansion_readiness_v1.json",
+  "config_sha256": "332b5ef73c49727830ed8c8591f116c0305a390887410741f3364a72ed27eb54",
+  "partitions": {
+    "ok": false,
+    "violations": [
+      "source_group_overlap:exclusions:exposed"
+    ],
+    "counts": {
+      "admitted": 9,
+      "exclusions": 21,
+      "exposed": 8,
+      "diagnostic_eval_scenes": 24
+    },
+    "source_group_counts": {
+      "admitted": 9,
+      "exclusions": 21,
+      "exposed": 8
+    },
+    "admitted_row_ids": [
+      "caption-corrected-20261027:000284813#raw_caption",
+      "caption-corrected-20261027:000456905#raw_caption",
+      "caption-corrected-20261027:000764186#raw_caption",
+      "caption-corrected-20261027:001719881#raw_caption",
+      "caption-corrected-20261027:001939145#raw_caption",
+      "caption-corrected-20261027:002709185#raw_caption",
+      "caption-corrected-20261027:002710233#raw_caption",
+      "caption-corrected-20261027:002878530#raw_caption",
+      "caption-corrected-20261027:005525460#raw_caption"
+    ],
+    "partition_identity_sha256": "a49ab7ddf546ae72114274301559d3c3b8e432eeb22e05dc87b67831c884388d",
+    "admission_receipt_sha256": "e52074fa447e91624ceeb4ddd656209878c83a2705679173ec1e1b555dce4fd2",
+    "synthetic_scene_specs_sha256": "33da1ed78f0ce21eaf9100db8ac5272501ef64f3bf48b4d1667feb406cd4d0c7",
+    "source_policy": {
+      "admitted_role": "train",
+      "admitted_source_split": "train",
+      "source_group_key": "group_key",
+      "source_groups_must_be_unique_within_partition": true,
+      "partitions_must_be_disjoint_by_group": true,
+      "admitted_must_be_unquarantined": true,
+      "research_use_only": true,
+      "exposed_and_validation_only_rows_remain_excluded": true,
+      "diagnostic_scenes_remain_synthetic_and_sealed": true
+    }
+  },
+  "positive_diagnostic": {
+    "ok": false,
+    "present": false,
+    "violations": [
+      "positive_diagnostic_missing"
+    ],
+    "path": "/Users/flare/replica_r3_starter/reports/vision_diagnostic_acceptance_v1_20261028/assessment.json"
+  },
+  "expansion_scope": {
+    "tasks": [
+      "caption",
+      "vqa",
+      "ocr",
+      "spatial"
+    ],
+    "new_rows_authored_here": false,
+    "new_sources_contacted_here": false,
+    "source_level_split_required": true,
+    "preserve_existing_partitions": true,
+    "requires_positive_diagnostic": true,
+    "requires_new_predeclared_protocol_after_eligibility": true
+  },
+  "refusals": [
+    "source_group_overlap:exclusions:exposed",
+    "positive_diagnostic_missing"
+  ],
+  "next_step": "provide an accepted MPS diagnostic with complete evidence",
+  "note": "Readiness only. The 9/21/8/24 partitions are preserved; no rows, sources, labels or native jobs are created."
+}
