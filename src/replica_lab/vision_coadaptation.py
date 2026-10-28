@@ -155,29 +155,33 @@ def encoder_elements() -> int:
     return sum(_elements(shapes[name]) for name in ENCODER_TENSORS)
 
 
-def scope_report(parameters: Mapping[str, Any]) -> dict[str, Any]:
-    """Validate that ``parameters`` is exactly the declared 24-tensor scope.
-
-    A parameter may be a ``torch.nn.Parameter`` or any object exposing
-    ``numel()`` and ``dtype``.  Names must be the unprefixed native names.
-    """
+def scope_report(parameters: Mapping[str, Any], *,
+                 tensor_shapes: Mapping[str, Sequence[int]] | None = None
+                 ) -> dict[str, Any]:
+    """Validate the declared 24-tensor scope and optional explicit shapes."""
     names = set(parameters)
     _require(names == set(SCOPE_TENSORS),
              f"Trainable scope differs: {sorted(names ^ set(SCOPE_TENSORS))}")
+    shapes = expected_shapes() if tensor_shapes is None else dict(tensor_shapes)
+    _require(set(shapes) == set(SCOPE_TENSORS),
+             "Explicit co-adaptation tensor shape set differs")
     projector = [parameters[name] for name in PROJECTOR_TENSORS]
     encoder = [parameters[name] for name in ENCODER_TENSORS]
     projector_count = sum(int(value.numel()) for value in projector)
     encoder_count = sum(int(value.numel()) for value in encoder)
-    _require(projector_count == PROJECTOR_PARAMETERS,
+    expected_projector = sum(
+        _elements(shapes[name]) for name in PROJECTOR_TENSORS)
+    expected_encoder = sum(_elements(shapes[name]) for name in ENCODER_TENSORS)
+    _require(projector_count == expected_projector,
              f"Projector parameter count differs: {projector_count}")
-    _require(encoder_count == ENCODER_PARAMETERS,
+    _require(encoder_count == expected_encoder,
              f"Encoder parameter count differs: {encoder_count}")
-    _require(projector_count + encoder_count == TRAINABLE_PARAMETERS,
+    _require(projector_count + encoder_count
+             == expected_projector + expected_encoder,
              "Co-adaptation parameter total differs")
-    shapes = expected_shapes()
     for name, value in parameters.items():
         shape = tuple(int(item) for item in value.shape)
-        _require(shape == shapes[name],
+        _require(shape == tuple(shapes[name]),
                  f"Trainable tensor shape differs: {name} {shape}")
     return {
         "format": "replica.vision_coadaptation.scope.v1",
@@ -195,14 +199,18 @@ def scope_report(parameters: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def enable_scope(parameters: Mapping[str, Any], *,
-                 allow_extra: bool = False) -> dict[str, Any]:
+                 allow_extra: bool = False,
+                 tensor_shapes: Mapping[str, Sequence[int]] | None = None
+                 ) -> dict[str, Any]:
     """Set ``requires_grad`` to exactly the declared 24 tensors.
 
     ``parameters`` is a name->parameter mapping covering at least the declared
     scope.  Every other entry is frozen.  With ``allow_extra`` the mapping may
     contain any number of named tensors (decoder, frozen encoder layers, ...).
     """
-    report = scope_report({name: parameters[name] for name in SCOPE_TENSORS})
+    report = scope_report(
+        {name: parameters[name] for name in SCOPE_TENSORS},
+        tensor_shapes=tensor_shapes)
     for name, parameter in parameters.items():
         if name in SCOPE_TENSORS:
             parameter.requires_grad_(True)
@@ -411,6 +419,21 @@ class VersionedFeatureCache:
         }
 
 
+def checkpoint_parameter_name(runtime_name: str) -> str:
+    """Map encoder runtime parameters to checkpoint names, not the projector."""
+    encoder_prefixes = ("embeddings.", "encoder.", "post_layernorm.")
+    if (runtime_name.startswith("vision_model.")
+            or not runtime_name.startswith(encoder_prefixes)):
+        return runtime_name
+    return f"vision_model.{runtime_name}"
+
+
+def runtime_parameter_name(checkpoint_name: str) -> str:
+    """Map a checkpoint/source parameter name to its runtime identity."""
+    return (checkpoint_name[len("vision_model."):]
+            if checkpoint_name.startswith("vision_model.") else checkpoint_name)
+
+
 class MutableVisualInput(VisualInput):
     """A VisualInput whose features deliberately carry an autograd graph.
 
@@ -510,6 +533,10 @@ class MutableEncoderFeatureService:
         self._encoder_calls = 0
 
     # -- construction ------------------------------------------------------
+    @property
+    def spec(self) -> Any:
+        return self._spec
+
     @classmethod
     def load(cls, source_path: str | Path, manifest_path: str | Path, *,
              device: str = "mps", max_entries: int = 64) -> "MutableEncoderFeatureService":
@@ -556,44 +583,83 @@ class MutableEncoderFeatureService:
                    processor=processor)
 
     # -- ownership ---------------------------------------------------------
-    def named_parameters(self):
+    def runtime_named_parameters(self):
         return list(self._encoder.named_parameters())
+
+    @property
+    def parameter_name_map(self) -> dict[str, str]:
+        return {checkpoint_parameter_name(name): name
+                for name, _ in self.runtime_named_parameters()}
+
+    def named_parameters(self):
+        return [(checkpoint_parameter_name(name), parameter)
+                for name, parameter in self.runtime_named_parameters()]
 
     def producer_version(self, *, extra: Mapping[str, Any] | None = None) -> str:
         payload = {
             "source_id": None if self._source is None
             else getattr(self._source, "source_id", None),
             "processor_stamp": self._processor_stamp,
+            "runtime_to_checkpoint": dict(self.parameter_name_map),
             "spec_digest": getattr(self._spec, "digest", None),
         }
         payload.update(dict(extra or {}))
         return producer_version(self.named_parameters(), extra=payload)
 
-    def enable_scope(self, *, allow_extra: bool = True) -> dict[str, Any]:
-        report = enable_scope(dict(self.named_parameters()),
-                              allow_extra=allow_extra)
+    def enable_scope(self, *, allow_extra: bool = True,
+                     tensor_shapes: Mapping[str, Sequence[int]] | None = None
+                     ) -> dict[str, Any]:
+        report = enable_scope(
+            dict(self.named_parameters()), allow_extra=allow_extra,
+            tensor_shapes=tensor_shapes)
+        report["runtime_to_checkpoint"] = dict(self.parameter_name_map)
+        report["runtime_trainable_names"] = sorted(
+            self.parameter_name_map[name] for name in report["trainable_names"])
         return report
 
     # -- encoding ----------------------------------------------------------
+    def _runtime_module(self, name: str) -> Any:
+        module = getattr(self._encoder, name, None)
+        if module is not None:
+            return module
+        wrapper = getattr(self._encoder, "vision_model", None)
+        if wrapper is not None:
+            module = getattr(wrapper, name, None)
+            if module is not None:
+                return module
+        raise CoadaptationError(
+            f"Installed encoder does not expose runtime module {name!r}")
+
+    @staticmethod
+    def _layer_forward(layer: Any, hidden: Any) -> Any:
+        result = layer(hidden, attention_mask=None)
+        if isinstance(result, (tuple, list)):
+            _require(len(result) == 1, "Encoder layer returned extra outputs")
+            result = result[0]
+        return result
+
     def _prefix(self, pixels: Any) -> Any:
         import torch
-        transformer = self._encoder.vision_model
+        embeddings = self._runtime_module("embeddings")
+        layers = self._runtime_module("encoder").layers
         with torch.no_grad():
-            hidden = transformer.embeddings(pixel_values=pixels)
-            for layer in transformer.encoder.layers[:ADAPTED_LAYER_INDEX]:
-                hidden = layer(hidden)
+            hidden = embeddings(pixel_values=pixels)
+            for layer in layers[:ADAPTED_LAYER_INDEX]:
+                hidden = self._layer_forward(layer, hidden)
         return hidden.detach()
 
     def _adapted(self, prefix: Any, *, mutable: bool):
         import torch
-        transformer = self._encoder.vision_model
+        layers = self._runtime_module("encoder").layers
+        post_layernorm = self._runtime_module("post_layernorm")
         context = torch.enable_grad() if mutable else torch.no_grad()
         with context:
             hidden = prefix
             if mutable:
                 hidden.requires_grad_(True)
-            hidden = transformer.encoder.layers[ADAPTED_LAYER_INDEX](hidden)
-            features = transformer.post_layernorm(hidden)
+            hidden = self._layer_forward(
+                layers[ADAPTED_LAYER_INDEX], hidden)
+            features = post_layernorm(hidden)
         return features
 
     def _validate_features(self, features: Any) -> None:
@@ -628,9 +694,10 @@ class MutableEncoderFeatureService:
         pixels = self._processor(images=rgb, return_tensors="pt")
         values = pixels["pixel_values"] if isinstance(pixels, Mapping) else pixels
         import torch
-        _require(tuple(values.shape) == (1, 3, 224, 224)
+        expected_shape = (1, 3, self._spec.image_size, self._spec.image_size)
+        _require(tuple(values.shape) == expected_shape
                  and values.dtype == torch.float32,
-                 "Processor did not return float32 [1, 3, 224, 224] pixels")
+                 f"Processor did not return float32 {expected_shape} pixels")
         return values, image_sha
 
     def _cache_key(self, *, image_sha: str, source_id: str, task_id: str,
