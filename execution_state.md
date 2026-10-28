@@ -20,6 +20,11 @@ and unrun.** Protocol/implementation commit is
   cumulative updates, one recovery reload, one restart backward and zero
   repeated optimizer work. Peak live storage is 985,890 bytes. Every admission
   is false because this is `cpu_fixture` evidence, not learned/native evidence.
+- A detached clean checkout at `f03428c8` passes **112/112** committed DC-P1,
+  v1-lineage and capacity tests with zero skips. The two earlier failed checkout
+  attempts are preserved; the missing publication dependency was fixed without
+  pulling in unrelated value-readout work. See
+  `reports/verification_20261028/dc_p1_clean_checkout_summary.json`.
 - Review attempt02 is `review_ready` with no labels, tokenizer, model or native
   work. Missing authorization and a dirty tracked worktree both refuse before
   native execution. The external receipt remains absent; no MPS job, download,

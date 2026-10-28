@@ -2,7 +2,8 @@
 
 **28 October 2026. Status: implemented and CPU-qualified; native execution is
 unauthorized and unrun.** Protocol/implementation commit:
-`792c878f62d454ab702887680ef66b914698d79a`. This package establishes no learned
+`792c878f62d454ab702887680ef66b914698d79a`; clean-export dependency fix:
+`f03428c89621a50adee061cd8bbb61d1b8d5d0de`. This package establishes no learned
 benefit, no calibrated capability estimate and no held-out native result.
 MiniCPM5 bytes were not downloaded, duplicated or modified.
 
@@ -136,6 +137,13 @@ objective-mask narrowing, tampered implementation refusal, exact reset-parent
 hashes, partial-checkpoint resume, non-repeating optimizer work, ambiguous-work
 refusal, final-publication interruption, source-free scoring and live temporary
 storage observation.
+
+A detached clean checkout at `f03428c8` passes **112/112** committed DC-P1,
+preserved-v1 and capacity-guard tests with zero skips; its receipt is
+`reports/verification_20261028/dc_p1_clean_checkout_summary.json`. Attempt 01
+selected an uncommitted DC-R1 test and collected nothing. Attempt 02 exposed the
+missing tracked `artifact_publication.py` dependency; the fix commit and both
+failure records are preserved. No native execution occurred in any checkout.
 
 Review-only preflight passed without labels, tokenizer, model or native work:
 

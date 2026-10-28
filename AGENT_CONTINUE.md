@@ -7,7 +7,8 @@ temporal semantics, matched controls, narrowed objective claim, selected-expert
 native runner, source-free evaluation and staged receipts. Actual accounting
 now covers autoregressive forwards, recovery reloads, 121 physical checkpoint
 writes, four retained artifacts and temporary-file live peaks. The broad focused
-suite passes 136 tests; review attempt02 is ready. CPU attempt03 preserves all
+suite passes 136 tests; clean `f03428c8` passes 112 and review attempt02 is
+ready. CPU attempt03 preserves all
 stages and interrupted resume, with native admission false throughout. The
 external native receipt remains absent: do not launch, synthesize authorization,
 or claim learned/native benefit. Continue isolated vision/Spark preparation and

@@ -4,7 +4,8 @@
 [DC-P1 v2 native preparation](docs/experiments/20261028_DC_P1_V2_Native_Preparation.md).
 The protocol, selected-expert native runner, source-free P-only evaluation,
 per-event recovery and live publication accounting are committed at `792c878f`.
-The focused suites pass 136 tests and review-only preflight is ready. Preserved
+The focused suites pass 136 tests; clean `f03428c8` passes 112 and review-only
+preflight is ready. Preserved
 CPU fixtures complete fit/development/final and interrupted resume, but every
 native admission is false and no learned claim is made. External native
 authorization is absent; no MPS job, download or sealed-final native evaluation
