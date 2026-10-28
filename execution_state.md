@@ -1,5 +1,33 @@
 # Execution state — integrated memory, cognition and learning
 
+## Bounded milestone readiness and clean integration — 28 October 2026
+
+**Current status — implementation, independent preparation and clean CPU
+integration are complete; no native protocol was authorized or executed and no
+capability is qualified.** Read the
+[milestone report](docs/experiments/20261028_Bounded_Milestone_Integration.md).
+
+- DC-P1 evidence is committed at `42a17830`; its learning audit and bounded
+  source-free alternative are committed at `8ac42b3f`. The audit proves exact
+  1.5× global CE rescaling, epsilon-sensitive updates, clipping to norm 1.0,
+  nonzero source-free feature shift and logit influence, but zero changed
+  tokens in all tiny generated-behavior probes. The alternative runner remains
+  unimplemented and development/final labels stay closed.
+- DC-R1 (`deba2428`, `14b6ecf7`), artifact overlap (`4aca7b02`) and vision
+  runtime (`cdf168a2`) are integrated. Readiness (`454f89ea`) binds exact
+  committed inputs and budgets. `native_command` is null; DC-R1 and alternative
+  authorization receipts are absent and every missing field is reported.
+- Detached checkout `42d122b7` passes **494 tests with one skip** (495
+  collected), Spark **721/721**, final product **500/500**, caption validation
+  with 9 admitted/21 exclusions/8 exposed/24 diagnostic scenes, and the tracked
+  artifact guard on 11,371 files. JUnit and the consistency-checked summary are
+  under `reports/verification_20261028/`.
+- Next native action requires an exact external DC-R1 receipt and one guarded
+  attempt. Alternative native execution requires its own runner/review first.
+  Spark native training, learned capability, RSI, outer loop, distillation,
+  promotion and personality remain unexecuted and unqualified.
+
+
 ## DC-R1 v2 native readout runner — 28 October 2026
 
 **Current status — implementation and CPU verification are committed at

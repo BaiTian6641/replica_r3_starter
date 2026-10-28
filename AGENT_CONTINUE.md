@@ -1,5 +1,16 @@
 # Coding-agent continuation instruction
 
+**Current priority — 28 October 2026, bounded milestone complete:** read
+[the integration report](docs/experiments/20261028_Bounded_Milestone_Integration.md).
+DC-P1 evidence/audit, DC-R1, artifact, vision and readiness commits are
+integrated. Clean checkout `42d122b7` passes 494 tests with one skip, Spark
+721/721, final product 500/500, caption 9/21/8/24 and artifact guard on 11,371
+files. Readiness commit `454f89ea` binds exact inputs and reports every missing
+receipt field; `native_command` is null. The CPU audit justifies only a
+preparation-only source-free alternative and observes zero changed tokens.
+No native execution, capability qualification, RSI or personality work occurred.
+
+
 **Current priority — 28 October 2026, DC-R1 native runner:** implementation
 commits `deba2428` and `14b6ecf7` add the authorized MPS-only readout backend,
 staged runner, launch-preflight integration, raw-trace recovery and lazy

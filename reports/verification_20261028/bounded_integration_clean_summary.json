@@ -1,0 +1,100 @@
+{
+  "format": "replica.bounded_milestone.clean_integration.v1",
+  "commit": "42d122b7a181c4076f5294b7d592dc35490e2158",
+  "protocol_commit": "454f89eabb8b61b149928ce547263130b42df117",
+  "status": "passed",
+  "tests": 495,
+  "passed": 494,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 1,
+  "pytest_seconds": 387.53,
+  "wall_seconds": 388.09,
+  "worktree_clean": true,
+  "junit_xml": "reports/verification_20261028/bounded_integration_clean_attempt01.xml",
+  "junit_sha256": "2af720088546b6ec1de5d96a5c26becdb6b8a2ed303c76b94cf95dc816e0fa40",
+  "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=/Users/flare/replica_r3_starter/reports/verification_20261028/bounded_integration_clean_attempt01.xml tests/test_vision_smaller_step_v1.py tests/test_vision_smaller_step_launch_readiness_v1.py tests/test_vision_smaller_step_launch_packet_v1.py tests/test_vision_coadaptation_control_v1.py tests/test_vision_smaller_step_v2.py tests/test_vision_coadaptation_control_v2.py tests/test_vision_forward_accounting.py tests/test_dc_p1_native_response_v2_20261027.py tests/test_dc_p1_native_runner_v2.py tests/test_dc_response_objective.py tests/test_dc_staged_evaluation_v2.py tests/test_dc_p1_native_response_20261027.py tests/test_capacity_guard.py tests/test_dc_r1_native_value_v2_20261027.py tests/test_value_readout_publication_recovery.py tests/test_sparkx_v5_1_review.py tests/test_sparkx_final_product.py tests/test_sparkx_first_tranche.py tests/test_caption_lineage_and_eval_20261027.py tests/test_external_caption_asset_qa.py tests/test_dc_r1_native_runner_v2.py tests/test_dc_r1_native_value_20261027.py tests/test_dc_p1_evidence.py tests/test_dc_p1_scoring_cli.py tests/test_dc_p1_learning_audit.py tests/test_dc_p1_source_free_feature_alignment.py tests/test_artifact_publication.py tests/test_vision_coadaptation_runtime.py tests/test_bounded_milestone_readiness.py",
+  "spark_v5_1_verifier": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python reports/sparkx_v5_1_review_20261027/verify.py --root . --tracked require",
+    "mode": "--tracked require",
+    "checks": 721,
+    "passed": 721,
+    "failed": 0
+  },
+  "final_product_verifier": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python reports/sparkx_final_product_20261026/verify.py --root . --out reports/sparkx_final_product_20261026",
+    "checks": 500,
+    "passed": 500,
+    "failed": 0,
+    "unavailable_source_cache": 0
+  },
+  "caption_validator": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python scripts/validate_caption_lineage_and_eval_20261027.py --require-admission --as-of 2026-10-28",
+    "status": "valid",
+    "admission_status": "admitted",
+    "admitted_rows": 9,
+    "exclusions": 21,
+    "exposed": 8,
+    "diagnostic_scenes": 24
+  },
+  "readiness": {
+    "path": "reports/bounded_milestone_20261028/readiness_attempt01.json",
+    "sha256": "c14e7ac58b5cc5ab08a669fcb2693596385c0286b578aa89995de3c59876145a",
+    "status": "review_ready_native_blocked_missing_authorization",
+    "native_command": null
+  },
+  "learning_audit": {
+    "path": "reports/dc_p1_learning_audit_20261028/audit_attempt01.json",
+    "sha256": "37c8fbaed8883a5d35507b9a76ea4b066d3d627248da1b68c70c9b4943b9f481",
+    "gradient_ratio": 1.5,
+    "source_free_feature_shift_l2": 0.6931585073471069,
+    "selected_expert_max_logit_delta": 2.0,
+    "generated_changed_token_count": 0,
+    "alternative_protocol": "dc_p1_source_free_feature_alignment_v1",
+    "alternative_runner_status": "not_implemented",
+    "capability_qualified": false
+  },
+  "implemented_commits": {
+    "dc_r1_native_runner": ["deba2428", "14b6ecf7"],
+    "artifact_overlap": "4aca7b02",
+    "vision_coadaptation_runtime": "cdf168a2",
+    "dc_p1_staged_evidence": "42a17830",
+    "dc_p1_learning_audit": "8ac42b3f",
+    "milestone_readiness": "454f89ea"
+  },
+  "executed": [
+    "small CPU learning-hypothesis audit with real objective/optimizer/clipping/feature functions",
+    "detached clean-checkout CPU integration and tiny-model software fixtures",
+    "Spark documentation/arithmetic, final-product and caption/data validators"
+  ],
+  "not_executed": [
+    "DC-R1 MiniCPM5 native MPS readout",
+    "source-free alternative native runner or training",
+    "Spark native training or measured residency qualification",
+    "RSI, outer loop, self-distillation, promotion or personality adaptation"
+  ],
+  "native_execution": false,
+  "native_model_loads": 0,
+  "authorization_created": false,
+  "capability_qualified": false,
+  "native_gates_unresolved": 10,
+  "preserved_failures": [
+    "reports/verification_20261028/dc_p1_clean_checkout_attempt01.json",
+    "reports/verification_20261028/dc_p1_clean_checkout_attempt02.json",
+    "reports/verification_20261028/vision_v2_pre_split_failure.json",
+    "reports/sparkx_final_product_20261026/verification_unstaged_attempt01.json",
+    "reports/verification_20261028/caption_baseline_failure_and_repair.json",
+    "reports/dc_p1_native_response_v2_20261028/cpu_orchestration_attempt01/failure.json",
+    "reports/dc_p1_native_response_v2_20261028/cpu_orchestration_attempt02/failure.json"
+  ],
+  "artifact_guard": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python scripts/check_git_artifacts.py --scope tracked",
+    "status": "passed",
+    "scope": "tracked",
+    "checked_files": 11371,
+    "largest_checked_blob_bytes": 8148167,
+    "max_blob_bytes": 52428800,
+    "violations": []
+  },
+  "cleanup": "The final-product verifier's generated receipt was restored after its temporary-path rewrite; the disposable source checkout was clean before removal. The main-workspace JUnit and integration summary were retained."
+}
