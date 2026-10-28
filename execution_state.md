@@ -31,12 +31,12 @@ NativeFusedAdamW remain the baseline/default, with all native guards unchanged.
   authorized receipt and full protocol commit are still required before native
   loading. The conditional co-adaptation control is prepared but ineligible.
   **161 vision tests pass.**
-- Spark v5.1 now has a reviewed migration with 694 checks, a 508-check final
+- Spark v5.1 now has a reviewed migration with 694 checks, a 500-check final
   verifier and a 75-input bundle. Residency includes retained vision, optimizer
   state, activations and restart transients. Official BF16/FP8, dequantized
   derivatives and native FP8 remain separate. P32/P64/Mkv and outer-loop/RSI are
   deferred until a smaller useful learner exists. All ten native gates remain
-  unresolved. **29 migration/final-product tests pass.**
+  unresolved. **77 Spark residency/CLI/bundle/final-product/v5.1 tests pass.**
 
 Read the [complete repair and staged-learning handoff](docs/experiments/20261027_Resume_Repair_and_Staged_Learning.md).
 

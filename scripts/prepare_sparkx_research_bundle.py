@@ -637,7 +637,7 @@ FINAL_PRODUCT_INPUT_ROLES: list[tuple[str, str]] = [
     ),
     (
         "reports/sparkx_first_tranche_20261026/research_bundle_manifest.json",
-        "historical 117-input manifest retained byte-for-byte",
+        "reviewed current 117-input first-tranche manifest; the pre-v5.1-residency bytes are preserved separately as research_bundle_manifest_pre_sparkx_v5_1_residency.json",
     ),
     (
         "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/config.json",
@@ -1229,7 +1229,7 @@ def main(argv=None) -> int:
             manifest_path.parent.mkdir(parents=True, exist_ok=True)
             manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
             print(
-                f"Wrote {manifest_path}: profile={manifest['profile']}, "
+                f"Wrote {manifest_path}: profile={args.profile}, "
                 f"{manifest['input_count']} inputs, "
                 f"digest {manifest['bundle_digest']}, "
                 f"clean_checkout_ready={manifest['clean_checkout_ready']}"

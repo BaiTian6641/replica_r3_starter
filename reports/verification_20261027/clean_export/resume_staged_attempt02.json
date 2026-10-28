@@ -1,0 +1,29 @@
+{
+  "schema": "replica.clean_verification_attempt.v1",
+  "attempt": "resume_staged_clean_attempt02",
+  "commit": "56134099",
+  "checkout": "fresh_no_hardlinks_clone",
+  "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=reports/verification_20261027/clean_export/tests_resume_staged_final.xml",
+  "junit_xml": "reports/verification_20261027/clean_export/tests_resume_staged_attempt02.xml",
+  "result": {
+    "status": "failed",
+    "passed": 2938,
+    "failed": 3,
+    "errors": 0,
+    "skipped": 95,
+    "subtests_passed": 21,
+    "seconds": 510.04
+  },
+  "cleared_from_attempt01": {
+    "failures_and_errors": 28,
+    "residency_receipt_and_all_cli_and_vision_fixture_groups": true
+  },
+  "failure_groups": {
+    "final_product_unreviewed_snapshot_and_historical_manifest_drift": 2,
+    "first_tranche_committed_bundle_residency_hash_mismatch": 1
+  },
+  "repair_policy": "Preserve the failed XML; propagate the already reviewed residency regeneration through reviewed_input_changes, portable evidence and generated bundle/verifier artifacts using existing entry points. Preserve prior manifests and do not weaken drift or authorization checks.",
+  "linked_worktree_followup_not_in_this_clean_commit": "dc83f56f",
+  "native_execution": false,
+  "model_loads": 0
+}

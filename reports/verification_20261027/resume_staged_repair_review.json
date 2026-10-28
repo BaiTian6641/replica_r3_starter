@@ -1,0 +1,51 @@
+{
+  "schema": "replica.independent_repair_review.v1",
+  "date": "2026-10-27",
+  "reviewed_commit": "56134099",
+  "followup_commit": "dc83f56f",
+  "reviewer": "independent_read_only_reviewer",
+  "reviewer_ran_tests": false,
+  "findings": {
+    "p0": 0,
+    "p1": 0,
+    "clean_export_blockers": 0,
+    "p2": [
+      {
+        "issue": "The readiness clean-root fixture discovered only a .git directory and did not support a linked-worktree .git file.",
+        "status": "fixed",
+        "fix": "Use git rev-parse --absolute-git-dir and bind the temporary root to that real gitdir; production commit-byte validation is unchanged.",
+        "before": "Real linked worktree at 56134099: test_assessment_is_deterministic_current_and_preparation_only errored because reviewed commit bytes could not be discovered.",
+        "after": "Real linked worktree at dc83f56f: 28 readiness tests passed; main-tree vision packet/readiness/co-adaptation group: 161 passed."
+      }
+    ]
+  },
+  "confirmed": {
+    "all_cli_paths": "Actual nested all-command artifacts are compared byte-for-byte with correct standalone fit/development/held-out/controls artifacts; cursor and process-history assertions remain.",
+    "vision_isolation": "Tracked metadata fixtures and real Git objects are used; no production fixture fallback, pinned packet test change, report change, or stubbed commit validation.",
+    "residency_lineage": "Previous receipt is preserved; only documentation_validation.sha256 changed across 417 leaves; calculator, inventory, arithmetic and gates are unchanged."
+  },
+  "focused_results": {
+    "residency_and_all_cli": "27 passed",
+    "vision_main_tree_after_followup": "161 passed",
+    "vision_readiness_linked_worktree_after_followup": "28 passed"
+  },
+  "post_review_clean_attempt02": {
+    "commit": "56134099",
+    "status": "resolved",
+    "failed": 3,
+    "evidence": "reports/verification_20261027/clean_export/resume_staged_attempt02.json",
+    "failure_scope": "Downstream residency pins in snapshot drift, historical-manifest drift and the first-tranche bundle; the targeted reviewer had explicitly left the full clean suite as residual verification.",
+    "resolution": "Reviewed propagation through portable evidence and both generated bundle profiles, with prior manifests preserved and final-product verification regenerated."
+  },
+  "spark_source_repair": {
+    "historical_cli_defect": "The default --write path wrote the manifest and then raised KeyError for the intentionally absent historical manifest profile; the success message now uses args.profile.",
+    "regression": "test_bundle_cli_write_succeeds_for_historical_profile invokes the real CLI and verifies profile=historical output plus the written 117-input bundle.",
+    "focused_tests": "77 passed across residency, first-tranche, final-product and v5.1 review suites",
+    "final_product_verifier": "500/500 passed; zero failed checks, unexplained drift or historical unreviewed drift",
+    "first_tranche_bundle_digest": "3b3d9dcb80e403efa5db94c57537a3f14d29925105ad4eabebff72d3b277db09",
+    "final_product_bundle_digest": "b2319d2bfd70a09c5f39e1a16102cb69d7982e079016a9f73cfce1e5284585b7",
+    "native_execution": false
+  },
+  "native_execution": false,
+  "model_loads": 0
+}

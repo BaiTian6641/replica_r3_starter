@@ -56,6 +56,56 @@
       "statement": "residency_v2_markdown_legacy.json remains untouched"
     }
   },
+  "downstream_regeneration": {
+    "first_tranche_manifest": {
+      "preserved_path": "reports/sparkx_first_tranche_20261026/research_bundle_manifest_pre_sparkx_v5_1_residency.json",
+      "preserved_sha256": "2a43e33591b93f96b09107f7e10915a8ebfd62c55e982515fd83412908aeb2a7",
+      "preserved_bundle_digest": "8f4e37762448517744018788e7968148614c74704c840fc61c334c3f8b3f07d2",
+      "current_path": "reports/sparkx_first_tranche_20261026/research_bundle_manifest.json",
+      "current_sha256": "371001d8d63b92fa76dc5d763d6c0521a09aba246febbb0cd073d0e7698fcd5e",
+      "current_bundle_digest": "3b3d9dcb80e403efa5db94c57537a3f14d29925105ad4eabebff72d3b277db09",
+      "input_count": 117,
+      "regeneration_command": "python3 scripts/prepare_sparkx_research_bundle.py --write",
+      "check_command": "python3 scripts/prepare_sparkx_research_bundle.py --check",
+      "single_input_change": "the 117-input set is unchanged; the pinned residency receipt and bundle generator hashes plus the canonical digest were refreshed after the reviewed v5.1 migration and CLI-profile fix"
+    },
+    "final_product_manifest": {
+      "preserved_path": "reports/sparkx_final_product_20261026/final_product_bundle_manifest_pre_sparkx_v5_1_residency.json",
+      "preserved_sha256": "b77db73475409e46b2e38d0f3208f547744e76b04b59ac59442924e335ba4b49",
+      "preserved_bundle_digest": "3299e1e6f6c38a3d4007f96490aa754ef7cec30532f202274ff120c4d8f587ab",
+      "current_path": "reports/sparkx_final_product_20261026/final_product_bundle_manifest.json",
+      "current_sha256": "023caba05e4d1be0e8e1057af38fd1f3012f7591b1810dc49e39da846377ae38",
+      "current_bundle_digest": "b2319d2bfd70a09c5f39e1a16102cb69d7982e079016a9f73cfce1e5284585b7",
+      "input_count": 75,
+      "regeneration_command": "python3 scripts/prepare_sparkx_research_bundle.py --profile final-product --write",
+      "check_command": "python3 scripts/prepare_sparkx_research_bundle.py --profile final-product --check",
+      "refreshed_pins": "residency receipt, portable evidence, reviewed-change record, consolidation README and the regenerated first-tranche manifest that now pins the fixed bundle generator"
+    },
+    "verification_receipt": {
+      "path": "reports/sparkx_final_product_20261026/verification_v2.json",
+      "sha256": "8afb7dc1d986d064db9d94c21582560555942f265b30f5991662838fe6eefd84",
+      "status": "passed",
+      "checks_count": 500,
+      "failed_checks": 0,
+      "regeneration_command": "python3 reports/sparkx_final_product_20261026/verify.py",
+      "unreviewed_drift": 0
+    },
+    "historical_verification_receipt": {
+      "path": "reports/sparkx_final_product_20261026/verification.json",
+      "sha256": "677acbffd8626d18c718d173a70bd5f88d81b1f81e20d6233376f7bb24147003",
+      "untouched": true,
+      "statement": "the historical verification.json receipt remains untouched"
+    },
+    "bundle_generator": {
+      "path": "scripts/prepare_sparkx_research_bundle.py",
+      "sha256": "9b9e4eeda399a70369e099ae80318f9af277c1d1807a2bb3dfa94a1178d70af8",
+      "changed": true,
+      "change": "the historical/default --write success line reports --profile instead of an absent manifest field, so the CLI exits 0 after writing; the first-tranche input role now names the reviewed current manifest with prior bytes preserved separately"
+    },
+    "arithmetic_changed": false,
+    "gates_changed": false,
+    "native_execution": false
+  },
   "native_execution": {
     "performed": false,
     "statement": "no native execution occurred; the receipt remains an analytical ledger with no weight payload, model code or runtime involved"

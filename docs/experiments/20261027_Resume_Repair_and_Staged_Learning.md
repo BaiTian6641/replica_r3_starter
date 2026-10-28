@@ -3,7 +3,10 @@
 ## Scope and authority
 
 Prior implementation base: `f0fff3e4`. Starting HEAD for this repair: `4c5a8485`.
-Resume/staging implementation commit: `71955206`. MiniCPM5 remains
+Resume/staging implementation commit: `71955206`.
+Clean-verification repair commits: `56134099` and `dc83f56f` (linked-worktree
+fixture follow-up).
+MiniCPM5 remains
 baseline and NativeFusedAdamW/`adamw_fused` default. The 50 GiB driver, 512 MiB
 sustained swap-growth, 15% host-free, exclusive-worker and disabled-fallback
 policies are unchanged. The protected runtime pilot was not read, imported,
@@ -102,6 +105,10 @@ launch packet is verified at canonical digest
 **161 vision readiness/contract tests passed**, with `readiness_current` and
 `coadaptation_preparation_current`.
 
+Readiness and co-adaptation tests now reuse the packet's tracked metadata-only
+clean root and real Git objects. The pinned packet test and checked-in reports
+are unchanged; production validation has no fixture fallback.
+
 The exact remaining launch requirements are:
 
 1. a separate authorized receipt with all 14 declared fields and config SHA-256
@@ -126,10 +133,20 @@ encoder swap, new loss or larger-budget expansion.
 The v5.1 documents, design config and review bundle now have an explicit reviewed
 migration (`sparkx-2.6-v5.1-review-migration-20261027`) with old/new identities
 and reasons. Historical source snapshots and receipts are unchanged. The
-migration has 694 checks; the final-product verifier has 508 checks and a
-75-input, 4,511,256-byte bundle with digest
-`3299e1e6f6c38a3d4007f96490aa754ef7cec30532f202274ff120c4d8f587ab`.
-**29 migration/final-product tests passed.**
+migration has 694 checks; the final-product verifier has 500 checks and a
+75-input, 4,513,053-byte bundle with digest
+`b2319d2bfd70a09c5f39e1a16102cb69d7982e079016a9f73cfce1e5284585b7`.
+The 508-to-500 change is exactly eight historical-reviewed-update checks that
+are no longer emitted after their reviewed hashes enter the regenerated
+manifest; no gate was removed.
+**77 Spark residency/CLI/bundle/final-product/v5.1 tests passed.**
+
+The v5.1 architecture edit also changed the derived residency receipt's
+documentation hash. The prior receipt is preserved at
+`reports/sparkx_residency_20261026/residency_v2_pre_sparkx_v5_1.json`, and
+`documentation_migration_sparkx_v5_1.json` binds old/new receipt and document
+hashes. Across 417 leaf values only `documentation_validation.sha256` changed;
+arithmetic, inventory and gates are unchanged.
 
 The residency inventory separates retained vision tower, base/extended weights,
 optimizer state, activations, restart transients, P16/P32/P64 and Mkv-4k/64k.
@@ -164,7 +181,34 @@ Focused results:
 | DC protocols | 33 passed |
 | Vision readiness/contract | 161 passed |
 | Data/Spark | 54 passed |
-| Spark v5.1 migration/final product | 29 passed |
+| Spark residency/CLI/bundles/final product/v5.1 | 77 passed |
+
+A no-hardlinks clean clone of `71955206` preserved a failed first attempt at
+`reports/verification_20261027/clean_export/resume_staged_attempt01.json` and
+its JUnit XML: 2 stale-residency failures, 1 incorrect all-CLI baseline-path
+failure and 25 vision fixture-root failures/errors. Commit `56134099` fixes the
+path pairs, routes vision tests through the tracked metadata fixture, and
+preserves/regenerates the derived residency receipt. Focused repair groups pass
+27 residency/resume and 161 vision checks; no validation gate was relaxed.
+
+The second no-hardlinks clean run, at `56134099`, cleared those 28
+failures/errors and exposed three downstream Spark pins: snapshot drift,
+historical-manifest drift and the first-tranche bundle hash. They are preserved
+in `resume_staged_attempt02.json` and its JUnit XML. The required repair is
+reviewed propagation of the existing residency migration through generated
+manifests and portable evidence, not a change to arithmetic or native gates.
+
+The integrated repair also fixes the historical bundle CLI's post-write
+`profile` crash and corrects the generated lineage role. A real subprocess
+regression verifies exit 0, `profile=historical`, and the written bundle. Prior
+manifests are preserved, both current manifests pass `--check`, and the final
+verifier passes 500/500 with no unexplained drift.
+
+Independent targeted review found no blocker in the original repair scope and
+confirmed the path, fixture and receipt-lineage repairs. Its linked-worktree
+portability finding was reproduced on `56134099` and fixed in `dc83f56f`; all
+28 readiness tests then passed in a real linked worktree. See
+`reports/verification_20261027/resume_staged_repair_review.json`.
 
 Historical continuation replay is `exact_match`; accounting replay is 7,695/7,755;
 corrected step-1 preserves original engineering failure and derived supported

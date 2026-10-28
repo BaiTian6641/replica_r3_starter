@@ -22,10 +22,20 @@ with final artifacts. The 22-class parent baseline (27/27) is not learned
 improvement. DC-P1/DC-R1 and the smaller-step vision protocol require separate
 authorization before any native execution.
 
+For clean verification, clone the exact commit with `--no-hardlinks`, preserve
+failed JUnit evidence and write a separate final report. Native-dependent tests
+must use tracked metadata fixtures or explicit skips, never implicit ignored
+local artifacts. Regenerate the derived residency receipt only with its
+calculator and preserve the prior receipt plus old/new migration hashes.
+After a residency refresh, propagate its reviewed migration through portable
+evidence and both bundle profiles. The default historical `--write` and the
+additive final-product `--write` must both exit successfully before `--check`
+and the final-product verifier run; preserve the prior manifests and hashes.
+
 ## 1. Establish current evidence once
 
-Inspect Git status/logs, applicable instructions and active artifacts. The last
-repair qualification is `757ace1`; verify what another session changed before acting.
+Inspect Git status/logs, applicable instructions and active artifacts. The current
+repair commit is `dc83f56f`; verify what another session changed before acting.
 Preserve unrelated work and historical negative evidence. Read:
 
 1. [Execution state](../../execution_state.md) and [continuation](../../AGENT_CONTINUE.md).

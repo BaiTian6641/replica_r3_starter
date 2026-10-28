@@ -31,9 +31,10 @@
       "path": "reports/sparkx_residency_20261026/residency_v2.json",
       "kind": "reviewed_receipt_refresh",
       "prior_sha256": "5c406623eb26b6ae1c60189edc57e19b2fc2d8f4d4228b3b095d4b04454c7f2a",
-      "current_sha256": "0d3c4dc574a9dddab9593663970fb49b85bd6d135a81a275bbaf92891b78c644",
-      "reason": "Refreshes the pinned documentation digest after the reviewed architecture pointer edit; the prose-derived legacy receipt remains preserved separately.",
-      "reviewed_commit": "bece2a8fa4151a36ff13c3dfb0228a26c180460c"
+      "current_sha256": "6b5a661ade99e74e0e87dc33fa814f212404333abaf118cab16570d2e4b0d8d1",
+      "reason": "Refreshes the pinned documentation digest after the reviewed architecture pointer edit; the prose-derived legacy receipt remains preserved separately. The v5.1 migration changed only documentation_validation.sha256, with arithmetic and gates unchanged.",
+      "reviewed_in": "reports/sparkx_residency_20261026/documentation_migration_sparkx_v5_1.json",
+      "reviewed_commit": "5613409957f3000964a9241d4cc56fd79d0ffcf8"
     },
     {
       "path": "docs/experiments/20261026_Spark_Residency_Reconciliation.md",
@@ -49,25 +50,25 @@
       "path": "docs/architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md",
       "prior_sha256": "bd22e18c990d942dbc0c40a671ce80c8bee5435a179f8938cea4db533518c9d1",
       "current_sha256": "9628b29c9e348e123e896fbad834f42a4bac5708a7c456b15d2a0c0535e1d10b",
-      "reason": "v5.1 current-evidence reconciliation; the historical 117-input manifest remains byte-for-byte and the final-product manifest pins the current bytes."
+      "reason": "v5.1 current-evidence reconciliation; the first-tranche manifest's pre-migration bytes are preserved separately and the final-product manifest pins the current bytes."
     },
     {
       "path": "reports/sparkx_final_product_20261026/README.md",
       "prior_sha256": "3b25592de35f612358a80066bc93d48f2739b200049f2bdbfead71c937024e28",
-      "current_sha256": "2cd0f577e3a2fc68ca417d0856e3398583d987362e78578387d5442d7ccbc603",
-      "reason": "Current-evidence reconciliation; the historical manifest remains byte-for-byte and the final-product manifest pins the current bytes."
+      "current_sha256": "de6eba490d96cdd7586353bac58a035093d4d2e84d94fa691e40ea473573cf5a",
+      "reason": "Current-evidence reconciliation plus the v5.1 residency refresh: the guide now distinguishes the preserved pre-migration first-tranche manifest from the reviewed regenerated current manifest; the historical profile's 117-input set is unchanged."
     },
     {
       "path": "reports/sparkx_final_product_20261026/verify.py",
       "prior_sha256": "94235d95bc841afd45efd21014e82d140af0c9ecc5ad92d6bca4a269cee336ba",
       "current_sha256": "b1d6c9322b047e04759401baafaa89e2672ac9f83cfed253586b9ec4bdfd8510",
-      "reason": "Portable root/out inputs and self-contained current-evidence checks; the historical manifest remains byte-for-byte and the final-product manifest pins the current bytes."
+      "reason": "Portable root/out inputs and self-contained current-evidence checks; the first-tranche manifest's pre-migration bytes are preserved separately and the final-product manifest pins the current bytes."
     },
     {
       "path": "scripts/prepare_sparkx_research_bundle.py",
       "prior_sha256": "6f03b31b4a51cc6b7980a7cf92193a7d0071b040282a76426f22692747bc7ba1",
-      "current_sha256": "e54bc51eb3368712a81d5a1ecb2757547dcc135315a736a5222963a9cbd2af0f",
-      "reason": "Adds the v5.1 review bundle to the additive final-product profile while leaving the historical 117-input manifest and its hash untouched."
+      "current_sha256": "9b9e4eeda399a70369e099ae80318f9af277c1d1807a2bb3dfa94a1178d70af8",
+      "reason": "Adds the v5.1 review bundle to the additive final-product profile and leaves the historical profile's 117-input set unchanged. Also reports the historical CLI profile from --profile instead of an absent manifest field so `--write` exits 0 for both profiles, and describes the regenerated first-tranche manifest as the reviewed current 117-input manifest with its prior pre-v5.1-residency bytes preserved separately."
     },
     {
       "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
@@ -92,6 +93,12 @@
       "prior_sha256": "b905728a5d659b260766c0132136ee8b4deef64d6a61897c311785e5d3fc79ac",
       "current_sha256": "d7f8467517dafedd4004e824aca706317f3cbff4a7d791fd2861d5fb847c97f2",
       "reason": "v5.1 adds the reviewed learning direction and points at the unified blueprint; earlier NL/V records remain historical."
+    },
+    {
+      "path": "reports/sparkx_residency_20261026/residency_v2.json",
+      "prior_sha256": "0d3c4dc574a9dddab9593663970fb49b85bd6d135a81a275bbaf92891b78c644",
+      "current_sha256": "6b5a661ade99e74e0e87dc33fa814f212404333abaf118cab16570d2e4b0d8d1",
+      "reason": "v5.1 residency migration refreshes only documentation_validation.sha256; every arithmetic figure, gate and non-claim is unchanged, and the pre-migration receipt is preserved separately."
     }
   ]
 }

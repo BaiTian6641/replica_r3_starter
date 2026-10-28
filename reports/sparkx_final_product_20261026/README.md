@@ -77,14 +77,14 @@ For full training, a 4.4B FP32-weight/gradient/two-moment Adam payload alone is 
 
 The [input snapshot](repository_snapshot.json) hashes **40** reviewed inputs and captures HEAD/worktree status. The [portable evidence pins](portable_evidence.json) list every required current receipt, configuration and source pin with repository-relative paths. The [reviewed-change record](reviewed_input_changes.json) separates the five explicitly reviewed architecture/pointer/receipt changes from any unexplained drift. Unexplained snapshot or historical-manifest drift now **fails current qualification**; reviewed changes remain separate records rather than being silently absorbed.
 
-The historical [117-input manifest](../../reports/sparkx_first_tranche_20261026/research_bundle_manifest.json) is preserved byte-for-byte. Current evidence is pinned by the additive `reports/sparkx_final_product_20261026/final_product_bundle_manifest.json`, generated as:
+The [117-input first-tranche manifest](../../reports/sparkx_first_tranche_20261026/research_bundle_manifest.json) is the reviewed current bundle: the SparkX v5.1 residency receipt refresh regenerated it from current bytes, and its prior pre-migration bytes are preserved separately as `reports/sparkx_first_tranche_20261026/research_bundle_manifest_pre_sparkx_v5_1_residency.json`. Current evidence is pinned by the additive `reports/sparkx_final_product_20261026/final_product_bundle_manifest.json`, generated as:
 
 ```sh
 python3 scripts/prepare_sparkx_research_bundle.py --profile final-product --write
 python3 scripts/prepare_sparkx_research_bundle.py --profile final-product --check
 ```
 
-That profile is a hashed manifest, not an asset copy. It includes the current v4, calibration, continuation, vision-curve, final-verification and clean-export receipts, plus explicit clean-export links. It never includes a temporary source-cache path and never rewrites the historical manifest; the four re-reviewed inputs are the blueprint, this guide, the verifier and the bundle generator.
+That profile is a hashed manifest, not an asset copy. It includes the current v4, calibration, continuation, vision-curve, final-verification and clean-export receipts, plus explicit clean-export links. It never includes a temporary source-cache path and never rewrites the historical profile's 117-input set; the four re-reviewed inputs are the blueprint, this guide, the verifier and the bundle generator. The v5.1 residency receipt is a reviewed current update in the first-tranche manifest lineage, whose pre-migration bytes are preserved separately.
 
 The [20-item requirements map](requirements_traceability.json) connects every major requested feature to its design sections, validation and current evidence status. The blueprint's open-issue table names the experiments needed to close unresolved choices rather than presenting them as settled capabilities.
 
@@ -92,6 +92,6 @@ The [20-item requirements map](requirements_traceability.json) connects every ma
 
 This review changes documentation and declarative research artifacts only. It does not start training, acquire model weights or dataset media, import native model code, modify the protected runtime file, stage/commit changes, or alter resource guards and experiment admission.
 
-The portable verifier writes [verification_v2.json](verification_v2.json) and preserves the historical [verification.json](verification.json). It checks document links/anchors, JSON consistency, tracked source pins, pinned configuration/code agreement, inventory arithmetic, current evidence denominators and verdicts, reviewed drift, the historical manifest, and the additive final-product manifest. Every required check is self-contained in tracked evidence; missing source-cache entries are reported as unavailable rather than described as verified.
+The portable verifier writes [verification_v2.json](verification_v2.json) and preserves the historical [verification.json](verification.json). It checks document links/anchors, JSON consistency, tracked source pins, pinned configuration/code agreement, inventory arithmetic, current evidence denominators and verdicts, reviewed drift, the first-tranche manifest, and the additive final-product manifest. Every required check is self-contained in tracked evidence; missing source-cache entries are reported as unavailable rather than described as verified.
 
 These receipts do not certify model quality, runtime fit, learning or native Spark training. The final product entry point is version 5. [Document 22](../../docs/architecture/22_State_Mechanism_and_RSI_Contracts.md) continues to own state/transaction/RSI authority, and actual experiment protocols continue to govern execution.

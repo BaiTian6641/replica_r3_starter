@@ -13,6 +13,7 @@ import hashlib
 import importlib.util
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -28,8 +29,6 @@ SYNTHETIC_ASSETS = ROOT / "reports" / "sparkx_first_tranche_20261026" / "synthet
 
 
 def _load(path: Path, name: str):
-    import sys
-
     spec = importlib.util.spec_from_file_location(name, path)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -76,6 +75,24 @@ def test_bundle_manifest_is_small_hashed_and_relative(tmp_path: Path) -> None:
 def test_bundle_manifest_is_deterministic(tmp_path: Path) -> None:
     root = _bundle_tree(tmp_path / "repo")
     assert bundle.build_manifest(root) == bundle.build_manifest(root)
+
+
+def test_bundle_cli_write_succeeds_for_historical_profile(tmp_path: Path) -> None:
+    root = _bundle_tree(tmp_path / "repo")
+    result = subprocess.run(
+        [sys.executable, str(BUNDLE_SCRIPT), "--root", str(root), "--write"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "profile=historical" in result.stdout
+    written_path = root / bundle.DEFAULT_MANIFEST
+    assert written_path.is_file()
+    written = json.loads(written_path.read_text(encoding="utf-8"))
+    assert len(written["inputs"]) == len(bundle.INPUT_ROLES)
+    report = bundle.verify_manifest(root, written)
+    assert report["verified"] is True, report["failures"]
 
 
 def test_bundle_rejects_unstaged_change_but_allows_staged_update(tmp_path: Path) -> None:
