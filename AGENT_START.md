@@ -1,5 +1,14 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
+**Current priority — 28 October 2026, vision v2:** read
+[vision accounting and co-adaptation preparation](docs/experiments/20261028_Vision_V2_Accounting_and_Coadaptation.md).
+Commit `e8579c04` separates the v2 runner from the byte-preserved v1 lineage,
+derives and enforces the corrected 4,804-forward/156-observation schedule, and
+implements the conditional 24-tensor co-adaptation scope with producer-version
+cache invalidation. Vision suites pass 184; combined clean verification passes
+296. Smaller-step and co-adaptation remain unauthorized and unrun; the latter
+still lacks a failed smaller-step report, frozen-feature diagnosis and receipt.
+
 **Current priority — 28 October 2026:** read
 [DC-P1 v2 native preparation](docs/experiments/20261028_DC_P1_V2_Native_Preparation.md).
 The protocol, selected-expert native runner, source-free P-only evaluation,

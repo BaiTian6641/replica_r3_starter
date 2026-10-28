@@ -1,5 +1,15 @@
 # Coding-agent continuation instruction
 
+**Current priority — 28 October 2026, vision v2:** use
+[vision accounting and co-adaptation preparation](docs/experiments/20261028_Vision_V2_Accounting_and_Coadaptation.md).
+Commit `e8579c04` restores the sealed v1 runner, moves v2 work to its own runner,
+enforces decoder/observation/projector/processed-position identities, and adds
+the conditional last-block/post-norm/projector runner. Full vision tests pass
+184; combined clean DC-P1/vision tests pass 296. The pre-split lineage failure
+is preserved. Native execution remains closed: smaller-step has no receipt, and
+co-adaptation additionally lacks a failed smaller-step report and frozen-feature
+diagnosis. Do not infer learned visual improvement or native eligibility.
+
 **Current priority — 28 October 2026:** use
 [DC-P1 v2 native preparation](docs/experiments/20261028_DC_P1_V2_Native_Preparation.md).
 Commit `792c878f` contains the versioned fixture, exact event/checkpoint and

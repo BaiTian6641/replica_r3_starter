@@ -1,0 +1,19 @@
+{
+  "format": "replica.vision_v2.pre_split_failure.v1",
+  "status": "fixed",
+  "observed_before_fix": {
+    "failed": 16,
+    "errors": 6,
+    "passed": 154,
+    "cause": "V2 accounting changes modified the v1 runner, invalidating the sealed v1 launch packet and readiness implementation pins."
+  },
+  "resolution": "Moved the v2-aware implementation to scripts/vision_smaller_step_v2.py, restored the v1 runner byte-for-byte, rebound only v2 packets and added v2 tests.",
+  "observed_after_fix": {
+    "v1_tests": 161,
+    "combined_workspace_tests": 184,
+    "combined_clean_checkout_tests": 296,
+    "failures": 0
+  },
+  "native_execution": false,
+  "preserved": true
+}

@@ -1,5 +1,29 @@
 # Execution state — integrated memory, cognition and learning
 
+## Vision v2 accounting and co-adaptation preparation — 28 October 2026
+
+**Current status — versioned CPU preparation and clean integration pass; both
+native vision arms remain unauthorized and unrun.** Commit is
+`e8579c049680c0a36636659f7788609eb1eec48f`.
+
+- The v2 runner is separate and the v1 runner/config/packet/readiness are
+  preserved byte-for-byte. The pre-split 16-failure/six-error lineage result is
+  preserved; v1 now passes 161 tests without re-pinning.
+- Derived accounting is 4,804 campaign decoder forwards, 156 observations,
+  4,544 visual/projector passes, 1,380,240 text positions and 890,624 visual
+  positions. Expected hits are zero with 156 misses; cap fields stay separate.
+  One-unit drift tests include processed-text positions.
+- The conditional co-adaptation runner owns exactly 24 tensors /18,631,424
+  parameters: six projector tensors, encoder block 11 and post-layernorm.
+  Producer-version changes invalidate cached features. Its real run path refuses
+  before output/native imports because the smaller-step failure, frozen-feature
+  diagnosis and external receipt are all absent.
+- Vision tests pass **184/184**; combined clean DC-P1/vision tests pass
+  **296/296** with zero skips. See
+  `reports/verification_20261028/vision_dc_clean_checkout_summary.json`.
+
+Read the [complete vision v2 preparation report](docs/experiments/20261028_Vision_V2_Accounting_and_Coadaptation.md).
+
 ## DC-P1 v2 native preparation — 28 October 2026
 
 **Current status — the versioned protocol and real native code path are
