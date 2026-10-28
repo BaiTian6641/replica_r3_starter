@@ -1,0 +1,76 @@
+{
+  "counts": {
+    "dev_cases": 60,
+    "fit_cases": 36,
+    "labels_dev": 60,
+    "labels_final": 20,
+    "labels_fit": 36,
+    "sealed_final_cases": 20,
+    "sealed_final_fit_cases": 12,
+    "sealed_final_labels_fit": 12,
+    "sealed_final_teaching": 12,
+    "teaching": 36
+  },
+  "declared_role": "deterministic_role_sealed_synthetic_text",
+  "downloads": 0,
+  "files": {
+    "dev_cases.jsonl": "53649d4e139d9d13e6e2ebff6da7cbd8ba1ced445ce1e6f52f61e937c51a8c0f",
+    "fit_cases.jsonl": "5b80b7c92eaaafb553e2df5b13fedab7c33970c6860022c186db39011d162644",
+    "sealed_final_cases.jsonl": "0cf644d78ee24ed661a1b010c92191d94eddafc669e587182aa97a5bf172c8c3",
+    "sealed_final_fit_cases.jsonl": "a392968999dcae50a0e347d50e9cc29e8c0869ced0b4491652812de7db0c701a",
+    "sealed_final_labels_fit.jsonl": "a0e48856a02798f09e1c0c2f2e4d177f90f69410199099bd3aaa09b224993d70",
+    "sealed_final_teaching.jsonl": "30344bb8dfb301b0bf5ea8483b191c3d31af222dcb3167d58357e27035d1041e",
+    "sealed_labels_dev.jsonl": "460660f3ce13a9bf6e522036513430229bf1b68dafeb3bad339ee8b9b2c46b7e",
+    "sealed_labels_final.jsonl": "f3c095afa30931bff02ebf623d0f7bd87b1fdcb9adffffc3ff69d14e2db23210",
+    "sealed_labels_fit.jsonl": "e09c8669e26cdc5af059b682e708495993c8845f97147ec8d433c1dcb15c8cd2",
+    "teaching.jsonl": "10cf2eae821f7ad506f8edc269d5458fcf5ce7a0334ed6aaae6e326bbd3334de"
+  },
+  "fit_prompt_policy": "identical_to_teaching_prompt",
+  "format": "replica.dc_p1_native_response.prepared.v2",
+  "format_version": 2,
+  "heldout_opened": false,
+  "manifest_sha256": "e8668aa72d77a1cc64d8662eeea0dc9f7eca94f60d6bcd2702fd431117bb02be",
+  "model_loaded": false,
+  "native_computation": false,
+  "protocol_id": "dc_p1_native_response_v2",
+  "seed": 20261027,
+  "source_groups": {
+    "development": [
+      "p1v2src_dev_00",
+      "p1v2src_dev_01",
+      "p1v2src_dev_02",
+      "p1v2src_dev_03",
+      "p1v2src_dev_04",
+      "p1v2src_dev_05",
+      "p1v2src_dev_06",
+      "p1v2src_dev_07",
+      "p1v2src_dev_08",
+      "p1v2src_dev_09",
+      "p1v2src_dev_10",
+      "p1v2src_dev_11"
+    ],
+    "sealed_final": [
+      "p1v2src_sealed_00",
+      "p1v2src_sealed_01",
+      "p1v2src_sealed_02",
+      "p1v2src_sealed_03"
+    ]
+  },
+  "supersedes_manifest": "data/dc_p1_native_response_20261027/manifest.json",
+  "teaching_layout": {
+    "answer_span": "answer_content_offsets_plus_terminal_eos",
+    "eos_id": 1,
+    "masks_coincide_by_construction": true,
+    "response": "answer_tokens_then_terminal_eos"
+  },
+  "temporal_semantics": {
+    "events_per_group": 3,
+    "historical_queries": "historical_explicit_event",
+    "historical_role": "historical_state",
+    "ordinary_queries": "current_at_query_epoch",
+    "post_correction_current_role": "post_correction_current",
+    "retention_queries": "stateless_rule",
+    "teaching_query_epoch": "event_position"
+  },
+  "tokenizer_loaded": false
+}

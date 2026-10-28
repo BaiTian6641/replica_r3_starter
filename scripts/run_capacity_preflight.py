@@ -46,6 +46,24 @@ def training_arguments(arguments):
     return arguments, (output if output.is_absolute() else ROOT / output).resolve()
 
 
+def continuation_requested(arguments):
+    """True only for an explicit resume or development/final continuation.
+
+    An initial fit must never reuse an existing output.  The continuation flag
+    is accepted only when the trainer arguments themselves declare resume or a
+    post-fit stage, so arbitrary existing output cannot be smuggled through.
+    """
+    arguments = [item for item in arguments if item != "--"]
+    if "--resume" in arguments:
+        return True
+    if arguments.count("--stage") != 1:
+        return False
+    position = arguments.index("--stage")
+    if position + 1 >= len(arguments):
+        return False
+    return arguments[position + 1] in ("development", "final")
+
+
 def stop_child(child):
     """Interrupt first so the trainer can preserve its failure profile."""
     for sig, timeout in ((signal.SIGINT, 10), (signal.SIGTERM, 5), (signal.SIGKILL, 5)):
@@ -87,7 +105,7 @@ def main():
                                                  "analyze_overfit_fit.py",
                                                  "run_m4_pattern.py",
                                                  "run_m4_restart.py",
-                                                 "run_e5_neural_candidate.py", "run_e2_reader_candidate.py", "run_e4_delayed_use.py", "run_e4_compositional_eval.py", "run_e3_policy_probe.py", "run_e3_policy_head.py", "run_e3_mixed_controls.py", "run_e3_mixed_core_controls.py", "run_e2_copy_head.py", "run_e2_pointer_head.py", "run_e4_contextual.py", "run_e2_pointer_service.py", "run_e2_pointer_scope_train.py", "run_e2_pointer_context.py", "run_e2_pointer_context_service.py", "run_e2_cross_template_retrieval.py", "run_e2_cross_rerank.py"),
+                                                 "run_e5_neural_candidate.py", "run_e2_reader_candidate.py", "run_e4_delayed_use.py", "run_e4_compositional_eval.py", "run_e3_policy_probe.py", "run_e3_policy_head.py", "run_e3_mixed_controls.py", "run_e3_mixed_core_controls.py", "run_e2_copy_head.py", "run_e2_pointer_head.py", "run_e4_contextual.py", "run_e2_pointer_service.py", "run_e2_pointer_scope_train.py", "run_e2_pointer_context.py", "run_e2_pointer_context_service.py", "run_e2_cross_template_retrieval.py", "run_e2_cross_rerank.py", "run_dc_p1_native_response_v2_20261027.py"),
                         default="train_text.py")
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--driver-limit-gib", type=float,
@@ -95,6 +113,9 @@ def main():
     parser.add_argument("--swap-growth-limit-mib", type=float, default=512)
     parser.add_argument("--minimum-free-percent", type=float, default=15)
     parser.add_argument("--sustained-host-samples", type=int, default=3)
+    parser.add_argument("--continue-existing-output", action="store_true",
+                        help="allow an existing output only for --resume or "
+                             "--stage development|final")
     parser.add_argument("trainer_args", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     if sys.platform != "darwin":
@@ -106,8 +127,17 @@ def main():
                                 args.minimum_free_percent, args.sustained_host_samples)
     except (ValueError, OverflowError) as error:
         parser.error(str(error))
-    if args.report.exists() or (output.exists() and any(output.iterdir())):
-        parser.error("Use fresh report and trainer output paths")
+    continuation = continuation_requested(args.trainer_args)
+    if args.continue_existing_output and not continuation:
+        parser.error("--continue-existing-output requires trainer --resume or "
+                     "--stage development|final")
+    existing = output.exists() and any(output.iterdir())
+    if existing and not args.continue_existing_output:
+        parser.error("Use a fresh trainer output path; existing output is "
+                     "allowed only with --continue-existing-output for an "
+                     "explicit resume or post-fit stage")
+    if args.report.exists():
+        parser.error("Use a fresh report path")
     args.report.parent.mkdir(parents=True, exist_ok=True)
     log_path = args.report.with_suffix(".child.log")
     host_path = args.report.with_suffix(".host.jsonl")
@@ -115,7 +145,9 @@ def main():
         parser.error("Guard log paths already exist")
     command = [sys.executable, str(ROOT / "scripts" / args.entry_point), *trainer_args]
     report = {"status": "started", "started_at_utc": datetime.now(timezone.utc).isoformat(),
-              "command": command, "output": str(output), "child_log": str(log_path),
+              "command": command, "output": str(output),
+              "continue_existing_output": bool(args.continue_existing_output),
+              "continuation_requested": continuation, "child_log": str(log_path),
               "host_samples": str(host_path), "host_poll_seconds": 2,
               "profile_poll_seconds": 0.25, "missing_driver_sample_timeout_seconds": 30,
               "implementation_sha256": {

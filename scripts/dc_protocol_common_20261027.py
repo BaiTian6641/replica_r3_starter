@@ -619,3 +619,185 @@ def seal_manifest(root: str | Path, body: Mapping[str, Any]) -> dict:
     sealed["manifest_sha256"] = sha256_json(sealed)
     write_json(root / "manifest.json", sealed)
     return sealed
+
+
+# ---------------------------------------------------------------------------
+# v2 additions (27 October 2026)
+#
+# Everything below is additive: no v1 helper above changed behavior, no v1
+# limit was overwritten and no v1 receipt format was reused for a different
+# meaning.  The additions provide
+#
+# * a canonical physical-work counter registry shared by DC-P1 v2 and DC-R1 v2;
+# * a fail-closed v2 budget checker with per-arm ceilings;
+# * generic self-digested evidence seals;
+# * offline git commit binding for an externally issued authorization.
+# ---------------------------------------------------------------------------
+
+WORK_BUDGET_V2_FORMAT = "replica.dc_protocol.work_budget.v2"
+
+# Canonical execution-point counters.  A counter that is not in this registry
+# must at least carry one of the declared unit suffixes; anything else is
+# refused instead of being silently ignored.
+WORK_COUNTERS = frozenset({
+    "model_loads", "tokenizer_loads", "downloads", "retries", "workers",
+    "training_forwards", "backward_calls", "optimizer_steps",
+    "forward_calls", "generation_requests", "prefill_forwards",
+    "decode_forwards", "autoregressive_forwards", "generation_prefill_forwards",
+    "generation_decode_forwards", "generated_tokens",
+    "processed_positions", "processed_text_positions",
+    "parity_probe_forwards", "parity_processed_positions",
+    "control_evaluations", "checkpoint_writes", "restarts",
+    "restart_model_loads", "restart_forwards", "restart_backward_calls",
+    "temporary_storage_bytes", "live_storage_bytes",
+    "layer_readout_streams",
+    "restart_tokenizer_loads", "restart_training_forwards",
+    "restart_optimizer_steps", "restart_processed_text_positions",
+    "per_event_checkpoint_writes", "artifact_checkpoint_writes",
+    "retained_checkpoint_artifacts", "live_recovery_checkpoints",
+    "storage_temp_overlap_blocks", "recovery_reloads",
+})
+COUNTER_SUFFIXES = (
+    "_count", "_calls", "_tokens", "_updates", "_seconds", "_forwards",
+    "_positions", "_loads", "_steps", "_bytes", "_writes", "_requests",
+    "_streams", "_artifacts", "_blocks", "_reloads",
+)
+
+
+def is_work_counter(name: Any) -> bool:
+    """True when ``name`` is a declared physical-work counter."""
+    return (isinstance(name, str)
+            and (name in WORK_COUNTERS or name.endswith(COUNTER_SUFFIXES)))
+
+
+def _require_counter_value(name: str, value: Any, check: str) -> int:
+    require(isinstance(value, int) and not isinstance(value, bool) and value >= 0,
+            check, f"{name} must be a nonnegative integer")
+    return int(value)
+
+
+def check_work_budget_v2(accounting: Mapping[str, Any],
+                         budget: Mapping[str, Any], *,
+                         arm: str | None = None,
+                         check: str = "work_budget_v2") -> dict:
+    """Fail closed on any physical-work counter above its declared ceiling.
+
+    The counters are execution points, not requests: one teaching event is a
+    training forward plus a backward plus an optimizer step, and one generated
+    answer is a prefill forward plus one decode forward per emitted token.  A
+    caller charges the counters before the work and re-checks after it, so work
+    stops before a ceiling is crossed rather than after.
+
+    ``arm`` additionally enforces ``budget["per_arm_limits"][arm]``.  An arm
+    that declares no block is an error: per-arm work is never inferred.
+    """
+    require(isinstance(accounting, Mapping), check, "accounting must be an object")
+    require(isinstance(budget, Mapping), check, "budget must be an object")
+    observed: dict[str, int] = {}
+    for name, raw in accounting.items():
+        require(is_work_counter(name), check,
+                f"unrecognized accounting counter {name!r}")
+        observed[str(name)] = _require_counter_value(str(name), raw, check)
+    ceilings = budget.get("physical_limits")
+    require(isinstance(ceilings, Mapping), check,
+            "budget.physical_limits is required")
+    arm_ceilings: Mapping[str, Any] = {}
+    if arm is not None:
+        per_arm = budget.get("per_arm_limits")
+        require(isinstance(per_arm, Mapping), check,
+                "budget.per_arm_limits is required when an arm is checked")
+        require(arm in per_arm, check, f"no declared per-arm budget for {arm!r}")
+        arm_ceilings = per_arm[arm]
+        require(isinstance(arm_ceilings, Mapping), check,
+                f"per_arm_limits[{arm!r}] must be an object")
+
+    def ceiling_for(name: str, block: Mapping[str, Any],
+                    scope: str) -> int:
+        key = f"max_{name}"
+        require(key in block, check,
+                f"no declared {scope} physical ceiling for {name!r}")
+        return _require_counter_value(
+            key, block[key], check)
+
+    checked: dict[str, int] = {}
+    for name, value in observed.items():
+        ceiling = ceiling_for(name, ceilings, "run")
+        require(value <= ceiling, check,
+                f"{name}={value} exceeds max_{name}={ceiling}")
+        checked[f"max_{name}"] = ceiling
+        if arm is not None and f"max_{name}" in arm_ceilings:
+            arm_ceiling = _require_counter_value(
+                f"max_{name}", arm_ceilings[f"max_{name}"], check)
+            require(value <= arm_ceiling, check,
+                    f"{name}={value} exceeds arm {arm!r} max_{name}="
+                    f"{arm_ceiling}")
+    return {
+        "format": WORK_BUDGET_V2_FORMAT,
+        "arm": arm,
+        "observed": dict(sorted(observed.items())),
+        "ceilings": dict(sorted(checked.items())),
+        "within_budget": True,
+    }
+
+
+def seal_record(body: Mapping[str, Any], *,
+                digest_field: str = "receipt_sha256") -> dict:
+    """Return a copy of ``body`` carrying its own canonical digest."""
+    sealed = {key: value for key, value in body.items() if key != digest_field}
+    sealed[digest_field] = sha256_json(sealed)
+    return sealed
+
+
+def verify_sealed_record(record: Any, *, digest_field: str = "receipt_sha256",
+                        check: str = "seal") -> dict:
+    """Fail closed unless ``record`` is a self-consistent sealed body."""
+    require(isinstance(record, Mapping), check, "record must be an object")
+    digest = record.get(digest_field)
+    require(is_hex64(digest), check,
+            f"{digest_field} must be a sealed sha256 digest")
+    body = {key: value for key, value in record.items() if key != digest_field}
+    require(sha256_json(body) == digest, check,
+            f"{digest_field} does not match the record body")
+    return dict(record)
+
+
+def sha256_rows(rows: Iterable[Mapping[str, Any]]) -> str:
+    """Digest a JSONL-shaped row sequence without writing it to disk."""
+    return sha256_json([dict(row) for row in rows])
+
+
+def git_show_bytes(commit: str, path: str) -> bytes | None:
+    """Return the committed bytes of ``path`` at ``commit``, or None."""
+    import subprocess
+
+    require(isinstance(commit, str) and len(commit) == 40
+            and all(character in "0123456789abcdef" for character in commit),
+            "commit_binding", "protocol_commit must be a full 40-hex git commit")
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(ROOT), "show", f"{commit}:{path}"],
+            check=False, capture_output=True, timeout=60)
+    except (OSError, ValueError):
+        return None
+    if completed.returncode != 0:
+        return None
+    return completed.stdout
+
+
+def require_committed_bytes(commit: str, path: str, expected_sha256: str, *,
+                            verifier: Callable[[str, str], bytes | None] | None = None,
+                            check: str = "commit_binding") -> str:
+    """Require the exact committed bytes of ``path`` at ``commit``.
+
+    ``verifier`` lets CPU tests bind an in-memory commit without a repository;
+    the default reads the real worktree history and never touches the network.
+    """
+    require(is_hex64(expected_sha256), check,
+            f"expected digest for {path} is not a sealed sha256")
+    read = verifier or git_show_bytes
+    payload = read(commit, path)
+    require(payload is not None, check,
+            f"{path} is absent from protocol commit {commit}")
+    require(sha256_bytes(payload) == expected_sha256, check,
+            f"{path} bytes at {commit} differ from the sealed digest")
+    return expected_sha256
