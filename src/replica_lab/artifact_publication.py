@@ -190,6 +190,8 @@ def write_bytes(root: Path, relative: str, data: bytes, *,
     target = _target(root, relative)
     if matches(root, relative, data):
         return Artifact(relative, sha256_path(target), target.stat().st_size)
+    if meter is not None:
+        meter.reserve(len(data))
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.parent / f".{target.name}.tmp"
     try:
@@ -272,6 +274,8 @@ def write_torch(root: Path, relative: str, payload: Mapping[str, Any], *,
     target = _target(root, relative)
     if reuse_identical and torch_identity_matches(root, relative, payload):
         return Artifact(relative, sha256_path(target), target.stat().st_size)
+    if meter is not None:
+        meter.reserve(int(payload.get("_estimated_bytes", 0)))
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.parent / f".{target.name}.tmp"
     try:
@@ -396,14 +400,39 @@ def write_overflow_evidence(root: Path, *, context: str, cap_bytes: int,
 
 
 class LiveByteMeter:
-    """Peak bytes physically present under a root, temporary files included."""
+    """Peak bytes physically present under a root, with optional enforcement."""
 
-    def __init__(self, root: Path, *, label: str = "publication"):
+    def __init__(self, root: Path, *, label: str = "publication",
+                 cap_bytes: int | None = None):
         self.root = Path(root)
         self.label = str(label)
+        self.cap_bytes = None if cap_bytes is None else int(cap_bytes)
         self.observations = 0
         self.peak_bytes = 0
         self.peak_files: list[dict] = []
+
+    def reserve(self, additional_bytes: int) -> None:
+        """Refuse a projected overlap before creating a new temporary file."""
+        if self.cap_bytes is None:
+            return
+        additional = int(additional_bytes)
+        if additional < 0:
+            raise PublicationError("additional bytes must be nonnegative")
+        files = inventory(self.root)
+        projected = sum(row["bytes"] for row in files) + additional
+        if projected <= self.cap_bytes:
+            return
+        self.observations += 1
+        if projected > self.peak_bytes:
+            self.peak_bytes = projected
+            self.peak_files = files
+        evidence_path = self.root / "artifact_overflow.json"
+        write_overflow_evidence(
+            self.root, context=self.label, cap_bytes=self.cap_bytes,
+            measured_bytes=projected, files=files,
+            extra={"projected_overlap": True,
+                   "additional_bytes": additional})
+        raise PublicationOverflow(projected, self.cap_bytes, evidence_path)
 
     def observe(self) -> int:
         self.root.mkdir(parents=True, exist_ok=True)
@@ -413,6 +442,12 @@ class LiveByteMeter:
         if live > self.peak_bytes:
             self.peak_bytes = live
             self.peak_files = files
+        if self.cap_bytes is not None and live > self.cap_bytes:
+            evidence_path = self.root / "artifact_overflow.json"
+            write_overflow_evidence(
+                self.root, context=self.label, cap_bytes=self.cap_bytes,
+                measured_bytes=live, files=files)
+            raise PublicationOverflow(live, self.cap_bytes, evidence_path)
         return live
 
     def report(self) -> dict:
@@ -455,6 +490,12 @@ class Journal:
         self.identity = dict(identity)
         self.name = str(name)
         self.cap_bytes = None if cap_bytes is None else int(cap_bytes)
+        if meter is None:
+            meter = LiveByteMeter(self.root, cap_bytes=self.cap_bytes)
+        if (self.cap_bytes is not None and meter.cap_bytes is not None
+                and int(meter.cap_bytes) != self.cap_bytes):
+            raise PublicationError("meter and journal artifact caps differ")
+        meter.cap_bytes = self.cap_bytes
         self.meter = meter
         self.stages: "OrderedDict[str, list[Artifact]]" = OrderedDict()
         self.recovery: list[Artifact] = []
