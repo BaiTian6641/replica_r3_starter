@@ -1,0 +1,951 @@
+{
+  "abstention_policy": {
+    "accepted_layer_definition": "at least one declared layer produces the exact target; diagnostic only and never a group-abstention or complete-group substitute",
+    "accepted_layer_substitute_for_complete_group": false,
+    "accepted_layer_substitute_for_group_abstention": false,
+    "any_layer_abstention_acceptance": false,
+    "complete_group_definition": "every declared layer produces the exact target; this is separate from group abstention",
+    "complete_group_separate": true,
+    "group_abstention_requires_all_layers": true,
+    "group_abstention_rule": "group abstains iff every declared layer's actual re-decoded output is UNKNOWN; any non-UNKNOWN layer makes it false",
+    "hallucination_definition": "case has at least one declared layer whose actual re-decoded output is neither UNKNOWN nor the exact target",
+    "host_abstention_flags_used": false,
+    "metrics_source": "re_decoded_generated_text",
+    "non_abstention_definition": "case has at least one declared layer whose actual re-decoded output is not UNKNOWN",
+    "per_layer_actual_output_metrics": true,
+    "policy_id": "all_declared_layers_group_abstention_v1"
+  },
+  "amendment": {
+    "amendment_id": "dc_r1_native_value_v2_amendment_20261027",
+    "amends_config_path": "configs/dc_r1_native_value_protocol_v1.json",
+    "amends_config_sha256": "afe323a0cea96e38dd023a983b953a35bef2d762a1207599e591dd3d17c8d295",
+    "amends_manifest_sha256": "361eeebd57ba3ab1ca9cb8a751b10331778d3001b65aa05703c80a29e60d4918",
+    "amends_protocol_id": "dc_r1_native_value_readout_v1",
+    "corrections": [
+      "abstention is a complete-layer-group outcome; any non-UNKNOWN layer makes group abstention false",
+      "per-layer non-abstention and hallucination are recomputed from generated/re-decoded outputs, not host flags",
+      "generation requests, prefill forwards, decode forwards, generated tokens, layer readout streams and processed positions are separate counters",
+      "the schedule is sequential per-layer with no shared or batched prefill: 240 requests, 240 prefill forwards, 1680 decode forwards (generated minus requests), 1920 forward calls, and processed positions T*L + T*(T-1)/2",
+      "the old 240 is preserved as incorrect historical request accounting, not silently raised",
+      "native compressed input is codec_id plus integer; host reconstruction is a separate control and native compressed gates are blocked",
+      "sealed-final labels require a valid admitted development score report first"
+    ],
+    "supersedes": [
+      "any_layer_abstention_acceptance",
+      "conflated_forward_and_generation_request_accounting",
+      "host_compressed_reconstruction_treated_as_native_readout_evidence"
+    ],
+    "v1_fixture_root": "data/dc_r1_native_value_20261027",
+    "v1_preserved": true
+  },
+  "anti_shortcut": {
+    "accepted_layer_cannot_override_group_abstention": true,
+    "answer_bearing_routing_metadata": false,
+    "answer_index_bypass_allowed": false,
+    "candidate_answer_selection_allowed": false,
+    "case_id_in_prompt": false,
+    "compressed_code_is_not_an_answer_index": true,
+    "controls_use_identical_scorer": true,
+    "corrupted_controls_must_fail": true,
+    "empty_generation_credit": false,
+    "globally_unique_prompt_ids_allowed_as_features": false,
+    "host_abstention_flags_used": false,
+    "target_conditioned_thresholds": false,
+    "target_in_condition_evidence": [
+      "exact_context",
+      "selected_literal",
+      "wrong_value"
+    ],
+    "target_in_query_allowed": false
+  },
+  "baseline_model": {
+    "local_bytes_sealed": true,
+    "lock_path": "configs/minicpm5_sealed_lock.local.json",
+    "model_path": "checkpoints/minicpm5_source",
+    "parameter_count": 2516756480,
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "upstream_authenticity_independently_verified": false
+  },
+  "baseline_parity": {
+    "disabled_extension_preserves_native_greedy_tokens": true,
+    "disabled_extension_preserves_native_logits": true,
+    "logit_atol": 0.0,
+    "logit_rtol": 0.0,
+    "no_extension_is_default": true,
+    "no_memory_condition_abstains_instead_of_inventing": true
+  },
+  "budget": {
+    "authorized_run_ceiling": {
+      "artifact_bytes_max": 33554432,
+      "backward_calls_total": 0,
+      "checkpoint_writes": 0,
+      "cpu_fallback": false,
+      "decode_forwards_total": 1680,
+      "downloads": 0,
+      "exclusive_worker": true,
+      "forward_calls_total": 1920,
+      "generated_tokens_total": 1920,
+      "generation_requests_total": 240,
+      "gpu_minutes_max": 15,
+      "layer_readout_streams_total": 240,
+      "min_host_free_fraction": 0.15,
+      "model_loads": 1,
+      "optimizer_updates_total": 0,
+      "peak_driver_bytes_max": 53687091200,
+      "prefill_forwards_total": 240,
+      "prefill_tokens_total": 30720,
+      "processed_positions_total": 252480,
+      "retries": 0,
+      "sustained_swap_growth_bytes_max": 536870912,
+      "tokenizer_loads": 1,
+      "wall_seconds_max": 1800
+    },
+    "condition_breakdown": {
+      "basis": "one sequential per-layer generation request per case x condition x layer; MiniCPM generate_action's prefill forward produces the first token; decode forwards = generated_tokens - active_requests; processed positions = T*L + T*(T-1)/2 under the no-cache growing-prefix adapter",
+      "per_split_condition": {
+        "dev": {
+          "compressed_record": {
+            "decode_forwards": 252,
+            "forward_calls": 288,
+            "generated_tokens": 288,
+            "generation_requests": 36,
+            "layer_readout_streams": 36,
+            "prefill_forwards": 36,
+            "prefill_tokens": 4608,
+            "processed_positions": 37872
+          },
+          "exact_context": {
+            "decode_forwards": 252,
+            "forward_calls": 288,
+            "generated_tokens": 288,
+            "generation_requests": 36,
+            "layer_readout_streams": 36,
+            "prefill_forwards": 36,
+            "prefill_tokens": 4608,
+            "processed_positions": 37872
+          },
+          "no_memory": {
+            "decode_forwards": 252,
+            "forward_calls": 288,
+            "generated_tokens": 288,
+            "generation_requests": 36,
+            "layer_readout_streams": 36,
+            "prefill_forwards": 36,
+            "prefill_tokens": 4608,
+            "processed_positions": 37872
+          },
+          "selected_literal": {
+            "decode_forwards": 252,
+            "forward_calls": 288,
+            "generated_tokens": 288,
+            "generation_requests": 36,
+            "layer_readout_streams": 36,
+            "prefill_forwards": 36,
+            "prefill_tokens": 4608,
+            "processed_positions": 37872
+          },
+          "wrong_value": {
+            "decode_forwards": 252,
+            "forward_calls": 288,
+            "generated_tokens": 288,
+            "generation_requests": 36,
+            "layer_readout_streams": 36,
+            "prefill_forwards": 36,
+            "prefill_tokens": 4608,
+            "processed_positions": 37872
+          }
+        },
+        "sealed_final": {
+          "compressed_record": {
+            "decode_forwards": 84,
+            "forward_calls": 96,
+            "generated_tokens": 96,
+            "generation_requests": 12,
+            "layer_readout_streams": 12,
+            "prefill_forwards": 12,
+            "prefill_tokens": 1536,
+            "processed_positions": 12624
+          },
+          "exact_context": {
+            "decode_forwards": 84,
+            "forward_calls": 96,
+            "generated_tokens": 96,
+            "generation_requests": 12,
+            "layer_readout_streams": 12,
+            "prefill_forwards": 12,
+            "prefill_tokens": 1536,
+            "processed_positions": 12624
+          },
+          "no_memory": {
+            "decode_forwards": 84,
+            "forward_calls": 96,
+            "generated_tokens": 96,
+            "generation_requests": 12,
+            "layer_readout_streams": 12,
+            "prefill_forwards": 12,
+            "prefill_tokens": 1536,
+            "processed_positions": 12624
+          },
+          "selected_literal": {
+            "decode_forwards": 84,
+            "forward_calls": 96,
+            "generated_tokens": 96,
+            "generation_requests": 12,
+            "layer_readout_streams": 12,
+            "prefill_forwards": 12,
+            "prefill_tokens": 1536,
+            "processed_positions": 12624
+          },
+          "wrong_value": {
+            "decode_forwards": 84,
+            "forward_calls": 96,
+            "generated_tokens": 96,
+            "generation_requests": 12,
+            "layer_readout_streams": 12,
+            "prefill_forwards": 12,
+            "prefill_tokens": 1536,
+            "processed_positions": 12624
+          }
+        }
+      }
+    },
+    "historical_request_accounting": {
+      "corrected_decode_forwards": 1680,
+      "corrected_forward_calls": 1920,
+      "corrected_generation_requests": 240,
+      "corrected_layer_readout_streams": 240,
+      "corrected_prefill_forwards": 240,
+      "corrected_prefill_tokens": 30720,
+      "corrected_processed_positions": 252480,
+      "error": "The v1 value 240 matches sequential per-layer generation requests but was labeled physical forward calls. It omitted decode forwards and no-cache processed positions, and it did not distinguish requests from forwards. It is preserved as historical request accounting, not reused as the corrected forward cap.",
+      "status": "incorrect_historical_request_accounting_preserved_not_a_cap",
+      "v1_field": "budget.physical_limits.max_forward_calls",
+      "v1_interpretation": "one count per layer-condition readout for 16 cases x 5 conditions x 3 layers",
+      "value": 240
+    },
+    "historical_v1_limits": {
+      "max_backward_calls": 0,
+      "max_checkpoint_writes": 0,
+      "max_downloads": 0,
+      "max_forward_calls": 240,
+      "max_generated_tokens": 1920,
+      "max_generation_calls": 240,
+      "max_model_loads": 1,
+      "max_optimizer_steps": 0,
+      "max_prefill_tokens": 30720,
+      "max_retries": 0,
+      "max_tokenizer_loads": 1,
+      "max_wall_seconds": 1800,
+      "max_workers": 1
+    },
+    "layer_breakdown": {
+      "basis": "sequential per-layer requests; every request has its own prefill forward and decode forwards, so all counters are attributable per layer without a shared-prefill assumption",
+      "per_split_layer": {
+        "dev": {
+          "13": {
+            "decode_forwards": 420,
+            "forward_calls": 480,
+            "generated_tokens": 480,
+            "generation_requests": 60,
+            "layer_readout_streams": 60,
+            "prefill_forwards": 60,
+            "prefill_tokens": 7680,
+            "processed_positions": 63120
+          },
+          "27": {
+            "decode_forwards": 420,
+            "forward_calls": 480,
+            "generated_tokens": 480,
+            "generation_requests": 60,
+            "layer_readout_streams": 60,
+            "prefill_forwards": 60,
+            "prefill_tokens": 7680,
+            "processed_positions": 63120
+          },
+          "41": {
+            "decode_forwards": 420,
+            "forward_calls": 480,
+            "generated_tokens": 480,
+            "generation_requests": 60,
+            "layer_readout_streams": 60,
+            "prefill_forwards": 60,
+            "prefill_tokens": 7680,
+            "processed_positions": 63120
+          }
+        },
+        "sealed_final": {
+          "13": {
+            "decode_forwards": 140,
+            "forward_calls": 160,
+            "generated_tokens": 160,
+            "generation_requests": 20,
+            "layer_readout_streams": 20,
+            "prefill_forwards": 20,
+            "prefill_tokens": 2560,
+            "processed_positions": 21040
+          },
+          "27": {
+            "decode_forwards": 140,
+            "forward_calls": 160,
+            "generated_tokens": 160,
+            "generation_requests": 20,
+            "layer_readout_streams": 20,
+            "prefill_forwards": 20,
+            "prefill_tokens": 2560,
+            "processed_positions": 21040
+          },
+          "41": {
+            "decode_forwards": 140,
+            "forward_calls": 160,
+            "generated_tokens": 160,
+            "generation_requests": 20,
+            "layer_readout_streams": 20,
+            "prefill_forwards": 20,
+            "prefill_tokens": 2560,
+            "processed_positions": 21040
+          }
+        }
+      }
+    },
+    "physical_limits": {
+      "max_backward_calls": 0,
+      "max_checkpoint_writes": 0,
+      "max_decode_forwards": 1680,
+      "max_downloads": 0,
+      "max_forward_calls": 1920,
+      "max_generated_tokens": 1920,
+      "max_generation_requests": 240,
+      "max_layer_readout_streams": 240,
+      "max_model_loads": 1,
+      "max_optimizer_steps": 0,
+      "max_prefill_forwards": 240,
+      "max_prefill_tokens": 30720,
+      "max_processed_positions": 252480,
+      "max_retries": 0,
+      "max_tokenizer_loads": 1,
+      "max_wall_seconds": 1800,
+      "max_workers": 1
+    },
+    "preparation": {
+      "artifact_bytes_max": 4194304,
+      "checkpoints_written": 0,
+      "device": "cpu",
+      "downloads": 0,
+      "gradients": 0,
+      "model_loads": 0,
+      "native_jobs": 0,
+      "network": "disabled",
+      "optimizer_updates": 0,
+      "rss_bytes_max": 536870912,
+      "tokenizer_loads": 0,
+      "wall_seconds_max": 120
+    },
+    "schedule": {
+      "batched_or_shared_prefill": false,
+      "decode_forwards_formula": "generated_tokens - active_requests",
+      "early_stop_is_upper_bound": true,
+      "forward_calls_formula": "prefill_forwards + decode_forwards",
+      "generation_requests_per_case_condition_layer": 1,
+      "max_generated_tokens_per_request": 8,
+      "mode": "sequential_per_layer_no_shared_prefill",
+      "prefill_forward_produces_first_token": true,
+      "prefill_token_ceiling_per_request": 128,
+      "processed_positions_ceiling_per_request": 1052,
+      "processed_positions_formula": "T*L + T*(T-1)/2"
+    },
+    "workload_derivation": {
+      "basis": "read-only sequential per-layer generation for five declared conditions and three declared layers across 12 development and 4 sealed-final cases; no shared or batched prefill",
+      "batched_or_shared_prefill": false,
+      "conditions": {
+        "basis": "one sequential per-layer generation request per case x condition x layer; MiniCPM generate_action's prefill forward produces the first token; decode forwards = generated_tokens - active_requests; processed positions = T*L + T*(T-1)/2 under the no-cache growing-prefix adapter",
+        "per_split_condition": {
+          "dev": {
+            "compressed_record": {
+              "decode_forwards": 252,
+              "forward_calls": 288,
+              "generated_tokens": 288,
+              "generation_requests": 36,
+              "layer_readout_streams": 36,
+              "prefill_forwards": 36,
+              "prefill_tokens": 4608,
+              "processed_positions": 37872
+            },
+            "exact_context": {
+              "decode_forwards": 252,
+              "forward_calls": 288,
+              "generated_tokens": 288,
+              "generation_requests": 36,
+              "layer_readout_streams": 36,
+              "prefill_forwards": 36,
+              "prefill_tokens": 4608,
+              "processed_positions": 37872
+            },
+            "no_memory": {
+              "decode_forwards": 252,
+              "forward_calls": 288,
+              "generated_tokens": 288,
+              "generation_requests": 36,
+              "layer_readout_streams": 36,
+              "prefill_forwards": 36,
+              "prefill_tokens": 4608,
+              "processed_positions": 37872
+            },
+            "selected_literal": {
+              "decode_forwards": 252,
+              "forward_calls": 288,
+              "generated_tokens": 288,
+              "generation_requests": 36,
+              "layer_readout_streams": 36,
+              "prefill_forwards": 36,
+              "prefill_tokens": 4608,
+              "processed_positions": 37872
+            },
+            "wrong_value": {
+              "decode_forwards": 252,
+              "forward_calls": 288,
+              "generated_tokens": 288,
+              "generation_requests": 36,
+              "layer_readout_streams": 36,
+              "prefill_forwards": 36,
+              "prefill_tokens": 4608,
+              "processed_positions": 37872
+            }
+          },
+          "sealed_final": {
+            "compressed_record": {
+              "decode_forwards": 84,
+              "forward_calls": 96,
+              "generated_tokens": 96,
+              "generation_requests": 12,
+              "layer_readout_streams": 12,
+              "prefill_forwards": 12,
+              "prefill_tokens": 1536,
+              "processed_positions": 12624
+            },
+            "exact_context": {
+              "decode_forwards": 84,
+              "forward_calls": 96,
+              "generated_tokens": 96,
+              "generation_requests": 12,
+              "layer_readout_streams": 12,
+              "prefill_forwards": 12,
+              "prefill_tokens": 1536,
+              "processed_positions": 12624
+            },
+            "no_memory": {
+              "decode_forwards": 84,
+              "forward_calls": 96,
+              "generated_tokens": 96,
+              "generation_requests": 12,
+              "layer_readout_streams": 12,
+              "prefill_forwards": 12,
+              "prefill_tokens": 1536,
+              "processed_positions": 12624
+            },
+            "selected_literal": {
+              "decode_forwards": 84,
+              "forward_calls": 96,
+              "generated_tokens": 96,
+              "generation_requests": 12,
+              "layer_readout_streams": 12,
+              "prefill_forwards": 12,
+              "prefill_tokens": 1536,
+              "processed_positions": 12624
+            },
+            "wrong_value": {
+              "decode_forwards": 84,
+              "forward_calls": 96,
+              "generated_tokens": 96,
+              "generation_requests": 12,
+              "layer_readout_streams": 12,
+              "prefill_forwards": 12,
+              "prefill_tokens": 1536,
+              "processed_positions": 12624
+            }
+          }
+        }
+      },
+      "counter_units": {
+        "decode_forwards": "one forward per additional generated token: generated_tokens - active_requests, at most generated_tokens - generation_requests when every request emits at least one token",
+        "forward_calls": "prefill forwards plus decode forwards; early stop only lowers this value",
+        "generated_tokens": "generated token ids, at most 8 per request",
+        "generation_requests": "one sequential per-layer generation request per case x condition x layer",
+        "layer_readout_streams": "one layer-specific readout stream per case x condition x layer; equal to generation_requests in this sequential schedule",
+        "prefill_forwards": "one prefill forward per request; generate_action's first forward produces the first generated token",
+        "processed_positions": "no-cache growing-prefix positions T*L + T*(T-1)/2 per request; the per-request ceiling is 1052 for L<=128,T<=8"
+      },
+      "early_stop_is_upper_bound": true,
+      "layers": {
+        "basis": "sequential per-layer requests; every request has its own prefill forward and decode forwards, so all counters are attributable per layer without a shared-prefill assumption",
+        "per_split_layer": {
+          "dev": {
+            "13": {
+              "decode_forwards": 420,
+              "forward_calls": 480,
+              "generated_tokens": 480,
+              "generation_requests": 60,
+              "layer_readout_streams": 60,
+              "prefill_forwards": 60,
+              "prefill_tokens": 7680,
+              "processed_positions": 63120
+            },
+            "27": {
+              "decode_forwards": 420,
+              "forward_calls": 480,
+              "generated_tokens": 480,
+              "generation_requests": 60,
+              "layer_readout_streams": 60,
+              "prefill_forwards": 60,
+              "prefill_tokens": 7680,
+              "processed_positions": 63120
+            },
+            "41": {
+              "decode_forwards": 420,
+              "forward_calls": 480,
+              "generated_tokens": 480,
+              "generation_requests": 60,
+              "layer_readout_streams": 60,
+              "prefill_forwards": 60,
+              "prefill_tokens": 7680,
+              "processed_positions": 63120
+            }
+          },
+          "sealed_final": {
+            "13": {
+              "decode_forwards": 140,
+              "forward_calls": 160,
+              "generated_tokens": 160,
+              "generation_requests": 20,
+              "layer_readout_streams": 20,
+              "prefill_forwards": 20,
+              "prefill_tokens": 2560,
+              "processed_positions": 21040
+            },
+            "27": {
+              "decode_forwards": 140,
+              "forward_calls": 160,
+              "generated_tokens": 160,
+              "generation_requests": 20,
+              "layer_readout_streams": 20,
+              "prefill_forwards": 20,
+              "prefill_tokens": 2560,
+              "processed_positions": 21040
+            },
+            "41": {
+              "decode_forwards": 140,
+              "forward_calls": 160,
+              "generated_tokens": 160,
+              "generation_requests": 20,
+              "layer_readout_streams": 20,
+              "prefill_forwards": 20,
+              "prefill_tokens": 2560,
+              "processed_positions": 21040
+            }
+          }
+        }
+      },
+      "max_generated_tokens_per_request": 8,
+      "prefill_shared_by_layer_streams": false,
+      "prefill_token_ceiling_per_request": 128,
+      "processed_positions_ceiling_per_request": 1052,
+      "processed_positions_formula": "T*L + T*(T-1)/2",
+      "splits": {
+        "dev": {
+          "cases": 12,
+          "conditions": 5,
+          "decode_forwards_max": 1260,
+          "forward_calls_max": 1440,
+          "generated_tokens_max": 1440,
+          "generation_requests": 180,
+          "layer_readout_streams": 180,
+          "layers": 3,
+          "prefill_forwards": 180,
+          "prefill_tokens_max": 23040,
+          "processed_positions_max": 189360
+        },
+        "sealed_final": {
+          "cases": 4,
+          "conditions": 5,
+          "decode_forwards_max": 420,
+          "forward_calls_max": 480,
+          "generated_tokens_max": 480,
+          "generation_requests": 60,
+          "layer_readout_streams": 60,
+          "layers": 3,
+          "prefill_forwards": 60,
+          "prefill_tokens_max": 7680,
+          "processed_positions_max": 63120
+        }
+      },
+      "total": {
+        "cases": 16,
+        "conditions": 5,
+        "decode_forwards_max": 1680,
+        "forward_calls_max": 1920,
+        "generated_tokens_max": 1920,
+        "generation_requests": 240,
+        "layer_readout_streams": 240,
+        "layers": 3,
+        "prefill_forwards": 240,
+        "prefill_tokens_max": 30720,
+        "processed_positions_max": 252480
+      }
+    }
+  },
+  "classification": {
+    "checkpoints_written": 0,
+    "downloads": 0,
+    "generation": false,
+    "gradients": 0,
+    "heldout_opened": false,
+    "learned_retrieval": false,
+    "model_execution": false,
+    "native": false,
+    "native_execution_allowed": false,
+    "optimizer_updates": 0,
+    "package": "dc_r1_native_value_readout_protocol_v2",
+    "preparation_only": true,
+    "promotion": false,
+    "storage_expansion": false,
+    "tokenizer_load": false
+  },
+  "compressed_channel": {
+    "gates_lowered": false,
+    "host_codec_table_visible_to_model": false,
+    "host_control_gate": "compressed_reconstruction_control",
+    "host_decode_compressed_literal_role": "reconstruction_audit_control_only",
+    "host_decode_is_learned_readout_evidence": false,
+    "native_gate_status": "blocked_no_native_compressed_channel_receipt",
+    "native_gates": [
+      "compressed_accepted_native",
+      "compressed_complete_native"
+    ],
+    "native_input_fields": [
+      "codec_id",
+      "code"
+    ],
+    "native_input_is_codec_id_plus_integer": true,
+    "prompt_may_include_codec_entries": false
+  },
+  "compressed_reconstruction": {
+    "codec_id": "dc_r1_scalar8_v1",
+    "dev": 0.75,
+    "host_decode_is_native_readout_evidence": false,
+    "host_decode_role": "reconstruction_audit_control_only",
+    "rule": "An 8-bit bucket code reconstructs only the bucket's canonical literal. Alternate members share a bucket and are deliberately unrecoverable; the code is not an answer index. Host reconstruction is an audit/control, not proof of a learned compressed readout.",
+    "sealed_final": 0.75
+  },
+  "conditions": [
+    {
+      "condition": "exact_context",
+      "evidence_kind": "source_text",
+      "identical_output_grammar": true,
+      "per_case_scoring": true,
+      "required_layers": [
+        13,
+        27,
+        41
+      ],
+      "role": "quality_reference",
+      "same_decode_policy": true,
+      "source_context_present": true,
+      "source_kv_loaded": false
+    },
+    {
+      "condition": "selected_literal",
+      "evidence_kind": "literal",
+      "identical_output_grammar": true,
+      "per_case_scoring": true,
+      "required_layers": [
+        13,
+        27,
+        41
+      ],
+      "role": "diagnostic_reference",
+      "same_decode_policy": true,
+      "source_context_present": false,
+      "source_kv_loaded": false
+    },
+    {
+      "condition": "compressed_record",
+      "evidence_kind": "compressed_code",
+      "identical_output_grammar": true,
+      "per_case_scoring": true,
+      "required_layers": [
+        13,
+        27,
+        41
+      ],
+      "role": "native_compressed_readout",
+      "same_decode_policy": true,
+      "source_context_present": false,
+      "source_kv_loaded": false
+    },
+    {
+      "condition": "wrong_value",
+      "evidence_kind": "literal",
+      "identical_output_grammar": true,
+      "per_case_scoring": true,
+      "required_layers": [
+        13,
+        27,
+        41
+      ],
+      "role": "corrupted_control",
+      "same_decode_policy": true,
+      "source_context_present": false,
+      "source_kv_loaded": false
+    },
+    {
+      "condition": "no_memory",
+      "evidence_kind": "none",
+      "identical_output_grammar": true,
+      "per_case_scoring": true,
+      "required_layers": [
+        13,
+        27,
+        41
+      ],
+      "role": "abstention_control",
+      "same_decode_policy": true,
+      "source_context_present": false,
+      "source_kv_loaded": false
+    }
+  ],
+  "conditions_use_identical_scorer": true,
+  "declared_at_utc": "2026-10-27T19:45:00+00:00",
+  "evaluation": {
+    "accepted_layer_definition": "at least one declared layer's actual generated output equals the target; diagnostic only",
+    "admission_requirements": [
+      "valid_dev_score_report",
+      "config_sha256_match",
+      "prepared_manifest_sha256_match",
+      "development_evidence_admissible"
+    ],
+    "complete_group_definition": "every declared layer's actual generated output equals the target; separate from group abstention",
+    "final_labels_opened_before_admission": false,
+    "fit_then_dev_then_sealed_final": true,
+    "gates": {
+      "compressed_accepted_native_min": 0.6,
+      "compressed_complete_native_min": 0.4,
+      "compressed_reconstruction_control_min": 0.75,
+      "exact_context_accepted_min": 0.8,
+      "no_memory_group_abstain_min": 0.95,
+      "no_memory_group_non_abstain_max": 0.05,
+      "no_memory_hallucination_max": 0.05,
+      "no_memory_per_layer_non_abstain_max": 0.05,
+      "per_layer_reporting_required": true,
+      "selected_literal_accepted_min": 0.9,
+      "selected_literal_complete_min": 0.7,
+      "wrong_value_correct_target_max": 0.1
+    },
+    "generated_answer_scoring": true,
+    "historical_v1_gates": {
+      "compressed_accepted_min": 0.6,
+      "compressed_complete_min": 0.4,
+      "compressed_reconstruction_min": 0.75,
+      "exact_context_accepted_min": 0.8,
+      "no_layer_acceptance_reporting": true,
+      "no_memory_abstain_min": 0.95,
+      "no_memory_non_abstain_max": 0.05,
+      "selected_literal_accepted_min": 0.9,
+      "selected_literal_complete_min": 0.7,
+      "wrong_value_correct_target_max": 0.1
+    },
+    "normalization": "strip_outer_whitespace_then_casefold_then_collapse_whitespace",
+    "reporting": {
+      "accepted_layer": true,
+      "complete_group": true,
+      "condition_gaps": true,
+      "dev_admission_before_final": true,
+      "exact_literal_reconstruction": true,
+      "group_abstention": true,
+      "group_non_abstention": true,
+      "host_compressed_reconstruction_control": true,
+      "native_compressed_readout_blocked": true,
+      "no_memory_abstention": true,
+      "per_case": true,
+      "per_layer": true,
+      "per_layer_hallucination": true,
+      "per_layer_non_abstention": true,
+      "wrong_value_follow_rate": true
+    },
+    "scoring_entry_points": [
+      "score_dev",
+      "score_sealed_final"
+    ],
+    "sealed_final_one_shot": true,
+    "sealed_final_requires_dev_admission": true,
+    "target_conditioned_thresholds": false,
+    "tokenizer_and_decode_binding_required": true
+  },
+  "format": "replica.dc_r1_native_value.protocol.v2",
+  "hypothesis": {
+    "excluded_claims": [
+      "learned retrieval or a learned selector",
+      "storage capacity expansion",
+      "native execution in this preparation package",
+      "learned compressed readout proven by host codec reconstruction",
+      "open-ended generation",
+      "calibrated confidence",
+      "persistent learning",
+      "promotion of any checkpoint"
+    ],
+    "id": "DC-R1-H2",
+    "primary_evidence": "Per-case all-layer group abstention, per-layer actual generated outputs, complete-layer-group exact generated answers, exact-literal and host compressed reconstruction controls across all five declared conditions.",
+    "statement": "A native readout can use exact context, an exact selected literal and only a compressed codec id plus integer code while abstaining only when every declared layer outputs UNKNOWN, without accepting any-layer abstention, host codec reconstruction or an accepted-layer shortcut."
+  },
+  "integration_only_fixture": {
+    "claims_allowed": [],
+    "forbidden_uses": [
+      "parent initialization",
+      "readout training",
+      "development or final labels",
+      "scoring oracle",
+      "evidence that corrupted controls pass"
+    ],
+    "historical_evidence_preserved": true,
+    "modified": false,
+    "prepared_root": "data/value_readout_abstention_20261027/fixture02",
+    "protocol_id": "value_readout_abstention_v1",
+    "reason": "The 22-class fixture is a deterministic CPU integration and accounting fixture whose synthetic feature block carries the selected value into the readout. It is not a native record readout, a parent, a scoring oracle or evidence for DC-R1.",
+    "status": "integration_only",
+    "used_as_parent": false,
+    "used_as_scoring_oracle": false
+  },
+  "launch": {
+    "authorization_fields": [
+      "format",
+      "protocol_id",
+      "config_sha256",
+      "prepared_manifest_sha256",
+      "authorized_by",
+      "native_execution_allowed",
+      "single_attempt",
+      "receipt_sha256"
+    ],
+    "authorization_receipt_format": "replica.dc_protocol.authorization.v1",
+    "fresh_output_path": true,
+    "launch_command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/preflight_dc_r1_native_value_v2_20261027.py --launch --receipt runs/dc_r1_native_value_v2_20261027/preflight_launch01.json --authorization reports/dc_r1_native_value_v2_20261027/authorization.json",
+    "native_compressed_readout_status": "blocked_no_native_compressed_channel_receipt",
+    "native_execution": false,
+    "native_execution_status": "refused_preparation_only",
+    "on_authorized_package_without_native_runner": "refuse_nonzero",
+    "on_missing_receipt": "refuse_nonzero",
+    "output_root": "runs/dc_r1_native_value_v2_20261027/native01",
+    "requires_authorization_receipt": true,
+    "review_command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/preflight_dc_r1_native_value_v2_20261027.py --review --receipt runs/dc_r1_native_value_v2_20261027/preflight_review01.json",
+    "review_only": true,
+    "review_receipt_path": "runs/dc_r1_native_value_v2_20261027/preflight_review01.json"
+  },
+  "limitations": [
+    "This package is preparation only; it does not load MiniCPM5, a tokenizer, an optimizer or a native job.",
+    "The fixture is deterministic synthetic text; validation establishes protocol and label consistency, not model capability.",
+    "The 22-class fixture remains explicitly integration-only and is not a parent, oracle or native record-readout result.",
+    "Group abstention is all-layer only; any-layer abstention is informational and never accepted.",
+    "Per-layer non-abstention and hallucination use actual re-decoded generated outputs; host abstention flags are rejected.",
+    "Accepted-layer accuracy is not complete-group recall or group abstention; reports keep them separate.",
+    "Host decode_compressed_literal is a reconstruction audit/control, not evidence of a learned native compressed readout.",
+    "Native compressed accepted/complete gates remain blocked until a separate native compressed-channel receipt exists; no gate is lowered and no codec entry is placed in a prompt.",
+    "Wrong-value and no-memory arms are corrupted/abstention controls and must not pass the readout gate.",
+    "Learned retrieval and storage expansion remain blocked regardless of a useful-readout result; each requires a new protocol.",
+    "The old v1 value 240 is preserved as incorrect historical request accounting, not as a silently raised cap. It equals the sequential per-layer request count but v1 labeled it forward calls and omitted decode forwards and processed positions. V2 uses 240 requests, 240 prefill forwards, 1680 decode forwards, 1920 forward calls, 1920 generated tokens, 30720 prefill tokens and 252480 processed positions at T<=8/L<=128 with early stop only lowering these ceilings.",
+    "Sealed-final labels are not read until a valid development score report is admitted; native execution still requires a separately committed runner, fresh output path and externally issued authorization receipt."
+  ],
+  "optimizer_policy": {
+    "changed": false,
+    "default_name": "adamw_fused",
+    "mps_fallback_enabled": false,
+    "optimizer_steps_in_this_protocol": 0,
+    "primary": "NativeFusedAdamW"
+  },
+  "prepared": {
+    "counts": {
+      "dev_cases": 12,
+      "dev_condition_rows": 60,
+      "dev_labels": 12,
+      "optimizer_steps": 0,
+      "sealed_final_cases": 4,
+      "sealed_final_condition_rows": 20,
+      "sealed_final_labels": 4
+    },
+    "dev_cases": 12,
+    "files": {
+      "codec": "codec.json",
+      "dev_cases": "dev_cases.jsonl",
+      "sealed_final_cases": "sealed_final_cases.jsonl",
+      "sealed_labels_dev": "sealed_labels_dev.jsonl",
+      "sealed_labels_final": "sealed_labels_final.jsonl"
+    },
+    "layer_group": [
+      13,
+      27,
+      41
+    ],
+    "manifest_sha256": "aead85097ad8d9078cbcb34b7c7e9c2d848a72f03d1cda0c1a032d19a01ed1d6",
+    "root": "data/dc_r1_native_value_v2_20261027",
+    "sealed_cases": 4,
+    "v1_fixture_root": "data/dc_r1_native_value_20261027"
+  },
+  "protocol_id": "dc_r1_native_value_readout_v2",
+  "readout_gate": {
+    "accepted_layer_and_complete_group_reported": true,
+    "exact_literal_and_compressed_reconstruction_reported": true,
+    "host_enforces_scope_and_source_status_only": true,
+    "learned_retrieval_interpreted": false,
+    "learned_retrieval_status": "blocked_until_useful_readout",
+    "native_compressed_readout_status": "blocked_no_native_compressed_channel_receipt",
+    "oracle_selector_is_diagnostic_only": true,
+    "per_layer_reporting": true,
+    "storage_expansion_admitted": false,
+    "storage_expansion_status": "blocked_until_useful_readout",
+    "thresholds_condition_independent": true,
+    "useful_readout_required_before_retrieval": true
+  },
+  "representation": {
+    "answer_index_bypass": false,
+    "compressed_code_is_not_an_answer_index": true,
+    "input": "sealed native MiniCPM5 tokens for a condition prompt and selected-record evidence",
+    "output": "native generated token ids per declared layer, decoded by the sealed tokenizer/decode policy",
+    "source_kv_loaded": false,
+    "synthetic_feature_injection": false
+  },
+  "resource_guard": {
+    "cpu_fallback": false,
+    "exclusive_worker": true,
+    "min_host_free_fraction": 0.15,
+    "mps_fallback": false,
+    "peak_driver_bytes_max": 53687091200,
+    "sustained_swap_growth_bytes_max": 536870912
+  },
+  "seed": 20261027,
+  "status": "preparation_only_no_native_admission",
+  "study": "DC-R1",
+  "tokenizer_binding": {
+    "decode_policy": {
+      "answer_selection_allowed": false,
+      "candidate_answers_used": false,
+      "clean_up_tokenization_spaces": false,
+      "empty_generation_credit": false,
+      "skip_special_tokens": true,
+      "stop_tokens": [
+        1,
+        130073
+      ],
+      "strip_outer_whitespace": true,
+      "target_eos_token": 1,
+      "terminal_stop_tokens_excluded_before_decode": true,
+      "version": "replica.dc.generated_decode.v1"
+    },
+    "fast_tokenizer": true,
+    "files": {
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "load_mode": "offline_local_files_only",
+    "repository": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "trust_remote_code": false
+  }
+}
