@@ -1,0 +1,20 @@
+{
+  "format": "replica.caption.baseline_failure_repair.v1",
+  "initial_result": {
+    "passed": 257,
+    "failed": 1,
+    "skipped": 1,
+    "failed_test": "test_wrong_rows_or_review_fields_are_blocked",
+    "observed_error": "report_before['status'] was 'invalid' instead of 'valid'"
+  },
+  "cause": "The fixture's _receipt helper writes a valid receipt, but its packet and partition sidecar had been built before that receipt existed. The baseline therefore used stale evidence.",
+  "repair": "Regenerate the packet and sidecar after writing the receipt and before the baseline assertion. The exposed-row refusal remains required.",
+  "focused_regression": "1 passed",
+  "final_spark_caption_result": {
+    "passed": 112,
+    "skipped": 1,
+    "failed": 0
+  },
+  "native_execution": false,
+  "preserved": true
+}

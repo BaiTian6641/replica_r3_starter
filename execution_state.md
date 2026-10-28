@@ -1,5 +1,30 @@
 # Execution state — integrated memory, cognition and learning
 
+## Final preparation integration — 28 October 2026
+
+**Current status — all current repair/preparation packages are committed and
+clean-verified; no native protocol was authorized or executed.** Final clean
+checkout is `96a809c261492af40e90c9c9c1fff2dd72b7dbc2`.
+
+- Final integration passes **443 tests with one explicit skip**. Spark v5.1
+  passes 721/721 tracked checks and final product 500/500; caption validation is
+  valid with exactly nine admitted rows. The worktree was clean and removed.
+- Implemented: DC-P1 selected-expert native runner and recovery; DC-R1 fixture,
+  scoring and compressed-channel boundary; separated vision v2 accounting and
+  conditional co-adaptation; value-readout recovery; Spark migration and caption
+  partition identity. All are CPU/documentation evidence unless explicitly noted.
+- Unmeasured/inconclusive: native learned quality, fresh-instance benefit,
+  compressed readout, visual competence, persistent memory, native costs, full
+  Spark fit and personality. All ten native gates remain unresolved. No RSI,
+  outer-loop, self-distillation, promotion or native retry occurred.
+- Failed attempts are preserved, including zero-test/missing-dependency clean
+  runs, pre-split vision lineage, unstaged Spark verification, stale caption
+  evidence and host-retained CPU evidence modules. The protected runtime pilot
+  was not read, modified, imported or staged.
+
+Read the [complete preparation and integration summary](docs/experiments/20261028_Preparation_Integration_Summary.md)
+and `reports/verification_20261028/final_integration_clean_summary.json`.
+
 ## Spark v5.1, caption lineage and deferred learning — 28 October 2026
 
 **Current status — migration, residency arithmetic, data lineage and CPU

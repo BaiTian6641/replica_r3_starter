@@ -1,0 +1,36 @@
+{
+  "format": "replica.preparation.final_clean_integration.v1",
+  "commit": "96a809c261492af40e90c9c9c1fff2dd72b7dbc2",
+  "status": "passed",
+  "tests": 443,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 1,
+  "pytest_seconds": 333.34,
+  "worktree_clean": true,
+  "junit_xml": "reports/verification_20261028/final_integration_clean_attempt01.xml",
+  "junit_sha256": "0a7d9bfb08c076c303e7efaa63248f6773cca4cff46a3740c66fe030cc8dd746",
+  "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=/Users/flare/replica_r3_starter/reports/verification_20261028/final_integration_clean_attempt01.xml tests/test_vision_smaller_step_v1.py tests/test_vision_smaller_step_launch_readiness_v1.py tests/test_vision_smaller_step_launch_packet_v1.py tests/test_vision_coadaptation_control_v1.py tests/test_vision_smaller_step_v2.py tests/test_vision_coadaptation_control_v2.py tests/test_vision_forward_accounting.py tests/test_dc_p1_native_response_v2_20261027.py tests/test_dc_p1_native_runner_v2.py tests/test_dc_response_objective.py tests/test_dc_staged_evaluation_v2.py tests/test_dc_p1_native_response_20261027.py tests/test_capacity_guard.py tests/test_dc_r1_native_value_v2_20261027.py tests/test_value_readout_publication_recovery.py tests/test_sparkx_v5_1_review.py tests/test_sparkx_final_product.py tests/test_sparkx_first_tranche.py tests/test_caption_lineage_and_eval_20261027.py tests/test_external_caption_asset_qa.py",
+  "spark_v5_1_verifier": {
+    "mode": "--tracked require",
+    "checks": 721,
+    "passed": 721,
+    "failed": 0
+  },
+  "final_product_verifier": {
+    "checks": 500,
+    "passed": 500,
+    "failed": 0
+  },
+  "caption_validator": {
+    "status": "valid",
+    "admission_status": "admitted",
+    "admitted_rows": 9,
+    "exclusions": 21,
+    "exposed": 8,
+    "diagnostic_scenes": 24
+  },
+  "native_execution": false,
+  "model_loads": 0,
+  "native_gates_unresolved": 10
+}

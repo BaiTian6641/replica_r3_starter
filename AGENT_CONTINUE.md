@@ -1,5 +1,14 @@
 # Coding-agent continuation instruction
 
+**Current priority — 28 October 2026, final integration:** use the
+[preparation and clean-integration summary](docs/experiments/20261028_Preparation_Integration_Summary.md).
+Final clean checkout `96a809c` passes 443 tests with one skip, Spark 721/721 and
+500/500 checks, and exact nine-row caption admission. All failed attempts are
+preserved, including clean dependency, v1 lineage, unstaged Spark and stale
+caption evidence failures. No native authorization or execution occurred. Keep
+DC-P1/DC-R1, vision, full Spark, RSI, outer/distillation and personality behind
+their remaining receipts and measured-learning gates.
+
 **Current priority — 28 October 2026, Spark and data lineage:** use
 [Spark v5.1, caption lineage and deferred learning](docs/experiments/20261028_Spark_V5_1_Caption_and_Deferred_Learning.md).
 The migration is committed at `d65a36ff`, with passing receipts at `48e8d49e`:

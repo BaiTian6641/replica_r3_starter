@@ -1,5 +1,14 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
+**Current priority — 28 October 2026, final integration:** read the
+[preparation and clean-integration summary](docs/experiments/20261028_Preparation_Integration_Summary.md).
+The current repair packages are committed. Final clean checkout `96a809c` passes
+443 tests with one explicit skip; Spark passes 721/721 and 500/500 checks and
+caption validation admits exactly nine rows. All negative attempts are preserved.
+No native protocol was authorized or run. DC-P1/DC-R1, vision, full Spark, RSI,
+outer training, self-distillation and personality remain behind their stated
+external, useful-learning, competence, cost, retention and rollback gates.
+
 **Current priority — 28 October 2026, Spark and data lineage:** read
 [Spark v5.1, caption lineage and deferred learning](docs/experiments/20261028_Spark_V5_1_Caption_and_Deferred_Learning.md).
 Commits `d65a36ff` and `48e8d49e` preserve the reviewed migration and passing
