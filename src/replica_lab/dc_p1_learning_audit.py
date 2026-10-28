@@ -1,48 +1,40 @@
-"""Small CPU DC-P1 learning-hypothesis audit using the real execution paths."""
+"""Real tiny-model DC-P1 learning-hypothesis and source-free audit."""
 from __future__ import annotations
 
-from types import SimpleNamespace
-from typing import Any
+from pathlib import Path
+import tempfile
+import sys
+from typing import Any, Mapping
 
 import torch
 
+ROOT = Path(__file__).resolve().parents[2]
+SCRIPTS = ROOT / "scripts"
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+from dc_protocol_common_20261027 import read_jsonl
+from replica_lab.dc_p1_source_free_runner import (
+    behavior_delta, measure_behavior, run_fit_diagnostic, source_free_train_step)
+from replica_lab.dc_p1_tiny_learning import make_tiny_learning_view
 from replica_lab.dc_response_objective import (
     CLAIM_GLOBAL_RESCALE, answer_span_objective, build_response_masks)
-from replica_lab.dc_p1_native_runner import NativeP1Backend
-from replica_lab.nested_learning import clip_gradients_to_norm
-from replica_lab.optimizers import NativeFusedAdamW
 
-WIDTH = 4
-
-
-def _optimizer(scale: torch.nn.Parameter, *, epsilon: float, lr: float) -> NativeFusedAdamW:
-    return NativeFusedAdamW([{
-        "params": [scale], "param_names": ["selected_expert.scale"],
-        "group_name": "selected_expert", "scope": "selected_expert",
-        "algorithm": "adamw_fused", "lr": lr, "weight_decay": 0.0,
-        "betas": (0.9, 0.999), "eps": epsilon, "fused": True,
-    }])
-
-
-def _masks() -> Any:
-    return build_response_masks(
-        input_ids=[7, 0, 1], response_ids=[0, 1], answer_span=(0, 0), eos_id=1)
-
-
-def _objective(logits: torch.Tensor, weight: float) -> dict[str, Any]:
-    masks = _masks()
-    labels = torch.tensor([0, 1], dtype=torch.long)
-    return answer_span_objective(
-        logits, labels, masks, answer_span_ce_weight=weight)
+PREPARED = Path(__file__).resolve().parents[2] / "data/dc_p1_native_response_v2_20261027"
 
 
 def global_ce_gradient_probe() -> dict[str, Any]:
+    """Preserve the valid coincident-mask/global-rescale finding only."""
     base = torch.tensor([[0.2, -0.4, 0.6, 0.1], [0.3, 0.2, -0.5, 0.4]])
     perturbation = torch.tensor([1.0, -2.0, 0.5, 3.0])
     gradients = {}
     for weight in (0.0, 0.5):
         scale = torch.tensor(0.0, requires_grad=True)
-        objective = _objective(base + scale * perturbation, weight)
+        masks = build_response_masks(
+            input_ids=[7, 0, 1], response_ids=[0, 1], answer_span=(0, 0), eos_id=1)
+        objective = answer_span_objective(
+            base + scale * perturbation,
+            torch.tensor([0, 1], dtype=torch.long), masks,
+            answer_span_ce_weight=weight)
         objective["loss"].backward()
         gradients[weight] = scale.grad.detach().clone()
     ratio = gradients[0.5] / gradients[0.0]
@@ -55,134 +47,97 @@ def global_ce_gradient_probe() -> dict[str, Any]:
     }
 
 
-def _view(scale: torch.nn.Parameter) -> SimpleNamespace:
-    hidden = []
-    for index in range(28):
-        positions = torch.tensor([
-            [float(index % 3), 0.25, -0.5, 0.75],
-            [0.5, -0.25, 0.75, -0.5],
-            [1.0, 0.5, -0.25, 0.0],
-            [-0.75, 0.5, 0.25, -1.0],
-        ])
-        hidden.append(positions.unsqueeze(0))
-
-    class Bank:
-        def expert(self, index):
-            assert index == 0
-            return lambda features: features + scale
-
-    class Base:
-        @staticmethod
-        def lm_head(final):
-            return final
-
-    class Adapter:
-        base = Base()
-        plastic_ports = {
-            "13": lambda final, slot, enabled: slot,
-        }
-
-    def native_forward(ids):
-        return hidden[13], hidden
-
-    view = SimpleNamespace(
-        sites=(13,), projection=torch.eye(WIDTH), bank=Bank(),
-        torch=torch, adapter=Adapter(), _native_forward=native_forward)
-    view._features = NativeP1Backend._features.__get__(view, NativeP1Backend)
-    return view
+def _teaching_and_cases() -> tuple[list[dict], list[dict]]:
+    from preflight_dc_p1_source_free_feature_alignment_v1 import (
+        CONFIG_PATH, validate_prepared)
+    from dc_protocol_common_20261027 import read_json
+    validate_prepared(PREPARED, read_json(CONFIG_PATH))
+    teaching = [row for row in read_jsonl(PREPARED / "teaching.jsonl")
+                if row["source_group"] in {"p1v2src_dev_00", "p1v2src_dev_01"}]
+    labels = {row["case_id"]: row for row in read_jsonl(PREPARED / "sealed_labels_fit.jsonl")}
+    cases = []
+    for row in read_jsonl(PREPARED / "fit_cases.jsonl"):
+        if row["source_group"] in {"p1v2src_dev_00", "p1v2src_dev_01"}:
+            cases.append({**row, "target": labels[row["case_id"]]["target"]})
+    return teaching, cases
 
 
-def _enabled_logits(view: SimpleNamespace, enabled: bool) -> torch.Tensor:
-    return NativeP1Backend._logits(view, [0, 1], 1, enabled=enabled)
-
-
-def _update_behavior(*, weight: float, epsilon: float, clip: bool,
-                     lr: float = 1e-3) -> dict[str, Any]:
-    scale = torch.nn.Parameter(torch.tensor(0.0))
-    view = _view(scale)
-    before = _enabled_logits(view, True)
-    before_tokens = before.argmax(dim=-1).tolist()
-    objective = _objective(before[0, -2:, :], weight)
-    objective["loss"].backward()
-    if clip:
-        # Deterministically amplify the real objective gradient to exercise clipping.
-        scale.grad = scale.grad * 100_000_000
-        gradient_amplification = 100_000_000
-    else:
-        gradient_amplification = 1
-    raw_norm = scale.grad.norm().item()
-    scale_clip = 1.0
-    if clip:
-        clipped, raw_norm, scale_clip = clip_gradients_to_norm(
-            {"selected_expert.scale": scale.grad}, max_norm=1.0)
-        scale.grad = clipped["selected_expert.scale"]
-    clipped_norm = scale.grad.norm().item()
-    optimizer = _optimizer(scale, epsilon=epsilon, lr=lr)
-    optimizer.step()
-    after = _enabled_logits(view, True)
-    after_tokens = after.argmax(dim=-1).tolist()
-    delta = (after - before).abs()
+def _feature_shift(view, row: Mapping[str, Any]) -> dict[str, float]:
+    source_ids = view._render(f"{row['source']}\n{row['prompt']}")
+    query_ids = view._render(str(row["prompt"]))
+    source_hidden = view._native_forward(source_ids)[1]
+    query_hidden = view._native_forward(query_ids)[1]
+    source_feature = view._features(source_hidden, len(source_ids))
+    query_feature = view._features(query_hidden, len(query_ids))
     return {
-        "gradient_amplification": gradient_amplification,
-        "answer_span_ce_weight": weight,
-        "epsilon": epsilon,
-        "clip": clip,
-        "raw_gradient_norm": raw_norm,
-        "clip_scale": scale_clip,
-        "clipped_gradient_norm": clipped_norm,
-        "before_tokens": before_tokens,
-        "after_tokens": after_tokens,
-        "changed_token_count": sum(before_item != after_item
-                                   for before_item, after_item in zip(
-                                       before_tokens, after_tokens)),
-        "max_logit_delta": delta.max().item(),
-        "scale_after": scale.item(),
-        "loss": objective["loss"].item(),
-        "optimizer_class": "NativeFusedAdamW",
+        "source_free_feature_shift_l2": float((source_feature - query_feature).norm()),
+        "source_conditioned_feature_norm": float(source_feature.norm()),
+        "source_free_feature_norm": float(query_feature.norm()),
+        "source_conditioned_prompt_tokens": len(source_ids),
+        "source_free_prompt_tokens": len(query_ids),
     }
 
 
-def _feature_shift() -> dict[str, Any]:
-    view = _view(torch.nn.Parameter(torch.tensor(0.0)))
-    hidden = view._native_forward([])[1]
-    teaching = NativeP1Backend._features(view, hidden, 4)
-    query_only = NativeP1Backend._features(view, hidden, 2)
-    return {
-        "source_free_feature_shift_l2": (teaching - query_only).norm().item(),
-        "teaching_feature_norm": teaching.norm().item(),
-        "query_feature_norm": query_only.norm().item(),
-        "source_free_prompt_tokens": 2,
-        "source_conditioned_prompt_tokens": 4,
+def _optimizer_checks(view, row, cases) -> dict:
+    before = measure_behavior(view, cases[:1], arm="optimizer_probe")
+    result = source_free_train_step(
+        view, row, source_free_weight=0.25,
+        gradient_amplification=100_000_000)
+    after = measure_behavior(view, cases[:1], arm="optimizer_probe")
+    treatment = {
+        **result,
+        "behavior": behavior_delta(before, after),
     }
+    large_view = make_tiny_learning_view(lr=0.01, epsilon=0.01)
+    large_before = measure_behavior(large_view, cases[:1], arm="large_epsilon")
+    large_result = source_free_train_step(
+        large_view, row, source_free_weight=0.25)
+    large_after = measure_behavior(large_view, cases[:1], arm="large_epsilon")
+    large = {
+        **large_result,
+        "behavior": behavior_delta(large_before, large_after),
+    }
+    return {"treatment": treatment, "large_epsilon": large}
 
 
-def run_cpu_audit() -> dict[str, Any]:
-    gradient = global_ce_gradient_probe()
-    updates = [
-        _update_behavior(weight=0.0, epsilon=1e-8, clip=False),
-        _update_behavior(weight=0.5, epsilon=1e-8, clip=False),
-        _update_behavior(weight=0.5, epsilon=1e-2, clip=False),
-        _update_behavior(weight=0.5, epsilon=1e-8, clip=True),
-    ]
-    feature = _feature_shift()
-    view = _view(torch.nn.Parameter(torch.tensor(0.0)))
-    enabled = _enabled_logits(view, True)
-    disabled = _enabled_logits(view, False)
-    logit_delta = (enabled - disabled).abs().max().item()
+def run_cpu_audit(output: str | Path | None = None) -> dict[str, Any]:
+    teaching, cases = _teaching_and_cases()
+    if output is None:
+        with tempfile.TemporaryDirectory() as directory:
+            return run_cpu_audit(Path(directory) / "fit")
+    output = Path(output)
+    view = make_tiny_learning_view(
+        phrases=[row["target"] for row in teaching] + ["UNKNOWN", "wrong"],
+        texts=[row["source"] + "\n" + row["prompt"] for row in teaching])
+    feature = _feature_shift(view, teaching[0])
+    state = run_fit_diagnostic(view, teaching, cases, output, prepared=PREPARED)
+    checks = _optimizer_checks(view, teaching[0], cases)
+    treatment_change = state["behavior"]["treatment"]
+    justified = bool(
+        global_ce_gradient_probe()["gradient_ratio"] == 1.5
+        and feature["source_free_feature_shift_l2"] > 0.0
+        and checks["treatment"]["raw_gradient_norm"] > 0.0
+        and (abs(treatment_change["mean_target_probability_delta"]) > 0.0
+             or abs(treatment_change["mean_target_margin_delta"]) > 0.0))
     return {
-        "format": "replica.dc_p1_learning_audit.v1",
+        "format": "replica.dc_p1_learning_audit.v2",
         "status": "diagnostic_only_no_native_learning_claim",
-        "gradient": gradient,
-        "updates": updates,
+        "gradient": global_ce_gradient_probe(),
         "feature": feature,
-        "selected_expert_max_logit_delta": logit_delta,
-        "alternative_justified": bool(
-            gradient["gradient_ratio"] == 1.5
-            and feature["source_free_feature_shift_l2"] > 0.0),
+        "optimizer_checks": checks,
+        "arms": state["behavior"],
+        "fit_counters": state["counters"],
+        "artifact": state["artifact"],
+        "fit_status": state["status"],
+        "fit_is_learnability_only": True,
+        "alternative_justified": justified,
         "alternative_protocol": (
-            "dc_p1_source_free_feature_alignment_v1"
-            if feature["source_free_feature_shift_l2"] > 0.0 else None),
+            "dc_p1_source_free_feature_alignment_v2" if justified else None),
         "native_execution": False,
-        "model_loaded": False,
+        "sealed_minicpm_loaded": False,
+        "tiny_model_fixture": True,
+        "development_or_final_access": False,
+        "generalization_qualified": False,
         "final_labels_read": False,
+        "output": str(output),
     }

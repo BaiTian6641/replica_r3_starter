@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from dc_protocol_common_20261027 import (  # noqa: E402
     ProtocolError, read_json, read_jsonl, require, require_fresh_path,
-    sha256_file, write_json_atomic,
+    sha256_file, sha256_json, write_json_atomic,
 )
 
 CONFIG_PATH = ROOT / "configs/dc_p1_source_free_feature_alignment_v1.json"
@@ -113,6 +113,25 @@ def validate_config(config: dict) -> dict[str, int]:
 
 def validate_prepared(prepared: Path, config: dict) -> dict:
     manifest = read_json(prepared / "manifest.json")
+    body = {key: value for key, value in manifest.items()
+            if key != "manifest_sha256"}
+    require(manifest["manifest_sha256"] == sha256_json(body),
+            "prepared", "manifest self-integrity digest differs")
+    require(manifest.get("format") == "replica.dc_p1_native_response.prepared.v2"
+            and manifest.get("protocol_id") == "dc_p1_native_response_v2",
+            "prepared", "prepared format or protocol differs")
+    require(manifest.get("heldout_opened") is False
+            and manifest.get("native_computation") is False
+            and manifest.get("model_loaded") is False
+            and manifest.get("tokenizer_loaded") is False
+            and manifest.get("downloads") == 0,
+            "prepared", "prepared access or execution declaration differs")
+    for name, digest in manifest["files"].items():
+        path = prepared / name
+        require(path.is_file(), "consumed_artifact",
+                f"missing consumed artifact {path}")
+        require(sha256_file(path) == digest, "consumed_artifact",
+                f"consumed artifact hash differs: {name}")
     require(manifest["manifest_sha256"] == config["prepared"]["manifest_sha256"],
             "prepared", "prepared manifest digest differs")
     require(manifest["manifest_sha256"] == config["parent"]["prepared_manifest_sha256"],

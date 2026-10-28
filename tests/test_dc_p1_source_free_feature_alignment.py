@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import json
+import shutil
 from pathlib import Path
 import sys
 
@@ -11,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from dc_protocol_common_20261027 import ProtocolError, read_json  # noqa: E402
+import preflight_dc_p1_source_free_feature_alignment_v2 as preflight_v2  # noqa: E402
 import preflight_dc_p1_source_free_feature_alignment_v1 as preflight  # noqa: E402
 from replica_lab.dc_p1_learning_audit import run_cpu_audit  # noqa: E402
 
@@ -59,6 +62,41 @@ def test_source_free_alternative_budget_drift_is_refused():
 
 def test_learning_audit_justifies_source_free_alternative():
     audit = run_cpu_audit()
-    config = read_json(preflight.CONFIG_PATH)
+    config = read_json(preflight_v2.CONFIG_PATH)
     assert audit["alternative_justified"] is True
     assert audit["alternative_protocol"] == config["protocol_id"]
+
+
+def _altered_copy(tmp_path, name, field, value):
+    prepared = tmp_path / "prepared"
+    shutil.copytree(preflight.PREPARED_DIR, prepared)
+    path = prepared / name
+    lines = path.read_text().splitlines()
+    row = json.loads(lines[0])
+    row[field] = value
+    lines[0] = json.dumps(row)
+    path.write_text("\n".join(lines) + "\n")
+    return prepared
+
+
+def test_altered_teaching_target_is_rejected_before_parsing(tmp_path):
+    prepared = _altered_copy(tmp_path, "teaching.jsonl", "target", "altered-target")
+    with pytest.raises(ProtocolError, match="consumed_artifact"):
+        preflight.validate_prepared(prepared, read_json(preflight.CONFIG_PATH))
+
+
+def test_altered_fit_prompt_is_rejected_before_parsing(tmp_path):
+    prepared = _altered_copy(tmp_path, "fit_cases.jsonl", "prompt", "altered-prompt")
+    with pytest.raises(ProtocolError, match="consumed_artifact"):
+        preflight.validate_prepared(prepared, read_json(preflight.CONFIG_PATH))
+
+
+def test_corrupted_manifest_self_digest_is_rejected(tmp_path):
+    prepared = tmp_path / "prepared"
+    shutil.copytree(preflight.PREPARED_DIR, prepared)
+    path = prepared / "manifest.json"
+    manifest = read_json(path)
+    manifest["manifest_sha256"] = "0" * 64
+    path.write_text(json.dumps(manifest))
+    with pytest.raises(ProtocolError, match="manifest self-integrity"):
+        preflight.validate_prepared(prepared, read_json(preflight.CONFIG_PATH))

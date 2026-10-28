@@ -28,7 +28,7 @@ def main(argv=None) -> int:
                         help="fresh JSON artifact for the CPU audit")
     args = parser.parse_args(argv)
     try:
-        report = run_cpu_audit()
+        report = run_cpu_audit(args.receipt.parent / "fit")
         target = require_fresh_path(args.receipt, "learning_audit_receipt")
         write_json_atomic(target, report)
     except (ProtocolError, OSError, ValueError) as error:
