@@ -1,13 +1,17 @@
 """Portable environment admission tests; no checkpoint, torch or model import."""
 import hashlib
 import importlib.metadata
+import importlib.util
 import json
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
-import launch_spark_intrinsic_readout_environment_v1 as gate
+_launcher = Path(__file__).resolve().parents[1] / "scripts/launch_spark_intrinsic_readout_environment_v1.py"
+_spec = importlib.util.spec_from_file_location("spark_environment_admission_fixture", _launcher)
+gate = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(gate)
 
 
 @pytest.fixture
