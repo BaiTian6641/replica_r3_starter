@@ -2,10 +2,9 @@
   "format": "replica.sparkx_v5_1_review.migration.v1",
   "identity": {
     "id": "sparkx-2.6-v5.1-review-migration-20261027",
-    "date": "2026-10-27",
+    "digest_sha256": "7390aed6f0f36183107af64039da291c9f7d2722f87785d9bf338a4cc11b1462",
     "head": "4c5a84851009898bc876c0b8aa3ccb596e04037d",
-    "digest_scope": "canonical JSON of the entries array",
-    "digest_sha256": "9c0d1c30bae3e5f2b2d72fd99bc77c645fd281b72bc509093ba7799ec5b19d87"
+    "digest_scope": "canonical JSON of the entries array"
   },
   "policy": "Only the identities below are treated as reviewed. A changed existing document must match its recorded old hash and current new hash; an added identity must not exist in the historical snapshot; a retained identity must remain byte-identical. Any other drift fails the portable verifier. Historical failed receipts are not rewritten, and no validator is weakened.",
   "historical_control": "configs/sparkx_2_6_4b_final_product_v5.json",
@@ -28,34 +27,44 @@
         "identity": "SparkX 2.6 4B final-product blueprint v5.0"
       },
       "new": {
-        "sha256": "9628b29c9e348e123e896fbad834f42a4bac5708a7c456b15d2a0c0535e1d10b",
-        "identity": "SparkX 2.6 4B final-product blueprint v5.1"
+        "sha256": "18e557085de8278becfff2ba05c04235e207a32c777c8dc46b8828d6256116e5",
+        "identity": "SparkX 2.6 4B final-product blueprint v5.1; 28 October direction reconciliation"
       },
-      "reason": "Adopts the reviewed v5.1 capacity, multimodal and learning direction and links the consolidated residency inventory, precision identities and native-gate register without sealing a new total."
+      "reason": "Adopts the reviewed v5.1 capacity, multimodal and learning direction and links the consolidated residency inventory, precision identities and native-gate register without sealing a new total.",
+      "review_chain": [
+        {
+          "prior_current_identity": {
+            "sha256": "9628b29c9e348e123e896fbad834f42a4bac5708a7c456b15d2a0c0535e1d10b",
+            "identity": "SparkX 2.6 4B final-product blueprint v5.1"
+          },
+          "reviewed_in": "reports/spark_persistent_learner_review_20261028/README.md",
+          "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+        }
+      ]
     },
     {
       "path": "docs/architecture/18_MiniCPM5_Vision_Training_and_Continual_Learning.md",
       "kind": "changed_existing",
       "old": {
         "sha256": "0824bbc33c67b1386f7d9f19a3e198d8d863e1c969d17bac21da831db29601d0",
-        "identity": "MiniCPM5 vision training and continual learning — pre-v5.1 design"
+        "identity": "MiniCPM5 vision training and continual learning \u2014 pre-v5.1 design"
       },
       "new": {
         "sha256": "21fc82041ec04d1f2972f7b03b0cb568c2a519761b37fc125dc99efdefc3a7c6",
-        "identity": "MiniCPM5 vision training and continual learning — v5.1 direction pointer"
+        "identity": "MiniCPM5 vision training and continual learning \u2014 v5.1 direction pointer"
       },
-      "reason": "Adds the current v5.1 MiniCPM direction and preserves the older V0–V4 material and failed receipts as historical guidance."
+      "reason": "Adds the current v5.1 MiniCPM direction and preserves the older V0\u2013V4 material and failed receipts as historical guidance."
     },
     {
       "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
       "kind": "changed_existing",
       "old": {
         "sha256": "9ec5c8d0c2245456b94782c78c5110a297d9b9ac019d23b10ed6b62c9e4ed741",
-        "identity": "SparkX 2.6 4B consolidated architecture revision 4.5 — v5.0 pointer"
+        "identity": "SparkX 2.6 4B consolidated architecture revision 4.5 \u2014 v5.0 pointer"
       },
       "new": {
         "sha256": "dfff370ff3b394b2360e813fafef7e73806f601566aa7c97aa5b2af4f17b6544",
-        "identity": "SparkX 2.6 4B consolidated architecture revision 4.5 — v5.1 pointer"
+        "identity": "SparkX 2.6 4B consolidated architecture revision 4.5 \u2014 v5.1 pointer"
       },
       "reason": "Updates only the unified entry-point version; revision 4.5 content and the unversioned native run receipts remain in place."
     },
@@ -64,11 +73,11 @@
       "kind": "changed_existing",
       "old": {
         "sha256": "1e44a99f7b38b335b111462fd603c1d30346ee3a83e3c736332f132831f48c96",
-        "identity": "State mechanism and RSI contracts — pre-v5.1 namespace note"
+        "identity": "State mechanism and RSI contracts \u2014 pre-v5.1 namespace note"
       },
       "new": {
         "sha256": "ce6de1904fb6a3b7373a1f71b7cbfed7444867f16393a5ce32dc9b362c2c180d",
-        "identity": "State mechanism and RSI contracts — v5.1 pending Mkv namespace"
+        "identity": "State mechanism and RSI contracts \u2014 v5.1 pending Mkv namespace"
       },
       "reason": "Reconciles current evidence and adds the proposed Mkv parameter namespace as pending without changing transaction, one-step, optimizer or RSI authority."
     },
@@ -77,24 +86,34 @@
       "kind": "changed_existing",
       "old": {
         "sha256": "d64ea6e70089dd977506ce7e7d3bcd6c3198dfa53824a91f228c98aa8dab2a4e",
-        "identity": "Architecture index — v5.0 pointer"
+        "identity": "Architecture index \u2014 v5.0 pointer"
       },
       "new": {
-        "sha256": "428f44d0228d5770cc8b2f9c207c5a5a034f31c804eb562855b4d65dfcb1854e",
-        "identity": "Architecture index — v5.1 pointer"
+        "sha256": "37db2853f80970406e005a0369327eb8c25ee6805545afc5345ee42ba015d7c5",
+        "identity": "Architecture index \u2014 v5.1 pointer; 28 October direction reconciliation"
       },
-      "reason": "Points the architecture index at blueprint v5.1 while retaining revision 4.5 as historical design lineage."
+      "reason": "Points the architecture index at blueprint v5.1 while retaining revision 4.5 as historical design lineage.",
+      "review_chain": [
+        {
+          "prior_current_identity": {
+            "sha256": "428f44d0228d5770cc8b2f9c207c5a5a034f31c804eb562855b4d65dfcb1854e",
+            "identity": "Architecture index \u2014 v5.1 pointer"
+          },
+          "reviewed_in": "reports/spark_persistent_learner_review_20261028/README.md",
+          "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+        }
+      ]
     },
     {
       "path": "docs/research/sparkx_nested_learning_20261026/README.md",
       "kind": "changed_existing",
       "old": {
         "sha256": "b905728a5d659b260766c0132136ee8b4deef64d6a61897c311785e5d3fc79ac",
-        "identity": "Nested-learning research guide — pre-v5.1 direction"
+        "identity": "Nested-learning research guide \u2014 pre-v5.1 direction"
       },
       "new": {
         "sha256": "d7f8467517dafedd4004e824aca706317f3cbff4a7d791fd2861d5fb847c97f2",
-        "identity": "Nested-learning research guide — v5.1 entry pointer"
+        "identity": "Nested-learning research guide \u2014 v5.1 entry pointer"
       },
       "reason": "Adds the reviewed v5.1 learning direction and points at the unified blueprint; earlier NL/V records remain historical."
     },
@@ -103,20 +122,40 @@
       "kind": "added",
       "old": null,
       "new": {
-        "sha256": "ce530ebdab19429a5b73a5aa6a199f27c610c13caeb478cca47369be9321d360",
-        "identity": "Doc24 — SparkX 2.6 v5.1 refinement and capacity plan"
+        "sha256": "4924229e2277aebcea0eae9f5795cb4c9990e4ad8e07187cf3e0012364cc7d6d",
+        "identity": "Doc24 \u2014 SparkX 2.6 v5.1 refinement and capacity plan; 28 October direction reconciliation"
       },
-      "reason": "New reviewed direction, residency inventory, staging gates and learning-dependency plan."
+      "reason": "New reviewed direction, residency inventory, staging gates and learning-dependency plan.",
+      "review_chain": [
+        {
+          "prior_current_identity": {
+            "sha256": "ce530ebdab19429a5b73a5aa6a199f27c610c13caeb478cca47369be9321d360",
+            "identity": "Doc24 \u2014 SparkX 2.6 v5.1 refinement and capacity plan"
+          },
+          "reviewed_in": "reports/spark_persistent_learner_review_20261028/README.md",
+          "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+        }
+      ]
     },
     {
       "path": "docs/architecture/25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md",
       "kind": "added",
       "old": null,
       "new": {
-        "sha256": "6277cc547bda10144b226b47d4f08b6e734fac88d8a6ceacd47f003b1f3b1595",
-        "identity": "Doc25 — MiniCPM5 direction-correction and learning-capacity program"
+        "sha256": "73da2e0e616c8a5ecba3f3d4e6b9a8b3c15657415b096e37542946797c08f672",
+        "identity": "Doc25 \u2014 MiniCPM5 direction-correction and learning-capacity program; 28 October direction reconciliation"
       },
-      "reason": "New DC study sequence, sparse-table preconditions and declared learning dependency order."
+      "reason": "New DC study sequence, sparse-table preconditions and declared learning dependency order.",
+      "review_chain": [
+        {
+          "prior_current_identity": {
+            "sha256": "6277cc547bda10144b226b47d4f08b6e734fac88d8a6ceacd47f003b1f3b1595",
+            "identity": "Doc25 \u2014 MiniCPM5 direction-correction and learning-capacity program"
+          },
+          "reviewed_in": "reports/spark_persistent_learner_review_20261028/README.md",
+          "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+        }
+      ]
     },
     {
       "path": "configs/sparkx_2_6_v5_1_direction_design.json",
@@ -174,7 +213,7 @@
       "old": null,
       "new": {
         "sha256": "bfc5ad31a25f60cc30832d62b1cd35ba919d3c5350437334674a75bf2db45946",
-        "identity": "C1–C16 disposition register"
+        "identity": "C1\u2013C16 disposition register"
       },
       "reason": "Records one disposition and correction for each supplied proposal."
     },
@@ -412,6 +451,267 @@
         "identity": "historical independent-continuation report"
       },
       "reason": "Historical restart/optimizer-state parity evidence retained unchanged."
+    },
+    {
+      "path": "AGENT_START.md",
+      "kind": "changed_existing",
+      "old": {
+        "sha256": "a839dcf76a156722d4eaa25b524a1989aced8e2cad004acb220ab31e3baa0301",
+        "identity": "reviewed HEAD 07f64ab2bc0b93c7c75e57c4c354c0147daddbfd"
+      },
+      "new": {
+        "sha256": "803d3e3707d468f0815f2b260f655d96e985a54a9ee8a21be2df298381bc13bc",
+        "identity": "28 October persistent learner review: AGENT_START.md"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "execution_state.md",
+      "kind": "changed_existing",
+      "old": {
+        "sha256": "8923f0e213d327768000f38a166d2e59c22beac611d8c87e1278ea565e0000e4",
+        "identity": "reviewed HEAD 07f64ab2bc0b93c7c75e57c4c354c0147daddbfd"
+      },
+      "new": {
+        "sha256": "8f5469cd192c58a0eddaf502f705081ac5cabb2c612d4f85c18a1044acd0830b",
+        "identity": "28 October persistent learner review: execution_state.md"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "docs/architecture/16_Loop_Agent_Instructions.md",
+      "kind": "changed_existing",
+      "old": {
+        "sha256": "f57a8c4ae0cb382ec9ec59a11d45eb5f765c08e630a97721dff4bd7abc2a9742",
+        "identity": "reviewed HEAD 07f64ab2bc0b93c7c75e57c4c354c0147daddbfd"
+      },
+      "new": {
+        "sha256": "f9e5b009ecfd76f82cb210cb8faa389e54150b958accaa7585a24a5ac4aea985",
+        "identity": "28 October persistent learner review: 16_Loop_Agent_Instructions.md"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "docs/architecture/19_Integrated_Memory_Learning_and_RSI_Design.md",
+      "kind": "changed_existing",
+      "old": {
+        "sha256": "3d050f5b80b9267620f7ccf11216f0c8ae21fa3ffe759e2c122fb062c199bb91",
+        "identity": "reviewed HEAD 07f64ab2bc0b93c7c75e57c4c354c0147daddbfd"
+      },
+      "new": {
+        "sha256": "b363a44686db6f8643fc9131183175bebd5f2e3681ae5c5c4de2783a365509f4",
+        "identity": "28 October persistent learner review: 19_Integrated_Memory_Learning_and_RSI_Design.md"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "docs/architecture/26_Spark_Text_Memory_Milestone.md",
+      "kind": "changed_existing",
+      "old": {
+        "sha256": "f6111cf6f64221637f782b395ca1277db4c029384419020125dafbe597bb845a",
+        "identity": "reviewed HEAD 07f64ab2bc0b93c7c75e57c4c354c0147daddbfd"
+      },
+      "new": {
+        "sha256": "dcf78a7b66896e835df2746189a48dec0339b070b0aab592f29d2c780948e228",
+        "identity": "28 October persistent learner review: 26_Spark_Text_Memory_Milestone.md"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "docs/experiments/20261028_Spark_Text_Memory_Milestone.md",
+      "kind": "changed_existing",
+      "old": {
+        "sha256": "01457e944d124e9bb61ca6ba5e9035278294d0b608f4fc53f4cf7fe8c2a21df8",
+        "identity": "reviewed HEAD 07f64ab2bc0b93c7c75e57c4c354c0147daddbfd"
+      },
+      "new": {
+        "sha256": "4469ebe9efa8bd2099b479e9ac9ca392d3129fb073c1f47e2f666b25008bd79b",
+        "identity": "28 October persistent learner review: 20261028_Spark_Text_Memory_Milestone.md"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "scripts/prepare_sparkx_research_bundle.py",
+      "kind": "changed_existing",
+      "old": {
+        "sha256": "bddbe53ef09efca68b6f906d640a64854e329f901b85216ba756864a31eb15e1",
+        "identity": "reviewed HEAD 07f64ab2bc0b93c7c75e57c4c354c0147daddbfd"
+      },
+      "new": {
+        "sha256": "a6e2d04c6d5da3c520abdb5b054134f8779cd8fafb75899b5a52ecf352bd5161",
+        "identity": "28 October persistent learner review: prepare_sparkx_research_bundle.py"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "cb9ce094c4897e548040a6c47dd1c4f0b1e4f28ae02eaba1c82d5fb2cf2b7d14",
+        "identity": "implemented v2 persistent learner and tiered memory architecture"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "configs/spark_persistent_learner_tiered_design_v1.json",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "e83d8b392fd8e1dc869d1db4996578485c06fa738e171ed3b200a68359108032",
+        "identity": "28 October persistent learner review: spark_persistent_learner_tiered_design_v1.json"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/README.md",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "3df6cc9d07541db466454a3c45897a60ca2a59d4be7c3136a74261451908bda7",
+        "identity": "28 October persistent learner review: README.md"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/baseline.json",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "4efcc0b33be5fb0618f0d94dd33bc4562e89efa8bc0a61cb0b26ce22f144d6f9",
+        "identity": "28 October persistent learner review: baseline.json"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/before_deliverables.json",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "e135cb9fa91dea18c44db98ae293a76eb830304d24e22aa37a164dab50def4da",
+        "identity": "28 October persistent learner review: before_deliverables.json"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/before_final_product_bundle_manifest.json",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "c1a1534d010ac8ff78af1ebf36b78d3f2418b2cc91e5df2f51aa48635efe6ee1",
+        "identity": "28 October persistent learner review: before_final_product_bundle_manifest.json"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/before_migration_manifest.json",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "73267773fe64f100cf335d93f60989749aaa0c47ecfddd646a4ec8363b556217",
+        "identity": "28 October persistent learner review: before_migration_manifest.json"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/before_portable_evidence.json",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "8a74292b15eda6ff0898a580e73560fd4bfc4aa43758261376f69e446526cee7",
+        "identity": "28 October persistent learner review: before_portable_evidence.json"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/before_reviewed_input_changes.json",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "30330a1cb9d084bedbd4b8a1c53e02246eb1048b20d1463aff14ec337e75fc4b",
+        "identity": "28 October persistent learner review: before_reviewed_input_changes.json"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/calculate_capacity.py",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "d5e40b7dd4a1a6bd8cb576f3ec82a87e29313256b1e4e90a2c650c1312a819d6",
+        "identity": "28 October persistent learner review: calculate_capacity.py"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/capacity_arithmetic.json",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "d3f05b62c258f53afd219841e20d77a83efc00291a1dc76dc8ad0e32b3c648e8",
+        "identity": "28 October persistent learner review: capacity_arithmetic.json"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/final_product_baseline.txt",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "f1b46926cd780462b9ac963e97716f957d72dadbfac8ddf373dd1e255d9d87c6",
+        "identity": "28 October persistent learner review: final_product_baseline.txt"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/focused_snapshot.xml",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "efee6b8b091bad2c61cb26a6da5251d1b018421ee047d1b47d92d13b5c7ded14",
+        "identity": "28 October persistent learner review: focused_snapshot.xml"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/focused_snapshot_output.txt",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "77abf5e76496f6741e4b679abfe3d56ff927b365073fed48ddb879d11431422d",
+        "identity": "28 October persistent learner review: focused_snapshot_output.txt"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/prefix_probe.json",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "8f76acbb21fb6753603017f34e97ccdfa91bb0c318b13fa303e02924c670c853",
+        "identity": "28 October persistent learner review: prefix_probe.json"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/review_checks.json",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "ee01e6267d053f8e7fc1559da22e444187b6208aa39d95f602281bad3bb26b5e",
+        "identity": "28 October persistent learner review: review_checks.json"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+    },
+    {
+      "path": "reports/spark_persistent_learner_review_20261028/v5_1_baseline.txt",
+      "kind": "added",
+      "old": null,
+      "new": {
+        "sha256": "9299c997b1b82606faf9033716621fdf25f976bb460fb19f09f69f49828379e0",
+        "identity": "28 October persistent learner review: v5_1_baseline.txt"
+      },
+      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
     }
   ],
   "local_artifact_references": [
@@ -500,5 +800,11 @@
       "new": "adds sealed/declared encoder residency, staged FP32 gradients, precision byte reconciliation, activation workload routes and resolved dependency-order ledger",
       "reason": "Calculated from the versioned design; analytical only, not measured fit or training admission."
     }
-  ]
+  ],
+  "current_direction_review": {
+    "date": "2026-10-28",
+    "reviewed_head": "07f64ab2bc0b93c7c75e57c4c354c0147daddbfd",
+    "report": "reports/spark_persistent_learner_review_20261028/README.md",
+    "scope": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+  }
 }

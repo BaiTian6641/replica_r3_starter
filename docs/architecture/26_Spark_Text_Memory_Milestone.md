@@ -1,17 +1,25 @@
 # Spark text memory with the internal spine — active milestone
 
-**Version 1 · 28 October 2026 · Active architecture and execution order.**
+**Version 1 · 28 October 2026 · Sealed control and implemented contracts.**
+The active prospective roadmap is now
+[chapter 28](28_Spark_Persistent_Learner_and_Tiered_Memory.md). Its expanded
+profiles and tiers do not modify this version's executable budgets.
 The executable budgets and bindings are in
 [`configs/spark_text_memory_protocol_v1.json`](../../configs/spark_text_memory_protocol_v1.json).
 This chapter reconciles the active roadmap; dated MiniCPM, vision and DC protocols
 remain historical evidence rather than competing priorities.
 
-**Implementation status:** commit `9b1a02d`. The affected suite passes 177
-tests and final-product verification passes 16. The preserved CPU fixture
-completes fit/development/restart with exact parity, but all nine arms score
-0/12 on new instances; useful learning is rejected. The next experiment is a
-frozen-backbone response/readout diagnostic on full eligible context before
-co-adaptation or capacity expansion. See the [milestone handoff](../experiments/20261028_Spark_Text_Memory_Milestone.md).
+**Implementation status:** commit 9b1a02d. The recorded affected suite passes
+177 tests and final-product tests pass 16. The preserved CPU fixture completes
+fit/development/restart with exact parity, but all nine arms score 0/12 on new
+instances. The fixture is randomly initialized and has pointwise decoder blocks
+without attention; this negative result is not a Spark full-context diagnosis.
+Useful native learning remains unestablished. The
+[new review](../../reports/spark_persistent_learner_review_20261028/README.md)
+records six clean-snapshot protocol failures caused by ignored source assets.
+The next native comparison must establish real full-context competence and
+readout; larger storage can be engineered independently. See the
+[milestone handoff](../experiments/20261028_Spark_Text_Memory_Milestone.md).
 
 ## 1. Active source and scope
 
@@ -29,7 +37,7 @@ specialist model or actor is attached. Native vision/audio training and physical
 actor/sensor work are deferred. MiniCPM results remain mechanism controls only;
 no MiniCPM vision or learning milestone gates this Spark text branch.
 
-The active sequence is:
+The sealed v1 sequence is (chapter 28 now owns subsequent work):
 
 1. Reconcile readout, model-identity, publication and retired-runner repairs.
 2. Repair query access, bounded reads, ownership, invalidation and update evidence.
@@ -118,11 +126,15 @@ The query representation is complete before any injection site that consumes it.
 Additional sensing passes are explicit work, not free context. Teacher-forced
 answers and future outcomes never enter the query or memory construction.
 
-Response cross-entropy flows through the frozen decoder into the declared codec,
-query, memory-port and selected P parameters. The backbone remains in the
-autograd graph even though its weights are frozen. Backward computation is
-charged. Initial zero-output parity, later nonzero influence and actual changed
-tensors are separate checks.
+Response cross-entropy flows through the frozen decoder and can produce
+gradients in both spine modules and selected P parameters. In the current
+implementation, the response optimizer updates only extension.spine parameters;
+P gradients from that loss are not applied by that optimizer. P is updated
+separately by its owner against a projected verified-answer vector. The
+backbone remains in the autograd graph despite frozen weights, and backward
+work is charged. Gradient presence, actual parameter change and useful future
+answers are separate checks. Chapter 28 specifies a new direct-CE P reference
+and a distinct learned local-write experiment; neither is already implemented.
 
 ## 4. State that must remain distinct
 
@@ -154,7 +166,7 @@ nonlearning/reset/shuffled controls use declared causal information, not hidden
 answer IDs. Uncached training/reference checks remain separate from cached
 deployment claims.
 
-## 6. Learning over time and deferred mechanisms
+## 6. Version-1 learning scope and deferred mechanisms
 
 The pilot uses chronological fit/development streams split by independent world
 and rule family. It includes new information and procedures, similar-looking

@@ -1,20 +1,41 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
 
-**Active order — Spark text memory with the internal spine (28 October 2026):**
-read the [versioned protocol](configs/spark_text_memory_protocol_v1.json) and
-[milestone architecture](docs/architecture/26_Spark_Text_Memory_Milestone.md).
-Implementation commit `9b1a02d`; read the [milestone handoff](docs/experiments/20261028_Spark_Text_Memory_Milestone.md).
-The affected suite passes 177 tests and final-product verification passes 16.
-The preserved CPU fixture completes fit/development/restart with exact parity,
-but all nine arms score 0/12 on new instances, so useful learning is rejected.
-Next diagnose frozen-backbone response/readout on full context before co-adaptation or expansion.
-1. Reconcile existing repairs and spine/memory contracts.
-2. Prove the text-to-memory-to-response path and gradients on tiny CPU fixtures.
-3. Evaluate chronological knowledge, procedure and retention controls with matched baselines.
-4. Bind the executable protocol and run preflight; use one guarded native pilot only with exact authorization for official FP8 and its actual backend.
-5. Expand to multi-seed qualification only after useful behavior. Do not expand P, read budgets or mechanisms to bypass a negative diagnosis.
-Native vision/audio, physical actor/sensor integration, capacity expansion, nested outer learning, self-distillation, RSI and personality adaptation are deferred. MiniCPM remains a historical/mechanism control, not a prerequisite. Preserve the 50 GiB / 512 MiB / 15% host-free guards and the protected runtime pilot.
+**Active order — Spark persistent learner and tiered memory (29 October 2026):**
+read the [v2 implementation and evidence runbook](reports/spark_persistent_learner_v2/README.md),
+[design chapter 28](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md),
+[architecture audit](docs/architecture/27_Spark_X2_6_4B_Architecture_Research_Review.md)
+and [complete worker prompt](docs/architecture/16_Loop_Agent_Instructions.md).
+The earlier review at 07f64ab2 is preserved. Implementation and protocol are
+committed at `1d8626957c84aa37cf4858ea4a74cd3797a0bff5`; `review03` leaves only
+exact FP8 backend evidence and external authorization before native launch.
+Useful native learning remains unestablished.
+
+1. **Package 1 complete:** portable protocol tests pass with tracked metadata
+   mocks; production source authentication is unchanged. Contextual CPU tests
+   distinguish real attention from the old attention-free fixture.
+2. **Package 2 complete:** separately versioned tiered storage, profiles,
+   scoped readable values, correction quarantine/reset, crash recovery and
+   resumable task journals are implemented and CPU-verified.
+3. **Next gate:** exact native FP8 forward/backward/single-update evidence,
+   then one authorized P1 full-context/direct-CE comparison at 3/7 and 23/31.
+   The current CPU result is 0/12 per arm and is not useful-readout evidence.
+4. **Offline only:** the D-only writer has exact derivative checks but no native
+   training or useful-learning promotion. Do not expand banks or claim RSI from
+   parameter changes. P4+ profiles remain lazy; P128 is a stretch candidate.
+5. Evaluate chronological acquisition, correction, retention, identity and cost
+   before multi-clock learning or RSI. Preserve all failed trajectories.
+
+The [v2 protocol](configs/spark_persistent_learner_protocol_v2.json) and
+[tier design JSON](configs/spark_persistent_learner_tiered_design_v1.json)
+specify logical 2 GiB hot / 8 GiB warm / 64 GiB disk ceilings, not authorization
+to allocate them. Preserve the 50 GiB driver / 512 MiB swap-growth / 15% host-free
+guards. Approved identity remains separate. The internal spine is permanent;
+native vision/audio and physical actor/sensor integration remain deferred.
+MiniCPM is a historical control. NativeFusedAdamW remains the ordinary optimizer.
+The v1 protocol and old results stay sealed. Do not read, import, edit or stage
+the protected runtime pilot.
+
 
 Historical handoffs below preserve completed protocols and negative results; they are not competing active orders.
 **Historical handoff — 28 October 2026, vision acceptance and expansion:** read

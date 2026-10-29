@@ -912,6 +912,25 @@ FINAL_PRODUCT_CLEAN_EXPORT_LINKS = [
     },
 ]
 
+# Additive 28 October persistent-learner review; historical profile unchanged.
+FINAL_PRODUCT_INPUT_ROLES.extend([
+    ('docs/architecture/27_Spark_X2_6_4B_Architecture_Research_Review.md', 'Spark native source and geometry research audit'),
+    ('docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md', 'implemented v2 architecture and native/learned boundaries'),
+    ('docs/architecture/16_Loop_Agent_Instructions.md', 'current bounded worker instructions'),
+    ('configs/spark_persistent_learner_tiered_design_v1.json', 'design-only expanded memory profiles and tier limits'),
+    ('reports/spark_persistent_learner_review_20261028/README.md', 'independent review and research disposition'),
+    ('reports/spark_persistent_learner_review_20261028/baseline.json', 'reviewed source and prior-document identities'),
+    ('reports/spark_persistent_learner_review_20261028/review_checks.json', 'independent focused review and baseline verification summary'),
+    ('reports/spark_persistent_learner_review_20261028/focused_snapshot.xml', 'preserved focused snapshot successes and failures'),
+    ('reports/spark_persistent_learner_review_20261028/focused_snapshot_output.txt', 'raw focused review output'),
+    ('reports/spark_persistent_learner_review_20261028/prefix_probe.json', 'tiny non-native decoder prefix perturbation'),
+    ('reports/spark_persistent_learner_review_20261028/calculate_capacity.py', 'model-free memory capacity arithmetic'),
+    ('reports/spark_persistent_learner_review_20261028/capacity_arithmetic.json', 'expanded profile arithmetic without native fit claim'),
+    ('configs/spark_persistent_learner_protocol_v2.json', 'separately versioned P1 direct-CE and tiered protocol'),
+    ('reports/spark_persistent_learner_v2/README.md', 'v2 implementation evidence and native runbook'),
+    ('reports/spark_persistent_learner_v2/review02.json', 'preparation-only v2 source and budget review'),
+])
+
 PROFILES = {
     "historical": {
         "manifest": DEFAULT_MANIFEST,

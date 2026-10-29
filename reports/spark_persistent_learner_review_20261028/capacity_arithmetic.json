@@ -1,0 +1,91 @@
+{
+  "format": "replica.spark_tiered_capacity_arithmetic.v1",
+  "config_sha256": "e83d8b392fd8e1dc869d1db4996578485c06fa738e171ed3b200a68359108032",
+  "measurement": false,
+  "allocation_or_training": false,
+  "formula": "bias-free gated expert: 3*N*d*h; FP32 W/G/Adam m/v: 16 bytes per parameter",
+  "profiles": [
+    {
+      "id": "v1_control",
+      "full_parameters": 98304,
+      "online_D_only_parameters": 32768,
+      "fp32_weights_MiB": 0.375,
+      "all_expert_full_adam_state_MiB": 1.5,
+      "all_expert_D_only_adam_plus_fixed_UG_MiB": 0.75,
+      "one_active_full_expert_adam_MiB": 0.75,
+      "one_active_D_adam_plus_fixed_UG_MiB": 0.375
+    },
+    {
+      "id": "P1",
+      "full_parameters": 393216,
+      "online_D_only_parameters": 131072,
+      "fp32_weights_MiB": 1.5,
+      "all_expert_full_adam_state_MiB": 6.0,
+      "all_expert_D_only_adam_plus_fixed_UG_MiB": 3.0,
+      "one_active_full_expert_adam_MiB": 6.0,
+      "one_active_D_adam_plus_fixed_UG_MiB": 3.0
+    },
+    {
+      "id": "P4",
+      "full_parameters": 1572864,
+      "online_D_only_parameters": 524288,
+      "fp32_weights_MiB": 6.0,
+      "all_expert_full_adam_state_MiB": 24.0,
+      "all_expert_D_only_adam_plus_fixed_UG_MiB": 12.0,
+      "one_active_full_expert_adam_MiB": 6.0,
+      "one_active_D_adam_plus_fixed_UG_MiB": 3.0
+    },
+    {
+      "id": "P16",
+      "full_parameters": 12582912,
+      "online_D_only_parameters": 4194304,
+      "fp32_weights_MiB": 48.0,
+      "all_expert_full_adam_state_MiB": 192.0,
+      "all_expert_D_only_adam_plus_fixed_UG_MiB": 96.0,
+      "one_active_full_expert_adam_MiB": 12.0,
+      "one_active_D_adam_plus_fixed_UG_MiB": 6.0
+    },
+    {
+      "id": "P32",
+      "full_parameters": 25165824,
+      "online_D_only_parameters": 8388608,
+      "fp32_weights_MiB": 96.0,
+      "all_expert_full_adam_state_MiB": 384.0,
+      "all_expert_D_only_adam_plus_fixed_UG_MiB": 192.0,
+      "one_active_full_expert_adam_MiB": 12.0,
+      "one_active_D_adam_plus_fixed_UG_MiB": 6.0
+    },
+    {
+      "id": "P64",
+      "full_parameters": 50331648,
+      "online_D_only_parameters": 16777216,
+      "fp32_weights_MiB": 192.0,
+      "all_expert_full_adam_state_MiB": 768.0,
+      "all_expert_D_only_adam_plus_fixed_UG_MiB": 384.0,
+      "one_active_full_expert_adam_MiB": 12.0,
+      "one_active_D_adam_plus_fixed_UG_MiB": 6.0
+    },
+    {
+      "id": "P128_stretch",
+      "full_parameters": 100663296,
+      "online_D_only_parameters": 33554432,
+      "fp32_weights_MiB": 384.0,
+      "all_expert_full_adam_state_MiB": 1536.0,
+      "all_expert_D_only_adam_plus_fixed_UG_MiB": 768.0,
+      "one_active_full_expert_adam_MiB": 12.0,
+      "one_active_D_adam_plus_fixed_UG_MiB": 6.0
+    }
+  ],
+  "reader_pair_only": {
+    "parameters": 2883584,
+    "fp32_weight_MiB": 11.0
+  },
+  "record_payload_only": {
+    "bf16_bytes_per_record": 3072,
+    "warm_target_MiB": 192.0,
+    "cold_target_GiB": 3.0,
+    "excluded": "canonical text, metadata, indices, journals, generations, allocator and staging copies"
+  },
+  "P64_to_current_parameter_ratio": 512.0,
+  "excluded_from_expert_sizes": "base, native KV, activations, all spine/codec/router modules, nonexpert state and I/O copies"
+}

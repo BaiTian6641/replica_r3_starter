@@ -1,5 +1,18 @@
 # SparkX 2.6 v5.1 — reviewed direction and expanded learning capacity
 
+**Direction reconciliation — 28 October 2026:** the active Spark-first text
+program is [chapter 28](28_Spark_Persistent_Learner_and_Tiered_Memory.md), with
+[revised worker instructions](16_Loop_Agent_Instructions.md). This chapter
+preserves the dated v5.1/MiniCPM design lineage and its evidence. Native
+multimodal training is deferred; MiniCPM is not a prerequisite for Spark.
+Expanded P profiles and tiered storage may be engineered now, while trained
+capacity promotion requires useful readout, correction and retention.
+The v1 CPU pilot's 0/12 result uses an untrained attention-free stub and does
+not establish a Spark full-context defect. See the
+[current review](../../reports/spark_persistent_learner_review_20261028/README.md).
+No historical result, source identity, sealed protocol or native gate is
+changed by this direction note.
+
 **27 October 2026 · Reviewed design, not an executed training protocol.**
 
 The supplied v5.1 draft improves the direction. Adopt stronger visual detail, progressive full multimodal training, separate retrieval/readout diagnosis, richer experience records, and deferred knowledge consolidation. Expand native learning capacity beyond the original 16-expert bank. Treat optimizer resets, dense expert reads, projected updates and self-generated teaching as experiments with explicit failure conditions.

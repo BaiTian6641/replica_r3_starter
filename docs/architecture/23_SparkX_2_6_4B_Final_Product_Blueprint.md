@@ -1,5 +1,18 @@
 # SparkX 2.6 4B — unified final-product blueprint
 
+**Direction reconciliation — 28 October 2026:** the active Spark-first text
+program is [chapter 28](28_Spark_Persistent_Learner_and_Tiered_Memory.md), with
+[revised worker instructions](16_Loop_Agent_Instructions.md). This chapter
+preserves the dated v5.1/MiniCPM design lineage and its evidence. Native
+multimodal training is deferred; MiniCPM is not a prerequisite for Spark.
+Expanded P profiles and tiered storage may be engineered now, while trained
+capacity promotion requires useful readout, correction and retention.
+The v1 CPU pilot's 0/12 result uses an untrained attention-free stub and does
+not establish a Spark full-context defect. See the
+[current review](../../reports/spark_persistent_learner_review_20261028/README.md).
+No historical result, source identity, sealed protocol or native gate is
+changed by this direction note.
+
 **Version 5.1 · 27 October 2026 · Product design and engineering roadmap.**
 
 **The target is a native multimodal learner:** a fully fine-tuned Spark language backbone with vision, audio, spatial/temporal reasoning, intrinsic experience memory, and bounded persistent learning. After release, the original backbone and perception machinery stay fixed. Designated native memory and plastic parameters can continue learning from observations and instruction.

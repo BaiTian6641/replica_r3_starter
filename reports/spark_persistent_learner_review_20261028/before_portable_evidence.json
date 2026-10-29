@@ -1,0 +1,339 @@
+{
+  "format": "replica.spark_final_product.portable_evidence.v1",
+  "reviewed_at_utc": "2026-10-27T00:00:00+00:00",
+  "root_policy": "Every required path is repository-relative. Tracked repository receipts and pins are required; temporary source-cache paths are optional cross-checks only.",
+  "source_pins": [
+    {
+      "name": "final_spark_config",
+      "tracked_path": "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/config.json",
+      "sha256": "767161ece8ed2891e44345afdf98d29c1cacb964116cb6db7d20dc1c757490ad",
+      "evidence_record": "final_spark_config",
+      "extract": {
+        "layers": "num_hidden_layers",
+        "width": "hidden_size",
+        "ffn_width": "intermediate_size",
+        "query_heads": "num_attention_heads",
+        "kv_heads": "num_key_value_heads",
+        "head_width": "head_dim",
+        "base_vocab": "vocab_size",
+        "original_mlp_activation": "hidden_act",
+        "sliding_window": "sliding_window",
+        "embedding_head_tied": "tie_word_embeddings"
+      }
+    },
+    {
+      "name": "final_spark_code",
+      "tracked_path": "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/modeling_spark.py",
+      "sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+      "evidence_record": "final_spark_code",
+      "reviewed_guards": [
+        "if config.hidden_act != \"gelu\"",
+        "F.linear(hidden_states, embed_weight)"
+      ]
+    },
+    {
+      "name": "final_spear_config",
+      "tracked_path": null,
+      "sha256": "5eb7757b21fe226a08860150d2d4d642243ab10122ce2858b57f763db8fd7e47",
+      "evidence_record": "final_spear_config",
+      "reviewed_fields": {
+        "causal": false
+      },
+      "provenance_note": "The pinned SPEAR configuration remains a source-cache artifact; this tracked extract binds the reviewed causal=false field to the same SHA-256 recorded in evidence.json."
+    }
+  ],
+  "required_receipts": [
+    {
+      "path": "reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v4.json",
+      "role": "sole current authoritative v4 memory-acceptance receipt",
+      "status": "current",
+      "sha256": "b188d52948392d542991e81c887a4ef843eef642b45f913374b332dcfff22472",
+      "format": "replica.memory_acceptance.metrics.v4"
+    },
+    {
+      "path": "reports/memory_acceptance_20261026/receipt_manifest_v4.restart02.json",
+      "role": "v4 receipt manifest selecting the current restart02 receipt and retaining v3 as historical",
+      "status": "current",
+      "sha256": "11bc3a3b1805b9e662c4a960668fa3a75157d42c24bf4a1171c4108a12e7eae8"
+    },
+    {
+      "path": "reports/memory_acceptance_20261026/calibration_dev01.json",
+      "role": "development-only acceptance/address calibration rejection receipt",
+      "status": "current",
+      "sha256": "dd3994e2b52ddef8ae5f6c3e753fe12e7c957f69c345dc08207e44a16aff40b4",
+      "format": "replica.memory_acceptance.calibration.receipt.v1"
+    },
+    {
+      "path": "reports/nested_text_continuation_comparison_20261026/comparison.json",
+      "role": "exact independent plastic continuation comparison (16 experts, 28 events)",
+      "status": "current",
+      "sha256": "584a79263fb2133a9854502cd34d4a013b5d5aa66ff232a150546c9f9f528082",
+      "format": "replica.nested_text_continuation.comparison.v1"
+    },
+    {
+      "path": "reports/nested_text_continuation_comparison_20261026/continuous_a.guard.json",
+      "role": "continuous_a resource-guard receipt bound by the continuation comparison",
+      "status": "current",
+      "sha256": "6abba810b6158ba85a1256b6abeb05222c9bc2ce996527ab16aeeea87a282362"
+    },
+    {
+      "path": "reports/nested_text_continuation_comparison_20261026/continuous_b.guard.json",
+      "role": "continuous_b resource-guard receipt bound by the continuation comparison",
+      "status": "current",
+      "sha256": "b2b27b281152bc5eaa9987ce43880104099bd6af7bc4d4a2059accc76088a260"
+    },
+    {
+      "path": "reports/nested_text_continuation_comparison_20261026/resume.guard.json",
+      "role": "resume resource-guard receipt bound by the continuation comparison",
+      "status": "current",
+      "sha256": "d592de65082367b127ad4d0de7ed5432d969b3da2c3b042615c8881f7bc0788b"
+    },
+    {
+      "path": "reports/vision_learnability_curve_v1_20261026/summary.json",
+      "role": "latest complete vision learnability-curve summary and terminal decision",
+      "status": "current",
+      "sha256": "3a96e196ba75f9ce5bc915e01ab9b5cd5c9ba0260914dec369ca7203c65874ef",
+      "format": "replica.vision_learnability_curve.report.v1.summary"
+    },
+    {
+      "path": "reports/vision_learnability_curve_v1_20261026_attempt04/guard.json",
+      "role": "completed vision curve attempt-04 resource-guard receipt",
+      "status": "current",
+      "sha256": "a0ede8c56eec1c9fc77d0ca2f66e492e41e5b881eea76c674e32d3afc40b9a2a"
+    },
+    {
+      "path": "reports/vision_learnability_curve_v1_20261026/guard.json",
+      "role": "historical failed vision curve guard receipt, preserved",
+      "status": "historical",
+      "sha256": "dbd48506e1ed7510f31412e9a22e2e9f447704ec012fec55ae8686613b0aa470"
+    },
+    {
+      "path": "reports/final_verification_20261027/summary.json",
+      "role": "latest final verification and clean-clone summary",
+      "status": "current",
+      "sha256": "5650c785651818547df83e5a15588fb78da6ad5878148ac2b4696894adc6ffaf",
+      "format": "replica.final_verification.v1"
+    },
+    {
+      "path": "reports/final_verification_20261027/clean_export/tests.xml",
+      "role": "latest clean-clone JUnit receipt",
+      "status": "current",
+      "sha256": "09f29bca3faa23e6be14af2ecb49d166315e7ac4315ff9367653c59232229e8a"
+    },
+    {
+      "path": "reports/clean_export_20261026_final/summary.json",
+      "role": "historical clean-clone verification at f25670a (zero failures)",
+      "status": "historical",
+      "sha256": "14ce11fcff68a442f0575b8bb92d7a125a5ba9300b8ecd0273ba92451d6eab73",
+      "format": "replica.clean_export_verification.v1"
+    },
+    {
+      "path": "reports/clean_export_20261026_final/tests_final.xml",
+      "role": "historical clean-clone final JUnit receipt",
+      "status": "historical",
+      "sha256": "be4feb8dbeec33db9577f3b725d1f10854d471fb895e3563030d41ebd8768ac9"
+    },
+    {
+      "path": "reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v3.json",
+      "role": "historical v3 memory-acceptance receipt; never accepted as v4",
+      "status": "historical",
+      "sha256": "b5dd86c01598e60493521b88b5b65d7fe77e0d09cb05722caa9db249f2e842ba",
+      "format": "replica.memory_acceptance.metrics.v3"
+    },
+    {
+      "path": "reports/memory_acceptance_20261026/receipt_manifest_v3.json",
+      "role": "historical v3 receipt manifest",
+      "status": "historical",
+      "sha256": "a6afb687549ea733897da3130cfbaab76661ac78c0f8f57431ddcb500073a1d1"
+    },
+    {
+      "path": "reports/sparkx_final_product_20261026/verification.json",
+      "role": "historical v5 documentation/source/arithmetic verification receipt",
+      "status": "historical",
+      "sha256": "677acbffd8626d18c718d173a70bd5f88d81b1f81e20d6233376f7bb24147003"
+    },
+    {
+      "path": "reports/sparkx_v5_1_review_20261027/migration_manifest.json",
+      "role": "v5.1 reviewed old/new identity and arithmetic migration manifest",
+      "status": "current",
+      "sha256": "73267773fe64f100cf335d93f60989749aaa0c47ecfddd646a4ec8363b556217",
+      "format": "replica.sparkx_v5_1_review.migration.v1"
+    },
+    {
+      "path": "reports/sparkx_v5_1_review_20261027/native_gates.json",
+      "role": "v5.1 unresolved native-gate register, separate from design checks",
+      "status": "current",
+      "sha256": "791dbc41105e2d853b64c55a8407ed22157a767b91fe3b7b072ef5888473aa46",
+      "format": "replica.sparkx_v5_1_review.native_gates.v1"
+    },
+    {
+      "path": "reports/sparkx_v5_1_review_20261027/analytical_capacity.json",
+      "role": "v5.1 analytical capacity and residency ledger",
+      "status": "current",
+      "sha256": "9a55fd2c4d4ba0d4c9c7a3d9b47d5c32fc3bd2c289fb9dab6a222f5a4c15361b"
+    },
+    {
+      "path": "reports/sparkx_v5_1_review_20261027/deliverables.json",
+      "role": "v5.1 authored-output hash pins",
+      "status": "current",
+      "sha256": "e135cb9fa91dea18c44db98ae293a76eb830304d24e22aa37a164dab50def4da"
+    },
+    {
+      "path": "reports/sparkx_v5_1_review_20261027/repository_snapshot.json",
+      "role": "v5.1 preserved-input snapshot and initial status",
+      "status": "current",
+      "sha256": "932b871a9a9a7f30642ba489a1b804c6bb30616d9a068656cb68dd71422466eb"
+    },
+    {
+      "path": "reports/sparkx_v5_1_review_20261027/evidence.json",
+      "role": "v5.1 primary-source manifest with reviewed sections and limits",
+      "status": "current",
+      "sha256": "7c79eb654d96f907f34b2d937e99b8a503faf3e146000290c6ab8afa7adf51a0"
+    },
+    {
+      "path": "reports/sparkx_v5_1_review_20261027/claim_dispositions.json",
+      "role": "v5.1 C1-C16 disposition register",
+      "status": "current",
+      "sha256": "bfc5ad31a25f60cc30832d62b1cd35ba919d3c5350437334674a75bf2db45946"
+    },
+    {
+      "path": "reports/sparkx_v5_1_review_20261027/attachment_reference_inventory.json",
+      "role": "v5.1 attachment reference inventory",
+      "status": "current",
+      "sha256": "7a3cf4a059b939707618202cdaf5d11ab1b62b41800337c55eeef55a80b78e83"
+    }
+  ],
+  "required_configs": [
+    {
+      "path": "configs/sparkx_2_6_4b_final_product_v5.json",
+      "role": "v5 final-product declarative profile and inventory reconciliation",
+      "sha256": "17365a89bbe907a448996610115149c2768150420314d6256fe852b9c346f154"
+    },
+    {
+      "path": "reports/sparkx_residency_20261026/residency_v2.json",
+      "role": "current residency receipt consumed by the analytical calculator",
+      "sha256": "6b5a661ade99e74e0e87dc33fa814f212404333abaf118cab16570d2e4b0d8d1"
+    },
+    {
+      "path": "reports/sparkx_nested_learning_20261026/analytical_costs.json",
+      "role": "prior nested-learning payload profile consumed by the analytical calculator",
+      "sha256": "d7b66404f6c4ff50c0657bb9077367a1754e278b2bfc4d2e4fb43ee894972bef"
+    },
+    {
+      "path": "configs/memory_acceptance_v4.json",
+      "role": "v4 memory-acceptance metric configuration",
+      "sha256": "fce225a4d4bb3f8e65894d3bd5b825c19f3e6d2abb7f4905de499d053095846c"
+    },
+    {
+      "path": "configs/memory_acceptance_calibration_v1.json",
+      "role": "development-only calibration protocol",
+      "sha256": "13e7a08d7d69f3a6d8707bd90dd11e175c728a4db890e4109f6aed2b7e168c46"
+    },
+    {
+      "path": "configs/nested_text_continuation_comparison_v1.json",
+      "role": "independent plastic continuation protocol (16-expert bank)",
+      "sha256": "de45931405d2f34fe41574b4fff4dc9c1790853cb0e0736cc170611e7a4fe447"
+    },
+    {
+      "path": "configs/vision_learnability_curve_v1.json",
+      "role": "vision learnability curve protocol",
+      "sha256": "c97902da2862c8141ab22d98cbb6ad3c01739916854da8e7fd1a15639ec81c40"
+    },
+    {
+      "path": "configs/sparkx_2_6_v5_1_direction_design.json",
+      "role": "v5.1 declarative design, residency inventory and staged learning gates",
+      "sha256": "119382bd054fbafbf5bb793f04255b628de2bd7ba8ac3c381fcbb15f6d8bc713"
+    }
+  ],
+  "historical_manifest": {
+    "path": "reports/sparkx_first_tranche_20261026/research_bundle_manifest.json",
+    "role": "reviewed current 117-input first-tranche research bundle manifest, regenerated from current bytes for the SparkX v5.1 residency migration; the prior pre-migration manifest is preserved separately at reports/sparkx_first_tranche_20261026/research_bundle_manifest_pre_sparkx_v5_1_residency.json",
+    "status": "historical",
+    "input_count": 117,
+    "bundle_digest": "3b3d9dcb80e403efa5db94c57537a3f14d29925105ad4eabebff72d3b277db09",
+    "reviewed_current_updates": [
+      "docs/architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md",
+      "reports/sparkx_final_product_20261026/README.md",
+      "reports/sparkx_final_product_20261026/verify.py",
+      "scripts/prepare_sparkx_research_bundle.py",
+      "reports/sparkx_residency_20261026/residency_v2.json"
+    ]
+  },
+  "final_product_manifest": {
+    "path": "reports/sparkx_final_product_20261026/final_product_bundle_manifest.json",
+    "role": "additive current final-product evidence bundle; hashed manifest, not an asset copy",
+    "profile": "final-product",
+    "generated_output": "reports/sparkx_final_product_20261026/verification_v2.json",
+    "required_paths": [
+      "docs/architecture/23_SparkX_2_6_4B_Final_Product_Blueprint.md",
+      "docs/experiments/20261026_Memory_Acceptance_V4.md",
+      "docs/experiments/20261026_Memory_Acceptance_Calibration.md",
+      "docs/experiments/20261026_Nested_Text_Independent_Continuation.md",
+      "docs/experiments/20261026_Vision_Learnability_Curve.md",
+      "configs/sparkx_2_6_4b_final_product_v5.json",
+      "configs/memory_acceptance_v4.json",
+      "configs/memory_acceptance_calibration_v1.json",
+      "configs/nested_text_continuation_comparison_v1.json",
+      "configs/vision_learnability_curve_v1.json",
+      "reports/sparkx_residency_20261026/residency_v2.json",
+      "reports/sparkx_nested_learning_20261026/analytical_costs.json",
+      "reports/sparkx_final_product_20261026/README.md",
+      "reports/sparkx_final_product_20261026/verify.py",
+      "reports/sparkx_final_product_20261026/analytical_costs.json",
+      "reports/sparkx_final_product_20261026/calculate_costs.py",
+      "reports/sparkx_final_product_20261026/requirements_traceability.json",
+      "reports/sparkx_final_product_20261026/evidence.json",
+      "reports/sparkx_final_product_20261026/portable_evidence.json",
+      "reports/sparkx_final_product_20261026/reviewed_input_changes.json",
+      "reports/sparkx_final_product_20261026/repository_snapshot.json",
+      "reports/sparkx_final_product_20261026/verification.json",
+      "reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v4.json",
+      "reports/memory_acceptance_20261026/receipt_manifest_v4.restart02.json",
+      "reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v3.json",
+      "reports/memory_acceptance_20261026/receipt_manifest_v3.json",
+      "reports/memory_acceptance_20261026/calibration_dev01.json",
+      "reports/nested_text_continuation_comparison_20261026/comparison.json",
+      "reports/nested_text_continuation_comparison_20261026/continuous_a.guard.json",
+      "reports/nested_text_continuation_comparison_20261026/continuous_b.guard.json",
+      "reports/nested_text_continuation_comparison_20261026/resume.guard.json",
+      "reports/vision_learnability_curve_v1_20261026/summary.json",
+      "reports/vision_learnability_curve_v1_20261026_attempt04/guard.json",
+      "reports/vision_learnability_curve_v1_20261026/guard.json",
+      "reports/final_verification_20261027/summary.json",
+      "reports/final_verification_20261027/tests.xml",
+      "reports/final_verification_20261027/clean_export/tests.xml",
+      "reports/clean_export_20261026_final/summary.json",
+      "reports/clean_export_20261026_final/tests_final.xml",
+      "reports/sparkx_first_tranche_20261026/research_bundle_manifest.json",
+      "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/config.json",
+      "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/modeling_spark.py",
+      "docs/architecture/18_MiniCPM5_Vision_Training_and_Continual_Learning.md",
+      "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
+      "docs/architecture/24_SparkX_2_6_v5_1_Refinement_Plan.md",
+      "docs/architecture/25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md",
+      "docs/architecture/README.md",
+      "docs/research/sparkx_nested_learning_20261026/README.md",
+      "configs/sparkx_2_6_v5_1_direction_design.json",
+      "reports/sparkx_v5_1_review_20261027/README.md",
+      "reports/sparkx_v5_1_review_20261027/migration_manifest.json",
+      "reports/sparkx_v5_1_review_20261027/native_gates.json",
+      "reports/sparkx_v5_1_review_20261027/deliverables.json",
+      "reports/sparkx_v5_1_review_20261027/analytical_capacity.json",
+      "reports/sparkx_v5_1_review_20261027/calculate_capacity.py",
+      "reports/sparkx_v5_1_review_20261027/verify.py",
+      "reports/sparkx_v5_1_review_20261027/repository_snapshot.json",
+      "reports/sparkx_v5_1_review_20261027/evidence.json",
+      "reports/sparkx_v5_1_review_20261027/claim_dispositions.json",
+      "reports/sparkx_v5_1_review_20261027/attachment_reference_inventory.json",
+      "tests/test_sparkx_v5_1_review.py",
+      "tests/test_sparkx_final_product.py"
+    ],
+    "clean_export_links": [
+      "reports/final_verification_20261027/summary.json",
+      "reports/final_verification_20261027/clean_export/tests.xml",
+      "reports/clean_export_20261026_final/summary.json",
+      "reports/clean_export_20261026_final/tests_final.xml"
+    ]
+  }
+}

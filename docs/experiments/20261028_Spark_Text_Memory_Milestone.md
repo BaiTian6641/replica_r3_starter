@@ -103,15 +103,23 @@ report. The native schedule is a ceiling, not a measurement: 8 optimizer steps,
 3,560 query-sensing forwards, 7,120 total forwards, 14,683,680 processed text
 positions, 8,192 decoder backward positions and 8,192 P feature vectors.
 
-## Failure analysis and next experiment
+## Interpretation correction and next experiment — later review, 28 October
 
-The implementation and persistence contracts pass, but the frozen-backbone
-behavioral path fails even with full context. Before any co-adaptation or larger
-bank, the next discriminating experiment is a **frozen-backbone response/readout
-diagnostic**: inspect the response mask, response-token alignment, answer
-representation and generated-output grammar on the full eligible-context arm,
-then compare exact context with the native memory read on the same cases. Do not
-expand P, Mkv, read budgets or model scope to evade that diagnosis.
+The raw all-arm 0/12 result and rejection are preserved. The original
+interpretation as a frozen Spark full-context failure was too broad: this run
+uses a random tiny model whose blocks are pointwise and contain no attention.
+An independent prefix perturbation confirms identical final-position logits
+for different prefixes ending in the same token. This fixture supports
+engineering and restart checks; it cannot diagnose Spark's native reasoning
+or memory-learning capacity.
+
+The next native experiment must establish full-context competence and compare
+exact context against contextual memory reads on the real, precisely identified
+source/backend. Audit masks, alignment, output grammar and actual optimizer
+ownership, including that response CE currently does not update P. The
+[revised design](../architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md)
+allows bounded tiered-storage engineering and capacity profiles now while
+requiring useful readout before trained expansion.
 
 Native execution remains blocked independently by missing external authorization
 and missing native-FP8 backend evidence. A future run must bind the exact current

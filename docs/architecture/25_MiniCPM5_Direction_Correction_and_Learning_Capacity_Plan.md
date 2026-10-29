@@ -1,5 +1,18 @@
 # MiniCPM5 — direction correction and native learning-capacity program
 
+**Direction reconciliation — 28 October 2026:** the active Spark-first text
+program is [chapter 28](28_Spark_Persistent_Learner_and_Tiered_Memory.md), with
+[revised worker instructions](16_Loop_Agent_Instructions.md). This chapter
+preserves the dated v5.1/MiniCPM design lineage and its evidence. Native
+multimodal training is deferred; MiniCPM is not a prerequisite for Spark.
+Expanded P profiles and tiered storage may be engineered now, while trained
+capacity promotion requires useful readout, correction and retention.
+The v1 CPU pilot's 0/12 result uses an untrained attention-free stub and does
+not establish a Spark full-context defect. See the
+[current review](../../reports/spark_persistent_learner_review_20261028/README.md).
+No historical result, source identity, sealed protocol or native gate is
+changed by this direction note.
+
 **27 October 2026 · Prospective experiment design. No new execution admission.**
 
 MiniCPM5 is the mechanism platform for the [Spark v5.1 product direction](24_SparkX_2_6_v5_1_Refinement_Plan.md). Its original backbone contains **2,516,756,480 parameters**, 42 layers and width 2048. Spark has 36 layers and width 2560 with different attention geometry. Transfer the learning mechanism and data recipe, not tensor shapes or a MiniCPM checkpoint.

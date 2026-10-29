@@ -23,17 +23,21 @@ trained. No mechanism is promoted by this revision.
 
 **Design revision: 25 October 2026. Reviewed implementation: `7c7018e`.**
 This remains a proposed system and qualification plan, not a record of new training.
-The active implementation order is now [Spark text memory with the internal spine](26_Spark_Text_Memory_Milestone.md).
-MiniCPM is a historical/mechanism control; its vision and learning milestones are
-not prerequisites for the Spark text branch. The completed v5 writer experiment
-is rejected and its mechanical persistence is not useful learned memory.
+The active implementation order is now
+[Spark persistent learning and tiered memory](28_Spark_Persistent_Learner_and_Tiered_Memory.md).
+MiniCPM is a historical/mechanism control. Native multimodal training is
+deferred, while the internal spine remains permanent. The older studies below
+retain their dated evidence and are not competing current orders.
 
-The active sequence is **repair readout/identity/publication/retirement and spine
-contracts → tiny CPU text-memory response and gradients → chronological matched
-baselines → versioned Spark protocol and preflight → one exactly authorized
-native pilot → broader qualification only after useful behavior**. Native
-vision/audio, actor/sensor integration, capacity expansion, nested outer learning
-and RSI remain deferred. Spark FP8/BF16/derivative identities remain distinct.
+The active sequence is **portable verification and honest source/backend
+binding → tiered clusters and contextual readout engineering → competent
+native context baseline and direct-CE P1 learner → future-task-trained local
+writes → measured P4/P16/P32/P64 expansion and chronological retention →
+multi-clock learning or bounded RSI**. Capacity planning and bounded storage
+implementation proceed now. Training a larger bank is separately qualified.
+Approved identity, task state and measured capabilities remain distinct.
+The tiny CPU fixture's 0/12 result is not a Spark capability diagnosis.
+Spark FP8/BF16/derivative identities remain distinct.
 
 ### Independently exercised engineering controls
 

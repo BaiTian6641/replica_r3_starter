@@ -1,5 +1,29 @@
 # Replica architecture research and design
 
+**Active direction — 29 October 2026:** Spark text memory, the permanent spine,
+persistent learning and tiered Replica memory. Start with
+[chapter 28](28_Spark_Persistent_Learner_and_Tiered_Memory.md),
+[the v2 implementation and evidence runbook](../../reports/spark_persistent_learner_v2/README.md),
+[the v2 protocol](../../configs/spark_persistent_learner_protocol_v2.json)
+and [the revised worker prompt](16_Loop_Agent_Instructions.md).
+
+The active model is the user's official Spark-X2.6-4B-FP8 source. The
+[architecture audit](27_Spark_X2_6_4B_Architecture_Research_Review.md) governs native
+geometry; the [v1 text milestone](26_Spark_Text_Memory_Milestone.md) preserves
+its implemented contracts and sealed control. V2 implements P1 direct response
+CE and durable tiers on CPU; P4/P128 profiles remain lazy. Native FP8 execution,
+full-context competence and useful learning remain open. MiniCPM remains a
+control; native multimodal training is deferred. Identity, task workspace and
+measured capability remain separate from learned facts.
+
+## Historical index and design lineage
+
+The dated priorities below record earlier v5.1 and MiniCPM-first plans. They
+are not active execution orders. Their native gates, geometry, preserved
+results and arithmetic retain their original meaning; chapter 28 supersedes
+their sequencing, storage roadmap and claims about the tiny CPU diagnostic.
+
+
 **Start with the [SparkX 2.6 4B final-product blueprint, version 5.1](23_SparkX_2_6_4B_Final_Product_Blueprint.md)** for the unified target: full offline multimodal training, native spatial/temporal reasoning, intrinsic memory and nested learning, swappable vocabulary, semi-cognition, the separate neural spine, system design and MiniCPM-first validation. The [v5.1 review](24_SparkX_2_6_v5_1_Refinement_Plan.md), [MiniCPM direction correction](25_MiniCPM5_Direction_Correction_and_Learning_Capacity_Plan.md) and [new evidence/capacity report](../../reports/sparkx_v5_1_review_20261027/README.md) record the current direction. The dated [v5 consolidation report](../../reports/sparkx_final_product_20261026/README.md) preserves its original control profile. Historical implementation priorities below retain their dated context; current execution protocols and [state contracts](22_State_Mechanism_and_RSI_Contracts.md) still govern runs.
 
 For the requested detailed Spark target analysis, see the

@@ -1,0 +1,54 @@
+{
+  "reviewed_head": "07f64ab2",
+  "snapshot_method": "git archive HEAD into temporary directory, with repository Git metadata supplied for ancestry checks; no ignored model assets",
+  "focused_tests": {
+    "passed": 138,
+    "failed": 6,
+    "skipped": 1,
+    "seconds": 93.67,
+    "failures": [
+      {
+        "test": "test_review_and_derived_work_are_explicit_and_non_native",
+        "message": "preflight_spark_text_memory_v1.ProtocolError: missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source"
+      },
+      {
+        "test": "test_launch_requires_external_authorization",
+        "message": "AssertionError: assert 'source' == 'authorization'\n  \n  - authorization\n  + source"
+      },
+      {
+        "test": "test_valid_authorization_constructs_guarded_command_without_native_work",
+        "message": "preflight_spark_text_memory_v1.ProtocolError: missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source"
+      },
+      {
+        "test": "test_wrong_execution_format_is_rejected_before_launch",
+        "message": "preflight_spark_text_memory_v1.ProtocolError: missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source"
+      },
+      {
+        "test": "test_stale_implementation_binding_is_rejected",
+        "message": "preflight_spark_text_memory_v1.ProtocolError: missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source"
+      },
+      {
+        "test": "test_missing_backend_evidence_is_rejected",
+        "message": "preflight_spark_text_memory_v1.ProtocolError: missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source"
+      }
+    ]
+  },
+  "local_metadata_only_review_test": {
+    "passed": 1,
+    "seconds": 0.05,
+    "native_model_loaded": false
+  },
+  "baseline_no_write_verifiers": {
+    "v5_1": {
+      "passed": 690,
+      "failed": 0,
+      "native_gates_unresolved": 10
+    },
+    "final_product": {
+      "passed": 503,
+      "failed": 0
+    }
+  },
+  "native_model_loaded": false,
+  "runtime_or_training_code_changed": false
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": "replica.architecture_implementation_status.v1",
-  "updated_at_utc": "2026-10-27",
+  "updated_at_utc": "2026-10-29",
   "design": "configs/architecture_design_v1.json",
   "documentation": "docs/architecture/17_Memory_Reliability_Recovery.md",
   "research_crosscheck": "docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md",
@@ -357,6 +357,25 @@
     "full_eligible_context_also_failed": true,
     "next_experiment": "frozen_backbone_response_readout_diagnostic_on_full_eligible_context",
     "raw_evidence": "reports/spark_text_memory_v1/cpu_fixture_attempt01"
+  },
+  "active_spark_persistent_learner_architecture": "docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md",
+  "active_spark_persistent_learner_protocol": "configs/spark_persistent_learner_protocol_v2.json",
+  "active_spark_persistent_learner_runbook": "reports/spark_persistent_learner_v2/README.md",
+  "persistent_learner_v2_validation": {
+    "focused_tests_passed": 138,
+    "native_execution": false,
+    "native_model_loaded": false,
+    "cpu_evidence": "runs/spark_persistent_learner_v2/cpu_final01/run_report.json",
+    "cpu_full_context_accuracy": 0.0,
+    "useful_learning": "inconclusive_engineering_fixture",
+    "engineering_acceptance": "null parity, nonzero influence, correction reset, fresh-process P-only parity and tiered P reload passed",
+    "correction_policy": "quarantine_then_authenticated_reset_not_exact_unlearning",
+    "late_sites": "3/7 and 23/31 valid on 36-layer source; native comparison unmeasured",
+    "tiered_state": "13 exact records, 52 readable value slots, 5 clusters, 4 verified procedures, 1 resumable workspace",
+    "next_experiment": "qualify exact native FP8 backend then run one bounded P1 full-context/direct-CE comparison",
+    "implementation_commit": "1d8626957c84aa37cf4858ea4a74cd3797a0bff5",
+    "protocol_review": "reports/spark_persistent_learner_v2/review03.json",
+    "native_blockers": ["exact_official_FP8_backend_evidence", "external_authorization_receipt"],
   },
   "current_construction_order": [
     "reconcile_readout_identity_publication_and_retired_runner_repairs",

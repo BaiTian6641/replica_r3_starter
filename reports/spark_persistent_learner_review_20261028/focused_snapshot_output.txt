@@ -1,0 +1,167 @@
+................................FFFFFF.................................. [ 49%]
+..........................................s............................. [ 99%]
+.                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_review_and_derived_work_are_explicit_and_non_native ___________
+
+    def test_review_and_derived_work_are_explicit_and_non_native():
+>       report = preflight()
+                 ^^^^^^^^^^^
+
+tests/test_spark_text_memory_protocol.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/preflight_spark_text_memory_v1.py:321: in preflight
+    report = validate_config(config, config_path.parent.parent if config_path.parent.name == "configs" else ROOT)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/preflight_spark_text_memory_v1.py:204: in validate_config
+    "source": _source_validation(config, root, full_weight_hash=False),
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/preflight_spark_text_memory_v1.py:69: in _source_validation
+    _require(source_root.is_dir(), "source", f"missing sealed FP8 source {source_root}")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, check = 'source'
+detail = 'missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source'
+
+    def _require(condition: bool, check: str, detail: str) -> None:
+        if not condition:
+>           raise ProtocolError(check, detail)
+E           preflight_spark_text_memory_v1.ProtocolError: missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source
+
+scripts/preflight_spark_text_memory_v1.py:51: ProtocolError
+_________________ test_launch_requires_external_authorization __________________
+
+    def test_launch_requires_external_authorization():
+        with pytest.raises(ProtocolError) as error:
+            preflight(launch=True)
+>       assert error.value.check == "authorization"
+E       AssertionError: assert 'source' == 'authorization'
+E         
+E         - authorization
+E         + source
+
+tests/test_spark_text_memory_protocol.py:93: AssertionError
+___ test_valid_authorization_constructs_guarded_command_without_native_work ____
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1687/test_valid_authorization_const0')
+
+    def test_valid_authorization_constructs_guarded_command_without_native_work(tmp_path):
+>       config_path, authorization, output, _ = _valid_launch_inputs(tmp_path)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_spark_text_memory_protocol.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_spark_text_memory_protocol.py:28: in _valid_launch_inputs
+    implementation = validate_config(config)["implementation_sha256"]
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+scripts/preflight_spark_text_memory_v1.py:204: in validate_config
+    "source": _source_validation(config, root, full_weight_hash=False),
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/preflight_spark_text_memory_v1.py:69: in _source_validation
+    _require(source_root.is_dir(), "source", f"missing sealed FP8 source {source_root}")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, check = 'source'
+detail = 'missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source'
+
+    def _require(condition: bool, check: str, detail: str) -> None:
+        if not condition:
+>           raise ProtocolError(check, detail)
+E           preflight_spark_text_memory_v1.ProtocolError: missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source
+
+scripts/preflight_spark_text_memory_v1.py:51: ProtocolError
+____________ test_wrong_execution_format_is_rejected_before_launch _____________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1687/test_wrong_execution_format_is0')
+
+    def test_wrong_execution_format_is_rejected_before_launch(tmp_path):
+>       config_path, authorization, output, _ = _valid_launch_inputs(tmp_path)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_spark_text_memory_protocol.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_spark_text_memory_protocol.py:28: in _valid_launch_inputs
+    implementation = validate_config(config)["implementation_sha256"]
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+scripts/preflight_spark_text_memory_v1.py:204: in validate_config
+    "source": _source_validation(config, root, full_weight_hash=False),
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/preflight_spark_text_memory_v1.py:69: in _source_validation
+    _require(source_root.is_dir(), "source", f"missing sealed FP8 source {source_root}")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, check = 'source'
+detail = 'missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source'
+
+    def _require(condition: bool, check: str, detail: str) -> None:
+        if not condition:
+>           raise ProtocolError(check, detail)
+E           preflight_spark_text_memory_v1.ProtocolError: missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source
+
+scripts/preflight_spark_text_memory_v1.py:51: ProtocolError
+________________ test_stale_implementation_binding_is_rejected _________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1687/test_stale_implementation_bind0')
+
+    def test_stale_implementation_binding_is_rejected(tmp_path):
+>       config_path, authorization, output, _ = _valid_launch_inputs(tmp_path)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_spark_text_memory_protocol.py:123: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_spark_text_memory_protocol.py:28: in _valid_launch_inputs
+    implementation = validate_config(config)["implementation_sha256"]
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+scripts/preflight_spark_text_memory_v1.py:204: in validate_config
+    "source": _source_validation(config, root, full_weight_hash=False),
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/preflight_spark_text_memory_v1.py:69: in _source_validation
+    _require(source_root.is_dir(), "source", f"missing sealed FP8 source {source_root}")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, check = 'source'
+detail = 'missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source'
+
+    def _require(condition: bool, check: str, detail: str) -> None:
+        if not condition:
+>           raise ProtocolError(check, detail)
+E           preflight_spark_text_memory_v1.ProtocolError: missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source
+
+scripts/preflight_spark_text_memory_v1.py:51: ProtocolError
+__________________ test_missing_backend_evidence_is_rejected ___________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1687/test_missing_backend_evidence_0')
+
+    def test_missing_backend_evidence_is_rejected(tmp_path):
+>       config_path, authorization, output, backend_path = _valid_launch_inputs(tmp_path)
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_spark_text_memory_protocol.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_spark_text_memory_protocol.py:28: in _valid_launch_inputs
+    implementation = validate_config(config)["implementation_sha256"]
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+scripts/preflight_spark_text_memory_v1.py:204: in validate_config
+    "source": _source_validation(config, root, full_weight_hash=False),
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/preflight_spark_text_memory_v1.py:69: in _source_validation
+    _require(source_root.is_dir(), "source", f"missing sealed FP8 source {source_root}")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, check = 'source'
+detail = 'missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source'
+
+    def _require(condition: bool, check: str, detail: str) -> None:
+        if not condition:
+>           raise ProtocolError(check, detail)
+E           preflight_spark_text_memory_v1.ProtocolError: missing sealed FP8 source /private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/replica-r20-tier-review-nj5xlhsl/checkout/checkpoints/sparkx2_5_fp8_source
+
+scripts/preflight_spark_text_memory_v1.py:51: ProtocolError
+=========================== short test summary info ============================
+FAILED tests/test_spark_text_memory_protocol.py::test_review_and_derived_work_are_explicit_and_non_native
+FAILED tests/test_spark_text_memory_protocol.py::test_launch_requires_external_authorization
+FAILED tests/test_spark_text_memory_protocol.py::test_valid_authorization_constructs_guarded_command_without_native_work
+FAILED tests/test_spark_text_memory_protocol.py::test_wrong_execution_format_is_rejected_before_launch
+FAILED tests/test_spark_text_memory_protocol.py::test_stale_implementation_binding_is_rejected
+FAILED tests/test_spark_text_memory_protocol.py::test_missing_backend_evidence_is_rejected
+6 failed, 138 passed, 1 skipped in 93.67s (0:01:33)

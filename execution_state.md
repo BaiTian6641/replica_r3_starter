@@ -1,39 +1,41 @@
 # Execution state — integrated memory, cognition and learning
 
-## Active order — Spark text memory with the internal spine
+## Active order — Spark persistent learner, tiered memory and Replica
 
-**Status — implementation, CPU verification and protocol binding are complete;
-native execution is unrun and useful learning is rejected.** Implementation
-commit: `9b1a02d` on `codex/d2-capacity-runtime-pilot`. Read the
-[milestone handoff](docs/experiments/20261028_Spark_Text_Memory_Milestone.md),
-[active architecture](docs/architecture/26_Spark_Text_Memory_Milestone.md) and
-[versioned protocol](configs/spark_text_memory_protocol_v1.json).
+**29 October 2026 — v2 engineering implementation and CPU evidence are complete;
+native execution and useful learning remain open.** Read the
+[v2 implementation and evidence runbook](reports/spark_persistent_learner_v2/README.md),
+[design 28](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md),
+[v2 protocol](configs/spark_persistent_learner_protocol_v2.json) and
+[worker prompt](docs/architecture/16_Loop_Agent_Instructions.md).
 
-- Completed readout/identity/publication/retirement repairs and spine contracts:
-  query-driven P after E removal, bounded query-dependent reads, ownership,
-  invalidation, durable rebuild and actual-update evidence. Combined E+P is a
-  real summed read with separate availability and charges.
-- Connected versioned text observations, procedures/task state, native E/P reads
-  and frozen-decoder response supervision. Each fit event performs one response
-  and one P update with NativeFusedAdamW; changed tensors and P clock/revision
-  are observed, not inferred.
-- Affected tests pass **177**; additive final-product verification passes **16**
-  with 101 inputs. The preserved CPU fixture completes fit/development/restart
-  and exact-token parity, with **0/12 new-instance accuracy in every arm** and
-  useful learning rejected. Full context also fails, so P is not the sole cause.
-- Raw evidence is under `reports/spark_text_memory_v1/cpu_fixture_attempt01/`.
-  Actual work: 4 response + 4 P updates, 108 development cases, 111 generation
-  requests, 115 retrieval/112 verification calls, 5 checkpoint writes/4 retained,
-  2 model/tokenizer loads, 1 reload, exact restart parity and zero cap violations.
-- Next experiment: frozen-backbone response/readout diagnosis on full eligible
-  context before co-adaptation or capacity expansion. Native FP8 remains blocked
-  by absent backend evidence and external authorization; no native result or
-  speedup/retention/reasoning claim is made.
+- Package 1 is complete: portable protocol tests use tracked metadata mocks and
+  production source authentication is unchanged. The contextual fixture has
+  real causal attention; the old attention-free result is not a Spark diagnosis.
+- Package 2 is complete: the runner now uses the separately versioned tiered
+  store for scoped records, correction quarantine/authenticated reset,
+  procedures, resumable task journals and raw FP32 P weights/moments/clocks.
+  P4+ profiles remain lazy; no expanded bank is allocated.
+- Package 3 has a real direct-response-CE P1 reference with selected-P and
+  port-output owners, null/influence checks, ten controls and fresh-process
+  restart. Native full-context competence and late-site behavior are unmeasured.
+- Package 4 has an offline D-only writer with exact derivative checks. It is not
+  a native training result or a useful-learning claim; the useful-readout gate
+  remains closed to promotion, expansion, calibration and RSI.
+- Focused regression is **138/138**. The final CPU run preserves raw failures,
+  ten-arm trajectories and independently checked outcomes. All ten arms remain
+  0/12, so learned capability is inconclusive rather than rejected for Spark.
+- Implementation and protocol are committed at `1d8626957c84aa37cf4858ea4a74cd3797a0bff5`.
+  `reports/spark_persistent_learner_v2/review03.json` leaves exact official-FP8
+  backend evidence and external authorization as the only launch blockers;
+  official BF16 and FP8-derived BF16 are not substitutes. No native model job,
+  download or promotion occurred.
 
-Native vision/audio, physical actor/sensor work, nested outer learning,
-self-distillation, RSI, personality adaptation and capacity expansion are
-deferred. MiniCPM is a historical/mechanism control, not a prerequisite. The
-50 GiB / 512 MiB / 15% host-free guards and protected runtime pilot remain fixed.
+The next discriminating experiment is one bounded native P1 full-context/direct-CE
+readout at 3/7 and 23/31 after exact backend qualification. Preserve NativeFusedAdamW,
+the 50 GiB / 512 MiB / 15% guards and the protected runtime pilot restriction.
+Native multimodal training remains deferred.
+
 ## Previous increment — Spark spine and E/P memory interfaces
 
 **Current status — scoped CPU implementation and regression verification are complete;
