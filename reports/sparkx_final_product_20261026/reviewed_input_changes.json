@@ -60,9 +60,16 @@
       "path": "src/replica_lab/architecture/spark_adapter.py",
       "kind": "reviewed_spine_and_derivative_integration",
       "prior_sha256": "919b58b75e58d5c01ff933eb44a6f75e977b139885280ed2597f9023ebb77430",
-      "current_sha256": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
-      "reason": "Adds independently gated Spark spine readers, shared native memory ownership and explicit derivative precision binding; the sealed backbone and historical adapter evidence remain separate.",
-      "reviewed_in": "reports/spark_persistent_learner_v2/derivative_bf16_packet.json"
+      "current_sha256": "d40375a968413adf4dbab536975ea27384bee25b1b2bfa9a931a81c9edf0c4ed",
+      "reason": "Independent intrinsic-memory decoder argument with external spine optional; parity, migration and gradient tests preserve prior behavior.",
+      "reviewed_in": "reports/intrinsic_memory_v3/README.md",
+      "review_chain": [
+        {
+          "prior_current_sha256": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
+          "reviewed_in": "reports/intrinsic_memory_v3/README.md",
+          "reason": "User-directed separation of intrinsic memory decoder hooks from external spine endpoints; original computation and legacy loading retained."
+        }
+      ]
     },
     {
       "path": "tests/test_spark2_5_adapter.py",
@@ -182,9 +189,16 @@
     {
       "path": "src/replica_lab/architecture/spark_adapter.py",
       "prior_sha256": "919b58b75e58d5c01ff933eb44a6f75e977b139885280ed2597f9023ebb77430",
-      "current_sha256": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
-      "reason": "Reviewed additive spine and derivative precision integration; the historical 117-input manifest itself is unchanged.",
-      "reviewed_in": "reports/spark_persistent_learner_v2/derivative_bf16_packet.json"
+      "current_sha256": "d40375a968413adf4dbab536975ea27384bee25b1b2bfa9a931a81c9edf0c4ed",
+      "reason": "Independent intrinsic-memory decoder argument with external spine optional; parity, migration and gradient tests preserve prior behavior.",
+      "reviewed_in": "reports/intrinsic_memory_v3/README.md",
+      "review_chain": [
+        {
+          "prior_current_sha256": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
+          "reviewed_in": "reports/intrinsic_memory_v3/README.md",
+          "reason": "User-directed separation of intrinsic memory decoder hooks from external spine endpoints; original computation and legacy loading retained."
+        }
+      ]
     },
     {
       "path": "tests/test_spark2_5_adapter.py",
