@@ -940,6 +940,10 @@ FINAL_PRODUCT_INPUT_ROLES.extend([
 ])
 
 FINAL_PRODUCT_INPUT_ROLES.extend([
+    ('docs/experiments/20261029_Spark_Memory_Layer_Access.md', 'all-layer intrinsic memory target and separately versioned CPU candidate'),
+    ('configs/intrinsic_memory_layer_access_protocol_v4.json', 'CPU 2/9/36 layer-access candidate bindings; native density unqualified'),
+    ('reports/intrinsic_memory_layout_v4/analytical_costs.json', 'actual reader formula and meta tensor parameter inventory; not native fit'),
+    ('reports/intrinsic_memory_layout_v4/README.md', 'configurable intrinsic reader CPU evidence and native boundaries'),
     ('docs/experiments/20261029_Spark_Memory_S0_S1.md', 'current Spark-only foundation and intrinsic recall experiment with separate successor gates'),
     ('docs/research/spark_memory_20261029/Research_Crosscheck.md', 'dated primary-source mechanism and schedule distinctions'),
     ('reports/intrinsic_memory_v3/evidence_ledger_20261029.json', 'dated intrinsic-memory implementation and measured evidence status'),

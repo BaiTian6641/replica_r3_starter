@@ -9,6 +9,11 @@ The implementation is `f471f54a34e99f8143164e00b3247827c6ba1f1c`, following prov
 recovery and calibration implementation `b2489ba` and documentation `6900469`.
 Memory-layer work is the active focus; external spine features remain preserved.
 
+The [v4 configurable-reader candidate](../intrinsic_memory_layout_v4/README.md)
+now makes all-layer access an explicit target and supports direct 2/9/36 CPU
+layouts. It preserves this sealed two-site protocol and packet; native density
+comparison needs separate bindings, budgets and qualification.
+
 ## Implemented separation
 
 `extension.intrinsic_memory` now owns the decoder memory readers. Its independent
@@ -58,6 +63,10 @@ The earlier packet is retained under its original filename. No historical
 qualification or conversion receipt was changed.
 
 
+- **Clean f2c772a3: 3,371 passed, 104 skipped, 21 subtests, one warning in
+  866.01 s.** No ignored checkpoints were present. v5.1 checks pass 1,165/1,165,
+  final-product checks 516/516, the 135-input bundle and tracked-artifact guard
+  pass. See [`verification_summary.json`](verification_summary.json).
 - **59 focused tests passed in 13.27 s**, including the separation, independent site
   settings, disabled parity, gradients, invalidation, migration, readout workflow,
   provenance and baseline gates. [`focused02.log`](focused02.log). The earlier test
@@ -78,8 +87,8 @@ qualification or conversion receipt was changed.
   established checks. Historical tests/packets remain under contextual_memory_v2;
   they are not relabelled as v3 evidence.
 
-The empty-spine CPU diagnostic took **3.441699 s**. Parent peak RSS was
-**402,653,184 bytes**, child peak RSS **407,339,008 bytes**, and artifacts measured
+The final clean empty-spine CPU diagnostic took **3.627924 s**. Parent peak RSS was
+**402,849,792 bytes**, child peak RSS **401,440,768 bytes**, and artifacts measured
 before the final report were **12,266,007 bytes**. Native driver allocation and
 swap growth were not measured in this CPU fixture. These costs describe engineering
 execution, not useful native learning or guaranteed physical residency.

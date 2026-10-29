@@ -1,0 +1,216 @@
+{
+  "format": "replica.intrinsic_memory.final_verification.v3",
+  "date": "2026-10-29",
+  "code_snapshot": "f2c772a36f8e36d731e255ff2514520b1402d863",
+  "clean_checkout": "/private/tmp/replica-intrinsic-clean-final",
+  "native_checkpoints_present": false,
+  "full_regression": {
+    "status": "passed",
+    "passed": 3371,
+    "skipped": 104,
+    "warnings": 1,
+    "subtests_passed": 21,
+    "seconds": 866.01,
+    "exit_code": 0,
+    "log": {
+      "path": "reports/intrinsic_memory_v3/clean_full_suite.log",
+      "sha256": "32cda5b944dc53025d574f12740f3b17c44fb047f32410dd6ce483c0d956390c"
+    },
+    "junit": {
+      "path": "reports/intrinsic_memory_v3/clean_full_tests.xml",
+      "sha256": "912d1867dcb525ab396c73be59a0bfcd1163b6cd9d1b29bb85359e3ff2f2b023"
+    },
+    "skip_reasons": {
+      "missing local artifact(s) \u2014 provision first: runs/minicpm5_vision_v0_20261025/score_restart_replay01/score_report.json: copy the immutable V0 score replay from the provisioned native-evidence workspace; historical integration only": 1,
+      "missing local artifact(s) \u2014 provision first: checkpoints/minicpm5_source: scripts/provision_minicpm_metadata.py --source <verified sealed source or metadata directory> --output checkpoints/minicpm5_source (tokenizer/config only; native weights use scripts/pin_model.py separately)": 24,
+      "missing local artifact(s) \u2014 provision first: data/external_caption_tranche_20261025_v2/raw/images: .venv/bin/python scripts/prepare_external_tranche.py --config configs/external_caption_tranche_v1.json (pinned acquisition; or copy the verified ignored raw/images directory from the provisioned workspace)": 40,
+      "missing local artifact(s) \u2014 provision first: data/external_caption_tranche_20261025_v2/raw/images: .venv/bin/python scripts/prepare_external_tranche.py --config configs/external_caption_tranche_v1.json (pinned acquisition; or copy the verified ignored raw/images directory from the provisioned workspace); PIL: python -m venv .venv-vision && .venv-vision/bin/pip install -r requirements-vision-overlay.txt": 1,
+      "missing local artifact(s) \u2014 provision the immutable restart02 rankings and prepared03 inventory; optional CPU replay only": 1,
+      "native raw artifact is absent": 1,
+      "native restart02 raw ranking artifact is absent": 1,
+      "native native02 raw ranking artifact is absent": 1,
+      "missing local H1 evidence \u2014 copy the immutable first02/restart02 reports, summary.json, prepared04 and prepared04_roles from the provisioned native-evidence workspace": 5,
+      "missing local artifact(s) \u2014 provision first: runs/memory_causal_fresh_20261026/native02: copy the immutable native02 baseline from the provisioned native-evidence workspace; optional CPU baseline replay only; runs/memory_causal_fresh_20261026/restart02: copy the immutable restart02 baseline from the provisioned native-evidence workspace; optional CPU baseline replay only": 1,
+      "optional ignored native02/prepared04 artifacts; provision runs/memory_causal_fresh_20261026/native02 and data/memory_causal_fresh_20261026/prepared04 first": 1,
+      "missing local artifact(s) \u2014 provision first: checkpoints/minicpm5_source: scripts/provision_minicpm_metadata.py --source <verified sealed source or metadata directory> --output checkpoints/minicpm5_source (tokenizer/config only; native weights use scripts/pin_model.py separately); runs/memory_reliability_v5_attempt01/candidate_extension: not documented \u2014 add it to tests/conftest.py": 3,
+      "the pinned MiniCPM5 tokenizer artifact is unavailable": 1,
+      "missing local artifact(s) \u2014 provision first: runs/nested_text_continuation_comparison_20261026/continuous_a: not documented \u2014 add it to tests/conftest.py; runs/nested_text_continuation_comparison_20261026/continuous_b: not documented \u2014 add it to tests/conftest.py; runs/nested_text_continuation_comparison_20261026/resume: not documented \u2014 add it to tests/conftest.py; runs/nested_text_nl1_20261026/teach02/full_checkpoint.pt: not documented \u2014 add it to tests/conftest.py": 1,
+      "Pillow is required to generate/verify JPEG fixtures: install Pillow": 7,
+      "missing local artifact(s) \u2014 provision first: runs/vision_balanced_alignment_20261026/train01/run_report.json: copy the immutable v1 train01 run report from the provisioned native-evidence workspace; optional integration only; runs/vision_balanced_alignment_20261026/reload01/reload_report.json: copy the immutable v1 reload01 report from the provisioned native-evidence workspace; optional integration only": 1,
+      "missing local artifact(s) \u2014 provision first: checkpoints/minicpm5_source: scripts/provision_minicpm_metadata.py --source <verified sealed source or metadata directory> --output checkpoints/minicpm5_source (tokenizer/config only; native weights use scripts/pin_model.py separately); checkpoints/siglip2_base_patch16_224_source: scripts/prepare_vision_encoder.py --offline; runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension: copy the immutable train04 extension from the provisioned native-evidence workspace; diagnostic integration only": 5,
+      "missing local artifact(s) \u2014 provision first: PIL: python -m venv .venv-vision && .venv-vision/bin/pip install -r requirements-vision-overlay.txt": 1,
+      "missing local artifact(s) \u2014 provision first: checkpoints/minicpm5_source: scripts/provision_minicpm_metadata.py --source <verified sealed source or metadata directory> --output checkpoints/minicpm5_source (tokenizer/config only; native weights use scripts/pin_model.py separately); checkpoints/siglip2_base_patch16_224_source: scripts/prepare_vision_encoder.py --offline; runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension: copy the immutable train04 extension from the provisioned native-evidence workspace; diagnostic integration only; runs/vision_collapse_diagnostic_v1_20261026_attempt02: not documented \u2014 add it to tests/conftest.py; runs/vision_mean_only_ablation_v1_20261026_attempt09: not documented \u2014 add it to tests/conftest.py": 2,
+      "missing local artifact(s) \u2014 provision first: runs/vision_mean_only_ablation_v1_20261026_attempt09: not documented \u2014 add it to tests/conftest.py": 1,
+      "missing local artifact(s) \u2014 provision first: runs/vision_learnability_curve_v1_20261026_attempt04: not documented \u2014 add it to tests/conftest.py": 1,
+      "missing local artifact(s) \u2014 provision first: runs/vision_learnability_step1_reproduction_v1_20261027_attempt03: not documented \u2014 add it to tests/conftest.py": 2,
+      "missing local artifact(s) \u2014 provision first: checkpoints/minicpm5_source: scripts/provision_minicpm_metadata.py --source <verified sealed source or metadata directory> --output checkpoints/minicpm5_source (tokenizer/config only; native weights use scripts/pin_model.py separately); checkpoints/siglip2_base_patch16_224_source: scripts/prepare_vision_encoder.py --offline; runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension: copy the immutable train04 extension from the provisioned native-evidence workspace; diagnostic integration only; runs/vision_collapse_diagnostic_v1_20261026_attempt02: not documented \u2014 add it to tests/conftest.py": 2
+    },
+    "environment": "read_only_host_sysctl_access_for_harmless_resource_guard_children"
+  },
+  "established_checks": {
+    "v51": {
+      "scope": "documentation, reference, arithmetic and migration checks only; no model, training, native execution or measured fit",
+      "checks": 1165,
+      "passed": 1165,
+      "failed": 0,
+      "migration_identity": "sparkx-2.6-v5.1-review-migration-20261027",
+      "native_gates_unresolved": 10
+    },
+    "final_product": {
+      "status": "passed",
+      "checks_count": 516,
+      "passed": 516,
+      "failed": [],
+      "unavailable_source_cache": 0,
+      "reviewed_input_changes_applied": 9,
+      "unexplained_input_drift": [],
+      "blueprint_words": 15765
+    },
+    "bundle": "Bundle verified: 135 inputs, 5987767 bytes, digest c88cae55fc8eefa2922ef5899daab22897e32f4887363e5ce82bcebcb00f9d22",
+    "artifact_guard": {
+      "status": "passed",
+      "scope": "tracked",
+      "max_blob_bytes": 52428800,
+      "checked_files": 11704,
+      "largest_checked_blob_bytes": 8860309,
+      "violations": [],
+      "working_files_changed": false
+    }
+  },
+  "focused_final_bindings": {
+    "passed": 41,
+    "seconds": 13.39,
+    "log": {
+      "path": "reports/intrinsic_memory_v3/final_binding_tests.log",
+      "sha256": "05f3eac8d73bd9331d540f9e2475fada71fc3b17aabf93cebe475b28880bae89"
+    }
+  },
+  "CPU_integrated": {
+    "exit_code": 2,
+    "expected_refusal": true,
+    "reason": "random_fixture_pre_fit_competence_failed",
+    "correct": 0,
+    "cases": 8,
+    "false_recall": 2,
+    "optimizer_steps": 0,
+    "fit_events": 0,
+    "development_cases": 0,
+    "development_labels_opened": false,
+    "sealed_final_opened": false,
+    "forward_calls": 16,
+    "generated_tokens": 16,
+    "processed_text_positions": 804,
+    "receipt": {
+      "path": "reports/intrinsic_memory_v3/final_clean_cpu_gate_failure.json",
+      "sha256": "352761731fadea403691daf7c45062d4cee3366eb949411c907f23f00e4f1dbc"
+    },
+    "calibration": {
+      "path": "reports/intrinsic_memory_v3/final_clean_cpu_competence.json",
+      "sha256": "8752366f26970c7382ef5863a45223edb987ea37eef948b7ec9dfc6fe27cd85c"
+    }
+  },
+  "independent_CPU_diagnostics": {
+    "exit_code": 0,
+    "external_spine_present": false,
+    "zero_init_parity": true,
+    "producer_reader_gradients_after_output_open": true,
+    "frozen_base_integrity": true,
+    "fresh_process_exact_logits": true,
+    "fresh_process_exact_continuation": true,
+    "receipt": {
+      "path": "reports/intrinsic_memory_v3/final_clean_cpu_diagnostics.json",
+      "sha256": "aafed4dc230b89a823b3e7890598f83bd57d9943a045f987c27637024bfab1e8"
+    },
+    "resources": {
+      "wall_seconds": 3.627923833206296,
+      "parent_peak_rss_bytes": 402849792,
+      "child_peak_rss_bytes": 401440768,
+      "artifact_bytes": 12266007,
+      "native_driver_bytes": null,
+      "host_swap_sampled": false
+    },
+    "cost": {
+      "producer_bytes": 180,
+      "producer_calls": 6,
+      "value_slots_read": 24,
+      "producer_wall_ns": 7621916,
+      "retrieval_wall_ns": 1856167,
+      "fallback_bytes": 0,
+      "fallback_tokens": 0,
+      "fallback_calls": 0,
+      "read_file_bytes": 4638,
+      "read_file_calls": 6,
+      "revalidations": 4
+    },
+    "scope": "tiny_engineering_fixture_not_pretrained_Spark_quality_or_native_capacity"
+  },
+  "provisioned_source_integration": {
+    "status": "passed",
+    "model_loaded": false,
+    "full_weight_hash": true,
+    "local_implementation_bindings": 53,
+    "missing_bindings": [
+      "external_derivative_authorization"
+    ],
+    "receipt": {
+      "path": "reports/intrinsic_memory_v3/native_readout_packet_s0_s1.json",
+      "sha256": "aa0bdc8f738b095ab83e115293c9afca525ebf9d4889e2bd4f2bbcbff02757f0"
+    }
+  },
+  "preserved_failed_attempts": [
+    {
+      "snapshot": "6900469",
+      "path": "reports/contextual_memory_v2/clean_full_suite.log",
+      "result": "3359 passed, 109 skipped, 3 failed, 21 subtests, 831.48 seconds",
+      "cause": "sandbox denied macOS sysctl in harmless guard-child tests"
+    },
+    {
+      "snapshot": "9645547a",
+      "path": "reports/intrinsic_memory_v3/clean_full_suite_sandbox_interrupted.log",
+      "result": "525 passed, 50 skipped, 3 failed; interrupted at 136.02 seconds",
+      "cause": "same sandbox sysctl restriction; later all three pass with host telemetry access"
+    },
+    {
+      "snapshot": "65cd4004",
+      "path": "reports/intrinsic_memory_v3/clean_full_suite_attempt01.log",
+      "result": "3369 passed, 104 skipped, 1 failed, 21 subtests, 836.17 seconds",
+      "cause": "9645547a removed site-range guard without refreshing pinned hash; restored f471f54 executable bytes and added before-transfer refusal test"
+    },
+    {
+      "path": "reports/intrinsic_memory_v3/s0_s1_final_product_precommit.log",
+      "cause": "current state-contract audit overlay needed the preserved 117-input manifest prior identity; added a separate reviewed record"
+    },
+    {
+      "path": "reports/intrinsic_memory_v3/s0_s1_final_product_precommit02.log",
+      "cause": "verification ran before bundle regeneration completed; sequential recheck passed 516/516"
+    }
+  ],
+  "next_experiment": {
+    "path": "reports/intrinsic_memory_v3/native_experiment_s0_s1.json",
+    "sha256": "4d95e78149326467d90664c43e5bd5d5c50ef460ec32f011644c739bc7b48f01"
+  },
+  "remaining_gaps": [
+    "current_native_S0_competence_and_numerical_readout",
+    "native_useful_S1_recall",
+    "S2_completed_interaction_and_within_reasoning_writers",
+    "S3_hidden_state_P_transfer_correction_retention",
+    "S4_adaptive_control_calibration",
+    "S5_connected_nested_objectives",
+    "S6_independent_learner_improvement"
+  ],
+  "claims": {
+    "native_run_performed": false,
+    "useful_native_recall": false,
+    "persistent_learning": false,
+    "promotion": false,
+    "larger_P_bank_allocated": false
+  },
+  "preserved": [
+    "historical_conversion_manifests",
+    "historical_qualification_receipts",
+    "raw_failures_and_logs",
+    "unrelated_work",
+    "external_specialist_sensor_actor_interfaces"
+  ],
+  "protected_runtime_pilot_read_import_edit_stage": false
+}

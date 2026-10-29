@@ -1,0 +1,65 @@
+W1029 13:30:31.231000 89178 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+{
+  "format": "replica.intrinsic_memory.cpu_diagnostics.v3",
+  "native_execution": false,
+  "external_spine_present": false,
+  "implementation_sha256": {
+    "scripts/verify_contextual_memory_cpu.py": "4cea028f7d251f68446ed050cc84d89baa3a81f23a07bf71290257601e5fc43b",
+    "src/replica_lab/contextual_memory.py": "1a4d301b7d9f986c0538b391cd1daf5e5532294b1e966b4f5274a65c8ef017e2",
+    "src/replica_lab/architecture/intrinsic_memory.py": "1e62c3722de7a06e756e66a503d91c7281c4074fa8f0e53443ee14c3420223ae",
+    "src/replica_lab/architecture/spark_adapter.py": "d40375a968413adf4dbab536975ea27384bee25b1b2bfa9a931a81c9edf0c4ed",
+    "src/replica_lab/contextual_readout_training.py": "3a58d43ccaa3b39a02572c139d229b72c8cb3242fe21a755916b3895c5d55066",
+    "src/replica_lab/tiered_memory.py": "5121ec79a6faba3e7cdcf62bc56977b9176b2f05c373d75faa6ff0fd532bdf7e"
+  },
+  "evidence_class": "independent_engineering_diagnostics_not_competence_or_learning_utility",
+  "zero_init_parity": true,
+  "fit_updates": 3,
+  "fit": [
+    {
+      "loss": 0.5559159517288208,
+      "gradients": {
+        "producer": 0.0,
+        "reader": 80.52621841430664
+      }
+    },
+    {
+      "loss": 1.9382963180541992,
+      "gradients": {
+        "producer": 1872.1949751973152,
+        "reader": 2093.2128570452332
+      }
+    },
+    {
+      "loss": 1.2411768436431885,
+      "gradients": {
+        "producer": 907.1429006010294,
+        "reader": 1545.2767715752125
+      }
+    }
+  ],
+  "producer_gradient_after_output_opens": true,
+  "fresh_process_exact_logits": true,
+  "fresh_process_exact_continuation": true,
+  "frozen_base_integrity": true,
+  "cost": {
+    "producer_bytes": 180,
+    "producer_calls": 6,
+    "value_slots_read": 24,
+    "producer_wall_ns": 7621916,
+    "retrieval_wall_ns": 1856167,
+    "fallback_bytes": 0,
+    "fallback_tokens": 0,
+    "fallback_calls": 0,
+    "read_file_bytes": 4638,
+    "read_file_calls": 6,
+    "revalidations": 4
+  },
+  "wall_seconds": 3.627923833206296,
+  "parent_peak_rss_bytes": 402849792,
+  "child_peak_rss_bytes": 401440768,
+  "artifact_bytes": 12266007,
+  "native_driver_bytes": null,
+  "host_swap_sampled": false,
+  "promotion": false,
+  "learned_capability": false
+}

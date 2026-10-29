@@ -70,6 +70,12 @@ intrinsic readers at decoder sites 3/7. The external spine is unnecessary.
 Sites 23/31, other widths, extra ports and larger banks are separate experiments.
 These dimensions and placements are **project hypotheses**, not measured optima.
 
+The [all-layer access successor](20261029_Spark_Memory_Layer_Access.md) now implements
+a separate v4 CPU reader/configuration/checkpoint candidate for 2, 9 and 36 sites.
+All-layer access is the architecture target; this two-site protocol is a fixed
+control, not a ceiling. A direct density comparison need not pass through every
+intermediate count. Its native qualification, budgets and authorization are separate.
+
 Pass S0 before 32 fixed training updates on the eight fitting worlds. One
 NativeFusedAdamW owns producer and reader parameters; all originals and other
 extensions remain frozen. Response CE reaches the producer through tensors in

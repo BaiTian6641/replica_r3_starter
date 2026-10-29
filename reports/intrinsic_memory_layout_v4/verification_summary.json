@@ -1,0 +1,153 @@
+{
+  "format": "replica.intrinsic_memory.layer_access_verification.v4",
+  "date": "2026-10-29",
+  "CPU_candidate_commit": "8e8221f8743706fffe99bcedfd50484489ce5b4f",
+  "native_execution": false,
+  "native_density_qualification": false,
+  "standalone_local_tests": {
+    "passed": 26,
+    "seconds": 21.01,
+    "log": {
+      "path": "reports/intrinsic_memory_layout_v4/tests.log",
+      "sha256": "d29730a2f7619eea99a61fff4f11703c1fe123efaeff77cf9f84cd429e8433cb"
+    },
+    "junit": {
+      "path": "reports/intrinsic_memory_layout_v4/tests.xml",
+      "sha256": "20c5c23ffe56400178e694c09c84399ae503487234e5d88b19f0b1d2dde1cdc7"
+    }
+  },
+  "clean_combined_regression": {
+    "code_snapshot": "8e8221f8743706fffe99bcedfd50484489ce5b4f",
+    "passed": 147,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 24.28,
+    "exit_code": 0,
+    "native_checkpoints_present": false,
+    "scope": "v4_reader_and_contextual_producer_readout_source_provenance_competence_tiered_recovery_controls",
+    "log": {
+      "path": "reports/intrinsic_memory_layout_v4/clean_combined_tests.log",
+      "sha256": "ad256dcb21c9a6ea54e146e6f0b24783d37fdcbd7efd1ea81e0e4d491cd9d173"
+    },
+    "junit": {
+      "path": "reports/intrinsic_memory_layout_v4/clean_combined_tests.xml",
+      "sha256": "2d232d80e6060c2d66f6f67791976438705a0a35a32c16a34d7ef5429148b327"
+    },
+    "resources": {
+      "format": "replica.cpu_test_process_resources.v1",
+      "exit_code": 0,
+      "wall_seconds": 24.91598470788449,
+      "pytest_process_reported_peak_rss_bytes": 674185216,
+      "user_seconds": 19.295325,
+      "system_seconds": 14.854753,
+      "scope": "Darwin_getrusage_children_peak_not_sum_of_concurrent_residency",
+      "native_driver_bytes": null,
+      "swap_growth_sampled": false,
+      "cpu_fixture_only": true
+    }
+  },
+  "full_predecessor_regression": {
+    "code_snapshot": "f2c772a36f8e36d731e255ff2514520b1402d863",
+    "passed": 3371,
+    "skipped": 104,
+    "subtests_passed": 21,
+    "warnings": 1,
+    "seconds": 866.01,
+    "scope": "before_additive_v4_module_not_claimed_as_full_suite_at_v4_HEAD",
+    "receipt": {
+      "path": "reports/intrinsic_memory_v3/verification_summary.json",
+      "sha256": "6d4318cb2143f7957291344393ec68853493fade5cc2207a069458ef9fc68a18"
+    }
+  },
+  "established_provisioned_precommit_checks": {
+    "v51": {
+      "scope": "documentation, reference, arithmetic and migration checks only; no model, training, native execution or measured fit",
+      "checks": 1179,
+      "passed": 1179,
+      "failed": 0,
+      "migration_identity": "sparkx-2.6-v5.1-review-migration-20261027",
+      "native_gates_unresolved": 10
+    },
+    "final_product": {
+      "status": "passed",
+      "checks_count": 516,
+      "passed": 516,
+      "failed": [],
+      "unavailable_source_cache": 0,
+      "reviewed_input_changes_applied": 9,
+      "unexplained_input_drift": [],
+      "blueprint_words": 15765
+    },
+    "staged_artifacts": {
+      "status": "passed",
+      "scope": "staged",
+      "max_blob_bytes": 52428800,
+      "checked_files": 41,
+      "largest_checked_blob_bytes": 557408,
+      "violations": [],
+      "working_files_changed": false
+    }
+  },
+  "bundle_precommit": "Bundle verified: 139 inputs, 6013345 bytes, digest 4ea760fd2eb76c510709710c05f0c20f5ea5bd7bf7224879e5084b4d628fda86",
+  "current_code_protocol_bindings": {
+    "path": "reports/intrinsic_memory_layout_v4/current_bindings.json",
+    "sha256": "8ea1ff132bb550ab2b1462453e2f77c3ab7ac4e21c7e764aff06b02af3ab13e4"
+  },
+  "reader_cost": {
+    "path": "reports/intrinsic_memory_layout_v4/analytical_costs.json",
+    "sha256": "8dd6b25eca9d77e0f551f9896b7a5d3bd520531967b84d87ecdc68c067071cde"
+  },
+  "CPU_evidence": [
+    "disabled_and_zero_effect_36_block_parity",
+    "all_36_query_and_output_gradients_after_zero_outputs_open",
+    "value_tensor_graph_preserved",
+    "one_shared_value_storage_across_active_sites",
+    "active_sites_actually_skipped",
+    "correction_revalidation",
+    "one_NativeFusedAdamW_owner",
+    "frozen_base_integrity",
+    "exact_fresh_process_logits",
+    "exact_actual_optimizer_continuation",
+    "bad_layout_source_producer_representation_payload_or_optimizer_refused_before_reader_mutation"
+  ],
+  "preserved_attempts": [
+    {
+      "log": "tests_attempt01.log",
+      "passed": 10,
+      "failed": 12,
+      "seconds": 17.0,
+      "cause": "initial_NativeFusedAdamW_call_used_generic_lr_keyword_fixed_named_groups"
+    },
+    {
+      "log": "tests_attempt02.log",
+      "passed": 25,
+      "failed": 0,
+      "seconds": 9.46,
+      "scope": "before_representation_identity_refusal_test"
+    },
+    {
+      "log": "clean_combined_tests_attempt01.log",
+      "passed": 147,
+      "failed": 0,
+      "seconds": 23.93,
+      "launcher_exit": 1,
+      "resource_log": "clean_combined_resources_attempt01.log",
+      "cause": "time_utility_sysctl_denied_after_tests_passed_rerun_uses_python_getrusage"
+    }
+  ],
+  "limitations": [
+    "random_CPU_fixture_not_native_Spark_capability",
+    "v4_reader_not_selected_by_sealed_native_runner",
+    "v3_production_producer_store_wrapper_unchanged",
+    "no_integrated_observation_or_reasoning_writer",
+    "all_layer_native_activation_latency_and_physical_memory_unmeasured",
+    "persistent_P_retention_reasoning_cost_reduction_and_RSI_unqualified"
+  ],
+  "next_executable_experiment": "reports/intrinsic_memory_v3/native_experiment_s0_s1.json",
+  "native_authorization": "missing_external_derivative_receipt",
+  "v4_native_admission": "requires_separate_density_protocol_authorization_and_per_arm_budgets",
+  "sealed_v3_native_packet_changed": false,
+  "larger_P_capacity_allocated": false,
+  "promotion": false,
+  "protected_file_read_import_edit_stage": false
+}

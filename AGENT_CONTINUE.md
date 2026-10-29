@@ -13,6 +13,15 @@ S2 formation, S3 persistent learning, S4 functional control, S5 nested adaptatio
 and S6 learner improvement are separate evidence-gated successors. MiniCPM and
 V0–V4 remain historical/control and multimodal paths, not Spark text prerequisites.
 
+All-layer intrinsic access is now an explicit target. The separate [v4 CPU
+reader candidate](docs/experiments/20261029_Spark_Memory_Layer_Access.md) implements
+independent 2/9/36-site layouts, active-layer skipping, shared snapshot reads and
+a versioned reader-only checkpoint. Preserve the sealed two-site v3 control;
+compare 2, 9 and 36 directly after per-arm numerical/resource and competence checks.
+Keep state sharing and exactly-once write boundaries independent of access count.
+The current hook is block-input query plus post-block residual; pre-MLP fusion
+and shared/grouped fast banks are separate comparisons. Native v4 is unrun.
+
 Memory now has its own configuration, decoder context, parameter owner and v3
 serialization namespace. It runs with the external spine removed; no dummy packet
 or spine codec is used. Explicit migration preserves existing v2 logits and
@@ -20,7 +29,9 @@ optimizer continuation without editing historical artifacts. Focused checks pass
 59; the CPU diagnostic proves empty-spine parity, gradients and fresh continuation.
 The random CPU fixture remains 0/8, correctly stopping dependent learning with
 labels closed; this does not measure pretrained Spark competence.
-See the runbook for completed clean-checkout verification and resource measurements.
+Clean f2c772a3 passes 3,371 tests, 104 explicit skips and 21 subtests; the
+independent v4 suite passes 26. See the runbooks for exact clean scope, resource
+measurements and preserved failed attempts.
 
 Next qualify intrinsic recall at 3/7 using the existing derived-BF16 artifact's
 new exact packet, separate calibration, matched exact/wrong/shuffled/absent controls

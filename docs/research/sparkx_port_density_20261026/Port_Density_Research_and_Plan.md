@@ -1,5 +1,18 @@
 # SparkX 2.6: more backbone ports, including every layer
 
+**Current successor — 29 October 2026:** the
+[Spark intrinsic all-layer access plan](../../experiments/20261029_Spark_Memory_Layer_Access.md)
+implements a separately versioned CPU reader and checkpoint format. Compare sites
+3/7, all nine full-attention sites and all 36 directly. The two-site v3 experiment
+stays sealed; six sites and MiniCPM/vision are not prerequisites for Spark text
+memory. State sharing, access and exactly-once writes are independent choices.
+The current single-reader formula is `2Dm + 2m² + 2D + 4m + 1`, including three
+norms: 1,447,937 parameters per site, 52,125,732 for all 36. The older pair formula
+below omits one norm pair; the proposed fused-reader formula describes a different
+mechanism. Use the [v4 cost ledger](../../../reports/intrinsic_memory_layout_v4/analytical_costs.json)
+for current arithmetic. The original proposal, configuration, analytical report
+and research receipts below remain historical evidence, not active run instructions.
+
 **26 October 2026 · Research proposal; no model code changed or training launched.**
 
 **Yes: Spark can have native memory readers at every one of its 36 layers. Two ports were a conservative experimental baseline, not an architectural limit.** The most promising next comparison is two versus six versus nine readers, followed by an all-layer arm. Nine readers have a particularly natural placement: Spark's nine full-attention blocks. Keep a single experience bank and sparse, explicit write boundaries while testing read density.

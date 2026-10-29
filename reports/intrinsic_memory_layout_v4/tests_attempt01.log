@@ -1,0 +1,443 @@
+...FFFFF.......FFFFFFF                                                   [100%]
+=================================== FAILURES ===================================
+_ test_cpu_36_block_zero_effect_and_disabled_parity_without_external_spine[two] _
+
+arm = 'two'
+
+    @pytest.mark.parametrize("arm", ["two", "full_attention_nine", "all"])
+    def test_cpu_36_block_zero_effect_and_disabled_parity_without_external_spine(arm):
+>       adapter, reader = make(arm)
+                          ^^^^^^^^^
+
+tests/test_intrinsic_memory_layout_v4.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_intrinsic_memory_layout_v4.py:27: in make
+    reader.make_optimizer(lr=1e-3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (3): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+lr = 0.001
+
+    def make_optimizer(self, *, lr=1e-3):
+        if self._optimizer_owner is not None:
+            raise ValueError("intrinsic reader already has an optimizer owner")
+        parameters = list(self.parameters())
+        if len({id(p) for p in parameters}) != len(parameters):
+            raise ValueError("aliased reader parameters")
+>       self._optimizer_owner = NativeFusedAdamW(parameters, lr=lr)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: NativeFusedAdamW.__init__() got an unexpected keyword argument 'lr'
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:108: TypeError
+_ test_cpu_36_block_zero_effect_and_disabled_parity_without_external_spine[full_attention_nine] _
+
+arm = 'full_attention_nine'
+
+    @pytest.mark.parametrize("arm", ["two", "full_attention_nine", "all"])
+    def test_cpu_36_block_zero_effect_and_disabled_parity_without_external_spine(arm):
+>       adapter, reader = make(arm)
+                          ^^^^^^^^^
+
+tests/test_intrinsic_memory_layout_v4.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_intrinsic_memory_layout_v4.py:27: in make
+    reader.make_optimizer(lr=1e-3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (3): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+lr = 0.001
+
+    def make_optimizer(self, *, lr=1e-3):
+        if self._optimizer_owner is not None:
+            raise ValueError("intrinsic reader already has an optimizer owner")
+        parameters = list(self.parameters())
+        if len({id(p) for p in parameters}) != len(parameters):
+            raise ValueError("aliased reader parameters")
+>       self._optimizer_owner = NativeFusedAdamW(parameters, lr=lr)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: NativeFusedAdamW.__init__() got an unexpected keyword argument 'lr'
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:108: TypeError
+_ test_cpu_36_block_zero_effect_and_disabled_parity_without_external_spine[all] _
+
+arm = 'all'
+
+    @pytest.mark.parametrize("arm", ["two", "full_attention_nine", "all"])
+    def test_cpu_36_block_zero_effect_and_disabled_parity_without_external_spine(arm):
+>       adapter, reader = make(arm)
+                          ^^^^^^^^^
+
+tests/test_intrinsic_memory_layout_v4.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_intrinsic_memory_layout_v4.py:27: in make
+    reader.make_optimizer(lr=1e-3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (0): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+lr = 0.001
+
+    def make_optimizer(self, *, lr=1e-3):
+        if self._optimizer_owner is not None:
+            raise ValueError("intrinsic reader already has an optimizer owner")
+        parameters = list(self.parameters())
+        if len({id(p) for p in parameters}) != len(parameters):
+            raise ValueError("aliased reader parameters")
+>       self._optimizer_owner = NativeFusedAdamW(parameters, lr=lr)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: NativeFusedAdamW.__init__() got an unexpected keyword argument 'lr'
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:108: TypeError
+______ test_all_layers_receive_gradients_and_values_remain_differentiable ______
+
+    def test_all_layers_receive_gradients_and_values_remain_differentiable():
+>       adapter, reader = make()
+                          ^^^^^^
+
+tests/test_intrinsic_memory_layout_v4.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_intrinsic_memory_layout_v4.py:27: in make
+    reader.make_optimizer(lr=1e-3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (0): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+lr = 0.001
+
+    def make_optimizer(self, *, lr=1e-3):
+        if self._optimizer_owner is not None:
+            raise ValueError("intrinsic reader already has an optimizer owner")
+        parameters = list(self.parameters())
+        if len({id(p) for p in parameters}) != len(parameters):
+            raise ValueError("aliased reader parameters")
+>       self._optimizer_owner = NativeFusedAdamW(parameters, lr=lr)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: NativeFusedAdamW.__init__() got an unexpected keyword argument 'lr'
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:108: TypeError
+_ test_active_layer_mask_skips_readers_and_does_not_multiply_state_or_updates __
+
+    def test_active_layer_mask_skips_readers_and_does_not_multiply_state_or_updates():
+>       adapter, reader = make()
+                          ^^^^^^
+
+tests/test_intrinsic_memory_layout_v4.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_intrinsic_memory_layout_v4.py:27: in make
+    reader.make_optimizer(lr=1e-3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (0): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+lr = 0.001
+
+    def make_optimizer(self, *, lr=1e-3):
+        if self._optimizer_owner is not None:
+            raise ValueError("intrinsic reader already has an optimizer owner")
+        parameters = list(self.parameters())
+        if len({id(p) for p in parameters}) != len(parameters):
+            raise ValueError("aliased reader parameters")
+>       self._optimizer_owner = NativeFusedAdamW(parameters, lr=lr)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: NativeFusedAdamW.__init__() got an unexpected keyword argument 'lr'
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:108: TypeError
+___ test_shared_snapshot_revalidates_correction_and_rejects_undeclared_site ____
+
+    def test_shared_snapshot_revalidates_correction_and_rejects_undeclared_site():
+>       _, reader = make()
+                    ^^^^^^
+
+tests/test_intrinsic_memory_layout_v4.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_intrinsic_memory_layout_v4.py:27: in make
+    reader.make_optimizer(lr=1e-3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (0): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+lr = 0.001
+
+    def make_optimizer(self, *, lr=1e-3):
+        if self._optimizer_owner is not None:
+            raise ValueError("intrinsic reader already has an optimizer owner")
+        parameters = list(self.parameters())
+        if len({id(p) for p in parameters}) != len(parameters):
+            raise ValueError("aliased reader parameters")
+>       self._optimizer_owner = NativeFusedAdamW(parameters, lr=lr)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: NativeFusedAdamW.__init__() got an unexpected keyword argument 'lr'
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:108: TypeError
+_ test_extension_only_checkpoint_and_actual_fresh_process_optimizer_continuation _
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1823/test_extension_only_checkpoint0')
+
+    def test_extension_only_checkpoint_and_actual_fresh_process_optimizer_continuation(tmp_path):
+>       adapter, reader = make()
+                          ^^^^^^
+
+tests/test_intrinsic_memory_layout_v4.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_intrinsic_memory_layout_v4.py:27: in make
+    reader.make_optimizer(lr=1e-3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (0): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+lr = 0.001
+
+    def make_optimizer(self, *, lr=1e-3):
+        if self._optimizer_owner is not None:
+            raise ValueError("intrinsic reader already has an optimizer owner")
+        parameters = list(self.parameters())
+        if len({id(p) for p in parameters}) != len(parameters):
+            raise ValueError("aliased reader parameters")
+>       self._optimizer_owner = NativeFusedAdamW(parameters, lr=lr)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: NativeFusedAdamW.__init__() got an unexpected keyword argument 'lr'
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:108: TypeError
+_ test_checkpoint_identity_and_payload_refusal_before_reader_mutation[layout] __
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1823/test_checkpoint_identity_and_p0')
+damage = 'layout'
+
+    @pytest.mark.parametrize("damage", ["layout", "producer", "legacy_format", "missing_payload", "corrupt_optimizer"])
+    def test_checkpoint_identity_and_payload_refusal_before_reader_mutation(tmp_path, damage):
+>       _, reader = make("two")
+                    ^^^^^^^^^^^
+
+tests/test_intrinsic_memory_layout_v4.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_intrinsic_memory_layout_v4.py:27: in make
+    reader.make_optimizer(lr=1e-3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (3): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+lr = 0.001
+
+    def make_optimizer(self, *, lr=1e-3):
+        if self._optimizer_owner is not None:
+            raise ValueError("intrinsic reader already has an optimizer owner")
+        parameters = list(self.parameters())
+        if len({id(p) for p in parameters}) != len(parameters):
+            raise ValueError("aliased reader parameters")
+>       self._optimizer_owner = NativeFusedAdamW(parameters, lr=lr)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: NativeFusedAdamW.__init__() got an unexpected keyword argument 'lr'
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:108: TypeError
+_ test_checkpoint_identity_and_payload_refusal_before_reader_mutation[producer] _
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1823/test_checkpoint_identity_and_p1')
+damage = 'producer'
+
+    @pytest.mark.parametrize("damage", ["layout", "producer", "legacy_format", "missing_payload", "corrupt_optimizer"])
+    def test_checkpoint_identity_and_payload_refusal_before_reader_mutation(tmp_path, damage):
+>       _, reader = make("two")
+                    ^^^^^^^^^^^
+
+tests/test_intrinsic_memory_layout_v4.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_intrinsic_memory_layout_v4.py:27: in make
+    reader.make_optimizer(lr=1e-3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (3): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+lr = 0.001
+
+    def make_optimizer(self, *, lr=1e-3):
+        if self._optimizer_owner is not None:
+            raise ValueError("intrinsic reader already has an optimizer owner")
+        parameters = list(self.parameters())
+        if len({id(p) for p in parameters}) != len(parameters):
+            raise ValueError("aliased reader parameters")
+>       self._optimizer_owner = NativeFusedAdamW(parameters, lr=lr)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: NativeFusedAdamW.__init__() got an unexpected keyword argument 'lr'
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:108: TypeError
+_ test_checkpoint_identity_and_payload_refusal_before_reader_mutation[legacy_format] _
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1823/test_checkpoint_identity_and_p2')
+damage = 'legacy_format'
+
+    @pytest.mark.parametrize("damage", ["layout", "producer", "legacy_format", "missing_payload", "corrupt_optimizer"])
+    def test_checkpoint_identity_and_payload_refusal_before_reader_mutation(tmp_path, damage):
+>       _, reader = make("two")
+                    ^^^^^^^^^^^
+
+tests/test_intrinsic_memory_layout_v4.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_intrinsic_memory_layout_v4.py:27: in make
+    reader.make_optimizer(lr=1e-3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (3): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+lr = 0.001
+
+    def make_optimizer(self, *, lr=1e-3):
+        if self._optimizer_owner is not None:
+            raise ValueError("intrinsic reader already has an optimizer owner")
+        parameters = list(self.parameters())
+        if len({id(p) for p in parameters}) != len(parameters):
+            raise ValueError("aliased reader parameters")
+>       self._optimizer_owner = NativeFusedAdamW(parameters, lr=lr)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: NativeFusedAdamW.__init__() got an unexpected keyword argument 'lr'
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:108: TypeError
+_ test_checkpoint_identity_and_payload_refusal_before_reader_mutation[missing_payload] _
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1823/test_checkpoint_identity_and_p3')
+damage = 'missing_payload'
+
+    @pytest.mark.parametrize("damage", ["layout", "producer", "legacy_format", "missing_payload", "corrupt_optimizer"])
+    def test_checkpoint_identity_and_payload_refusal_before_reader_mutation(tmp_path, damage):
+>       _, reader = make("two")
+                    ^^^^^^^^^^^
+
+tests/test_intrinsic_memory_layout_v4.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_intrinsic_memory_layout_v4.py:27: in make
+    reader.make_optimizer(lr=1e-3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (3): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+lr = 0.001
+
+    def make_optimizer(self, *, lr=1e-3):
+        if self._optimizer_owner is not None:
+            raise ValueError("intrinsic reader already has an optimizer owner")
+        parameters = list(self.parameters())
+        if len({id(p) for p in parameters}) != len(parameters):
+            raise ValueError("aliased reader parameters")
+>       self._optimizer_owner = NativeFusedAdamW(parameters, lr=lr)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: NativeFusedAdamW.__init__() got an unexpected keyword argument 'lr'
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:108: TypeError
+_ test_checkpoint_identity_and_payload_refusal_before_reader_mutation[corrupt_optimizer] _
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1823/test_checkpoint_identity_and_p4')
+damage = 'corrupt_optimizer'
+
+    @pytest.mark.parametrize("damage", ["layout", "producer", "legacy_format", "missing_payload", "corrupt_optimizer"])
+    def test_checkpoint_identity_and_payload_refusal_before_reader_mutation(tmp_path, damage):
+>       _, reader = make("two")
+                    ^^^^^^^^^^^
+
+tests/test_intrinsic_memory_layout_v4.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_intrinsic_memory_layout_v4.py:27: in make
+    reader.make_optimizer(lr=1e-3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (3): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+lr = 0.001
+
+    def make_optimizer(self, *, lr=1e-3):
+        if self._optimizer_owner is not None:
+            raise ValueError("intrinsic reader already has an optimizer owner")
+        parameters = list(self.parameters())
+        if len({id(p) for p in parameters}) != len(parameters):
+            raise ValueError("aliased reader parameters")
+>       self._optimizer_owner = NativeFusedAdamW(parameters, lr=lr)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: NativeFusedAdamW.__init__() got an unexpected keyword argument 'lr'
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:108: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_intrinsic_memory_layout_v4.py::test_cpu_36_block_zero_effect_and_disabled_parity_without_external_spine[two]
+FAILED tests/test_intrinsic_memory_layout_v4.py::test_cpu_36_block_zero_effect_and_disabled_parity_without_external_spine[full_attention_nine]
+FAILED tests/test_intrinsic_memory_layout_v4.py::test_cpu_36_block_zero_effect_and_disabled_parity_without_external_spine[all]
+FAILED tests/test_intrinsic_memory_layout_v4.py::test_all_layers_receive_gradients_and_values_remain_differentiable
+FAILED tests/test_intrinsic_memory_layout_v4.py::test_active_layer_mask_skips_readers_and_does_not_multiply_state_or_updates
+FAILED tests/test_intrinsic_memory_layout_v4.py::test_shared_snapshot_revalidates_correction_and_rejects_undeclared_site
+FAILED tests/test_intrinsic_memory_layout_v4.py::test_extension_only_checkpoint_and_actual_fresh_process_optimizer_continuation
+FAILED tests/test_intrinsic_memory_layout_v4.py::test_checkpoint_identity_and_payload_refusal_before_reader_mutation[layout]
+FAILED tests/test_intrinsic_memory_layout_v4.py::test_checkpoint_identity_and_payload_refusal_before_reader_mutation[producer]
+FAILED tests/test_intrinsic_memory_layout_v4.py::test_checkpoint_identity_and_payload_refusal_before_reader_mutation[legacy_format]
+FAILED tests/test_intrinsic_memory_layout_v4.py::test_checkpoint_identity_and_payload_refusal_before_reader_mutation[missing_payload]
+FAILED tests/test_intrinsic_memory_layout_v4.py::test_checkpoint_identity_and_payload_refusal_before_reader_mutation[corrupt_optimizer]
+12 failed, 10 passed in 17.00s

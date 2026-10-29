@@ -50,6 +50,15 @@ The prior provenance/recovery/calibration repairs remain active. The random CPU
 fixture calibration is 0/8, so dependent learning and labels stay closed. This
 is not a pretrained Spark competence result. No native run.
 
+All-layer intrinsic access is the explicit target. The separate
+[v4 CPU candidate](../experiments/20261029_Spark_Memory_Layer_Access.md) supports
+2/9/36 independently configurable sites and a new checkpoint format; it does
+not change the sealed v3 control or select itself in the native runner. Plan
+the direct comparison with shared values, fixed slots/writer/exposure and new
+per-arm budgets. Numerical/resource checks and competence precede native work.
+Do not multiply writes, searches or state copies with reader count. Shared/grouped
+fast banks, matched-parameter/cost readers and pre-MLP fusion are separate tests.
+
 1. Qualify intrinsic recall at 3/7: frozen-original calibration, fixed contextual
    readout updates, matched exact/wrong/shuffled/absent controls, fresh-process
    continuation. Use the new derivative packet and its still-missing external

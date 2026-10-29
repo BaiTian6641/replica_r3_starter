@@ -159,7 +159,18 @@
         "sha256": "73611ad00380dd0f1a943b9aaf233102a3e9f530516cb1b98c354f0db5957abb"
       }
     },
-    "clean_regression": "see_verification_summary.json_for_completed_run_and_preserved_failed_attempts",
+    "clean_regression": {
+      "snapshot": "f2c772a36f8e36d731e255ff2514520b1402d863",
+      "passed": 3371,
+      "skipped": 104,
+      "subtests_passed": 21,
+      "warnings": 1,
+      "seconds": 866.01,
+      "receipt": {
+        "path": "reports/intrinsic_memory_v3/verification_summary.json",
+        "sha256": "6d4318cb2143f7957291344393ec68853493fade5cc2207a069458ef9fc68a18"
+      }
+    },
     "clean_CPU_diagnostics": {
       "path": "reports/intrinsic_memory_v3/clean_cpu_diagnostics.json",
       "sha256": "e92e91bbdc9d1106d698ae52348219ed38f5cfa7b2af0d1bbf71420d1bfe9b81"
@@ -168,7 +179,7 @@
       "path": "reports/intrinsic_memory_v3/clean_cpu_gate_failure.json",
       "sha256": "f8b40695f8cdad4803dc6fd97e4fc5faeb80b4d065a693388b6be2c4931f5465"
     },
-    "clean_regression_snapshot": "recorded in verification_summary.json; failed attempts retained",
+    "clean_regression_snapshot": "f2c772a36f8e36d731e255ff2514520b1402d863",
     "final_binding_tests": {
       "passed": 41,
       "seconds": 13.39,
@@ -184,9 +195,9 @@
     }
   },
   "measured_resources": {
-    "wall_seconds": 3.4416990000754595,
-    "parent_peak_rss_bytes": 402653184,
-    "child_peak_rss_bytes": 407339008,
+    "wall_seconds": 3.627923833206296,
+    "parent_peak_rss_bytes": 402849792,
+    "child_peak_rss_bytes": 401440768,
     "artifact_bytes": 12266007,
     "native_driver_bytes": null,
     "host_swap_sampled": false
@@ -245,5 +256,19 @@
   ],
   "historical_results_rewritten": false,
   "larger_P_capacity_allocated": false,
-  "native_multimodal": "deferred"
+  "native_multimodal": "deferred",
+  "architecture_target": {
+    "description": "intrinsic_memory_access_at_all_36_layers",
+    "candidate": "configs/intrinsic_memory_layer_access_protocol_v4.json",
+    "scope": "separate_CPU_reader_candidate",
+    "control": "sealed_v3_two_site_protocol_unchanged",
+    "native_density_comparison": "unrun_requires_separate_bindings_budgets_qualification_authorization",
+    "planned_arms": [
+      2,
+      9,
+      36
+    ],
+    "mandatory_intermediate_counts": false,
+    "evidence": "reports/intrinsic_memory_layout_v4/verification_summary.json"
+  }
 }

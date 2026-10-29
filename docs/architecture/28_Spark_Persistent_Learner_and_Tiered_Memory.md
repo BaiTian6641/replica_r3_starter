@@ -2,6 +2,18 @@
 
 ## Current ownership and implementation — intrinsic memory v3
 
+**All-layer architecture target:** the separately versioned
+[v4 access candidate](../experiments/20261029_Spark_Memory_Layer_Access.md) implements
+independent 2/9/36-site readers over one shared snapshot, active-layer masks,
+unique NativeFusedAdamW ownership and a strict reader-only checkpoint format.
+CPU tests prove parity, all-site gradients and fresh continuation. The sealed
+v3 3/7 native experiment remains the control. Compare 2, 9 and 36 directly after
+numerical/resource and competence gates; 23/31 or six sites are optional diagnostics.
+Current hooks query block input and add after the block; attention-before-MLP
+fusion and shared/grouped fast banks are separate comparisons. There is no writer
+in the reader forward. All-layer parameter arithmetic is not a native memory-fit
+or learning result; use the successor's corrected cost ledger and evidence scope.
+
 The active experiment is [Spark memory S0–S1](../experiments/20261029_Spark_Memory_S0_S1.md):
 qualify the frozen foundation, then useful intrinsic recall and restart. The
 [29 October ledger](../../reports/intrinsic_memory_v3/evidence_ledger_20261029.json)
