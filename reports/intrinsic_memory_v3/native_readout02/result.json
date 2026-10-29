@@ -1,0 +1,93 @@
+{
+  "format": "replica.spark_intrinsic.native_attempt_result.v1",
+  "date": "2026-10-29",
+  "attempt_id": "intrinsic_memory_v3_native_readout02",
+  "authorized": true,
+  "authorization_id": "human-spark-corrected-s0-s1-20261029-1451ccaf-aeab-4fd5-a74c-85d56864a149",
+  "authorization_receipt": "reports/intrinsic_memory_v3/native_readout02_authorization.json",
+  "authorized_packet": {
+    "path": "reports/intrinsic_memory_v3/native_experiment_s0_s1_environment_v2.json",
+    "sha256": "0178c42a3a97e0550ac8922c4149895af3c77de4efd9fe3c6bd5381da4d21ea3"
+  },
+  "source_protocol_sha256": "5aaf601b6f73070384053401559bc8104f8b25daac053ab84b16be2fb2afbe6e",
+  "code_head": "5077d0470e6511650246fea5ad1a8b6e3aed5545",
+  "native_launch_executed": true,
+  "status": "failed_first_competence_forward_device_mismatch",
+  "guard_exit_code": 1,
+  "runner_exit_code": 2,
+  "error_type": "RuntimeError",
+  "error": "Passed CPU tensor to MPS op",
+  "failed_api": "torch.embedding",
+  "cause": "loader_returns_CPU_backbone_adapter_moves_only_extensions_inputs_are_MPS",
+  "environment_verified": true,
+  "transformers": "4.57.1",
+  "source_code_changed": false,
+  "precision_substituted": false,
+  "completed_model_loads": 1,
+  "completed_tokenizer_loads": 1,
+  "forward_attempts": 1,
+  "completed_forward_calls": 0,
+  "competence_cases_evaluated": 0,
+  "generated_answers": 0,
+  "backward_calls": 0,
+  "optimizer_steps": 0,
+  "P_updates": 0,
+  "development_labels_opened": false,
+  "sealed_final_opened": false,
+  "fresh_process_continuation": "not_reached",
+  "resource_guard_triggered": false,
+  "resources": {
+    "wall_seconds": 9.71211316715926,
+    "peak_driver_bytes": 1082540032,
+    "peak_mps_allocated_sampled_bytes": 60502528,
+    "peak_process_rss_bytes": 700645376,
+    "peak_swap_growth_bytes": 0,
+    "minimum_guard_host_free_percent": 92.0,
+    "profile_host_end_free_percent": 90.0,
+    "native_output_bytes": 20437
+  },
+  "raw_evidence": {
+    "guard.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout02/guard.json",
+      "source": "runs/intrinsic_memory_v3/guard_derivative_native02.json",
+      "sha256": "f3017794f66c466a111deafc48deea50b70f63157f48a04acf7f7b43fcc78ffa",
+      "bytes": 2333
+    },
+    "child.log": {
+      "path": "reports/intrinsic_memory_v3/native_readout02/child.log",
+      "source": "runs/intrinsic_memory_v3/guard_derivative_native02.child.log",
+      "sha256": "7a421c77676d51181ce0641989c693b9cc866b950d9c727e0705bc11b8a52060",
+      "bytes": 5237
+    },
+    "host.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout02/host.jsonl",
+      "source": "runs/intrinsic_memory_v3/guard_derivative_native02.host.jsonl",
+      "sha256": "328710dfdb9a9a4b1f80ccef93b3669ed56cd99222f8519cf3110215f3995d26",
+      "bytes": 500
+    },
+    "profile_summary.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout02/profile_summary.json",
+      "source": "runs/intrinsic_memory_v3/native_readout02/profile_summary.json",
+      "sha256": "8d3a432e4ffa4ae88b35705f33fc628517a411e32b2a403e597d163ba47b43c2",
+      "bytes": 1952
+    },
+    "profile_samples.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout02/profile_samples.jsonl",
+      "source": "runs/intrinsic_memory_v3/native_readout02/profile_samples.jsonl",
+      "sha256": "21f1608b4df7c5049866283111aeee7278b82e6cb43ed2253ce13b43b7552493",
+      "bytes": 9114
+    }
+  },
+  "native_retries": 0,
+  "authorization_consumed": true,
+  "outcomes": {
+    "source_qualification": "passed_full_hash_preflight",
+    "current_numerical_qualification": "incomplete_device_mismatch",
+    "baseline_competence": "incomplete_no_generated_answers_not_a_capability_failure",
+    "useful_readout": "not_reached",
+    "persistent_learning": "not_established",
+    "promotion": false
+  },
+  "next_native_requires_fresh_external_authorization": true,
+  "approved_attempt_budgets_unchanged": true
+}
