@@ -30,6 +30,8 @@ from typing import Any, Iterable, Mapping, Sequence
 
 SCHEMA = "replica.spark2_5_preparation.v1"
 EXTENSION_EXPORT_SCHEMA = "replica.spark2_5_extension_export.v1"
+SPINE_EXTENSION_EXPORT_SCHEMA = "replica.spark2_5_extension_export.v2"
+SPINE_SCHEMA = "replica.spark.spine.v1"
 
 OFFICIAL_BF16 = "official_bf16"
 OFFICIAL_NATIVE_FP8 = "official_native_fp8"
@@ -1241,9 +1243,55 @@ def build_extensions(config: Spark2_5Config, *, projector_in_dim: int | None = N
 # Extension-only export/reload validation
 
 
+def _spine_export_tensors(spine: Mapping, trainable_dtype: str) -> list[dict]:
+    """Validate one additive extension.spine inventory without relabeling."""
+    if not isinstance(trainable_dtype, str) \
+            or trainable_dtype.upper() not in ("FLOAT32", "BF16"):
+        raise ExtensionStateError("spine tensor dtype differs")
+    if spine.get("schema") != SPINE_SCHEMA:
+        raise ExtensionStateError("spine schema differs")
+    spec = _mapping(spine.get("spec"), "spine.spec", ExtensionStateError)
+    for key in ("hidden_size", "slots", "heads"):
+        _require_int(spec.get(key), f"spine.spec.{key}", Error=ExtensionStateError)
+    if spec.get("packet_width") != 512 or spec.get("workspace_width") != 256:
+        raise ExtensionStateError("spine dimensions must be 512 packet / 256 workspace")
+    sites = spec.get("sites")
+    if not isinstance(sites, list) or not sites or len(set(sites)) != len(sites) \
+            or any(not isinstance(site, int) or isinstance(site, bool) or site < 0
+                   for site in sites):
+        raise ExtensionStateError("spine sites are invalid")
+    if spine.get("trainable") is not True \
+            or spine.get("zero_effect_final_projections") is not True \
+            or spine.get("live_gate_path") is not True:
+        raise ExtensionStateError("spine initialization/gradient contract differs")
+    tensors = spine.get("tensors")
+    if not isinstance(tensors, list) or not tensors:
+        raise ExtensionStateError("spine tensor inventory is empty")
+    expected_dtype = trainable_dtype.upper()
+    for tensor in tensors:
+        tensor = _mapping(tensor, "spine.tensor", ExtensionStateError)
+        name = tensor.get("name")
+        if not isinstance(name, str) or not name.startswith("extension.spine."):
+            raise ExtensionStateError("spine tensor is outside extension.spine")
+        if tensor.get("dtype") != expected_dtype:
+            raise ExtensionStateError("spine tensor dtype differs")
+        shape = tensor.get("shape")
+        if not isinstance(shape, list) or any(
+                not isinstance(value, int) or isinstance(value, bool) or value <= 0
+                for value in shape):
+            raise ExtensionStateError("spine tensor shape is invalid")
+    if spine.get("parameter_elements") != sum(
+            _shape_elements(tuple(tensor["shape"])) for tensor in tensors):
+        raise ExtensionStateError("spine parameter count differs")
+    if spine.get("parameter_inventory_sha256") != fingerprint(tensors):
+        raise ExtensionStateError("spine inventory digest differs")
+    return [dict(tensor) for tensor in tensors]
+
+
 def build_extension_export(config: Spark2_5Config, precision: PrecisionIdentity,
                            extensions: ExtensionInventory, *,
-                           trainable_dtype: str = "float32") -> dict:
+                           trainable_dtype: str = "float32",
+                           spine: Mapping | None = None) -> dict:
     """Build a metadata/state-index export containing no base checkpoint bytes."""
     if not isinstance(extensions, ExtensionInventory):
         raise ExtensionStateError("extensions must be an ExtensionInventory")
@@ -1275,6 +1323,18 @@ def build_extension_export(config: Spark2_5Config, precision: PrecisionIdentity,
         "original_checkpoint_bytes_rewritten": False,
         "native_execution": False,
     }
+    if spine is not None:
+        spine = _mapping(spine, "spine", ExtensionStateError)
+        spine_tensors = _spine_export_tensors(spine, trainable_dtype)
+        payload["schema"] = SPINE_EXTENSION_EXPORT_SCHEMA
+        payload["extension"]["spine"] = dict(spine)
+        payload["spine_migration"] = {
+            "from": EXTENSION_EXPORT_SCHEMA,
+            "to": SPINE_EXTENSION_EXPORT_SCHEMA,
+            "new_namespace": "extension.spine",
+            "vision_projector_relabelled": False,
+        }
+        tensors.extend(spine_tensors)
     payload["fingerprint"] = fingerprint(payload)
     return payload
 
@@ -1283,8 +1343,8 @@ def validate_extension_export(payload: Mapping, config: Spark2_5Config,
                               precision: PrecisionIdentity) -> dict:
     """Validate an extension-only export/reload against current base identity."""
     payload = _mapping(payload, "extension_export", ExtensionStateError)
-    if payload.get("schema") != EXTENSION_EXPORT_SCHEMA:
-        raise ExtensionStateError(f"schema must be {EXTENSION_EXPORT_SCHEMA}")
+    if payload.get("schema") not in (EXTENSION_EXPORT_SCHEMA, SPINE_EXTENSION_EXPORT_SCHEMA):
+        raise ExtensionStateError("unsupported extension export schema")
     recorded = _mapping(payload.get("fingerprint"), "fingerprint", ExtensionStateError) \
         if isinstance(payload.get("fingerprint"), Mapping) else payload.get("fingerprint")
     body = {key: value for key, value in payload.items() if key != "fingerprint"}
@@ -1330,17 +1390,38 @@ def validate_extension_export(payload: Mapping, config: Spark2_5Config,
         config, projector_in_dim=None if projector_spec is None else projector_spec.in_dim,
         projector_hidden_dim=None if projector_spec is None else projector_spec.hidden_dim,
         memory_ports=port_layers)
-    if expected_extensions.to_dict() != extension:
+    extension_core = {key: value for key, value in extension.items() if key != "spine"}
+    if expected_extensions.to_dict() != extension_core:
         raise ExtensionStateError("extension inventory does not match the current geometry")
+    if "spine" in extension and payload["schema"] != SPINE_EXTENSION_EXPORT_SCHEMA:
+        raise ExtensionStateError("spine tensors require the v2 extension schema")
+    if "spine" not in extension and payload["schema"] == SPINE_EXTENSION_EXPORT_SCHEMA:
+        raise ExtensionStateError("v2 extension requires an explicit spine inventory")
+    expected_spine_tensors = []
+    trainable_dtype = payload.get("trainable_dtype")
+    spine = extension.get("spine")
+    if spine is not None:
+        spine = _mapping(spine, "extension.spine", ExtensionStateError)
+        expected_spine_tensors = _spine_export_tensors(spine, trainable_dtype)
+        migration = payload.get("spine_migration")
+        if migration != {
+                "from": EXTENSION_EXPORT_SCHEMA,
+                "to": SPINE_EXTENSION_EXPORT_SCHEMA,
+                "new_namespace": "extension.spine",
+                "vision_projector_relabelled": False}:
+            raise ExtensionStateError("spine migration declaration differs")
+    elif "spine_migration" in payload:
+        raise ExtensionStateError("spine migration declared without spine tensors")
     trainable_dtype = payload.get("trainable_dtype")
     if trainable_dtype not in ("FLOAT32", "BF16"):
         raise ExtensionStateError("trainable_dtype must be FLOAT32 or BF16")
     expected_tensors = [{"name": name, "shape": list(shape), "dtype": trainable_dtype}
                         for name, shape in expected_extensions.trainable_tensors]
+    expected_tensors.extend(expected_spine_tensors)
     if payload.get("tensors") != expected_tensors:
         raise ExtensionStateError("extension tensor index does not match the declared modules")
     return {
-        "schema": EXTENSION_EXPORT_SCHEMA,
+        "schema": payload["schema"],
         "extension_only": True,
         "base_unchanged": True,
         "precision_kind": precision.kind,

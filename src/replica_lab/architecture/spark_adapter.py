@@ -30,6 +30,8 @@ from torch import nn
 import torch.nn.functional as F
 
 from .ports import MemoryAccessPort
+from .spine import BRANCHES, SpineCore, SpineForwardContext, SpineSpec
+from replica_lab.model_identity import durable_model_identity
 from .spark2_5 import (
     OFFICIAL_NATIVE_FP8, PrecisionIdentity, Spark2_5Config, admit_load,
     build_extension_export, build_extensions, build_memory_ports, fingerprint,
@@ -96,6 +98,8 @@ class _ForwardContext:
     projector_input: torch.Tensor | None
     memory: torch.Tensor | None
     memory_mask: torch.Tensor | None
+    spine_context: SpineForwardContext | None = None
+    enabled_spine_branches: tuple[str, ...] = ()
     traced: list[tuple[int, str]] | None = None
     injected: list[int] | None = None
     deltas: list[float] | None = None
@@ -144,6 +148,8 @@ class Spark2_5Adapter(nn.Module):
         zero_init_output: bool = True,
         memory_size: int = DEFAULT_MEMORY_SIZE,
         heads: int = DEFAULT_PORT_HEADS,
+        spine_sites: tuple[int, ...] = (11, 23),
+        spine_slots: int = 8,
     ) -> None:
         super().__init__()
         if not isinstance(config, Spark2_5Config):
@@ -192,6 +198,9 @@ class Spark2_5Adapter(nn.Module):
         if self.extension.vision_projector.fc2.bias is not None:
             nn.init.zeros_(self.extension.vision_projector.fc2.bias)
         self.extension.memory_ports = nn.ModuleDict()
+        self.spine_spec = SpineSpec(hidden_size=hidden, slots=int(spine_slots),
+                                    sites=tuple(int(site) for site in spine_sites))
+        self.extension.spine = SpineCore(self.spine_spec)
 
         self.projector_in_dim = in_dim
         self.projector_hidden_dim = int(projector_hidden_dim)
@@ -200,6 +209,8 @@ class Spark2_5Adapter(nn.Module):
         self.memory_size = int(memory_size)
         self.heads = int(heads)
         self._port_layers: tuple[int, ...] = ()
+        if any(site >= config.geometry.num_hidden_layers for site in self.spine_spec.sites):
+            raise SparkAdapterError("spine site is outside the native decoder")
         self._original_identity: tuple | None = None
         self.extension.to(device)
         self.assert_scope()
@@ -335,7 +346,20 @@ class Spark2_5Adapter(nn.Module):
             for name, buffer in self.base.named_buffers())
         return (*entries, *buffers,
                 ("base_config", _config_fingerprint(self.base, self.config),
-                 self.attention_implementation, bool(self.base.config.use_cache)))
+                self.attention_implementation, bool(self.base.config.use_cache)))
+
+    def durable_identity(self) -> str:
+        """Content identity for reports/reload, distinct from mutation stamps."""
+        return durable_model_identity(
+            self.base,
+            source_identity=getattr(self.precision, "artifact_sha256", None),
+            config={
+                "model_type": getattr(self.base.config, "model_type", None),
+                "hidden_size": getattr(self.base.config, "hidden_size", None),
+                "layers": len(self.base.model.layers),
+            })
+
+
 
     def seal_original_identity(self) -> None:
         if self._original_identity is not None:
@@ -459,6 +483,12 @@ class Spark2_5Adapter(nn.Module):
                     context.memory.to(device=device, dtype=torch.float32),
                     context.memory_mask.to(device=device))
                 delta = port_delta if delta is None else delta + port_delta
+            if context.spine_context is not None and index in self.spine_spec.sites:
+                spine_hidden = hidden.to(device=device, dtype=torch.float32)
+                for branch in context.enabled_spine_branches:
+                    spine_delta = context.spine_context.delta(
+                        branch, index, spine_hidden)
+                    delta = spine_delta if delta is None else delta + spine_delta
             if delta is None:
                 return None
             if tuple(delta.shape) != tuple(hidden.shape):
@@ -474,14 +504,24 @@ class Spark2_5Adapter(nn.Module):
     def _run(self, *, hidden_only: bool, input_ids: torch.Tensor,
              attention_mask: torch.Tensor | None, position_ids: torch.Tensor | None,
              projector_input: torch.Tensor | None, memory: torch.Tensor | None,
-             memory_mask: torch.Tensor | None, use_projector: bool, use_ports: bool):
+             memory_mask: torch.Tensor | None, use_projector: bool, use_ports: bool,
+             spine: SpineForwardContext | None = None, use_spine: bool = False,
+             enabled_spine_branches: tuple[str, ...] = BRANCHES):
         input_ids = input_ids
         mask = self._validate_inputs(input_ids, attention_mask)
         if not use_projector and projector_input is not None:
             raise SparkAdapterError("projector_input was supplied while the projector is disabled")
-        context = _ForwardContext(use_projector=use_projector, use_ports=use_ports,
-                                  projector_input=projector_input, memory=memory,
-                                  memory_mask=memory_mask)
+        if not use_spine and spine is not None:
+            raise SparkAdapterError("spine context was supplied while spine is disabled")
+        if use_spine and spine is None:
+            raise SparkAdapterError("spine context is required when spine is enabled")
+        context = _ForwardContext(
+            use_projector=use_projector, use_ports=use_ports,
+            projector_input=projector_input, memory=memory,
+            memory_mask=memory_mask,
+            spine_context=spine if use_spine else None,
+            enabled_spine_branches=(tuple(enabled_spine_branches)
+                                    if use_spine else ()))
         handles = []
         try:
             for index, layer in enumerate(self.base.model.layers):
@@ -529,11 +569,16 @@ class Spark2_5Adapter(nn.Module):
                      memory: torch.Tensor | None = None,
                      memory_mask: torch.Tensor | None = None,
                      use_projector: bool = True, use_ports: bool = True,
+                     spine: SpineForwardContext | None = None,
+                     use_spine: bool = False,
+                     enabled_spine_branches: tuple[str, ...] = BRANCHES,
                      return_audit: bool = False):
         logits, audit, _ = self._run(
             hidden_only=False, input_ids=input_ids, attention_mask=attention_mask,
             position_ids=position_ids, projector_input=projector_input, memory=memory,
-            memory_mask=memory_mask, use_projector=use_projector, use_ports=use_ports)
+            memory_mask=memory_mask, use_projector=use_projector, use_ports=use_ports,
+            spine=spine, use_spine=use_spine,
+            enabled_spine_branches=enabled_spine_branches)
         return (logits, audit) if return_audit else logits
 
     def forward_hidden(self, input_ids: torch.Tensor,
@@ -542,12 +587,17 @@ class Spark2_5Adapter(nn.Module):
                        projector_input: torch.Tensor | None = None,
                        memory: torch.Tensor | None = None,
                        memory_mask: torch.Tensor | None = None,
-                       use_projector: bool = True, use_ports: bool = True,
-                       return_audit: bool = False):
+                     use_projector: bool = True, use_ports: bool = True,
+                     spine: SpineForwardContext | None = None,
+                     use_spine: bool = False,
+                     enabled_spine_branches: tuple[str, ...] = BRANCHES,
+                     return_audit: bool = False):
         hidden, audit, _ = self._run(
             hidden_only=True, input_ids=input_ids, attention_mask=attention_mask,
             position_ids=position_ids, projector_input=projector_input, memory=memory,
-            memory_mask=memory_mask, use_projector=use_projector, use_ports=use_ports)
+            memory_mask=memory_mask, use_projector=use_projector, use_ports=use_ports,
+            spine=spine, use_spine=use_spine,
+            enabled_spine_branches=enabled_spine_branches)
         return (hidden, audit) if return_audit else hidden
 
     def reset_cache(self) -> None:
@@ -580,7 +630,10 @@ class Spark2_5Adapter(nn.Module):
                        memory: torch.Tensor | None = None,
                        memory_mask: torch.Tensor | None = None,
                        labels: torch.Tensor | None = None,
-                       use_projector: bool = True) -> dict:
+                       use_projector: bool = True,
+                       spine: SpineForwardContext | None = None,
+                       use_spine: bool = False,
+                       enabled_spine_branches: tuple[str, ...] = BRANCHES) -> dict:
         """One loss backward plus the gradient that reaches the projector input.
 
         The decoder is never wrapped in ``no_grad``. The projector input is a
@@ -593,7 +646,9 @@ class Spark2_5Adapter(nn.Module):
         logits, audit, context = self._run(
             hidden_only=False, input_ids=input_ids, attention_mask=attention_mask,
             position_ids=None, projector_input=projector_input, memory=memory,
-            memory_mask=memory_mask, use_projector=use_projector, use_ports=True)
+            memory_mask=memory_mask, use_projector=use_projector, use_ports=True,
+            spine=spine, use_spine=use_spine,
+            enabled_spine_branches=enabled_spine_branches)
         loss = self.causal_loss(logits, input_ids, labels)
         if not bool(torch.isfinite(loss)):
             raise SparkAdapterError("loss is not finite")
@@ -634,6 +689,9 @@ class Spark2_5Adapter(nn.Module):
             "memory_port_layers": list(self._port_layers),
             "memory_size": self.memory_size,
             "port_heads": self.heads,
+            "spine": self.spine_spec.to_dict(),
+            "spine_sites": list(self.spine_spec.sites),
+            "spine_slots": self.spine_spec.slots,
             "attention_implementation": self.attention_implementation,
             "use_cache": False,
         }
@@ -657,10 +715,12 @@ class Spark2_5Adapter(nn.Module):
             projector_hidden_dim=self.projector_hidden_dim,
             memory_ports=list(self._port_layers))
         payload = build_extension_export(
-            self.config, self.precision, extensions, trainable_dtype="float32")
+            self.config, self.precision, extensions, trainable_dtype="float32",
+            spine=self.extension.spine.inventory())
         payload["adapter_tensors"] = [tensor.to_dict() for tensor in self.new_named_tensors()]
         payload["adapter_settings"] = self.adapter_settings()
         payload["base_snapshot"] = self.base_snapshot()
+        payload["content_model_identity"] = self.durable_identity()
         payload["fingerprint"] = fingerprint(
             {key: value for key, value in payload.items() if key != "fingerprint"})
         return payload
@@ -722,7 +782,8 @@ class Spark2_5Adapter(nn.Module):
         payload = manifest.get("export")
         receipt = validate_extension_export(payload, self.config, self.precision)
         expected_payload = self.extension_metadata()
-        for key in ("adapter_tensors", "adapter_settings", "base_snapshot"):
+        for key in ("adapter_tensors", "adapter_settings", "base_snapshot",
+                    "content_model_identity"):
             if payload.get(key) != expected_payload.get(key):
                 raise SparkAdapterError(f"extension {key} differs from the current adapter")
         weights_sha256 = sha256_bytes((path / manifest["weights_file"]).read_bytes())
@@ -764,6 +825,8 @@ class Spark2_5Adapter(nn.Module):
             "parameters": self.parameter_audit(),
             "settings": self.adapter_settings(),
             "ports": list(self._port_layers),
+            "spine": self.extension.spine.inventory(),
+            "content_model_identity": self.durable_identity(),
             "sealed_original": self._original_identity is not None,
             "base_unchanged": self.base_unchanged(),
         }

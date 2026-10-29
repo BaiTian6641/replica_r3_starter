@@ -1,5 +1,13 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
+
+**Current priority — 28 October 2026, Spark spine and E/P memory:** read
+[the integration report](docs/experiments/20261028_Spark_Spine_Memory_Integration.md).
+CPU wiring, native tiny-fixture gradients, correction/revocation, E/P restart
+and source-free intervention checks pass (38 focused; 324 broader plus 21
+subtests). No native model job, learned capability, resource qualification or
+new authorization is established. Preserve the protected runtime pilot and all
+existing native guards.
 **Current priority — 28 October 2026, vision acceptance and expansion:** read
 [the vision acceptance and expansion handoff](docs/experiments/20261028_Vision_Acceptance_and_Expansion_Readiness.md).
 Commits `6bccb837` and `97866da0` bind the smaller-step launch to 13 committed

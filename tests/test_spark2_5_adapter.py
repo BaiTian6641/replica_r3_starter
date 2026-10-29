@@ -193,7 +193,8 @@ class TinySparkCausalLM(nn.Module):
 
 
 def build(seed: int = 7, *, quantized: bool = False,
-          require_official_geometry: bool = False, device: str = "cpu"):
+          require_official_geometry: bool = False, device: str = "cpu",
+          spine_sites: tuple[int, ...] = (3, 7), spine_slots: int = 8):
     torch.manual_seed(seed)
     raw = tiny_config_raw(quantized=quantized)
     config = load_spark2_5_config(raw, require_official_geometry=require_official_geometry)
@@ -203,7 +204,8 @@ def build(seed: int = 7, *, quantized: bool = False,
                  if quantized else official_bf16_precision(config, artifact_sha256=artifact))
     adapter = Spark2_5Adapter(
         base, config, precision, device=device, require_official_geometry=False,
-        projector_layer=3, memory_size=4, heads=2)
+        projector_layer=3, memory_size=4, heads=2,
+        spine_sites=spine_sites, spine_slots=spine_slots)
     adapter.seal_original_identity()
     return adapter, base, config, precision
 
@@ -294,7 +296,9 @@ def test_gradient_audit_finite_nonzero_and_base_unchanged():
     assert probe["input_gradient"]["present"] is True
     assert probe["new_gradient_finite"] is True
     assert probe["new_gradient_nonzero"] is True
-    assert probe["gradient_audit"]["new"]["missing_gradient_names"] == []
+    missing = probe["gradient_audit"]["new"]["missing_gradient_names"]
+    assert [name for name in missing if not name.startswith("extension.spine.")] == []
+    assert any(name.startswith("extension.spine.") for name in missing)
     assert probe["gradient_audit"]["original"]["gradient_tensors"] == 0
     assert adapter.base_unchanged() is True
     assert all(parameter.grad is None for parameter in base.parameters())

@@ -779,6 +779,30 @@ FINAL_PRODUCT_INPUT_ROLES: list[tuple[str, str]] = [
         "tests/test_sparkx_final_product.py",
         "portable verifier, evidence-tamper and manifest tests",
     ),
+    (
+        "src/replica_lab/architecture/spine.py",
+        "typed Spark spine packets, causal readers and E/P memory provenance",
+    ),
+    (
+        "src/replica_lab/architecture/spine_checkpoint.py",
+        "strict extension-only spine and paired E/P checkpoint recovery",
+    ),
+    (
+        "src/replica_lab/architecture/spine_memory.py",
+        "bounded evidence bank, selected P reader and source-free intervention",
+    ),
+    (
+        "src/replica_lab/model_identity.py",
+        "content-based model identity used by native spine export and reload",
+    ),
+    (
+        "tests/test_spine.py",
+        "CPU spine native influence, evidence, P and fresh-restore contracts",
+    ),
+    (
+        "docs/experiments/20261028_Spark_Spine_Memory_Integration.md",
+        "implemented spine scope, verification and explicit native limits",
+    ),
 ]
 
 FINAL_PRODUCT_CLEAN_EXPORT_LINKS = [

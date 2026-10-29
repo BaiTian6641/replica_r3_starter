@@ -1,5 +1,27 @@
 # Execution state — integrated memory, cognition and learning
 
+## Spark spine and E/P memory interfaces — 28 October 2026
+
+**Current status — scoped CPU implementation and regression verification are complete;
+native execution and learned capability remain unauthorized and unqualified.**
+Read the [spine/memory integration report](docs/experiments/20261028_Spark_Spine_Memory_Integration.md).
+
+- Added typed Spark packets, causal availability, independent spine/memory/workspace
+  readers, explicit E/P provenance, native adapter hooks and v2 extension-only
+  export validation. The memory experiment can share the adapter's exact spine.
+- Added bounded evidence correction/revocation, strict E/P checkpoint restore,
+  source-free clearing and retry suppression. Restart continuation and native
+  tiny-fixture null-parity/influence/gradient checks pass.
+- Focused spine/Spark suites pass **38**; broader learning/persistence suites
+  pass **324 with 21 subtests**. These are CPU results only; no MPS job, native
+  model quality, resource measurement or held-out benefit was run.
+- Final-product verification passes **16** and the additive manifest check passes
+  with **81 inputs**; Spark preparation/review/acquisition passes **69**. A full
+  `pytest -q` attempt timed out at 600 seconds and is not a pass; an isolated
+  early DC-R1 failure is from the separate retired-runner work, not this change.
+- The protected runtime pilot and all unrelated workspace changes remain
+  untouched. Native work still requires a separate protocol and authorization.
+
 ## Vision acceptance and expansion readiness — 28 October 2026
 
 **Current status — CPU implementation and report validation are committed;
