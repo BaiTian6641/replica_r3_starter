@@ -1,0 +1,131 @@
+{
+  "format": "replica.spark_intrinsic.native_attempt_result.v1",
+  "date": "2026-10-29",
+  "attempt_id": "intrinsic_memory_v3_native_readout01",
+  "authorized": true,
+  "authorization_id": "human-spark-s0-s1-20261029-4e8fcd30-5bba-402e-affb-4141a4f0ee19",
+  "authorization_receipt": "reports/spark_persistent_learner_v2/derivative_bf16_authorization.json",
+  "authorized_packet": {
+    "path": "reports/intrinsic_memory_v3/native_experiment_s0_s1.json",
+    "sha256": "4d95e78149326467d90664c43e5bd5d5c50ef460ec32f011644c739bc7b48f01"
+  },
+  "source_protocol_sha256": "5aaf601b6f73070384053401559bc8104f8b25daac053ab84b16be2fb2afbe6e",
+  "code_head": "e42da3ade1e694932f85018fec290ff142cc36e5",
+  "native_launch_executed": true,
+  "status": "failed_before_competence_at_model_construction",
+  "guard_exit_code": 1,
+  "runner_exit_code": 2,
+  "error_type": "AttributeError",
+  "error": "'list' object has no attribute 'keys'",
+  "failed_api": "transformers.PreTrainedModel.get_expanded_tied_weights_keys",
+  "cause": "packet_selected_general_venv_Transformers_5_20_2_while_sealed_source_and_historical_derivative_qualification_use_4_57_1",
+  "installed_attempt_packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "tokenizers": "0.23.3",
+    "safetensors": "0.8.0"
+  },
+  "historical_qualified_environment": {
+    "attention_implementation": "eager",
+    "compressed_tensors": "0.16.0",
+    "device": "mps",
+    "fallback": "disabled",
+    "mps_available": true,
+    "offline": {
+      "HF_DATASETS_OFFLINE": "1",
+      "HF_HUB_OFFLINE": "1",
+      "TRANSFORMERS_OFFLINE": "1"
+    },
+    "platform": "Darwin",
+    "python": "3.12.14",
+    "torch": "2.14.1",
+    "transformers": "4.57.1",
+    "use_cache": false,
+    "worker_count": 1
+  },
+  "historical_qualification_unchanged": {
+    "path": "runs/spark_qualification_20261026/derivative_02/qualification_report.json",
+    "sha256": "68f8674476293fa83bd7a96ba56563e1a88d8dc283f9da7f3e9ed52684fe53b5",
+    "provisioning": "optional_local_ignored_evidence"
+  },
+  "source_code_changed": false,
+  "precision_substituted": false,
+  "completed_model_loads": 0,
+  "model_construction_attempts": 1,
+  "tokenizer_loaded": true,
+  "tokenizer_evidence": "runner_reached_model_constructor_after_successful_tokenizer_validation",
+  "competence_cases_evaluated": 0,
+  "generated_answers": 0,
+  "forward_calls": 0,
+  "backward_calls": 0,
+  "optimizer_steps": 0,
+  "P_updates": 0,
+  "development_labels_opened": false,
+  "sealed_final_opened": false,
+  "fresh_process_continuation": "not_reached",
+  "resource_guard_triggered": false,
+  "resources": {
+    "wall_seconds": 9.441364208236337,
+    "peak_driver_bytes": 393216,
+    "peak_mps_allocated_sampled_bytes": 0,
+    "peak_process_rss_bytes": 568393728,
+    "peak_swap_growth_bytes": 0,
+    "minimum_host_free_percent": 91.0,
+    "native_output_bytes": 10721
+  },
+  "raw_evidence": {
+    "guard.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout01/guard.json",
+      "source": "runs/intrinsic_memory_v3/guard_derivative_native01.json",
+      "sha256": "e17881f669d53bd1cde8a4b094ab590eedfa67d4e48e447be07c4ac55a6da0e8",
+      "bytes": 2326
+    },
+    "child.log": {
+      "path": "reports/intrinsic_memory_v3/native_readout01/child.log",
+      "source": "runs/intrinsic_memory_v3/guard_derivative_native01.child.log",
+      "sha256": "7774da56b6d875656ab14365b28c47e36cdc1e88a7afd74ba9293d66f4b7659b",
+      "bytes": 2733
+    },
+    "host.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout01/host.jsonl",
+      "source": "runs/intrinsic_memory_v3/guard_derivative_native01.host.jsonl",
+      "sha256": "d30bf0be5e88d383053cbfd4869cf7b2b0933ac227ce4bbddbc9e6d927b6cc98",
+      "bytes": 498
+    },
+    "profile_summary.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout01/profile_summary.json",
+      "source": "runs/intrinsic_memory_v3/native_readout01/profile_summary.json",
+      "sha256": "d8b06209dd401532b476a10ebf09c7cca922db49a004b7b663a34fe4920be019",
+      "bytes": 1941
+    },
+    "profile_samples.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout01/profile_samples.jsonl",
+      "source": "runs/intrinsic_memory_v3/native_readout01/profile_samples.jsonl",
+      "sha256": "30dfb10a5f49cc0ae1fc0a2472caf21d85bb5cc54e62a35b40431f2e7bc37acb",
+      "bytes": 8780
+    }
+  },
+  "native_retries": 0,
+  "authorization_consumed": true,
+  "outcomes": {
+    "source_qualification": "passed_full_hash_preflight",
+    "current_numerical_qualification": "not_reached",
+    "baseline_competence": "not_reached_not_a_competence_failure",
+    "useful_readout": "not_reached",
+    "persistent_learning": "not_established",
+    "promotion": false
+  },
+  "CPU_repair": {
+    "launcher": "scripts/launch_spark_intrinsic_readout_environment_v1.py",
+    "environment": "configs/spark_intrinsic_execution_environment_v1.json",
+    "unit_tests": "reports/intrinsic_memory_v3/environment_gate_tests.log",
+    "unit_tests_passed": 21,
+    "qualified_environment": "reports/intrinsic_memory_v3/qualified_environment_check.json",
+    "wrong_environment_refused": "reports/intrinsic_memory_v3/wrong_environment_refusal.json",
+    "actual_source_tiny_CPU_probe": "reports/intrinsic_memory_v3/qualified_environment_source_cpu_smoke.json",
+    "native_relaunch_performed": false
+  },
+  "next_review_packet": "reports/intrinsic_memory_v3/native_experiment_s0_s1_environment_v2.json",
+  "next_native_requires_fresh_external_authorization": true,
+  "approved_attempt_budgets_unchanged": true
+}
