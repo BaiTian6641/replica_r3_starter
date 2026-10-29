@@ -1,0 +1,548 @@
+{
+  "P_updates": 0,
+  "RSI": false,
+  "approval_consumed": true,
+  "competence": {
+    "cases": 8,
+    "correct": 8,
+    "false_recall": 0,
+    "passed": true,
+    "truncated": 0
+  },
+  "correction": {
+    "after_revocation": {
+      "correct": true,
+      "false_recall": false,
+      "generated_tokens": 2,
+      "prompt_tokens": 44,
+      "raw_answer": "Unknown",
+      "stop_token": 1,
+      "terminated": true,
+      "token_ids": [
+        38030,
+        1
+      ],
+      "total_latency_ns": 1343625625,
+      "truncated": false
+    },
+    "corrected_contextual": {
+      "correct": false,
+      "false_recall": false,
+      "generated_tokens": 2,
+      "prompt_tokens": 44,
+      "raw_answer": "red",
+      "stop_token": 1,
+      "terminated": true,
+      "token_ids": [
+        1468,
+        1
+      ],
+      "total_latency_ns": 1345794625,
+      "truncated": false
+    },
+    "corrected_exact": {
+      "correct": true,
+      "false_recall": false,
+      "generated_tokens": 2,
+      "prompt_tokens": 66,
+      "raw_answer": "gold",
+      "stop_token": 1,
+      "terminated": true,
+      "token_ids": [
+        117243,
+        1
+      ],
+      "total_latency_ns": 1326333958,
+      "truncated": false
+    },
+    "learned_unlearning_claim": false,
+    "revoked_retrieval_rejected": true,
+    "stale_snapshot_rejected": true
+  },
+  "density_admitted": false,
+  "development": {
+    "correct": {
+      "absent": 1,
+      "contextual": 0,
+      "exact_text": 8,
+      "shuffled": 0,
+      "wrong": 0,
+      "zero": 0
+    },
+    "false_recall": {
+      "absent": 0,
+      "contextual": 1,
+      "exact_text": 0,
+      "shuffled": 1,
+      "wrong": 1,
+      "zero": 1
+    },
+    "generalization_scope": "one_fixed_synthetic_family_and_seed_feasibility_only",
+    "useful_recall_passed": false
+  },
+  "development_opened": true,
+  "fit": {
+    "all_controls_fit_generation_prefix_exact": true,
+    "contextual_first_token_correct": 8,
+    "contextual_terminated": 8,
+    "curve": [
+      {
+        "correct": {
+          "absent": 0,
+          "contextual": 0,
+          "exact_text": 8,
+          "shuffled": 0,
+          "wrong": 0,
+          "zero": 0
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "memory_dependence_passed": false,
+        "updates": 32
+      },
+      {
+        "correct": {
+          "absent": 0,
+          "contextual": 8,
+          "exact_text": 8,
+          "shuffled": 8,
+          "wrong": 0,
+          "zero": 0
+        },
+        "counterfactual_pairs_both_correct": 4,
+        "memory_dependence_passed": true,
+        "updates": 64
+      },
+      {
+        "correct": {
+          "absent": 0,
+          "contextual": 8,
+          "exact_text": 8,
+          "shuffled": 8,
+          "wrong": 0,
+          "zero": 0
+        },
+        "counterfactual_pairs_both_correct": 4,
+        "memory_dependence_passed": true,
+        "updates": 96
+      },
+      {
+        "correct": {
+          "absent": 0,
+          "contextual": 8,
+          "exact_text": 8,
+          "shuffled": 8,
+          "wrong": 0,
+          "zero": 0
+        },
+        "counterfactual_pairs_both_correct": 4,
+        "memory_dependence_passed": true,
+        "updates": 128
+      }
+    ],
+    "fixed_final_prefix": 128,
+    "gradients_after_zero_init": {
+      "order": {
+        "finite": true,
+        "missing": [],
+        "norm": 0.20334070013692365
+      },
+      "producer": {
+        "finite": true,
+        "missing": [],
+        "norm": 5.670445944802392
+      },
+      "reader": {
+        "finite": true,
+        "missing": [],
+        "norm": 322.3754089803933
+      },
+      "sites": {
+        "3": {
+          "norm": 246.8203813173611,
+          "output_norm": 246.75271606445312
+        },
+        "7": {
+          "norm": 207.37792476931648,
+          "output_norm": 207.36378479003906
+        }
+      }
+    },
+    "live_durable_exact": true,
+    "loss_prefixes": [
+      {
+        "eos_loss": 0.029371146112680435,
+        "loss": 3.231032371520996,
+        "update": 1,
+        "word_loss": 6.4326934814453125
+      },
+      {
+        "eos_loss": 8.259886741638184,
+        "loss": 10.652849197387695,
+        "update": 2,
+        "word_loss": 13.04581069946289
+      },
+      {
+        "eos_loss": 0.43292948603630066,
+        "loss": 1.2798106670379639,
+        "update": 8,
+        "word_loss": 2.1266918182373047
+      },
+      {
+        "eos_loss": 0.5987949371337891,
+        "loss": 1.1134847402572632,
+        "update": 16,
+        "word_loss": 1.6281745433807373
+      },
+      {
+        "eos_loss": 0.6498345136642456,
+        "loss": 1.1242501735687256,
+        "update": 24,
+        "word_loss": 1.5986659526824951
+      },
+      {
+        "eos_loss": 0.7058902978897095,
+        "loss": 1.0271224975585938,
+        "update": 32,
+        "word_loss": 1.348354697227478
+      },
+      {
+        "eos_loss": 0.009600776247680187,
+        "loss": 0.03433215245604515,
+        "update": 64,
+        "word_loss": 0.05906352773308754
+      },
+      {
+        "eos_loss": 0.04441819712519646,
+        "loss": 0.035307299345731735,
+        "update": 96,
+        "word_loss": 0.026196403428912163
+      },
+      {
+        "eos_loss": 0.03381957486271858,
+        "loss": 0.03383271396160126,
+        "update": 128,
+        "word_loss": 0.03384585306048393
+      }
+    ],
+    "memory_dependence_passed": true,
+    "no_early_stop_or_best_prefix_selection": true,
+    "updates": 128
+  },
+  "format": "replica.intrinsic_memory.native_attempt_summary.v7",
+  "next_experiment": "Investigate training exposure and generalization with a separately bound fresh-world direct-CE control; keep density and P closed unless current utility passes.",
+  "original_weights_unchanged": true,
+  "packet": {
+    "path": "reports/intrinsic_memory_exposure_v7/native_packet_two_v7.json",
+    "sha256": "86b58078ce8d8473df2b129b9eb86001c3843203cd41f722ca7bb2bfaa63b46b"
+  },
+  "promotion": false,
+  "resources": {
+    "artifact_bytes": 49880283,
+    "audit_serialized_write_bytes": 3432658720,
+    "minimum_host_free_percent": 70.0,
+    "outer_wall_seconds": 676.4945465410128,
+    "peak_driver_bytes": 11257364480,
+    "peak_rss_bytes": 8681537536,
+    "peak_swap_growth_bytes": 0,
+    "reserved_work": {
+      "artifact_bytes": 167772160,
+      "backwards": 129,
+      "forwards": 1058,
+      "generated_tokens": 669,
+      "input_tokens": 270848,
+      "model_loads": 2,
+      "retrievals": 51,
+      "source_encodes": 245,
+      "updates": 129,
+      "writes": 103
+    },
+    "source_bytes_hashed_inside_attempt": 24716988741,
+    "stages": {
+      "admission": {
+        "elapsed_seconds": 4.112624917179346,
+        "reserved": {
+          "artifact_bytes": 33554432,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "baseline": {
+        "elapsed_seconds": 7.280462082941085,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 23,
+          "generated_tokens": 23,
+          "input_tokens": 5888,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "passed"
+      },
+      "checkpoint": {
+        "elapsed_seconds": 1.0706263328902423,
+        "reserved": {
+          "artifact_bytes": 134217728,
+          "backwards": 0,
+          "forwards": 1,
+          "generated_tokens": 0,
+          "input_tokens": 256,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "correction": {
+        "elapsed_seconds": 4.844043916091323,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 6,
+          "generated_tokens": 6,
+          "input_tokens": 1536,
+          "model_loads": 0,
+          "retrievals": 2,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 4
+        },
+        "status": "completed"
+      },
+      "development": {
+        "elapsed_seconds": 96.64692791597918,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 144,
+          "generated_tokens": 144,
+          "input_tokens": 36864,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 8,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_utility"
+      },
+      "fit_032": {
+        "elapsed_seconds": 29.40962216630578,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_064": {
+        "elapsed_seconds": 32.46755637507886,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_096": {
+        "elapsed_seconds": 36.719018374569714,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_128": {
+        "elapsed_seconds": 40.70409166673198,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_probes_032": {
+        "elapsed_seconds": 46.893865917343646,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 128,
+          "generated_tokens": 64,
+          "input_tokens": 32768,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_064": {
+        "elapsed_seconds": 88.72114783292636,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 208,
+          "generated_tokens": 144,
+          "input_tokens": 53248,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "passed"
+      },
+      "fit_probes_096": {
+        "elapsed_seconds": 105.91709487466142,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 208,
+          "generated_tokens": 144,
+          "input_tokens": 53248,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "passed"
+      },
+      "fit_probes_128": {
+        "elapsed_seconds": 121.65422554221004,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 208,
+          "generated_tokens": 144,
+          "input_tokens": 53248,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "passed"
+      },
+      "load": {
+        "elapsed_seconds": 22.12062383443117,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 1,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "numerical": {
+        "elapsed_seconds": 0.6577342078089714,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 2,
+          "generated_tokens": 0,
+          "input_tokens": 512,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "passed"
+      },
+      "prepare": {
+        "elapsed_seconds": 0.30288529209792614,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 8,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "completed"
+      },
+      "restart": {
+        "elapsed_seconds": 30.798553249798715,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 1,
+          "forwards": 2,
+          "generated_tokens": 0,
+          "input_tokens": 512,
+          "model_loads": 1,
+          "retrievals": 1,
+          "source_encodes": 2,
+          "updates": 1,
+          "writes": 1
+        },
+        "status": "completed"
+      }
+    }
+  },
+  "restart": {
+    "actual_continuation_updates": 1,
+    "fresh_logits_exact": true,
+    "original_weights_unchanged": true,
+    "uninterrupted_equivalence_measured": false
+  },
+  "result": {
+    "path": "reports/intrinsic_memory_exposure_v7/native_bf16_two_v7_attempt01/result.json",
+    "sha256": "7b4f6ec2da3281855e0ab6ed15c8693e45a1587fc3e7fdb6a2209d21ffa0ebe3"
+  },
+  "source_kind": "official_bf16",
+  "standing_testing_authorization_remains_applicable_to_new_bounded_packets": true,
+  "useful_recall": false
+}

@@ -1,0 +1,23 @@
+{
+  "arm": "two",
+  "attempts": 1,
+  "authorization_required": "reports/intrinsic_memory_supported_v8/authorization_two_v8.json",
+  "authorization_status": "external_receipt_required",
+  "command": [
+    ".venv-spark-bf16/bin/python",
+    "scripts/run_spark_intrinsic_exposure_v7.py",
+    "--packet",
+    "reports/intrinsic_memory_supported_v8/native_packet_two_v8.json",
+    "--authorization",
+    "reports/intrinsic_memory_supported_v8/authorization_two_v8.json",
+    "--launch"
+  ],
+  "experiment_version": 8,
+  "format": "replica.intrinsic_memory.launch_packet.v7",
+  "output_root": "reports/intrinsic_memory_supported_v8/native_bf16_two_v8_attempt01",
+  "protocol": {
+    "path": "configs/spark_intrinsic_supported_values_v8.json",
+    "sha256": "46b2566c01bf2680d01f51087d56442ee0c0f293caf95f3db37911c8e53d2c14"
+  },
+  "retries": 0
+}
