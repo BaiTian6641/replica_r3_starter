@@ -1,0 +1,22 @@
+{
+  "arm": "full_attention_nine",
+  "attempts": 1,
+  "authorization_required": "reports/intrinsic_memory_exposure_v7/authorization_full_attention_nine_v7.json",
+  "authorization_status": "external_receipt_required",
+  "command": [
+    ".venv-spark-bf16/bin/python",
+    "scripts/run_spark_intrinsic_exposure_v7.py",
+    "--packet",
+    "reports/intrinsic_memory_exposure_v7/native_packet_full_attention_nine_v7.json",
+    "--authorization",
+    "reports/intrinsic_memory_exposure_v7/authorization_full_attention_nine_v7.json",
+    "--launch"
+  ],
+  "format": "replica.intrinsic_memory.launch_packet.v7",
+  "output_root": "reports/intrinsic_memory_exposure_v7/native_bf16_full_attention_nine_v7_attempt01",
+  "protocol": {
+    "path": "configs/spark_intrinsic_exposure_curve_v7.json",
+    "sha256": "73f0c6c4fb7a433df3d33bace5bf706ec30e295bede37f8474e56cfa71eead58"
+  },
+  "retries": 0
+}

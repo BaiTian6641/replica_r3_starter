@@ -1,0 +1,158 @@
+{
+  "P_updates": 0,
+  "approval_consumed": true,
+  "competence": {
+    "cases": 8,
+    "correct": 8,
+    "false_recall": 0,
+    "passed": true,
+    "truncated": 0
+  },
+  "density_admitted": false,
+  "development_opened": false,
+  "fit": {
+    "all_controls_fit_generation_prefix_exact": true,
+    "contextual_answers": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "contextual_first_token_correct": 0,
+    "contextual_terminated": 8,
+    "control_correct": {
+      "absent": 0,
+      "contextual": 0,
+      "exact_text": 8,
+      "shuffled": 0,
+      "wrong": 0,
+      "zero": 0
+    },
+    "counterfactual_pairs_both_correct": 0,
+    "gradients_after_zero_init": {
+      "order": {
+        "finite": true,
+        "missing": [],
+        "norm": 0.20334070013692365
+      },
+      "producer": {
+        "finite": true,
+        "missing": [],
+        "norm": 5.670445944802392
+      },
+      "reader": {
+        "finite": true,
+        "missing": [],
+        "norm": 322.3754089803933
+      },
+      "sites": {
+        "3": {
+          "norm": 246.8203813173611,
+          "output_norm": 246.75271606445312
+        },
+        "7": {
+          "norm": 207.37792476931648,
+          "output_norm": 207.36378479003906
+        }
+      }
+    },
+    "layer_probe_example": {
+      "3": {
+        "gate": 0.5006508231163025,
+        "hidden_rms": 0.08275707066059113,
+        "projection_cache": "none",
+        "projection_calls": 1,
+        "residual_rms": 0.45642024278640747
+      },
+      "7": {
+        "gate": 0.5007945895195007,
+        "hidden_rms": 0.6085740327835083,
+        "projection_cache": "none",
+        "projection_calls": 1,
+        "residual_rms": 0.5996480584144592
+      }
+    },
+    "live_durable_exact": true,
+    "loss_prefixes": [
+      {
+        "eos_loss": 0.029371146112680435,
+        "loss": 3.231032371520996,
+        "update": 1,
+        "word_loss": 6.4326934814453125
+      },
+      {
+        "eos_loss": 8.259886741638184,
+        "loss": 10.652849197387695,
+        "update": 2,
+        "word_loss": 13.04581069946289
+      },
+      {
+        "eos_loss": 0.5437791347503662,
+        "loss": 1.2986658811569214,
+        "update": 8,
+        "word_loss": 2.0535526275634766
+      },
+      {
+        "eos_loss": 0.5765969753265381,
+        "loss": 1.321319341659546,
+        "update": 16,
+        "word_loss": 2.0660417079925537
+      },
+      {
+        "eos_loss": 0.7865639328956604,
+        "loss": 1.0780707597732544,
+        "update": 24,
+        "word_loss": 1.3695776462554932
+      },
+      {
+        "eos_loss": 0.670484721660614,
+        "loss": 1.0714576244354248,
+        "update": 32,
+        "word_loss": 1.4724304676055908
+      }
+    ],
+    "memory_dependence_passed": false,
+    "updates": 32
+  },
+  "format": "replica.intrinsic_memory.native_attempt_summary.v6",
+  "next_experiment": "separately_bound_fixed_128_update_direct_CE_curve_with_four_fitting_probes_same_data_and_criteria",
+  "original_weights_unchanged": true,
+  "resources": {
+    "artifact_bytes": 45960171,
+    "audit_serialized_write_bytes": 138590092,
+    "minimum_host_free_percent": 70.0,
+    "outer_wall_seconds": 146.6889489996247,
+    "peak_driver_bytes": 11261542400,
+    "peak_rss_bytes": 8501231616,
+    "peak_swap_growth_bytes": 0,
+    "reserved_work": {
+      "artifact_bytes": 167772160,
+      "backwards": 33,
+      "forwards": 188,
+      "generated_tokens": 87,
+      "input_tokens": 48128,
+      "model_loads": 2,
+      "retrievals": 17,
+      "source_encodes": 68,
+      "updates": 33,
+      "writes": 35
+    },
+    "source_bytes_hashed_inside_attempt": 24716988741
+  },
+  "restart": {
+    "actual_continuation_updates": 1,
+    "fresh_logits_exact": true,
+    "original_weights_unchanged": true,
+    "uninterrupted_equivalence_measured": false
+  },
+  "result": {
+    "path": "reports/intrinsic_memory_explicit_v6/native_bf16_two_v6_attempt01/result.json",
+    "sha256": "b0e6b0b6e1e8dad8ce8b1a37065d7babcbae6d08c3985b6dd58b98bc41b8d304"
+  },
+  "source_kind": "official_bf16",
+  "useful_recall": false
+}
