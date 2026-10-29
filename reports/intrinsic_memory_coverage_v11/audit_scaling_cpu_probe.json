@@ -1,0 +1,47 @@
+{
+  "format": "replica.intrinsic_memory.audit_scaling_CPU_probe.v11",
+  "source": "reports/intrinsic_memory_alignment_v10/native_bf16_two_v10_attempt01/work_ledger.json",
+  "rows": [
+    {
+      "scale": 1,
+      "events": 2036,
+      "serialized_bytes": 1422574,
+      "seconds": [
+        0.07965612458065152,
+        0.07876983424648643,
+        0.07747241575270891
+      ],
+      "median_seconds": 0.07876983424648643
+    },
+    {
+      "scale": 2,
+      "events": 4072,
+      "serialized_bytes": 2830737,
+      "seconds": [
+        0.15347350016236305,
+        0.15468425024300814,
+        0.15123254200443625
+      ],
+      "median_seconds": 0.15347350016236305
+    },
+    {
+      "scale": 4,
+      "events": 8144,
+      "serialized_bytes": 5647063,
+      "seconds": [
+        0.3096914580091834,
+        0.306296041700989,
+        0.3084955411031842
+      ],
+      "median_seconds": 0.3084955411031842
+    }
+  ],
+  "claim": "isolated durable audit-write overhead only; repeated historical event payloads, no original model, no v11 labels or parameter updates",
+  "actual_v10_fit_seconds": [
+    31.167198833078146,
+    36.28481666697189,
+    41.56071141595021,
+    45.975415790919214
+  ],
+  "fit_events_per_32_updates": 128
+}

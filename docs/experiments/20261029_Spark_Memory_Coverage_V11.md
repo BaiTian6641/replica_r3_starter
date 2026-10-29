@@ -109,3 +109,20 @@ contracts](20261029_Spark_Memory_Formation_and_Replica_Successors.md): external 
 for specialists/sensors/actors; separate E/S/P/phi/C/I/K; approved identity outside
 task reward; a bounded active core and explicit archival recall. Hot/warm/cold
 movement changes residency, not learning clocks. Native multimodal work is deferred.
+
+## Prelaunch resource revision
+
+The first prepared packet was never launched and is preserved in
+[preparation revision 1](../../reports/intrinsic_memory_coverage_v11/preparation_revision1/supersession.json).
+A new CPU probe of the actual durable audit writer measured median writes of
+0.079/0.153/0.308 seconds at 2,036/4,072/8,144 historical-shaped events. This is
+isolated CPU audit overhead, not a native runtime forecast. V10's measured
+32-update stages grew from 31.2 to 46.0 seconds as that ledger grew. The initial
+240-second allowance for each 128-update v11 stage was therefore too tight.
+
+Before any v11 native answer, revision 2 assigns 550 seconds to each fitting
+stage, retains 900 seconds per fitting probe, and reduces the generous setup and
+development allocations. Total stage reservation remains 7,080 seconds, outer
+wall 7,200 seconds; all scientific choices, work counts and physical caps remain
+unchanged. Exact implementation, protocol, packet and standing-authorization
+bindings were refreshed. No consumed attempt or historical result was changed.

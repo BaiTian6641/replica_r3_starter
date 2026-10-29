@@ -52,24 +52,26 @@ BUDGET_DERIVATION = {
 def plan(arm):
     checkpoint = {'two': 128, 'full_attention_nine': 384, 'all': 1024}[arm] * 1024**2
     result = {
-        'admission': stage(120, artifact_bytes=126*1024**2, writes=1),
-        'load': stage(600, model_loads=1),
-        'baseline': stage(240, forwards=64, input_tokens=64*256, generated_tokens=64),
-        'numerical': stage(120, forwards=2, input_tokens=2*256, source_encodes=1),
-        'prepare': stage(120, source_encodes=32, retrievals=32, writes=64),
-        'teacher': stage(300, forwards=288, input_tokens=288*256, generated_tokens=256,
+        'admission': stage(30, artifact_bytes=126*1024**2, writes=1),
+        'load': stage(180, model_loads=1),
+        'baseline': stage(60, forwards=64, input_tokens=64*256, generated_tokens=64),
+        'numerical': stage(30, forwards=2, input_tokens=2*256, source_encodes=1),
+        'prepare': stage(60, source_encodes=32, retrievals=32, writes=64),
+        'teacher': stage(120, forwards=288, input_tokens=288*256, generated_tokens=256,
                          writes=33, artifact_bytes=2*1024**2),
-        'checkpoint': stage(180, forwards=1, input_tokens=256, source_encodes=1,
+        'checkpoint': stage(60, forwards=1, input_tokens=256, source_encodes=1,
                             artifact_bytes=checkpoint, writes=1),
-        'development': stage(600, forwards=768, input_tokens=768*256, generated_tokens=768,
+        'development': stage(540, forwards=768, input_tokens=768*256, generated_tokens=768,
                              source_encodes=16, retrievals=16, writes=32),
-        'correction': stage(120, forwards=24, input_tokens=24*256, generated_tokens=24,
+        'correction': stage(60, forwards=24, input_tokens=24*256, generated_tokens=24,
                             source_encodes=1, retrievals=2, writes=4),
-        'restart': stage(120, forwards=2, backwards=1, updates=1, input_tokens=2*256,
+        'restart': stage(140, forwards=2, backwards=1, updates=1, input_tokens=2*256,
                          model_loads=1, source_encodes=2, retrievals=1, writes=1),
     }
     for end in PREFIXES:
-        result[f'fit_{end:03d}'] = stage(240, forwards=128, backwards=128, updates=128,
+        # The durable ledger rewrites a growing audit. A prelaunch CPU probe
+        # measured ~0.31 s/write at 8144 events; reserve late-stage overhead.
+        result[f'fit_{end:03d}'] = stage(550, forwards=128, backwards=128, updates=128,
                                         input_tokens=128*256, source_encodes=128)
         result[f'fit_probes_{end:03d}'] = stage(900, forwards=1792, input_tokens=1792*256,
                                               generated_tokens=1536, source_encodes=96,
