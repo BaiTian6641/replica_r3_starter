@@ -275,7 +275,8 @@ def test_final_tampered_dev_report_fails_before_backend_or_final_labels(
     with pytest.raises(ProtocolError):
         runner.run_sealed_final(
             config_path=CONFIG, prepared=PREPARED,
-            authorization_path=_authorization(tmp_path), output=output)
+            authorization_path=_authorization(tmp_path), output=output,
+            historical_replay=True)
 
 
 def test_production_factory_seam_is_used_when_no_backend_is_injected(
@@ -291,7 +292,8 @@ def test_production_factory_seam_is_used_when_no_backend_is_injected(
     output = tmp_path / "native01"
     result = runner.run_dev(
         config_path=CONFIG, prepared=PREPARED,
-        authorization_path=_authorization(tmp_path), output=output)
+        authorization_path=_authorization(tmp_path), output=output,
+        historical_replay=True)
     assert calls == ["dev"]
     assert result["admitted"] is True
     admission = read_json(output / "dev" / "admission.json")
@@ -329,13 +331,13 @@ def test_actual_work_over_reservation_is_refused(tmp_path):
         _run_dev(tmp_path, OverrunBackend(_labels()))
 
 
-def test_cli_refuses_invalid_authorization_without_loading_model(tmp_path):
+def test_cli_refuses_invalid_authorization_during_historical_replay(tmp_path):
     script = ROOT / "scripts" / "run_dc_r1_native_value_v2_20261027.py"
     authorization = tmp_path / "authorization.json"
     authorization.write_text("{}\n", encoding="utf-8")
     completed = subprocess.run(
         [sys.executable, str(script), "--stage", "dev", "--device", "mps",
-         "--output", str(tmp_path / "native01"),
+         "--output", str(tmp_path / "native01"), "--historical-replay",
          "--authorization", str(authorization)],
         cwd=ROOT, text=True, capture_output=True, check=False)
     assert completed.returncode == 2
@@ -345,21 +347,22 @@ def test_cli_refuses_invalid_authorization_without_loading_model(tmp_path):
     assert not (tmp_path / "native01").exists()
 
 
-def test_launch_preflight_emits_guarded_external_command(tmp_path):
+def test_launch_preflight_emits_guarded_historical_replay_command(tmp_path):
     script = ROOT / "scripts" / "preflight_dc_r1_native_value_v2_20261027.py"
     receipt = tmp_path / "launch_review.json"
     completed = subprocess.run(
-        [sys.executable, str(script), "--launch", "--receipt", str(receipt),
+        [sys.executable, str(script), "--launch", "--historical-replay",
+         "--receipt", str(receipt),
          "--authorization", str(_authorization(tmp_path))],
         cwd=ROOT, text=True, capture_output=True, check=False)
     assert completed.returncode == 0, completed.stdout + completed.stderr
     report = json.loads(completed.stdout)
-    assert report["status"] == "launch_admitted"
+    assert report["status"] == "historical_replay_admitted"
     assert report["native_execution"] is False
     assert report["executor"] == "scripts/run_dc_r1_native_value_v2_20261027.py"
-    assert "run_capacity_preflight.py" in report["next_command"]
+    assert "--historical-replay" in report["next_command"]
     assert "--stage dev" in report["next_command"]
-    assert read_json(receipt)["status"] == "launch_admitted"
+    assert read_json(receipt)["status"] == "historical_replay_admitted"
     assert not (ROOT / "runs/dc_r1_native_value_v2_20261027/native01").exists()
 
 

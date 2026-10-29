@@ -1,0 +1,110 @@
+{
+  "counts": {
+    "arms": 9,
+    "development_cases": 12,
+    "development_labels": 12,
+    "fit_events": 4,
+    "observations": 13,
+    "parity_requests": 2,
+    "procedures": 4,
+    "restart_parity_requests": 1,
+    "task_workspaces": 1
+  },
+  "created_utc": "2026-10-28T00:00:00+00:00",
+  "development_labels_closed_until_fit_receipt": true,
+  "files": {
+    "development.jsonl": {
+      "bytes": 4266,
+      "sha256": "4292b054aa2c1ad681dd4aa67df90fff1bc655bac0c06f2acfc4874a93549eaa"
+    },
+    "development_labels.jsonl": {
+      "bytes": 532,
+      "sha256": "b08e585091e3fdfacf9ac87200784bc450d3a903f7bbcad42e28d5c075540b01"
+    },
+    "fit_events.jsonl": {
+      "bytes": 1322,
+      "sha256": "dda2c4475edc903152c6e739f4c12a036f63c58a0a72f1b3d16a668b7a17ac46"
+    },
+    "observations.jsonl": {
+      "bytes": 10593,
+      "sha256": "dc40d6741e6916baa27d81166d91d025830646252d6162158810249e071a682a"
+    },
+    "parity_requests.jsonl": {
+      "bytes": 704,
+      "sha256": "d7dbfab9caffbca8cfd32d52cb83015a6703f04f8bb5293897b2547ce0361e9c"
+    },
+    "procedures.json": {
+      "bytes": 2541,
+      "sha256": "19c79f7882e8ebdb886665122b92d4cae337a88edd4cd00196f564d2d3808539"
+    },
+    "tasks.json": {
+      "bytes": 699,
+      "sha256": "e9b5e9eaef479751a5449ba3096758436772b3aed4694ea224fbd7beb140e8e4"
+    },
+    "worlds.json": {
+      "bytes": 860,
+      "sha256": "98d22d98328090a01e2a5c326ac18e478ba0d1865e6abbccc8f0261838280b90"
+    }
+  },
+  "format": "replica.spark_text_memory.fixture.v1",
+  "protocol_id": "spark_text_memory_v1",
+  "required_streams": [
+    "new_information",
+    "new_procedure_instances",
+    "corrections",
+    "exceptions",
+    "revocations",
+    "unknowns",
+    "similar_looking_different_procedures",
+    "delayed_recall",
+    "interference",
+    "restart",
+    "capacity_pressure"
+  ],
+  "roles": {
+    "development": "fresh_world_paraphrase_new_instance_and_retention_selection",
+    "fit": "chronological_teaching_and_support_only",
+    "sealed_final": "closed_not_materialized_not_read"
+  },
+  "sealed_final": {
+    "materialized": false,
+    "opened": false,
+    "path": null
+  },
+  "seed": 20261028,
+  "source_lineage": "owned_synthetic_text_rules_with_exact_verifiable_outcomes",
+  "split_unit": "independent_world_and_rule_family_before_paraphrase_generation",
+  "version": 1,
+  "worlds": [
+    {
+      "kind": "new_rule_correction_and_older_rule",
+      "role": "fit",
+      "rule_family": "alpha_beacon",
+      "world_id": "fit_alpha"
+    },
+    {
+      "kind": "similar_looking_different_procedure",
+      "role": "fit",
+      "rule_family": "beta_tag_routing",
+      "world_id": "fit_beta"
+    },
+    {
+      "kind": "fresh_world_new_rule",
+      "role": "development",
+      "rule_family": "gamma_valve",
+      "world_id": "dev_gamma"
+    },
+    {
+      "kind": "unknown_and_revocation",
+      "role": "development",
+      "rule_family": "delta_tag_revocation",
+      "world_id": "dev_delta"
+    },
+    {
+      "kind": "unrelated_capacity_pressure_records",
+      "role": "development",
+      "rule_family": "capacity_pressure_filler",
+      "world_id": "dev_filler"
+    }
+  ]
+}

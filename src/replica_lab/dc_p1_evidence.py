@@ -19,6 +19,7 @@ from dc_protocol_common_20261027 import (
     verify_decoded_text,
 )
 from replica_lab import dc_staged_evaluation as staged
+from replica_lab.learning_evidence import learning_success_evidence
 
 ROOT = Path(__file__).resolve().parents[2]
 PROTOCOL_ID = "dc_p1_native_response_v2"
@@ -48,6 +49,7 @@ LATE_LABEL_FILES = {
 
 
 def arm_specs(config: Mapping[str, Any], stage: str) -> list[dict]:
+    groups = list(config["plastic_spec"]["trainable_groups"])
     if stage == staged.STAGE_FINAL:
         final = config["controls"]["final_stage"]
         return [{
@@ -56,6 +58,7 @@ def arm_specs(config: Mapping[str, Any], stage: str) -> list[dict]:
             "answer_span_ce_weight": config["objective"][
                 "answer_span_ce_weight_treatment"],
             "updates": int(final["updates"]),
+            "trainable_groups": groups,
         }]
     return [{
         "arm_id": arm["arm_id"],
@@ -64,6 +67,7 @@ def arm_specs(config: Mapping[str, Any], stage: str) -> list[dict]:
         "updates": int(arm["updates"]),
         "restore_parent_before_evaluation": bool(
             arm.get("restore_parent_before_evaluation")),
+        "trainable_groups": list(arm.get("trainable_groups", groups)),
     } for arm in config["controls"]["arms"]]
 
 
@@ -331,6 +335,53 @@ def _verify_checkpoints(*, output_root: Path, checkpoint_stage: str,
     return states
 
 
+
+
+def _verify_learning_evidence(*, report: Mapping[str, Any],
+                              specs: Sequence[Mapping[str, Any]],
+                              checkpoint_paths: Mapping[str, Path],
+                              output_root: Path) -> None:
+    """Recompute the per-arm learning sidecar from checkpoint metadata."""
+    from replica_lab import artifact_publication as publication
+
+    actual = report.get("learning_evidence")
+    if not isinstance(actual, Mapping):
+        raise ProtocolError("learning_evidence", "fit learning sidecar must be an object")
+    expected_arms = {spec["arm_id"] for spec in specs}
+    if set(actual) != expected_arms:
+        raise ProtocolError("learning_evidence", "fit learning arm set differs")
+    for spec in specs:
+        arm = spec["arm_id"]
+        updates = int(spec.get("updates", 0))
+        if updates == 0:
+            expected = learning_success_evidence(
+                declared_updates=0, execution_complete=True,
+                optimizer_steps=0, changed_trainable_names=[])
+        else:
+            relative = checkpoint_paths[arm].relative_to(output_root).as_posix()
+            payload = publication.load_torch(output_root, relative)
+            stored = payload.get("meta", {})
+            counters = stored.get("arm_counters", {})
+            changed = stored.get("changed_trainable_names", [])
+            require(isinstance(changed, list)
+                    and all(isinstance(name, str) and name for name in changed)
+                    and set(changed) <= set(spec["trainable_groups"]),
+                    "learning_evidence", f"{arm}: changed tensor set differs")
+            expected = learning_success_evidence(
+                declared_updates=updates, execution_complete=True,
+                optimizer_steps=int(counters.get("optimizer_steps", 0)),
+                retry_optimizer_steps=int(
+                    counters.get("restart_optimizer_steps", 0)),
+                no_op_optimizer_steps=int(stored.get("no_op_optimizer_steps", 0)),
+                changed_trainable_names=changed,
+                restored_parent=stored.get("restored") is True)
+            require(expected["learning_success"] is True, "learning_evidence",
+                    f"{arm}: declared learning did not change trainable tensors")
+        if actual.get(arm) != expected:
+            raise ProtocolError(
+                "learning_evidence", f"{arm}: learning sidecar differs from checkpoint")
+
+
 def _recompute_report(*, stage: str, cases: Sequence[Mapping[str, Any]],
                       labels: Sequence[Mapping[str, Any]],
                       predictions: Sequence[Mapping[str, Any]],
@@ -360,7 +411,7 @@ def _recompute_report(*, stage: str, cases: Sequence[Mapping[str, Any]],
         report = staged.score_final_stage(**common)
     report["scoring_counts"] = dict(report["cases"])
     for key in ("scoring_counts", "evidence_class", "native_execution_admissible",
-                "attempt_id", "confirmation_only"):
+                "attempt_id", "confirmation_only", "learning_evidence"):
         if key in original:
             report[key] = original[key]
     require(set(report) == set(original), "score_recompute",
@@ -455,6 +506,10 @@ def verify_stage_evidence(*, stage: str, output_root: str | Path,
         checkpoint_paths=checkpoint_paths, specs=specs,
         evidence_class=report["evidence_class"], predictions=predictions,
         prepared=prepared, manifest=manifest)
+    if stage == staged.STAGE_FIT:
+        _verify_learning_evidence(
+            report=report, specs=specs, checkpoint_paths=checkpoint_paths,
+            output_root=output_root)
     if decode_fn is None:
         decode_fn = tokenizer_decode(binding, ROOT / "checkpoints/minicpm5_source")
     recomputed = _recompute_report(

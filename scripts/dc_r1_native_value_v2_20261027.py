@@ -47,6 +47,7 @@ from dc_protocol_common_20261027 import (  # noqa: E402
     validate_baseline_model, validate_guards, validate_manifest,
     validate_tokenizer_binding, verify_decoded_text, write_json, write_jsonl,
 )
+from replica_lab.runner_registry import retirement_for  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL_ID = "dc_r1_native_value_readout_v2"
@@ -2118,7 +2119,8 @@ def preflight(config_path: str | Path = CONFIG_PATH,
               prepared: str | Path = PREPARED_DIR,
               *, launch: bool = False,
               authorization: str | Path | None = None,
-              native_runner: str | Path | None = None) -> dict:
+              native_runner: str | Path | None = None,
+              historical_replay: bool = False) -> dict:
     config = read_json(config_path)
     validate_config(config)
     prepared_dir = Path(prepared)
@@ -2150,22 +2152,42 @@ def preflight(config_path: str | Path = CONFIG_PATH,
             executor = str(runner)
         output_root = config["launch"]["output_root"]
         report_root = Path(output_root).parent
-        receipt.update({
-            "status": "launch_admitted",
-            "native_execution_status": (
-                "external authorization admitted; the separate native runner, "
-                "not this preflight, performs the work"),
-            "executor": executor,
-            "next_command": shlex.join([
+        retirement = retirement_for(executor)
+        replay = bool(historical_replay and retirement is not None
+                      and retirement.get("historical_replay_allowed") is True)
+        if retirement is not None and not replay:
+            receipt.update({
+                "status": "retired_minicpm_only",
+                "native_execution_status": (
+                    "retired MiniCPM-only runner; historical replay only"),
+                "retirement": retirement,
+                "next_command": None,
+            })
+            exit_code = 2
+        else:
+            command = [
                 "PYTHONDONTWRITEBYTECODE=1", "python3",
                 "scripts/run_capacity_preflight.py", "--entry-point",
                 Path(executor).name, "--report",
                 str(report_root / "guard_dev01.json"), "--", "--stage", "dev",
                 "--device", "mps", "--output", output_root,
                 "--authorization", str(authorization), "--report",
-                str(report_root / "dev_result01.json")]),
-        })
-        exit_code = 0
+                str(report_root / "dev_result01.json")]
+            if replay:
+                command.append("--historical-replay")
+            receipt.update({
+                "status": "historical_replay_admitted" if replay else "launch_admitted",
+                "native_execution_status": (
+                    "external authorization admitted explicit historical replay"
+                    if replay else
+                    "external authorization admitted; the separate native runner, "
+                    "not this preflight, performs the work"),
+                "executor": executor,
+                "next_command": shlex.join(command),
+            })
+            if retirement is not None:
+                receipt["retirement"] = retirement
+            exit_code = 0
     receipt["budget_readiness"] = {
         "physical_limits": deepcopy(config["budget"]["physical_limits"]),
         "derived_workload": workload_derivation()["total"],

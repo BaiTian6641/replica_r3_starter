@@ -106,6 +106,7 @@ class FakeBackend(runner.Backend):
         self.wrong_primary_for_arms = set(wrong_primary_for_arms or ())
         self.startup_calls = 0
         self._teaching_positions = {}
+        self.train_calls = []
         self.max_new = 16
         self.max_prompt = 4096
 
@@ -133,6 +134,7 @@ class FakeBackend(runner.Backend):
 
     def train_step(self, encoding, *, weight, arm):
         self.current_arm = arm
+        self.train_calls.append((arm, int(encoding["event_ordinal"])))
         if self.fail_after is not None and \
                 self.optimizer_steps.get(arm, 0) >= self.fail_after:
             raise (self.failure or InjectedPublication(
@@ -140,6 +142,8 @@ class FakeBackend(runner.Backend):
         self.states[arm] = self.states.get(arm, 0) + (1 if weight == 0.0 else 2)
         self.optimizer_steps[arm] = self.optimizer_steps.get(arm, 0) + 1
         return {
+            "changed_trainable_names": [
+                "expert_0.gate", "expert_0.up", "expert_0.down"],
             "loss": 1.0 / self.states[arm],
             "raw_gradient_norm": 1.0,
             "clip_scale": 1.0,
@@ -406,6 +410,19 @@ def test_fit_orchestration_is_cpu_fixture_with_real_stage_accounting(tmp_path):
     receipt = read_json(output / "fit" / "receipt.json")
     assert receipt["evidence_class"] == "cpu_fixture"
     assert receipt["native_execution_admissible"] is False
+    for arm in ("treatment", "matched_trained", "reset_P"):
+        evidence = report["learning_evidence"][arm]
+        assert evidence["learning_success"] is True
+        assert evidence["optimizer_steps"] == 36
+        assert evidence["retry_optimizer_steps"] == 0
+        assert evidence["no_op_optimizer_steps"] == 0
+        assert evidence["changed_trainable_names"] == [
+            "expert_0.down", "expert_0.gate", "expert_0.up"]
+    assert report["learning_evidence"]["reset_P"]["restored_parent"] is True
+    zero = report["learning_evidence"]["no_update"]
+    assert zero["status"] == "not_applicable_zero_update_control"
+    assert zero["learning_success"] is False
+    assert zero["changed_trainable_names"] == []
     for arm in runner.ARMS:
         rows = (output / "fit" / f"predictions_{arm}.jsonl").read_text().splitlines()
         assert len(rows) == 36
@@ -639,6 +656,12 @@ def test_resume_after_interrupted_training_does_not_repeat_optimizer_work(
     assert counters["optimizer_steps"] == 108
     assert counters["backward_calls"] == 108
     assert counters["restart_backward_calls"] == 1
+    assert counters["restart_optimizer_steps"] == 1
+    treatment = read_json(output / "fit/fit_report.json")["learning_evidence"]["treatment"]
+    assert treatment["optimizer_steps"] == 36
+    assert treatment["retry_optimizer_steps"] == 1
+    assert treatment["no_op_optimizer_steps"] == 0
+    assert treatment["learning_success"] is True
     assert counters["recovery_reloads"] == 1
     assert counters["restart_model_loads"] == 1
     assert counters["restart_tokenizer_loads"] == 1
@@ -750,3 +773,81 @@ def test_work_meter_reservation_reconcile_and_abort(tmp_path):
     assert meter.cumulative["training_forwards"] == 1
     assert meter.take_ambiguous_work()
     assert meter.take_ambiguous_work() == []
+
+
+def test_missing_publication_record_is_republished_without_relearning(tmp_path):
+    output = tmp_path / "missing_publication"
+    authorization = _authorization(tmp_path)
+    _run_stage("fit", output, _controlled_backend(), authorization)
+    (output / "publication_journal.json").unlink()
+    backend = _controlled_backend()
+    result = _run_stage("fit", output, backend, authorization, resume=True)
+    assert result.get("already_complete", False) is False
+    assert result["status"] == "passed"
+    assert backend.train_calls == []
+    assert result["counters"]["cumulative"]["optimizer_steps"] == 108
+    assert (output / "publication_journal.json").is_file()
+    journal = read_json(output / "fit/journal.json")
+    assert journal["stage_complete"] is True
+    assert journal["publication_stage_done"] is True
+
+
+def test_noop_optimizer_fails_declared_learning_success(tmp_path):
+    authorization = _authorization(tmp_path)
+    context, _ = runner.verify_authorization(
+        config_path=CONFIG, prepared=PREPARED,
+        authorization_path=authorization, protocol_commit=COMMIT,
+        require_head=False, stage="fit", commit_verifier=_commit_verifier)
+    context = runner._with_output(context, tmp_path / "noop")
+    state, complete = runner._stage_setup(context, "fit", resume=False)
+    assert complete is False
+    publication, _ = runner._publication(context)
+
+    class NoOpBackend(FakeBackend):
+        def train_step(self, encoding, *, weight, arm):
+            return {
+                "loss": 1.0,
+                "raw_gradient_norm": 1.0,
+                "clip_scale": 1.0,
+                "changed_trainable_names": [],
+                "physical_work": {
+                    "training_forwards": 1,
+                    "backward_calls": 1,
+                    "optimizer_steps": 1,
+                    "teaching_processed_positions": int(encoding["input_tokens"]),
+                },
+            }
+
+    backend = NoOpBackend(_labels())
+    arm = context.arm_specs("fit")[0]
+    with pytest.raises(ProtocolError, match="changed no trainable tensor"):
+        runner._train_arm(
+            state, backend, arm, runner.teaching_rows(context, "fit"),
+            resume=False, publish=publication, check_arm=True)
+    assert state.journal["arms"][arm["arm_id"]]["complete"] is False
+    record = state.journal["arms"][arm["arm_id"]]
+    assert record["no_op_optimizer_steps"] == 1
+    assert record["updates_completed"] == 0
+    assert state.meter.cumulative["optimizer_steps"] == 1
+    assert state.meter.ambiguous_work == []
+
+
+def test_learning_evidence_distinguishes_noop_retry_and_restoration():
+    retried = runner.learning_success_evidence(
+        declared_updates=2, execution_complete=True, optimizer_steps=3,
+        retry_optimizer_steps=1, no_op_optimizer_steps=1,
+        changed_trainable_names=["expert_0.gate"], restored_parent=True)
+    assert retried["learning_success"] is True
+    assert retried["optimizer_steps"] == 3
+    assert retried["retry_optimizer_steps"] == 1
+    assert retried["no_op_optimizer_steps"] == 1
+    assert retried["restored_parent"] is True
+    zero_lr = runner.learning_success_evidence(
+        declared_updates=1, execution_complete=True, optimizer_steps=1,
+        changed_trainable_names=[])
+    assert zero_lr["learning_success"] is False
+    assert zero_lr["status"] == "failed"
+    zero_update = runner.learning_success_evidence(
+        declared_updates=0, execution_complete=True, optimizer_steps=0,
+        changed_trainable_names=[])
+    assert zero_update["status"] == "not_applicable_zero_update_control"

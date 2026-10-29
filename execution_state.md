@@ -1,6 +1,30 @@
 # Execution state — integrated memory, cognition and learning
 
-## Spark spine and E/P memory interfaces — 28 October 2026
+## Active order — Spark text memory with the internal spine
+
+**Status — implementation and protocol preparation are in progress; no native
+execution or learned capability is established.** Reviewed starting HEAD was
+`b350e87e`; current work preserves unrelated DC/vision repairs. Read the
+[active architecture](docs/architecture/26_Spark_Text_Memory_Milestone.md) and
+[versioned protocol](configs/spark_text_memory_protocol_v1.json).
+
+1. Reconcile readout, identity, publication and retired-runner repairs.
+2. Repair query-driven P-only reads, bounded selection, ownership, invalidation,
+   durable rebuild state and actual-update evidence.
+3. Prove text-to-memory-to-response behavior and gradients on tiny CPU fixtures.
+4. Compare chronological knowledge, procedure, retention and cost controls.
+5. Bind the complete implementation and run preflight. Use one guarded native
+   pilot only with exact external authorization for official FP8 and its actual
+   execution backend; no BF16/derivative substitution is silent.
+6. Expand to multi-seed qualification only after useful behavior, never to evade
+   a negative diagnosis through larger P/read budgets or added mechanisms.
+
+Native vision/audio, physical actor/sensor work, nested outer learning,
+self-distillation, RSI, personality adaptation and capacity expansion are
+deferred. MiniCPM is a historical/mechanism control, not a prerequisite. The
+50 GiB / 512 MiB / 15% host-free guards and protected runtime pilot remain fixed.
+
+## Previous increment — Spark spine and E/P memory interfaces
 
 **Current status — scoped CPU implementation and regression verification are complete;
 native execution and learned capability remain unauthorized and unqualified.**

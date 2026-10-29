@@ -37,13 +37,15 @@ def main(argv=None) -> int:
     mode.add_argument("--review", action="store_true")
     mode.add_argument("--launch", action="store_true")
     parser.add_argument("--authorization", type=Path, default=None)
+    parser.add_argument("--historical-replay", action="store_true")
     args = parser.parse_args(argv)
     try:
         report = preflight(
             args.config, args.prepared, launch=bool(args.launch),
             authorization=args.authorization,
             native_runner=(ROOT / "scripts/run_dc_r1_native_value_v2_20261027.py"
-                           if args.launch else None))
+                           if args.launch else None),
+            historical_replay=bool(args.historical_replay))
         target = require_fresh_path(args.receipt, "preflight_receipt")
         write_json_atomic(target, report)
     except ProtocolError as error:

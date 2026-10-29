@@ -1,0 +1,30 @@
+{
+  "format": "replica.spark_text_memory.tasks.v1",
+  "tasks": [
+    {
+      "observed_completions": [
+        {
+          "checker": "fixture-rule-table",
+          "evidence_record_ids": [
+            "fit-beta-rule"
+          ],
+          "observation": "the green tag routes to review",
+          "observed_at": 2,
+          "subgoal_id": "route_queue"
+        }
+      ],
+      "subgoals": [
+        {
+          "description": "inspect the beta tag",
+          "subgoal_id": "inspect_tag"
+        },
+        {
+          "description": "route to the named queue",
+          "subgoal_id": "route_queue"
+        }
+      ],
+      "task_id": "fit-beta-task",
+      "world_id": "fit_beta"
+    }
+  ]
+}

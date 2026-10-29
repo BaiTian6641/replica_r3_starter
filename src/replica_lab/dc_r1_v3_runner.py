@@ -39,9 +39,12 @@ IMPLEMENTATION_RELATIVES = (
     "scripts/dc_r1_native_value_v3_20261028.py",
     "scripts/preflight_dc_r1_native_value_v3_20261028.py",
     "scripts/run_dc_r1_native_value_v3_20261028.py",
+    "src/replica_lab/artifact_publication.py",
     "src/replica_lab/dc_r1_v3_backend.py",
     "src/replica_lab/dc_r1_v3_scoring.py",
     "src/replica_lab/dc_r1_v3_runner.py",
+    "src/replica_lab/model_identity.py",
+    "src/replica_lab/native_readout.py",
 )
 
 
@@ -346,7 +349,21 @@ def _stage_setup(context: RunContext, stage: str, *, resume: bool,
             require(journal.get(key) == expected, "resume", f"stage journal {key} differs")
         if journal.get("stage_complete") is True:
             require(resume, "resume", f"{stage} already complete")
-            return journal, True
+            if (journal.get("publication_stage_done") is True
+                    and publication.published_stage_done(
+                        context.output, stage, identity={
+                            "protocol_id": PROTOCOL_ID,
+                            "config_sha256": context.config_sha256,
+                            "prepared_manifest_sha256": context.manifest_sha256,
+                            "authorization_receipt_sha256": context.authorization_sha256,
+                            "attempt_id": context.attempt_id,
+                            "output_root": str(context.output.resolve()),
+                        })):
+                return journal, True
+            journal["stage_complete"] = False
+            journal["publication_stage_done"] = False
+            journal["status"] = "in_progress"
+            journal["error"] = None
         require(resume, "resume", f"{stage} is incomplete; use --resume")
         require(int(journal.get("resumes_used", 0)) < int(
             context.authorization.get("restart_allowance", 0)),

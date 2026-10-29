@@ -41,6 +41,8 @@ from dc_protocol_common_20261027 import (  # noqa: E402
     validate_baseline_model, validate_guards, validate_tokenizer_binding,
     verify_decoded_text,
 )
+from replica_lab.learning_evidence import learning_success_evidence
+from replica_lab import artifact_publication as publication
 
 PROTOCOL_ID = "dc_p1_native_response_v2"
 CONFIG_FORMATS = ("replica.dc_p1_native_response.protocol.v2",)
@@ -60,6 +62,7 @@ IMPLEMENTATION_RELATIVES = (
     "src/replica_lab/dc_response_objective.py",
     "src/replica_lab/dc_staged_evaluation.py",
     "src/replica_lab/artifact_publication.py",
+    "src/replica_lab/learning_evidence.py",
     "scripts/dc_protocol_common_20261027.py",
 )
 COUNTER_NAMES = (
@@ -964,8 +967,8 @@ class NativeP1Backend(Backend):
         self._worker = exclusive_mps_worker(ROOT)
         self._worker.__enter__()
         try:
-            profile_dir = stage_root(context.output, stage)
-            profile_dir.mkdir(parents=True, exist_ok=True)
+            # The guard watches the attempt root, not a stage-only directory.
+            profile_dir = Path(context.output)
             self.profiler = RunProfiler("mps", profile_dir).start()
             model_path = ROOT / context.config["baseline_model"]["model_path"]
             lock_path = ROOT / context.config["baseline_model"]["lock_path"]
@@ -1151,7 +1154,12 @@ class NativeP1Backend(Backend):
         clip_scale = min(1.0, 1.0 / max(raw_gradient_norm, 1e-12))
         torch.nn.utils.clip_grad_norm_(parameters, 1.0)
         clip_scale_applied = 1.0 if raw_gradient_norm <= 1.0 else clip_scale
+        before_step = {name: parameter.detach().clone()
+                       for name, parameter in self.bank.expert(0).named_parameters()}
         self.optimizer.step()
+        changed = [f"expert_0.{name}"
+                   for name, parameter in self.bank.expert(0).named_parameters()
+                   if not torch.equal(before_step[name], parameter)]
         self.bank.zero_gradients()
         audit = audit_objective_signal(
             masks=masks, answer_span_ce_weight=weight, logits=None,
@@ -1164,6 +1172,7 @@ class NativeP1Backend(Backend):
             "audit": audit,
             "raw_gradient_norm": raw_gradient_norm,
             "clip_scale": clip_scale_applied,
+            "changed_trainable_names": changed,
             "physical_work": {
                 "training_forwards": 1,
                 "backward_calls": 1,
@@ -1412,7 +1421,9 @@ def _stage_setup(context: RunContext, stage: str, *,
         require(not journal.get("ambiguous_work"), "resume",
                 "ambiguous in-flight native work blocks recovery")
         if journal.get("stage_complete") is True:
-            if resume:
+            if resume and journal.get("publication_stage_done") is True \
+                    and publication.published_stage_done(
+                        output, stage, identity=_publication_identity(context)):
                 state = StageState(
                     context=context, stage=stage,
                     attempt=journal["attempt_id"],
@@ -1421,9 +1432,13 @@ def _stage_setup(context: RunContext, stage: str, *,
                                     local=journal.get("local")),
                     journal=journal)
                 return state, True
-            raise RunnerError(
-                f"{stage} is already complete at {output}; use --resume to "
-                "inspect it or a fresh authorized attempt")
+            if not resume:
+                raise RunnerError(
+                    f"{stage} is already complete at {output}; use --resume to "
+                    "inspect it or a fresh authorized attempt")
+            journal["stage_complete"] = False
+            journal["publication_stage_done"] = False
+            journal["status"] = "in_progress"
         if not resume:
             raise RunnerError(
                 f"{stage} journal at {output} is incomplete; use --resume")
@@ -1503,7 +1518,9 @@ def _teaching_audit(encodings: Sequence[Mapping[str, Any]],
 def _arm_journal(journal: dict, arm: str) -> dict:
     return journal.setdefault("arms", {}).setdefault(arm, {
         "events_completed": [],
+        "optimizer_attempts": [],
         "updates_completed": 0,
+        "no_op_optimizer_steps": 0,
         "checkpoint": None,
         "trained": False,
         "restored": False,
@@ -1630,6 +1647,9 @@ def _train_arm(state: StageState, backend: Backend,
         record["restored"] = False
     if updates == 0:
         record["complete"] = True
+        record["learning_evidence"] = learning_success_evidence(
+            declared_updates=updates, execution_complete=True,
+            optimizer_steps=0, changed_trainable_names=[])
         state.save()
         return record
     completed = [int(item) for item in record.get("events_completed", [])]
@@ -1638,8 +1658,8 @@ def _train_arm(state: StageState, backend: Backend,
     restart_index = len(completed)
     for index in range(len(completed), len(encodings)):
         encoding = encodings[index]
-        restart = bool(resume and record.get("checkpoint")
-                       and index == restart_index)
+        restart = bool(resume and index == restart_index
+                       and index in record.get("optimizer_attempts", []))
         work = ({
             "training_forwards": 1,
             "backward_calls": 1,
@@ -1647,6 +1667,7 @@ def _train_arm(state: StageState, backend: Backend,
             "teaching_processed_positions": int(encoding["input_tokens"]),
             "restart_training_forwards": 1,
             "restart_backward_calls": 1,
+            "restart_optimizer_steps": 1,
             "restart_processed_text_positions": int(
                 encoding["input_tokens"]),
         } if restart else {
@@ -1655,6 +1676,10 @@ def _train_arm(state: StageState, backend: Backend,
             "teaching_processed_positions": int(encoding["input_tokens"]),
         })
         reservation = state.meter.reserve(work, arm=arm_key)
+        attempts = record.setdefault("optimizer_attempts", [])
+        if index not in attempts:
+            attempts.append(index)
+            state.save()
         try:
             result = backend.train_step(encoding, weight=weight, arm=arm)
         except RunInterrupted:
@@ -1665,15 +1690,32 @@ def _train_arm(state: StageState, backend: Backend,
             state.save()
             raise
         actual = result.get("physical_work", work)
+        changed = result.get("changed_trainable_names")
         if restart and "training_forwards" in actual:
             actual = dict(actual)
             actual.update({
                 "restart_training_forwards": int(actual["training_forwards"]),
                 "restart_backward_calls": int(actual["backward_calls"]),
+                "restart_optimizer_steps": int(actual["optimizer_steps"]),
                 "restart_processed_text_positions": int(
                     actual["teaching_processed_positions"]),
             })
+        # A no-op still performed physical optimizer work. Charge it before
+        # rejecting the learning event so a later resume is an explicit retry.
         state.meter.reconcile(reservation, actual)
+        if isinstance(changed, (list, tuple)) and not changed:
+            record["no_op_optimizer_steps"] = int(
+                record.get("no_op_optimizer_steps", 0)) + 1
+        state.save()
+        require(isinstance(changed, (list, tuple)), "learning",
+                f"arm {arm} did not report changed trainable tensors")
+        require(bool(changed), "learning",
+                f"arm {arm} optimizer step changed no trainable tensor")
+        require(all(isinstance(name, str) and name for name in changed)
+                and set(changed) <= set(state.context.trainable_groups()),
+                "learning", f"arm {arm} reported an undeclared trainable tensor")
+        record["changed_trainable_names"] = sorted(
+            set(record.get("changed_trainable_names", [])) | set(changed))
         state.save()
         completed.append(index)
         record["events_completed"] = list(completed)
@@ -1689,6 +1731,8 @@ def _train_arm(state: StageState, backend: Backend,
             "local_counters": state.meter.local,
             "arm_counters": state.meter._arm(arm_key) if arm_key else {},
             "parent_id": PARENT_ID,
+            "changed_trainable_names": list(record["changed_trainable_names"]),
+            "no_op_optimizer_steps": int(record.get("no_op_optimizer_steps", 0)),
             "answer_span_ce_weight": weight,
             "parent_state_sha256": getattr(
                 backend, "parent_sha256", "cpu_fixture_parent"),
@@ -1716,6 +1760,8 @@ def _train_arm(state: StageState, backend: Backend,
             "local_counters": state.meter.local,
             "arm_counters": state.meter._arm(arm_key) if arm_key else {},
             "parent_id": PARENT_ID,
+            "changed_trainable_names": list(record["changed_trainable_names"]),
+            "no_op_optimizer_steps": int(record.get("no_op_optimizer_steps", 0)),
             "answer_span_ce_weight": weight,
             "parent_state_sha256": getattr(
                 backend, "parent_sha256", "cpu_fixture_parent"),
@@ -1730,6 +1776,14 @@ def _train_arm(state: StageState, backend: Backend,
             state, publish, relative, payload, arm_key, kind="artifact")
         record["checkpoint"] = artifact.as_dict()
     record["complete"] = True
+    counters = state.meter._arm(arm_key) if arm_key else state.meter.local
+    record["learning_evidence"] = learning_success_evidence(
+        declared_updates=updates, execution_complete=record["complete"],
+        optimizer_steps=int(counters.get("optimizer_steps", 0)),
+        retry_optimizer_steps=int(counters.get("restart_optimizer_steps", 0)),
+        no_op_optimizer_steps=int(record.get("no_op_optimizer_steps", 0)),
+        changed_trainable_names=record.get("changed_trainable_names", []),
+        restored_parent=bool(arm_spec.get("restore_parent_before_evaluation")))
     require(completed == list(range(updates))
             and int(record.get("updates_completed", -1)) == updates,
             "resume", f"arm {arm} completed an incorrect update sequence")
@@ -2089,6 +2143,9 @@ def _run_fit(context: RunContext, verified: Mapping[str, Any], *,
             objective_audit=state.journal["objective_audit"],
             decode_fn=backend.decode_fn,
             evidence_class=execution_class)
+        report["learning_evidence"] = {
+            spec["arm_id"]: dict(state.journal["arms"][spec["arm_id"]].get(
+                "learning_evidence", {})) for spec in arms}
         report["attempt_id"] = state.attempt
         publication.write_json(context.output, "fit/fit_report.json", report)
         receipt, admission, error, admitted = _receipt_and_admission(

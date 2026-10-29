@@ -18,6 +18,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from replica_lab.dc_r1_native_runner import STAGES, run_stage  # noqa: E402
+from replica_lab.runner_registry import require_not_retired  # noqa: E402
 from dc_protocol_common_20261027 import ProtocolError  # noqa: E402
 
 DEFAULT_CONFIG = "configs/dc_r1_native_value_protocol_v2.json"
@@ -34,14 +35,23 @@ def main(argv=None) -> int:
     parser.add_argument("--prepared", type=Path, default=ROOT / DEFAULT_PREPARED)
     parser.add_argument("--authorization", type=Path, required=True)
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument(
+        "--historical-replay", action="store_true",
+        help="explicitly replay the retired MiniCPM protocol; not new Spark work")
     parser.add_argument("--report", type=Path, default=None)
     args = parser.parse_args(argv)
     try:
+        require_not_retired(
+            "scripts/run_dc_r1_native_value_v2_20261027.py",
+            historical_replay=bool(args.historical_replay))
         result = run_stage(
             args.stage, config_path=args.config, prepared=args.prepared,
             authorization_path=args.authorization, output=args.output,
-            resume=bool(args.resume))
-        payload = {"status": result.get("status", "complete"), **result}
+            resume=bool(args.resume),
+            historical_replay=bool(args.historical_replay))
+        payload = {"status": result.get("status", "complete"),
+                   "execution_mode": ("historical_replay" if args.historical_replay
+                                      else "new_native_launch"), **result}
     except (ProtocolError, OSError, ValueError, RuntimeError) as error:
         detail = error.as_dict() if hasattr(error, "as_dict") else {
             "check": "runner", "detail": str(error)}

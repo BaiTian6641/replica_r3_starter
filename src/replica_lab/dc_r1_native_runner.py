@@ -18,6 +18,7 @@ from dc_protocol_common_20261027 import (
     validate_manifest, validate_tokenizer_binding,
 )
 from replica_lab import artifact_publication as publication
+from replica_lab.runner_registry import require_not_retired
 
 PROTOCOL_ID = "dc_r1_native_value_readout_v2"
 AUTHORIZATION_FORMAT = "replica.dc_protocol.authorization.v1"
@@ -202,7 +203,18 @@ def _stage_setup(context: RunContext, stage: str, *, resume: bool,
                     f"stage journal {key} differs")
         if journal.get("stage_complete") is True:
             require(resume, "resume", f"{stage} is already complete")
-            return journal, WorkMeter(budget), True
+            if (journal.get("publication_stage_done") is True
+                    and publication.published_stage_done(
+                        context.output, stage, identity={
+                            "protocol_id": PROTOCOL_ID,
+                            "config_sha256": context.config_sha256,
+                            "prepared_manifest_sha256": context.manifest_sha256,
+                            "authorization_receipt_sha256": context.authorization_sha256,
+                        })):
+                return journal, WorkMeter(budget), True
+            journal["stage_complete"] = False
+            journal["publication_stage_done"] = False
+            journal["status"] = "in_progress"
         require(resume, "resume", f"{stage} is incomplete; use --resume")
         require(journal.get("resumes_used", 0) < int(
             context.authorization.get("restart_allowance", 0)),
@@ -437,13 +449,14 @@ def _score(context: RunContext, stage: str, evidence_class: str,
 
 
 def _run(context: RunContext, stage: str, *, resume: bool, backend: Any,
-         binding: Mapping[str, Any]) -> dict:
+         binding: Mapping[str, Any], historical_replay: bool = False) -> dict:
     journal, meter, complete = _stage_setup(
         context, stage, resume=resume,
         budget=context.config["budget"]["physical_limits"])
     if complete:
         result = dict(journal["result"])
         result["already_complete"] = True
+        result["historical_replay"] = bool(historical_replay)
         return result
     for name, value in journal.get("cumulative", {}).items():
         require(isinstance(value, int) and not isinstance(value, bool) and value >= 0,
@@ -511,11 +524,13 @@ def _run(context: RunContext, stage: str, *, resume: bool, backend: Any,
             "publication_stage_done": True,
             "status": report["status"],
             "admitted": admitted,
+            "historical_replay": bool(historical_replay),
             "result": {
                 "status": report["status"],
                 "stage": stage,
                 "attempt_id": _attempt_id(context, stage),
                 "admitted": admitted,
+                "historical_replay": bool(historical_replay),
                 "report_path": str(report_path),
                 "counters": meter.report(),
                 "backbone": backbone_assertion,
@@ -540,12 +555,18 @@ def _run(context: RunContext, stage: str, *, resume: bool, backend: Any,
 
 def run_stage(stage: str, *, config_path: str | Path, prepared: str | Path,
               authorization_path: str | Path, output: str | Path,
-              resume: bool = False, backend: Any = None) -> dict:
+              resume: bool = False, backend: Any = None,
+              historical_replay: bool = False) -> dict:
+    if backend is None:
+        require_not_retired(
+            "scripts/run_dc_r1_native_value_v2_20261027.py",
+            historical_replay=historical_replay)
     context, binding = verify_authorization(
         config_path=config_path, prepared=prepared,
         authorization_path=authorization_path, output=output)
     require(stage in STAGES, "stage", f"unknown stage {stage}")
-    return _run(context, stage, resume=resume, backend=backend, binding=binding)
+    return _run(context, stage, resume=resume, backend=backend, binding=binding,
+                historical_replay=historical_replay)
 
 
 def run_dev(**kwargs: Any) -> dict:

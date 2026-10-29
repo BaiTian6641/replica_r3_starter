@@ -1,14 +1,18 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
 
-**Current priority — 28 October 2026, Spark spine and E/P memory:** read
-[the integration report](docs/experiments/20261028_Spark_Spine_Memory_Integration.md).
-CPU wiring, native tiny-fixture gradients, correction/revocation, E/P restart
-and source-free intervention checks pass (39 focused; 324 broader plus 21
-subtests). No native model job, learned capability, resource qualification or
-new authorization is established. Preserve the protected runtime pilot and all
-existing native guards.
-**Current priority — 28 October 2026, vision acceptance and expansion:** read
+**Active order — Spark text memory with the internal spine (28 October 2026):**
+read the [versioned protocol](configs/spark_text_memory_protocol_v1.json) and
+[milestone architecture](docs/architecture/26_Spark_Text_Memory_Milestone.md).
+1. Reconcile existing repairs and spine/memory contracts.
+2. Prove the text-to-memory-to-response path and gradients on tiny CPU fixtures.
+3. Evaluate chronological knowledge, procedure and retention controls with matched baselines.
+4. Bind the executable protocol and run preflight; use one guarded native pilot only with exact authorization for official FP8 and its actual backend.
+5. Expand to multi-seed qualification only after useful behavior. Do not expand P, read budgets or mechanisms to bypass a negative diagnosis.
+Native vision/audio, physical actor/sensor integration, capacity expansion, nested outer learning, self-distillation, RSI and personality adaptation are deferred. MiniCPM remains a historical/mechanism control, not a prerequisite. Preserve the 50 GiB / 512 MiB / 15% host-free guards and the protected runtime pilot.
+
+Historical handoffs below preserve completed protocols and negative results; they are not competing active orders.
+**Historical handoff — 28 October 2026, vision acceptance and expansion:** read
 [the vision acceptance and expansion handoff](docs/experiments/20261028_Vision_Acceptance_and_Expansion_Readiness.md).
 Commits `6bccb837` and `97866da0` bind the smaller-step launch to 13 committed
 implementation files, add fail-closed generated-answer/control/retention/reload
@@ -19,7 +23,7 @@ and 81 visual-boundary tests. Current expansion readiness is blocked only by
 the absent positive diagnostic. No native model job, training, promotion or
 new capability claim occurred. The protected runtime pilot remains untouched.
 
-**Current priority — 28 October 2026, final integration:** read the
+**Historical handoff — 28 October 2026, final integration:** read the
 [preparation and clean-integration summary](docs/experiments/20261028_Preparation_Integration_Summary.md).
 The current repair packages are committed. Final clean checkout `96a809c` passes
 443 tests with one explicit skip; Spark passes 721/721 and 500/500 checks and
@@ -28,7 +32,7 @@ No native protocol was authorized or run. DC-P1/DC-R1, vision, full Spark, RSI,
 outer training, self-distillation and personality remain behind their stated
 external, useful-learning, competence, cost, retention and rollback gates.
 
-**Current priority — 28 October 2026, Spark and data lineage:** read
+**Historical handoff — 28 October 2026, Spark and data lineage:** read
 [Spark v5.1, caption lineage and deferred learning](docs/experiments/20261028_Spark_V5_1_Caption_and_Deferred_Learning.md).
 Commits `d65a36ff` and `48e8d49e` preserve the reviewed migration and passing
 receipts: v5.1 tracked verification 721/721, final product 500/500, and 112 tests
@@ -37,7 +41,7 @@ eight exposed rows and 24 diagnostic scenes stay separate. Official BF16/FP8,
 dequantized derivatives and native FP8 remain distinct. All ten native gates,
 RSI, outer training, self-distillation and personality remain unresolved/unrun.
 
-**Current priority — 28 October 2026, DC-R1:** read
+**Historical handoff — 28 October 2026, DC-R1:** read
 [DC-R1 readout and compressed-channel preparation](docs/experiments/20261028_DC_R1_V2_Readout_Preparation.md).
 Commit `ed923e01` preserves all-layer abstention and per-layer actual-output
 scoring, sequential 240-request/1,920-forward accounting, and the boundary that
@@ -45,7 +49,7 @@ native compressed input is only `codec_id` plus an integer. Host reconstruction
 (75%) is an audit control, not learned readout. Tests pass 24 and review is ready;
 no native runner, authorization or compressed-channel receipt exists.
 
-**Current priority — 28 October 2026, vision v2:** read
+**Historical handoff — 28 October 2026, vision v2:** read
 [vision accounting and co-adaptation preparation](docs/experiments/20261028_Vision_V2_Accounting_and_Coadaptation.md).
 Commit `e8579c04` separates the v2 runner from the byte-preserved v1 lineage,
 derives and enforces the corrected 4,804-forward/156-observation schedule, and
@@ -54,7 +58,7 @@ cache invalidation. Vision suites pass 184; combined clean verification passes
 296. Smaller-step and co-adaptation remain unauthorized and unrun; the latter
 still lacks a failed smaller-step report, frozen-feature diagnosis and receipt.
 
-**Current priority — 28 October 2026:** read
+**Historical handoff — 28 October 2026, DC-P1:** read
 [DC-P1 v2 native preparation](docs/experiments/20261028_DC_P1_V2_Native_Preparation.md).
 The protocol, selected-expert native runner, source-free P-only evaluation,
 per-event recovery and live publication accounting are committed at `792c878f`.
@@ -66,7 +70,7 @@ authorization is absent; no MPS job, download or sealed-final native evaluation
 was run. Vision, Spark and RSI gates remain unchanged.
 
 
-**Current priority — 27 October 2026:** read
+**Historical handoff — 27 October 2026:** read
 [resume repair and staged learning](docs/experiments/20261027_Resume_Repair_and_Staged_Learning.md).
 Update-29 resume now restores completed arms, active optimizer state, clocks,
 memory and input identities without retraining them, and records 29+43=72
@@ -81,7 +85,7 @@ Clean `fad6edfd` passes 2,942 tests with 95 explicit skips and 21 subtests;
 linked-worktree readiness passes 28 and Spark focused checks pass 77. See
 `reports/verification_20261027/resume_staged_summary.json`.
 
-**Current priority — 26 October 2026:** preserve sealed evaluation and keep
+**Historical handoff — 26 October 2026:** preserve sealed evaluation and keep
 mechanical acceptance separate from learned quality. The
 [one-clock text baseline](docs/experiments/20261026_Nested_Text_One_Clock.md)
 now has native teaching, strict source-free P-only evaluation, wrong-world

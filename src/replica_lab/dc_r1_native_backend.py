@@ -1,7 +1,6 @@
 """Native DC-R1 per-layer readout backend; no training or checkpoint writes."""
 from __future__ import annotations
 
-import hashlib
 from pathlib import Path
 import sys
 from typing import Any, Mapping
@@ -11,7 +10,9 @@ SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
-from dc_protocol_common_20261027 import require
+from dc_protocol_common_20261027 import require, sha256_json
+from replica_lab.model_identity import durable_model_identity
+from replica_lab.native_readout import native_layer_logits
 
 
 class NativeR1Backend:
@@ -38,7 +39,8 @@ class NativeR1Backend:
             self._worker = exclusive_mps_worker(Path(context.root))
             try:
                 self._worker.__enter__()
-                profile_dir = Path(context.output) / stage
+                # The guard watches the attempt root, not a stage-only directory.
+                profile_dir = Path(context.output)
                 profile_dir.mkdir(parents=True, exist_ok=True)
                 self.profiler = RunProfiler("mps", profile_dir).start()
                 model_path = Path(context.root) / context.config["baseline_model"]["model_path"]
@@ -58,8 +60,22 @@ class NativeR1Backend:
             self.lock = None
         self.device = next(self.adapter.base.parameters()).device
         self.base_identity = self.adapter.parameter_stamp(original_only=True)
-        self.reader_state_sha256 = hashlib.sha256(
-            repr(self.base_identity).encode()).hexdigest()
+        source_identity = getattr(
+            getattr(self.adapter, "precision", None), "artifact_sha256", None)
+        if source_identity is None and self.lock is not None:
+            source_identity = sha256_json({
+                "revision": self.lock["revision"],
+                "config_sha256": self.lock["config_sha256"],
+                "snapshot_files_sha256": self.lock["snapshot_files_sha256"],
+            })
+        self.reader_state_sha256 = durable_model_identity(
+            self.adapter.base,
+            source_identity=source_identity,
+            config={
+                "model_type": getattr(self.adapter.base.config, "model_type", None),
+                "hidden_size": getattr(self.adapter.base.config, "hidden_size", None),
+                "layers": len(self.adapter.base.model.layers),
+            })
 
     def startup_work(self) -> dict[str, int]:
         return {"model_loads": 1, "tokenizer_loads": 1}
@@ -122,12 +138,8 @@ class NativeR1Backend:
                 ids = prompt_ids + raw
                 tensor = torch.tensor([ids], dtype=torch.long, device=self.device)
                 mask = torch.ones_like(tensor, dtype=torch.bool)
-                output = self.adapter.base.model(
-                    input_ids=tensor, attention_mask=mask, use_cache=False,
-                    output_hidden_states=True)
-                hidden = output.hidden_states[layer + 1][:, -1:, :]
-                hidden = self.adapter.base.model.norm(hidden)
-                logits = self.adapter.base.lm_head(hidden)
+                logits = native_layer_logits(
+                    self.adapter.base, tensor, layer, attention_mask=mask)
                 require(bool(torch.isfinite(logits).all()), "generation",
                         "nonfinite layer logits")
                 token = int(logits[0, -1].argmax().item())

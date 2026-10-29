@@ -276,3 +276,69 @@ def test_corrupted_prepared_manifest_is_rejected_before_authorization(tmp_path):
             authorization_path=authorization, output=tmp_path / "native01",
             require_head=False, commit_verifier=fixture.commit_verifier,
             register=False)
+
+
+def test_missing_publication_record_is_republished_without_replaying(tmp_path):
+    output, authorization, _, _ = _dev(tmp_path)
+    (output / "publication_journal.json").unlink()
+    resumed = fixture.FakeBackend(native=True)
+    original = runner.build_native_backend
+    runner.build_native_backend = lambda context, stage: resumed
+    try:
+        result = runner.run_dev(
+            config_path=fixture.CONFIG, prepared=fixture.PREPARED,
+            authorization_path=authorization, output=output, resume=True,
+            require_head=False, commit_verifier=fixture.commit_verifier)
+    finally:
+        runner.build_native_backend = original
+    assert result.get("already_complete", False) is False
+    assert resumed.calls == []
+    assert (output / "publication_journal.json").is_file()
+    journal = read_json(output / "dev/journal.json")
+    assert journal["stage_complete"] is True
+    assert journal["publication_stage_done"] is True
+
+
+def test_publication_recovery_replays_only_unfinished_streams(tmp_path):
+    output, authorization, _, _ = _dev(tmp_path)
+    (output / "publication_journal.json").unlink()
+    path = output / "dev/journal.json"
+    journal = read_json(path)
+    condition = runner.CONDITIONS[0]
+    missing = journal["predictions"][condition].pop()
+    journal.update({
+        "stage_complete": False,
+        "publication_stage_done": False,
+        "status": "in_progress",
+        "result": None,
+    })
+    path.write_text(json.dumps(journal, indent=2, sort_keys=True) + "\n")
+    resumed = fixture.FakeBackend(native=True)
+    original = runner.build_native_backend
+    runner.build_native_backend = lambda context, stage: resumed
+    try:
+        result = runner.run_dev(
+            config_path=fixture.CONFIG, prepared=fixture.PREPARED,
+            authorization_path=authorization, output=output, resume=True,
+            require_head=False, commit_verifier=fixture.commit_verifier)
+    finally:
+        runner.build_native_backend = original
+    assert result["status"] == "native_compressed_channel_blocked"
+    assert read_json(output / "dev" / "journal.json")["publication_stage_done"] is True
+    assert len(resumed.calls) == len(runner.LAYERS)
+    assert {call[1] for call in resumed.calls} == {missing["case_id"]}
+    assert {call[0] for call in resumed.calls} == {condition}
+
+
+def test_resume_rejects_publication_from_another_attempt(tmp_path):
+    output, authorization, _, _ = _dev(tmp_path)
+    path = output / "publication_journal.json"
+    payload = read_json(path)
+    payload["identity"]["attempt_id"] = "another-attempt"
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    with pytest.raises(publication.PublicationError, match="identity differs"):
+        runner.run_dev(
+            config_path=fixture.CONFIG, prepared=fixture.PREPARED,
+            authorization_path=authorization, output=output, resume=True,
+            backend=fixture.FakeBackend(native=True), require_head=False,
+            commit_verifier=fixture.commit_verifier)

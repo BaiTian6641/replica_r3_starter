@@ -11,7 +11,9 @@ SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
-from dc_protocol_common_20261027 import require
+from dc_protocol_common_20261027 import require, sha256_json
+from replica_lab.model_identity import durable_model_identity
+from replica_lab.native_readout import native_layer_logits
 
 
 class NativeR1Backend:
@@ -58,11 +60,25 @@ class NativeR1Backend:
             self.lock = None
         self.device = next(self.adapter.base.parameters()).device
         self.base_identity = self.adapter.parameter_stamp(original_only=True)
-        self.reader_state_sha256 = hashlib.sha256(
-            repr(self.base_identity).encode()).hexdigest()
+        source_identity = getattr(
+            getattr(self.adapter, "precision", None), "artifact_sha256", None)
+        if source_identity is None and self.lock is not None:
+            source_identity = sha256_json({
+                "revision": self.lock["revision"],
+                "config_sha256": self.lock["config_sha256"],
+                "snapshot_files_sha256": self.lock["snapshot_files_sha256"],
+            })
+        self.reader_state_sha256 = durable_model_identity(
+            self.adapter.base,
+            source_identity=source_identity,
+            config={
+                "model_type": getattr(self.adapter.base.config, "model_type", None),
+                "hidden_size": getattr(self.adapter.base.config, "hidden_size", None),
+                "layers": len(self.adapter.base.model.layers),
+            })
         self.model_identity = hashlib.sha256(
             repr((self.adapter.base.config.model_type,
-                  self.adapter.base.config.hidden_size,
+                  getattr(self.adapter.base.config, "hidden_size", None),
                   len(self.adapter.base.model.layers),
                   self.reader_state_sha256)).encode()).hexdigest()
 
@@ -114,17 +130,13 @@ class NativeR1Backend:
         }
 
     def next_logits(self, prompt_ids: list[int], layer: int):
-        """Return last-position logits using exactly the native final norm."""
+        """Return last-position logits using the ordinary native final path."""
         import torch
         require(layer in self.layers, "layer", f"undeclared readout layer {layer}")
         tensor = torch.tensor([prompt_ids], dtype=torch.long, device=self.device)
         mask = torch.ones_like(tensor, dtype=torch.bool)
-        output = self.adapter.base.model(
-            input_ids=tensor, attention_mask=mask, use_cache=False,
-            output_hidden_states=True)
-        hidden = output.hidden_states[layer + 1][:, -1:, :]
-        hidden = self.adapter.base.model.norm(hidden)
-        logits = self.adapter.base.lm_head(hidden)
+        logits = native_layer_logits(
+            self.adapter.base, tensor, layer, attention_mask=mask)
         require(bool(torch.isfinite(logits).all()), "generation",
                 "nonfinite layer logits")
         return logits

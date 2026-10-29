@@ -1,0 +1,87 @@
+{
+  "format": "replica.spark_text_memory.procedures.v1",
+  "procedures": [
+    {
+      "applicability": [
+        "alpha beacon pulse sequence"
+      ],
+      "exceptions": [
+        "maintenance revision changes the mapping"
+      ],
+      "failure_lesson": "do not reuse the pre-maintenance mapping after the correction",
+      "outcome": "verify the observed gate state against the current alpha rule",
+      "outcome_checker": "fixture-rule-table",
+      "outcome_independently_checked": true,
+      "prerequisites": [
+        "beacon is visible",
+        "pulse sequence ends"
+      ],
+      "procedure_id": "alpha_procedure",
+      "source_record_ids": [
+        "fit-alpha-correction",
+        "fit-alpha-legacy"
+      ],
+      "world_id": "fit_alpha"
+    },
+    {
+      "applicability": [
+        "beta request routing"
+      ],
+      "exceptions": [
+        "blue tag routes archive"
+      ],
+      "failure_lesson": "an absent tag cannot be routed as a blue exception",
+      "outcome": "route the request to the queue named by the tag rule",
+      "outcome_checker": "fixture-rule-table",
+      "outcome_independently_checked": true,
+      "prerequisites": [
+        "tag is visible",
+        "request is beta"
+      ],
+      "procedure_id": "beta_procedure",
+      "source_record_ids": [
+        "fit-beta-rule"
+      ],
+      "world_id": "fit_beta"
+    },
+    {
+      "applicability": [
+        "gamma valve pulse sequence"
+      ],
+      "exceptions": [
+        "pattern order differs"
+      ],
+      "failure_lesson": "two short pulses before one long pulse are not the ready pattern",
+      "outcome": "verify the gamma valve state from the ordered pulses",
+      "outcome_checker": "fixture-rule-table",
+      "outcome_independently_checked": true,
+      "prerequisites": [
+        "pulse counts are ordered"
+      ],
+      "procedure_id": "gamma_procedure",
+      "source_record_ids": [
+        "dev-gamma-rule"
+      ],
+      "world_id": "dev_gamma"
+    },
+    {
+      "applicability": [
+        "delta request tag inspection"
+      ],
+      "exceptions": [
+        "red-tag rule revoked",
+        "tag absent"
+      ],
+      "failure_lesson": "a revoked rule cannot supply a held state",
+      "outcome": "treat an absent or revoked tag as unknown",
+      "outcome_checker": "fixture-rule-table",
+      "outcome_independently_checked": true,
+      "prerequisites": [],
+      "procedure_id": "delta_procedure",
+      "source_record_ids": [
+        "dev-delta-revocation"
+      ],
+      "world_id": "dev_delta"
+    }
+  ]
+}

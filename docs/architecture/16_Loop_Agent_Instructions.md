@@ -5,14 +5,15 @@ continuation prompt. When invoked for implementation, carry out the ordered
 packages within the user's active authorization. Reading or editing this prompt
 does not launch training, download weights/corpora, create a chat or schedule work.
 
-Continue TAIS Obsidian / Replica R3 in the existing checkout. Keep sealed
-MiniCPM5-2B as the baseline and the 50 GiB native guard. New training uses
-NativeFusedAdamW/`adamw_fused` after integration checks; historical Muon and
-custom eager AdamW retain their provenance. The current priority is **exact
-experiment-level resume, resulting-state evidence and useful small-scale
-learning**, not capacity or architecture expansion. Native full-size resume,
-visual memory, Spark training and RSI remain unqualified or gated. Prepare Spark
-v5.1 interfaces alongside this work without replacing the MiniCPM5 baseline.
+Continue TAIS Obsidian / Replica R3 in the existing checkout. Preserve sealed
+MiniCPM5-2B as a historical/mechanism control; the active source is Spark FP8.
+Keep the 50 GiB native guard. New training uses NativeFusedAdamW/`adamw_fused`
+after integration checks; historical Muon and
+custom eager AdamW retain their provenance. The active order is **Spark text
+memory with the internal spine**, specified in [document 26](26_Spark_Text_Memory_Milestone.md).
+MiniCPM is a historical/mechanism control, not a prerequisite. Native vision/audio,
+actor/sensor integration, capacity expansion, nested outer learning and RSI are
+deferred. Spark native execution requires its own exact protocol and authorization.
 
 Read [resume repair and staged learning](../experiments/20261027_Resume_Repair_and_Staged_Learning.md).
 Persist completed-arm snapshots, active optimizer state, global cursors, clocks,

@@ -803,6 +803,86 @@ FINAL_PRODUCT_INPUT_ROLES: list[tuple[str, str]] = [
         "docs/experiments/20261028_Spark_Spine_Memory_Integration.md",
         "implemented spine scope, verification and explicit native limits",
     ),
+    (
+        "src/replica_lab/architecture/spine_text.py",
+        "versioned text producer, causal query adapter and response supervision",
+    ),
+    (
+        "src/replica_lab/spark_text_memory_runner.py",
+        "bounded Spark text fit, development, restart and work-accounting runner",
+    ),
+    (
+        "scripts/run_spark_text_memory_v1.py",
+        "Spark text-memory protocol command entry point",
+    ),
+    (
+        "scripts/preflight_spark_text_memory_v1.py",
+        "Spark text-memory review and backend-authorization preflight",
+    ),
+    (
+        "scripts/run_capacity_preflight.py",
+        "exclusive native capacity watchdog with Spark text runner registration",
+    ),
+    (
+        "configs/spark_text_memory_protocol_v1.json",
+        "versioned Spark text-memory protocol and native execution boundaries",
+    ),
+    (
+        "configs/architecture_implementation_status_v1.json",
+        "machine-readable Spark-first construction order and deferred gates",
+    ),
+    (
+        "docs/architecture/26_Spark_Text_Memory_Milestone.md",
+        "active Spark text-memory architecture and roadmap",
+    ),
+    (
+        "tests/test_spine_text.py",
+        "tiny text producer, combined E+P and response-gradient contracts",
+    ),
+    (
+        "tests/test_spark_text_memory_protocol.py",
+        "protocol work derivation and backend authorization tests",
+    ),
+    (
+        "tests/test_spark_text_memory_runner.py",
+        "CPU fit, development, restart, P update and publication tests",
+    ),
+    (
+        "data/spark_text_memory_v1/manifest.json",
+        "hash-bound Spark text fixture manifest and sealed-final closure",
+    ),
+    (
+        "data/spark_text_memory_v1/observations.jsonl",
+        "owned text observations and durable provenance",
+    ),
+    (
+        "data/spark_text_memory_v1/fit_events.jsonl",
+        "chronological fit teaching events",
+    ),
+    (
+        "data/spark_text_memory_v1/development.jsonl",
+        "independent development query and retention cases",
+    ),
+    (
+        "data/spark_text_memory_v1/development_labels.jsonl",
+        "development labels gated by fit receipt",
+    ),
+    (
+        "data/spark_text_memory_v1/parity_requests.jsonl",
+        "pre/post-restart parity requests",
+    ),
+    (
+        "data/spark_text_memory_v1/procedures.json",
+        "verified reusable procedures and failure lessons",
+    ),
+    (
+        "data/spark_text_memory_v1/tasks.json",
+        "task subgoals and independently observed completion",
+    ),
+    (
+        "data/spark_text_memory_v1/worlds.json",
+        "independent world and rule-family split lineage",
+    ),
 ]
 
 FINAL_PRODUCT_CLEAN_EXPORT_LINKS = [

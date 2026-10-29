@@ -37,6 +37,7 @@ SPARK_GATES = ROOT / "reports/sparkx_v5_1_review_20261027/native_gates.json"
 CAPTION_IDENTITY = ROOT / "reports/caption_admission_preparation_20261027/partition_identity.json"
 
 COMMIT_FILES = (
+    "configs/retired_runners.json",
     "configs/dc_r1_native_value_protocol_v2.json",
     "data/dc_r1_native_value_v2_20261027/manifest.json",
     "configs/dc_p1_source_free_feature_alignment_v1.json",
@@ -52,6 +53,10 @@ COMMIT_FILES = (
     "src/replica_lab/dc_p1_native_runner.py",
     "src/replica_lab/dc_p1_evidence.py",
     "src/replica_lab/artifact_publication.py",
+    "src/replica_lab/learning_evidence.py",
+    "src/replica_lab/model_identity.py",
+    "src/replica_lab/native_readout.py",
+    "src/replica_lab/runner_registry.py",
     "scripts/audit_dc_p1_learning_hypothesis.py",
     "scripts/preflight_dc_p1_source_free_feature_alignment_v1.py",
     "scripts/score_dc_p1_generated_v2_20261027.py",
@@ -79,6 +84,7 @@ def _r1_readiness() -> dict:
     auth_present = R1_AUTH.is_file()
     missing = _missing_fields(R1_AUTH, config["launch"]["authorization_fields"])
     native_command = None
+    launch = {}
     authorization_valid = False
     authorization_error = None
     if auth_present and not missing:
@@ -90,7 +96,8 @@ def _r1_readiness() -> dict:
             authorization_valid = launch["status"] == "launch_admitted"
         except ProtocolError as error:
             authorization_error = error.as_dict()
-    status = ("launch_admitted_external_receipt" if authorization_valid
+    status = ("retired_minicpm_only" if launch.get("status") == "retired_minicpm_only"
+              else "launch_admitted_external_receipt" if authorization_valid
               else "blocked_invalid_authorization" if authorization_error
               else "blocked_missing_authorization")
     return {
@@ -123,6 +130,7 @@ def _r1_readiness() -> dict:
         "authorized_run_ceiling": config["budget"]["authorized_run_ceiling"],
         "review_status": review["status"],
         "native_compressed_gate": config["compressed_channel"]["native_gate_status"],
+        "retirement": launch.get("retirement"),
     }
 
 
@@ -224,9 +232,18 @@ def build_report(protocol_commit: str, *, commit_verifier: Callable | None = Non
     spark_report = _spark_readiness()
     status = ("refused_invalid_authorization"
               if r1_report["authorization_error"] else
+              "review_ready_retired_minicpm_only"
+              if r1_report["status"] == "retired_minicpm_only" else
               "review_ready_external_authorization_admitted"
               if r1_report["authorization_valid"] else
               "review_ready_native_blocked_missing_authorization")
+    r1_prerequisites = ([
+        "do not launch the retired MiniCPM-only v2 runner as new work; use the v3 replacement or explicitly labeled historical replay",
+        "keep separate authorization and capacity-guard requirements for any permitted replay or replacement run",
+    ] if r1_report["status"] == "retired_minicpm_only" else [
+        "issue and independently review the exact external DC-R1 authorization receipt",
+        "run the emitted capacity-guarded command once only after that receipt admits it",
+    ])
     return {
         "format": "replica.bounded_milestone.readiness.v1",
         "protocol_commit": protocol_commit,
@@ -244,8 +261,7 @@ def build_report(protocol_commit: str, *, commit_verifier: Callable | None = Non
         "capability_qualified": False,
         "learning_or_promotion_admitted": False,
         "remaining_prerequisites": [
-            "issue and independently review the exact external DC-R1 authorization receipt",
-            "run the emitted capacity-guarded command once only after that receipt admits it",
+            *r1_prerequisites,
             "implement and separately review the source-free alternative runner before any alternative native execution",
             "preserve all native gates, RSI and personality gates as unresolved",
         ],

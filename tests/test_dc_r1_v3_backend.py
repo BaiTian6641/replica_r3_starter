@@ -72,11 +72,9 @@ def test_final_layer_logits_match_native_normal_path_with_nonuniform_norm(tmp_pa
         ids = [2, 3, 4]
         with torch.no_grad():
             actual = backend.next_logits(ids, 41)
-            output = model.model(
-                input_ids=torch.tensor([ids]), use_cache=False,
-                output_hidden_states=True)
-            expected = model.lm_head(
-                model.model.norm(output.hidden_states[-1][:, -1:, :]))
+            expected = model(
+                input_ids=torch.tensor([ids]), use_cache=False).logits[:, -1:, :]
+        assert actual.shape == (1, 1, model.config.vocab_size)
         torch.testing.assert_close(actual, expected, rtol=0.0, atol=0.0)
         assert actual[0, -1].argmax().item() == expected[0, -1].argmax().item()
         assert backend.evaluate({"prompt": "x"}, layer=41,
@@ -84,6 +82,37 @@ def test_final_layer_logits_match_native_normal_path_with_nonuniform_norm(tmp_pa
                                     "native_model_norm")
     finally:
         backend.close()
+
+
+def test_durable_reader_identity_is_stable_for_identical_content(tmp_path):
+    first = _model()
+    second = _model()
+    second.load_state_dict(first.state_dict())
+    left = _backend(first, tmp_path / "left")
+    right = _backend(second, tmp_path / "right")
+    try:
+        assert left.reader_state_sha256 == right.reader_state_sha256
+        assert left.model_identity == right.model_identity
+        assert left.base_identity != right.base_identity
+    finally:
+        left.close()
+        right.close()
+
+
+def test_durable_reader_identity_changes_with_tensor_content(tmp_path):
+    model = _model()
+    before = _backend(model, tmp_path / "before")
+    original = before.reader_state_sha256
+    original_model = before.model_identity
+    before.close()
+    with torch.no_grad():
+        next(model.parameters()).add_(1.0)
+    after = _backend(model, tmp_path / "after")
+    try:
+        assert after.reader_state_sha256 != original
+        assert after.model_identity != original_model
+    finally:
+        after.close()
 
 
 def test_immediate_eos_is_empty_scored_output_with_charged_forward(tmp_path):

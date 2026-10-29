@@ -587,3 +587,28 @@ class Journal:
             "recovery_artifacts": [row.as_dict() for row in self.recovery],
             "live_peak": self.live_peak,
         }
+
+
+def published_stage_done(root: Path, stage: str, *,
+                         identity: Mapping[str, Any]) -> bool:
+    """Return true only for this attempt's verified durable stage artifacts."""
+    root = Path(root)
+    path = root / "publication_journal.json"
+    if not path.is_file():
+        return False
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise PublicationError(
+            f"publication journal is unreadable: {path}") from error
+    if payload.get("format") != JOURNAL_FORMAT:
+        raise PublicationError("publication journal format differs")
+    if dict(payload.get("identity", {})) != dict(identity):
+        raise PublicationError("publication journal identity differs from this run")
+    for row in payload.get("stages", []):
+        if row.get("stage") != stage:
+            continue
+        artifacts = [Artifact.from_mapping(item)
+                     for item in row.get("artifacts", [])]
+        return bool(artifacts) and verify_all(root, artifacts)
+    return False

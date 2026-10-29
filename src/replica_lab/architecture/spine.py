@@ -7,6 +7,7 @@ No persistent write, host storage or unbounded global hook state occurs here.
 """
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass, field, replace
 import json
 from typing import Any, Iterable, Mapping
@@ -121,7 +122,9 @@ class Packet:
         if availability.shape[0] != self.payload.shape[0] \
                 or availability.shape[2] != self.payload.shape[1]:
             raise SpineError("availability and payload batch/slot dimensions differ")
-        object.__setattr__(self, "availability", availability)
+        # Own all tensor storage at the public packet boundary.
+        object.__setattr__(self, "payload", self.payload.detach().clone())
+        object.__setattr__(self, "availability", availability.detach().clone())
         if self.validity_start is not None:
             _int(self.validity_start, "validity_start")
         if self.validity_end is not None:
@@ -153,6 +156,11 @@ class Packet:
     def payload_bytes(self) -> int:
         return int(self.payload.numel() * self.payload.element_size())
 
+    def clone(self) -> "Packet":
+        """Return an ownership-independent packet, including nested lineage."""
+        return replace(self, source_lineage=copy.deepcopy(self.source_lineage))
+
+
     def metadata(self) -> dict[str, Any]:
         return {
             "schema": self.schema,
@@ -168,7 +176,7 @@ class Packet:
             "available_at": self.available_at,
             "state_revision": self.state_revision,
             "payload_type": self.payload_type,
-            "source_lineage": dict(self.source_lineage),
+            "source_lineage": copy.deepcopy(self.source_lineage),
             "validity_start": self.validity_start,
             "validity_end": self.validity_end,
             "deadline": self.deadline,
@@ -312,8 +320,9 @@ class PacketBuffer:
             raise SpineError("packet queue/pending limit exceeded")
         if self._payload_bytes + packet.payload_bytes > self.max_payload_bytes:
             raise SpineError("packet payload byte limit exceeded")
-        self._packets[key] = (packet, digest)
-        self._payload_bytes += packet.payload_bytes
+        owned = packet.clone()
+        self._packets[key] = (owned, digest)
+        self._payload_bytes += owned.payload_bytes
         self._last_sequence[stream] = packet.sequence
         return True
 
@@ -329,9 +338,10 @@ class PacketBuffer:
         return removed
 
     def snapshot(self) -> tuple[Packet, ...]:
-        return tuple(sorted((packet for packet, _ in self._packets.values()),
-                            key=lambda packet: (packet.scope, packet.stream_id,
-                                                packet.sequence)))
+        return tuple(packet.clone() for packet, _ in sorted(
+            self._packets.values(),
+            key=lambda item: (item[0].scope, item[0].stream_id,
+                              item[0].sequence)))
 
 
 class SpinePort(nn.Module):
@@ -382,9 +392,13 @@ class SpinePort(nn.Module):
 class SpineCore(nn.Module):
     """Permanent model-owned codec, slot projections and two-site ports."""
 
-    def __init__(self, spec: SpineSpec) -> None:
+    def __init__(self, spec: SpineSpec, *, codec_version: str = "codec-1",
+                 representation_version: str = "repr-1") -> None:
         super().__init__()
         self.spec = spec
+        self.codec_version = _text(codec_version, "codec_version")
+        self.representation_version = _text(
+            representation_version, "representation_version")
         self.codec = IngestionCodec(spec)
         self.spine_projection = nn.Linear(spec.packet_width, spec.workspace_width,
                                           bias=False)
@@ -400,6 +414,9 @@ class SpineCore(nn.Module):
         self.float()
 
     def encode(self, packet: Packet) -> dict[str, torch.Tensor]:
+        if packet.codec_version != self.codec_version \
+                or packet.representation_version != self.representation_version:
+            raise SpineError("packet representation/codec differs from the spine core")
         device = self.codec.input_norm.weight.device
         dtype = self.codec.input_norm.weight.dtype
         payload = packet.payload.to(device=device, dtype=dtype)
@@ -433,6 +450,8 @@ class SpineCore(nn.Module):
         return {
             "schema": SPINE_SCHEMA,
             "spec": self.spec.to_dict(),
+            "codec_version": self.codec_version,
+            "representation_version": self.representation_version,
             "trainable": True,
             "zero_effect_final_projections": True,
             "live_gate_path": True,
@@ -460,18 +479,24 @@ class SpineForwardContext:
     def __init__(self, core: SpineCore, packet: Packet, snapshot: DecisionSnapshot,
                  *, enabled_branches: Iterable[str] = BRANCHES,
                  memory_slots: torch.Tensor | None = None,
-                 memory_source: str | None = None) -> None:
-        if memory_source not in (None, "E", "P", "external"):
+                 memory_source: str | None = None,
+                 memory_availability: torch.Tensor | None = None) -> None:
+        if memory_source not in (None, "E", "P", "E_plus_P", "external"):
             raise SpineError("unknown memory slot source")
-        if memory_source == "P" and memory_slots is None:
-            raise SpineError("P memory source requires explicit slots")
+        if memory_source in ("P", "E_plus_P") and memory_slots is None:
+            raise SpineError(f"{memory_source} memory source requires explicit slots")
         if memory_source == "E" and memory_slots is not None:
             raise SpineError("E memory source cannot use replacement slots")
         self.memory_source = memory_source or ("external" if memory_slots is not None else "E")
+        self.p_memory_slots: torch.Tensor | None = None
+        self.p_memory_availability: torch.Tensor | None = None
         self._invalidated = False
         self.core = core
         device = core.codec.input_norm.weight.device
         dtype = core.codec.input_norm.weight.dtype
+        if packet.codec_version != core.codec_version \
+                or packet.representation_version != core.representation_version:
+            raise SpineError("packet representation/codec differs from the spine core")
         packet = replace(
             packet,
             payload=packet.payload.to(device=device, dtype=dtype),
@@ -487,16 +512,48 @@ class SpineForwardContext:
                 or packet.state_revision != snapshot.state_revision:
             raise SpineError("packet and decision snapshot identity differ")
         self.slots = core.encode(packet) if self.enabled_branches else {}
+        self.branch_availability = {
+            branch: packet.availability for branch in self.enabled_branches}
         if memory_slots is not None:
-            expected = (packet.batch_size, packet.query_count,
-                        packet.slot_count, core.spec.workspace_width)
-            if not torch.is_tensor(memory_slots) or tuple(memory_slots.shape) != expected:
-                raise SpineError(f"memory_slots must have shape {expected}")
+            if not torch.is_tensor(memory_slots) or memory_slots.ndim != 4 \
+                    or tuple(memory_slots.shape[:2]) != (packet.batch_size,
+                                                        packet.query_count) \
+                    or memory_slots.shape[2] <= 0 \
+                    or memory_slots.shape[2] > core.spec.slots \
+                    or memory_slots.shape[3] != core.spec.workspace_width:
+                raise SpineError(
+                    "memory_slots must have shape [B,Q,S,W] with 0 < S <= slots")
             if not torch.is_floating_point(memory_slots) \
                     or not bool(torch.isfinite(memory_slots).all()):
                 raise SpineError("memory_slots must be finite floating point")
-            self.slots["memory"] = memory_slots.to(device=device, dtype=dtype)
-        self.availability = packet.availability
+            if memory_availability is None:
+                if self.memory_source == "E_plus_P":
+                    memory_availability = torch.ones(
+                        memory_slots.shape[:3], dtype=torch.bool,
+                        device=memory_slots.device)
+                elif memory_slots.shape[2] == packet.slot_count:
+                    memory_availability = packet.availability
+                elif self.memory_source == "P":
+                    memory_availability = torch.ones(
+                        memory_slots.shape[:3], dtype=torch.bool,
+                        device=memory_slots.device)
+                else:
+                    raise SpineError(
+                        "replacement memory slots require memory_availability")
+            memory_availability = _bool_tensor(
+                memory_availability, "memory_availability")
+            if tuple(memory_availability.shape) != tuple(memory_slots.shape[:3]):
+                raise SpineError("memory_availability shape differs from memory_slots")
+            owned_slots = memory_slots.to(device=device, dtype=dtype).clone()
+            owned_availability = memory_availability.to(device=device).clone()
+            if self.memory_source == "E_plus_P":
+                self.p_memory_slots = owned_slots
+                self.p_memory_availability = owned_availability
+            else:
+                self.slots["memory"] = owned_slots
+                self.branch_availability["memory"] = owned_availability
+        elif memory_availability is not None:
+            raise SpineError("memory_availability requires memory_slots")
         self.charges = {
             "codec_calls": self.packet.query_count if self.enabled_branches else 0,
             "codec_positions": (self.packet.batch_size * self.packet.query_count
@@ -504,6 +561,15 @@ class SpineForwardContext:
             "port_calls": 0,
             "packet_count": packet.slot_count,
             "packet_bytes": packet.payload_bytes,
+            "memory_read_slots": (
+                (packet.slot_count if self.memory_source == "E_plus_P" else 0)
+                + (0 if memory_slots is None else int(memory_slots.shape[2]))),
+            "e_memory_read_slots": (
+                packet.slot_count if self.memory_source == "E_plus_P" else 0),
+            "p_memory_read_slots": (
+                int(memory_slots.shape[2])
+                if memory_slots is not None
+                and self.memory_source in ("P", "E_plus_P") else 0),
             "exchange_rounds": 0,
             "specialist_calls": 0,
         }
@@ -522,9 +588,18 @@ class SpineForwardContext:
             return hidden.new_zeros(hidden.shape)
         if site not in self.core.spec.sites:
             raise SpineError(f"undeclared spine site {site}")
+        if branch == "memory" and self.memory_source == "E_plus_P":
+            self.charges["port_calls"] += 2
+            e_delta = self.core.port(
+                branch, site, hidden, self.slots[branch],
+                self.branch_availability[branch])
+            p_delta = self.core.port(
+                branch, site, hidden, self.p_memory_slots,
+                self.p_memory_availability)
+            return e_delta + p_delta
         self.charges["port_calls"] += 1
         return self.core.port(branch, site, hidden, self.slots[branch],
-                              self.availability)
+                              self.branch_availability[branch])
 
 
 def spine_inventory(core: SpineCore) -> dict[str, Any]:
