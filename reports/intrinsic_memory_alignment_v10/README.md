@@ -5,18 +5,20 @@ defines the new teacher objective and complete budget. The completed v9 run is
 the matched direct-CE reference. V10 preserves its source, data, initialization,
 learning rate, student exposure and competence/fitting/utility criteria.
 
-Current preparation: the new objective/reader/admission suite passes 57 checks;
-an additional failed-baseline controller case is included in the pending clean
-regression. Environment-only validation and full source/code/data/predecessor
-preflight pass without loading weights. The 2/9/36 CPU workflow passes in
-14.223858 s, with 606,568,448 bytes parent peak RSS and 105,446,077 bytes across
-its arm directories. Each fresh child restores exact logits and optimizer
-ownership, then performs one actual update using the restored teacher cache.
-Qualification in this random CPU fixture is explicitly synthetic: it proves
-neither pretrained teacher competence nor useful memory.
+Current preparation at `ad58c14b`: **502/502 clean-checkout tests pass**, zero
+skips, in 226.228 s. This includes 58 new teacher objective,
+reader and admission checks. Environment-only validation and full source/code/
+data/predecessor preflight pass without loading weights. The clean 2/9/36 CPU
+workflow passes in 14.439167 s, with 615,071,744 bytes
+parent peak RSS and 105,446,031 bytes across its arm directories.
+Every active reader and the producer receive gradients; each fresh child restores
+exact logits and one optimizer owner, then performs one actual update using the
+restored teacher cache. Teacher qualification in this random CPU fixture is
+explicitly synthetic; it proves neither pretrained teacher competence nor useful
+memory. See the [prelaunch verification receipt](prelaunch_verification.json).
 
-Native v10 is not yet run. The user's standing authorization covers this bounded
-comparison; its exact receipt must record that actual instruction before launch.
+Native v10 is not yet run. The [exact receipt](authorization_two_v10.json) records the user's standing
+authorization for this bounded comparison.
 No consumed earlier packet or output is reused. The two-site command is:
 
 ```sh

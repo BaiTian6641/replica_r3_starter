@@ -1,0 +1,30 @@
+{
+  "format": "replica.intrinsic_memory.external_authorization.v10",
+  "decision": "authorized",
+  "packet_sha256": "1369228284d68d91354f05833ad4dffb71deee99fb14ef24b977acf386bb48d9",
+  "protocol_sha256": "c48e8937b7e11fc6fc6fb43dab932ad01dd42d2d2a0cc746bf36310da863e97d",
+  "arm": "two",
+  "source_kind": "official_bf16",
+  "output_root": "reports/intrinsic_memory_alignment_v10/native_bf16_two_v10_attempt01",
+  "attempts": 1,
+  "retries": 0,
+  "budget": {
+    "artifact_bytes": 167772160,
+    "backwards": 129,
+    "forwards": 2469,
+    "generated_tokens": 2072,
+    "input_tokens": 632064,
+    "model_loads": 2,
+    "retrievals": 51,
+    "source_encodes": 245,
+    "updates": 129,
+    "wall_seconds": 7080,
+    "writes": 112
+  },
+  "implementation_sha256": "f83dfd6aa4109e4f6538aa4a982785d12fcebb7ff369ee6b83031201df20553b",
+  "environment_sha256": "7bac9e5e963d3b9fa1cb8cc3be846dc72938a7206ddcc7fd978ba07257c67095",
+  "human_approval_reference": "Direct user continuation and response to call_057bc98407d947c0b31809590733c346 in Codex thread 01a188a4-7438-7d30-ae29-966f4cf404d0 on 2026-10-29.",
+  "human_approval_text": "Continued as planned, no need more approval for testing, follow the goal, assume I authorize the tests.",
+  "authorization_interpretation": "Standing direct user authorization for bounded tests toward useful intrinsic memory. This exact receipt covers the separately versioned frozen-teacher alignment comparison at layers 3/7, matched against completed v9 direct CE. It keeps original BF16 weights frozen, requires 8/8 calibration and 8/8 teacher qualification, executes all 128 fixed student updates plus one fresh-process update, and preserves fitting/utility gates. Additional teacher work is explicitly budgeted; outer wall, physical resource and artifact caps are unchanged. No consumed output is retried. No P updates, automatic promotion or native density launch is included.",
+  "recorded_at_utc": "2026-10-29T22:41:42.988855+00:00"
+}
