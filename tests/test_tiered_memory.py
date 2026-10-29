@@ -694,8 +694,8 @@ def test_two_active_ablation_is_explicit(tmp_path: Path) -> None:
         assert allocation.gpu_inactive_bytes == 0
         assert allocation.all_banks_allocated is False
         profile = get_profile("P4")
-        weights = payload(profile.full_parameters * 4, b"ablation-weights")
-        moments = payload(profile.full_parameters * 8, b"ablation-moments")
+        weights = payload(profile.per_expert_fp32_weight_bytes, b"ablation-weights")
+        moments = payload(profile.per_expert_moments_bytes, b"ablation-moments")
         store.register_expert("a1")
         store.register_expert("a2")
         assert store.write_expert_state(

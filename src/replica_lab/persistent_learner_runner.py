@@ -329,7 +329,7 @@ class WorkLedger:
         "replay_processed_positions", "retrieval_calls", "verification_calls",
         "checkpoint_writes", "retained_checkpoint_artifacts", "reloads", "cache_hits",
         "cache_misses", "teacher_passes", "consolidation_events", "artifact_bytes", "native_retries",
-        "readout_selection_calls", "readout_file_reads", "readout_io_bytes", "readout_ns", "cold_recall_tickets",
+        "readout_cache_bytes", "readout_result_bytes", "readout_selection_calls", "readout_file_reads", "readout_io_bytes", "readout_ns", "cold_recall_tickets",
         "cold_recall_resumes", "revalidation_failures", "payload_read_calls",
         "payload_file_reads", "payload_io_bytes", "revalidations",
     )
@@ -967,6 +967,8 @@ def _tiered_readout(store: TieredMemoryStore, question: str,
 
 def _charge_readout(ledger: WorkLedger, result: ScopedMemoryReadout) -> None:
     metrics = result.metrics
+    ledger.set_measured("readout_cache_bytes", metrics.cache_bytes)
+    ledger.set_measured("readout_result_bytes", metrics.result_payload_bytes)
     ledger.charge("readout_selection_calls", metrics.selection_calls)
     ledger.charge("readout_file_reads", metrics.total_file_reads)
     ledger.charge("readout_io_bytes", metrics.total_io_bytes)
@@ -1784,6 +1786,22 @@ def _learning_metrics(rows: Sequence[Mapping[str, Any]], fit_receipt: Mapping[st
     }
 
 
+def _latency_summary(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    samples = sorted(
+        int(row["query"]["end_to_end_ns"]) for row in rows
+        if row.get("execution_complete") and isinstance(row.get("query"), Mapping)
+        and "end_to_end_ns" in row["query"])
+    if not samples:
+        return {"count": 0, "wall_clock": True, "p50_ns": None, "p95_ns": None,
+                "max_ns": None, "scope": "prompt_readout_generation_and_independent_scoring"}
+    return {
+        "count": len(samples), "wall_clock": True,
+        "p50_ns": samples[(50 * len(samples) + 99) // 100 - 1],
+        "p95_ns": samples[(95 * len(samples) + 99) // 100 - 1],
+        "max_ns": samples[-1],
+        "scope": "prompt_readout_generation_and_independent_scoring",
+    }
+
 def run_development(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
                     output: Path, ledger: WorkLedger, meter: publication.LiveByteMeter,
                     fit: FitState) -> dict[str, Any]:
@@ -1804,6 +1822,7 @@ def run_development(protocol: Protocol, dataset: PreparedDataset, backend: Backe
         for arm in ARMS:
             view = views[arm]
             ledger.development_case(arm)
+            case_started = time.perf_counter_ns()
             prompt, information = _prompt_for(view, case, dataset)
             try:
                 raw, query_details, query = _generate(view, backend, prompt, case, ledger)
@@ -1819,6 +1838,7 @@ def run_development(protocol: Protocol, dataset: PreparedDataset, backend: Backe
                         view.path, query,
                         answer_text=str(case["expected"]),
                         answer_token_ids=backend.encode_text(str(case["expected"])), labels=None)
+                query_details["end_to_end_ns"] = time.perf_counter_ns() - case_started
                 rows.append(row)
                 _write_jsonl(output, "development/trajectories.jsonl", rows, meter=meter)
             except Exception as error:
@@ -1840,10 +1860,12 @@ def run_development(protocol: Protocol, dataset: PreparedDataset, backend: Backe
     trained_view = views["source_free_P_only"]
     for request in dataset.parity_requests():
         view = null_view if request["memory_source"] == "none" else trained_view
+        request_started = time.perf_counter_ns()
         prompt = f"Question: {request['question']}\nAnswer:"
         ledger.charge("parity_requests")
         raw, details, _query = _generate(view, backend, prompt, request, ledger)
         ledger.charge("verification_calls")
+        details["end_to_end_ns"] = time.perf_counter_ns() - request_started
         parity_rows.append({"stage": "development", "parity": True, "execution_complete": True,
                             "request_id": request["request_id"], "kind": request["kind"],
                             "answer": raw["decoded"], "raw": raw, "query": details,
@@ -1858,6 +1880,7 @@ def run_development(protocol: Protocol, dataset: PreparedDataset, backend: Backe
         "arms": list(ARMS), "development_cases_per_arm": 12,
         "development_cases_total": len(rows), "parity_requests": len(parity_rows),
         "learning_evidence": _learning_metrics(rows, fit.receipt, backend),
+        "latency": _latency_summary(rows),
         "raw_trajectories": "development/trajectories.jsonl", "raw_parity": "development/parity.jsonl",
         "derived_caches_required": False, "sealed_final_opened": False,
         "rows_sha256": _sha256(development_dir / "trajectories.jsonl"),

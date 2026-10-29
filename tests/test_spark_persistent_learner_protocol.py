@@ -87,6 +87,8 @@ def test_review_derives_real_profile_and_control_budgets_without_native_work():
     assert report["work_units"]["readout_selection_calls_max"] == 296
     assert report["work_units"]["readout_file_reads_max"] == 66304
     assert report["work_units"]["payload_file_reads_max"] == 23680
+    assert report["work_units"]["readout_cache_bytes_max"] == 2097152
+    assert report["work_units"]["readout_result_bytes_max"] == 73728
 
 
 def test_independent_fixture_is_hash_bound_and_labels_stay_behind_fit_receipt():

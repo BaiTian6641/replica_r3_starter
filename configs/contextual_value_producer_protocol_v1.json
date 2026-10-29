@@ -1,0 +1,101 @@
+{
+  "format": "replica.contextual_value_producer.protocol.v1",
+  "status": "design_only_not_trained_not_promoted",
+  "native_execution": false,
+  "trained": false,
+  "calibrated": false,
+  "writer_promotion": false,
+  "rsis": false,
+  "source_baseline": "spark_x2_6_official_fp8_lineage_preserved",
+  "producer": {
+    "producer_id": "contextual_transformer_encoder",
+    "producer_version": "v1",
+    "representation_version": "ordered_memory_slots_v1",
+    "codec_version": "spark_text_producer_v1",
+    "inputs": [
+      "canonical_text_and_ordered_source_spans",
+      "scope_subject_branch_purpose",
+      "source_epoch_and_causal_availability",
+      "validity_and_correction_links",
+      "producer_component_versions"
+    ],
+    "forbidden_inputs": [
+      "teacher_forced_answers",
+      "future_observations",
+      "gold_outcomes",
+      "development_or_sealed_labels",
+      "task_reward"
+    ],
+    "output": {
+      "ordered_slots": 4,
+      "width": 256,
+      "dtype": "FP32",
+      "source_order_preserved": true,
+      "per_slot_source_span_and_digest_required": true,
+      "hash_derived": false,
+      "semantic_compression_claimed": false
+    },
+    "not_a_replacement_for": "canonical_text_exact_spans_or_independently_verified_receipts"
+  },
+  "consumer": {
+    "consumer_id": "spark_ordered_memory_reader",
+    "consumer_version": "v1",
+    "accepts_only": "producer_slots_with_matching_scope_generation_representation_and_payload_digests",
+    "source_free_P_evaluation_removes": ["E", "S", "C", "answer_bearing_identity", "auxiliary_answer_state"],
+    "deployment_state": "explicitly_detached_at_decision_boundaries",
+    "training_gradient_horizon": "declared_per_protocol_not_unbounded",
+    "native_reader_sites": [3, 7],
+    "candidate_late_sites": [23, 31],
+    "final_injection_projection": "zero_initialized_then_nonzero_influence_required"
+  },
+  "objective": {
+    "name": "response_and_future_task_cross_entropy",
+    "teacher": "frozen_original_backbone_full_context_then_frozen_suffix",
+    "write_query_and_future_evaluation_query_must_differ": true,
+    "actual_outcomes_only": true,
+    "optimizer": "NativeFusedAdamW",
+    "default_optimizer_alias": "adamw_fused",
+    "muon_default": false,
+    "original_backbone_frozen": true,
+    "active_experts": 1,
+    "trainable_groups": ["contextual_producer", "ordered_memory_reader", "selected_P"],
+    "response_port_output_owner": "dedicated_NativeFusedAdamW",
+    "nonzero_influence_is_not_useful_learning": true
+  },
+  "controls": {
+    "untouched_full_eligible_context_first": true,
+    "reset_P_same_frozen_trained_reader_and_evidence": true,
+    "reader_learning_separate_from_P_learning": true,
+    "retrieval_benefit_separate_from_P_learning": true,
+    "wrong_shuffled_absent_and_matched_replay": true,
+    "deterministic_hash_values_are_engineering_controls_only": true,
+    "exact_text_reference_is_not_a_learned_value_consumer": true,
+    "source_free_removes_E_S_C_and_answer_bearing_identity": true
+  },
+  "evaluation": {
+    "independent_worlds_and_rule_families": true,
+    "chronological_acquisition_correction_revocation_and_delayed_retention": true,
+    "multiple_fresh_process_learning_retention_cycles": true,
+    "split_freeze_before_evaluation": true,
+    "scorers_thinking_mode_token_budgets_and_stopping_rules_predeclared": true,
+    "sealed_final_labels_closed": true,
+    "uncertainty_over_independent_worlds_required": true,
+    "parameter_changes_do_not_establish_transfer": true
+  },
+  "promotion_gates": {
+    "full_context_competence_before_P_comparison": true,
+    "source_free_future_task_improvement_over_reset_P": true,
+    "old_rule_retention_and_correction_rollback": true,
+    "matched_total_cost_not_only_accuracy": true,
+    "capacity_expansion_only_after_measured_capacity_bottleneck": true,
+    "writer_expansion_only_after_useful_learning": true,
+    "RSI_only_after_useful_learning_correction_retention_and_rollback": true
+  },
+  "artifact_policy": {
+    "extension_only": true,
+    "duplicate_base_exports": false,
+    "bulk_downloads": false,
+    "approved_identity_separate_from_task_reward": true,
+    "previous_working_version_preserved": true
+  }
+}

@@ -38,6 +38,21 @@ OFFICIAL_NATIVE_FP8 = "official_native_fp8"
 DEQUANTIZED_FP8_DERIVATIVE = "dequantized_fp8_derivative"
 PRECISION_KINDS = (OFFICIAL_BF16, OFFICIAL_NATIVE_FP8, DEQUANTIZED_FP8_DERIVATIVE)
 
+DERIVATIVE_MANIFEST_SCHEMA = "replica.spark2_5_dequantized_derivative.v1"
+DERIVATIVE_EXECUTION_FORMAT = "dequantized_fp8_derivative_bf16_storage"
+DERIVATIVE_ACTIVATION_SEMANTICS = (
+    "BF16/FP32 activations with no per-token F8 quantization; this is not the "
+    "official FP8 forward semantics")
+DERIVATIVE_CLAIMS_FALSE = (
+    "activation_quantization", "native_execution", "official_bf16_release",
+    "official_native_fp8", "restores_quantization_loss")
+P1_SPINE_SITES = (3, 7)
+LATE_SPINE_SITES = (23, 31)
+P1_SPINE_SLOTS = 8
+P1_MEMORY_SIZE = 256
+P1_PORT_HEADS = 4
+CURRENT_SOURCE_LAYERS = 36
+
 OFFICIAL_MODEL_TYPE = "spark2_5"
 OFFICIAL_ARCHITECTURE = "Spark2_5ForCausalLM"
 OFFICIAL_AUTO_MAP = {
@@ -167,6 +182,18 @@ def fingerprint(value: Any) -> str:
 
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def derivative_artifact_digest(files: Sequence[Mapping]) -> str:
+    """Deterministic identity over a derivative's declared filename/hash pairs."""
+    entries = sorted(({"filename": str(item["filename"]),
+                       "sha256": str(item["sha256"])} for item in files),
+                     key=lambda item: item["filename"])
+    if not entries:
+        raise PrecisionError("a derivative artifact must contain at least one shard")
+    for item in entries:
+        _require_sha(item["sha256"], "shard sha256", PrecisionError)
+    return sha256_bytes(canonical_json(entries).encode())
 
 
 def _require_sha(value: Any, name: str, Error=Spark2_5ContractError) -> str:
@@ -524,6 +551,10 @@ class PrecisionIdentity:
 def official_bf16_precision(config: Spark2_5Config, *, artifact_sha256: str | None = None) -> PrecisionIdentity:
     if "quantization_config" in config.raw:
         raise PrecisionError("a BF16 identity cannot silently strip a quantization_config")
+    if "replica_precision" in config.raw:
+        raise PrecisionError(
+            "a dequantized FP8 derivative config cannot be labelled official_bf16; "
+            "use its derivative manifest instead")
     if config.raw.get("dtype") != "bfloat16":
         raise PrecisionError("official BF16 storage must declare dtype=bfloat16")
     return PrecisionIdentity(
@@ -611,6 +642,21 @@ def dequantized_fp8_derivative(
     if config.raw.get("dtype") != expected_dtype:
         raise PrecisionError(f"{storage} derivative requires config dtype={expected_dtype}")
     _text(activation_semantics, "activation_semantics", PrecisionError)
+    declared = config.raw.get("replica_precision")
+    if declared is not None:
+        declared = _mapping(declared, "replica_precision", PrecisionError)
+        expected = {
+            "kind": DEQUANTIZED_FP8_DERIVATIVE,
+            "parent_kind": OFFICIAL_NATIVE_FP8,
+            "parent_artifact_sha256": parent.artifact_sha256,
+            "dequantization_sha256": dequantization_sha256,
+            "activation_semantics": activation_semantics,
+            "equivalent_to_bf16_release": False,
+        }
+        for key, value in expected.items():
+            if declared.get(key) != value:
+                raise PrecisionError(
+                    f"config.replica_precision.{key} differs from the derivative manifest")
     return PrecisionIdentity(
         kind=DEQUANTIZED_FP8_DERIVATIVE, storage=storage,
         weight_dtype="BF16" if storage == "bf16" else "F32",
@@ -626,6 +672,7 @@ def dequantized_fp8_derivative(
 
 def classify_precision(config: Spark2_5Config, *, artifact_sha256: str | None = None,
                        derivative_manifest: Mapping | None = None) -> PrecisionIdentity:
+    declared = config.raw.get("replica_precision")
     if derivative_manifest is not None:
         manifest = _mapping(derivative_manifest, "derivative_manifest", PrecisionError)
         missing = {"parent", "artifact_sha256", "dequantization_sha256", "activation_semantics"} - set(manifest)
@@ -641,6 +688,10 @@ def classify_precision(config: Spark2_5Config, *, artifact_sha256: str | None = 
             dequantization_sha256=manifest["dequantization_sha256"],
             activation_semantics=manifest["activation_semantics"],
             storage=manifest.get("storage", "bf16"))
+    if declared is not None:
+        raise PrecisionError(
+            "a dequantized FP8 derivative config requires its explicit derivative "
+            "manifest; official BF16 and official FP8 substitution are refused")
     if "quantization_config" in config.raw:
         return official_native_fp8_precision(config, artifact_sha256=artifact_sha256)
     return official_bf16_precision(config, artifact_sha256=artifact_sha256)
@@ -769,6 +820,166 @@ def admit_load(identity: PrecisionIdentity, *, device: str,
                                     device=admission.requested_device,
                                     detail="; ".join(admission.reasons), identity=identity)
     return admission
+
+
+# ---------------------------------------------------------------------------
+# Derivative P1/spine admission
+
+
+def derivative_precision_binding(config: Spark2_5Config,
+                                 precision: PrecisionIdentity) -> dict | None:
+    """Refuse precision labels that do not match ``config.replica_precision``.
+
+    Returns the declared provenance for a derivative config and ``None`` for an
+    ordinary official config. An official BF16/FP8 identity can never load a
+    derivative config, and a derivative identity can never load an official
+    config or an artifact without declared provenance.
+    """
+    if not isinstance(config, Spark2_5Config):
+        raise PrecisionError("config must be a validated Spark2_5Config")
+    if not isinstance(precision, PrecisionIdentity):
+        raise PrecisionError("precision must be a PrecisionIdentity")
+    declared = config.raw.get("replica_precision")
+    if declared is None:
+        if precision.kind == DEQUANTIZED_FP8_DERIVATIVE:
+            raise PrecisionError(
+                "a derivative precision identity requires config.replica_precision provenance")
+        return None
+    declared = _mapping(declared, "replica_precision", PrecisionError)
+    if declared.get("kind") != DEQUANTIZED_FP8_DERIVATIVE:
+        raise PrecisionError("config.replica_precision.kind is not a dequantized derivative")
+    if precision.kind != DEQUANTIZED_FP8_DERIVATIVE:
+        raise PrecisionError(
+            "an official FP8/BF16 identity cannot load this dequantized derivative config")
+    if "quantization_config" in config.raw:
+        raise PrecisionError("derivative storage must not retain quantization_config")
+    if config.raw.get("dtype") != "bfloat16":
+        raise PrecisionError("the admitted derivative config must declare dtype=bfloat16")
+    expected = {
+        "parent_kind": OFFICIAL_NATIVE_FP8,
+        "parent_artifact_sha256": precision.derivative_of,
+        "dequantization_sha256": precision.dequantization_sha256,
+        "activation_semantics": precision.activation,
+        "equivalent_to_bf16_release": False,
+    }
+    for key, value in expected.items():
+        if declared.get(key) != value:
+            raise PrecisionError(
+                f"config.replica_precision.{key} differs from the derivative identity")
+    if precision.storage != "bf16" or precision.weight_dtype != "BF16":
+        raise PrecisionError("the derivative identity is not BF16 storage")
+    if precision.equivalent_to_bf16_release is not False:
+        raise PrecisionError("a derivative cannot equal the official BF16 release")
+    return dict(declared)
+
+
+def evaluate_derivative_p1_spine(
+    precision: PrecisionIdentity, config: Spark2_5Config, *, device: str = "mps",
+    capabilities: BackendCapabilities | None = None,
+    spine_sites: Sequence[int] = P1_SPINE_SITES, spine_slots: int = P1_SPINE_SLOTS,
+    memory_size: int = P1_MEMORY_SIZE, heads: int = P1_PORT_HEADS,
+) -> dict:
+    """Admit exactly the current P1/spine experiment on a derivative artifact.
+
+    It never substitutes official FP8 or official BF16, never moves the
+    requested device and never dequantizes. The late 23/31 sites are refused
+    here; they need the separately declared matched 36-layer comparison.
+    """
+    reasons: list[str] = []
+    if not isinstance(config, Spark2_5Config):
+        raise PrecisionError("config must be a validated Spark2_5Config")
+    try:
+        derivative_precision_binding(config, precision)
+    except PrecisionError as error:
+        reasons.append(f"precision_substitution_refused: {error}")
+    if not isinstance(precision, PrecisionIdentity):
+        raise PrecisionError("precision must be a PrecisionIdentity")
+    if precision.kind != DEQUANTIZED_FP8_DERIVATIVE:
+        reasons.append(
+            "precision_substitution_refused: official FP8 and official BF16 are "
+            "separate identities and are not this experiment")
+    if "quantization_config" in config.raw:
+        reasons.append("derivative_storage_retains_quantization_config")
+    if config.raw.get("dtype") != "bfloat16":
+        reasons.append("derivative_config_not_bfloat16")
+    layers = config.geometry.num_hidden_layers
+    if layers != CURRENT_SOURCE_LAYERS:
+        reasons.append(
+            f"current_p1_requires_{CURRENT_SOURCE_LAYERS}_layer_source: got {layers}")
+    requested: list[int] = []
+    if not isinstance(spine_sites, (list, tuple)):
+        reasons.append("spine_sites_must_be_a_sequence")
+    else:
+        for site in spine_sites:
+            if type(site) is not int:
+                reasons.append("spine_sites_must_be_integers")
+                break
+            requested.append(site)
+    if requested:
+        if len(set(requested)) != len(requested):
+            reasons.append("spine_sites_must_be_distinct")
+        if any(site < 0 or site >= layers for site in requested):
+            reasons.append("spine_site_outside_the_decoder")
+        if tuple(requested) != P1_SPINE_SITES:
+            reasons.append("spine_sites_differ_from_current_p1_3_7")
+        if set(requested) & set(LATE_SPINE_SITES):
+            reasons.append(
+                "late_sites_require_the_matched_36_layer_comparison_not_the_early_p1_arm")
+    if spine_slots != P1_SPINE_SLOTS:
+        reasons.append("spine_slot_read_budget_differs_from_current_p1")
+    if memory_size != P1_MEMORY_SIZE or heads != P1_PORT_HEADS:
+        reasons.append("memory_port_geometry_differs_from_current_p1")
+    backend = evaluate_admission(precision, device=device, capabilities=capabilities)
+    reasons.extend(backend.reasons)
+    normalized = tuple(requested)
+    return {
+        "admitted": not reasons,
+        "reasons": list(dict.fromkeys(reasons)),
+        "device": backend.effective_device,
+        "precision_kind": precision.kind,
+        "storage": precision.storage,
+        "execution_format": DERIVATIVE_EXECUTION_FORMAT,
+        "activation_semantics": precision.activation,
+        "fallback_allowed": False,
+        "dequantization_allowed": False,
+        "substitution_allowed": False,
+        "requires_external_authorization": True,
+        "backend_admission": backend.to_dict(),
+        "p1": {
+            "profile": "P1",
+            "active_experts": 1,
+            "width": 256,
+            "hidden_width": 512,
+            "selected_parameter_owner": "expert_0.gate/up/down",
+            "optimizer": "NativeFusedAdamW",
+            "optimizer_state_dtype": "FP32",
+            "frozen_original_backbone": True,
+            "single_parameter_owner": True,
+            "zero_init_output_projections": True,
+        },
+        "spine": {
+            "sites": list(normalized),
+            "candidate_late_sites": list(LATE_SPINE_SITES),
+            "slots": int(spine_slots),
+            "memory_size": int(memory_size),
+            "heads": int(heads),
+            "current_p1_spine": normalized == P1_SPINE_SITES,
+            "late_sites_admitted": False,
+            "late_site_comparison": (
+                "matched_candidate_23_31_on_the_same_36_layer_source_only"),
+        },
+        "adapter_kwargs": {
+            "device": backend.effective_device,
+            "require_official_geometry": True,
+            "projector_in_dim": int(config.geometry.hidden_size),
+            "zero_init_output": True,
+            "memory_size": int(memory_size),
+            "heads": int(heads),
+            "spine_sites": list(normalized),
+            "spine_slots": int(spine_slots),
+        },
+        "native_execution": False,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -1535,6 +1746,10 @@ __all__ = [
     "SCHEMA", "EXTENSION_EXPORT_SCHEMA",
     "OFFICIAL_BF16", "OFFICIAL_NATIVE_FP8", "DEQUANTIZED_FP8_DERIVATIVE",
     "PRECISION_KINDS", "OFFICIAL_GEOMETRY", "OFFICIAL_PARAMETER_ELEMENTS",
+    "DERIVATIVE_MANIFEST_SCHEMA", "DERIVATIVE_EXECUTION_FORMAT",
+    "DERIVATIVE_ACTIVATION_SEMANTICS", "DERIVATIVE_CLAIMS_FALSE",
+    "P1_SPINE_SITES", "LATE_SPINE_SITES", "P1_SPINE_SLOTS", "P1_MEMORY_SIZE",
+    "P1_PORT_HEADS", "CURRENT_SOURCE_LAYERS",
     "OFFICIAL_LAYER_TYPES", "MINICPM5_REUSED_DIMENSIONS", "THINKING_MODES",
     "DEFAULT_THINKING_MODE", "LAYER_TYPES", "QUANTIZED_SUFFIXES",
     "UNQUANTIZED_SUFFIXES", "STAGES",
@@ -1546,10 +1761,11 @@ __all__ = [
     "TokenizerIdentity", "TensorRecord", "InventoryReport",
     "TiedEmbeddingInventory", "ProjectorInventory", "MemoryPortInventory",
     "ExtensionInventory",
-    "canonical_json", "fingerprint", "sha256_bytes",
+    "canonical_json", "fingerprint", "sha256_bytes", "derivative_artifact_digest",
     "load_spark2_5_config", "derive_layer_schedule",
     "official_bf16_precision", "official_native_fp8_precision",
     "dequantized_fp8_derivative", "classify_precision",
+    "derivative_precision_binding", "evaluate_derivative_p1_spine",
     "normalize_device", "DEFAULT_BACKENDS", "evaluate_admission", "admit_load",
     "load_tokenizer_identity", "resolve_thinking_mode",
     "verify_tensor_inventory", "verify_tied_embeddings",

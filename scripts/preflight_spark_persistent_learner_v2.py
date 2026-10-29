@@ -100,6 +100,9 @@ def derive_work(config: Mapping[str, Any]) -> dict[str, int]:
         "cache_hits_max": 2 * full_records * readout_queries,
         "cache_misses_max": 2 * full_records * readout_queries,
         "readout_selection_calls_max": selection_attempts * readout_queries,
+        "readout_cache_bytes_max": int(memory["readout_cache_bytes_max"]),
+        "readout_result_bytes_max": (int(memory["exact_text_bytes_max"])
+            + int(memory["full_context_value_slots_max"]) * 1024),
         "readout_file_reads_max": selection_reads + payload_reads,
         "readout_io_bytes_max": 1073741824,
         "cold_recall_tickets_max": full_records * readout_queries,
@@ -155,6 +158,7 @@ def validate_config(config: Mapping[str, Any], root: Path = ROOT) -> dict[str, A
                 "checkpoint_transient_bytes_max", "identity_reservation_bytes",
                 "full_context_records_max", "full_context_value_slots_max",
                 "readout_candidate_key_reads_max_per_selection",
+                "readout_cache_bytes_max", "exact_text_bytes_max", "readout_result_bytes_max",
                 "readout_selection_attempts_max_per_query"):
         _require(type(memory[key]) is int and memory[key] > 0,
                  "memory", f"{key} must be positive")
@@ -221,6 +225,10 @@ def validate_config(config: Mapping[str, Any], root: Path = ROOT) -> dict[str, A
     _require(memory["readout_candidate_key_reads_max_per_selection"] == 64
              and memory["readout_selection_attempts_max_per_query"] == 2,
              "memory", "readout candidate and selection-attempt caps changed")
+    _require(memory["readout_cache_bytes_max"] == 2097152
+             and memory["exact_text_bytes_max"] == 8192
+             and memory["readout_result_bytes_max"] == 73728,
+             "memory", "active cache/result buffer ceilings changed")
     _require(memory["full_context_selection"] == "all_eligible_without_semantic_score_filter"
              and memory["verification_filter"] == "exclude_failed_check_and_quarantined_before_key_reads",
              "memory", "full-context and verification contracts changed")

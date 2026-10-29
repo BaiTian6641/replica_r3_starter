@@ -67,7 +67,7 @@ Deliberate limits
 from __future__ import annotations
 
 from array import array
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Collection, Iterable, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field, replace
 import hashlib
@@ -174,6 +174,19 @@ AUTHORITY_CLASSES = (
     "workspaces",
     "experts",
 )
+# Journal events are appended after their durable authority record.  A missing
+# or corrupt newest authority record therefore leaves a journal mark that is
+# strictly newer than the surviving record.  These marks establish the latest
+# expected durable state; recovery never guesses backwards from them.
+EXPERT_EVENT_AUTHORITY_KIND = {
+    "expert_registered": "registered",
+    "expert_state_written": "dirty",
+    "expert_published": "published",
+    "expert_evicted": "evicted",
+    "expert_quarantined": "quarantined",
+    "expert_authenticated_reset": "reset",
+}
+LEGACY_EXPERT_MIGRATION_NOTE = "legacy_expert_manifest_migration"
 EXPERIMENT_LABEL = "engineering_tiered_memory_unsupported_native"
 
 HOT_CEILING_BYTES = 2 * 1024**3          # 2 GiB
@@ -635,10 +648,25 @@ class CapacityProfile:
             _positive_int(name, getattr(self, name))
         if self.width != VALUE_WIDTH:
             raise ValueError("all declared profiles keep readout width 256")
+        if self.full_parameters != self.per_expert_parameters * self.experts:
+            raise ValueError("bank parameters must equal experts * per-expert shape")
+
+    @property
+    def per_expert_parameters(self) -> int:
+        """One expert's bias-free gated shape, never the whole stored bank."""
+        return 3 * self.width * self.hidden_width
+
+    @property
+    def per_expert_fp32_weight_bytes(self) -> int:
+        return self.per_expert_parameters * 4
+
+    @property
+    def per_expert_moments_bytes(self) -> int:
+        return self.per_expert_parameters * 8
 
     @property
     def one_active_full_training_bytes(self) -> int:
-        return 3 * self.width * self.hidden_width * 16
+        return self.per_expert_parameters * 16
 
     @property
     def d_only_parameters(self) -> int:
@@ -659,7 +687,11 @@ class CapacityProfile:
             "width": self.width,
             "hidden_width": self.hidden_width,
             "formula": "3*N*d*h bias-free gated expert",
+            "bank_parameters": self.full_parameters,
             "full_parameters": self.full_parameters,
+            "per_expert_parameters": self.per_expert_parameters,
+            "per_expert_fp32_weight_bytes": self.per_expert_fp32_weight_bytes,
+            "per_expert_moments_bytes": self.per_expert_moments_bytes,
             "fp32_weight_bytes": self.fp32_weight_bytes,
             "all_expert_fp32_weight_gradient_adam_bytes":
                 self.all_expert_full_training_bytes,
@@ -3325,12 +3357,25 @@ class TieredMemoryStore:
                budget: RetrievalBudget | None = None,
                exact_phrases: Sequence[str] = (),
                include_text: bool = True,
-               selection_mode: str = "semantic") -> RetrievalResult:
-        """Scope-filtered semantic key selection plus charged exact fallback."""
+               selection_mode: str = "semantic",
+               admit_payload: bool = True) -> RetrievalResult:
+        """Scope-filtered semantic key selection plus charged exact fallback.
+
+        ``admit_payload=False`` performs the same scope/time/verification and
+        retrieval-key work and returns the same ordering, cold IDs, generation
+        and provenance pins, but never reads admitted warm text or value
+        payloads.  Selected records carry no payload, consume no text/value
+        budget and charge no hot copy.  Explicit exact-phrase fallback still
+        performs its own bounded reads.  ``admit_payload=True`` preserves the
+        original behaviour exactly.
+        """
         if not isinstance(query, str):
             raise ValueError("query must be a string")
+        if not isinstance(admit_payload, bool):
+            raise ValueError("admit_payload must be boolean")
         self._validate_scope_argument(scope)
         budget = budget or RetrievalBudget()
+        metadata_only = not admit_payload
         phrases = tuple(exact_phrases)
         for phrase in phrases:
             if not isinstance(phrase, str) or not phrase:
@@ -3379,19 +3424,20 @@ class TieredMemoryStore:
             if len(selected_entries) >= budget.max_records:
                 break
             values = self._value_rows(row["record_id"])
-            value_available = (
+            value_available_metadata = (
                 len(values) == VALUE_SLOTS_PER_RECORD
                 and all(value["status"] == "current" for value in values))
-            if not value_available and values:
+            if not value_available_metadata and values:
                 representation_stale = True
-            slot_count = VALUE_SLOTS_PER_RECORD if value_available else 0
-            if used_slots + slot_count > budget.max_value_slots:
+            slot_count = (0 if metadata_only else
+                          VALUE_SLOTS_PER_RECORD if value_available_metadata else 0)
+            if not metadata_only and used_slots + slot_count > budget.max_value_slots:
                 continue
             placement = row["placement"]
             text: str | None = None
             text_included = False
             text_payload: bytes | None = None
-            if placement == "warm":
+            if placement == "warm" and not metadata_only:
                 try:
                     text_payload = read_payload(
                         row["text_path"], row["text_sha256"], int(row["text_bytes"]))
@@ -3406,7 +3452,9 @@ class TieredMemoryStore:
             if placement == "cold":
                 cold_ids.append(row["record_id"])
             values_tuple: tuple[tuple[float, ...], ...] = ()
-            if value_available and placement == "warm":
+            value_available = (False if metadata_only
+                               else value_available_metadata)
+            if not metadata_only and value_available and placement == "warm":
                 try:
                     payloads = [read_payload(
                         value["value_path"], value["value_sha256"],
@@ -3417,11 +3465,11 @@ class TieredMemoryStore:
                     values_tuple = ()
                     slot_count = 0
                     representation_stale = True
-            elif value_available and placement == "cold":
+            elif not metadata_only and value_available and placement == "cold":
                 value_available = False
                 slot_count = 0
                 # Metadata remains; the payload needs an explicit cold recall.
-            if used_slots + slot_count > budget.max_value_slots:
+            if not metadata_only and used_slots + slot_count > budget.max_value_slots:
                 continue
             used_slots += slot_count
             selected_entries.append(SelectedEvidence(
@@ -3588,8 +3636,8 @@ class TieredMemoryStore:
             candidate_count=len(candidates),
             truncated=truncated,
             fallback_mode=fallback_mode,
-            used_text_bytes=used_text,
-            used_value_slots=used_slots,
+            used_text_bytes=0 if metadata_only else used_text,
+            used_value_slots=0 if metadata_only else used_slots,
             used_span_bytes=used_span_bytes,
             requires_cold_recall=requires_cold,
             cold_record_ids=tuple(cold_ids),
@@ -4956,7 +5004,12 @@ class TieredMemoryStore:
     def register_expert(self, expert_id: str, *, profile_id: str | None = None,
                         lineage: Sequence[str] = (),
                         encoder_id: str = "synthetic-encoder-v1") -> ExpertRecord:
-        """Register cold metadata only; no bank, shard or tensor is allocated."""
+        """Register one cold expert owner without allocating a bank or tensor.
+
+        ``parameter_count`` is the per-expert shape; the profile's
+        ``full_parameters`` remains the whole-bank total and is never charged
+        to or validated against a single owner.
+        """
         _identifier("expert_id", expert_id)
         _identifier("encoder_id", encoder_id)
         profile = get_profile(profile_id or self.profile_id)
@@ -4977,9 +5030,10 @@ class TieredMemoryStore:
                 "encoder_id, lineage_json, lineage_digest, optimizer, ablation, "
                 "updated_at_ns) VALUES (?, ?, ?, 'cold', 0, 'ok', 'none', NULL, 0, "
                 "NULL, NULL, 0, NULL, NULL, NULL, ?, ?, ?, ?, ?, ?)",
-                (expert_id, profile.profile_id, profile.full_parameters, encoder_id,
-                 _canonical(list(values)), _sha256_json(list(values)),
-                 NATIVE_OPTIMIZER, self.ablation_label, now))
+                (expert_id, profile.profile_id, profile.per_expert_parameters,
+                 encoder_id, _canonical(list(values)),
+                 _sha256_json(list(values)), NATIVE_OPTIMIZER,
+                 self.ablation_label, now))
             registered = self._connection.execute(
                 "SELECT * FROM expert_shards WHERE expert_id=?",
                 (expert_id,)).fetchone()
@@ -4988,14 +5042,15 @@ class TieredMemoryStore:
                 encoder_id=encoder_id, clock=0)
             self._record_event("expert_registered", expert_id, {
                 "profile_id": profile.profile_id,
-                "parameter_count": profile.full_parameters,
+                "parameter_count": profile.per_expert_parameters,
+                "bank_parameter_count": profile.full_parameters,
                 "location": "cold",
                 "materialized_bytes": 0,
                 "all_bank_allocated": False,
             }, at_ns=now)
         return ExpertRecord(
             expert_id=expert_id, profile_id=profile.profile_id,
-            parameter_count=profile.full_parameters, location="cold", dirty=False,
+            parameter_count=profile.per_expert_parameters, location="cold", dirty=False,
             quarantine_status="none", publication_generation=0,
             encoder_id=encoder_id, optimizer=NATIVE_OPTIMIZER,
             ablation=self.ablation_label)
@@ -5012,12 +5067,14 @@ class TieredMemoryStore:
         if row is None:
             return _outcome("denied", "expert_not_registered")
         profile = get_profile(row["profile_id"])
-        if len(weights) != profile.full_parameters * 4:
+        if len(weights) != profile.per_expert_fp32_weight_bytes:
             raise ValueError(
-                "weights must be exactly parameter_count FP32 bytes; "
-                "this module does not reinterpret shapes")
-        if len(moments) != profile.full_parameters * 8:
-            raise ValueError("moments must be exactly two FP32 AdamW state arrays")
+                "weights must be exactly one expert's parameter_count FP32 bytes; "
+                "this module does not reinterpret shapes or accept a whole-bank "
+                "payload for one owner")
+        if len(moments) != profile.per_expert_moments_bytes:
+            raise ValueError(
+                "moments must be exactly one expert's two FP32 AdamW state arrays")
         activated = row["location"] != "hot"
         if activated and len(self._active_expert_ids()) >= self._active_expert_limit():
             return _outcome(
@@ -5160,10 +5217,12 @@ class TieredMemoryStore:
         except OSError as error:
             return _outcome("failed", "hot_expert_state_missing", error=str(error))
         profile = get_profile(row["profile_id"])
-        if (len(weights) != profile.full_parameters * 4
-                or len(moments) != profile.full_parameters * 8):
+        if (len(weights) != profile.per_expert_fp32_weight_bytes
+                or len(moments) != profile.per_expert_moments_bytes):
             return _outcome("failed", "hot_expert_shape_mismatch",
-                            weights_bytes=len(weights), moments_bytes=len(moments))
+                            weights_bytes=len(weights), moments_bytes=len(moments),
+                            expected_weights_bytes=profile.per_expert_fp32_weight_bytes,
+                            expected_moments_bytes=profile.per_expert_moments_bytes)
         weights_sha = _sha256_bytes(weights)
         moments_sha = _sha256_bytes(moments)
         lineage = tuple(json.loads(row["lineage_json"]))
@@ -5931,13 +5990,125 @@ class TieredMemoryStore:
             "sha256": row["sha256"],
         } for row in reversed(rows))
 
-    def recover(self) -> RecoveryReport:
-        report = self._recover_locked(rebuild_index=True, remove_temporaries=True)
+    def recover(self, *,
+                allow_legacy_expert_manifest_import: bool = False) -> RecoveryReport:
+        """Rebuild the index from durable evidence.
+
+        ``allow_legacy_expert_manifest_import`` is the explicit migration for
+        stores that genuinely predate durable expert authority records.  It is
+        never used implicitly: a missing or corrupt authority record, including
+        a wholly missing authority class directory, must not silently downgrade
+        to a manifest.  The import is labelled in recovery notes so a migrated
+        store is distinguishable from one whose current authority was verified.
+        """
+        if not isinstance(allow_legacy_expert_manifest_import, bool):
+            raise ValueError("allow_legacy_expert_manifest_import must be boolean")
+        report = self._recover_locked(
+            rebuild_index=True, remove_temporaries=True,
+            allow_legacy_expert_manifest_import=allow_legacy_expert_manifest_import)
         self._recovery = report
         return report
 
+    def _scan_recovery_journal(
+            self) -> tuple[dict[str, dict], dict[str, set[int]], bool, bool]:
+        """Read append-only journal marks without trusting the SQLite index.
+
+        Journal events are written after their authority record.  The marks
+        therefore state the latest expected durable expert/identity state.  A
+        malformed line makes the scan incomplete rather than silently dropping
+        the mark; the later journal replay reports the same damage.
+        """
+        marks: dict[str, dict] = {}
+        identities: dict[str, set[int]] = {}
+        path = self._directories["journal"] / "events.jsonl"
+        if not path.is_file():
+            return marks, identities, False, True
+        available = True
+        complete = True
+        try:
+            stream = path.open("r", encoding="utf-8")
+        except OSError:
+            return marks, identities, False, False
+        with stream:
+            for line in stream:
+                if not line.strip():
+                    continue
+                try:
+                    payload = json.loads(line)
+                    kind = payload["kind"]
+                    entity_id = payload["entity_id"]
+                    detail = payload["detail"]
+                    if not isinstance(kind, str) or not isinstance(
+                            entity_id, str) or not isinstance(detail, dict):
+                        raise ValueError("journal event shape invalid")
+                except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+                    complete = False
+                    continue
+                if kind in EXPERT_EVENT_AUTHORITY_KIND:
+                    mark = marks.setdefault(entity_id, {
+                        "kind": None,
+                        "clock": None,
+                        "generation": 0,
+                        "quarantine": False,
+                        "quarantine_reason": None,
+                        "lineage": None,
+                        "weights_sha256": None,
+                        "moments_sha256": None,
+                        "events": 0,
+                    })
+                    mark["events"] += 1
+                    mark["kind"] = EXPERT_EVENT_AUTHORITY_KIND[kind]
+                    if kind == "expert_registered":
+                        continue
+                    try:
+                        if kind in ("expert_state_written",
+                                    "expert_authenticated_reset"):
+                            mark["clock"] = int(detail["clock"])
+                        if kind == "expert_published":
+                            mark["generation"] = max(
+                                int(mark["generation"]),
+                                int(detail["generation"]))
+                            mark["clock"] = int(detail["clock"])
+                            mark["lineage"] = tuple(detail.get("lineage", ()))
+                            mark["weights_sha256"] = detail.get("weights_sha256")
+                            mark["moments_sha256"] = detail.get("moments_sha256")
+                        if kind == "expert_evicted":
+                            mark["generation"] = max(
+                                int(mark["generation"]),
+                                int(detail.get("publication_generation", 0)))
+                        if kind == "expert_quarantined":
+                            mark["quarantine"] = True
+                            mark["quarantine_reason"] = detail.get("reason")
+                        if kind == "expert_authenticated_reset":
+                            mark["quarantine"] = False
+                            mark["quarantine_reason"] = None
+                            mark["lineage"] = tuple(detail.get("lineage", ()))
+                    except (KeyError, TypeError, ValueError):
+                        complete = False
+                        continue
+                elif kind == "identity_approved":
+                    try:
+                        version = int(detail["version"])
+                    except (KeyError, TypeError, ValueError):
+                        complete = False
+                        continue
+                    identities.setdefault(entity_id, set()).add(version)
+        return marks, identities, available, complete
+
+    @staticmethod
+    def _authority_sequence_gaps(directory: Path) -> tuple[int, ...]:
+        """Return missing 1..max sequence numbers in one authority directory."""
+        present = {int(child.stem) for child in directory.glob("*.json")
+                   if child.stem.isdigit()}
+        if not present:
+            return ()
+        return tuple(number for number in range(1, max(present) + 1)
+                     if number not in present)
+
     def _recover_locked(self, *, rebuild_index: bool,
-                        remove_temporaries: bool) -> RecoveryReport:
+                        remove_temporaries: bool,
+                        allow_legacy_expert_manifest_import: bool = False
+                        ) -> RecoveryReport:
         notes: list[str] = []
         corrupt_manifests: list[str] = []
         corrupt_artifacts: list[str] = []
@@ -5950,6 +6121,10 @@ class TieredMemoryStore:
         authority_records_recovered = 0
         journal_events_recovered = 0
         chain_incomplete = False
+        journal_marks, identity_marks, journal_available, journal_complete = (
+            self._scan_recovery_journal())
+        journal_trusted = journal_available and journal_complete
+        legacy_expert_import = bool(allow_legacy_expert_manifest_import)
         cluster_manifests: dict[str, list[tuple[int, Path, dict, str]]] = {}
         expert_manifests: dict[str, list[tuple[int, Path, dict, str]]] = {}
         authority_records: dict[str, list[tuple[dict, str]]] = {}
@@ -6160,6 +6335,34 @@ class TieredMemoryStore:
                     else:
                         incomplete_authority.add(relative)
                         notes.append("expert_authority_missing_identity")
+                # A gap in an authority component's numbered chain proves that
+                # a first/intermediate record was lost.  The newest record may
+                # still be a complete snapshot, but the loss is reported and
+                # never hidden by a lower-level manifest recovery.
+                # Expert authority sequence numbers are allocated internally as
+                # a contiguous chain.  Identity versions are caller-supplied, so
+                # their completeness is established from the journal approval
+                # history instead of assuming a contiguous numbering.
+                class_root = self._directories["authority"] / "experts"
+                if class_root.is_dir():
+                    for component in sorted(class_root.iterdir()):
+                        if not component.is_dir():
+                            continue
+                        for missing in self._authority_sequence_gaps(component):
+                            relative = (f"authority/experts/"
+                                        f"{component.name}/{missing:08d}.json")
+                            incomplete_authority.add(relative)
+                            notes.append(f"authority_sequence_gap: {relative}")
+                # Experts that the journal says existed but which have neither
+                # a surviving authority record nor a publication are still an
+                # explicit authority-completeness gap.
+                for expert_id in sorted(
+                        set(journal_marks) - set(expert_authority)
+                        - set(publications)):
+                    incomplete_authority.add(
+                        f"authority/experts/{_authority_component(expert_id)}")
+                    notes.append(
+                        f"expert_authority_missing_class: {expert_id}")
                 for expert_id in sorted(set(publications) | set(expert_authority)):
                     states = expert_authority.get(expert_id, [])
                     states.sort(key=lambda item: (
@@ -6180,22 +6383,42 @@ class TieredMemoryStore:
                         authority_records_recovered += 1
                         healthy = self._apply_expert_authority_locked(
                             expert_id, valid_states[-1], publications.get(expert_id, {}),
+                            journal_marks.get(expert_id), journal_trusted,
                             notes=notes, corrupt_artifacts=corrupt_artifacts,
                             incomplete_authority=incomplete_authority)
                         if healthy:
                             experts_recovered.add(expert_id)
                     elif expert_id in publications:
-                        healthy = self._apply_expert_manifest_locked(
-                            expert_id, publications[expert_id], notes=notes,
-                            corrupt_artifacts=corrupt_artifacts,
-                            incomplete_authority=incomplete_authority)
+                        if legacy_expert_import:
+                            notes.append(
+                                f"{LEGACY_EXPERT_MIGRATION_NOTE}: {expert_id}")
+                            healthy = self._apply_expert_manifest_locked(
+                                expert_id, publications[expert_id], notes=notes,
+                                corrupt_artifacts=corrupt_artifacts,
+                                incomplete_authority=incomplete_authority)
+                        else:
+                            # Durable authority was expected for this store.
+                            # Importing a manifest here would be a silent
+                            # downgrade, so keep the owner quarantined and
+                            # make the incomplete authority explicit.
+                            incomplete_authority.add("authority/experts")
+                            notes.append(
+                                "expert_authority_missing_refusing_manifest_"
+                                f"downgrade: {expert_id}")
+                            healthy = self._apply_expert_manifest_locked(
+                                expert_id, publications[expert_id], notes=notes,
+                                corrupt_artifacts=corrupt_artifacts,
+                                incomplete_authority=incomplete_authority,
+                                quarantine_required=True)
                         if healthy:
                             experts_recovered.add(expert_id)
                 authority_records_recovered += (
                     self._recover_authority_metadata_locked(
                         authority_records, notes=notes,
                         corrupt_artifacts=corrupt_artifacts,
-                        incomplete_authority=incomplete_authority))
+                        incomplete_authority=incomplete_authority,
+                        identity_marks=identity_marks,
+                        journal_trusted=journal_trusted))
                 journal_events_recovered += self._recover_journal_locked(
                     notes=notes, corrupt_artifacts=corrupt_artifacts,
                     incomplete_authority=incomplete_authority)
@@ -6291,6 +6514,7 @@ class TieredMemoryStore:
     def _apply_expert_authority_locked(
             self, expert_id: str, state: tuple[dict, str],
             publications: Mapping[int, Mapping],
+            journal_mark: Mapping | None, journal_trusted: bool,
             *, notes: list[str], corrupt_artifacts: list[str],
             incomplete_authority: set[str]) -> bool:
         record, relative = state
@@ -6313,6 +6537,8 @@ class TieredMemoryStore:
         hot_weights_path = hot_moments_path = None
         hot_bytes = 0
         hot_verified = False
+        uncertain: list[str] = []
+        force_quarantine = False
         if location == "hot" and isinstance(hot, Mapping):
             try:
                 self._absolute(hot["weights"]["path"])
@@ -6334,6 +6560,7 @@ class TieredMemoryStore:
                 notes.append(
                     f"expert_hot_payload_invalid: {expert_id}: {error}")
                 incomplete_authority.add(relative)
+                uncertain.append("hot_payload_unverified")
         chosen = None
         chosen_info: Mapping | None = None
         newest_generation = max(publications) if publications else 0
@@ -6345,27 +6572,107 @@ class TieredMemoryStore:
                 incomplete_authority.add(relative)
                 notes.append(f"expert_authority_publication_invalid: {expert_id}")
                 publication = None
-        if hot_verified and location == "hot" and dirty:
+                uncertain.append("authority_publication_reference_invalid")
+        # The journal is written after the authority record, so it states the
+        # latest expected durable state.  The newest surviving authority must
+        # be at least that advanced; otherwise it is an older snapshot and its
+        # quarantine/lineage/clock may never be presented as current.
+        if journal_mark is None:
+            if not journal_trusted:
+                uncertain.append("authority_without_journal_evidence")
+        else:
+            if record.get("kind") != journal_mark.get("kind"):
+                uncertain.append("authority_kind_behind_journal")
+            expected_clock = journal_mark.get("clock")
+            if expected_clock is not None and clock < int(expected_clock):
+                uncertain.append("authority_clock_behind_journal")
+            expected_generation = int(journal_mark.get("generation", 0))
+            if (publication_generation < expected_generation
+                    or state_publication_generation < expected_generation):
+                uncertain.append("authority_publication_behind_journal")
+            if bool(journal_mark.get("quarantine")):
+                force_quarantine = True
+                if quarantine_status != "quarantined":
+                    uncertain.append("authority_quarantine_cleared_by_loss")
+                    quarantine_reason = (
+                        journal_mark.get("quarantine_reason")
+                        or quarantine_reason)
+            expected_lineage = journal_mark.get("lineage")
+            if (expected_lineage is not None
+                    and publication_generation == expected_generation
+                    and tuple(expected_lineage) != lineage):
+                uncertain.append("authority_lineage_mismatch")
+            expected_weights = journal_mark.get("weights_sha256")
+            if (expected_weights and isinstance(publication, Mapping)
+                    and int(publication.get("generation", 0))
+                    == expected_generation):
+                if (publication.get("weights", {}).get("sha256")
+                        != expected_weights
+                        or publication.get("moments", {}).get("sha256")
+                        != journal_mark.get("moments_sha256")):
+                    uncertain.append("authority_publication_digest_mismatch")
+        if newest_generation > state_publication_generation:
+            # A newer cold publication exists without an authority record that
+            # acknowledges it.  This is an interrupted/unauthorised publication,
+            # not permission to promote the newer payload silently.
+            uncertain.append("publication_ahead_of_authority")
+        for item in lineage:
+            row = self._connection.execute(
+                "SELECT status FROM records WHERE record_id=? OR record_hash=? "
+                "LIMIT 1", (item, item)).fetchone()
+            if row is not None and row["status"] != "current":
+                if record.get("kind") != "reset":
+                    force_quarantine = True
+                    if quarantine_status != "quarantined":
+                        uncertain.append("authority_ignores_revoked_lineage")
+                        if quarantine_reason is None:
+                            quarantine_reason = (
+                                "dependent evidence "
+                                f"{item} was corrected or revoked")
+                    break
+        if force_quarantine:
+            quarantine_status = "quarantined"
+            if quarantine_reason is None:
+                quarantine_reason = "recovery uncertainty"
+        published_weights_sha = None
+        published_moments_sha = None
+        published_clock = None
+        if uncertain:
+            incomplete_authority.add(relative)
+            notes.append(
+                f"expert_authority_uncertain: {expert_id}: "
+                + ",".join(sorted(set(uncertain))))
+            quarantine_status = "quarantined"
+            if quarantine_reason is None:
+                quarantine_reason = "recovery uncertainty"
+            health = "incomplete"
+            location = "cold"
+            dirty = False
+            hot_weights_path = hot_moments_path = None
+            hot_bytes = 0
+        elif hot_verified and location == "hot" and dirty:
             chosen = "hot"
         elif state_publication_generation in publications:
             chosen = "publication"
             chosen_info = publications[state_publication_generation]
-            if newest_generation > state_publication_generation:
-                notes.append(
-                    f"expert_authority_publication_ahead: {expert_id}")
-                chosen_info = publications[newest_generation]
-                chosen = "publication_ahead"
-        elif newest_generation:
-            chosen = "publication_ahead"
-            chosen_info = publications[newest_generation]
-            notes.append(f"expert_authority_publication_ahead: {expert_id}")
-        if hot_verified and chosen in (None, "publication", "publication_ahead"):
-            # A clean hot copy is a cache of the chosen publication, never a
-            # source of newer lineage or clock metadata than that publication.
-            pass
-        published_weights_sha = None
-        published_moments_sha = None
-        published_clock = None
+        else:
+            if (publication is None and hot is None
+                    and publication_generation == 0):
+                # Registration alone is complete authority: no payload was
+                # ever promised, so the cold metadata row is restorable.
+                location = "cold"
+                dirty = False
+                hot_weights_path = hot_moments_path = None
+                hot_bytes = 0
+                health = str(record.get("health", "ok"))
+            else:
+                health = "incomplete"
+                location = "cold"
+                dirty = False
+                hot_weights_path = hot_moments_path = None
+                hot_bytes = 0
+                incomplete_authority.add(relative)
+                notes.append(f"expert_authority_incomplete: {expert_id}")
         if chosen == "hot":
             if isinstance(publication, Mapping):
                 published_weights_sha = publication["weights"]["sha256"]
@@ -6394,24 +6701,6 @@ class TieredMemoryStore:
                 hot_weights_path = hot_moments_path = None
                 hot_bytes = 0
             self._set_meta(f"expert_clock:{expert_id}", str(clock))
-        else:
-            if (publication is None and hot is None
-                    and int(record.get("publication_generation", 0)) == 0):
-                # Registration alone is complete authority: no payload was
-                # ever promised, so the cold metadata row is restorable.
-                location = "cold"
-                dirty = False
-                hot_weights_path = hot_moments_path = None
-                hot_bytes = 0
-                health = str(record.get("health", "ok"))
-            else:
-                health = "incomplete"
-                location = "cold"
-                dirty = False
-                hot_weights_path = hot_moments_path = None
-                hot_bytes = 0
-                incomplete_authority.add(relative)
-                notes.append(f"expert_authority_incomplete: {expert_id}")
         existing = self._connection.execute(
             "SELECT * FROM expert_shards WHERE expert_id=?",
             (expert_id,)).fetchone()
@@ -6458,14 +6747,25 @@ class TieredMemoryStore:
     def _apply_expert_manifest_locked(
             self, expert_id: str, publications: Mapping[int, Mapping],
             *, notes: list[str], corrupt_artifacts: list[str],
-            incomplete_authority: set[str]) -> bool:
-        """Legacy path for stores that predate durable expert authority."""
+            incomplete_authority: set[str],
+            quarantine_required: bool = False) -> bool:
+        """Explicit migration path for stores without durable expert authority.
+
+        ``quarantine_required`` is used when durable authority was expected but
+        is missing or unreadable.  The manifest is then used only for cold
+        metadata; the owner is quarantined and unavailable, never presented as
+        a successful recovery.
+        """
         generation = max(publications)
         info = publications[generation]
         manifest = info["manifest"]
         health = "ok"
         quarantine_status = manifest.get("quarantine_status", "none")
-        if quarantine_status not in ("none", "quarantined"):
+        if quarantine_required:
+            quarantine_status = "quarantined"
+            health = "incomplete"
+            notes.append(f"expert_manifest_import_quarantined: {expert_id}")
+        elif quarantine_status not in ("none", "quarantined"):
             incomplete_authority.add(str(info["path"]))
             notes.append(f"expert_manifest_quarantine_invalid: {expert_id}")
             quarantine_status = "quarantined"
@@ -6515,7 +6815,10 @@ class TieredMemoryStore:
     def _recover_authority_metadata_locked(
             self, authority_records: Mapping[str, Sequence[tuple[dict, str]]],
             *, notes: list[str], corrupt_artifacts: list[str],
-            incomplete_authority: set[str]) -> int:
+            incomplete_authority: set[str],
+            identity_marks: Mapping[str, Collection[int]] | None = None,
+            journal_trusted: bool = True) -> int:
+        identity_marks = identity_marks or {}
         recovered = 0
         for record, relative in sorted(
                 authority_records.get("procedures", ()),
@@ -6567,6 +6870,9 @@ class TieredMemoryStore:
             else:
                 incomplete_authority.add(relative)
                 notes.append("identity_authority_missing_identity")
+        for identity_id in sorted(set(identity_marks) - set(identities)):
+            incomplete_authority.add(identity_id)
+            notes.append(f"identity_authority_missing_class: {identity_id}")
         for identity_id, items in sorted(identities.items()):
             items.sort(key=lambda item: (
                 int(item[0].get("version", 0)),
@@ -6596,6 +6902,42 @@ class TieredMemoryStore:
             if any(int(row["version"]) > max_valid for row in existing_current):
                 incomplete_authority.add(identity_id)
                 notes.append(f"identity_authority_behind_index: {identity_id}")
+                continue
+            journal_versions = set(identity_marks.get(identity_id, ()))
+            expected_version = (max(journal_versions)
+                                if journal_versions else None)
+            valid_versions = {int(record["version"]) for record, _ in valid}
+            missing_history = journal_versions - valid_versions
+            if missing_history:
+                incomplete_authority.add(identity_id)
+                notes.append(
+                    f"identity_authority_missing_versions: {identity_id}:"
+                    + ",".join(str(item) for item in sorted(missing_history)))
+            unverified = not journal_trusted
+            if unverified:
+                notes.append(
+                    f"identity_authority_unverified_journal: {identity_id}")
+            elif expected_version is not None and expected_version > max_valid:
+                unverified = True
+                notes.append(
+                    f"identity_authority_missing_newest: {identity_id}:"
+                    f"expected={expected_version}:found={max_valid}")
+            if unverified:
+                incomplete_authority.add(identity_id)
+                # Surviving versions stay historical.  No older record is
+                # promoted to current when the latest expected approval is not
+                # backed by a verifiable authority record.
+                for record, _ in valid:
+                    self._connection.execute(
+                        "INSERT OR IGNORE INTO identity_versions(identity_id, "
+                        "version, status, core_path, core_sha, core_bytes, "
+                        "authority, approved, supersedes, created_at_ns) "
+                        "VALUES (?, ?, 'superseded', ?, ?, ?, ?, 1, ?, ?)",
+                        (identity_id, int(record["version"]), record["core_path"],
+                         record["core_sha"], int(record["core_bytes"]),
+                         record["authority"], record.get("supersedes"),
+                         int(record.get("created_at_ns", 0))))
+                    recovered += 1
                 continue
             for record, _ in valid:
                 self._connection.execute(

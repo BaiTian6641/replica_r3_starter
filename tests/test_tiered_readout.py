@@ -219,7 +219,7 @@ def test_warm_readout_preserves_order_spans_and_producer_identity(
             assert record.rank == rank
             assert record.record_id == selected.record_id
             assert record.text == texts[record.record_id]
-            assert record.payload_source == "selection"
+            assert record.payload_source == "read_record"
             assert record.cluster_id == selected.cluster_id
             assert record.cluster_generation == selected.cluster_generation
             assert record.revision == selected.revision
@@ -268,17 +268,23 @@ def test_warm_readout_preserves_order_spans_and_producer_identity(
                 assert spans[0].text == query
 
         metrics = readout.metrics
-        assert metrics.selection_admitted_payload_bytes > 0
-        assert metrics.selection_admitted_file_reads > 0
-        assert metrics.payload_read_calls == 0
-        assert metrics.payload_io_bytes == 0
+        assert metrics.selection_admitted_payload_bytes == 0
+        assert metrics.selection_admitted_file_reads == 0
+        assert metrics.selection_file_reads >= len(readout.records)
+        assert metrics.payload_read_calls == len(readout.records)
+        assert metrics.payload_file_reads == (
+            len(readout.records) * (1 + VALUE_SLOTS_PER_RECORD))
+        assert metrics.payload_io_bytes == sum(
+            expected_payload_bytes(text) for text in texts.values())
         assert metrics.cache_hits == 0
         assert metrics.cache_misses == len(readout.records)
         assert metrics.cache_inserts == len(readout.records)
-        assert metrics.selection_io_bytes >= metrics.selection_admitted_payload_bytes
-        assert metrics.total_io_bytes == metrics.selection_io_bytes
-        assert metrics.selection_file_reads >= metrics.selection_admitted_file_reads
-        assert metrics.total_file_reads == metrics.selection_file_reads
+        assert metrics.result_payload_bytes == sum(
+            expected_payload_bytes(text) for text in texts.values())
+        assert metrics.total_io_bytes == (
+            metrics.selection_io_bytes + metrics.payload_io_bytes)
+        assert metrics.total_file_reads == (
+            metrics.selection_file_reads + metrics.payload_file_reads)
         assert metrics.selection_calls == 1
         assert metrics.total_ns > 0
         assert metrics.selection_ns >= 0
@@ -301,6 +307,25 @@ def test_warm_readout_preserves_order_spans_and_producer_identity(
         assert readout_contract()["claims"]["gpu_residency_measured"] is False
         assert readout_contract()["claims"]["semantic_compression_claimed"] is False
 
+
+
+def test_admit_payload_true_preserves_selection_admitted_contract(tmp_path: Path) -> None:
+    with open_store(tmp_path) as store:
+        user = scope()
+        text = "legacy admitted payload"
+        store.admit_cluster(
+            "warm", scope=user,
+            records=[make_draft("legacy", text, seed=9)])
+        result = read_scoped_memory(
+            store, "legacy admitted", user, admit_payload=True)
+        assert result.status == "ok"
+        assert result.records[0].payload_source == "selection"
+        assert result.metrics.selection_admitted_payload_bytes > 0
+        assert result.metrics.selection_admitted_file_reads > 0
+        assert result.metrics.selection_io_bytes >= (
+            result.metrics.selection_admitted_payload_bytes)
+        assert result.metrics.payload_read_calls == 0
+        assert result.metrics.payload_io_bytes == 0
 
 def test_warm_cache_hits_and_explicit_text_budget_exhaustion(
         tmp_path: Path) -> None:
@@ -327,6 +352,8 @@ def test_warm_cache_hits_and_explicit_text_budget_exhaustion(
         assert second.metrics.cache_misses == 0
         assert second.metrics.payload_read_calls == 0
         assert second.metrics.payload_io_bytes == 0
+        assert second.metrics.total_file_reads < first.metrics.total_file_reads
+        assert second.metrics.total_io_bytes < first.metrics.total_io_bytes
         assert all(record.payload_source == "cache"
                    for record in second.records)
         assert second.texts == first.texts

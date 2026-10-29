@@ -61,15 +61,15 @@ What is *not* claimed
 
 Known integration limit
 -----------------------
-``TieredMemoryStore.select`` reads candidate retrieval keys and the payload
-bytes it admits (warm canonical text and ordered values) even when the caller
-only needs ordering and metadata. This readout reports exact
-``selection_file_reads``/``selection_io_bytes`` from the store, including
-candidate keys, admitted payloads and exact fallback reads; the admitted
-subset remains separately visible. There is currently no ordering-only
-selection call, so a warm read that avoids readout-level payload I/O still pays
-the store's internal selection reads. The payload cache removes repeated
-*readout-level* reads and all repeated cold reads.
+By default, ``read_scoped_memory(..., admit_payload=False)`` performs selection
+in two stages: retrieval-key reads and ordering metadata first, then validated
+cache lookup and bounded payload acquisition only on a miss. A warm cache hit
+therefore pays selection metadata I/O without rereading canonical text or value
+payloads. ``admit_payload=True`` preserves the older selection-admitted path
+for callers that need it. Exact ``selection_file_reads`` and
+``selection_io_bytes`` include candidate keys and any admitted/fallback reads.
+The payload cache removes repeated *readout-level* payload reads and all
+repeated cold reads; it never claims physical tier residency.
 
 Threading / lifetime
 --------------------
@@ -608,6 +608,7 @@ class ReadoutMetrics:
     selection_file_reads: int = 0
     selection_io_bytes: int = 0
     selection_calls: int = 0
+    result_payload_bytes: int = 0
     io_provenance: Mapping[str, str] = field(default_factory=dict)
 
     def document(self) -> dict:
@@ -659,6 +660,7 @@ class ReadoutMetrics:
                 "file_reads": self.total_file_reads,
                 "io_bytes": self.total_io_bytes,
                 "ns": self.total_ns,
+                "result_payload_bytes": self.result_payload_bytes,
             },
             "records": {
                 "returned": self.records_returned,
@@ -1765,6 +1767,10 @@ def _finish_metrics(stats: _Stats, cache: _StoreCache,
         for name in ("ok", "degraded", "incomplete", "denied",
                      "invalidated", "stale", "in_progress")
     }
+    result_payload_bytes = sum(
+        (0 if record.text is None else len(record.text.encode("utf-8")))
+        + (0 if record.values is None else len(record.values) * VALUE_WIDTH * 4)
+        for record in records)
     total_file_reads = (stats.selection_file_reads
                         + stats.payload_file_reads + stats.cold_file_reads)
     total_io_bytes = (stats.selection_io_bytes
@@ -1813,6 +1819,7 @@ def _finish_metrics(stats: _Stats, cache: _StoreCache,
         total_file_reads=total_file_reads,
         total_io_bytes=total_io_bytes,
         total_ns=total_ns,
+        result_payload_bytes=result_payload_bytes,
         io_provenance={
             "selection": (
                 "exact verified-read accounting from TieredMemoryStore.select: "
@@ -1838,6 +1845,7 @@ def merge_readout_metrics(metrics: Sequence[ReadoutMetrics]) -> ReadoutMetrics:
     final = items[-1]
     gauges = {
         "cache_entries", "cache_bytes", "cache_bound_bytes", "cold_in_progress",
+        "result_payload_bytes",
         "records_returned", "records_ready", "records_degraded",
         "records_incomplete", "records_denied", "records_invalidated",
         "records_stale", "records_in_progress", "timings_are_wall_clock",
@@ -1919,7 +1927,8 @@ def _empty_readout(*, store: TieredMemoryStore, query_text: str,
 def read_scoped_memory(store: TieredMemoryStore, query_text: str,
                        scope: MemoryScope,
                        budget: ReadoutBudget | RetrievalBudget | None = None,
-                       selection_mode: str = "semantic") -> ScopedMemoryReadout:
+                       selection_mode: str = "semantic",
+                       admit_payload: bool = False) -> ScopedMemoryReadout:
     """Read scoped evidence for neural query construction.
 
     Returns ordered records with canonical text references, retrieval-key
@@ -1935,6 +1944,8 @@ def read_scoped_memory(store: TieredMemoryStore, query_text: str,
         raise TypeError("scope must be a MemoryScope")
     if selection_mode not in {"semantic", "all_eligible"}:
         raise ValueError("selection_mode must be semantic or all_eligible")
+    if type(admit_payload) is not bool:
+        raise ValueError("admit_payload must be boolean")
     budget = _coerce_budget(budget)
     total_started = _perf_ns()
     stats = _Stats()
@@ -1944,7 +1955,7 @@ def read_scoped_memory(store: TieredMemoryStore, query_text: str,
     selection_started = _perf_ns()
     selection = store.select(
         query_text, scope=scope, budget=budget.retrieval_budget(),
-        selection_mode=selection_mode)
+        selection_mode=selection_mode, admit_payload=admit_payload)
     stats.selection_calls = 1
     stats.selection_file_reads = int(selection.file_reads)
     stats.selection_io_bytes = int(selection.io_bytes)
@@ -2140,6 +2151,7 @@ def read_scoped_memory(store: TieredMemoryStore, query_text: str,
         "candidate_count": int(selection.candidate_count),
         "semantic_candidate_count": int(selection.candidate_count),
         "selection_mode": selection_mode,
+        "admit_payload": admit_payload,
         "truncated": bool(selection.truncated),
         "fallback_mode": selection.fallback_mode,
         "representation_stale": bool(selection.representation_stale),
@@ -2177,7 +2189,8 @@ def read_scoped_memory(store: TieredMemoryStore, query_text: str,
         incomplete_record_ids=incomplete_ids,
         denied_record_ids=denied_ids,
         invalidated_record_ids=invalidated_ids,
-        diagnostics={**_diagnostics(budget), "selection_mode": selection_mode},
+        diagnostics={**_diagnostics(budget), "selection_mode": selection_mode,
+                     "admit_payload": admit_payload},
     )
 
 
@@ -2374,7 +2387,7 @@ def readout_contract() -> dict:
         "entry_points": {
             "read": (
                 "read_scoped_memory(store, query_text, scope, budget=None, "
-                "selection_mode='semantic')"),
+                "selection_mode='semantic', admit_payload=False)"),
             "resume": "resume_scoped_readout(store, ticket_id, scope=scope)",
         },
         "result_fields": (
@@ -2447,6 +2460,9 @@ def readout_contract() -> dict:
                 "from an explicit predecessor link"),
         },
         "limits": {
+            "metadata_selection_before_payload_acquisition": True,
+            "warm_cache_hits_avoid_payload_reads": True,
+            "admit_payload_true_preserves_selection_admission": True,
             "selection_reads_payloads_internally": True,
             "selection_file_reads_and_io_bytes_are_exact": True,
             "selection_admitted_file_reads_are_derived_subset": True,

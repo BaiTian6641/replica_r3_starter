@@ -404,3 +404,444 @@ def test_quarantine_reset_durability_keeps_exact_unlearning_distinction(
         assert correction_events[-1]["detail"]["exact_unlearning_claimed"] is False
     finally:
         rebuilt.close()
+
+
+# ---------------------------------------------------------------------------
+# Latest-expected-state regressions: newest/first/intermediate authority loss,
+# interrupted publication, explicit migration and restart
+# ---------------------------------------------------------------------------
+
+def authority_record(path: Path) -> dict:
+    import json
+    return json.loads(path.read_text(encoding="utf-8"))["authority"]
+
+
+def component_authority_files(store, authority_class: str,
+                              entity_id: str) -> list[Path]:
+    """Return one component's numbered authority files, oldest first."""
+    root = store.root / "authority" / authority_class
+    files = [path for path in sorted(root.rglob("*.json"))
+             if authority_record(path).get(
+                 "expert_id" if authority_class == "experts"
+                 else "identity_id") == entity_id]
+    return files
+
+
+def test_missing_newest_quarantine_authority_preserves_quarantine_and_health(
+        tmp_path: Path) -> None:
+    """Deleting the newest quarantined-authority file must not clear it."""
+    store = open_store(tmp_path)
+    user_scope = scope()
+    store.admit_cluster(
+        "evidence", scope=user_scope,
+        records=[make_draft("r1", "revoked rule", seed=31),
+                 make_draft("r2", "healthy rule", seed=32)])
+    weights_one, moments_one = expert_bytes(b"revoked-lineage")
+    weights_two, moments_two = expert_bytes(b"healthy-lineage")
+    store.register_expert("e1", lineage=("r1",), encoder_id="encoder-v1")
+    assert store.write_expert_state(
+        "e1", weights=weights_one, moments=moments_one, clock=9,
+        lineage=("r1",), encoder_id="encoder-v1").ok
+    assert store.publish_expert("e1").ok
+    assert store.evict_expert("e1").ok
+    store.register_expert("e2", lineage=("r2",), encoder_id="encoder-v1")
+    assert store.write_expert_state(
+        "e2", weights=weights_two, moments=moments_two, clock=12,
+        lineage=("r2",), encoder_id="encoder-v1").ok
+    assert store.publish_expert("e2").ok
+    assert store.evict_expert("e2").ok
+    revoked = store.revoke_record(
+        "r1", reason="revoked teaching evidence", scope=user_scope)
+    assert revoked.quarantined_experts == ("e1",)
+    e1_files = component_authority_files(store, "experts", "e1")
+    assert authority_record(e1_files[-1])["quarantine_status"] == "quarantined"
+    store.close()
+
+    e1_files[-1].unlink()
+    drop_index(store)
+
+    rebuilt = open_store(tmp_path)
+    try:
+        report = rebuilt.recovery_report
+        assert report is not None
+        assert report.outcome.status == "incomplete"
+        assert any("expert_authority_uncertain" in note
+                   and "quarantine" in note for note in report.notes)
+        records = {record.expert_id: record
+                   for record in rebuilt.expert_records()}
+        assert records["e1"].quarantine_status == "quarantined"
+        loaded_e1 = rebuilt.load_expert("e1")
+        assert loaded_e1.outcome.status == "failed"
+        assert loaded_e1.outcome.reason == "expert_health_not_ok"
+        assert loaded_e1.state is None
+        # Unrelated healthy owner remains fully available.
+        loaded_e2 = rebuilt.load_expert("e2")
+        assert loaded_e2.outcome.ok is True
+        assert loaded_e2.state is not None
+        assert loaded_e2.state.clock == 12
+        assert rebuilt.state_summary()["counts"]["P_experts"] == 2
+        assert rebuilt.state_summary()["counts"]["P_quarantined"] == 1
+    finally:
+        rebuilt.close()
+
+
+def test_missing_newest_identity_authority_keeps_current_unset(
+        tmp_path: Path) -> None:
+    store = open_store(tmp_path)
+    assert store.approve_identity(
+        "identity.main", 1, core_text="core one",
+        authority="user_approved").outcome.ok
+    assert store.approve_identity(
+        "identity.main", 2, core_text="core two",
+        authority="user_approved", supersedes=1).outcome.ok
+    files = component_authority_files(store, "identity", "identity.main")
+    assert len(files) == 2
+    store.close()
+
+    files[-1].unlink()
+    drop_index(store)
+
+    rebuilt = open_store(tmp_path)
+    try:
+        report = rebuilt.recovery_report
+        assert report is not None
+        assert report.outcome.status == "incomplete"
+        assert any("identity_authority_missing_newest" in note
+                   for note in report.notes)
+        identity = rebuilt.identity_core("identity.main")
+        assert identity.outcome.status == "incomplete"
+        assert identity.version is None and identity.text is None
+        rows = {int(row["version"]): row["status"] for row in rebuilt.connection.execute(
+            "SELECT version, status FROM identity_versions "
+            "WHERE identity_id='identity.main'")}
+        assert rows == {1: "superseded"}
+        summary = rebuilt.state_summary()["counts"]
+        assert summary["I_identity_versions"] == 1
+        assert summary["I_approved_current"] == 0
+    finally:
+        rebuilt.close()
+
+
+def test_corrupt_newest_authority_never_clears_quarantine(
+        tmp_path: Path) -> None:
+    store = open_store(tmp_path)
+    user_scope = scope()
+    store.admit_cluster(
+        "evidence", scope=user_scope,
+        records=[make_draft("r1", "old exact claim", seed=33)])
+    weights, moments = expert_bytes(b"corrupt-newest")
+    store.register_expert("e1", lineage=("r1",))
+    assert store.write_expert_state(
+        "e1", weights=weights, moments=moments, clock=4).ok
+    assert store.publish_expert("e1").ok
+    correction = store.correct_record(
+        "r1", correction_id="r1-corrected", text="new claim",
+        source_id="user-correction", source_epoch=2, observed_at=500,
+        scope=user_scope)
+    assert correction.quarantined_experts == ("e1",)
+    newest = component_authority_files(store, "experts", "e1")[-1]
+    store.close()
+
+    newest.write_bytes(b"{not a valid authority envelope")
+    drop_index(store)
+
+    rebuilt = open_store(tmp_path)
+    try:
+        report = rebuilt.recovery_report
+        assert report is not None
+        assert report.outcome.status == "incomplete"
+        assert any("authority_preserved" in note for note in report.notes)
+        assert newest.relative_to(store.root).as_posix() in (
+            report.incomplete_authority)
+        records = rebuilt.expert_records()
+        assert len(records) == 1
+        assert records[0].quarantine_status == "quarantined"
+        assert rebuilt.load_expert("e1").outcome.status == "failed"
+        assert rebuilt.state_summary()["counts"]["P_quarantined"] == 1
+    finally:
+        rebuilt.close()
+
+
+def test_first_and_intermediate_authority_loss_is_reported_not_hidden(
+        tmp_path: Path) -> None:
+    store = open_store(tmp_path)
+    weights_one, moments_one = expert_bytes(b"first-gen")
+    weights_two, moments_two = expert_bytes(b"second-gen")
+    store.register_expert("e1", lineage=("r1",), encoder_id="encoder-v1")
+    assert store.write_expert_state(
+        "e1", weights=weights_one, moments=moments_one, clock=10,
+        lineage=("r1",), encoder_id="encoder-v1").ok
+    assert store.publish_expert("e1").ok
+    assert store.evict_expert("e1").ok
+    assert store.write_expert_state(
+        "e1", weights=weights_two, moments=moments_two, clock=77,
+        lineage=("r1", "r2"), encoder_id="encoder-v2").ok
+    assert store.publish_expert("e1").ok
+    assert store.evict_expert("e1").ok
+    files = component_authority_files(store, "experts", "e1")
+    assert len(files) >= 6
+    deleted = [files[0], files[2]]
+    store.close()
+
+    for path in deleted:
+        path.unlink()
+    drop_index(store)
+
+    rebuilt = open_store(tmp_path)
+    try:
+        report = rebuilt.recovery_report
+        assert report is not None
+        assert report.outcome.status == "incomplete"
+        for path in deleted:
+            assert path.relative_to(store.root).as_posix() in (
+                report.incomplete_authority)
+        assert any("authority_sequence_gap" in note for note in report.notes)
+        # The newest surviving record is a complete snapshot; its payload is
+        # still coherent, while the lost chain is explicit.
+        loaded = rebuilt.load_expert("e1")
+        assert loaded.outcome.ok is True
+        assert loaded.state is not None
+        assert loaded.state.generation == 2
+        assert loaded.state.clock == 77
+        assert loaded.state.lineage == ("r1", "r2")
+        assert loaded.state.encoder_id == "encoder-v2"
+    finally:
+        rebuilt.close()
+
+
+def test_interrupted_publication_is_not_promoted_without_authority(
+        tmp_path: Path) -> None:
+    import json
+
+    store = open_store(tmp_path)
+    weights_one, moments_one = expert_bytes(b"acked-gen")
+    weights_two, moments_two = expert_bytes(b"unacked-gen")
+    store.register_expert("e1", lineage=("r1",), encoder_id="encoder-v1")
+    assert store.write_expert_state(
+        "e1", weights=weights_one, moments=moments_one, clock=10,
+        lineage=("r1",), encoder_id="encoder-v1").ok
+    assert store.publish_expert("e1").ok
+    assert store.evict_expert("e1").ok
+    assert store.write_expert_state(
+        "e1", weights=weights_two, moments=moments_two, clock=66,
+        lineage=("r1",), encoder_id="encoder-v2").ok
+    assert store.publish_expert("e1").ok
+    assert store.evict_expert("e1").ok
+    files = component_authority_files(store, "experts", "e1")
+    acknowledged = [path for path in files
+                    if int(authority_record(path)["publication_generation"]) <= 1]
+    assert acknowledged and files[-1] not in acknowledged
+    journal_path = store.root / "journal/events.jsonl"
+    lines = journal_path.read_text(encoding="utf-8").splitlines()
+    last_acked_event = max(
+        index for index, line in enumerate(lines)
+        if json.loads(line)["kind"] == "expert_evicted")
+    store.close()
+
+    # Authority never acknowledged generation 2; its journal events also never
+    # committed.  Only the cold publication files/manifest exist.
+    for path in files:
+        if path not in acknowledged:
+            path.unlink()
+    journal_path.write_text(
+        "\n".join(lines[:last_acked_event + 1]) + "\n", encoding="utf-8")
+    drop_index(store)
+
+    rebuilt = open_store(tmp_path)
+    try:
+        report = rebuilt.recovery_report
+        assert report is not None
+        assert report.outcome.status == "incomplete"
+        assert any("publication_ahead_of_authority" in note
+                   for note in report.notes)
+        records = rebuilt.expert_records()
+        assert len(records) == 1
+        assert records[0].publication_generation == 1
+        loaded = rebuilt.load_expert("e1")
+        assert loaded.outcome.status == "failed"
+        assert loaded.state is None
+    finally:
+        rebuilt.close()
+
+
+def test_legacy_manifest_import_requires_explicit_migration(
+        tmp_path: Path) -> None:
+    store = open_store(tmp_path)
+    weights, moments = expert_bytes(b"legacy-manifest")
+    store.register_expert("e1", lineage=("r1",))
+    assert store.write_expert_state(
+        "e1", weights=weights, moments=moments, clock=21).ok
+    assert store.publish_expert("e1").ok
+    assert store.evict_expert("e1").ok
+    files = component_authority_files(store, "experts", "e1")
+    store.close()
+
+    for path in files:
+        path.unlink()
+
+    # The authority class directory still exists, so durable authority was
+    # expected: a manifest must not be imported silently.
+    reopened = open_store(tmp_path)
+    try:
+        assert (reopened.root / "authority/experts").is_dir()
+        refused = reopened.recover()
+        assert refused.outcome.status == "incomplete"
+        assert any("refusing_manifest_downgrade" in note
+                   for note in refused.notes)
+        assert reopened.load_expert("e1").outcome.status == "failed"
+        migrated = reopened.recover(
+            allow_legacy_expert_manifest_import=True)
+        assert migrated.outcome.status == "ok"
+        assert any("legacy_expert_manifest_migration" in note
+                   for note in migrated.notes)
+        loaded = reopened.load_expert("e1")
+        assert loaded.outcome.ok is True
+        assert loaded.state is not None
+        assert loaded.state.weights == weights
+        assert loaded.state.clock == 21
+    finally:
+        reopened.close()
+
+    # A store with no authority/experts directory at all is structurally a
+    # pre-authority store; manifest import is then the documented migration.
+    other = tmp_path / "legacy-absent"
+    legacy = open_store(tmp_path, name="legacy-absent")
+    legacy.register_expert("e2", lineage=("r2",))
+    assert legacy.write_expert_state(
+        "e2", weights=weights, moments=moments, clock=5).ok
+    assert legacy.publish_expert("e2").ok
+    assert legacy.evict_expert("e2").ok
+    legacy.close()
+    authority_root = other / "authority" / "experts"
+    for child in sorted(authority_root.rglob("*.json")):
+        child.unlink()
+    for directory in sorted(
+            (path for path in authority_root.rglob("*") if path.is_dir()),
+            reverse=True):
+        directory.rmdir()
+    authority_root.rmdir()
+    drop_index(legacy)
+    rebuilt = open_store(tmp_path, name="legacy-absent")
+    try:
+        report = rebuilt.recovery_report
+        assert report is not None
+        # No structural guess is made even when the whole class directory is
+        # absent: only the explicit migration flag may import manifests.
+        assert report.outcome.status == "incomplete"
+        assert any("refusing_manifest_downgrade" in note
+                   for note in report.notes)
+        assert rebuilt.load_expert("e2").outcome.status == "failed"
+        migrated = rebuilt.recover(
+            allow_legacy_expert_manifest_import=True)
+        assert migrated.outcome.status == "ok"
+        assert any("legacy_expert_manifest_migration" in note
+                   for note in migrated.notes)
+        assert rebuilt.load_expert("e2").outcome.ok is True
+    finally:
+        rebuilt.close()
+
+
+def test_restart_and_index_loss_with_complete_authority_keep_latest_state(
+        tmp_path: Path) -> None:
+    store = open_store(tmp_path)
+    weights_one, moments_one = expert_bytes(b"restart-one")
+    weights_two, moments_two = expert_bytes(b"restart-two")
+    store.register_expert("e1", lineage=("r1",), encoder_id="encoder-v1")
+    assert store.write_expert_state(
+        "e1", weights=weights_one, moments=moments_one, clock=1,
+        lineage=("r1",), encoder_id="encoder-v1").ok
+    assert store.publish_expert("e1").ok
+    assert store.evict_expert("e1").ok
+    assert store.write_expert_state(
+        "e1", weights=weights_two, moments=moments_two, clock=2,
+        lineage=("r1", "r2"), encoder_id="encoder-v2").ok
+    assert store.publish_expert("e1").ok
+    assert store.evict_expert("e1").ok
+    assert store.approve_identity(
+        "identity.main", 1, core_text="core one").outcome.ok
+    assert store.approve_identity(
+        "identity.main", 2, core_text="core two", supersedes=1).outcome.ok
+    store.close()
+
+    restarted = open_store(tmp_path)
+    try:
+        assert restarted.recovery_report is None
+        assert restarted.identity_core().version == 2
+        loaded = restarted.load_expert("e1")
+        assert loaded.outcome.ok is True and loaded.state is not None
+        assert loaded.state.generation == 2
+        assert loaded.state.encoder_id == "encoder-v2"
+        report = restarted.recover()
+        assert report.outcome.status == "ok"
+        assert report.incomplete_authority == ()
+    finally:
+        restarted.close()
+
+    drop_index(store)
+    rebuilt = open_store(tmp_path)
+    try:
+        assert rebuilt.identity_core().version == 2
+        loaded = rebuilt.load_expert("e1")
+        assert loaded.outcome.ok is True and loaded.state is not None
+        assert loaded.state.generation == 2
+        assert loaded.state.clock == 2
+        assert rebuilt.recovery_report.outcome.status == "ok"
+    finally:
+        rebuilt.close()
+
+
+def test_identity_versions_need_not_be_contiguous(tmp_path: Path) -> None:
+    """Caller-supplied identity versions are not an internally numbered chain."""
+    store = open_store(tmp_path)
+    assert store.approve_identity(
+        "identity.main", 5, core_text="core five").outcome.ok
+    assert store.approve_identity(
+        "identity.main", 7, core_text="core seven", supersedes=5).outcome.ok
+    store.close()
+
+    drop_index(store)
+    rebuilt = open_store(tmp_path)
+    try:
+        report = rebuilt.recovery_report
+        assert report is not None
+        assert report.outcome.status == "ok"
+        assert report.incomplete_authority == ()
+        identity = rebuilt.identity_core()
+        assert identity.outcome.ok is True
+        assert identity.version == 7
+        assert identity.text == "core seven"
+        rows = {int(row["version"]): row["status"]
+                for row in rebuilt.connection.execute(
+                    "SELECT version, status FROM identity_versions "
+                    "WHERE identity_id='identity.main'")}
+        assert rows == {5: "superseded", 7: "current"}
+    finally:
+        rebuilt.close()
+
+
+def test_missing_identity_authority_class_is_never_revived(
+        tmp_path: Path) -> None:
+    store = open_store(tmp_path)
+    assert store.approve_identity(
+        "identity.main", 1, core_text="core one").outcome.ok
+    store.close()
+
+    identity_root = store.root / "authority" / "identity"
+    for path in sorted(identity_root.rglob("*"), reverse=True):
+        if path.is_file():
+            path.unlink()
+        elif path.is_dir():
+            path.rmdir()
+    drop_index(store)
+
+    rebuilt = open_store(tmp_path)
+    try:
+        report = rebuilt.recovery_report
+        assert report is not None
+        assert report.outcome.status == "incomplete"
+        assert any("identity_authority_missing_class" in note
+                   for note in report.notes)
+        assert rebuilt.identity_core().outcome.status == "incomplete"
+        assert rebuilt.state_summary()["counts"]["I_approved_current"] == 0
+    finally:
+        rebuilt.close()

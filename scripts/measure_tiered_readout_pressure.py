@@ -35,6 +35,17 @@ def draft(record_id: str, text: str, epoch: int) -> EvidenceRecordDraft:
                                     "text_sha256": digest}),))
 
 
+def latency_summary(samples: list[int]) -> dict[str, int | None]:
+    values = sorted(int(value) for value in samples)
+    if not values:
+        return {"count": 0, "p50_ns": None, "p95_ns": None, "max_ns": None}
+    return {
+        "count": len(values),
+        "p50_ns": values[(50 * len(values) + 99) // 100 - 1],
+        "p95_ns": values[(95 * len(values) + 99) // 100 - 1],
+        "max_ns": values[-1],
+    }
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
@@ -98,6 +109,16 @@ def main() -> int:
             "cold_corrected": corrected.document(),
             "cold_corrected_ready": corrected_ready.document(),
             "cache_state": readout_cache_state(store),
+            "latency": {
+                "wall_clock": True,
+                "warm_readout": latency_summary([
+                    first.metrics.total_ns, second.metrics.total_ns,
+                    third.metrics.total_ns, fourth.metrics.total_ns]),
+                "cold_readout": latency_summary([
+                    cold_pending.metrics.total_ns, invalidated.metrics.total_ns,
+                    corrected_ready.metrics.total_ns]),
+                "end_to_end_answer_cost": "not_measured_by_this_probe",
+            },
             "placement_labels_not_residency": True,
             "gpu_resident": False,
             "artificial_delay": False,

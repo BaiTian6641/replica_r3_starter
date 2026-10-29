@@ -33,9 +33,10 @@ from .ports import MemoryAccessPort
 from .spine import BRANCHES, SpineCore, SpineForwardContext, SpineSpec
 from replica_lab.model_identity import durable_model_identity
 from .spark2_5 import (
-    OFFICIAL_NATIVE_FP8, PrecisionIdentity, Spark2_5Config, admit_load,
-    build_extension_export, build_extensions, build_memory_ports, fingerprint,
-    sha256_bytes, validate_extension_export,
+    OFFICIAL_NATIVE_FP8, PrecisionIdentity, Spark2_5Config, Spark2_5ContractError,
+    admit_load, build_extension_export, build_extensions, build_memory_ports,
+    derivative_precision_binding, fingerprint, sha256_bytes,
+    validate_extension_export,
 )
 
 ADAPTER_EXTENSION_SCHEMA = "replica.spark2_5_adapter_extension.v1"
@@ -156,6 +157,10 @@ class Spark2_5Adapter(nn.Module):
             raise SparkAdapterError("config must be a validated Spark2_5Config")
         if not isinstance(precision, PrecisionIdentity):
             raise SparkAdapterError("precision must be a PrecisionIdentity")
+        try:
+            derivative_precision_binding(config, precision)
+        except Spark2_5ContractError as error:
+            raise SparkAdapterError(str(error)) from error
         if require_official_geometry:
             config.geometry.assert_official()
         admission = admit_load(precision, device=device, capabilities=capabilities)
