@@ -38,6 +38,9 @@ from replica_lab.architecture.spark2_5 import (  # noqa: E402
     evaluate_derivative_p1_spine, fingerprint, load_spark2_5_config,
     official_native_fp8_precision,
 )
+from replica_lab.execution_manifest import (  # noqa: E402
+    ExecutionManifestError, verify_execution_manifest,
+)
 
 CONFIG_PATH = ROOT / "configs/spark_persistent_learner_derivative_bf16_protocol_v1.json"
 PROTOCOL_ID = "spark_persistent_learner_derivative_bf16_v1"
@@ -139,6 +142,25 @@ def derive_work(config: Mapping[str, Any]) -> dict[str, int]:
         "payload_io_bytes_max": 1073741824,
         "revalidations_max": 3 * full_records * readout_queries,
     }
+    calibration = 8
+    expected["competence_cases"] = calibration
+    expected["competence_forwards_max"] = calibration * new_tokens
+    for name in ("generation_requests_max", "verification_calls_max"):
+        expected[name] += calibration
+    for name in ("forward_calls_max", "autoregressive_forwards_max", "generated_tokens_max"):
+        expected[name] += calibration * new_tokens
+    expected["processed_text_positions_max"] += calibration * positions_per_request
+    expected["readout_steps_max"] = 33
+    expected["readout_cases_max"] = 40
+    for name in ("training_forwards_max", "backward_calls_max", "optimizer_steps_max"):
+        expected[name] += 33
+    expected["backward_processed_positions_max"] += 33 * prompt
+    expected["forward_calls_max"] += 35 + 40 * new_tokens
+    expected["processed_text_positions_max"] += 35 * prompt + 40 * positions_per_request
+    for name in ("autoregressive_forwards_max", "generated_tokens_max"):
+        expected[name] += 40 * new_tokens
+    for name in ("generation_requests_max", "verification_calls_max"):
+        expected[name] += 40
     for key, value in expected.items():
         _require(schedule.get(key) == value, "budget",
                  f"{key}={schedule.get(key)} differs from derived {value}")
@@ -376,7 +398,14 @@ def validate_derivative_source(config: Mapping[str, Any], root: Path = ROOT, *,
              source["precision_digest"], "source",
              "derivative precision digest differs from its manifest")
     derivative_precision_binding(derivative_config, precision)
+    try:
+        execution = verify_execution_manifest(
+            source_root, source.get("execution_manifest", {}),
+            repository_root=root, artifact_sha256=artifact)
+    except ExecutionManifestError as error:
+        raise ProtocolError("execution_manifest", str(error)) from error
     return {
+        "execution_manifest": execution,
         "source_identity": DERIVATIVE_SOURCE,
         "execution_format": DERIVATIVE_EXECUTION_FORMAT,
         "source_root": str(source_root),
@@ -630,6 +659,16 @@ def validate_config(config: Mapping[str, Any], root: Path = ROOT, *,
         config, root, full_hash=full_hash,
         require_official_geometry=require_official_geometry)
     admission = _validate_admission(config, source)
+    from types import SimpleNamespace
+    from replica_lab.baseline_competence import load_spec
+    from replica_lab.contextual_readout_training import load_readout_spec
+    try:
+        load_spec(SimpleNamespace(config=config, root=root))
+        load_readout_spec(SimpleNamespace(config=config, root=root))
+    except (KeyError, ValueError, OSError) as error:
+        raise ProtocolError("learning_stages", str(error)) from error
+    _require(launch["required_qualification_evidence"]["artifact_sha256"] == source["artifact_sha256"],
+             "qualification", "qualification does not bind the active derivative artifact")
     return {
         "source": _json_source(source),
         "derivative_config": source["config"],
@@ -767,6 +806,9 @@ def _validate_authorization(config: Mapping[str, Any], authorization: Path,
              "authorization", "derivative manifest hash differs")
     _require(receipt["derivative_artifact_sha256"] == source["artifact_sha256"],
              "authorization", "derivative artifact hash differs")
+    _require(receipt.get("execution_manifest_sha256") ==
+             source["execution_manifest"]["sha256"], "authorization",
+             "execution manifest binding differs")
     evidence = _qualification_evidence(launch, root)
     _require(receipt["qualification_evidence_sha256"] == evidence["sha256"],
              "authorization", "qualification evidence hash differs")
@@ -799,6 +841,7 @@ def guarded_command(config: Mapping[str, Any], output: Path,
         "--minimum-free-percent", str(guards["minimum_host_free_fraction"] * 100),
         "--sustained-host-samples", str(guards["sustained_host_samples"]),
         "--report", str(report), "--", "--device", "mps", "--output", str(output),
+        "--stage", "readout",
         "--authorization", str(authorization), "--config", str(config_path),
         "--prepared", str(_resolve(ROOT, config["dataset"]["root"])),
     ])

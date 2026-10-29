@@ -47,13 +47,14 @@ class RunProfiler:
     files are ``profile_samples.jsonl`` and ``profile_summary.json``.
     """
 
-    def __init__(self, device, output_dir, sample_interval=0.25):
+    def __init__(self, device, output_dir, sample_interval=0.25, *, append=False):
         if sample_interval <= 0:
             raise ValueError("sample_interval must be positive")
         self.device = str(device)
         self.device_type = self.device.split(":", 1)[0]
         self.output_dir = Path(output_dir)
         self.sample_interval = float(sample_interval)
+        self.append = bool(append)
         self._lock = threading.RLock()
         self._sample_lock = threading.Lock()
         self._done = threading.Event()
@@ -180,7 +181,7 @@ class RunProfiler:
         self._started_mono = time.monotonic()
         self._guard("create_output_directory", lambda: self.output_dir.mkdir(parents=True, exist_ok=True))
         self._stream = self._guard("open_jsonl", lambda: (
-            self.output_dir / "profile_samples.jsonl").open("w", encoding="utf-8"))
+            self.output_dir / "profile_samples.jsonl").open("a" if self.append else "w", encoding="utf-8"))
         if self.device_type in {"mps", "cuda"} and self._torch is None:
             self._torch = self._guard("import_torch", lambda: importlib.import_module("torch"))
         if self._torch is not None and self.device_type in {"mps", "cuda"}:

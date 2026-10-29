@@ -63,6 +63,17 @@ def test_cpu_context_writes_samples_summary_host_state_and_phases(tmp_path, monk
         "host_start", "sample", "sample", "phase", "sample", "host_end"]
 
 
+def test_supervised_restart_appends_without_losing_parent_samples(tmp_path, monkeypatch):
+    with prepare(RunProfiler("cpu", tmp_path, sample_interval=10), monkeypatch):
+        pass
+    previous = (tmp_path / "profile_samples.jsonl").read_bytes()
+    with prepare(RunProfiler("cpu", tmp_path, sample_interval=10, append=True), monkeypatch):
+        pass
+    combined = (tmp_path / "profile_samples.jsonl").read_bytes()
+    assert combined.startswith(previous) and len(combined) > len(previous)
+    assert sum(json.loads(line)["type"] == "host_start" for line in combined.splitlines()) == 2
+
+
 def test_mps_sampled_peaks_and_main_thread_synchronization(tmp_path, monkeypatch):
     calls = []
     allocated = iter([100, 200, 50])

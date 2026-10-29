@@ -1,0 +1,86 @@
+{
+  "format": "replica.spark.competence_data.v1",
+  "provenance": "hand_authored_synthetic_calibration_no_development_or_sealed_cases",
+  "cases": [
+    {
+      "case_id": "cal-1",
+      "world_id": "calibration-world-1",
+      "rule_family": "lookup",
+      "split": "pre_fit_calibration",
+      "context": "The harbor badge is copper.",
+      "question": "What is the harbor badge?",
+      "expected": "copper",
+      "unanswerable": false
+    },
+    {
+      "case_id": "cal-2",
+      "world_id": "calibration-world-2",
+      "rule_family": "lookup",
+      "split": "pre_fit_calibration",
+      "context": "The summit badge is violet.",
+      "question": "What is the summit badge?",
+      "expected": "violet",
+      "unanswerable": false
+    },
+    {
+      "case_id": "cal-3",
+      "world_id": "calibration-world-3",
+      "rule_family": "conjunction",
+      "split": "pre_fit_calibration",
+      "context": "If both switches are on, output ready; otherwise output closed. Both switches are on.",
+      "question": "What is the output?",
+      "expected": "ready",
+      "unanswerable": false
+    },
+    {
+      "case_id": "cal-4",
+      "world_id": "calibration-world-4",
+      "rule_family": "conjunction",
+      "split": "pre_fit_calibration",
+      "context": "If both switches are on, output ready; otherwise output closed. One switch is off.",
+      "question": "What is the output?",
+      "expected": "closed",
+      "unanswerable": false
+    },
+    {
+      "case_id": "cal-5",
+      "world_id": "calibration-world-5",
+      "rule_family": "correction",
+      "split": "pre_fit_calibration",
+      "context": "At time 1 the beacon was amber. At time 2 this was corrected to indigo.",
+      "question": "At time 3 what is the beacon?",
+      "expected": "indigo",
+      "unanswerable": false
+    },
+    {
+      "case_id": "cal-6",
+      "world_id": "calibration-world-6",
+      "rule_family": "revocation",
+      "split": "pre_fit_calibration",
+      "context": "The dial was white. That report was revoked and no replacement exists.",
+      "question": "What is the current dial?",
+      "expected": "unknown",
+      "unanswerable": true
+    },
+    {
+      "case_id": "cal-7",
+      "world_id": "calibration-world-7",
+      "rule_family": "missing",
+      "split": "pre_fit_calibration",
+      "context": "The gate is silver. No information about the lantern is available.",
+      "question": "What is the lantern?",
+      "expected": "unknown",
+      "unanswerable": true
+    },
+    {
+      "case_id": "cal-8",
+      "world_id": "calibration-world-8",
+      "rule_family": "correction",
+      "split": "pre_fit_calibration",
+      "context": "At time 4 the trail was north. At time 8 it was corrected to east.",
+      "question": "At time 9 what is the trail?",
+      "expected": "east",
+      "unanswerable": false
+    }
+  ]
+}

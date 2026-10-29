@@ -1,0 +1,84 @@
+{
+  "format": "replica.contextual_readout.protocol.v2",
+  "basis": "configs/contextual_value_producer_protocol_v1.json",
+  "implementation": "src/replica_lab/contextual_memory.py",
+  "stage": "pre_fit_calibration_then_contextual_readout_then_fresh_process_continuation",
+  "steps": 32,
+  "learning_rate": 0.001,
+  "arms": [
+    "contextual",
+    "selected_exact",
+    "wrong",
+    "shuffled",
+    "absent"
+  ],
+  "active_P_experts": 1,
+  "P_updates": 0,
+  "sites": [
+    3,
+    7
+  ],
+  "late_sites": "23/31_separately_measured_followup",
+  "files": {
+    "fit": {
+      "path": "data/contextual_readout_v2/fit.json",
+      "sha256": "d805af627e378e7d7a721d06ac78a3e13ff36e66fc6dc96594331afbb2c8ebf5"
+    },
+    "development": {
+      "path": "data/contextual_readout_v2/development.json",
+      "sha256": "b044cbc49e8fbf0fe6e2fc9065d872d3d263cb3da4f7c9be0950fd8bb8533a31"
+    },
+    "development_labels": {
+      "path": "data/contextual_readout_v2/development_labels.json",
+      "sha256": "9e19620cf1df794fa5ee1ada37d513d669e3d3329fa3bdd0d9da9e3b9c76dcf5"
+    }
+  },
+  "development_label_access": "after_all_fixed_readout_steps_and_freeze",
+  "pass_criteria": {
+    "correct_min": 6,
+    "false_recall_max": 0,
+    "exact_tolerance_cases": 1,
+    "beats_wrong_shuffled_absent": true
+  },
+  "detach_boundaries": [
+    "frozen_original_query_features",
+    "durable_serialization",
+    "inference_decision"
+  ],
+  "training_horizon": "one_source_encoding_and_response_CE_objective_per_update",
+  "parameter_owners": {
+    "producer_and_memory_reader": "one_NativeFusedAdamW",
+    "original_and_other_extensions": "frozen",
+    "P": "separate_future_owner_no_P_updates_in_readout_stage"
+  },
+  "claims": {
+    "native_executed": false,
+    "useful_learning": false,
+    "persistent_learning": false,
+    "promotion": false
+  },
+  "budgets": {
+    "fit_forwards": 32,
+    "fit_backwards": 32,
+    "optimizer_steps": 32,
+    "development_cases": 40,
+    "max_new_tokens": 32,
+    "context_tokens": 2048,
+    "restart_model_loads": 1,
+    "restart_forwards": 2,
+    "restart_updates": 1,
+    "source_span_bytes_max": 256,
+    "slots_per_span": 4,
+    "slot_width": 256,
+    "selected_records": 2,
+    "selected_slots": 8
+  },
+  "P_gate": "qualified_readout_frozen_same_reader_and_evidence_11_arm_controls_new_P_binding_required",
+  "later_gates": [
+    "repeated_learning_retention_correction_rollback",
+    "capacity_bottleneck_before_P4",
+    "local_writer_vs_direct_CE_after_readout",
+    "independent_candidate_evaluation_before_promotion",
+    "identity_authority_separate_from_reward"
+  ]
+}

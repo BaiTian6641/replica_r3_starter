@@ -2894,6 +2894,7 @@ class TieredMemoryStore:
                 clock = int(self._meta(f"expert_clock:{expert_id}", "0"))
         record = {
             "authority_class": "experts",
+            "state_binding_version": 2,
             "kind": kind,
             "expert_id": expert_id,
             "profile_id": row["profile_id"],
@@ -2927,6 +2928,10 @@ class TieredMemoryStore:
         relative, digest = self._authority_write(
             ("experts", component, f"{sequence:08d}.json"), record)
         self._set_meta(f"expert_authority_seq:{expert_id}", str(sequence))
+        self._set_meta(f"expert_commit_binding:{expert_id}", _canonical({
+            "path": relative, "sha256": digest,
+            "authority_sequence": int(self._meta("authority_sequence", "0")),
+        }))
         return relative, digest
 
     def _record_manifest_entry(self, row: sqlite3.Row) -> dict:
@@ -3168,6 +3173,11 @@ class TieredMemoryStore:
         _identifier("kind", kind)
         _identifier("entity_id", entity_id)
         timestamp = _now_ns() if at_ns is None else at_ns
+        detail = dict(detail)
+        if kind in EXPERT_EVENT_AUTHORITY_KIND:
+            binding = self._meta(f"expert_commit_binding:{entity_id}")
+            if binding:
+                detail["state_authority"] = json.loads(binding)
         payload = {
             "at_ns": timestamp,
             "kind": kind,
@@ -5434,6 +5444,9 @@ class TieredMemoryStore:
                 moments = (self.root / row["hot_moments_path"]).read_bytes()
             except OSError:
                 return ExpertLoad(_outcome("failed", "hot_expert_state_missing"), None)
+            if (_sha256_bytes(weights) != self._meta(f"expert_hot_weights_sha:{expert_id}")
+                    or _sha256_bytes(moments) != self._meta(f"expert_hot_moments_sha:{expert_id}")):
+                return ExpertLoad(_outcome("failed", "hot_expert_digest_mismatch"), None)
             return ExpertLoad(
                 _outcome("degraded" if row["quarantine_status"] != "none" else "ok",
                          "hot_dirty_expert_loaded",
@@ -6058,12 +6071,17 @@ class TieredMemoryStore:
                     })
                     mark["events"] += 1
                     mark["kind"] = EXPERT_EVENT_AUTHORITY_KIND[kind]
+                    mark["state_authority"] = detail.get("state_authority")
                     if kind == "expert_registered":
                         continue
                     try:
                         if kind in ("expert_state_written",
                                     "expert_authenticated_reset"):
                             mark["clock"] = int(detail["clock"])
+                            # A cold publication's lineage/digests describe that
+                            # publication only. The latest hot snapshot has its
+                            # own complete, journal-bound authority.
+                            mark["lineage"] = detail.get("lineage")
                         if kind == "expert_published":
                             mark["generation"] = max(
                                 int(mark["generation"]),
@@ -6495,6 +6513,8 @@ class TieredMemoryStore:
             raise CorruptState("expert authority lineage invalid")
         if not isinstance(record.get("encoder_id"), str):
             raise CorruptState("expert authority encoder invalid")
+        if record.get("lineage_digest") != _sha256_json(record.get("lineage", [])):
+            raise CorruptState("expert authority lineage digest invalid")
         int(record.get("clock", 0))
         int(record.get("publication_generation", 0))
         int(record.get("parameter_count", 0))
@@ -6541,6 +6561,8 @@ class TieredMemoryStore:
         force_quarantine = False
         if location == "hot" and isinstance(hot, Mapping):
             try:
+                if int(hot["clock"]) != clock:
+                    raise CorruptState("hot payload clock differs from authority")
                 self._absolute(hot["weights"]["path"])
                 self._absolute(hot["moments"]["path"])
                 _read_verified(hot["weights"]["path"], self.root,
@@ -6581,10 +6603,18 @@ class TieredMemoryStore:
             if not journal_trusted:
                 uncertain.append("authority_without_journal_evidence")
         else:
+            binding = journal_mark.get("state_authority")
+            if binding is not None:
+                if (binding.get("path") != relative
+                        or binding.get("sha256") != record.get("_authority_digest")
+                        or binding.get("authority_sequence") != record.get("authority_sequence")):
+                    uncertain.append("authority_commit_binding_mismatch")
+            elif record.get("state_binding_version") == 2:
+                uncertain.append("authority_commit_binding_missing")
             if record.get("kind") != journal_mark.get("kind"):
                 uncertain.append("authority_kind_behind_journal")
             expected_clock = journal_mark.get("clock")
-            if expected_clock is not None and clock < int(expected_clock):
+            if expected_clock is not None and clock != int(expected_clock):
                 uncertain.append("authority_clock_behind_journal")
             expected_generation = int(journal_mark.get("generation", 0))
             if (publication_generation < expected_generation
@@ -6611,6 +6641,19 @@ class TieredMemoryStore:
                         or publication.get("moments", {}).get("sha256")
                         != journal_mark.get("moments_sha256")):
                     uncertain.append("authority_publication_digest_mismatch")
+        if state_publication_generation in publications and isinstance(publication, Mapping):
+            published = publications[state_publication_generation]
+            manifest = published["manifest"]
+            if (publication.get("manifest_sha256") != published["digest"]
+                    or publication.get("clock") != manifest.get("clock")
+                    or any(publication.get(part, {}).get(key) != manifest.get(part, {}).get(key)
+                           for part in ("weights", "moments")
+                           for key in ("path", "sha256", "bytes"))):
+                uncertain.append("authority_publication_snapshot_mismatch")
+            if not dirty and (lineage != tuple(manifest.get("lineage", ()))
+                              or encoder_id != manifest.get("encoder_id")
+                              or clock != int(manifest.get("clock", -1))):
+                uncertain.append("authority_publication_metadata_mismatch")
         if newest_generation > state_publication_generation:
             # A newer cold publication exists without an authority record that
             # acknowledges it.  This is an interrupted/unauthorised publication,

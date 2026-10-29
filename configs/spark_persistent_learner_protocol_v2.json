@@ -102,8 +102,14 @@
     "attention_implementation": "eager",
     "use_cache_for_training_reference": false,
     "cached_deployment_requires_separate_equivalence_qualification": true,
-    "spine_sites": [3, 7],
-    "candidate_spine_sites": [23, 31],
+    "spine_sites": [
+      3,
+      7
+    ],
+    "candidate_spine_sites": [
+      23,
+      31
+    ],
     "spine_slot_read_budget": 8,
     "query_schedule": "known_text_observations_then_query_completion_then_immutable_selection_then_response",
     "query_passes": "explicit_and_charged",
@@ -134,13 +140,25 @@
     "optimizer_state_dtype": "FP32",
     "learning_rate": 0.0005,
     "response_port_learning_rate": 0.001,
-    "betas": [0.9, 0.999],
-    "epsilon": 1e-8,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "epsilon": 1e-08,
     "weight_decay": 0.0,
     "gradient_norm_max": 1.0,
     "updates_per_fit_event": 2,
-    "update_scopes": {"response_spine_non_port": 0, "response_port_output": 1, "selected_P_direct_response_ce": 1},
-    "groups": ["extension.spine.ports.*.output_projection", "plastic.expert_0.gate", "plastic.expert_0.up", "plastic.expert_0.down"],
+    "update_scopes": {
+      "response_spine_non_port": 0,
+      "response_port_output": 1,
+      "selected_P_direct_response_ce": 1
+    },
+    "groups": [
+      "extension.spine.ports.*.output_projection",
+      "plastic.expert_0.gate",
+      "plastic.expert_0.up",
+      "plastic.expert_0.down"
+    ],
     "response_spine_optimizer_steps": 0,
     "response_port_optimizer_steps": 4,
     "local_mse_plastic_optimizer_steps": 0,
@@ -158,7 +176,15 @@
   },
   "memory_contract": {
     "version": 2,
-    "state_components": ["E_exact_evidence", "S_verified_procedures", "P_plastic_parameters", "phi_offline_memory_machinery", "C_ephemeral_workspace", "I_approved_identity", "K_measured_capability"],
+    "state_components": [
+      "E_exact_evidence",
+      "S_verified_procedures",
+      "P_plastic_parameters",
+      "phi_offline_memory_machinery",
+      "C_ephemeral_workspace",
+      "I_approved_identity",
+      "K_measured_capability"
+    ],
     "cluster_policy": "scope_before_semantics_stable_ids_immutable_manifest_generations",
     "evidence_storage_records_max": 4096,
     "retained_history_versions_max": 16,
@@ -205,19 +231,80 @@
     "active_experts_initial": 1,
     "active_experts_expansion_max": 2,
     "active_experts_increase_requires_separate_ablation": true,
-    "lazy_accounting": ["independent_copies", "indices", "journals", "checkpoint_generations", "temporary_publication_overlap", "page_cache_pressure"],
+    "lazy_accounting": [
+      "independent_copies",
+      "indices",
+      "journals",
+      "checkpoint_generations",
+      "temporary_publication_overlap",
+      "page_cache_pressure"
+    ],
     "unified_memory_accounting": "hot_and_warm_share_physical_RAM_no_fictitious_VRAM_pool",
     "dirty_eviction_requires_durable_publish": true,
     "cold_read_requires_post_io_scope_version_revocation_revalidation": true,
     "ignored_artifacts": "measure_size_and_type_receipt_extensionless_archives_never_assumed_safe"
   },
   "capacity_profiles": [
-    {"id": "P1", "experts": 1, "width": 256, "hidden_width": 512, "full_expert_parameters": 393216, "fp32_weight_bytes": 1572864, "all_expert_fp32_weight_gradient_adam_bytes": 6291456, "status": "initial_direct_response_ce_pilot"},
-    {"id": "P4", "experts": 4, "width": 256, "hidden_width": 512, "full_expert_parameters": 1572864, "fp32_weight_bytes": 6291456, "all_expert_fp32_weight_gradient_adam_bytes": 25165824, "status": "lazy_future_expansion"},
-    {"id": "P16", "experts": 16, "width": 256, "hidden_width": 1024, "full_expert_parameters": 12582912, "fp32_weight_bytes": 50331648, "all_expert_fp32_weight_gradient_adam_bytes": 201326592, "status": "lazy_future_expansion"},
-    {"id": "P32", "experts": 32, "width": 256, "hidden_width": 1024, "full_expert_parameters": 25165824, "fp32_weight_bytes": 100663296, "all_expert_fp32_weight_gradient_adam_bytes": 402653184, "status": "lazy_future_expansion"},
-    {"id": "P64", "experts": 64, "width": 256, "hidden_width": 1024, "full_expert_parameters": 50331648, "fp32_weight_bytes": 201326592, "all_expert_fp32_weight_gradient_adam_bytes": 805306368, "status": "main_design_target_not_preallocated"},
-    {"id": "P128_stretch", "experts": 128, "width": 256, "hidden_width": 1024, "full_expert_parameters": 100663296, "fp32_weight_bytes": 402653184, "all_expert_fp32_weight_gradient_adam_bytes": 1610612736, "status": "stretch_two_active_separate_ablation_not_preallocated"}
+    {
+      "id": "P1",
+      "experts": 1,
+      "width": 256,
+      "hidden_width": 512,
+      "full_expert_parameters": 393216,
+      "fp32_weight_bytes": 1572864,
+      "all_expert_fp32_weight_gradient_adam_bytes": 6291456,
+      "status": "initial_direct_response_ce_pilot"
+    },
+    {
+      "id": "P4",
+      "experts": 4,
+      "width": 256,
+      "hidden_width": 512,
+      "full_expert_parameters": 1572864,
+      "fp32_weight_bytes": 6291456,
+      "all_expert_fp32_weight_gradient_adam_bytes": 25165824,
+      "status": "lazy_future_expansion"
+    },
+    {
+      "id": "P16",
+      "experts": 16,
+      "width": 256,
+      "hidden_width": 1024,
+      "full_expert_parameters": 12582912,
+      "fp32_weight_bytes": 50331648,
+      "all_expert_fp32_weight_gradient_adam_bytes": 201326592,
+      "status": "lazy_future_expansion"
+    },
+    {
+      "id": "P32",
+      "experts": 32,
+      "width": 256,
+      "hidden_width": 1024,
+      "full_expert_parameters": 25165824,
+      "fp32_weight_bytes": 100663296,
+      "all_expert_fp32_weight_gradient_adam_bytes": 402653184,
+      "status": "lazy_future_expansion"
+    },
+    {
+      "id": "P64",
+      "experts": 64,
+      "width": 256,
+      "hidden_width": 1024,
+      "full_expert_parameters": 50331648,
+      "fp32_weight_bytes": 201326592,
+      "all_expert_fp32_weight_gradient_adam_bytes": 805306368,
+      "status": "main_design_target_not_preallocated"
+    },
+    {
+      "id": "P128_stretch",
+      "experts": 128,
+      "width": 256,
+      "hidden_width": 1024,
+      "full_expert_parameters": 100663296,
+      "fp32_weight_bytes": 402653184,
+      "all_expert_fp32_weight_gradient_adam_bytes": 1610612736,
+      "status": "stretch_two_active_separate_ablation_not_preallocated"
+    }
   ],
   "dataset": {
     "root": "data/spark_persistent_learner_v2",
@@ -227,31 +314,89 @@
     "split_unit": "independent_world_and_rule_family_before_paraphrase_generation",
     "fit_receipt_barrier": true,
     "sealed_final_labels_closed": true,
-    "sealed_final": {"materialized": false, "opened": false, "path": null},
+    "sealed_final": {
+      "materialized": false,
+      "opened": false,
+      "path": null
+    },
     "parent_control_dataset": "data/spark_text_memory_v1",
     "parent_control_is_sealed": true,
     "identity_records": "synthetic_only_until_separately_approved_Replica_records_exist",
-    "required_streams": ["new_information", "new_procedure_instances", "corrections", "exceptions", "revocations", "unknowns", "similar_looking_different_procedures", "delayed_recall", "interference", "restart", "capacity_pressure"]
+    "required_streams": [
+      "new_information",
+      "new_procedure_instances",
+      "corrections",
+      "exceptions",
+      "revocations",
+      "unknowns",
+      "similar_looking_different_procedures",
+      "delayed_recall",
+      "interference",
+      "restart",
+      "capacity_pressure"
+    ]
   },
   "controls": {
     "arms": [
-      {"id": "full_eligible_context", "role": "competence_before_memory_learning"},
-      {"id": "selective_exact_and_procedure", "role": "exact_context_baseline"},
-      {"id": "spine_E_only", "role": "readable_evidence_without_P"},
-      {"id": "reader_trained_E_only", "role": "trained_reader_frozen_comparison"},
-      {"id": "source_free_P_only", "role": "P_transfer_with_text_identity_and_workspace_removed"},
-      {"id": "E_plus_P", "role": "combined_evidence_and_P"},
-      {"id": "no_update", "role": "matched_nonlearning_control"},
-      {"id": "reset_P", "role": "reset_control"},
-      {"id": "shuffled_memory", "role": "wrong_memory_control"},
-      {"id": "inapplicable_procedure", "role": "scope_control"},
-      {"id": "matched_replay", "role": "replay_compute_without_new_update"}
+      {
+        "id": "full_eligible_context",
+        "role": "competence_before_memory_learning"
+      },
+      {
+        "id": "selective_exact_and_procedure",
+        "role": "exact_context_baseline"
+      },
+      {
+        "id": "spine_E_only",
+        "role": "readable_evidence_without_P"
+      },
+      {
+        "id": "reader_trained_E_only",
+        "role": "trained_reader_frozen_comparison"
+      },
+      {
+        "id": "source_free_P_only",
+        "role": "P_transfer_with_text_identity_and_workspace_removed"
+      },
+      {
+        "id": "E_plus_P",
+        "role": "combined_evidence_and_P"
+      },
+      {
+        "id": "no_update",
+        "role": "matched_nonlearning_control"
+      },
+      {
+        "id": "reset_P",
+        "role": "reset_control"
+      },
+      {
+        "id": "shuffled_memory",
+        "role": "wrong_memory_control"
+      },
+      {
+        "id": "inapplicable_procedure",
+        "role": "scope_control"
+      },
+      {
+        "id": "matched_replay",
+        "role": "replay_compute_without_new_update"
+      }
     ],
     "information_matched": true,
     "untouched_baseline": "full_eligible_context",
-    "frozen_trained_reader_comparisons": ["reader_trained_E_only", "no_update", "reset_P"],
+    "frozen_trained_reader_comparisons": [
+      "reader_trained_E_only",
+      "no_update",
+      "reset_P"
+    ],
     "oracle_baseline": "selective_exact_and_procedure",
-    "p_only_removes": ["source_text", "exact_spans", "current_workspace_answers", "approved_identity_records"],
+    "p_only_removes": [
+      "source_text",
+      "exact_spans",
+      "current_workspace_answers",
+      "approved_identity_records"
+    ],
     "disabled_parity_required": true,
     "wrong_memory_and_reset_required": true,
     "sealed_final_tuning": false
@@ -260,7 +405,10 @@
     "package": 4,
     "status": "separate_offline_D_only_study_after_useful_readout",
     "online_parameter": "D_only",
-    "offline_parameters": ["U", "G"],
+    "offline_parameters": [
+      "U",
+      "G"
+    ],
     "future_query_objective": true,
     "old_skill_replay_retention": true,
     "inner_optimizer": "functional_sgd_or_declared_delta_arm",
@@ -271,16 +419,58 @@
     "native_execution_in_this_protocol": false
   },
   "success_criteria": {
-    "engineering": {"disabled_parity": "exact", "restart": "fresh_process_exact_state", "scope_isolation": "no_cross_scope_reads", "crash_rebuild": "durable_generation_rebuilt", "late_cold_read": "revalidated_or_waited"},
-    "full_context": {"competence_required_before_P_interpretation": true, "accuracy_gain_required_near_ceiling": false},
-    "P1_direct_response_ce": {"selected_P_actually_changed": true, "single_owner_and_moments_checked": true, "new_skill_target": "+0.10_absolute_over_matched_nonlearning", "old_skill_retention_drop_max": 0.02, "unknown_false_recall_max": 0.10},
-    "reader_learning": {"comparison": "reader_trained_E_only_minus_spine_E_only", "reader_state": "frozen_trained_reader_comparison"},
-    "P_learning": {"source_free_comparison": "source_free_P_only_minus_no_update", "with_evidence_comparison": "E_plus_P_minus_reset_P", "reader_state": "same_frozen_trained_reader"},
-    "retrieval_benefit": {"comparison": "E_plus_P_minus_source_free_P_only", "reader_and_P_state": "same_trained_reader_and_P"},
-    "matched_replay": {"label": "replay_compute_without_new_update", "replay_training_claimed": false},
-    "reasoning_reuse": {"accuracy_gain_required": false, "noninferiority_margin": -0.02},
-    "learned_writer": {"parameter_change_is_not_learning": true, "requires_future_transfer_and_retention": true, "cost_break_even_must_be_measured": true},
-    "native_late_sites": {"sites": [23, 31], "same_source_required": true, "current_status": "awaiting_exact_native_backend"}
+    "engineering": {
+      "disabled_parity": "exact",
+      "restart": "fresh_process_exact_state",
+      "scope_isolation": "no_cross_scope_reads",
+      "crash_rebuild": "durable_generation_rebuilt",
+      "late_cold_read": "revalidated_or_waited"
+    },
+    "full_context": {
+      "competence_required_before_P_interpretation": true,
+      "accuracy_gain_required_near_ceiling": false
+    },
+    "P1_direct_response_ce": {
+      "selected_P_actually_changed": true,
+      "single_owner_and_moments_checked": true,
+      "new_skill_target": "+0.10_absolute_over_matched_nonlearning",
+      "old_skill_retention_drop_max": 0.02,
+      "unknown_false_recall_max": 0.1
+    },
+    "reader_learning": {
+      "comparison": "reader_trained_E_only_minus_spine_E_only",
+      "reader_state": "frozen_trained_reader_comparison"
+    },
+    "P_learning": {
+      "source_free_comparison": "source_free_P_only_minus_no_update",
+      "with_evidence_comparison": "E_plus_P_minus_reset_P",
+      "reader_state": "same_frozen_trained_reader"
+    },
+    "retrieval_benefit": {
+      "comparison": "E_plus_P_minus_source_free_P_only",
+      "reader_and_P_state": "same_trained_reader_and_P"
+    },
+    "matched_replay": {
+      "label": "replay_compute_without_new_update",
+      "replay_training_claimed": false
+    },
+    "reasoning_reuse": {
+      "accuracy_gain_required": false,
+      "noninferiority_margin": -0.02
+    },
+    "learned_writer": {
+      "parameter_change_is_not_learning": true,
+      "requires_future_transfer_and_retention": true,
+      "cost_break_even_must_be_measured": true
+    },
+    "native_late_sites": {
+      "sites": [
+        23,
+        31
+      ],
+      "same_source_required": true,
+      "current_status": "awaiting_exact_native_backend"
+    }
   },
   "work_and_cost": {
     "native_schedule": {
@@ -314,11 +504,11 @@
       "response_spine_optimizer_steps_max": 0,
       "response_port_optimizer_steps_max": 4,
       "selected_P_optimizer_steps_max": 4,
-      "generation_requests_max": 135,
-      "autoregressive_forwards_max": 4320,
-      "forward_calls_max": 8665,
-      "generated_tokens_max": 4320,
-      "processed_text_positions_max": 17879840,
+      "generation_requests_max": 143,
+      "autoregressive_forwards_max": 4576,
+      "forward_calls_max": 8921,
+      "generated_tokens_max": 4576,
+      "processed_text_positions_max": 18408096,
       "initialization_parity_forwards_max": 2,
       "initialization_parity_processed_positions_max": 4096,
       "influence_check_query_sensing_max": 1,
@@ -328,7 +518,7 @@
       "replay_forward_calls_max": 4,
       "replay_processed_positions_max": 8192,
       "retrieval_calls_max": 148,
-      "verification_calls_max": 147,
+      "verification_calls_max": 155,
       "checkpoint_writes_max": 5,
       "retained_checkpoint_artifacts_max": 4,
       "reloads_max": 1,
@@ -350,10 +540,47 @@
       "consolidation_events_max": 0,
       "artifact_bytes_max": 268435456,
       "wall_seconds_max": 7200,
-      "native_retries": 0
+      "native_retries": 0,
+      "competence_cases": 8,
+      "competence_forwards_max": 256
     },
-    "counters": ["source_encoding", "sensing", "core_recurrence", "action_decoding", "retrieval", "tool_calls", "direct_response_ce_backward", "selected_P_optimizer", "response_port_optimizer", "replay_forward", "I/O_wait", "cold_recall", "checkpoint_publication", "tokens", "latency", "host_memory", "driver_memory", "artifact_bytes"],
-    "readout_counters": ["cache_hits", "cache_misses", "readout_cache_bytes", "readout_result_bytes", "readout_selection_calls", "readout_file_reads", "readout_io_bytes", "readout_ns", "cold_recall_tickets", "cold_recall_resumes", "revalidation_failures", "payload_read_calls", "payload_file_reads", "payload_io_bytes", "revalidations"],
+    "counters": [
+      "source_encoding",
+      "sensing",
+      "core_recurrence",
+      "action_decoding",
+      "retrieval",
+      "tool_calls",
+      "direct_response_ce_backward",
+      "selected_P_optimizer",
+      "response_port_optimizer",
+      "replay_forward",
+      "I/O_wait",
+      "cold_recall",
+      "checkpoint_publication",
+      "tokens",
+      "latency",
+      "host_memory",
+      "driver_memory",
+      "artifact_bytes"
+    ],
+    "readout_counters": [
+      "cache_hits",
+      "cache_misses",
+      "readout_cache_bytes",
+      "readout_result_bytes",
+      "readout_selection_calls",
+      "readout_file_reads",
+      "readout_io_bytes",
+      "readout_ns",
+      "cold_recall_tickets",
+      "cold_recall_resumes",
+      "revalidation_failures",
+      "payload_read_calls",
+      "payload_file_reads",
+      "payload_io_bytes",
+      "revalidations"
+    ],
     "guards": {
       "driver_limit_bytes": 53687091200,
       "sustained_swap_growth_limit_bytes": 536870912,
@@ -408,13 +635,14 @@
       "src/replica_lab/testing.py",
       "src/replica_lab/tiered_memory.py",
       "src/replica_lab/tiered_readout.py",
-      "src/replica_lab/training_state.py"
+      "src/replica_lab/training_state.py",
+      "src/replica_lab/baseline_competence.py"
     ],
     "implementation_sha256": {
       "scripts/make_spark_persistent_learner_v2_fixture.py": "85ed48d1528f87318f98ddbbf3868a91b26291daa3f337872610fba4373625fc",
-      "scripts/preflight_spark_persistent_learner_v2.py": "60455fdb11056db589be0b57b04efdbd4b15e84c8f53983940469a2bbdd4d31a",
+      "scripts/preflight_spark_persistent_learner_v2.py": "5daece3292a05eb40681877489df34a5b7d3384216360d8f08239937c4f77842",
       "scripts/preflight_spark_text_memory_v1.py": "bfd5d1456160a0cb700e6840f39e346d0c6881abe2d3cc3d96778b2c98e20ca7",
-      "scripts/run_capacity_preflight.py": "38ec04649df919cf7226d74f0ea80b8c138b9eddf17e455a6c7d5a812c3e3928",
+      "scripts/run_capacity_preflight.py": "5117a65966a299a56138634e5dd2e8aedd063af21fdf10d019d038c8af070951",
       "scripts/run_spark_persistent_learner_v2.py": "b6697e169faecd80b8d6dc29f031645874f374f3ac3793c15951d93564bde01d",
       "src/replica_lab/__init__.py": "fea2eb9e656cda45f4aeef8e0756ecc35a8ddcbe256f00092c5a95bffced68c4",
       "src/replica_lab/architecture/contracts.py": "14daa2cc3cdcd171c17da039c06b694a270a6fff6bc9c1306303b93b65db0712",
@@ -442,13 +670,14 @@
       "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
       "src/replica_lab/optimizers.py": "e51d91b9007681fd15827224c3b57e8657550d88590ef3a995dcdf76b5c82adb",
       "src/replica_lab/p1_response_learning.py": "57fcabb986aebcbcbe091c1a13e822ed110c647420e3931454035e74865c5faf",
-      "src/replica_lab/persistent_learner_runner.py": "0bc3edd1ce68fad0049c866f4dbe12e75c207c768f190fd044af2255ce047a28",
+      "src/replica_lab/persistent_learner_runner.py": "f0dd170749efba07f181608a3d74d8351bf9e3ff52fa4d893a8421183395b605",
       "src/replica_lab/replica/reader.py": "6c23c6f64350f25711f40c41756d03984a2b879cf5fce28cc56b5e4ee0751271",
       "src/replica_lab/spark_text_memory_runner.py": "da310dc6479a7c1f560f83c262418ec14f2648bd81905cd287958e3e9ba87d02",
       "src/replica_lab/testing.py": "0aa6053f178254f1cd2b02d93219de9ad69e1009fbb4f76075ef64217984f926",
-      "src/replica_lab/tiered_memory.py": "4554cac504d49759bf584e607c2473c4f510fd007ca804673e70d7806aafb160",
+      "src/replica_lab/tiered_memory.py": "5121ec79a6faba3e7cdcf62bc56977b9176b2f05c373d75faa6ff0fd532bdf7e",
       "src/replica_lab/tiered_readout.py": "5df20748a316c002d19b9e663cdf3d2a3643dd623fdcee9642635be4519b00df",
-      "src/replica_lab/training_state.py": "2697c33edc45c8201b1a0df2cefd17da0a4e0f79ba23ae63f47659bcae88e487"
+      "src/replica_lab/training_state.py": "2697c33edc45c8201b1a0df2cefd17da0a4e0f79ba23ae63f47659bcae88e487",
+      "src/replica_lab/baseline_competence.py": "9aecd789505e6551af7f2444ed10439537b21247a232e6f9f55896f08ac6b2ed"
     },
     "authorization_path": "reports/spark_persistent_learner_v2/authorization.json",
     "backend_evidence_path": "reports/spark_persistent_learner_v2/native_fp8_backend.json",
@@ -466,7 +695,22 @@
     "output_root": "runs/spark_persistent_learner_v2/native01",
     "output_must_be_fresh": true,
     "native_command": null,
-    "required_authorization_fields": ["authorization_id", "protocol_id", "protocol_sha256", "protocol_commit", "implementation_sha256", "prepared_manifest_sha256", "source_identity", "execution_format", "execution_backend", "backend_evidence_sha256", "attempt_id", "output_root", "issued_by", "expires_at_utc"],
+    "required_authorization_fields": [
+      "authorization_id",
+      "protocol_id",
+      "protocol_sha256",
+      "protocol_commit",
+      "implementation_sha256",
+      "prepared_manifest_sha256",
+      "source_identity",
+      "execution_format",
+      "execution_backend",
+      "backend_evidence_sha256",
+      "attempt_id",
+      "output_root",
+      "issued_by",
+      "expires_at_utc"
+    ],
     "required_execution_binding": {
       "source_identity": "official_fp8",
       "execution_format": "official_native_fp8",
@@ -484,5 +728,9 @@
     "no sealed-final result is opened or tuned",
     "no P-bank, Mkv or read-budget expansion follows from failure",
     "late sites are compared only on the same 36-layer source with charged forward/backward costs"
-  ]
+  ],
+  "competence": {
+    "path": "configs/spark_competence_protocol_v1.json",
+    "sha256": "00be558df3cfe370a86df6ddc470575761c86473a2f5e509a6054f3a7bc09464"
+  }
 }

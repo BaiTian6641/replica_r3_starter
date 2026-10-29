@@ -30,7 +30,7 @@
     "internal_spine": "early_permanent_required",
     "initial_profile": "P1",
     "readout": "direct_response_cross_entropy_updates_selected_P_and_zero_init_port_outputs",
-    "native_backend_status": "derivative_bf16_runner_implemented_pending_protocol_commit_and_external_authorization",
+    "native_backend_status": "contextual_readout_stage_implemented_pending_exact_binding_and_external_authorization",
     "full_context_first": true,
     "late_site_comparison": "matched_candidate_23_31_only_on_the_same_36_layer_source_after_the_early_3_7_result",
     "deferred": [
@@ -115,7 +115,11 @@
       "requires_separate_arm_authorization": true,
       "substitution_allowed": false,
       "qualification_run_id": "derivative_02",
-      "qualification_completion_scope": "export_reload"
+      "qualification_completion_scope": "export_reload",
+      "execution_manifest": {
+        "path": "configs/spark_derivative_execution_manifest_v1.json",
+        "sha256": "f48b467026436ed291003b10fcbe61384db52799e62c6fadd28b13b4983c163c"
+      }
     }
   },
   "runtime": {
@@ -544,7 +548,7 @@
       "restarts": 1,
       "model_loads_max": 2,
       "tokenizer_loads_max": 2,
-      "training_forwards_max": 8,
+      "training_forwards_max": 41,
       "matched_nonlearning_fit_events": 4,
       "matched_nonlearning_forward_calls_max": 4,
       "matched_nonlearning_backward_calls_max": 4,
@@ -556,20 +560,20 @@
       "plastic_backward_calls_max": 0,
       "query_sensing_forwards_max": 4329,
       "native_query_passes_max": 4329,
-      "backward_calls_max": 8,
-      "backward_processed_positions_max": 16384,
+      "backward_calls_max": 41,
+      "backward_processed_positions_max": 83968,
       "plastic_feature_vectors_max": 0,
       "plastic_backward_feature_vectors_max": 0,
       "plastic_fit_evaluation_forwards_max": 0,
-      "optimizer_steps_max": 8,
+      "optimizer_steps_max": 41,
       "response_spine_optimizer_steps_max": 0,
       "response_port_optimizer_steps_max": 4,
       "selected_P_optimizer_steps_max": 4,
-      "generation_requests_max": 135,
-      "autoregressive_forwards_max": 4320,
-      "forward_calls_max": 8665,
-      "generated_tokens_max": 4320,
-      "processed_text_positions_max": 17879840,
+      "generation_requests_max": 183,
+      "autoregressive_forwards_max": 5856,
+      "forward_calls_max": 10236,
+      "generated_tokens_max": 5856,
+      "processed_text_positions_max": 21121056,
       "initialization_parity_forwards_max": 2,
       "initialization_parity_processed_positions_max": 4096,
       "influence_check_query_sensing_max": 1,
@@ -579,7 +583,7 @@
       "replay_forward_calls_max": 4,
       "replay_processed_positions_max": 8192,
       "retrieval_calls_max": 148,
-      "verification_calls_max": 147,
+      "verification_calls_max": 195,
       "checkpoint_writes_max": 5,
       "retained_checkpoint_artifacts_max": 4,
       "reloads_max": 1,
@@ -601,7 +605,11 @@
       "consolidation_events_max": 0,
       "artifact_bytes_max": 268435456,
       "wall_seconds_max": 7200,
-      "native_retries": 0
+      "native_retries": 0,
+      "competence_cases": 8,
+      "competence_forwards_max": 256,
+      "readout_steps_max": 33,
+      "readout_cases_max": 40
     },
     "counters": [
       "source_encoding",
@@ -679,12 +687,18 @@
       "src/replica_lab/model_identity.py",
       "src/replica_lab/artifact_publication.py",
       "src/replica_lab/capacity_guard.py",
-      "src/replica_lab/checkpoint_storage.py"
+      "src/replica_lab/checkpoint_storage.py",
+      "src/replica_lab/execution_manifest.py",
+      "src/replica_lab/baseline_competence.py",
+      "src/replica_lab/contextual_memory.py",
+      "src/replica_lab/contextual_readout_training.py",
+      "src/replica_lab/contextual_p_learning.py",
+      "src/replica_lab/profiling.py"
     ],
     "implementation_sha256": {
-      "scripts/run_spark_persistent_learner_derivative_bf16.py": "d3fe87ad5fac3e94283190ff2b5f7c0ff4671b275fc9475cdb715ba7ff7f55fa",
-      "scripts/run_capacity_preflight.py": "38ec04649df919cf7226d74f0ea80b8c138b9eddf17e455a6c7d5a812c3e3928",
-      "scripts/preflight_spark_persistent_learner_derivative_bf16.py": "af6c74164359497c7d6b955ba84de10d3c74450c0f498b41d41d916812e05023",
+      "scripts/run_spark_persistent_learner_derivative_bf16.py": "3492503615b2eb9c82dee9da844459c7daa9335e47c5afb472b3b8553b143653",
+      "scripts/run_capacity_preflight.py": "5117a65966a299a56138634e5dd2e8aedd063af21fdf10d019d038c8af070951",
+      "scripts/preflight_spark_persistent_learner_derivative_bf16.py": "d67683fdf14ae1e8e38bcba2fe846684f1c5efc252cdaa110a6b8280e5b5659a",
       "src/replica_lab/architecture/spark2_5.py": "d1fed0d1e3771b2a37229406719583d7b9727983702087f42c156a4d5b8e4c5b",
       "src/replica_lab/architecture/spark_adapter.py": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
       "src/replica_lab/architecture/spine.py": "5a4b4fd002e0cea3341639946e3824d8773adf9e1b494486f1f4d35334373703",
@@ -704,7 +718,13 @@
       "src/replica_lab/model_identity.py": "53c6f38df2101a1d93c0fd8887bc8c42852bd3f14ea0f85ac61ae5eb5a92ef20",
       "src/replica_lab/artifact_publication.py": "5323eafe106aa42d3f1f1f55dc1de5a6a2bddcf70a81ae4b9a484d3ac99c3a22",
       "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
-      "src/replica_lab/checkpoint_storage.py": "7cfd3496f71a23f74b20162f24eaea7514c5fc5d1e4eb2f0100b1e5e428e96a1"
+      "src/replica_lab/checkpoint_storage.py": "7cfd3496f71a23f74b20162f24eaea7514c5fc5d1e4eb2f0100b1e5e428e96a1",
+      "src/replica_lab/execution_manifest.py": "7cb4549ca6d4b26ff45cf0eaf08837a1090884140884f085d7bd804a07e11df9",
+      "src/replica_lab/baseline_competence.py": "9aecd789505e6551af7f2444ed10439537b21247a232e6f9f55896f08ac6b2ed",
+      "src/replica_lab/contextual_memory.py": "e1d83af714f895a47f353a19a97d3aed1a9a620e39eae73b0616d555dc4a48d8",
+      "src/replica_lab/contextual_readout_training.py": "58c160f10fa7b9b42eeb45d31338610831948993559d7c108a7b63a1e2029fd0",
+      "src/replica_lab/contextual_p_learning.py": "c555316a495c336d6c292483de58b7bf7b86cca6ccd4d02f0f61b85ecbf4a85d",
+      "src/replica_lab/profiling.py": "626efb0718ecfb87613937929292e49105e20c998372a37e2b4c85ccd69d92a3"
     },
     "authorization_path": "reports/spark_persistent_learner_v2/derivative_bf16_authorization.json",
     "required_qualification_evidence": {
@@ -738,12 +758,15 @@
       "attempt_id",
       "output_root",
       "issued_by",
-      "expires_at_utc"
+      "expires_at_utc",
+      "execution_manifest_sha256",
+      "execution_stage"
     ],
     "required_execution_binding": {
       "source_identity": "dequantized_fp8_derivative",
       "execution_format": "dequantized_fp8_derivative_bf16_storage",
-      "execution_backend": "bf16_storage_without_activation_quantization_on_mps"
+      "execution_backend": "bf16_storage_without_activation_quantization_on_mps",
+      "execution_stage": "readout"
     },
     "no_launch_without_exact_authorization": true,
     "no_launch_without_derivative_runner": true,
@@ -785,5 +808,13 @@
       "untouched_full_eligible_context_first": true,
       "matched_early_3_7_vs_late_23_31_only_when_justified": true
     }
+  },
+  "competence": {
+    "path": "configs/spark_competence_protocol_v1.json",
+    "sha256": "00be558df3cfe370a86df6ddc470575761c86473a2f5e509a6054f3a7bc09464"
+  },
+  "contextual_readout": {
+    "path": "configs/contextual_readout_protocol_v2.json",
+    "sha256": "5a517d75b4d84955ec6a31bed76bb8a81ba4f03dd06f1e16dcc41dd425ea8989"
   }
 }

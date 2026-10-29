@@ -113,6 +113,14 @@ def derive_work(config: Mapping[str, Any]) -> dict[str, int]:
         "payload_io_bytes_max": 1073741824,
         "revalidations_max": 3 * full_records * readout_queries,
     }
+    calibration = 8
+    expected["competence_cases"] = calibration
+    expected["competence_forwards_max"] = calibration * new_tokens
+    for name in ("generation_requests_max", "verification_calls_max"):
+        expected[name] += calibration
+    for name in ("forward_calls_max", "autoregressive_forwards_max", "generated_tokens_max"):
+        expected[name] += calibration * new_tokens
+    expected["processed_text_positions_max"] += calibration * positions_per_request
     for key, value in expected.items():
         _require(schedule.get(key) == value, "budget",
                  f"{key}={schedule.get(key)} differs from derived {value}")
@@ -126,6 +134,12 @@ def derive_work(config: Mapping[str, Any]) -> dict[str, int]:
 
 
 def validate_config(config: Mapping[str, Any], root: Path = ROOT) -> dict[str, Any]:
+    from types import SimpleNamespace
+    from replica_lab.baseline_competence import load_spec
+    try:
+        load_spec(SimpleNamespace(config=config, root=root))
+    except (KeyError, ValueError, OSError) as error:
+        raise ProtocolError("competence", str(error)) from error
     _require(config.get("format") == EXPECTED_FORMAT, "config", "format differs")
     _require(config.get("protocol_id") == PROTOCOL_ID, "config", "protocol id differs")
     _require(config["active_direction"]["source_baseline"] == "official_fp8",

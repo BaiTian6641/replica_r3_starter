@@ -90,8 +90,8 @@ EXTENSION_RELOAD_FORMAT = (
 NATIVE_LABEL = "native_derivative"
 SMOKE_LABEL = "cpu_synthetic_derivative_fixture"
 CPU_LABEL = "cpu"
-STAGES = ("smoke", "all", "fit", "development", "restart")
-NATIVE_STAGES = ("all", "fit", "development", "restart")
+STAGES = ("smoke", "all", "fit", "development", "restart", "readout", "readout_restart")
+NATIVE_STAGES = ("all", "fit", "development", "restart", "readout", "readout_restart")
 SMOKE_RECORDS = (
     ("answer", "cobalt alpha is the verified response token"),
     ("near", "cobalt beta is a nearby distractor"),
@@ -178,7 +178,7 @@ class DerivativeDataset(PreparedDataset):
     that can open development labels.
     """
 
-    def open_development(self, receipt: Mapping[str, Any]) -> None:
+    def open_development(self, receipt: Mapping[str, Any], *, protocol=None) -> None:
         _require(receipt.get("format") == FIT_RECEIPT_FORMAT, "fit_receipt",
                  "format differs")
         _require(receipt.get("protocol_sha256") == self.protocol_sha256,
@@ -190,6 +190,16 @@ class DerivativeDataset(PreparedDataset):
                  "fit_receipt", "fit is not complete")
         _require(receipt.get("native_execution") is True, "fit_receipt",
                  "the derivative fit did not execute natively")
+        _require(receipt.get("competence", {}).get("passed") is True
+                 and receipt["competence"].get("binding", {}).get("protocol_sha256") == self.protocol_sha256,
+                 "competence", "development requires passed pre-fit competence")
+        _require(protocol is not None and protocol.sha256 == self.protocol_sha256,
+                 "competence", "development requires the bound competence protocol")
+        from replica_lab.baseline_competence import validate_receipt, CompetenceError
+        try:
+            validate_receipt(protocol, receipt["competence"])
+        except CompetenceError as error:
+            raise Refused("competence", str(error)) from error
         self._development_open = True
 
 
@@ -251,6 +261,13 @@ def build_native_derivative_backend(protocol: DerivativeProtocol, *,
     precision = protocol.precision
     source = protocol.source
     source_root = Path(source["source_root"])
+    from replica_lab.execution_manifest import ExecutionManifestError, verify_execution_manifest
+    try:
+        verify_execution_manifest(
+            source_root, protocol.source_identity.get("execution_manifest", {}),
+            repository_root=protocol.root, artifact_sha256=source["artifact_sha256"])
+    except ExecutionManifestError as error:
+        raise Refused("execution_manifest", str(error)) from error
     _require(sha256_file(source_root / "config.json") == source["config_sha256"],
              "source", "derivative config bytes changed after preflight")
     admission = evaluate_derivative_p1_spine(
@@ -495,6 +512,10 @@ def _full_context_first(output: Path) -> dict[str, Any]:
                        "development_trajectories")
     _require(bool(rows), "full_context_first", "no development rows were recorded")
     first = rows[0]
+    baseline = [r for r in rows if r.get("arm_id") == "full_eligible_context"]
+    _require(len(baseline) == 12 and len({r.get("case_id") for r in baseline}) == 12
+             and all(r.get("execution_complete") is True for r in baseline),
+             "full_context_first", "missing/incomplete full-context baseline cases")
     _require(first.get("execution_complete") is True
              and first.get("arm_id") == "full_eligible_context", "full_context_first",
              "the untouched full-context arm was not completed first")
@@ -800,14 +821,14 @@ def _run_isolated_restart(protocol: DerivativeProtocol, output: Path,
 
 def _native_impl(protocol: DerivativeProtocol, dataset: DerivativeDataset,
                  output: Path, *, stage: str, authorization_path: Path,
-                 extension_export: Path) -> dict[str, Any]:
+                 extension_export: Path, profiler=None) -> dict[str, Any]:
     started = time.monotonic()
-    fresh = stage in {"all", "fit"}
-    _require(not output.exists() if fresh else output.is_dir(), "output",
+    fresh = stage in {"all", "fit", "readout"}
+    _require((not output.exists() or profiler is not None) if fresh else output.is_dir(), "output",
              "fit output must be fresh" if fresh else "resume output is missing")
     receipt = verify_derivative_authorization(
         protocol, output, authorization_path,
-        allow_existing_output=not fresh)
+        allow_existing_output=not fresh or profiler is not None)
     backend = build_native_derivative_backend(
         protocol, authorization=receipt, device="mps")
     context = int(protocol.config["runtime"]["context_tokens_max"])
@@ -819,6 +840,44 @@ def _native_impl(protocol: DerivativeProtocol, dataset: DerivativeDataset,
     ledger.charge("model_loads")
     ledger.charge("tokenizer_loads")
     try:
+        if stage == "readout_restart":
+            from replica_lab.contextual_readout_training import restart_readout
+            return restart_readout(protocol, backend, output, ledger=ledger, meter=meter)
+        if stage == "readout":
+            from replica_lab.baseline_competence import run_competence
+            from replica_lab.contextual_readout_training import run_readout
+            competence = run_competence(protocol, backend, output, ledger)
+            report = run_readout(protocol, backend, output, ledger, competence, meter=meter)
+            backend.close()
+            backend = None
+            gc.collect()
+            torch.mps.empty_cache()
+            if profiler is not None:
+                summary = profiler.stop()
+                _write_json(output, "contextual_readout/parent_profile_summary.json", summary)
+            command = [sys.executable, str(ROOT / "scripts/run_spark_persistent_learner_derivative_bf16.py"),
+                "--stage", "readout_restart", "--backend", NATIVE_LABEL, "--device", "mps",
+                "--config", str(protocol.path), "--prepared", str(dataset.root), "--output", str(output),
+                "--authorization", str(authorization_path)]
+            child = subprocess.run(command, cwd=ROOT, text=True, capture_output=True,
+                timeout=int(protocol.schedule["wall_seconds_max"]),
+                env={**os.environ, "REPLICA_NATIVE_SUPERVISED_CHILD": "1"})
+            (output / "contextual_readout/child.stdout").write_text(child.stdout)
+            (output / "contextual_readout/child.stderr").write_text(child.stderr)
+            _require(child.returncode == 0, "readout_restart", child.stderr[-2000:] or child.stdout[-2000:])
+            report["restart"] = read_json(output / "contextual_readout/restart.json")
+            for name, amount in report["restart"]["work"]["counters"].items():
+                if name != "artifact_bytes": ledger.charge(name, amount)
+            ledger.set_measured("artifact_bytes", meter.observe())
+            report["work"] = ledger.report()
+            report["total_wall_seconds_including_load_and_restart"] = time.monotonic() - started
+            report["fresh_process_continuation"] = report["restart"]["exact_logits"] and report["restart"]["base_unchanged"]
+            report["physical_profile"] = {"parent": "contextual_readout/parent_profile_summary.json",
+                                          "child": "profile_summary.json", "samples": "profile_samples.jsonl"}
+            _write_json(output, "run_report.json", report)
+            return report
+        _require(False, "readout_first",
+                 "native persistent-P comparison requires a qualified frozen contextual reader; run --stage readout first")
         if stage == "fit":
             fit = run_fit(protocol, dataset, backend, output, ledger, meter)
             ledger.set_measured("artifact_bytes", meter.peak_bytes)
@@ -967,7 +1026,9 @@ def _native_impl(protocol: DerivativeProtocol, dataset: DerivativeDataset,
             "format": "replica.spark_persistent_learner_derivative.failure.v1",
             "stage": stage, "backend": NATIVE_LABEL, "error": str(error),
             "error_type": type(error).__name__, "traceback": traceback.format_exc(),
-            "work": ledger.report(), "native_execution": False,
+            "work": ledger.report(), "native_execution": True,
+            "baseline_competence": "see_competence_receipt",
+            "learning_utility": "not_qualified", "promotion": False,
             "preserved_partial_artifacts": True,
             "official_fp8_substitution": False,
             "official_bf16_substitution": False,
@@ -1012,40 +1073,45 @@ def run_derivative_protocol(config_path: str | Path = CONFIG_PATH,
     path = None if authorization_path is None else Path(authorization_path)
     verify_derivative_authorization(
         protocol, output, path,
-        allow_existing_output=allow_existing_output or stage not in {"all", "fit"})
+        allow_existing_output=allow_existing_output or stage not in {"all", "fit", "readout"})
+    _require(stage in {"readout", "readout_restart"}, "readout_first",
+             "native persistent-P work remains gated by useful contextual readout; use --stage readout")
     _require(full_hash, "source",
              "native execution requires full derivative shard hashing; "
              "--skip-full-hash is smoke/preflight only")
-    try:
-        full_report = validate_config(protocol.config, protocol.root, full_hash=True)
-    except PreflightError as error:
-        raise Refused(error.check, error.detail) from error
-    _require(full_report["source"]["artifact_sha256"]
-             == protocol.source["artifact_sha256"], "source",
-             "full-hash source artifact differs from the review binding")
-    _require(full_report["source"]["precision_digest"]
-             == protocol.source["precision_digest"], "source",
-             "full-hash precision digest differs from the review binding")
-    _require(full_report["implementation_sha256"]
-             == protocol.report["implementation_sha256"], "implementation",
-             "implementation bytes changed during authorization")
-    protocol = replace(protocol, report=full_report)
-    _require_native_environment()
-    dataset = DerivativeDataset.load(
-        prepared_root,
-        expected_sha256=protocol.config["dataset"].get("manifest_sha256"),
-        protocol_sha256=protocol.sha256)
-    export = (Path(extension_export).resolve() if extension_export is not None
-              else output / "extension_export")
     supervised = os.environ.get("REPLICA_NATIVE_SUPERVISED_CHILD") == "1"
-    if supervised:
-        return _native_impl(
-            protocol, dataset, output, stage=stage,
-            authorization_path=Path(path), extension_export=export)
-    with exclusive_mps_worker(protocol.root):
-        return _native_impl(
-            protocol, dataset, output, stage=stage,
-            authorization_path=Path(path), extension_export=export)
+    from replica_lab.profiling import RunProfiler
+    from contextlib import nullcontext
+    _require_native_environment()
+    with (nullcontext() if supervised else exclusive_mps_worker(protocol.root)):
+        # Authorization and fresh-output admission completed above. Start
+        # telemetry before multi-GB hashing and loading so the watchdog never
+        # mistakes those phases for missing native-driver telemetry.
+        with RunProfiler("mps", output, append=stage == "readout_restart") as profiler:
+            try:
+                full_report = validate_config(protocol.config, protocol.root, full_hash=True)
+            except PreflightError as error:
+                raise Refused(error.check, error.detail) from error
+            _require(full_report["source"]["artifact_sha256"]
+                     == protocol.source["artifact_sha256"], "source",
+                     "full-hash source artifact differs from the review binding")
+            _require(full_report["source"]["precision_digest"]
+                     == protocol.source["precision_digest"], "source",
+                     "full-hash precision digest differs from the review binding")
+            _require(full_report["implementation_sha256"]
+                     == protocol.report["implementation_sha256"], "implementation",
+                     "implementation bytes changed during authorization")
+            protocol = replace(protocol, report=full_report)
+            _require_native_environment()
+            dataset = DerivativeDataset.load(
+                prepared_root,
+                expected_sha256=protocol.config["dataset"].get("manifest_sha256"),
+                protocol_sha256=protocol.sha256)
+            export = (Path(extension_export).resolve() if extension_export is not None
+                      else output / "extension_export")
+            return _native_impl(
+                protocol, dataset, output, stage=stage,
+                authorization_path=Path(path), extension_export=export, profiler=profiler)
 
 
 # ---------------------------------------------------------------------------

@@ -61,7 +61,7 @@ def continuation_requested(arguments):
     position = arguments.index("--stage")
     if position + 1 >= len(arguments):
         return False
-    return arguments[position + 1] in ("development", "final", "sealed_final", "restart")
+    return arguments[position + 1] in ("development", "final", "sealed_final", "restart", "readout_restart")
 
 
 def stop_child(child):

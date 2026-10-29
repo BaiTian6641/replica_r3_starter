@@ -1,0 +1,21 @@
+{
+  "format": "replica.spark.competence_protocol.v1",
+  "cases": 8,
+  "data": {
+    "path": "data/spark_competence_v1/cases.json",
+    "sha256": "2597c0066b9b1c9dc33ff65d38087cf343234136c864a4ac688fcb3d98394b12"
+  },
+  "scorer_sha256": "9aecd789505e6551af7f2444ed10439537b21247a232e6f9f55896f08ac6b2ed",
+  "weights": "frozen_original_no_extensions",
+  "thinking_mode": "none",
+  "context_tokens_max": 2048,
+  "max_new_tokens": 32,
+  "decode": "greedy_eos_enabled_no_sampling",
+  "prompt_template": "Use the complete evidence below. Reply with only the answer word. If the evidence is insufficient or revoked, reply unknown.\nEvidence:\n{context}\nQuestion: {question}\nAnswer:",
+  "pass_criteria": {
+    "correct_min": 8,
+    "false_recall_max": 0,
+    "complete_cases": 8
+  },
+  "on_failure": "preserve_diagnostics_stop_readout_and_P_learning_development_and_sealed_labels_closed"
+}

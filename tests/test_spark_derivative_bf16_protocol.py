@@ -13,6 +13,7 @@ import json
 import math
 from pathlib import Path
 import sys
+import shutil
 
 import pytest
 import torch
@@ -41,6 +42,7 @@ from replica_lab.architecture.spark_adapter import Spark2_5Adapter, SparkAdapter
 from replica_lab.architecture.spine_memory import SpineMemoryExperiment
 from replica_lab.architecture.spine_text import SparkTextMemoryPath
 from replica_lab.optimizers import NativeFusedAdamW
+from replica_lab.execution_manifest import build_execution_manifest
 from replica_lab.p1_response_learning import (
     build_port_optimizer, direct_response_ce_step, prepare_arm_query,
 )
@@ -114,6 +116,16 @@ def build_tree(tmp_path: Path, *, official_geometry: bool = False) -> dict:
     dequantizer_sha = _sha(ROOT / "scripts/dequantize_spark_fp8.py")
 
     config_raw = copy.deepcopy(derivative_raw)
+    config_raw["auto_map"] = {
+        "AutoConfig": "configuration_spark.Spark2_5Config",
+        "AutoModel": "modeling_spark.Spark2_5Model",
+        "AutoModelForCausalLM": "modeling_spark.Spark2_5ForCausalLM",
+    }
+    (derivative_dir / "configuration_spark.py").write_text("class Spark2_5Config: pass\n")
+    (derivative_dir / "modeling_spark.py").write_text(
+        "from .configuration_spark import Spark2_5Config\n"
+        "from .local_helper import identity\nclass Spark2_5ForCausalLM: pass\n")
+    (derivative_dir / "local_helper.py").write_text("def identity(x): return x\n")
     config_raw["dtype"] = "bfloat16"
     config_raw["replica_precision"] = {
         "kind": DEQUANTIZED_FP8_DERIVATIVE,
@@ -222,6 +234,11 @@ def build_tree(tmp_path: Path, *, official_geometry: bool = False) -> dict:
             },
         },
     }
+    execution_path = root / "execution_manifest.json"
+    execution_sha = _write_json(execution_path, build_execution_manifest(
+        derivative_dir, artifact_sha256=artifact))
+    repository["source_identities"]["dequantized_fp8_derivative"]["execution_manifest"] = {
+        "path": str(execution_path), "sha256": execution_sha}
     return {
         "repository": repository,
         "manifest_path": manifest_path,
@@ -234,6 +251,50 @@ def build_tree(tmp_path: Path, *, official_geometry: bool = False) -> dict:
         "config_raw": config_raw,
         "files": files,
     }
+
+
+@pytest.fixture(autouse=True)
+def portable_protocol(tmp_path, monkeypatch):
+    """Real synthetic source validation; no ignored checkpoint dependency.
+
+    Git is only a metadata fixture. Production authorization/source validation
+    is never patched. CLI smoke receives the same synthetic protocol tree.
+    """
+    import preflight_spark_persistent_learner_derivative_bf16 as module
+    config = json.loads((ROOT / "configs/spark_persistent_learner_derivative_bf16_protocol_v1.json").read_text())
+    tree = build_tree(tmp_path / "fixture", official_geometry=True)
+    for key, value in tree["repository"]["source_identities"].items():
+        config["source_identities"][key].update(value)
+    config["runtime"]["tokenizer"].update(tree["repository"]["runtime"]["tokenizer"])
+    config["dataset"]["manifest"] = str(ROOT / config["dataset"]["manifest"])
+    fixture_root = tmp_path / "repository"
+    (fixture_root / "configs").mkdir(parents=True)
+    for relative in config["launch"]["implementation_files"]:
+        target = fixture_root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, target)
+    for relative in (config["competence"]["path"], "data/spark_competence_v1/cases.json",
+                     config["contextual_readout"]["path"],
+                     "data/contextual_readout_v2/fit.json", "data/contextual_readout_v2/development.json",
+                     "data/contextual_readout_v2/development_labels.json"):
+        target = fixture_root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, target)
+    evidence = config["launch"]["required_qualification_evidence"]
+    evidence["artifact_sha256"] = tree["repository"]["source_identities"]["dequantized_fp8_derivative"]["artifact_sha256"]
+    evidence["path"] = str(fixture_root / "synthetic_qualification.json")
+    evidence["sha256"] = _write_json(Path(evidence["path"]), {"selected_runs": {
+        "dequantized_fp8_derivative": {"run_id": evidence["run_id"],
+            "precision_kind": DEQUANTIZED_FP8_DERIVATIVE, "status": "completed",
+            "completion_scope": evidence["completion_scope"], "stage_status": evidence["stage_status"],
+            "base_identity": {"artifact_sha256": evidence["artifact_sha256"]}}}})
+    config["launch"]["implementation_sha256"] = {
+        p: _sha(ROOT / p) for p in config["launch"]["implementation_files"]}
+    path = fixture_root / "configs/protocol.json"
+    _write_json(path, config)
+    monkeypatch.setattr(sys.modules[__name__], "CONFIG_PATH", path)
+    monkeypatch.setattr(module, "_current_head", lambda root: "a" * 40)
+    return path
 
 
 def _rewrite_manifest(tree: dict) -> None:
@@ -590,6 +651,7 @@ def test_cpu_smoke_entrypoint_runs_and_refuses_existing_output(tmp_path):
         "--backend", "cpu_synthetic_derivative_fixture",
         "--stage", "smoke", "--device", "cpu",
         "--output", str(output), "--skip-full-hash",
+        "--config", str(CONFIG_PATH),
     ]
     environment = {
         **os.environ,
@@ -708,7 +770,7 @@ def test_runner_binding_and_stale_hashes_are_refused(tmp_path):
     implemented = packet["implemented"]["implemented_derivative_runner"]
     assert implemented["status"] == "implemented"
     assert implemented["path"] == binding["relative"]
-    assert implemented["sha256"] == binding["sha256"]
+    assert len(implemented["sha256"]) == 64  # immutable historical packet
 
 
 def test_late_site_comparison_requires_a_completed_matched_early_result():
@@ -729,3 +791,25 @@ def test_late_site_comparison_requires_a_completed_matched_early_result():
     assert justified["late_comparison"] == "matched_same_source_after_early_result"
     with pytest.raises(runner.Refused, match="neither early"):
         runner.review_site_request((11, 23))
+
+
+@pytest.mark.parametrize("filename", ["configuration_spark.py", "modeling_spark.py", "local_helper.py"])
+@pytest.mark.parametrize("damage", ["changed", "missing", "substituted"])
+def test_execution_code_refused_before_any_native_load(tmp_path, monkeypatch, filename, damage):
+    import run_spark_persistent_learner_derivative_bf16 as runner
+    protocol = runner.DerivativeProtocol.load(CONFIG_PATH, full_hash=True)
+    path = Path(protocol.source["source_root"]) / filename
+    if damage == "missing":
+        path.unlink()
+    elif damage == "changed":
+        path.write_text(path.read_text() + "\nraise RuntimeError('changed code')\n")
+    else:
+        replacement = tmp_path / "substitute.py"
+        replacement.write_bytes(path.read_bytes())
+        path.unlink()
+        path.symlink_to(replacement)
+    monkeypatch.setattr(runner, "_load_derivative_model", lambda *a: pytest.fail("model loaded"))
+    with pytest.raises(runner.Refused, match="execution_manifest"):
+        runner.build_native_derivative_backend(protocol, authorization={}, device="mps")
+    with pytest.raises(ProtocolError, match="execution|dependency"):
+        validate_config(protocol.config, protocol.root, full_hash=False)

@@ -43,6 +43,115 @@ def expert_bytes(seed: bytes) -> tuple[bytes, bytes]:
             payload(profile.full_parameters * 8, seed + b"-moments"))
 
 
+@pytest.mark.parametrize("writes", [1, 3])
+@pytest.mark.parametrize("publish", [False, True])
+def test_latest_dirty_authority_is_separate_from_cold_publication(tmp_path, writes, publish):
+    store = open_store(tmp_path)
+    store.admit_cluster("rules", scope=scope(), records=[
+        make_draft("r1", "first"), make_draft("r2", "second")])
+    store.register_expert("e1", lineage=("r1",), encoder_id="encoder-v1")
+    weights, moments = expert_bytes(b"published")
+    assert store.write_expert_state("e1", weights=weights, moments=moments, clock=1).ok
+    assert store.publish_expert("e1").ok
+    for clock in range(2, 2 + writes):
+        weights, moments = expert_bytes(str(clock).encode())
+        assert store.write_expert_state(
+            "e1", weights=weights, moments=moments, clock=clock,
+            lineage=("r1", "r2"), encoder_id=f"encoder-v{clock}").ok
+    if publish:
+        assert store.publish_expert("e1").ok
+    store.close()
+    drop_index(store)
+    rebuilt = open_store(tmp_path)
+    try:
+        assert rebuilt.recovery_report.outcome.ok, rebuilt.recovery_report.notes
+        result = rebuilt.load_expert("e1")
+        assert result.outcome.ok
+        assert result.state.weights == weights and result.state.moments == moments
+        assert result.state.clock == clock
+        assert result.state.lineage == ("r1", "r2")
+        assert result.state.encoder_id == f"encoder-v{clock}"
+        assert result.state.dirty is (not publish)
+        assert rebuilt.publish_expert("e1").ok
+    finally:
+        rebuilt.close()
+
+
+@pytest.mark.parametrize("damage", ["missing", "corrupt", "uncommitted", "payload", "revoked"])
+def test_dirty_authority_loss_or_interruption_never_rolls_back_silently(tmp_path, damage):
+    import json
+    store = open_store(tmp_path)
+    store.admit_cluster("rules", scope=scope(), records=[
+        make_draft("r1", "first"), make_draft("r2", "second")])
+    store.register_expert("e1", lineage=("r1",))
+    weights, moments = expert_bytes(b"old")
+    assert store.write_expert_state("e1", weights=weights, moments=moments, clock=1).ok
+    assert store.publish_expert("e1").ok
+    weights, moments = expert_bytes(b"new")
+    assert store.write_expert_state("e1", weights=weights, moments=moments, clock=2,
+                                    lineage=("r1", "r2"), encoder_id="enc2").ok
+    newest = component_authority_files(store, "experts", "e1")[-1]
+    if damage == "revoked":
+        store.revoke_record("r2", reason="withdrawn", scope=scope())
+    store.close()
+    if damage == "missing":
+        newest.unlink()
+    elif damage == "corrupt":
+        newest.write_bytes(b"corrupt")
+    elif damage == "payload":
+        (store.root / "storage/hot/experts/e1/moments.bin").write_bytes(b"partial")
+    elif damage == "uncommitted":
+        journal = store.root / "journal/events.jsonl"
+        rows = [json.loads(s) for s in journal.read_text().splitlines()]
+        rows = [r for r in rows if not (r["kind"] == "expert_state_written"
+                                       and r["detail"]["clock"] == 2)]
+        journal.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    drop_index(store)
+    rebuilt = open_store(tmp_path)
+    try:
+        result = rebuilt.load_expert("e1")
+        assert result.outcome.status != "ok"
+        assert rebuilt.expert_records()[0].quarantine_status == "quarantined"
+        # Exact unrelated evidence remains available despite this owner failure.
+        assert rebuilt.state_summary()["counts"]["E_records"] == 2
+    finally:
+        rebuilt.close()
+
+
+@pytest.mark.parametrize("boundary", ["between_payloads", "before_journal"])
+def test_interrupted_hot_write_is_detected_with_and_without_index(tmp_path, monkeypatch, boundary):
+    import replica_lab.tiered_memory as module
+    store = open_store(tmp_path)
+    store.register_expert("e1", lineage=("r1",))
+    old_w,old_m = expert_bytes(b"old")
+    new_w,new_m = expert_bytes(b"new")
+    assert store.write_expert_state("e1",weights=old_w,moments=old_m,clock=1).ok
+    assert store.publish_expert("e1").ok
+    with monkeypatch.context() as patch:
+        if boundary == "between_payloads":
+            real = module._atomic_write
+            def interrupted(path, content, **kwargs):
+                if path.name == "moments.bin" and "hot" in path.parts:
+                    raise OSError("injected interrupted moments write")
+                return real(path,content,**kwargs)
+            patch.setattr(module,"_atomic_write",interrupted)
+        else:
+            real_event = store._record_event
+            def interrupted_event(kind,*args,**kwargs):
+                if kind == "expert_state_written": raise OSError("injected pre-journal interruption")
+                return real_event(kind,*args,**kwargs)
+            patch.setattr(store,"_record_event",interrupted_event)
+        with pytest.raises(OSError,match="injected"):
+            store.write_expert_state("e1",weights=new_w,moments=new_m,clock=2,
+                                     lineage=("r1","r2"),encoder_id="new-encoder")
+    store.close();drop_index(store)
+    recovered = open_store(tmp_path)
+    try:
+        assert recovered.recovery_report.outcome.status == "incomplete"
+        assert recovered.load_expert("e1").state is None
+    finally: recovered.close()
+
+
 def test_index_loss_restores_every_persistent_class_and_dependent_quarantine(
         tmp_path: Path) -> None:
     store = open_store(tmp_path)

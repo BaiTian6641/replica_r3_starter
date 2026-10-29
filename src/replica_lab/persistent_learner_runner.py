@@ -270,7 +270,7 @@ class PreparedDataset:
         _require(isinstance(rows, list), "worlds", "worlds must be a list")
         return copy.deepcopy(rows)
 
-    def open_development(self, receipt: Mapping[str, Any]) -> None:
+    def open_development(self, receipt: Mapping[str, Any], *, protocol=None) -> None:
         _require(receipt.get("format") == FIT_RECEIPT_FORMAT, "fit_receipt", "format differs")
         _require(receipt.get("protocol_id") == PROTOCOL_ID, "fit_receipt", "protocol id differs")
         _require(receipt.get("protocol_sha256") == self.protocol_sha256,
@@ -280,6 +280,16 @@ class PreparedDataset:
         _require(receipt.get("status") == "fit_executed"
                  and receipt.get("execution_complete") is True,
                  "fit_receipt", "fit is not complete")
+        _require(receipt.get("competence", {}).get("passed") is True
+                 and receipt["competence"].get("binding", {}).get("protocol_sha256") == self.protocol_sha256,
+                 "competence", "development requires passed pre-fit competence")
+        _require(protocol is not None and protocol.sha256 == self.protocol_sha256,
+                 "competence", "development requires the bound competence protocol")
+        from .baseline_competence import validate_receipt, CompetenceError
+        try:
+            validate_receipt(protocol, receipt["competence"])
+        except CompetenceError as error:
+            raise Refused("competence", str(error)) from error
         self._development_open = True
 
     def development_cases(self) -> list[dict[str, Any]]:
@@ -311,6 +321,8 @@ class WorkLedger:
     """Measured counters with conservative native upper bounds."""
 
     NAMES = (
+        "competence_cases", "competence_forwards",
+        "readout_steps", "readout_cases",
         "fit_events", "development_cases", "parity_requests", "restart_parity_requests",
         "restarts", "model_loads", "tokenizer_loads", "training_forwards",
         "matched_nonlearning_fit_events", "matched_nonlearning_forward_calls",
@@ -623,7 +635,11 @@ def _fixture_texts(dataset: PreparedDataset) -> list[str]:
 def build_cpu_backend(protocol: Protocol, dataset: PreparedDataset, *,
                       spine_sites: Sequence[int]) -> Backend:
     from replica_lab.contextual_spark_fixture import build_contextual_adapter
-    tokenizer = DeterministicTinyTokenizer(texts=_fixture_texts(dataset))
+    from .baseline_competence import load_spec
+    spec, cases = load_spec(protocol)
+    calibration_texts = [spec["prompt_template"].format(context=c["context"], question=c["question"])
+                         for c in cases]
+    tokenizer = DeterministicTinyTokenizer(texts=_fixture_texts(dataset) + calibration_texts)
     adapter, _, _, _ = build_contextual_adapter(
         seed=int(protocol.config["seed"]), layers=32,
         spine_sites=tuple(int(site) for site in spine_sites), spine_slots=8,
@@ -1273,6 +1289,8 @@ def _tiered_summary(store: TieredMemoryStore) -> dict[str, Any]:
 
 def run_fit(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
             output: Path, ledger: WorkLedger, meter: publication.LiveByteMeter) -> FitState:
+    from .baseline_competence import run_competence
+    competence = run_competence(protocol, backend, output, ledger)
     output.mkdir(parents=True, exist_ok=True)
     (output / "fit").mkdir(parents=True, exist_ok=True)
     run_contract = _run_contract(protocol, dataset, backend)
@@ -1408,6 +1426,7 @@ def run_fit(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
         "events": tiered_events, "expert": tiered_expert, "state": tiered_state,
         "storage_outside_neural_boundaries": True}, meter=meter)
     fit_receipt = {
+        "competence": competence,
         "format": FIT_RECEIPT_FORMAT, "protocol_id": protocol.protocol_id,
         "protocol_sha256": protocol.sha256, "prepared_manifest_sha256": dataset.manifest_sha256,
         "status": "fit_executed", "execution_complete": True, "backend": backend.label,
@@ -1443,7 +1462,9 @@ def run_fit(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
 def _load_learning_path(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
                         output: Path) -> tuple[SparkTextMemoryPath, Mapping[str, Any], Mapping[str, Any]]:
     receipt = _read_json(output / "fit/fit_receipt.json", "fit_receipt")
-    dataset.open_development(receipt)
+    from .baseline_competence import validate_receipt
+    validate_receipt(protocol, receipt.get("competence", {}))
+    dataset.open_development(receipt, protocol=protocol)
     path = _new_path(protocol, backend.adapter)
     run_contract = _run_contract(protocol, dataset, backend)
     path.restore(output, str(receipt["fit_checkpoint"]), run_contract=run_contract)
@@ -1805,7 +1826,7 @@ def _latency_summary(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
 def run_development(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
                     output: Path, ledger: WorkLedger, meter: publication.LiveByteMeter,
                     fit: FitState) -> dict[str, Any]:
-    dataset.open_development(fit.receipt)
+    dataset.open_development(fit.receipt, protocol=protocol)
     tiered = _open_tiered(protocol, output)
     views = build_arm_views(protocol, fit, dataset, tiered=tiered)
     development_dir = output / "development"
@@ -2016,8 +2037,8 @@ def _run_protocol_impl(protocol_path: str | Path, prepared_root: str | Path, out
         prepared_root, expected_sha256=protocol.config["dataset"].get("manifest_sha256"),
         protocol_sha256=protocol.sha256)
     output = Path(output_root).resolve()
-    _require(stage in {"all", "fit", "development", "restart"}, "stage", "unknown stage")
-    fresh = stage in {"all", "fit"}
+    _require(stage in {"all", "fit", "development", "restart", "competence"}, "stage", "unknown stage")
+    fresh = stage in {"all", "fit", "competence"}
     if fresh:
         _require(not output.exists(), "output", "fit output must be fresh")
     else:
@@ -2039,7 +2060,13 @@ def _run_protocol_impl(protocol_path: str | Path, prepared_root: str | Path, out
             allow_existing_output=not fresh)
         ledger.charge("model_loads")
         ledger.charge("tokenizer_loads")
-        if stage == "fit":
+        if stage == "competence":
+            from .baseline_competence import run_competence
+            competence = run_competence(protocol, backend, output, ledger, require_pass=False)
+            report = {"format": REPORT_FORMAT, "stage": stage, "status": "competence_evaluated",
+                      "competence": competence, "learning_allowed": competence["passed"],
+                      "native_execution": native, "work": ledger.report()}
+        elif stage == "fit":
             fit = run_fit(protocol, dataset, backend, output, ledger, meter)
             report = {"format": REPORT_FORMAT, "stage": "fit", "status": "fit_executed",
                       "fit": fit.receipt, "work": ledger.report(),
@@ -2119,7 +2146,9 @@ def _run_protocol_impl(protocol_path: str | Path, prepared_root: str | Path, out
         failure = {"format": "replica.spark_persistent_learner.failure.v2",
                    "stage": stage, "backend": backend_kind, "error": str(error),
                    "error_type": type(error).__name__, "traceback": traceback.format_exc(),
-                   "work": ledger.report(), "native_execution": False,
+                   "work": ledger.report(), "native_execution": bool(native and locals().get("backend")),
+                   "baseline_competence": "failed_or_incomplete",
+                   "learning_utility": "not_evaluated", "promotion": False,
                    "preserved_partial_artifacts": True, "written_at_utc": _utc()}
         try:
             _write_json(output, "failure.json", failure)
@@ -2170,7 +2199,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--backend", choices=[NATIVE_LABEL, CPU_LABEL], default=NATIVE_LABEL)
     parser.add_argument("--device", choices=["mps", "cpu"], default="mps")
-    parser.add_argument("--stage", choices=["all", "fit", "development", "restart"], default="all")
+    parser.add_argument("--stage", choices=["all", "fit", "development", "restart", "competence"], default="all")
     parser.add_argument("--authorization", type=Path, default=None)
     parser.add_argument("--fixture-context-tokens", type=int, default=256)
     parser.add_argument("--fixture-max-new-tokens", type=int, default=4)

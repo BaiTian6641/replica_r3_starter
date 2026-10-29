@@ -66,9 +66,10 @@ def test_review_derives_real_profile_and_control_budgets_without_native_work():
     assert report["model_loaded"] is False
     assert report["source"]["source_identity"] == "official_fp8"
     assert report["source"]["execution_format"] == "official_native_fp8"
-    assert report["work_units"]["forward_calls_max"] == 8665
-    assert report["work_units"]["processed_text_positions_max"] == 17879840
-    assert report["work_units"]["verification_calls_max"] == 147
+    assert report["work_units"]["forward_calls_max"] == 8921
+    assert report["work_units"]["processed_text_positions_max"] == 18408096
+    assert report["work_units"]["verification_calls_max"] == 155
+    assert report["work_units"]["competence_cases"] == 8
     assert report["work_units"]["optimizer_steps_max"] == 8
     assert report["work_units"]["response_port_optimizer_steps_max"] == 4
     assert report["work_units"]["selected_P_optimizer_steps_max"] == 4
@@ -107,8 +108,9 @@ def test_independent_fixture_is_hash_bound_and_labels_stay_behind_fit_receipt():
         "protocol_sha256": protocol.sha256,
         "prepared_manifest_sha256": dataset.manifest_sha256,
         "status": "fit_executed", "execution_complete": True,
+        "competence": __import__("test_baseline_competence").passing_evidence(),
     }
-    dataset.open_development(receipt)
+    dataset.open_development(receipt, protocol=protocol)
     cases = dataset.development_cases()
     assert len(cases) == 12
     assert {case["expected"] for case in cases} >= {"ready", "unknown", "closed", "standby"}
