@@ -4,6 +4,7 @@ import copy
 import hashlib
 import inspect
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -16,6 +17,14 @@ from torch import nn
 from replica_lab.spark_device_placement_v2 import DevicePlacementError, place_frozen_spark_base
 from replica_lab.architecture.spark2_5 import load_spark2_5_config
 from replica_lab.contextual_spark_fixture import ContextualSparkCausalLM, contextual_config_raw
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture(autouse=True)
+def repository_scripts(monkeypatch):
+    """Script imports must not depend on the caller's PYTHONPATH or test order."""
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
 
 
 class TinyTied(nn.Module):
@@ -124,14 +133,20 @@ def test_new_runner_places_base_before_adapter_and_preserves_sealed_loader():
 def test_fresh_process_selects_repaired_runner_for_both_restart_paths(tmp_path):
     code = '''
 import json
+import sys
 from pathlib import Path
 from types import SimpleNamespace
+sys.path.insert(0, sys.argv[1])
 import run_spark_intrinsic_readout_placement_v2 as r
 p=SimpleNamespace(root=Path("/synthetic"),path=Path("/synthetic/config.json"))
 print(json.dumps([r._readout_restart_command(p,Path("out"),Path("data"),Path("auth")),
  r._restart_command(p,Path("out"),Path("data"),Path("auth"),Path("export"))]))
 '''
-    child = subprocess.run([sys.executable, "-c", code], check=True, capture_output=True, text=True)
+    child = subprocess.run(
+        [sys.executable, "-c", code, str(ROOT / "scripts")], cwd=tmp_path,
+        env={k: v for k, v in os.environ.items() if k != "PYTHONPATH"},
+        check=True, capture_output=True, text=True,
+    )
     commands = json.loads(child.stdout)
     for command in commands:
         assert command[0] == sys.executable
