@@ -940,6 +940,10 @@ FINAL_PRODUCT_INPUT_ROLES.extend([
 ])
 
 FINAL_PRODUCT_INPUT_ROLES.extend([
+    ('docs/experiments/20261029_Spark_Memory_Native_Environment.md', 'authorized native load failure and corrected environment-bound successor'),
+    ('configs/spark_intrinsic_execution_environment_v1.json', 'qualified interpreter dependency and critical runtime file bindings'),
+    ('reports/intrinsic_memory_v3/native_readout01/result.json', 'first authorized S0-S1 attempt stopped before competence'),
+    ('reports/intrinsic_memory_v3/native_experiment_s0_s1_environment_v2.json', 'fresh environment-bound S0-S1 command and unchanged learning budgets'),
     ('docs/experiments/20261029_Spark_Memory_Layer_Access.md', 'all-layer intrinsic memory target and separately versioned CPU candidate'),
     ('configs/intrinsic_memory_layer_access_protocol_v4.json', 'CPU 2/9/36 layer-access candidate bindings; native density unqualified'),
     ('reports/intrinsic_memory_layout_v4/analytical_costs.json', 'actual reader formula and meta tensor parameter inventory; not native fit'),

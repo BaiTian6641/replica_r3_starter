@@ -34,7 +34,8 @@ binds source, producer, representation, codec, layout, weights and named optimiz
 ownership, and refuses implicit legacy migration. Original weights and external
 specialist/sensor/actor interfaces are preserved.
 
-The next native experiment is still the [v3 S0–S1 packet](../intrinsic_memory_v3/native_experiment_s0_s1.json).
-Its external authorization is absent. A 2/9/36 native comparison requires a new
+The next native experiment is the [environment-bound v3 S0–S1 packet](../intrinsic_memory_v3/native_experiment_s0_s1_environment_v2.json).
+The first authorized attempt failed before competence in the wrong dependency
+environment. The corrected launcher requires a fresh external receipt. A 2/9/36 native comparison requires a new
 reviewed protocol, all per-arm budgets, numerical/resource checks and competence;
 this CPU candidate does not authorize a launch or expand P capacity.

@@ -112,8 +112,9 @@ uses selected layers: 10 of 40 and 20 of 43. [HOPE](https://arxiv.org/html/2512.
 requires distinct learning contexts, objectives and updates; reader count alone
 is not nested learning. None establishes the best Spark density.
 
-The current v3 S0–S1 packet, budgets and missing external authorization remain
-unchanged. This v4 CPU protocol authorizes no native work. A density experiment
+The v3 S0–S1 learning protocol and budgets remain unchanged. Its first authorized
+load failed in the wrong dependency environment; the [runtime-bound successor](20261029_Spark_Memory_Native_Environment.md)
+requires fresh authorization. This v4 CPU protocol authorizes no native work. A density experiment
 needs new execution/data/scoring bindings, per-arm forward/backward/token/model-load
 budgets and an external receipt before launch; do not multiply the two-site packet
 implicitly. Keep one worker, the 50 GiB / 512 MiB sustained swap / 15% host-free

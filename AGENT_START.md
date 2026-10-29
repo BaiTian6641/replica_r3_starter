@@ -33,11 +33,16 @@ Clean f2c772a3 passes 3,371 tests, 104 explicit skips and 21 subtests; the
 independent v4 suite passes 26. See the runbooks for exact clean scope, resource
 measurements and preserved failed attempts.
 
-Next qualify intrinsic recall at 3/7 using the existing derived-BF16 artifact's
-new exact packet, separate calibration, matched exact/wrong/shuffled/absent controls
-and fresh-process continuation. External authorization is still absent. Official
-FP8 remains blocked on MPS. No native or learned capability is claimed. Treat 23/31
-separately. The fixed question-slot P path is a control, not reasoning-state recall.
+The first authorized S0–S1 attempt stopped during model construction before
+competence: the packet selected Transformers 5.20.2 instead of the qualified
+4.57.1 environment. The [native environment repair](docs/experiments/20261029_Spark_Memory_Native_Environment.md)
+records the failure, 21 CPU environment tests and a successful tiny source-code
+CPU probe. The corrected packet binds the existing qualified interpreter and
+requires fresh authorization; the original single attempt is consumed.
+Next qualify intrinsic recall at 3/7 with separate calibration, matched exact/
+wrong/shuffled/absent controls and fresh continuation. Official FP8 remains
+blocked on MPS; native competence and learned capability are unmeasured. Treat
+23/31 separately. The fixed question-slot P path is a control, not reasoning-state recall.
 After useful readout, test completed-interaction storage for the next turn, then
 a separate exactly-once within-reasoning schedule. Follow with hidden-state P
 and longitudinal learning/retention/correction.

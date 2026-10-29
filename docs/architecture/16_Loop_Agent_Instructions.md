@@ -48,7 +48,11 @@ removes the dummy packet, and versions serialization with explicit migration.
 Empty-spine execution, gradients and exact migrated optimizer continuation pass.
 The prior provenance/recovery/calibration repairs remain active. The random CPU
 fixture calibration is 0/8, so dependent learning and labels stay closed. This
-is not a pretrained Spark competence result. No native run.
+is not a pretrained Spark competence result. The first authorized native attempt
+failed during model construction before competence. Use the
+[environment-bound successor packet](../experiments/20261029_Spark_Memory_Native_Environment.md);
+the original zero-retry authorization is consumed. CPU environment checks and
+the tiny sealed-source CPU probe pass; a fresh native attempt needs fresh approval.
 
 All-layer intrinsic access is the explicit target. The separate
 [v4 CPU candidate](../experiments/20261029_Spark_Memory_Layer_Access.md) supports

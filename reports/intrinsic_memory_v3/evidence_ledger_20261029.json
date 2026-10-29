@@ -3,7 +3,7 @@
   "date": "2026-10-29",
   "implementation_commit": "f471f54a34e99f8143164e00b3247827c6ba1f1c",
   "active_protocol": "docs/experiments/20261029_Spark_Memory_S0_S1.md",
-  "native_execution": false,
+  "native_execution": true,
   "authorized_cpu_implementation": "implemented",
   "responsibility": {
     "phi": "intrinsic_memory_not_external_spine",
@@ -30,10 +30,11 @@
       }
     },
     "execution_authorization": {
-      "status": "missing_external_derivative_authorization",
+      "status": "attempt01_consumed_zero_retries_attempt02_requires_fresh_receipt",
+      "attempt01": "reports/spark_persistent_learner_v2/derivative_bf16_authorization.json",
       "packet": {
-        "path": "reports/intrinsic_memory_v3/native_experiment_s0_s1.json",
-        "sha256": "4d95e78149326467d90664c43e5bd5d5c50ef460ec32f011644c739bc7b48f01"
+        "path": "reports/intrinsic_memory_v3/native_experiment_s0_s1_environment_v2.json",
+        "sha256": "0178c42a3a97e0550ac8922c4149895af3c77de4efd9fe3c6bd5381da4d21ea3"
       },
       "launch_allowed": false
     },
@@ -42,7 +43,7 @@
       "substitution_allowed": false
     },
     "numerical_qualification": {
-      "status": "CPU_engineering_passed_current_native_unrun",
+      "status": "CPU_engineering_passed_native_attempt01_failed_model_construction_before_numerical_stage",
       "receipt": {
         "path": "reports/intrinsic_memory_v3/cpu_diagnostics.json",
         "sha256": "98659a2579d503c248289c8b6d02f32fe136e9edcdb8a9ea79f468a1f1143edb"
@@ -62,7 +63,7 @@
       "historical_artifact_changed": false
     },
     "baseline_competence": {
-      "status": "random_CPU_fixture_failed_native_unmeasured",
+      "status": "random_CPU_fixture_failed_native_competence_not_reached_due_to_environment_load_error",
       "correct": 0,
       "cases": 8,
       "false_recall": 2,
@@ -93,14 +94,14 @@
   },
   "stages": {
     "S0": {
-      "status": "CPU_engineering_complete_native_competence_pending",
+      "status": "native_attempt01_load_failed_environment_gate_repaired_CPU_attempt02_pending",
       "protocol": {
         "path": "configs/spark_competence_protocol_v1.json",
         "sha256": "00be558df3cfe370a86df6ddc470575761c86473a2f5e509a6054f3a7bc09464"
       }
     },
     "S1": {
-      "status": "implemented_native_experiment_prepared_unrun",
+      "status": "implemented_native_training_not_reached",
       "protocol": {
         "path": "configs/intrinsic_memory_readout_protocol_v3.json",
         "sha256": "fd2cec4dd6be3e45920c59712d1ef4342ddafe04a42c27437191b1fade17fad1"
@@ -192,6 +193,22 @@
       "restored_to_implementation_commit": true,
       "negative_test": "outside_decoder_refused_before_ownership_transfer",
       "historical_doc_commit_with_removal": "9645547a"
+    },
+    "environment_admission": {
+      "implementation_commit": "73a5f9ef",
+      "CPU_tests_passed": 21,
+      "qualified_environment": {
+        "path": "reports/intrinsic_memory_v3/qualified_environment_check.json",
+        "sha256": "3dfe2e7ed303d6a99d2ebe0c9d0d2c72393422734cd0874648b404e45d7f4dad"
+      },
+      "wrong_environment_refusal": {
+        "path": "reports/intrinsic_memory_v3/wrong_environment_refusal.json",
+        "sha256": "c6dd85617eb034010022db66fb080eafd6ec47ff4b6c7d00f4681f2854c6cc9b"
+      },
+      "tiny_source_probe": {
+        "path": "reports/intrinsic_memory_v3/qualified_environment_source_cpu_smoke.json",
+        "sha256": "11d4df45b501b67d7b8e15773b64e7af81ee801495bb18594dd1bf76607994cd"
+      }
     }
   },
   "measured_resources": {
@@ -205,11 +222,11 @@
   "resource_scope": "tiny_CPU_fixture_artifacts_measured_before_final_report_not_native_capacity",
   "next_executable_experiment": {
     "packet": {
-      "path": "reports/intrinsic_memory_v3/native_experiment_s0_s1.json",
-      "sha256": "4d95e78149326467d90664c43e5bd5d5c50ef460ec32f011644c739bc7b48f01"
+      "path": "reports/intrinsic_memory_v3/native_experiment_s0_s1_environment_v2.json",
+      "sha256": "0178c42a3a97e0550ac8922c4149895af3c77de4efd9fe3c6bd5381da4d21ea3"
     },
     "stage": "S0_then_S1",
-    "requires": "external_receipt_bound_to_exact_packet",
+    "requires": "fresh_external_receipt_binding_environment_launcher_and_packet",
     "bounds": {
       "competence_cases": 8,
       "readout_updates": 32,
@@ -270,5 +287,11 @@
     ],
     "mandatory_intermediate_counts": false,
     "evidence": "reports/intrinsic_memory_layout_v4/verification_summary.json"
-  }
+  },
+  "native_execution_scope": "one_authorized_load_attempt_failed_before_competence_no_training",
+  "native_attempt01": {
+    "path": "reports/intrinsic_memory_v3/native_readout01/result.json",
+    "sha256": "5ca2443494ac4972f3df02f69d02768ee058e5a474fd8415bb17334475a33da3"
+  },
+  "native_attempt01_does_not_measure_competence": true
 }

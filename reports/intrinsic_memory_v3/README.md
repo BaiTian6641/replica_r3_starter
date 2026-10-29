@@ -14,6 +14,12 @@ now makes all-layer access an explicit target and supports direct 2/9/36 CPU
 layouts. It preserves this sealed two-site protocol and packet; native density
 comparison needs separate bindings, budgets and qualification.
 
+The [first authorized native attempt](native_readout01/result.json) failed at
+model construction before competence: its command used general Transformers
+5.20.2 instead of the qualified 4.57.1 environment. The [environment repair](../../docs/experiments/20261029_Spark_Memory_Native_Environment.md)
+adds CPU-tested runtime admission and a fresh review packet without changing
+Spark source. The zero-retry authorization is consumed; no training ran.
+
 ## Implemented separation
 
 `extension.intrinsic_memory` now owns the decoder memory readers. Its independent
@@ -102,12 +108,13 @@ learned writing and self-improvement are still unmeasured on native Spark.
 
 ## Active S0–S1 experiment and subsequent gates
 
-Review [`native_experiment_s0_s1.json`](native_experiment_s0_s1.json) and
-[`intrinsic_memory_readout_protocol_v3.json`](../../configs/intrinsic_memory_readout_protocol_v3.json).
-The command uses the existing derivative under its own execution identity, the exact
-code/protocol/execution-manifest bindings and fresh `runs/intrinsic_memory_v3/native_readout01`.
-No external receipt exists to reuse; the packet is not authorization. The old packet
-remains historical and does not authorize this changed implementation.
+Review [`native_experiment_s0_s1_environment_v2.json`](native_experiment_s0_s1_environment_v2.json)
+and the unchanged [`intrinsic_memory_readout_protocol_v3.json`](../../configs/intrinsic_memory_readout_protocol_v3.json).
+The new launcher binds `.venv-spark-bf16`, Python, 32 locked package versions, module
+origins and 12 selected runtime files before the original source/authorization gates.
+The command uses the same derivative under its own execution identity and fresh
+`runs/intrinsic_memory_v3/native_readout02`. The original approval was consumed by
+the failed first attempt; a fresh exact environment-bound receipt is required.
 
 First pass the separate eight-case frozen-original competence stage (8/8, zero false
 recall, no truncation). Then perform 32 fixed producer/reader updates, open eight

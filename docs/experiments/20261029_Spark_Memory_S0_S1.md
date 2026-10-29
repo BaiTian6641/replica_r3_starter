@@ -124,8 +124,12 @@ visibility, checkpoint format, precision, split or scorer changes. Each review
 records one hypothesis, frozen configuration, decisive controls, raw results,
 uncertainty, total cost and accept/reject/inconclusive decision. A material change
 gets a new protocol/binding; historical results keep their original identity.
-The concrete command is ready, but its external derivative authorization is
-absent. The packet is not permission and no native run has occurred.
+The first exact authorized attempt failed at model construction before competence
+because the command selected the general Transformers 5.20.2 environment. The
+[environment-bound successor](20261029_Spark_Memory_Native_Environment.md) verifies
+the existing qualified 4.57.1 environment before model imports and keeps every
+criterion and budget above. Its fresh output/receipt require new authorization;
+the original attempt and packet remain preserved.
 
 ## Conditional successors, not additional active runs
 

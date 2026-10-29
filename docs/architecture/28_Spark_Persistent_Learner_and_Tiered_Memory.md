@@ -54,7 +54,10 @@ separation and complete pre-fit competence gate remain active. Focused v3 tests 
 Numerical migration/parity/gradient/restart checks are engineering evidence only.
 Source qualification, numerical qualification, competence, useful readout, durable
 learning and promotion remain separate. See current packet and measured costs in
-the runbook; no new native model experiment has run.
+the runbook. The first authorized native attempt failed at model construction
+before competence because its command selected the wrong Transformers environment.
+The [environment repair and fresh packet](../experiments/20261029_Spark_Memory_Native_Environment.md)
+bind the already-qualified interpreter; source code and original results are unchanged.
 
 Recall currently queries fixed episodic slots from evolving decoder hidden states.
 The P-only one-slot question-conditioned path remains an explicitly labelled control;
