@@ -1,0 +1,265 @@
+W1029 12:45:11.268000 31116 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+{
+  "admission": {
+    "activation_semantics": "BF16/FP32 activations with no per-token F8 quantization; this is not the official FP8 forward semantics",
+    "adapter_kwargs": {
+      "device": "mps",
+      "heads": 4,
+      "memory_size": 256,
+      "projector_in_dim": 2560,
+      "require_official_geometry": true,
+      "spine_sites": [
+        3,
+        7
+      ],
+      "spine_slots": 8,
+      "zero_init_output": true
+    },
+    "admitted": true,
+    "backend_admission": {
+      "admitted": true,
+      "dequantization_allowed": false,
+      "effective_device": "mps",
+      "fallback_allowed": false,
+      "precision_kind": "dequantized_fp8_derivative",
+      "reasons": [],
+      "requested_device": "mps",
+      "storage": "bf16"
+    },
+    "dequantization_allowed": false,
+    "device": "mps",
+    "execution_format": "dequantized_fp8_derivative_bf16_storage",
+    "fallback_allowed": false,
+    "native_execution": false,
+    "p1": {
+      "active_experts": 1,
+      "frozen_original_backbone": true,
+      "hidden_width": 512,
+      "optimizer": "NativeFusedAdamW",
+      "optimizer_state_dtype": "FP32",
+      "profile": "P1",
+      "selected_parameter_owner": "expert_0.gate/up/down",
+      "single_parameter_owner": true,
+      "width": 256,
+      "zero_init_output_projections": true
+    },
+    "precision_kind": "dequantized_fp8_derivative",
+    "reasons": [],
+    "requires_external_authorization": true,
+    "spine": {
+      "candidate_late_sites": [
+        23,
+        31
+      ],
+      "current_p1_spine": true,
+      "heads": 4,
+      "late_site_comparison": "matched_candidate_23_31_on_the_same_36_layer_source_only",
+      "late_sites_admitted": false,
+      "memory_size": 256,
+      "sites": [
+        3,
+        7
+      ],
+      "slots": 8
+    },
+    "storage": "bf16",
+    "substitution_allowed": false
+  },
+  "authorization": {
+    "path": "/Users/flare/replica_r3_starter/reports/spark_persistent_learner_v2/derivative_bf16_authorization.json",
+    "present": false,
+    "status": "absent_or_not_validated"
+  },
+  "downloads": 0,
+  "format": "replica.spark_persistent_learner_derivative.review.v1",
+  "fresh_output_available": true,
+  "labels_read": false,
+  "launch_allowed": false,
+  "missing_bindings": [
+    "external_derivative_authorization"
+  ],
+  "model_loaded": false,
+  "native_command": null,
+  "native_execution": false,
+  "next_gate": "obtain an external authorization bound to this protocol, derivative manifest/artifact, qualification evidence and fresh output root",
+  "non_claims": [
+    "no official FP8 execution or substitution is inferred",
+    "no official BF16 equivalence or substitution is inferred",
+    "no useful learning, accuracy, speed or RSI claim follows from preparation",
+    "no model was loaded and no native job was launched"
+  ],
+  "output_root": "/Users/flare/replica_r3_starter/runs/contextual_memory_v2/native_readout01",
+  "protocol_commit": "b2489ba133082e494ec1f94cac7d4d54f7b30ad9",
+  "protocol_id": "spark_persistent_learner_derivative_bf16_v1",
+  "protocol_sha256": "4fe579dd72de57aa6c3a64e506c8b1a7db29c1f90b7ebdc3fd93354f35c55b51",
+  "remaining_prerequisites": [
+    "issue an external authorization for the exact derivative manifest, artifact, qualification evidence, implementation and output",
+    "preserve one exclusive worker and the 50 GiB / 512 MiB / 15% host-free guards",
+    "run the required P1 numerical checks at experiment scope before any learning claim"
+  ],
+  "runner": {
+    "exists": true,
+    "hash_matches": true,
+    "implemented": true,
+    "path": "/Users/flare/replica_r3_starter/scripts/run_spark_persistent_learner_derivative_bf16.py",
+    "pinned_sha256": "3492503615b2eb9c82dee9da844459c7daa9335e47c5afb472b3b8553b143653",
+    "relative": "scripts/run_spark_persistent_learner_derivative_bf16.py",
+    "sha256": "3492503615b2eb9c82dee9da844459c7daa9335e47c5afb472b3b8553b143653",
+    "status": "implemented"
+  },
+  "source": {
+    "activation_quantized": false,
+    "activation_semantics": "BF16/FP32 activations with no per-token F8 quantization; this is not the official FP8 forward semantics",
+    "artifact_sha256": "c52c6cc5e6aababa94105cf4612a09013cffd841c71d53d16356e6dc49966882",
+    "config_sha256": "87eea28583b637189c33f110b69706f6262aaa9205db4f3af00198f0eb768e87",
+    "dequantization_sha256": "215c9c49b6557be2589d7decdba98ec42719d858585b85b2342045e3a10df488",
+    "derivative_index": 1,
+    "equivalent_to_official_bf16": false,
+    "execution_format": "dequantized_fp8_derivative_bf16_storage",
+    "execution_manifest": {
+      "files": {
+        "configuration_spark.py": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722",
+        "modeling_spark.py": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4"
+      },
+      "format": "replica.spark.execution_manifest.v1",
+      "sha256": "f48b467026436ed291003b10fcbe61384db52799e62c6fadd28b13b4983c163c",
+      "verified_before_model_load": true
+    },
+    "full_weight_hash_checked": true,
+    "manifest_fingerprint": "88cca6fc2571c9c471b31aa6fb50fc3ac8c8c4c9d8825e785b9e4b1afd07bbcc",
+    "manifest_path": "/Users/flare/replica_r3_starter/checkpoints/spark_fp8_derivative_v1/derivative_manifest.json",
+    "manifest_sha256": "73d82478abe90391f3ca9c67be079931a6dd46a1e9991bfbda1de0f682055bdc",
+    "parameter_elements": 4112079360,
+    "parent": {
+      "artifact_sha256": "393fedcdff7cd527dc131aa50adb23dc3e363de2c273e33635bf5bf1da04006d",
+      "config_sha256": "2f0a76065de1488dbb1576389e7cd37e28ac77c52fc84f522a5ce4a824da9fb2",
+      "precision_kind": "official_native_fp8",
+      "quantization_fingerprint": "792a878136ace20b770c14d7bc378493893bfddfd5b8dcef19fe811ab4e0dc76",
+      "repo_id": "XHToken/Spark-X2.6-4B-FP8",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "weight_sha256": "f92114bf9af5588e0bcbc4fe1c4a0420fa17bba58199cb8b6cf1f3564e664be9",
+      "weight_sha256_checked": true
+    },
+    "precision_digest": "144f46f6aabb2b3a623c9d91249032a75b0b53852b7bb2edbbce8fe6bbfb4e9c",
+    "shard_count": 8,
+    "shards": [
+      {
+        "bytes": 1059247928,
+        "filename": "model-00001-of-00008.safetensors",
+        "sha256": "90e4ef120f0631c7e96bcdefb98d767f2cbf795adac7da96b5a477c62bb52f43"
+      },
+      {
+        "bytes": 1049041440,
+        "filename": "model-00002-of-00008.safetensors",
+        "sha256": "01d0cae5a103e00a09a231ca6db1317cc0df3ab4033fa1eb6be347534c160529"
+      },
+      {
+        "bytes": 1049041440,
+        "filename": "model-00003-of-00008.safetensors",
+        "sha256": "6ccf1adb5a60a4c3afdc972207d7c294dcaad411479c9ac02734cf2815e90519"
+      },
+      {
+        "bytes": 1049041432,
+        "filename": "model-00004-of-00008.safetensors",
+        "sha256": "cfd2a9461792a8c728d942202bc4d932988ddf12b2298ce18d7f528fa6709926"
+      },
+      {
+        "bytes": 1049041440,
+        "filename": "model-00005-of-00008.safetensors",
+        "sha256": "2f201c9049479e96385d324911c64f152ad0c297b35179d422cfbddf0090dcd8"
+      },
+      {
+        "bytes": 1049041432,
+        "filename": "model-00006-of-00008.safetensors",
+        "sha256": "7999bae43c5c04e9b755ad0aeb48175f9dafec20e15783bf3c2435e503217067"
+      },
+      {
+        "bytes": 1049041424,
+        "filename": "model-00007-of-00008.safetensors",
+        "sha256": "336b74038a4dec5cf44a77fd4d2aa76719fcc4eb6cc257317959117a138a1e70"
+      },
+      {
+        "bytes": 870695728,
+        "filename": "model-00008-of-00008.safetensors",
+        "sha256": "d6156a23f81c8d6453bbae1610a02036dcf6bb097b26be1ccd45d411ed0aa971"
+      }
+    ],
+    "source_identity": "dequantized_fp8_derivative",
+    "source_root": "/Users/flare/replica_r3_starter/checkpoints/spark_fp8_derivative_v1",
+    "storage": "bf16",
+    "substitution_allowed": false,
+    "tensor_inventory": {
+      "dtypes": [
+        "BF16"
+      ],
+      "parameter_elements": 4112079360,
+      "tensor_count": 290
+    },
+    "tokenizer_checked": true,
+    "weight_dtype": "BF16"
+  },
+  "status": "review_ready_preparation_only",
+  "tokenizer_loaded": false,
+  "work_units": {
+    "arms": 11,
+    "autoregressive_forwards_max": 5856,
+    "backward_calls_max": 41,
+    "backward_processed_positions_max": 83968,
+    "cache_hits_max": 4736,
+    "cache_misses_max": 4736,
+    "checkpoint_writes_max": 5,
+    "cold_recall_resumes_max": 2368,
+    "cold_recall_tickets_max": 2368,
+    "competence_cases": 8,
+    "competence_forwards_max": 256,
+    "development_cases": 132,
+    "direct_response_ce_backward_calls_max": 8,
+    "direct_response_ce_feature_vectors_max": 16384,
+    "direct_response_ce_objective_forwards_max": 8,
+    "forward_calls_max": 10236,
+    "generated_tokens_max": 5856,
+    "generation_requests_max": 183,
+    "influence_check_forwards_max": 2,
+    "influence_check_processed_positions_max": 4096,
+    "influence_check_query_sensing_max": 1,
+    "initialization_parity_forwards_max": 2,
+    "initialization_parity_processed_positions_max": 4096,
+    "matched_nonlearning_backward_calls_max": 4,
+    "matched_nonlearning_fit_events": 4,
+    "matched_nonlearning_forward_calls_max": 4,
+    "matched_nonlearning_processed_positions_max": 8192,
+    "model_loads_max": 2,
+    "native_query_passes_max": 4329,
+    "optimizer_steps_max": 41,
+    "payload_file_reads_max": 23680,
+    "payload_io_bytes_max": 1073741824,
+    "payload_read_calls_max": 4736,
+    "plastic_backward_calls_max": 0,
+    "plastic_backward_feature_vectors_max": 0,
+    "plastic_feature_vectors_max": 0,
+    "plastic_fit_evaluation_forwards_max": 0,
+    "plastic_forward_calls_max": 0,
+    "processed_text_positions_max": 21121056,
+    "query_sensing_forwards_max": 4329,
+    "readout_cache_bytes_max": 2097152,
+    "readout_cases_max": 40,
+    "readout_file_reads_max": 66304,
+    "readout_io_bytes_max": 1073741824,
+    "readout_result_bytes_max": 73728,
+    "readout_selection_calls_max": 296,
+    "readout_steps_max": 33,
+    "reloads_max": 1,
+    "replay_forward_calls_max": 4,
+    "replay_processed_positions_max": 8192,
+    "response_port_optimizer_steps_max": 4,
+    "response_spine_optimizer_steps_max": 0,
+    "retained_checkpoint_artifacts_max": 4,
+    "retrieval_calls_max": 148,
+    "revalidation_failures_max": 0,
+    "revalidations_max": 7104,
+    "selected_P_optimizer_steps_max": 4,
+    "tokenizer_loads_max": 2,
+    "training_forwards_max": 41,
+    "verification_calls_max": 195
+  }
+}

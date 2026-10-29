@@ -1,0 +1,61 @@
+{
+  "format": "replica.contextual_memory.cpu_diagnostics.v2",
+  "native_execution": false,
+  "implementation_sha256": {
+    "scripts/verify_contextual_memory_cpu.py": "d854429e3d1b5dcb700358c4a207290eaeb796a04b5ad1f2506b4e94e27a54a9",
+    "src/replica_lab/contextual_memory.py": "e1d83af714f895a47f353a19a97d3aed1a9a620e39eae73b0616d555dc4a48d8",
+    "src/replica_lab/contextual_readout_training.py": "58c160f10fa7b9b42eeb45d31338610831948993559d7c108a7b63a1e2029fd0",
+    "src/replica_lab/tiered_memory.py": "5121ec79a6faba3e7cdcf62bc56977b9176b2f05c373d75faa6ff0fd532bdf7e"
+  },
+  "evidence_class": "independent_engineering_diagnostics_not_competence_or_learning_utility",
+  "zero_init_parity": true,
+  "fit_updates": 3,
+  "fit": [
+    {
+      "loss": 0.5559159517288208,
+      "gradients": {
+        "producer": 0.0,
+        "reader": 80.52621841430664
+      }
+    },
+    {
+      "loss": 1.9382963180541992,
+      "gradients": {
+        "producer": 1872.1949751973152,
+        "reader": 2093.2128570452332
+      }
+    },
+    {
+      "loss": 1.2411768436431885,
+      "gradients": {
+        "producer": 907.1429006010294,
+        "reader": 1545.2767715752125
+      }
+    }
+  ],
+  "producer_gradient_after_output_opens": true,
+  "fresh_process_exact_logits": true,
+  "fresh_process_exact_continuation": true,
+  "frozen_base_integrity": true,
+  "cost": {
+    "producer_bytes": 180,
+    "producer_calls": 6,
+    "value_slots_read": 24,
+    "producer_wall_ns": 5684708,
+    "retrieval_wall_ns": 1877042,
+    "fallback_bytes": 0,
+    "fallback_tokens": 0,
+    "fallback_calls": 0,
+    "read_file_bytes": 4638,
+    "read_file_calls": 6,
+    "revalidations": 4
+  },
+  "wall_seconds": 3.147938041947782,
+  "parent_peak_rss_bytes": 400572416,
+  "child_peak_rss_bytes": 406847488,
+  "artifact_bytes": 12265605,
+  "native_driver_bytes": null,
+  "host_swap_sampled": false,
+  "promotion": false,
+  "learned_capability": false
+}

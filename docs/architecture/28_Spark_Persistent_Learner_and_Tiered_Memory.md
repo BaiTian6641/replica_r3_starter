@@ -1,5 +1,49 @@
 # Spark persistent learner, tiered memory and Replica integration
 
+## Current implementation addendum — 29 October 2026
+
+The [contextual v2 runbook](../../reports/contextual_memory_v2/README.md) and its
+bound protocols supersede older implementation-status statements below. Code
+`b2489ba` implements a byte-contextual encoder, four ordered FP32 width-256 slots
+per <=256-byte span, and direct stored-slot consumption at 3/7. Canonical text
+is bounded at 8,192 UTF-8 bytes; active selection is two spans/eight slots.
+The future eight-record/32-slot design below is not allocated or admitted.
+Native attention, positions, gated attention, GELU and tied output remain intact.
+Original weights and unrelated extensions are frozen. One NativeFusedAdamW owns
+the producer and memory reader; a separately gated P1 owner freezes phi first.
+The training graph stays differentiable; disk serialization, inference decisions
+and frozen query features detach. Scope/time, producer/codec, correction,
+generation, revision and digests revalidate before injection. Exact fallback
+charges its text/tokens and prefill. Hash values remain engineering controls.
+
+Latest hot-state authority now binds clock, lineage, encoder, payload digests and
+journal sequence independently of the latest cold publication. Legitimate dirty
+writes recover after SQLite loss; interrupted, uncommitted, revoked or missing
+newest state remains quarantined. Execution manifests bind actual auto_map model,
+configuration and local dependency code before loading, without altering historical
+conversion or qualification receipts. Unit tests use synthetic source/Git fixtures.
+
+A separate pre-fit competence protocol freezes original weights and fixes eight
+calibration cases, scorer, template, thinking mode and budgets before generation.
+It requires 8/8 and zero false recall; incomplete evidence never opens learning
+labels. Current CPU integrated calibration is 0/8, so learning stops. Independent
+CPU engineering tests establish parity, gradients, durable values, invalidation
+and exact extension/optimizer continuation only. Focused checks pass 135 tests.
+Native source integration passes, but no new native model experiment has run.
+Source qualification, numerical qualification, competence, useful readout,
+persistent learning and promotion remain separate outcomes.
+
+The next native stage uses the existing FP8-derived BF16 artifact under its own
+execution identity: calibration, 32 fixed readout updates, five matched controls,
+then fresh-process continuation. External authorization must bind the new code,
+protocol, execution manifest, stage and output. Useful readout precedes the
+preserved eleven-arm longitudinal P1 protocol; 23/31 is a separate follow-up.
+P4+, the learned local writer, multi-clock learning and RSI remain behind measured
+capacity/usefulness/retention/correction/rollback gates. Current handoffs and the
+runbook contain exact results, cost limits and the next command. Historical
+receipts below remain evidence for their original implementation hashes.
+
+
 **29 October 2026 · implemented v2 engineering runtime; native execution and useful learning remain unqualified.**
 This chapter owns the current direction after the Spark architecture audit and
 the user's persistent-learner feedback. Spark text memory and the internal spine
@@ -125,10 +169,10 @@ records 36 layers, width 2560, 16 query heads, four KV heads and head dimension
 
 Separate retrieval keys from readable values. The current 512-dimensional
 signed unigram/bigram hash is a deterministic key/control, not evidence that
-arbitrary content has been encoded into usable neural memory. A candidate
+arbitrary content has been encoded into usable neural memory. The separately versioned v2
 contextual encoder produces four ordered width-256 slots per bounded source
 span, with source order, span boundaries, producer version and eligibility.
-Select at most eight records, giving at most 32 evidence-value slots. P queries,
+A future expansion may select at most eight records, giving at most 32 evidence-value slots; v2 currently admits only two spans/eight slots. P queries,
 identity and task workspace retain separate quotas. This is a new protocol
 budget, not a reinterpretation of v1's eight-slot path.
 
@@ -137,7 +181,7 @@ exceptions and corrections. Count its retrieval and prefill cost. Compare
 learned values against matched selected exact text; a host that reconstructs
 the answer is an explicit reference, not source-free P learning.
 
-Compare existing zero-based sites 3/7 against a late pair 23/31, initially with
+Start at existing zero-based sites 3/7; compare a late pair 23/31 separately, initially with
 all original weights frozen. These are candidate sites, not established optima.
 Require disabled-extension parity, correct/wrong/shuffled/absent memory controls,
 causal query construction and fresh-cache equivalence. Late injection can reduce
@@ -386,7 +430,7 @@ Order the work as follows:
    result. Test pressure, crash/rebuild, revocation and identity preservation on CPU.
 3. Qualify contextual values, exact fallback and the P1 response-CE reference.
    The [contextual producer/consumer protocol](../../configs/contextual_value_producer_protocol_v1.json)
-   is design-only and untrained: it requires distinct write/future queries,
+   remains the unchanged design basis; v2 now implements its producer/reader. Native qualification still requires distinct write/future queries,
    source-free isolation, chronological retention cycles and measured transfer.
    Preserve the pretrained baseline and compare early/late readers.
 4. Only after useful readout, evaluate the exact one-step learned local writer
@@ -426,8 +470,8 @@ flowchart LR
 The flow is implemented and exercised on CPU. The tiered store is used by the
 runner, not merely tested in isolation. Direct CE, port ownership, correction
 reset, durable task state and restart are engineering-complete; the learned
-writer remains a separate offline study and the contextual producer/consumer is
-design-only and untrained. The full suite passes 3,424 tests with 9 skips and
+writer remains a separate offline study. That historical run predates the v2
+contextual producer/consumer described above. Its full suite passed 3,424 tests with 9 skips and
 21 subtests; 69 final derivative/lineage tests and both bundle profiles pass.
 See the [v2 implementation and evidence
 runbook](../../reports/spark_persistent_learner_v2/README.md) for exact commands,

@@ -939,6 +939,14 @@ FINAL_PRODUCT_INPUT_ROLES.extend([
     ('reports/spark_persistent_learner_v2/recovery_baseline.json', 'recovery reproduction baseline snapshot'),
 ])
 
+FINAL_PRODUCT_INPUT_ROLES.extend([
+    ('reports/contextual_memory_v2/README.md', 'contextual CPU evidence and gated native experiment runbook'),
+    ('configs/contextual_readout_protocol_v2.json', 'fixed contextual readout experiment and pass criteria'),
+    ('configs/spark_competence_protocol_v1.json', 'separate frozen-original pre-fit competence gate'),
+    ('configs/spark_derivative_execution_manifest_v1.json', 'actual model/configuration executable provenance'),
+    ('configs/spark_persistent_learner_derivative_bf16_protocol_v1.json', 'distinct derivative execution and authorization binding'),
+])
+
 PROFILES = {
     "historical": {
         "manifest": DEFAULT_MANIFEST,

@@ -1,70 +1,33 @@
 # Execution state — integrated memory, cognition and learning
 
-## Active order — Spark persistent learner, tiered memory and Replica
+**Active order — 29 October 2026, contextual memory implementation after review of a4d11366.**
+Read [the current runbook](reports/contextual_memory_v2/README.md),
+[architecture chapter 28](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md)
+and [loop instructions](docs/architecture/16_Loop_Agent_Instructions.md).
+Implementation `b2489ba133082e494ec1f94cac7d4d54f7b30ad9` adds executable-code provenance,
+legitimate dirty-P recovery, a separate pre-fit competence gate, contextual value
+encoding and direct spine readout with extension-only continuation. Current
+protocol hashes and required native bindings are in the new runbook's packet.
 
-**29 October 2026 — final scoped v2 CPU engineering is verified; native execution
-and useful learning remain open.** Read the
-[v2 implementation and evidence runbook](reports/spark_persistent_learner_v2/README.md),
-[design 28](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md),
-[v2 protocol](configs/spark_persistent_learner_protocol_v2.json) and
-[worker prompt](docs/architecture/16_Loop_Agent_Instructions.md).
+Focused checks pass 135 tests. The independent CPU diagnostic proves disabled
+parity, producer/reader gradients and exact fresh-process continuation. The
+integrated CPU workflow fails calibration 0/8 and correctly stops before fit or
+learning labels. Historical integrated09 remains 0/12 in every arm. Neither
+result establishes native or persistent-learning capability. Full native source
+validation passes; the new derived-BF16 readout experiment is unrun and awaits
+its exact external authorization. Official FP8 on MPS remains unqualified.
 
-- Package 1 is complete: portable protocol tests use tracked metadata mocks and
-  production source authentication is unchanged. The contextual fixture has
-  real causal attention; the old attention-free result is not a Spark diagnosis.
-- Package 2 is complete: the runner uses the separately versioned tiered store
-  for scoped records, correction quarantine/authenticated reset, procedures,
-  resumable task journals and raw FP32 P weights/moments/clocks. P4+ profiles
-  remain lazy; no expanded bank is allocated.
-- Package 3 connects scoped tiered readout to neural queries through one strict
-  current-record restoration contract. It checks source epoch, validity,
-  lineage, producer/representation/codec authority and correction links;
-  incomplete mirrors are refused. Full-scope cold tickets recheck time and
-  verification after I/O. Exact counters include candidate keys and rejected
-  payload reads.
-- `integrated09` matches protocol
-  `91c45fbf75fed46ad383a1c385b77775b1f69e6f16f8aca0079e1eefe6183ec5` and
-  completes 11 arms and 132 development cases with engineering acceptance.
-  Every arm remains 0/12; the untouched baseline has all 11 records in every
-  case with `status=ok` and `truncated=false`. The run takes 136.946262 s,
-  peaks at 93,306,970 live artifact bytes and retains 139 files/81,630,342
-  bytes; no base weights are included. Raw paths are under
-  `runs/spark_persistent_learner_v2/integrated09/`.
-- Two additional fresh-process restart cycles are preserved under
-  `runs/spark_persistent_learner_v2/integrated08/restart/cycle01_report.json`
-  and `cycle02_report.json`. Both have exact generated-token and decoded-text
-  parity, equal protocol hashes, preserved P state and equal post-restart
-  inventories. The stage-specific fit/development receipts and all raw
-  unsuccessful trajectories remain preserved.
-- `readout_pressure05.json` observes two warm-cache hits, one eviction, one
-  cold wait ticket, one invalidated resume after correction and a successful
-  corrected cold read with current provenance. The invalidated resume reads
-  five payload files/4,114 bytes; the corrected read reads one file/19 bytes.
-  Logical tiers are not physical residency claims.
-- Focused protocol/readout/control/recovery regression evidence passes **62
-  tests**; the updated derivative suite passes **12** and Sparkx lineage/bundle
-  tests pass **57**. The final full suite passes **3,424 tests with 9 skips and
-  21 subtests** in 869.59 seconds, with one unrelated sparse-tensor warning;
-  see `reports/spark_persistent_learner_v2/full_suite_integrated09.log`.
-  The earlier completed run had 3,416 passes and eight contract failures, now
-  repaired; its raw output is preserved in
-  `full_suite_integrated09_attempt01.log`. The first 360-second attempt timed
-  out at 39% and is not counted as a pass.
-- Repair and derivative implementation are committed at
-  `83c7214bcf12877e4c7b9d0c367825905a16cf55`. `review_final03.json` leaves
-  exact official-FP8 forward/backward/single-update evidence and external
-  authorization as the official-arm launch blockers. The separate
-  `derivative_bf16_packet.json` is preparation-only and has only
-  `external_derivative_authorization` missing. Official BF16 and FP8-derived
-  BF16 are not substitutes. No native model job, download or promotion occurred.
+Run calibration, then contextual readout at 3/7, then fresh-process continuation.
+Treat 23/31 separately. Only after useful readout freeze phi and isolate P1 with
+the preserved 11 controls and distinct teaching/future queries. Capacity expansion,
+local-writer evaluation, retention/rollback cycles, nested clocks and RSI remain
+evidence-gated. Keep E/S/P/phi/C/I/K separate, approved identity outside reward,
+and the permanent specialist/sensor/actor interfaces. Native multimodal work is deferred.
 
-The next discriminating experiment is one bounded native P1 full-context/direct-CE
-readout at 3/7 and 23/31 after exact backend qualification and the applicable
-external authorization. Preserve NativeFusedAdamW, the 50 GiB / 512 MiB / 15%
-guards and the protected runtime pilot restriction. The D-only writer, larger
-profiles, capacity expansion, multi-clock learning and RSI remain behind
-useful-readout, retention, correction and matched-cost gates. Native multimodal
-training remains deferred.
+Preserve one exclusive native worker and the 50 GiB / 512 MiB / 15% guards.
+NativeFusedAdamW is the ordinary optimizer. No bulk download, duplicate checkpoint,
+full-base export or rewriting of historical receipts is authorized. Preserve
+unrelated work. Never read, import, edit or stage src/replica_lab/runtime_pilot.py.
 
 ## Previous increment — Spark spine and E/P memory interfaces
 

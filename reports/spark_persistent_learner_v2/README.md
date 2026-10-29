@@ -1,5 +1,8 @@
 # Spark persistent learner v2 — implementation and evidence
 
+**Historical v2 evidence below. Current implementation, calibration gate and native readout packet are in [contextual memory v2](../contextual_memory_v2/README.md).**
+
+
 **Status: integrated CPU engineering is complete; native execution is not admitted and useful learning is inconclusive.** This is a separately versioned runtime, not a rewrite of sealed v1 evidence.
 
 ## 0. Current increment — scoped readout, recovery and controls

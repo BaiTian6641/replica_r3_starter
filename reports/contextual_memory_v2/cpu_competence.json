@@ -1,0 +1,165 @@
+{
+  "binding": {
+    "competence_sha256": "00be558df3cfe370a86df6ddc470575761c86473a2f5e509a6054f3a7bc09464",
+    "context_tokens": 256,
+    "criteria": {
+      "complete_cases": 8,
+      "correct_min": 8,
+      "false_recall_max": 0
+    },
+    "data_sha256": "2597c0066b9b1c9dc33ff65d38087cf343234136c864a4ac688fcb3d98394b12",
+    "decode": "greedy_eos_enabled_no_sampling",
+    "max_new_tokens": 2,
+    "protocol_sha256": "c2d3a8efe5dee860d051e06cbaf4c4c0f69477124118407c9736613a0ce7834e",
+    "scorer_sha256": "9aecd789505e6551af7f2444ed10439537b21247a232e6f9f55896f08ac6b2ed",
+    "source": {
+      "config_sha256": "2f0a76065de1488dbb1576389e7cd37e28ac77c52fc84f522a5ce4a824da9fb2",
+      "execution_format": "official_native_fp8",
+      "local_path": "checkpoints/sparkx2_5_fp8_source",
+      "mps_backend_status": "unqualified_no_native_fp8_receipt",
+      "parameter_elements": 4112079360,
+      "repo_id": "XHToken/Spark-X2.6-4B-FP8",
+      "required_backend": "verified_float8_e4m3fn_linear_and_dynamic_per_token_activation_quantization",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "role": "active_source_baseline",
+      "storage": "fp8_compressed_tensors",
+      "substitution_allowed": false,
+      "weight_sha256": "f92114bf9af5588e0bcbc4fe1c4a0420fa17bba58199cb8b6cf1f3564e664be9"
+    },
+    "template": "Use the complete evidence below. Reply with only the answer word. If the evidence is insufficient or revoked, reply unknown.\nEvidence:\n{context}\nQuestion: {question}\nAnswer:",
+    "thinking_mode": "none",
+    "tokenizer": {
+      "chat_template_sha256": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929",
+      "load_mode": "offline_local_files_only",
+      "repository": "XHToken/Spark-X2.6-4B-FP8",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "tokenizer_config_sha256": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd",
+      "tokenizer_json_sha256": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c"
+    }
+  },
+  "correct": 0,
+  "development_labels_opened": false,
+  "engineering_diagnostics_retained": true,
+  "false_recall": 2,
+  "format": "replica.spark.baseline_competence.v1",
+  "frozen_base_unchanged": true,
+  "native_execution": false,
+  "optimizer_steps": 0,
+  "passed": false,
+  "rows": [
+    {
+      "case_id": "cal-1",
+      "complete": true,
+      "decoded": "\u10f4 \u0ff2",
+      "generated_tokens": 2,
+      "prompt_sha256": "a0593ddf929502794b2facfa8502e8fc3b50a5ccaa6582b71117dd6fd94ac765",
+      "prompt_tokens": 42,
+      "rendered_sha256": "a0593ddf929502794b2facfa8502e8fc3b50a5ccaa6582b71117dd6fd94ac765",
+      "token_ids": [
+        4340,
+        4082
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-2",
+      "complete": true,
+      "decoded": "\u10f4 \u10f4",
+      "generated_tokens": 2,
+      "prompt_sha256": "bc8653395743ce7061d5a5094faf24bd5c7f32da3b393bc373def8290654b4fd",
+      "prompt_tokens": 42,
+      "rendered_sha256": "bc8653395743ce7061d5a5094faf24bd5c7f32da3b393bc373def8290654b4fd",
+      "token_ids": [
+        4340,
+        4340
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-3",
+      "complete": true,
+      "decoded": ": \u10f4",
+      "generated_tokens": 2,
+      "prompt_sha256": "344ca3e6c7d6187835c38f4d679001261ee9ed4364b9db4397e993b71496a754",
+      "prompt_tokens": 53,
+      "rendered_sha256": "344ca3e6c7d6187835c38f4d679001261ee9ed4364b9db4397e993b71496a754",
+      "token_ids": [
+        148,
+        4340
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-4",
+      "complete": true,
+      "decoded": ": \u10f4",
+      "generated_tokens": 2,
+      "prompt_sha256": "b585de3e61acfd16efeaaf1b571435fb304b2026a54437ce67f535caf519e84c",
+      "prompt_tokens": 53,
+      "rendered_sha256": "b585de3e61acfd16efeaaf1b571435fb304b2026a54437ce67f535caf519e84c",
+      "token_ids": [
+        148,
+        4340
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-5",
+      "complete": true,
+      "decoded": "\u10f4 \u1be8",
+      "generated_tokens": 2,
+      "prompt_sha256": "c639ca60d83540f4ae133dab3be93350569d3eec996ca418fc77e3bdf03a60ba",
+      "prompt_tokens": 55,
+      "rendered_sha256": "c639ca60d83540f4ae133dab3be93350569d3eec996ca418fc77e3bdf03a60ba",
+      "token_ids": [
+        4340,
+        7144
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-6",
+      "complete": true,
+      "decoded": "\u10f4 \u0c60",
+      "generated_tokens": 2,
+      "prompt_sha256": "561a33e8f643f0e756bcabb168196bdf56cdbb09fc955aa0ca6aea21cb94963d",
+      "prompt_tokens": 50,
+      "rendered_sha256": "561a33e8f643f0e756bcabb168196bdf56cdbb09fc955aa0ca6aea21cb94963d",
+      "token_ids": [
+        4340,
+        3168
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-7",
+      "complete": true,
+      "decoded": ": \u10f4",
+      "generated_tokens": 2,
+      "prompt_sha256": "b45858001f5d20de1dcebe2c3c56d57f23a1b3e5a4c822f0c53c52f7abf6b73e",
+      "prompt_tokens": 48,
+      "rendered_sha256": "b45858001f5d20de1dcebe2c3c56d57f23a1b3e5a4c822f0c53c52f7abf6b73e",
+      "token_ids": [
+        148,
+        4340
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-8",
+      "complete": true,
+      "decoded": ": \u1b9f",
+      "generated_tokens": 2,
+      "prompt_sha256": "8cd876354d922e7d9b754ba21215996b66031cdea1a3cae6838694765733c18e",
+      "prompt_tokens": 55,
+      "rendered_sha256": "8cd876354d922e7d9b754ba21215996b66031cdea1a3cae6838694765733c18e",
+      "token_ids": [
+        148,
+        7071
+      ],
+      "truncated": false
+    }
+  ],
+  "sealed_final_opened": false,
+  "wall_seconds": 0.5900734169408679
+}

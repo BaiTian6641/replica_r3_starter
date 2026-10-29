@@ -1,27 +1,33 @@
 # Coding-agent continuation instruction
 
-**Active order — 29 October 2026, final CPU integration and derivative preparation:** read
-[the current start guide](AGENT_START.md), [execution state](execution_state.md),
-[persistent-learner architecture](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md),
-[v2 runbook](reports/spark_persistent_learner_v2/README.md) and
-[native backend plan](reports/spark_persistent_learner_v2/native_backend_plan.md).
-The repaired readout/control and derivative implementation is committed at
-`83c7214bcf12877e4c7b9d0c367825905a16cf55`; the v2 protocol SHA-256 is
-`91c45fbf75fed46ad383a1c385b77775b1f69e6f16f8aca0079e1eefe6183ec5`.
-`integrated09` is the preserved final CPU engineering run: 11 arms and 132
-development cases pass engineering acceptance, with every arm still 0/12 and
-the untouched baseline containing all 11 eligible records without truncation.
-Two fresh-process restart cycles with exact token parity and preserved P state
-are retained under `integrated08/restart/`; raw fit/development trajectories and
-all unsuccessful outputs remain preserved.
-The separately versioned FP8-derived BF16 protocol/packet is prepared, but its
-only launch blocker is the absent external derivative authorization. Official
-FP8 remains blocked by exact backend evidence and authorization. No native model
-job, download, learned capability, RSI or personality promotion occurred.
-Useful learning, writer expansion, larger profiles and RSI remain gated on
-chronological transfer, correction, retention and rollback. Official FP8,
-derived BF16 and official BF16 remain distinct. Multimodal work and the
-historical instructions below are not the active queue.
+**Active order — 29 October 2026, contextual memory implementation after review of a4d11366.**
+Read [the current runbook](reports/contextual_memory_v2/README.md),
+[architecture chapter 28](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md)
+and [loop instructions](docs/architecture/16_Loop_Agent_Instructions.md).
+Implementation `b2489ba133082e494ec1f94cac7d4d54f7b30ad9` adds executable-code provenance,
+legitimate dirty-P recovery, a separate pre-fit competence gate, contextual value
+encoding and direct spine readout with extension-only continuation. Current
+protocol hashes and required native bindings are in the new runbook's packet.
+
+Focused checks pass 135 tests. The independent CPU diagnostic proves disabled
+parity, producer/reader gradients and exact fresh-process continuation. The
+integrated CPU workflow fails calibration 0/8 and correctly stops before fit or
+learning labels. Historical integrated09 remains 0/12 in every arm. Neither
+result establishes native or persistent-learning capability. Full native source
+validation passes; the new derived-BF16 readout experiment is unrun and awaits
+its exact external authorization. Official FP8 on MPS remains unqualified.
+
+Run calibration, then contextual readout at 3/7, then fresh-process continuation.
+Treat 23/31 separately. Only after useful readout freeze phi and isolate P1 with
+the preserved 11 controls and distinct teaching/future queries. Capacity expansion,
+local-writer evaluation, retention/rollback cycles, nested clocks and RSI remain
+evidence-gated. Keep E/S/P/phi/C/I/K separate, approved identity outside reward,
+and the permanent specialist/sensor/actor interfaces. Native multimodal work is deferred.
+
+Preserve one exclusive native worker and the 50 GiB / 512 MiB / 15% guards.
+NativeFusedAdamW is the ordinary optimizer. No bulk download, duplicate checkpoint,
+full-base export or rewriting of historical receipts is authorized. Preserve
+unrelated work. Never read, import, edit or stage src/replica_lab/runtime_pilot.py.
 
 **Historical instructions below are preserved, not active orders.**
 

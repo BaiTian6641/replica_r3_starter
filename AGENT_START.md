@@ -1,55 +1,33 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
+**Active order — 29 October 2026, contextual memory implementation after review of a4d11366.**
+Read [the current runbook](reports/contextual_memory_v2/README.md),
+[architecture chapter 28](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md)
+and [loop instructions](docs/architecture/16_Loop_Agent_Instructions.md).
+Implementation `b2489ba133082e494ec1f94cac7d4d54f7b30ad9` adds executable-code provenance,
+legitimate dirty-P recovery, a separate pre-fit competence gate, contextual value
+encoding and direct spine readout with extension-only continuation. Current
+protocol hashes and required native bindings are in the new runbook's packet.
 
-**Active order — Spark persistent learner and tiered memory (29 October 2026):**
-read the [v2 implementation and evidence runbook](reports/spark_persistent_learner_v2/README.md),
-[design chapter 28](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md),
-[architecture audit](docs/architecture/27_Spark_X2_6_4B_Architecture_Research_Review.md)
-and [complete worker prompt](docs/architecture/16_Loop_Agent_Instructions.md).
-The repaired readout/control and derivative implementation is committed at
-`83c7214bcf12877e4c7b9d0c367825905a16cf55`; protocol SHA-256 is
-`91c45fbf75fed46ad383a1c385b77775b1f69e6f16f8aca0079e1eefe6183ec5`.
-The [native backend plan](reports/spark_persistent_learner_v2/native_backend_plan.md)
-and [experiment packet](reports/spark_persistent_learner_v2/native_experiment_packet.json)
-preserve the exact FP8 blocker and the bounded P1 design. Useful native learning
-remains unestablished; no native job or download occurred.
+Focused checks pass 135 tests. The independent CPU diagnostic proves disabled
+parity, producer/reader gradients and exact fresh-process continuation. The
+integrated CPU workflow fails calibration 0/8 and correctly stops before fit or
+learning labels. Historical integrated09 remains 0/12 in every arm. Neither
+result establishes native or persistent-learning capability. Full native source
+validation passes; the new derived-BF16 readout experiment is unrun and awaits
+its exact external authorization. Official FP8 on MPS remains unqualified.
 
-1. **Package 1 complete:** portable protocol tests pass with tracked metadata
-   mocks; production source authentication is unchanged. Contextual CPU tests
-   distinguish real attention from the old attention-free fixture.
-2. **Package 2 complete:** separately versioned tiered storage, profiles,
-   scoped readable values, correction quarantine/reset, crash recovery and
-   resumable task journals are implemented and CPU-verified.
-3. **Integrated readout:** `integrated09` matches the protocol hash and passes
-   engineering acceptance across 11 arms and 132 development cases; every arm
-   remains 0/12. Its all-eligible baseline contains all 11 records in every
-   case without truncation. Two additional fresh-process restart cycles pass
-   exact token parity and preserve P state under `integrated08/restart/`.
-4. **Pressure evidence:** `readout_pressure05` measures cache hits/evictions,
-   cold wait/resume, exact rejected-read I/O and correction-during-I/O
-   invalidation with current provenance. Logical tier labels are not physical
-   residency claims; no larger bank was allocated.
-5. **Next gate:** exact native FP8 forward/backward/single-update evidence and
-   external authorization remain required for the official-FP8 arm. The separate
-   derived-BF16 protocol/packet is prepared at the same commit and awaits only
-   its external derivative authorization; no launch is allowed yet. Official
-   BF16 and FP8-derived BF16 are separate identities, not substitutes.
-6. **Offline only:** the D-only writer has exact derivative checks but no native
-   training or useful-learning promotion. Do not expand banks or claim RSI from
-   parameter changes. P4+ profiles remain lazy; P128 is a stretch candidate.
-7. Evaluate chronological acquisition, correction, retention, identity and cost
-   before multi-clock learning or RSI. Preserve all failed trajectories.
+Run calibration, then contextual readout at 3/7, then fresh-process continuation.
+Treat 23/31 separately. Only after useful readout freeze phi and isolate P1 with
+the preserved 11 controls and distinct teaching/future queries. Capacity expansion,
+local-writer evaluation, retention/rollback cycles, nested clocks and RSI remain
+evidence-gated. Keep E/S/P/phi/C/I/K separate, approved identity outside reward,
+and the permanent specialist/sensor/actor interfaces. Native multimodal work is deferred.
 
-The [v2 protocol](configs/spark_persistent_learner_protocol_v2.json) and
-[tier design JSON](configs/spark_persistent_learner_tiered_design_v1.json)
-specify logical 2 GiB hot / 8 GiB warm / 64 GiB disk ceilings, not authorization
-to allocate them. Preserve the 50 GiB driver / 512 MiB swap-growth / 15% host-free
-guards. Approved identity remains separate. The internal spine is permanent;
-native vision/audio and physical actor/sensor integration remain deferred.
-MiniCPM is a historical control. NativeFusedAdamW remains the ordinary optimizer.
-The v1 protocol and old results stay sealed. Do not read, import, edit or stage
-the protected runtime pilot.
-
+Preserve one exclusive native worker and the 50 GiB / 512 MiB / 15% guards.
+NativeFusedAdamW is the ordinary optimizer. No bulk download, duplicate checkpoint,
+full-base export or rewriting of historical receipts is authorized. Preserve
+unrelated work. Never read, import, edit or stage src/replica_lab/runtime_pilot.py.
 
 Historical handoffs below preserve completed protocols and negative results; they are not competing active orders.
 **Historical handoff — 28 October 2026, vision acceptance and expansion:** read
