@@ -14,7 +14,7 @@ Implementation commit: `591980b0` on `codex/d2-capacity-runtime-pilot`.
 - Added bounded evidence correction/revocation, strict E/P checkpoint restore,
   source-free clearing and retry suppression. Restart continuation and native
   tiny-fixture null-parity/influence/gradient checks pass.
-- Focused spine/Spark suites pass **38**; broader learning/persistence suites
+- Focused spine/Spark suites pass **39**; broader learning/persistence suites
   pass **324 with 21 subtests**. These are CPU results only; no MPS job, native
   model quality, resource measurement or held-out benefit was run.
 - Final-product verification passes **16** and the additive manifest check passes

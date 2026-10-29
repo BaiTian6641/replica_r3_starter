@@ -8,6 +8,7 @@ while P and its optimizer/dedup/clock state persist independently.
 from __future__ import annotations
 
 from collections import OrderedDict
+import weakref
 from typing import Any, Mapping
 
 import torch
@@ -367,11 +368,18 @@ class SpineMemoryExperiment:
         self.fast_state: dict[str, Any] = {}
         self.workspace_state: dict[str, Any] = {}
         self._snapshot_context: SpineForwardContext | None = None
+        self._contexts: weakref.WeakSet[SpineForwardContext] = weakref.WeakSet()
 
+    def _invalidate_snapshot(self) -> None:
+        for context in list(self._contexts):
+            context.invalidate()
+        self._contexts.clear()
+        self._snapshot_context = None
     def observe(self, record: EvidenceRecord) -> bool:
         admitted = self.evidence.admit(record)
         if admitted:
             self.counters["observations"] += 1
+            self._invalidate_snapshot()
             self.phase = "observation"
         return admitted
 
@@ -394,8 +402,11 @@ class SpineMemoryExperiment:
             enabled_branches=enabled_branches, memory_slots=memory_slots,
             memory_source="P" if memory_slots is not None else "E")
         self._snapshot_context = context
+        self._contexts.add(context)
         self.counters["snapshots"] += 1
         self.counters["codec_calls"] += context.charges["codec_calls"]
+        if memory_slots is not None:
+            self.counters["codec_calls"] += packet.query_count
         self.phase = phase
         return context
 
@@ -417,6 +428,7 @@ class SpineMemoryExperiment:
             self.completed_evaluations.append({
                 "event_id": event_id, "expert_id": expert_id,
                 "outcome": outcome.to_dict()})
+            self._invalidate_snapshot()
         self.phase = "commit"
         return {"outcome": {**outcome.to_dict(), "retried": retried},
                 "learning_evidence": {
@@ -434,7 +446,7 @@ class SpineMemoryExperiment:
     def clear_for_p_only(self) -> None:
         """Clear E/S/C/F and source/provider state while retaining P."""
         self.evidence.clear()
-        self._snapshot_context = None
+        self._invalidate_snapshot()
         self.source_cache.clear()
         self.provider_cache.clear()
         self.source_kv.clear()
@@ -463,7 +475,12 @@ class SpineMemoryExperiment:
         self.phase = metadata["phase"]
         self.counters = dict(metadata["counters"])
         self.completed_evaluations = list(metadata["completed_evaluations"])
-        self._snapshot_context = None
+        self._invalidate_snapshot()
+        self.source_cache.clear()
+        self.provider_cache.clear()
+        self.source_kv.clear()
+        self.fast_state.clear()
+        self.workspace_state.clear()
         return metadata
 
     def model_identity(self) -> str:

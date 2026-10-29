@@ -393,6 +393,33 @@ def test_spine_memory_p_override_has_native_influence_and_gradients():
                             memory_slots=torch.zeros(1, 1, 1, 256))
 
 
+def test_spine_memory_revisions_invalidate_all_live_contexts():
+    experiment = SpineMemoryExperiment(
+        spec=SpineSpec(hidden_size=8, slots=3, sites=(3, 7)))
+    experiment.observe(_evidence())
+    first = experiment.snapshot(query_time=0, query_count=1)
+    second = experiment.snapshot(query_time=0, query_count=1)
+    experiment.observe(_evidence("record-1", source_epoch=1,
+                                 supersedes="record-0"))
+    assert first.invalidated and second.invalidated
+    hidden = torch.randn(1, 1, 8)
+    with pytest.raises(SpineError, match="decision context is stale"):
+        first.delta("memory", 3, hidden)
+    with pytest.raises(SpineError, match="decision context is stale"):
+        second.delta("memory", 3, hidden)
+
+    before_learning = experiment.snapshot(query_time=0, query_count=1)
+    features, target = torch.randn(2, 256), torch.randn(2, 256)
+    experiment.learn(event_id="event-0", features=features, target=target)
+    assert before_learning.invalidated
+    after_learning = experiment.snapshot(query_time=0, query_count=1)
+    retry = experiment.learn(event_id="event-0", features=features, target=target)
+    assert retry["outcome"]["retried"] is True
+    assert not after_learning.invalidated
+    experiment.clear_for_p_only()
+    assert after_learning.invalidated
+
+
 def test_spine_memory_checkpoint_restart_retry_and_p_only(tmp_path):
     torch.manual_seed(11)
     spec = SpineSpec(hidden_size=8, slots=3, sites=(3, 7))

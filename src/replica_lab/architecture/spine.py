@@ -468,6 +468,7 @@ class SpineForwardContext:
         if memory_source == "E" and memory_slots is not None:
             raise SpineError("E memory source cannot use replacement slots")
         self.memory_source = memory_source or ("external" if memory_slots is not None else "E")
+        self._invalidated = False
         self.core = core
         device = core.codec.input_norm.weight.device
         dtype = core.codec.input_norm.weight.dtype
@@ -478,6 +479,8 @@ class SpineForwardContext:
         self.packet = packet
         self.snapshot = snapshot
         self.enabled_branches = tuple(enabled_branches)
+        if len(set(self.enabled_branches)) != len(self.enabled_branches):
+            raise SpineError("duplicate enabled spine branch")
         if any(branch not in BRANCHES for branch in self.enabled_branches):
             raise SpineError("unknown enabled spine branch")
         if packet.scope != snapshot.scope or packet.stream_id != snapshot.stream_id \
@@ -504,8 +507,17 @@ class SpineForwardContext:
             "exchange_rounds": 0,
             "specialist_calls": 0,
         }
+    @property
+    def invalidated(self) -> bool:
+        return self._invalidated
+
+    def invalidate(self) -> None:
+        self._invalidated = True
+
 
     def delta(self, branch: str, site: int, hidden: torch.Tensor) -> torch.Tensor:
+        if self._invalidated:
+            raise SpineError("decision context is stale")
         if branch not in self.enabled_branches:
             return hidden.new_zeros(hidden.shape)
         if site not in self.core.spec.sites:

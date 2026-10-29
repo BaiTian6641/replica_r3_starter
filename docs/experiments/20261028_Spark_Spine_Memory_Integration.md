@@ -26,8 +26,9 @@ capability claim occurred.**
 - `architecture/spine_memory.py` implements bounded, provenance-bearing E
   records, exact retry deduplication, atomic correction/revocation, stale
   revision rejection, and selected-expert P reads through the native memory
-  reader. E and P remain separately ablatable. A repeated teaching event reports
-  zero new optimizer, forward or backward work.
+  reader. E and P remain separately ablatable. Every live decision context is
+  invalidated by a correction, P update, restore or P-only intervention. A
+  repeated teaching event reports zero new optimizer, forward or backward work.
 - `architecture/spine_checkpoint.py` provides strict spine-only and paired E/P
   checkpoint formats. Checkpoints include extension tensors, optimizer/RNG
   state, work counters, completed evaluations, evidence lineage and plastic
@@ -41,7 +42,7 @@ capability claim occurred.**
 ```bash
 PYTHONPATH=src:tests .venv/bin/python -m pytest -q \
   tests/test_spine.py tests/test_spark2_5_adapter.py tests/test_spark2_5.py
-# 38 passed
+# 39 passed
 
 PYTHONPATH=src:tests .venv/bin/python -m pytest -q \
   tests/test_spark_backend_parity_20261027.py \
