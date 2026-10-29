@@ -1,0 +1,24 @@
+{
+  "arm": "two",
+  "attempts": 1,
+  "authorization_required": "reports/intrinsic_memory_alignment_v10/authorization_two_v10.json",
+  "authorization_status": "external_receipt_required",
+  "command": [
+    ".venv-spark-bf16/bin/python",
+    "scripts/run_spark_intrinsic_alignment_v10.py",
+    "--packet",
+    "reports/intrinsic_memory_alignment_v10/native_packet_two_v10.json",
+    "--authorization",
+    "reports/intrinsic_memory_alignment_v10/authorization_two_v10.json",
+    "--launch"
+  ],
+  "experiment_version": 10,
+  "format": "replica.intrinsic_memory.launch_packet.v10",
+  "native_engine_version": 10,
+  "output_root": "reports/intrinsic_memory_alignment_v10/native_bf16_two_v10_attempt01",
+  "protocol": {
+    "path": "configs/spark_intrinsic_alignment_v10.json",
+    "sha256": "c48e8937b7e11fc6fc6fb43dab932ad01dd42d2d2a0cc746bf36310da863e97d"
+  },
+  "retries": 0
+}

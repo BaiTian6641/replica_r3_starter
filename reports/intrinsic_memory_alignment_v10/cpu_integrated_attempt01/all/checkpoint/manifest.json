@@ -1,0 +1,38 @@
+{
+  "components_manifest_sha256": "0b0e13cd2e4ac8bec760b6788af076ce9a0f8824d69641116415f00a344d0403",
+  "execution_identity": "CPU_teacher_workflow_v10",
+  "format": "replica.contextual_memory.v5.checkpoint",
+  "objective": {
+    "alignment": "response_token_index_including_one_EOS",
+    "ce_weight": 0.0,
+    "completion": {
+      "allowed_stop_identity": "994dd6e472a95243ae46cb1214e0c5ef14c5b7109c2518208ce5e4df44cdba93",
+      "allowed_stop_token_ids": [
+        1
+      ],
+      "context_tokens": 16,
+      "eos_token_id": 1,
+      "format": "replica.contextual_complete_response.objective.v1",
+      "ignore_index": -100,
+      "label_alignment": "logit_i_predicts_token_i_plus_1_no_additional_shift",
+      "loss": "mean_cross_entropy_over_answer_tokens_plus_one_EOS",
+      "pad_token_id": 2,
+      "padding_side": "right",
+      "template_identity": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "thinking_mode": "none",
+      "tokenizer_identity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "training_terminal_identity": "69ca506e8a06ed07426246410dad1f6e491d9eaa5c93145ac4bae557d9ed14c6",
+      "vocab_size": 128
+    },
+    "format": "replica.contextual_teacher_alignment.v1",
+    "kl_weight": 1.0,
+    "student_boundary": "live_producer_and_reader_no_serialization",
+    "student_normalization": "full_vocabulary",
+    "teacher_boundary": "frozen_extensions_disabled_detached_targets",
+    "teacher_normalization": "renormalized_top_k",
+    "temperature": 1.0,
+    "top_k": 64
+  },
+  "slot_policy": "fixed_eight_masked_padding_v5",
+  "temporal_rule": "MemoryScope.cutoff"
+}
