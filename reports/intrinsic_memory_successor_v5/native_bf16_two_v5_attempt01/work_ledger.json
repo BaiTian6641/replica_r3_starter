@@ -1,0 +1,1057 @@
+{
+  "audit_io": {
+    "serialized_write_bytes": 1522460,
+    "write_calls": 95
+  },
+  "deadline": 2431976.771404416,
+  "events": [
+    {
+      "actual": {},
+      "detail": {},
+      "elapsed_seconds": 0.0008483747951686382,
+      "id": 0,
+      "operation": "bounded_audit_and_store_envelope",
+      "pid": 61758,
+      "reserved": {
+        "artifact_bytes": 33554432,
+        "writes": 1
+      },
+      "stage": "admission",
+      "started": 2424787.821946041,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "source_bytes_hashed": 8238996247
+      },
+      "elapsed_seconds": 4.218785583972931,
+      "id": 1,
+      "operation": "environment_source_code_data_preflight",
+      "pid": 61758,
+      "reserved": {},
+      "stage": "admission",
+      "started": 2424787.830189166,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "source_bytes_hashed": 8238996247
+      },
+      "elapsed_seconds": 0.0016009998507797718,
+      "id": 2,
+      "operation": "child_source_revalidation",
+      "pid": 61829,
+      "reserved": {},
+      "stage": "load",
+      "started": 2424796.287262708,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "extension_dtype": "float32",
+        "frozen_parameter_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+        "original_dtype": "bfloat16",
+        "placement": {
+          "all_original_parameters_frozen": true,
+          "buffer_names": 0,
+          "bytes_hashed": 16448317440,
+          "content_sha256_after": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+          "content_sha256_before": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+          "dtype_unchanged": true,
+          "format": "replica.spark_device_placement.v2",
+          "full_backbone_copy_or_export": false,
+          "hash_chunk_bytes_max": 4194304,
+          "parameter_names": 290,
+          "source_device": "cpu",
+          "status": "verified",
+          "target_device": "mps",
+          "tied_output_preserved": true,
+          "unique_tensor_bytes": 8224158720,
+          "wall_seconds": 10.92622883291915
+        },
+        "precision": {
+          "artifact_sha256": "c309e44c93edf04187447c27990ecd0979990d7bab9e8dbf5a715afd2f82a50a",
+          "config_digest": "540bfbe3a23312c34e359e3907550c0783a0e3bccb3ef2524bbe22d495977019",
+          "derivative_of": null,
+          "geometry_fingerprint": "4af04881df74db63705ecf779e4c5e9c388f0bfcc622c7ad96064a9aa7bbcd86",
+          "precision_digest": "7eeaf968b5e7601d684c0c9b596c33e0883098f4f1946e1f113bc9be632f317e",
+          "precision_kind": "official_bf16",
+          "quantization_fingerprint": null,
+          "storage": "bf16",
+          "weight_dtype": "BF16"
+        }
+      },
+      "elapsed_seconds": 15.592009207699448,
+      "id": 3,
+      "operation": "official_bf16_model_load",
+      "pid": 61829,
+      "reserved": {
+        "model_loads": 1
+      },
+      "stage": "load",
+      "started": 2424799.0643485,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 726085834,
+        "synchronized_wall_ns": 726114417
+      },
+      "elapsed_seconds": 0.7282340000383556,
+      "id": 4,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424814.7365925,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 654022459,
+        "nonpadding_input_tokens": 58,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 654088084
+      },
+      "elapsed_seconds": 0.6570433750748634,
+      "id": 5,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424814.804568708,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 305723167,
+        "synchronized_wall_ns": 305744208
+      },
+      "elapsed_seconds": 0.3077772078104317,
+      "id": 6,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424815.466916208,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 298413833,
+        "nonpadding_input_tokens": 59,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 298480708
+      },
+      "elapsed_seconds": 0.30098308296874166,
+      "id": 7,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424815.469997125,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 305600458,
+        "synchronized_wall_ns": 305642583
+      },
+      "elapsed_seconds": 0.307669666595757,
+      "id": 8,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424815.776688583,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 298322167,
+        "nonpadding_input_tokens": 60,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 298369708
+      },
+      "elapsed_seconds": 0.30058841640129685,
+      "id": 9,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424815.779576,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 304866750,
+        "synchronized_wall_ns": 304887666
+      },
+      "elapsed_seconds": 0.3069647499360144,
+      "id": 10,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424816.087856958,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 296864084,
+        "nonpadding_input_tokens": 58,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 296923584
+      },
+      "elapsed_seconds": 0.2994844582863152,
+      "id": 11,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424816.090812375,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 303415500,
+        "synchronized_wall_ns": 303439833
+      },
+      "elapsed_seconds": 0.30559945944696665,
+      "id": 12,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424816.397550666,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 297477958,
+        "nonpadding_input_tokens": 59,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 297515625
+      },
+      "elapsed_seconds": 0.29987824987620115,
+      "id": 13,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424816.400741875,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 300227791,
+        "synchronized_wall_ns": 300247541
+      },
+      "elapsed_seconds": 0.3017458748072386,
+      "id": 14,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424816.705549166,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 294914042,
+        "nonpadding_input_tokens": 58,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 294955667
+      },
+      "elapsed_seconds": 0.2968179592862725,
+      "id": 15,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424816.707920916,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 301841042,
+        "synchronized_wall_ns": 301858250
+      },
+      "elapsed_seconds": 0.3034742078743875,
+      "id": 16,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424817.008836125,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 296501000,
+        "nonpadding_input_tokens": 59,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 296543625
+      },
+      "elapsed_seconds": 0.29849574994295835,
+      "id": 17,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424817.011289375,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 301669583,
+        "synchronized_wall_ns": 301689500
+      },
+      "elapsed_seconds": 0.303272457793355,
+      "id": 18,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424817.3145825,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 294827458,
+        "nonpadding_input_tokens": 58,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 294872583
+      },
+      "elapsed_seconds": 0.2970501249656081,
+      "id": 19,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424817.317944916,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 300797417,
+        "synchronized_wall_ns": 300819792
+      },
+      "elapsed_seconds": 0.30289191706106067,
+      "id": 20,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424817.619963583,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 295020167,
+        "nonpadding_input_tokens": 59,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 295058917
+      },
+      "elapsed_seconds": 0.29718100000172853,
+      "id": 21,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424817.622985708,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 300446916,
+        "synchronized_wall_ns": 300478875
+      },
+      "elapsed_seconds": 0.3024914162233472,
+      "id": 22,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424817.92565925,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 294518500,
+        "nonpadding_input_tokens": 58,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 294564083
+      },
+      "elapsed_seconds": 0.29680129094049335,
+      "id": 23,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424817.92845425,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 307011708,
+        "synchronized_wall_ns": 307052375
+      },
+      "elapsed_seconds": 0.3097485420294106,
+      "id": 24,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424818.230688208,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 296538083,
+        "nonpadding_input_tokens": 59,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 296608917
+      },
+      "elapsed_seconds": 0.2995823328383267,
+      "id": 25,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424818.234200125,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 308713333,
+        "synchronized_wall_ns": 308737583
+      },
+      "elapsed_seconds": 0.31278812512755394,
+      "id": 26,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424818.544912958,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 299500041,
+        "nonpadding_input_tokens": 60,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 299535416
+      },
+      "elapsed_seconds": 0.3038274999707937,
+      "id": 27,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424818.550724833,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 300416334,
+        "synchronized_wall_ns": 300433667
+      },
+      "elapsed_seconds": 0.3024789998307824,
+      "id": 28,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424818.860524416,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 294348042,
+        "nonpadding_input_tokens": 58,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 294386375
+      },
+      "elapsed_seconds": 0.2967768330127001,
+      "id": 29,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424818.863431958,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 301679334,
+        "synchronized_wall_ns": 301703250
+      },
+      "elapsed_seconds": 0.3041075002402067,
+      "id": 30,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424819.165009291,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 294613041,
+        "nonpadding_input_tokens": 59,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 294654791
+      },
+      "elapsed_seconds": 0.29732625000178814,
+      "id": 31,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424819.168189291,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 303040000,
+        "synchronized_wall_ns": 303058583
+      },
+      "elapsed_seconds": 0.30549604212865233,
+      "id": 32,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424819.472703916,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 294680333,
+        "nonpadding_input_tokens": 58,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 294728417
+      },
+      "elapsed_seconds": 0.2975817918777466,
+      "id": 33,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424819.475932416,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 303773958,
+        "synchronized_wall_ns": 303799750
+      },
+      "elapsed_seconds": 0.30669333366677165,
+      "id": 34,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424819.781503666,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 295838125,
+        "nonpadding_input_tokens": 59,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 295883208
+      },
+      "elapsed_seconds": 0.2990268748253584,
+      "id": 35,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424819.785246041,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 305227292,
+        "synchronized_wall_ns": 305247042
+      },
+      "elapsed_seconds": 0.3080199998803437,
+      "id": 36,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424820.09097275,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 297173250,
+        "nonpadding_input_tokens": 60,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 297225417
+      },
+      "elapsed_seconds": 0.3002261249348521,
+      "id": 37,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424820.094618041,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 303269583,
+        "synchronized_wall_ns": 303300375
+      },
+      "elapsed_seconds": 0.3058957923203707,
+      "id": 38,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424820.402613166,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 295801875,
+        "nonpadding_input_tokens": 59,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 295846375
+      },
+      "elapsed_seconds": 0.29853183310478926,
+      "id": 39,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424820.406115125,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 303749375,
+        "synchronized_wall_ns": 303771250
+      },
+      "elapsed_seconds": 0.3062672079540789,
+      "id": 40,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424820.711035083,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 295936375,
+        "nonpadding_input_tokens": 60,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 295983416
+      },
+      "elapsed_seconds": 0.2986685410141945,
+      "id": 41,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424820.71382375,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 310962334,
+        "synchronized_wall_ns": 311009834
+      },
+      "elapsed_seconds": 0.314198958221823,
+      "id": 42,
+      "operation": "decode_token",
+      "pid": 61829,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "baseline",
+      "started": 2424821.020215375,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 297613416,
+        "nonpadding_input_tokens": 61,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 297717416
+      },
+      "elapsed_seconds": 0.3017401248216629,
+      "id": 43,
+      "operation": "backbone_forward",
+      "pid": 61829,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 256
+      },
+      "stage": "baseline",
+      "started": 2424821.023956791,
+      "status": "completed"
+    }
+  ],
+  "format": "replica.intrinsic_memory.reservations.v5",
+  "identity": "4521b0d098ba75d2abfd8f70103f388113e37ec911d40b8d077f04a88a91ac8e",
+  "plan": {
+    "admission": {
+      "artifact_bytes": 33554432,
+      "backwards": 0,
+      "forwards": 0,
+      "generated_tokens": 0,
+      "input_tokens": 0,
+      "model_loads": 0,
+      "retrievals": 0,
+      "source_encodes": 0,
+      "updates": 0,
+      "wall_seconds": 120,
+      "writes": 1
+    },
+    "baseline": {
+      "artifact_bytes": 0,
+      "backwards": 0,
+      "forwards": 64,
+      "generated_tokens": 64,
+      "input_tokens": 16384,
+      "model_loads": 0,
+      "retrievals": 0,
+      "source_encodes": 0,
+      "updates": 0,
+      "wall_seconds": 600,
+      "writes": 0
+    },
+    "checkpoint": {
+      "artifact_bytes": 134217728,
+      "backwards": 0,
+      "forwards": 1,
+      "generated_tokens": 0,
+      "input_tokens": 256,
+      "model_loads": 0,
+      "retrievals": 0,
+      "source_encodes": 1,
+      "updates": 0,
+      "wall_seconds": 180,
+      "writes": 1
+    },
+    "correction": {
+      "artifact_bytes": 0,
+      "backwards": 0,
+      "forwards": 24,
+      "generated_tokens": 24,
+      "input_tokens": 6144,
+      "model_loads": 0,
+      "retrievals": 2,
+      "source_encodes": 1,
+      "updates": 0,
+      "wall_seconds": 180,
+      "writes": 4
+    },
+    "development": {
+      "artifact_bytes": 0,
+      "backwards": 0,
+      "forwards": 384,
+      "generated_tokens": 384,
+      "input_tokens": 98304,
+      "model_loads": 0,
+      "retrievals": 8,
+      "source_encodes": 8,
+      "updates": 0,
+      "wall_seconds": 900,
+      "writes": 16
+    },
+    "fit": {
+      "artifact_bytes": 0,
+      "backwards": 32,
+      "forwards": 32,
+      "generated_tokens": 0,
+      "input_tokens": 8192,
+      "model_loads": 0,
+      "retrievals": 0,
+      "source_encodes": 32,
+      "updates": 32,
+      "wall_seconds": 1200,
+      "writes": 0
+    },
+    "fit_probes": {
+      "artifact_bytes": 0,
+      "backwards": 0,
+      "forwards": 448,
+      "generated_tokens": 384,
+      "input_tokens": 114688,
+      "model_loads": 0,
+      "retrievals": 8,
+      "source_encodes": 24,
+      "updates": 0,
+      "wall_seconds": 2100,
+      "writes": 16
+    },
+    "load": {
+      "artifact_bytes": 0,
+      "backwards": 0,
+      "forwards": 0,
+      "generated_tokens": 0,
+      "input_tokens": 0,
+      "model_loads": 1,
+      "retrievals": 0,
+      "source_encodes": 0,
+      "updates": 0,
+      "wall_seconds": 600,
+      "writes": 0
+    },
+    "numerical": {
+      "artifact_bytes": 0,
+      "backwards": 0,
+      "forwards": 2,
+      "generated_tokens": 0,
+      "input_tokens": 512,
+      "model_loads": 0,
+      "retrievals": 0,
+      "source_encodes": 1,
+      "updates": 0,
+      "wall_seconds": 120,
+      "writes": 0
+    },
+    "prepare": {
+      "artifact_bytes": 0,
+      "backwards": 0,
+      "forwards": 0,
+      "generated_tokens": 0,
+      "input_tokens": 0,
+      "model_loads": 0,
+      "retrievals": 8,
+      "source_encodes": 8,
+      "updates": 0,
+      "wall_seconds": 120,
+      "writes": 16
+    },
+    "restart": {
+      "artifact_bytes": 0,
+      "backwards": 1,
+      "forwards": 2,
+      "generated_tokens": 0,
+      "input_tokens": 512,
+      "model_loads": 1,
+      "retrievals": 1,
+      "source_encodes": 2,
+      "updates": 1,
+      "wall_seconds": 900,
+      "writes": 1
+    }
+  },
+  "plan_sha256": "78ea8cd7c2d91b360a9b5042f15e79e6536b471310d153a7b2e0df6eb0af2f02",
+  "reserved": {
+    "artifact_bytes": 33554432,
+    "backwards": 0,
+    "forwards": 20,
+    "generated_tokens": 20,
+    "input_tokens": 5120,
+    "model_loads": 1,
+    "retrievals": 0,
+    "source_encodes": 0,
+    "updates": 0,
+    "writes": 1
+  },
+  "reserved_wall_seconds": 1320,
+  "stages": {
+    "admission": {
+      "deadline": 2424907.821122166,
+      "elapsed_seconds": 4.228781792335212,
+      "reserved": {
+        "artifact_bytes": 33554432,
+        "backwards": 0,
+        "forwards": 0,
+        "generated_tokens": 0,
+        "input_tokens": 0,
+        "model_loads": 0,
+        "retrievals": 0,
+        "source_encodes": 0,
+        "updates": 0,
+        "writes": 1
+      },
+      "started": 2424787.821122166,
+      "status": "completed"
+    },
+    "baseline": {
+      "deadline": 2425414.659016708,
+      "elapsed_seconds": 6.682030000258237,
+      "reserved": {
+        "artifact_bytes": 0,
+        "backwards": 0,
+        "forwards": 20,
+        "generated_tokens": 20,
+        "input_tokens": 5120,
+        "model_loads": 0,
+        "retrievals": 0,
+        "source_encodes": 0,
+        "updates": 0,
+        "writes": 0
+      },
+      "started": 2424814.659016708,
+      "status": "failed_competence"
+    },
+    "load": {
+      "deadline": 2425392.050785333,
+      "elapsed_seconds": 22.60722095798701,
+      "reserved": {
+        "artifact_bytes": 0,
+        "backwards": 0,
+        "forwards": 0,
+        "generated_tokens": 0,
+        "input_tokens": 0,
+        "model_loads": 1,
+        "retrievals": 0,
+        "source_encodes": 0,
+        "updates": 0,
+        "writes": 0
+      },
+      "started": 2424792.050785333,
+      "status": "completed"
+    }
+  },
+  "started": 2424787.819863041
+}
