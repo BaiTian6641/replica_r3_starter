@@ -1,6 +1,6 @@
 {
-  "active_outcome_report": "docs/experiments/20261029_Spark_Memory_Native_Readout03.md",
-  "active_protocol": "docs/experiments/20261029_Spark_Memory_BF16_Diagnostic_V5.md",
+  "active_outcome_report": "docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md",
+  "active_protocol": "docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md",
   "architecture_target": {
     "candidate": "configs/spark_intrinsic_diagnostic_v5.json",
     "control": "sealed_v3_two_site_protocol_unchanged",
@@ -17,6 +17,10 @@
     "scope": "v5_contextual_producer_store_eight_slot_and_2_9_36_runner_CPU_verified"
   },
   "authorized_cpu_implementation": "implemented",
+  "completed_latest_packet": {
+    "path": "reports/intrinsic_memory_step_v9/native_packet_two_v9.json",
+    "sha256": "86d18d53421a0488a931371394e6620493c6cc9b4741c174726c38737d17f6e6"
+  },
   "completed_native_experiment": {
     "authorization_consumed": true,
     "bounds": {
@@ -57,26 +61,26 @@
     "stage": "S0_then_S1"
   },
   "current_successor": {
-    "authorization": "absent",
-    "implementation_commit": "771e9586e37688013b703196e02a3c61c7be270e",
-    "native_execution": false,
+    "authorization": "direct_user_standing_bounded_testing_authorization_with_exact_packet_receipts",
+    "implementation_commit": "b3ca64ac",
+    "native_execution": true,
+    "native_status": "completed",
     "outcomes": {
-      "CPU_engineering": "passed",
       "RSI": "closed",
       "formation": "prepared_not_implemented",
-      "native_competence": "unrun_for_v5",
-      "native_density_comparison": "runner_and_per_arm_packets_prepared_unrun",
-      "native_numerical_qualification": "unrun_for_v5",
-      "official_BF16_source_admission": "passed_full_hash_environment_and_code_preflight",
+      "memory_dependent_fitting": "v7_passed_8_of_8_v6_v8_failed_0_of_8_v9_failed_6_of_8",
+      "native_competence": "v5_failed_6_of_8_v6_v7_v8_v9_passed_8_of_8",
+      "native_density_comparison": "prepared_unrun_gated",
       "persistent_P_learning": "not_established",
       "promotion": "closed",
+      "source_admission": "passed_full_hash_environment_code_data_and_predecessor_checks",
       "useful_native_recall": "not_established"
     },
-    "report": "docs/experiments/20261029_Spark_Memory_BF16_Diagnostic_V5.md",
+    "report": "docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md",
     "source": "official_BF16_user_selected",
     "summary": {
-      "path": "reports/intrinsic_memory_successor_v5/verification_summary.json",
-      "sha256": "70d8807f838cee6ab9b654f77261c9482e9bc90c1a47ae137e780cd878a576a9"
+      "path": "reports/intrinsic_memory_native_20261029/verification_summary.json",
+      "sha256": "6a9a5f224377e2b78caf6d393304f95294bc48e3576090b34f3921f7cd8f7229"
     }
   },
   "date": "2026-10-29",
@@ -209,6 +213,7 @@
     "storage_tiers_independent_of_learning_clocks": true
   },
   "historical_results_rewritten": false,
+  "historical_top_level_scope": "outcomes, stages, measured_resources and completed_native_experiment retain v3 attempt03; current_successor and native_official_BF16_diagnostics are current",
   "implementation_commit": "f471f54a34e99f8143164e00b3247827c6ba1f1c",
   "larger_P_capacity_allocated": false,
   "measured_resources": {
@@ -244,35 +249,36 @@
   "native_execution": true,
   "native_execution_scope": "attempt03_completed_S0_S1_controls_and_restart_after_two_execution_failures",
   "native_multimodal": "deferred",
+  "native_official_BF16_diagnostics": {
+    "v5": {
+      "path": "reports/intrinsic_memory_successor_v5/native_attempt01_summary.json",
+      "sha256": "67a7c709f9e272c1633a9c233682a9093ac4f5f47605e23ce34ad9f64a5634b0"
+    },
+    "v6": {
+      "path": "reports/intrinsic_memory_explicit_v6/native_attempt01_summary.json",
+      "sha256": "ca0f7a63d01f0021546b42666931b3b42d3837d23f31a7a2658bd54fff3e9c54"
+    },
+    "v7": {
+      "path": "reports/intrinsic_memory_exposure_v7/native_attempt01_summary.json",
+      "sha256": "0f9e0146f5b9c94f2626c9c2337cb5be3b77687cb0603f1fbbc4b9ed52a03ef7"
+    },
+    "v8": {
+      "path": "reports/intrinsic_memory_supported_v8/native_attempt01_summary.json",
+      "sha256": "2f7a959031c510470e9dbced450a53d1049b6c934df9dc4fea38e5ef7c490cda"
+    },
+    "v9": {
+      "path": "reports/intrinsic_memory_step_v9/native_attempt01_summary.json",
+      "sha256": "e6a2678e72dd91890ed26228213a3923e76ab8680f1a2b3d43c07e5611df14fb"
+    }
+  },
   "next_executable_experiment": {
     "P_updates": 0,
-    "artifact_bytes_max": 167772160,
-    "authorization": "absent_exact_human_approval_required",
-    "command": "PYTHONDONTWRITEBYTECODE=1 .venv-spark-bf16/bin/python scripts/run_spark_intrinsic_diagnostic_v5.py --packet reports/intrinsic_memory_successor_v5/native_packet_two_v5.json --authorization reports/intrinsic_memory_successor_v5/authorization_two_v5.json --launch",
-    "driver_bytes_max": 53687091200,
-    "fit_updates": 32,
-    "forwards_max": 957,
-    "generated_tokens_max": 856,
-    "input_positions_max": 244992,
+    "authorization": "standing_direct_user_instruction_applies_to_bounded_tests_with_exact_new_packet_receipts",
+    "density_gate": "useful_matching_two_site_result_required",
     "launch_allowed": false,
-    "minimum_host_free_fraction": 0.15,
-    "native_model_loads_max": 2,
-    "native_ready": true,
-    "packet": {
-      "path": "reports/intrinsic_memory_successor_v5/native_packet_two_v5.json",
-      "sha256": "4521b0d098ba75d2abfd8f70103f388113e37ec911d40b8d077f04a88a91ac8e"
-    },
-    "remaining_requirement": "fresh_exact_external_authorization",
-    "restart_updates": 1,
-    "retries": 0,
-    "sites": [
-      3,
-      7
-    ],
-    "source": "official_BF16",
-    "stage": "official_BF16_two_site_S0_fit_dependence_fresh_development_and_restart",
-    "sustained_swap_growth_bytes_max": 536870912,
-    "wall_seconds_max": 7200
+    "remaining_requirement": "implement_response_position_alignment_detach_and_cost_contracts_then_CPU_gradient_reload_checks_and_bound_native_packet",
+    "stage": "full_context_teacher_memory_student_alignment_with_direct_CE_reference",
+    "status": "not_implemented_or_bound"
   },
   "outcomes": {
     "baseline_competence": {

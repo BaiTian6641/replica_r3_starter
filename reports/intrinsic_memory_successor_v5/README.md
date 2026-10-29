@@ -1,7 +1,7 @@
 # Intrinsic-memory v5 execution runbook
 
 Read the [implementation and gate report](../../docs/experiments/20261029_Spark_Memory_BF16_Diagnostic_V5.md)
-and [verification summary](verification_summary.json). Native v5 execution is unrun.
+and [preparation verification summary](verification_summary.json). V5 execution is complete: 6/8 competence failed and no fitting opened. See the [native summary](native_attempt01_summary.json) and [current diagnostic report](../../docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md). The two-site packet is consumed; do not repeat its launch. The prelaunch instructions below describe the preserved preparation snapshot.
 The selected source is the existing official `XHToken/Spark-X2.6-4B` BF16 artifact,
 revision `66e3ae7bee54e0a523d692cb8ef841f35409807b`; no weight download is needed.
 The old FP8-derived BF16 attempt03 and its consumed approval remain historical.

@@ -1,5 +1,7 @@
 # Spark intrinsic-memory v5: correctness and official BF16 diagnosis
 
+**Historical preparation snapshot:** native v5 subsequently failed competence at 6/8. The [current native diagnostic report](20261029_Spark_Memory_BF16_Native_Diagnostics.md) records v5–v9 and the user’s continuing testing authorization. Statements below about an unrun v5 or absent approval describe this preparation snapshot, not current instructions.
+
 Current implementation: `771e9586`, following review snapshot `017f7d71`.
 The [v5 evidence summary](../../reports/intrinsic_memory_successor_v5/verification_summary.json)
 separates new CPU checks from historical native results. No v5 native attempt has

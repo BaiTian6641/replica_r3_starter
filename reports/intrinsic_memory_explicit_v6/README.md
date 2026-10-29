@@ -1,5 +1,7 @@
 # Explicit entity/color evidence v6
 
+**Current outcome:** Completed: frozen competence passed 8/8; contextual fitting failed 0/8 after 32 updates. Development stayed unopened. Fresh-process exact logits, one actual continuation update and full frozen-weight integrity passed. See the [measured summary](native_attempt01_summary.json) and [current native report](../../docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md). The two-site output is consumed with zero retries. Commands below document its historical preparation and must not be relaunched. Native 9/36 and persistent learning remain gated.
+
 This is one data-only successor to the preserved
 [official BF16 v5 attempt](../intrinsic_memory_successor_v5/native_attempt01_summary.json).
 V5 completed all eight calibration cases at 6/8 correct, one false recall and

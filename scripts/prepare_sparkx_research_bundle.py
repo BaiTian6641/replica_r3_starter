@@ -974,14 +974,14 @@ FINAL_PRODUCT_INPUT_ROLES.extend([
 ])
 
 FINAL_PRODUCT_INPUT_ROLES.extend([
-    ('docs/experiments/20261029_Spark_Memory_BF16_Diagnostic_V5.md', 'current official BF16 correctness, diagnosis, density and Replica evidence boundaries'),
-    ('reports/intrinsic_memory_successor_v5/README.md', 'exact v5 launch and authorization runbook; no native attempt authorized'),
-    ('reports/intrinsic_memory_successor_v5/verification_summary.json', 'new clean CPU engineering evidence, measured resources and historical outcome separation'),
+    ('docs/experiments/20261029_Spark_Memory_BF16_Diagnostic_V5.md', 'historical v5 preparation with navigation to completed native diagnostics'),
+    ('reports/intrinsic_memory_successor_v5/README.md', 'consumed v5 launch and preserved preparation runbook'),
+    ('reports/intrinsic_memory_successor_v5/verification_summary.json', 'recorded v5 clean CPU preparation evidence and measured resources'),
     ('configs/spark_intrinsic_diagnostic_v5.json', 'complete EOS, competence, fitting, development, restart and per-arm work budgets'),
     ('reports/intrinsic_memory_successor_v5/implementation_v5.json', 'actual executable closure for the separate v5 runner'),
     ('reports/intrinsic_memory_successor_v5/source_execution_v5.json', 'official BF16 model/configuration executable source identity'),
     ('reports/intrinsic_memory_successor_v5/official_bf16_source.json', 'fresh full local official BF16 source hash validation without model loading'),
-    ('reports/intrinsic_memory_successor_v5/native_packet_two_v5.json', 'two-site official BF16 diagnostic packet requiring fresh exact approval'),
+    ('reports/intrinsic_memory_successor_v5/native_packet_two_v5.json', 'consumed two-site official BF16 diagnostic packet; competence failed'),
     ('reports/intrinsic_memory_successor_v5/native_packet_full_attention_nine_v5.json', 'nine-site packet with its own budget and useful two-site prerequisite'),
     ('reports/intrinsic_memory_successor_v5/native_packet_all_v5.json', '36-site packet with its own budget and useful two-site prerequisite'),
     ('reports/intrinsic_memory_successor_v5/review_preflight_final.json', 'complete source/environment/implementation/data admission check with no weight loading'),
@@ -992,6 +992,35 @@ FINAL_PRODUCT_INPUT_ROLES.extend([
     ('data/intrinsic_memory_v5_20261029/fit.json', 'counterfactual fitting-only worlds for memory-dependence probes'),
     ('data/intrinsic_memory_v5_20261029/development.json', 'fresh development worlds opened only after the frozen fitting gate'),
 ])
+
+FINAL_PRODUCT_INPUT_ROLES.extend([
+    ('docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md', 'current official BF16 native outcomes, limits and separate Replica successors'),
+    ('reports/intrinsic_memory_native_20261029/verification_summary.json', 'current native and clean CPU evidence with historical receipts separated'),
+    ('reports/intrinsic_memory_native_20261029/clean_regression03_summary.json', 'current clean-checkout portable regression and resource receipt'),
+    ('reports/intrinsic_memory_native_20261029/clean_cpu_integrated/result.json', 'current 2/9/36 CPU shared-snapshot and fresh-process continuation workflow'),
+])
+for _version, _directory in [(5, 'successor'), (6, 'explicit'), (7, 'exposure'), (8, 'supported'), (9, 'step')]:
+    _report = f'reports/intrinsic_memory_{_directory}_v{_version}'
+    FINAL_PRODUCT_INPUT_ROLES.extend([
+        (f'{_report}/native_attempt01_summary.json', f'v{_version} native diagnostic summary; no promotion implied'),
+        (f'{_report}/native_bf16_two_v{_version}_attempt01/result.json', f'v{_version} preserved native outcome and guard measurements'),
+        (f'{_report}/authorization_two_v{_version}.json', f'v{_version} exact packet receipt of direct user testing authorization'),
+    ])
+for _version, _directory, _config in [
+    (6, 'explicit', 'spark_intrinsic_explicit_evidence_v6'),
+    (7, 'exposure', 'spark_intrinsic_exposure_curve_v7'),
+    (8, 'supported', 'spark_intrinsic_supported_values_v8'),
+    (9, 'step', 'spark_intrinsic_smaller_step_v9'),
+]:
+    _report = f'reports/intrinsic_memory_{_directory}_v{_version}'
+    FINAL_PRODUCT_INPUT_ROLES.extend([
+        (f'configs/{_config}.json', f'v{_version} independently bound protocol, gates and complete budgets'),
+        (f'{_report}/README.md', f'v{_version} scoped execution and outcome runbook'),
+        (f'{_report}/implementation_v{_version}.json', f'v{_version} actual local executable dependency closure'),
+    ])
+    for _arm in ('two', 'full_attention_nine', 'all'):
+        FINAL_PRODUCT_INPUT_ROLES.append((f'{_report}/native_packet_{_arm}_v{_version}.json',
+                                         f'v{_version} {_arm} separate launch identity and work budget'))
 
 PROFILES = {
     "historical": {

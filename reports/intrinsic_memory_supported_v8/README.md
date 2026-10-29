@@ -1,5 +1,7 @@
 # Supported-value exposure control v8
 
+**Current outcome:** Completed: frozen competence passed 8/8; contextual fitting failed 0/8 at every fixed prefix through 128 updates. Development stayed unopened. Fresh-process continuation and full frozen-weight integrity passed. See the [measured summary](native_attempt01_summary.json) and [current native report](../../docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md). The two-site output is consumed with zero retries. Commands below document its historical preparation and must not be relaunched. Native 9/36 and persistent learning remain gated.
+
 This separately bound data-only control follows the v7 fitting result. V7 learned
 all eight fitting memories at 64/96/128 updates, including four same-question
 counterfactual pairs, while wrong/zero/absent memory scored 0/8. Its fitting data

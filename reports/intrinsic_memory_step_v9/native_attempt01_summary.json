@@ -1,0 +1,448 @@
+{
+  "P_updates": 0,
+  "RSI": false,
+  "approval_consumed": true,
+  "competence": {
+    "cases": 8,
+    "correct": 8,
+    "false_recall": 0,
+    "passed": true,
+    "truncated": 0
+  },
+  "correction": null,
+  "density_admitted": false,
+  "development": null,
+  "development_opened": false,
+  "fit": {
+    "all_controls_fit_generation_prefix_exact": true,
+    "contextual_first_token_correct": 6,
+    "contextual_terminated": 8,
+    "curve": [
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 3,
+          "exact_text": 8,
+          "shuffled": 3,
+          "wrong": 3,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "memory_dependence_passed": false,
+        "updates": 32
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 6,
+          "exact_text": 8,
+          "shuffled": 6,
+          "wrong": 2,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 2,
+        "memory_dependence_passed": false,
+        "updates": 64
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 7,
+          "exact_text": 8,
+          "shuffled": 7,
+          "wrong": 1,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 3,
+        "memory_dependence_passed": false,
+        "updates": 96
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 6,
+          "exact_text": 8,
+          "shuffled": 6,
+          "wrong": 2,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 2,
+        "memory_dependence_passed": false,
+        "updates": 128
+      }
+    ],
+    "fixed_final_prefix": 128,
+    "gradients_after_zero_init": {
+      "order": {
+        "finite": true,
+        "missing": [],
+        "norm": 0.00430426722024936
+      },
+      "producer": {
+        "finite": true,
+        "missing": [],
+        "norm": 0.1242517414144531
+      },
+      "reader": {
+        "finite": true,
+        "missing": [],
+        "norm": 48.54312706502546
+      },
+      "sites": {
+        "3": {
+          "norm": 43.74629472282604,
+          "output_norm": 43.746158599853516
+        },
+        "7": {
+          "norm": 21.040363192560378,
+          "output_norm": 21.040300369262695
+        }
+      }
+    },
+    "live_durable_exact": true,
+    "loss_prefixes": [
+      {
+        "eos_loss": 0.0015812524361535907,
+        "loss": 3.5943515300750732,
+        "update": 1,
+        "word_loss": 7.187121868133545
+      },
+      {
+        "eos_loss": 0.0012867513578385115,
+        "loss": 0.16886377334594727,
+        "update": 2,
+        "word_loss": 0.3364408016204834
+      },
+      {
+        "eos_loss": 0.018125727772712708,
+        "loss": 6.5136284828186035,
+        "update": 8,
+        "word_loss": 13.00913143157959
+      },
+      {
+        "eos_loss": 0.03808743134140968,
+        "loss": 1.942673683166504,
+        "update": 16,
+        "word_loss": 3.847259998321533
+      },
+      {
+        "eos_loss": 0.0024563875049352646,
+        "loss": 0.8259822130203247,
+        "update": 24,
+        "word_loss": 1.649507999420166
+      },
+      {
+        "eos_loss": 3.1470757676288486e-05,
+        "loss": 0.45548635721206665,
+        "update": 32,
+        "word_loss": 0.9109412431716919
+      },
+      {
+        "eos_loss": 1.4305104514278355e-06,
+        "loss": 0.37935870885849,
+        "update": 64,
+        "word_loss": 0.7587159872055054
+      },
+      {
+        "eos_loss": 9.536738616588991e-07,
+        "loss": 0.04262267425656319,
+        "update": 96,
+        "word_loss": 0.08524439483880997
+      },
+      {
+        "eos_loss": 0.0017203782917931676,
+        "loss": 0.29531821608543396,
+        "update": 128,
+        "word_loss": 0.5889160633087158
+      }
+    ],
+    "memory_dependence_passed": false,
+    "no_early_stop_or_best_prefix_selection": true,
+    "updates": 128
+  },
+  "format": "replica.intrinsic_memory.native_attempt_summary.v9",
+  "next_experiment": "Prepare a separately costed full-context-teacher/memory-student alignment comparison with a direct-CE reference. Preserve the unopened development corpus and all current gates; no density or P launch is eligible.",
+  "original_weights_unchanged": true,
+  "packet": {
+    "path": "reports/intrinsic_memory_step_v9/native_packet_two_v9.json",
+    "sha256": "86d18d53421a0488a931371394e6620493c6cc9b4741c174726c38737d17f6e6"
+  },
+  "promotion": false,
+  "resources": {
+    "artifact_bytes": 47700126,
+    "audit_serialized_write_bytes": 2020429322,
+    "minimum_host_free_percent": 70.0,
+    "outer_wall_seconds": 508.26972766732797,
+    "peak_driver_bytes": 11261542400,
+    "peak_rss_bytes": 8504541184,
+    "peak_swap_growth_bytes": 0,
+    "reserved_work": {
+      "artifact_bytes": 167772160,
+      "backwards": 129,
+      "forwards": 796,
+      "generated_tokens": 407,
+      "input_tokens": 203776,
+      "model_loads": 2,
+      "retrievals": 41,
+      "source_encodes": 236,
+      "updates": 129,
+      "writes": 83
+    },
+    "source_bytes_hashed_inside_attempt": 24716988741,
+    "stages": {
+      "admission": {
+        "elapsed_seconds": 4.131788124796003,
+        "reserved": {
+          "artifact_bytes": 33554432,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "baseline": {
+        "elapsed_seconds": 7.218535416759551,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 23,
+          "generated_tokens": 23,
+          "input_tokens": 5888,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "passed"
+      },
+      "checkpoint": {
+        "elapsed_seconds": 1.0068252496421337,
+        "reserved": {
+          "artifact_bytes": 134217728,
+          "backwards": 0,
+          "forwards": 1,
+          "generated_tokens": 0,
+          "input_tokens": 256,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "fit_032": {
+        "elapsed_seconds": 29.369633624795824,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_064": {
+        "elapsed_seconds": 33.61115516722202,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_096": {
+        "elapsed_seconds": 36.62152974959463,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_128": {
+        "elapsed_seconds": 39.78886637510732,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_probes_032": {
+        "elapsed_seconds": 59.23550704168156,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 160,
+          "generated_tokens": 96,
+          "input_tokens": 40960,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_064": {
+        "elapsed_seconds": 68.84072262467816,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 160,
+          "generated_tokens": 96,
+          "input_tokens": 40960,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_096": {
+        "elapsed_seconds": 79.42191266734153,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 160,
+          "generated_tokens": 96,
+          "input_tokens": 40960,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_128": {
+        "elapsed_seconds": 89.64747829223052,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 160,
+          "generated_tokens": 96,
+          "input_tokens": 40960,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_memory_dependence"
+      },
+      "load": {
+        "elapsed_seconds": 22.550115208141506,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 1,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "numerical": {
+        "elapsed_seconds": 0.6549402503296733,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 2,
+          "generated_tokens": 0,
+          "input_tokens": 512,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "passed"
+      },
+      "prepare": {
+        "elapsed_seconds": 0.2779380842112005,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 8,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "completed"
+      },
+      "restart": {
+        "elapsed_seconds": 29.881343875080347,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 1,
+          "forwards": 2,
+          "generated_tokens": 0,
+          "input_tokens": 512,
+          "model_loads": 1,
+          "retrievals": 1,
+          "source_encodes": 2,
+          "updates": 1,
+          "writes": 1
+        },
+        "status": "completed"
+      }
+    }
+  },
+  "restart": {
+    "actual_continuation_updates": 1,
+    "fresh_logits_exact": true,
+    "original_weights_unchanged": true,
+    "uninterrupted_equivalence_measured": false
+  },
+  "result": {
+    "path": "reports/intrinsic_memory_step_v9/native_bf16_two_v9_attempt01/result.json",
+    "sha256": "29ab5e95d96377242b248b57123cddad535926e80f3d69d4aa2d8c9685c542e2"
+  },
+  "source_kind": "official_bf16",
+  "standing_testing_authorization_remains_applicable_to_new_bounded_packets": true,
+  "useful_recall": false
+}

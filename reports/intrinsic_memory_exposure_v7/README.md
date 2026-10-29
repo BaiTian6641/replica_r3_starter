@@ -1,5 +1,7 @@
 # Fixed direct-CE exposure curve v7
 
+**Current outcome:** Completed: frozen competence passed 8/8, and fixed final fitting passed 8/8 after 128 updates. Fresh development was 0/8 contextual versus 8/8 exact text, with one false recall. Useful recall failed. Fresh-process continuation and full frozen-weight integrity passed. See the [measured summary](native_attempt01_summary.json) and [current native report](../../docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md). The two-site output is consumed with zero retries. Commands below document its historical preparation and must not be relaunched. Native 9/36 and persistent learning remain gated.
+
 The [v6 native result](../intrinsic_memory_explicit_v6/native_attempt01_summary.json)
 passes official BF16 competence at 8/8 and numerical continuation, but fails fitting:
 contextual/wrong/shuffled/zero memory emits immediate EOS in every fitting world;
