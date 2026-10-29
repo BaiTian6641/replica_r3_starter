@@ -51,6 +51,12 @@ Evidence: [`run_report.json`](../../runs/spark_persistent_learner_v2/cpu_final01
 
 The artifact receipts use magic bytes, not suffixes, and include extensionless checkpoint states. `extensionless_archives_safe_to_delete` is false. Base model weights are not duplicated in the run output.
 
+## 2.1 Final acceptance at the committed HEAD
+
+- Standalone `fit` → `development` → `restart` completed in three separate processes at [`cpu_final_resume01`](../../runs/spark_persistent_learner_v2/cpu_final_resume01/restart/restart_report.json). Dynamic sidecars restored development state; correction reset, source-free P-only exact-token parity and tiered P digest reload passed.
+- The final full repository suite at `5bdd64eac2fdcba28221e1161f6d167b3489b36a` passed **3363 tests with 9 skipped and 21 subtests in 847.99 seconds**; one unrelated sparse-tensor warning is preserved in [`full_suite.log`](full_suite.log).
+- Final preflight at that HEAD is preparation-only with only `external_authorization_receipt` and `native_fp8_backend_evidence` missing. The implementation ancestry and all 13 protocol tests pass.
+
 ## 3. Learning and persistence verdict
 
 Engineering acceptance passed: initial null parity, later nonzero influence, correction reset, exact fresh-process restart, source-free P-only audit and tiered P digest reload. The restart restores the final checkpoint, removes E/S/C/source-bearing query state and preserves P and port state.
