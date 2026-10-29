@@ -1059,11 +1059,22 @@ def _validate_authorization_receipt(protocol: Protocol, dataset: PreparedDataset
         _require(dict(launch["implementation_sha256"]) == computed,
                  "authorization", "protocol implementation binding differs")
     if head is not None:
-        _require(receipt["protocol_commit"] == head, "authorization",
-                 "protocol commit does not match the current HEAD")
-        if launch.get("protocol_commit"):
-            _require(launch["protocol_commit"] == head, "authorization",
-                     "protocol is not bound to current HEAD")
+        protocol_commit = launch.get("protocol_commit")
+        _require(isinstance(protocol_commit, str) and len(protocol_commit) == 40,
+                 "authorization", "protocol implementation commit is missing")
+        ancestry = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", protocol_commit, head],
+            cwd=protocol.path.parent.parent, capture_output=True, check=False)
+        _require(ancestry.returncode == 0, "authorization",
+                 "protocol implementation commit is not an ancestor of HEAD")
+        drift = subprocess.run(
+            ["git", "diff", "--quiet", protocol_commit, head, "--",
+             *launch["implementation_files"]],
+            cwd=protocol.path.parent.parent, capture_output=True, check=False)
+        _require(drift.returncode == 0, "authorization",
+                 "implementation files changed after the protocol commit")
+        _require(receipt["protocol_commit"] == protocol_commit,
+                 "authorization", "receipt and protocol implementation commits differ")
     binding = launch["required_execution_binding"]
     _require(receipt["source_identity"] == binding["source_identity"],
              "authorization", "source identity differs")

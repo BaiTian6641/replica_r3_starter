@@ -1,0 +1,618 @@
+{
+  "arms": [
+    "full_eligible_context",
+    "selective_exact_and_procedure",
+    "spine_E_only",
+    "source_free_P_only",
+    "E_plus_P",
+    "no_update",
+    "reset_P",
+    "shuffled_memory",
+    "inapplicable_procedure"
+  ],
+  "derived_caches_required": false,
+  "development_cases_per_arm": 12,
+  "development_cases_total": 108,
+  "development_text_references": [
+    {
+      "record_id": "dev-delta-revocation",
+      "text_sha256": "b033e42eedbe1d32924315a10193e7e24f2d5e44b72b0e3dde3403e07a582f28"
+    },
+    {
+      "record_id": "dev-filler-1",
+      "text_sha256": "fba6447bdb11b36d2e239164f04fbfde2dd95071cec943629ead7400925cfcc0"
+    },
+    {
+      "record_id": "dev-filler-2",
+      "text_sha256": "b4eb0cd209a87124194aa18b58df328536470f9a9bfcebdd13eacd307eb1682e"
+    },
+    {
+      "record_id": "dev-filler-3",
+      "text_sha256": "ccdb3afd89e47f8947f4bce5e0511b9656817429cc3afe40dcc32015e6f98d83"
+    },
+    {
+      "record_id": "dev-filler-4",
+      "text_sha256": "eb7fb7ccd4e26c70670a964e99e837c5439a80cd31a330c614a9ab3acd5ea6d0"
+    },
+    {
+      "record_id": "dev-filler-5",
+      "text_sha256": "f1a480364d50db7a7d371e2949e1e4c5038210a98b576c799202e08c985c6a0e"
+    },
+    {
+      "record_id": "dev-filler-6",
+      "text_sha256": "37350047b3265c9844258aa8af0cacd5764b08ab87b4717f54d7bc8f729d0a46"
+    },
+    {
+      "record_id": "dev-gamma-rule",
+      "text_sha256": "85c1303f371b2181ea0603ed4f54db693f98ff115faed5bd5dba05c04c612644"
+    },
+    {
+      "record_id": "fit-alpha-correction",
+      "text_sha256": "96a8c611c03294507c3f5b986be9127666f9c698640f55ec621df718b5944366"
+    },
+    {
+      "record_id": "fit-alpha-legacy",
+      "text_sha256": "e234cc8412c787203f54558465b6612e66154453807ab9d28b4aeefcdd9b7bbc"
+    },
+    {
+      "record_id": "fit-beta-rule",
+      "text_sha256": "21a7d493a08b2d6e47d4977f6e86528a4a80d1b4481003f17d4151a1b09498ea"
+    }
+  ],
+  "durable_text_references": [
+    {
+      "canonical_text": true,
+      "codec_version": "spine-ingestion-codec-v1",
+      "durable_ref": {
+        "locator": "data/spark_text_memory_v1/observations.jsonl#fit-alpha-correction",
+        "text_sha256": "96a8c611c03294507c3f5b986be9127666f9c698640f55ec621df718b5944366"
+      },
+      "producer_revision": "spark-text-producer-v1",
+      "record_id": "fit-alpha-correction",
+      "representation_version": "unicode-token-hash-v1",
+      "text_sha256": "96a8c611c03294507c3f5b986be9127666f9c698640f55ec621df718b5944366"
+    },
+    {
+      "canonical_text": true,
+      "codec_version": "spine-ingestion-codec-v1",
+      "durable_ref": {
+        "locator": "data/spark_text_memory_v1/observations.jsonl#fit-alpha-legacy",
+        "text_sha256": "e234cc8412c787203f54558465b6612e66154453807ab9d28b4aeefcdd9b7bbc"
+      },
+      "producer_revision": "spark-text-producer-v1",
+      "record_id": "fit-alpha-legacy",
+      "representation_version": "unicode-token-hash-v1",
+      "text_sha256": "e234cc8412c787203f54558465b6612e66154453807ab9d28b4aeefcdd9b7bbc"
+    },
+    {
+      "canonical_text": true,
+      "codec_version": "spine-ingestion-codec-v1",
+      "durable_ref": {
+        "locator": "data/spark_text_memory_v1/observations.jsonl#fit-beta-rule",
+        "text_sha256": "21a7d493a08b2d6e47d4977f6e86528a4a80d1b4481003f17d4151a1b09498ea"
+      },
+      "producer_revision": "spark-text-producer-v1",
+      "record_id": "fit-beta-rule",
+      "representation_version": "unicode-token-hash-v1",
+      "text_sha256": "21a7d493a08b2d6e47d4977f6e86528a4a80d1b4481003f17d4151a1b09498ea"
+    }
+  ],
+  "execution_complete": true,
+  "format": "replica.spark_text_memory.development.v1",
+  "learning_evidence": {
+    "changed_expert_names": [
+      "expert_0.down",
+      "expert_0.gate",
+      "expert_0.up"
+    ],
+    "changed_trainable_names": [
+      "extension.spine.memory_projection.weight",
+      "extension.spine.ports.memory.3.gate_logit",
+      "extension.spine.ports.memory.3.output_norm.bias",
+      "extension.spine.ports.memory.3.output_norm.weight",
+      "extension.spine.ports.memory.3.output_projection.weight",
+      "extension.spine.ports.memory.3.query_norm.bias",
+      "extension.spine.ports.memory.3.query_norm.weight",
+      "extension.spine.ports.memory.3.query_projection.weight",
+      "extension.spine.ports.memory.3.slot_norm.bias",
+      "extension.spine.ports.memory.3.slot_norm.weight",
+      "extension.spine.ports.memory.3.value_projection.weight",
+      "extension.spine.ports.memory.7.gate_logit",
+      "extension.spine.ports.memory.7.output_norm.bias",
+      "extension.spine.ports.memory.7.output_norm.weight",
+      "extension.spine.ports.memory.7.output_projection.weight",
+      "extension.spine.ports.memory.7.slot_norm.bias",
+      "extension.spine.ports.memory.7.slot_norm.weight",
+      "extension.spine.ports.memory.7.value_projection.weight"
+    ],
+    "correction_effectiveness": {
+      "accuracy": 0.0,
+      "cases": 18,
+      "exact": 0,
+      "exact_accuracy": 0.0,
+      "matched": 0
+    },
+    "execution_complete": true,
+    "learning_success": false,
+    "optimizer_steps": 8,
+    "per_arm": {
+      "E_plus_P": {
+        "accuracy": 0.0,
+        "cases": 12,
+        "exact": 0,
+        "exact_accuracy": 0.0,
+        "matched": 0
+      },
+      "full_eligible_context": {
+        "accuracy": 0.0,
+        "cases": 12,
+        "exact": 0,
+        "exact_accuracy": 0.0,
+        "matched": 0
+      },
+      "inapplicable_procedure": {
+        "accuracy": 0.0,
+        "cases": 12,
+        "exact": 0,
+        "exact_accuracy": 0.0,
+        "matched": 0
+      },
+      "no_update": {
+        "accuracy": 0.0,
+        "cases": 12,
+        "exact": 0,
+        "exact_accuracy": 0.0,
+        "matched": 0
+      },
+      "reset_P": {
+        "accuracy": 0.0,
+        "cases": 12,
+        "exact": 0,
+        "exact_accuracy": 0.0,
+        "matched": 0
+      },
+      "selective_exact_and_procedure": {
+        "accuracy": 0.0,
+        "cases": 12,
+        "exact": 0,
+        "exact_accuracy": 0.0,
+        "matched": 0
+      },
+      "shuffled_memory": {
+        "accuracy": 0.0,
+        "cases": 12,
+        "exact": 0,
+        "exact_accuracy": 0.0,
+        "matched": 0
+      },
+      "source_free_P_only": {
+        "accuracy": 0.0,
+        "cases": 12,
+        "exact": 0,
+        "exact_accuracy": 0.0,
+        "matched": 0
+      },
+      "spine_E_only": {
+        "accuracy": 0.0,
+        "cases": 12,
+        "exact": 0,
+        "exact_accuracy": 0.0,
+        "matched": 0
+      }
+    },
+    "plastic_learning": {
+      "actual_updates": 4,
+      "backward_calls": 4,
+      "changed_tensor_count": 3,
+      "changed_trainable_names": [
+        "expert_0.down",
+        "expert_0.gate",
+        "expert_0.up"
+      ],
+      "clock_events": 4,
+      "declared_updates": 4,
+      "evaluated": true,
+      "fit_evaluation_forward_calls": 4,
+      "forward_calls": 4,
+      "learning_success": true,
+      "optimizer_steps": 4,
+      "per_event": [
+        {
+          "event_id": "fit-01",
+          "learning_evidence": {
+            "actual_updates": 1,
+            "backward_calls": 1,
+            "changed_tensor_count": 3,
+            "changed_trainable_names": [
+              "expert_0.gate",
+              "expert_0.up",
+              "expert_0.down"
+            ],
+            "declared_updates": 1,
+            "execution_complete": true,
+            "fit_evaluation_forward_calls": 1,
+            "forward_calls": 1,
+            "learning_success": true,
+            "optimizer_steps": 1,
+            "parameter_update": true,
+            "retention": {
+              "evaluated": false,
+              "retained": null
+            },
+            "retried": false,
+            "status": "passed",
+            "train_fit": {
+              "evaluated": true,
+              "improved": true,
+              "loss_after": 40.811317443847656,
+              "loss_before": 40.96701431274414
+            },
+            "transfer": {
+              "evaluated": false,
+              "improved": null
+            },
+            "useful_learning": true
+          },
+          "outcome": {
+            "eligible_events": 1,
+            "event_id": "fit-01-plastic",
+            "expert_id": 0,
+            "fingerprint": "39eb04ca23d53398d915a12d9017b287523ce6dc5db2039377f26e2b5bb207b8",
+            "loss": 40.96701431274414,
+            "retried": false,
+            "revision": 1,
+            "status": "committed",
+            "steps": 1
+          },
+          "target": {
+            "answer_sha256": "2348f998744212575d85959674f9607ab26f67708a917157472832386337c904",
+            "codec_version": "spine-ingestion-codec-v1",
+            "producer_revision": "spark-text-producer-v1",
+            "representation": "core.memory_projection(versioned_answer_vector)",
+            "representation_version": "unicode-token-hash-v1",
+            "target_positions": 512,
+            "target_sha256": "6e021db206aef2227b673e4cc7bfa70fa758f151890a6c6f641b91c2e896ba97",
+            "target_shape": [
+              1,
+              512,
+              256
+            ]
+          }
+        },
+        {
+          "event_id": "fit-02",
+          "learning_evidence": {
+            "actual_updates": 1,
+            "backward_calls": 1,
+            "changed_tensor_count": 3,
+            "changed_trainable_names": [
+              "expert_0.gate",
+              "expert_0.up",
+              "expert_0.down"
+            ],
+            "declared_updates": 1,
+            "execution_complete": true,
+            "fit_evaluation_forward_calls": 1,
+            "forward_calls": 1,
+            "learning_success": true,
+            "optimizer_steps": 1,
+            "parameter_update": true,
+            "retention": {
+              "evaluated": false,
+              "retained": null
+            },
+            "retried": false,
+            "status": "passed",
+            "train_fit": {
+              "evaluated": true,
+              "improved": true,
+              "loss_after": 41.165985107421875,
+              "loss_before": 41.26384735107422
+            },
+            "transfer": {
+              "evaluated": false,
+              "improved": null
+            },
+            "useful_learning": true
+          },
+          "outcome": {
+            "eligible_events": 2,
+            "event_id": "fit-02-plastic",
+            "expert_id": 0,
+            "fingerprint": "628a88bcc17e6042edb6053c42ad0b6db3bac93785fcd899694438e2e7d360ca",
+            "loss": 41.26384735107422,
+            "retried": false,
+            "revision": 2,
+            "status": "committed",
+            "steps": 1
+          },
+          "target": {
+            "answer_sha256": "c97ace4c8fef2cee8fa0f3c9f52aab18dbd4f42438afe362ffb8f75ce4c04b84",
+            "codec_version": "spine-ingestion-codec-v1",
+            "producer_revision": "spark-text-producer-v1",
+            "representation": "core.memory_projection(versioned_answer_vector)",
+            "representation_version": "unicode-token-hash-v1",
+            "target_positions": 512,
+            "target_sha256": "706871324742d25101d045a61f3794776f985334a210a39d25f5629ef2efbd86",
+            "target_shape": [
+              1,
+              512,
+              256
+            ]
+          }
+        },
+        {
+          "event_id": "fit-03",
+          "learning_evidence": {
+            "actual_updates": 1,
+            "backward_calls": 1,
+            "changed_tensor_count": 3,
+            "changed_trainable_names": [
+              "expert_0.gate",
+              "expert_0.up",
+              "expert_0.down"
+            ],
+            "declared_updates": 1,
+            "execution_complete": true,
+            "fit_evaluation_forward_calls": 1,
+            "forward_calls": 1,
+            "learning_success": true,
+            "optimizer_steps": 1,
+            "parameter_update": true,
+            "retention": {
+              "evaluated": false,
+              "retained": null
+            },
+            "retried": false,
+            "status": "passed",
+            "train_fit": {
+              "evaluated": true,
+              "improved": true,
+              "loss_after": 40.74103546142578,
+              "loss_before": 40.88570785522461
+            },
+            "transfer": {
+              "evaluated": false,
+              "improved": null
+            },
+            "useful_learning": true
+          },
+          "outcome": {
+            "eligible_events": 3,
+            "event_id": "fit-03-plastic",
+            "expert_id": 0,
+            "fingerprint": "28097b020bb8bd286b01d1a6cf208830d8bc7e37785ac5665e886bf79abebe3f",
+            "loss": 40.88570785522461,
+            "retried": false,
+            "revision": 3,
+            "status": "committed",
+            "steps": 1
+          },
+          "target": {
+            "answer_sha256": "c3eefb58d7c42440a9d4abec51d629544d635a6d936ff3c4d3fca96d611b3cf3",
+            "codec_version": "spine-ingestion-codec-v1",
+            "producer_revision": "spark-text-producer-v1",
+            "representation": "core.memory_projection(versioned_answer_vector)",
+            "representation_version": "unicode-token-hash-v1",
+            "target_positions": 512,
+            "target_sha256": "39ba51442b97d36b5bf57494cf18618d9797874458d8a38279364b98770e890a",
+            "target_shape": [
+              1,
+              512,
+              256
+            ]
+          }
+        },
+        {
+          "event_id": "fit-04",
+          "learning_evidence": {
+            "actual_updates": 1,
+            "backward_calls": 1,
+            "changed_tensor_count": 3,
+            "changed_trainable_names": [
+              "expert_0.gate",
+              "expert_0.up",
+              "expert_0.down"
+            ],
+            "declared_updates": 1,
+            "execution_complete": true,
+            "fit_evaluation_forward_calls": 1,
+            "forward_calls": 1,
+            "learning_success": true,
+            "optimizer_steps": 1,
+            "parameter_update": true,
+            "retention": {
+              "evaluated": false,
+              "retained": null
+            },
+            "retried": false,
+            "status": "passed",
+            "train_fit": {
+              "evaluated": true,
+              "improved": true,
+              "loss_after": 47.39604568481445,
+              "loss_before": 47.47892379760742
+            },
+            "transfer": {
+              "evaluated": false,
+              "improved": null
+            },
+            "useful_learning": true
+          },
+          "outcome": {
+            "eligible_events": 4,
+            "event_id": "fit-04-plastic",
+            "expert_id": 0,
+            "fingerprint": "8fe594093cdefc12680c6dd5fd052534861cb2a639e99c7cdea56ef06d57b73f",
+            "loss": 47.47892379760742,
+            "retried": false,
+            "revision": 4,
+            "status": "committed",
+            "steps": 1
+          },
+          "target": {
+            "answer_sha256": "f8f8922da592b7f3ace2777f428e6c5c0eca681aad18a54fc876dd2432431872",
+            "codec_version": "spine-ingestion-codec-v1",
+            "producer_revision": "spark-text-producer-v1",
+            "representation": "core.memory_projection(versioned_answer_vector)",
+            "representation_version": "unicode-token-hash-v1",
+            "target_positions": 512,
+            "target_sha256": "43d29585b60d5fc68287e215afecf4ef5c09a93f28c33f03c4a1372c10a4be99",
+            "target_shape": [
+              1,
+              512,
+              256
+            ]
+          }
+        }
+      ],
+      "plastic_changed": true,
+      "pre_fit_plastic_digest": "ed18a125a196ffe7ff143476b078c5c93ef7e80c7f8f0a08f5b85b45fa8ee60e",
+      "retained_plastic_digest": "5589eee86ef5e31dbb63d02c34b135dced51bd447cb3a395c4035e4d7472d829",
+      "revisions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "target_representation": "core.memory_projection(versioned_answer_vector)"
+    },
+    "retention": {
+      "drop_max_allowed": 0.02,
+      "older_rule": {
+        "accuracy": 0.0,
+        "cases": 3,
+        "exact": 0,
+        "exact_accuracy": 0.0,
+        "matched": 0
+      },
+      "retained": false
+    },
+    "train_fit": {
+      "diagnostic_only": true,
+      "evaluated": true,
+      "losses": [
+        14.806519508361816,
+        12.678532600402832,
+        12.544323921203613,
+        15.723684310913086
+      ],
+      "teacher_forced": [
+        {
+          "correct": 0,
+          "positions": 1,
+          "token_accuracy": 0.0
+        },
+        {
+          "correct": 0,
+          "positions": 1,
+          "token_accuracy": 0.0
+        },
+        {
+          "correct": 0,
+          "positions": 1,
+          "token_accuracy": 0.0
+        },
+        {
+          "correct": 0,
+          "positions": 1,
+          "token_accuracy": 0.0
+        }
+      ]
+    },
+    "transfer": {
+      "best_memory_arm": "spine_E_only",
+      "evaluated": true,
+      "gain_over_strongest_nonlearning": 0.0,
+      "paired_by_independent_world": true,
+      "per_arm_accuracy": {
+        "E_plus_P": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "full_eligible_context": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "inapplicable_procedure": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "no_update": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "reset_P": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "selective_exact_and_procedure": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "shuffled_memory": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "source_free_P_only": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "spine_E_only": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        }
+      },
+      "strongest_nonlearning_control": 0.0
+    },
+    "unknown_false_recall": 1.0,
+    "useful_learning": {
+      "correction": {
+        "accuracy": 0.0,
+        "cases": 18,
+        "exact": 0,
+        "exact_accuracy": 0.0,
+        "matched": 0
+      },
+      "criterion": "memory_arm_gain_ge_0.10_over_strongest_nonlearning_and_correction_and_unknown_false_recall",
+      "evaluated": true,
+      "gain": 0.0,
+      "passed": false,
+      "reset_or_wrong_p_reduces_gain": true,
+      "unknown_false_recall": 1.0,
+      "unknown_false_recall_max": 0.1
+    }
+  },
+  "parity_requests": 2,
+  "parity_sha256": "be20c7f82b14c69f991c3dbc0e89d86c37b3a428aeb5c496937895abdca58932",
+  "rows_sha256": "7d64377ed5d08b4abe4a9c8ee5046ab11fb1b70db5f5331f5e1d053d897b8eb6",
+  "status": "complete",
+  "written_at_utc": "2026-10-29T02:13:43.349464+00:00"
+}

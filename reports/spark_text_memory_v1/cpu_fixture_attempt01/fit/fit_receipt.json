@@ -1,0 +1,1519 @@
+{
+  "actual_parameter_updates": 4,
+  "actual_plastic_updates": 4,
+  "backend": "cpu_fixture",
+  "changed_expert_names": [
+    "expert_0.down",
+    "expert_0.gate",
+    "expert_0.up"
+  ],
+  "changed_tensor_count": 18,
+  "changed_trainable_names": [
+    "extension.spine.memory_projection.weight",
+    "extension.spine.ports.memory.3.gate_logit",
+    "extension.spine.ports.memory.3.output_norm.bias",
+    "extension.spine.ports.memory.3.output_norm.weight",
+    "extension.spine.ports.memory.3.output_projection.weight",
+    "extension.spine.ports.memory.3.query_norm.bias",
+    "extension.spine.ports.memory.3.query_norm.weight",
+    "extension.spine.ports.memory.3.query_projection.weight",
+    "extension.spine.ports.memory.3.slot_norm.bias",
+    "extension.spine.ports.memory.3.slot_norm.weight",
+    "extension.spine.ports.memory.3.value_projection.weight",
+    "extension.spine.ports.memory.7.gate_logit",
+    "extension.spine.ports.memory.7.output_norm.bias",
+    "extension.spine.ports.memory.7.output_norm.weight",
+    "extension.spine.ports.memory.7.output_projection.weight",
+    "extension.spine.ports.memory.7.slot_norm.bias",
+    "extension.spine.ports.memory.7.slot_norm.weight",
+    "extension.spine.ports.memory.7.value_projection.weight"
+  ],
+  "checkpoint_writes": 5,
+  "declared_plastic_updates": 4,
+  "declared_response_updates": 4,
+  "derived_caches_required": false,
+  "durable_text_references": [
+    {
+      "canonical_text": true,
+      "codec_version": "spine-ingestion-codec-v1",
+      "durable_ref": {
+        "locator": "data/spark_text_memory_v1/observations.jsonl#fit-alpha-correction",
+        "text_sha256": "96a8c611c03294507c3f5b986be9127666f9c698640f55ec621df718b5944366"
+      },
+      "producer_revision": "spark-text-producer-v1",
+      "record_id": "fit-alpha-correction",
+      "representation_version": "unicode-token-hash-v1",
+      "text_sha256": "96a8c611c03294507c3f5b986be9127666f9c698640f55ec621df718b5944366"
+    },
+    {
+      "canonical_text": true,
+      "codec_version": "spine-ingestion-codec-v1",
+      "durable_ref": {
+        "locator": "data/spark_text_memory_v1/observations.jsonl#fit-alpha-legacy",
+        "text_sha256": "e234cc8412c787203f54558465b6612e66154453807ab9d28b4aeefcdd9b7bbc"
+      },
+      "producer_revision": "spark-text-producer-v1",
+      "record_id": "fit-alpha-legacy",
+      "representation_version": "unicode-token-hash-v1",
+      "text_sha256": "e234cc8412c787203f54558465b6612e66154453807ab9d28b4aeefcdd9b7bbc"
+    },
+    {
+      "canonical_text": true,
+      "codec_version": "spine-ingestion-codec-v1",
+      "durable_ref": {
+        "locator": "data/spark_text_memory_v1/observations.jsonl#fit-beta-rule",
+        "text_sha256": "21a7d493a08b2d6e47d4977f6e86528a4a80d1b4481003f17d4151a1b09498ea"
+      },
+      "producer_revision": "spark-text-producer-v1",
+      "record_id": "fit-beta-rule",
+      "representation_version": "unicode-token-hash-v1",
+      "text_sha256": "21a7d493a08b2d6e47d4977f6e86528a4a80d1b4481003f17d4151a1b09498ea"
+    }
+  ],
+  "events": [
+    {
+      "actual_parameter_update": true,
+      "answer": "open",
+      "base_unchanged": true,
+      "changed_expert_names": [
+        "expert_0.gate",
+        "expert_0.up",
+        "expert_0.down"
+      ],
+      "changed_trainable_names": [
+        "extension.spine.ports.memory.3.output_projection.weight",
+        "extension.spine.ports.memory.7.output_projection.weight"
+      ],
+      "charges": {
+        "charged_extra_passes": 0,
+        "codec_calls": 512,
+        "decoder_passes": 1,
+        "e_codec_calls": 0,
+        "e_memory_read_slots": 0,
+        "memory_read_slots": 1,
+        "native_query_passes": 1,
+        "p_codec_calls": 512,
+        "p_memory_read_slots": 1,
+        "p_read_calls": 1,
+        "packet_bytes": 0,
+        "packet_count": 0,
+        "port_calls": 2
+      },
+      "checkpoint": {
+        "artifacts": [
+          {
+            "bytes": 8847521,
+            "path": "fit/event-01/state",
+            "sha256": "78c67db02a1506ccb390a999f55bf657184cd34b552fc47e4548da207a57d23a"
+          },
+          {
+            "bytes": 3255073,
+            "path": "fit/event-01/state.text.pt",
+            "sha256": "fda5f72a113413daeda4b1ced26d050841ae046a682f012df26a5f3bbb2f1993"
+          }
+        ],
+        "relative": "fit/event-01/state"
+      },
+      "event_id": "fit-01",
+      "execution_complete": true,
+      "expected": "open",
+      "gradient_audit": {
+        "new": {
+          "eligible_tensors": 83,
+          "finite_gradient_tensors": 23,
+          "gradient_tensors": 23,
+          "missing_gradient_names": [
+            "extension.vision_projector.norm.weight",
+            "extension.vision_projector.norm.bias",
+            "extension.vision_projector.fc1.weight",
+            "extension.vision_projector.fc1.bias",
+            "extension.vision_projector.fc2.weight",
+            "extension.vision_projector.fc2.bias",
+            "extension.spine.codec.slot_queries",
+            "extension.spine.codec.input_norm.weight",
+            "extension.spine.codec.input_norm.bias",
+            "extension.spine.codec.key_projection.weight",
+            "extension.spine.codec.value_projection.weight",
+            "extension.spine.codec.output_norm.weight",
+            "extension.spine.codec.output_norm.bias",
+            "extension.spine.codec.output_projection.weight",
+            "extension.spine.spine_projection.weight",
+            "extension.spine.workspace_projection.weight",
+            "extension.spine.ports.spine.3.gate_logit",
+            "extension.spine.ports.spine.3.query_norm.weight",
+            "extension.spine.ports.spine.3.query_norm.bias",
+            "extension.spine.ports.spine.3.query_projection.weight",
+            "extension.spine.ports.spine.3.slot_norm.weight",
+            "extension.spine.ports.spine.3.slot_norm.bias",
+            "extension.spine.ports.spine.3.key_projection.weight",
+            "extension.spine.ports.spine.3.value_projection.weight",
+            "extension.spine.ports.spine.3.output_norm.weight",
+            "extension.spine.ports.spine.3.output_norm.bias",
+            "extension.spine.ports.spine.3.output_projection.weight",
+            "extension.spine.ports.spine.7.gate_logit",
+            "extension.spine.ports.spine.7.query_norm.weight",
+            "extension.spine.ports.spine.7.query_norm.bias",
+            "extension.spine.ports.spine.7.query_projection.weight",
+            "extension.spine.ports.spine.7.slot_norm.weight",
+            "extension.spine.ports.spine.7.slot_norm.bias",
+            "extension.spine.ports.spine.7.key_projection.weight",
+            "extension.spine.ports.spine.7.value_projection.weight",
+            "extension.spine.ports.spine.7.output_norm.weight",
+            "extension.spine.ports.spine.7.output_norm.bias",
+            "extension.spine.ports.spine.7.output_projection.weight",
+            "extension.spine.ports.workspace.3.gate_logit",
+            "extension.spine.ports.workspace.3.query_norm.weight",
+            "extension.spine.ports.workspace.3.query_norm.bias",
+            "extension.spine.ports.workspace.3.query_projection.weight",
+            "extension.spine.ports.workspace.3.slot_norm.weight",
+            "extension.spine.ports.workspace.3.slot_norm.bias",
+            "extension.spine.ports.workspace.3.key_projection.weight",
+            "extension.spine.ports.workspace.3.value_projection.weight",
+            "extension.spine.ports.workspace.3.output_norm.weight",
+            "extension.spine.ports.workspace.3.output_norm.bias",
+            "extension.spine.ports.workspace.3.output_projection.weight",
+            "extension.spine.ports.workspace.7.gate_logit",
+            "extension.spine.ports.workspace.7.query_norm.weight",
+            "extension.spine.ports.workspace.7.query_norm.bias",
+            "extension.spine.ports.workspace.7.query_projection.weight",
+            "extension.spine.ports.workspace.7.slot_norm.weight",
+            "extension.spine.ports.workspace.7.slot_norm.bias",
+            "extension.spine.ports.workspace.7.key_projection.weight",
+            "extension.spine.ports.workspace.7.value_projection.weight",
+            "extension.spine.ports.workspace.7.output_norm.weight",
+            "extension.spine.ports.workspace.7.output_norm.bias",
+            "extension.spine.ports.workspace.7.output_projection.weight"
+          ],
+          "nonfinite_names": [],
+          "nonzero_gradient_tensors": 2
+        },
+        "new_all_finite": true,
+        "new_any_nonzero": true,
+        "original": {
+          "eligible_tensors": 0,
+          "finite_gradient_tensors": 0,
+          "gradient_tensors": 0,
+          "missing_gradient_names": [],
+          "nonfinite_names": [],
+          "nonzero_gradient_tensors": 0
+        }
+      },
+      "learning_evidence": {
+        "actual_expert_update": false,
+        "actual_parameter_update": true,
+        "actual_parameter_updates_total": 1,
+        "changed_expert_names": [],
+        "changed_trainable_names": [
+          "extension.spine.ports.memory.3.output_projection.weight",
+          "extension.spine.ports.memory.7.output_projection.weight"
+        ],
+        "execution_complete": true,
+        "learning_success": null,
+        "physical_optimizer_steps": 1,
+        "physical_optimizer_steps_total": 1,
+        "retention": "unevaluated",
+        "train_fit": "unevaluated",
+        "transfer": "unevaluated",
+        "useful_learning": "unevaluated"
+      },
+      "loss": 14.806519508361816,
+      "physical_optimizer_steps": 1,
+      "plastic_clock_events": 1,
+      "plastic_nonzero_gradient_names": [],
+      "plastic_optimizer_steps": [
+        1,
+        0
+      ],
+      "plastic_revision": 1,
+      "plastic_teaching": {
+        "feature_vectors": 512,
+        "learning_evidence": {
+          "actual_updates": 1,
+          "backward_calls": 1,
+          "changed_tensor_count": 3,
+          "changed_trainable_names": [
+            "expert_0.gate",
+            "expert_0.up",
+            "expert_0.down"
+          ],
+          "declared_updates": 1,
+          "execution_complete": true,
+          "fit_evaluation_forward_calls": 1,
+          "forward_calls": 1,
+          "learning_success": true,
+          "optimizer_steps": 1,
+          "parameter_update": true,
+          "retention": {
+            "evaluated": false,
+            "retained": null
+          },
+          "retried": false,
+          "status": "passed",
+          "train_fit": {
+            "evaluated": true,
+            "improved": true,
+            "loss_after": 40.811317443847656,
+            "loss_before": 40.96701431274414
+          },
+          "transfer": {
+            "evaluated": false,
+            "improved": null
+          },
+          "useful_learning": true
+        },
+        "outcome": {
+          "eligible_events": 1,
+          "event_id": "fit-01-plastic",
+          "expert_id": 0,
+          "fingerprint": "39eb04ca23d53398d915a12d9017b287523ce6dc5db2039377f26e2b5bb207b8",
+          "loss": 40.96701431274414,
+          "retried": false,
+          "revision": 1,
+          "status": "committed",
+          "steps": 1
+        },
+        "target": {
+          "answer_sha256": "2348f998744212575d85959674f9607ab26f67708a917157472832386337c904",
+          "codec_version": "spine-ingestion-codec-v1",
+          "producer_revision": "spark-text-producer-v1",
+          "representation": "core.memory_projection(versioned_answer_vector)",
+          "representation_version": "unicode-token-hash-v1",
+          "target_positions": 512,
+          "target_sha256": "6e021db206aef2227b673e4cc7bfa70fa758f151890a6c6f641b91c2e896ba97",
+          "target_shape": [
+            1,
+            512,
+            256
+          ]
+        }
+      },
+      "sequence": 1,
+      "stage": "fit",
+      "teacher_forced": {
+        "correct": 0,
+        "positions": 1,
+        "token_accuracy": 0.0
+      },
+      "verification": {
+        "checker": "fixture-rule-table",
+        "declared": "open",
+        "expected": "open",
+        "independent": true,
+        "scoring": {
+          "contains_expected": true,
+          "exact_match": true,
+          "expected_normalized": "open",
+          "generated_normalized": "open",
+          "matched": true,
+          "scoring": "normalized_exact_or_contains"
+        },
+        "verified": true
+      },
+      "world_id": "fit_alpha"
+    },
+    {
+      "actual_parameter_update": true,
+      "answer": "review",
+      "base_unchanged": true,
+      "changed_expert_names": [
+        "expert_0.gate",
+        "expert_0.up",
+        "expert_0.down"
+      ],
+      "changed_trainable_names": [
+        "extension.spine.memory_projection.weight",
+        "extension.spine.ports.memory.3.gate_logit",
+        "extension.spine.ports.memory.3.query_norm.weight",
+        "extension.spine.ports.memory.3.query_norm.bias",
+        "extension.spine.ports.memory.3.query_projection.weight",
+        "extension.spine.ports.memory.3.slot_norm.weight",
+        "extension.spine.ports.memory.3.slot_norm.bias",
+        "extension.spine.ports.memory.3.value_projection.weight",
+        "extension.spine.ports.memory.3.output_norm.weight",
+        "extension.spine.ports.memory.3.output_norm.bias",
+        "extension.spine.ports.memory.3.output_projection.weight",
+        "extension.spine.ports.memory.7.gate_logit",
+        "extension.spine.ports.memory.7.slot_norm.weight",
+        "extension.spine.ports.memory.7.slot_norm.bias",
+        "extension.spine.ports.memory.7.value_projection.weight",
+        "extension.spine.ports.memory.7.output_norm.weight",
+        "extension.spine.ports.memory.7.output_norm.bias",
+        "extension.spine.ports.memory.7.output_projection.weight"
+      ],
+      "charges": {
+        "charged_extra_passes": 0,
+        "codec_calls": 512,
+        "decoder_passes": 1,
+        "e_codec_calls": 0,
+        "e_memory_read_slots": 0,
+        "memory_read_slots": 1,
+        "native_query_passes": 1,
+        "p_codec_calls": 512,
+        "p_memory_read_slots": 1,
+        "p_read_calls": 1,
+        "packet_bytes": 0,
+        "packet_count": 0,
+        "port_calls": 2
+      },
+      "checkpoint": {
+        "artifacts": [
+          {
+            "bytes": 8851741,
+            "path": "fit/event-02/state",
+            "sha256": "d9d4259828bea4ca0d0815a89748fe06ddb081c6af7cc0bdcaeedf6325b16bf3"
+          },
+          {
+            "bytes": 3256993,
+            "path": "fit/event-02/state.text.pt",
+            "sha256": "d3c0726454b5ff2b05a80dcb135b79c7987d9465f3b488c7118efa1161c58a1f"
+          }
+        ],
+        "relative": "fit/event-02/state"
+      },
+      "event_id": "fit-02",
+      "execution_complete": true,
+      "expected": "review",
+      "gradient_audit": {
+        "new": {
+          "eligible_tensors": 83,
+          "finite_gradient_tensors": 23,
+          "gradient_tensors": 23,
+          "missing_gradient_names": [
+            "extension.vision_projector.norm.weight",
+            "extension.vision_projector.norm.bias",
+            "extension.vision_projector.fc1.weight",
+            "extension.vision_projector.fc1.bias",
+            "extension.vision_projector.fc2.weight",
+            "extension.vision_projector.fc2.bias",
+            "extension.spine.codec.slot_queries",
+            "extension.spine.codec.input_norm.weight",
+            "extension.spine.codec.input_norm.bias",
+            "extension.spine.codec.key_projection.weight",
+            "extension.spine.codec.value_projection.weight",
+            "extension.spine.codec.output_norm.weight",
+            "extension.spine.codec.output_norm.bias",
+            "extension.spine.codec.output_projection.weight",
+            "extension.spine.spine_projection.weight",
+            "extension.spine.workspace_projection.weight",
+            "extension.spine.ports.spine.3.gate_logit",
+            "extension.spine.ports.spine.3.query_norm.weight",
+            "extension.spine.ports.spine.3.query_norm.bias",
+            "extension.spine.ports.spine.3.query_projection.weight",
+            "extension.spine.ports.spine.3.slot_norm.weight",
+            "extension.spine.ports.spine.3.slot_norm.bias",
+            "extension.spine.ports.spine.3.key_projection.weight",
+            "extension.spine.ports.spine.3.value_projection.weight",
+            "extension.spine.ports.spine.3.output_norm.weight",
+            "extension.spine.ports.spine.3.output_norm.bias",
+            "extension.spine.ports.spine.3.output_projection.weight",
+            "extension.spine.ports.spine.7.gate_logit",
+            "extension.spine.ports.spine.7.query_norm.weight",
+            "extension.spine.ports.spine.7.query_norm.bias",
+            "extension.spine.ports.spine.7.query_projection.weight",
+            "extension.spine.ports.spine.7.slot_norm.weight",
+            "extension.spine.ports.spine.7.slot_norm.bias",
+            "extension.spine.ports.spine.7.key_projection.weight",
+            "extension.spine.ports.spine.7.value_projection.weight",
+            "extension.spine.ports.spine.7.output_norm.weight",
+            "extension.spine.ports.spine.7.output_norm.bias",
+            "extension.spine.ports.spine.7.output_projection.weight",
+            "extension.spine.ports.workspace.3.gate_logit",
+            "extension.spine.ports.workspace.3.query_norm.weight",
+            "extension.spine.ports.workspace.3.query_norm.bias",
+            "extension.spine.ports.workspace.3.query_projection.weight",
+            "extension.spine.ports.workspace.3.slot_norm.weight",
+            "extension.spine.ports.workspace.3.slot_norm.bias",
+            "extension.spine.ports.workspace.3.key_projection.weight",
+            "extension.spine.ports.workspace.3.value_projection.weight",
+            "extension.spine.ports.workspace.3.output_norm.weight",
+            "extension.spine.ports.workspace.3.output_norm.bias",
+            "extension.spine.ports.workspace.3.output_projection.weight",
+            "extension.spine.ports.workspace.7.gate_logit",
+            "extension.spine.ports.workspace.7.query_norm.weight",
+            "extension.spine.ports.workspace.7.query_norm.bias",
+            "extension.spine.ports.workspace.7.query_projection.weight",
+            "extension.spine.ports.workspace.7.slot_norm.weight",
+            "extension.spine.ports.workspace.7.slot_norm.bias",
+            "extension.spine.ports.workspace.7.key_projection.weight",
+            "extension.spine.ports.workspace.7.value_projection.weight",
+            "extension.spine.ports.workspace.7.output_norm.weight",
+            "extension.spine.ports.workspace.7.output_norm.bias",
+            "extension.spine.ports.workspace.7.output_projection.weight"
+          ],
+          "nonfinite_names": [],
+          "nonzero_gradient_tensors": 18
+        },
+        "new_all_finite": true,
+        "new_any_nonzero": true,
+        "original": {
+          "eligible_tensors": 0,
+          "finite_gradient_tensors": 0,
+          "gradient_tensors": 0,
+          "missing_gradient_names": [],
+          "nonfinite_names": [],
+          "nonzero_gradient_tensors": 0
+        }
+      },
+      "learning_evidence": {
+        "actual_expert_update": false,
+        "actual_parameter_update": true,
+        "actual_parameter_updates_total": 2,
+        "changed_expert_names": [],
+        "changed_trainable_names": [
+          "extension.spine.memory_projection.weight",
+          "extension.spine.ports.memory.3.gate_logit",
+          "extension.spine.ports.memory.3.query_norm.weight",
+          "extension.spine.ports.memory.3.query_norm.bias",
+          "extension.spine.ports.memory.3.query_projection.weight",
+          "extension.spine.ports.memory.3.slot_norm.weight",
+          "extension.spine.ports.memory.3.slot_norm.bias",
+          "extension.spine.ports.memory.3.value_projection.weight",
+          "extension.spine.ports.memory.3.output_norm.weight",
+          "extension.spine.ports.memory.3.output_norm.bias",
+          "extension.spine.ports.memory.3.output_projection.weight",
+          "extension.spine.ports.memory.7.gate_logit",
+          "extension.spine.ports.memory.7.slot_norm.weight",
+          "extension.spine.ports.memory.7.slot_norm.bias",
+          "extension.spine.ports.memory.7.value_projection.weight",
+          "extension.spine.ports.memory.7.output_norm.weight",
+          "extension.spine.ports.memory.7.output_norm.bias",
+          "extension.spine.ports.memory.7.output_projection.weight"
+        ],
+        "execution_complete": true,
+        "learning_success": null,
+        "physical_optimizer_steps": 1,
+        "physical_optimizer_steps_total": 2,
+        "retention": "unevaluated",
+        "train_fit": "unevaluated",
+        "transfer": "unevaluated",
+        "useful_learning": "unevaluated"
+      },
+      "loss": 12.678532600402832,
+      "physical_optimizer_steps": 1,
+      "plastic_clock_events": 2,
+      "plastic_nonzero_gradient_names": [
+        "experts.0.gate",
+        "experts.0.up",
+        "experts.0.down"
+      ],
+      "plastic_optimizer_steps": [
+        2,
+        0
+      ],
+      "plastic_revision": 2,
+      "plastic_teaching": {
+        "feature_vectors": 512,
+        "learning_evidence": {
+          "actual_updates": 1,
+          "backward_calls": 1,
+          "changed_tensor_count": 3,
+          "changed_trainable_names": [
+            "expert_0.gate",
+            "expert_0.up",
+            "expert_0.down"
+          ],
+          "declared_updates": 1,
+          "execution_complete": true,
+          "fit_evaluation_forward_calls": 1,
+          "forward_calls": 1,
+          "learning_success": true,
+          "optimizer_steps": 1,
+          "parameter_update": true,
+          "retention": {
+            "evaluated": false,
+            "retained": null
+          },
+          "retried": false,
+          "status": "passed",
+          "train_fit": {
+            "evaluated": true,
+            "improved": true,
+            "loss_after": 41.165985107421875,
+            "loss_before": 41.26384735107422
+          },
+          "transfer": {
+            "evaluated": false,
+            "improved": null
+          },
+          "useful_learning": true
+        },
+        "outcome": {
+          "eligible_events": 2,
+          "event_id": "fit-02-plastic",
+          "expert_id": 0,
+          "fingerprint": "628a88bcc17e6042edb6053c42ad0b6db3bac93785fcd899694438e2e7d360ca",
+          "loss": 41.26384735107422,
+          "retried": false,
+          "revision": 2,
+          "status": "committed",
+          "steps": 1
+        },
+        "target": {
+          "answer_sha256": "c97ace4c8fef2cee8fa0f3c9f52aab18dbd4f42438afe362ffb8f75ce4c04b84",
+          "codec_version": "spine-ingestion-codec-v1",
+          "producer_revision": "spark-text-producer-v1",
+          "representation": "core.memory_projection(versioned_answer_vector)",
+          "representation_version": "unicode-token-hash-v1",
+          "target_positions": 512,
+          "target_sha256": "706871324742d25101d045a61f3794776f985334a210a39d25f5629ef2efbd86",
+          "target_shape": [
+            1,
+            512,
+            256
+          ]
+        }
+      },
+      "sequence": 2,
+      "stage": "fit",
+      "teacher_forced": {
+        "correct": 0,
+        "positions": 1,
+        "token_accuracy": 0.0
+      },
+      "verification": {
+        "checker": "fixture-rule-table",
+        "declared": "review",
+        "expected": "review",
+        "independent": true,
+        "scoring": {
+          "contains_expected": true,
+          "exact_match": true,
+          "expected_normalized": "review",
+          "generated_normalized": "review",
+          "matched": true,
+          "scoring": "normalized_exact_or_contains"
+        },
+        "verified": true
+      },
+      "world_id": "fit_beta"
+    },
+    {
+      "actual_parameter_update": true,
+      "answer": "closed",
+      "base_unchanged": true,
+      "changed_expert_names": [
+        "expert_0.gate",
+        "expert_0.up",
+        "expert_0.down"
+      ],
+      "changed_trainable_names": [
+        "extension.spine.memory_projection.weight",
+        "extension.spine.ports.memory.3.gate_logit",
+        "extension.spine.ports.memory.3.query_norm.weight",
+        "extension.spine.ports.memory.3.query_norm.bias",
+        "extension.spine.ports.memory.3.query_projection.weight",
+        "extension.spine.ports.memory.3.slot_norm.weight",
+        "extension.spine.ports.memory.3.slot_norm.bias",
+        "extension.spine.ports.memory.3.value_projection.weight",
+        "extension.spine.ports.memory.3.output_norm.weight",
+        "extension.spine.ports.memory.3.output_norm.bias",
+        "extension.spine.ports.memory.3.output_projection.weight",
+        "extension.spine.ports.memory.7.gate_logit",
+        "extension.spine.ports.memory.7.slot_norm.weight",
+        "extension.spine.ports.memory.7.slot_norm.bias",
+        "extension.spine.ports.memory.7.value_projection.weight",
+        "extension.spine.ports.memory.7.output_norm.weight",
+        "extension.spine.ports.memory.7.output_norm.bias",
+        "extension.spine.ports.memory.7.output_projection.weight"
+      ],
+      "charges": {
+        "charged_extra_passes": 0,
+        "codec_calls": 512,
+        "decoder_passes": 1,
+        "e_codec_calls": 0,
+        "e_memory_read_slots": 0,
+        "memory_read_slots": 1,
+        "native_query_passes": 1,
+        "p_codec_calls": 512,
+        "p_memory_read_slots": 1,
+        "p_read_calls": 1,
+        "packet_bytes": 0,
+        "packet_count": 0,
+        "port_calls": 2
+      },
+      "checkpoint": {
+        "artifacts": [
+          {
+            "bytes": 8855961,
+            "path": "fit/event-03/state",
+            "sha256": "43024ca856788d5c6b7940ad18ccd59f080592e0f5956478ed0c4d84e24d8b8e"
+          },
+          {
+            "bytes": 3257313,
+            "path": "fit/event-03/state.text.pt",
+            "sha256": "59805a0f40e4fedfd3b5e16093b7ee9a291364b1f2121e17f166fce70b28f914"
+          }
+        ],
+        "relative": "fit/event-03/state"
+      },
+      "event_id": "fit-03",
+      "execution_complete": true,
+      "expected": "closed",
+      "gradient_audit": {
+        "new": {
+          "eligible_tensors": 83,
+          "finite_gradient_tensors": 23,
+          "gradient_tensors": 23,
+          "missing_gradient_names": [
+            "extension.vision_projector.norm.weight",
+            "extension.vision_projector.norm.bias",
+            "extension.vision_projector.fc1.weight",
+            "extension.vision_projector.fc1.bias",
+            "extension.vision_projector.fc2.weight",
+            "extension.vision_projector.fc2.bias",
+            "extension.spine.codec.slot_queries",
+            "extension.spine.codec.input_norm.weight",
+            "extension.spine.codec.input_norm.bias",
+            "extension.spine.codec.key_projection.weight",
+            "extension.spine.codec.value_projection.weight",
+            "extension.spine.codec.output_norm.weight",
+            "extension.spine.codec.output_norm.bias",
+            "extension.spine.codec.output_projection.weight",
+            "extension.spine.spine_projection.weight",
+            "extension.spine.workspace_projection.weight",
+            "extension.spine.ports.spine.3.gate_logit",
+            "extension.spine.ports.spine.3.query_norm.weight",
+            "extension.spine.ports.spine.3.query_norm.bias",
+            "extension.spine.ports.spine.3.query_projection.weight",
+            "extension.spine.ports.spine.3.slot_norm.weight",
+            "extension.spine.ports.spine.3.slot_norm.bias",
+            "extension.spine.ports.spine.3.key_projection.weight",
+            "extension.spine.ports.spine.3.value_projection.weight",
+            "extension.spine.ports.spine.3.output_norm.weight",
+            "extension.spine.ports.spine.3.output_norm.bias",
+            "extension.spine.ports.spine.3.output_projection.weight",
+            "extension.spine.ports.spine.7.gate_logit",
+            "extension.spine.ports.spine.7.query_norm.weight",
+            "extension.spine.ports.spine.7.query_norm.bias",
+            "extension.spine.ports.spine.7.query_projection.weight",
+            "extension.spine.ports.spine.7.slot_norm.weight",
+            "extension.spine.ports.spine.7.slot_norm.bias",
+            "extension.spine.ports.spine.7.key_projection.weight",
+            "extension.spine.ports.spine.7.value_projection.weight",
+            "extension.spine.ports.spine.7.output_norm.weight",
+            "extension.spine.ports.spine.7.output_norm.bias",
+            "extension.spine.ports.spine.7.output_projection.weight",
+            "extension.spine.ports.workspace.3.gate_logit",
+            "extension.spine.ports.workspace.3.query_norm.weight",
+            "extension.spine.ports.workspace.3.query_norm.bias",
+            "extension.spine.ports.workspace.3.query_projection.weight",
+            "extension.spine.ports.workspace.3.slot_norm.weight",
+            "extension.spine.ports.workspace.3.slot_norm.bias",
+            "extension.spine.ports.workspace.3.key_projection.weight",
+            "extension.spine.ports.workspace.3.value_projection.weight",
+            "extension.spine.ports.workspace.3.output_norm.weight",
+            "extension.spine.ports.workspace.3.output_norm.bias",
+            "extension.spine.ports.workspace.3.output_projection.weight",
+            "extension.spine.ports.workspace.7.gate_logit",
+            "extension.spine.ports.workspace.7.query_norm.weight",
+            "extension.spine.ports.workspace.7.query_norm.bias",
+            "extension.spine.ports.workspace.7.query_projection.weight",
+            "extension.spine.ports.workspace.7.slot_norm.weight",
+            "extension.spine.ports.workspace.7.slot_norm.bias",
+            "extension.spine.ports.workspace.7.key_projection.weight",
+            "extension.spine.ports.workspace.7.value_projection.weight",
+            "extension.spine.ports.workspace.7.output_norm.weight",
+            "extension.spine.ports.workspace.7.output_norm.bias",
+            "extension.spine.ports.workspace.7.output_projection.weight"
+          ],
+          "nonfinite_names": [],
+          "nonzero_gradient_tensors": 18
+        },
+        "new_all_finite": true,
+        "new_any_nonzero": true,
+        "original": {
+          "eligible_tensors": 0,
+          "finite_gradient_tensors": 0,
+          "gradient_tensors": 0,
+          "missing_gradient_names": [],
+          "nonfinite_names": [],
+          "nonzero_gradient_tensors": 0
+        }
+      },
+      "learning_evidence": {
+        "actual_expert_update": false,
+        "actual_parameter_update": true,
+        "actual_parameter_updates_total": 3,
+        "changed_expert_names": [],
+        "changed_trainable_names": [
+          "extension.spine.memory_projection.weight",
+          "extension.spine.ports.memory.3.gate_logit",
+          "extension.spine.ports.memory.3.query_norm.weight",
+          "extension.spine.ports.memory.3.query_norm.bias",
+          "extension.spine.ports.memory.3.query_projection.weight",
+          "extension.spine.ports.memory.3.slot_norm.weight",
+          "extension.spine.ports.memory.3.slot_norm.bias",
+          "extension.spine.ports.memory.3.value_projection.weight",
+          "extension.spine.ports.memory.3.output_norm.weight",
+          "extension.spine.ports.memory.3.output_norm.bias",
+          "extension.spine.ports.memory.3.output_projection.weight",
+          "extension.spine.ports.memory.7.gate_logit",
+          "extension.spine.ports.memory.7.slot_norm.weight",
+          "extension.spine.ports.memory.7.slot_norm.bias",
+          "extension.spine.ports.memory.7.value_projection.weight",
+          "extension.spine.ports.memory.7.output_norm.weight",
+          "extension.spine.ports.memory.7.output_norm.bias",
+          "extension.spine.ports.memory.7.output_projection.weight"
+        ],
+        "execution_complete": true,
+        "learning_success": null,
+        "physical_optimizer_steps": 1,
+        "physical_optimizer_steps_total": 3,
+        "retention": "unevaluated",
+        "train_fit": "unevaluated",
+        "transfer": "unevaluated",
+        "useful_learning": "unevaluated"
+      },
+      "loss": 12.544323921203613,
+      "physical_optimizer_steps": 1,
+      "plastic_clock_events": 3,
+      "plastic_nonzero_gradient_names": [
+        "experts.0.gate",
+        "experts.0.up",
+        "experts.0.down"
+      ],
+      "plastic_optimizer_steps": [
+        3,
+        0
+      ],
+      "plastic_revision": 3,
+      "plastic_teaching": {
+        "feature_vectors": 512,
+        "learning_evidence": {
+          "actual_updates": 1,
+          "backward_calls": 1,
+          "changed_tensor_count": 3,
+          "changed_trainable_names": [
+            "expert_0.gate",
+            "expert_0.up",
+            "expert_0.down"
+          ],
+          "declared_updates": 1,
+          "execution_complete": true,
+          "fit_evaluation_forward_calls": 1,
+          "forward_calls": 1,
+          "learning_success": true,
+          "optimizer_steps": 1,
+          "parameter_update": true,
+          "retention": {
+            "evaluated": false,
+            "retained": null
+          },
+          "retried": false,
+          "status": "passed",
+          "train_fit": {
+            "evaluated": true,
+            "improved": true,
+            "loss_after": 40.74103546142578,
+            "loss_before": 40.88570785522461
+          },
+          "transfer": {
+            "evaluated": false,
+            "improved": null
+          },
+          "useful_learning": true
+        },
+        "outcome": {
+          "eligible_events": 3,
+          "event_id": "fit-03-plastic",
+          "expert_id": 0,
+          "fingerprint": "28097b020bb8bd286b01d1a6cf208830d8bc7e37785ac5665e886bf79abebe3f",
+          "loss": 40.88570785522461,
+          "retried": false,
+          "revision": 3,
+          "status": "committed",
+          "steps": 1
+        },
+        "target": {
+          "answer_sha256": "c3eefb58d7c42440a9d4abec51d629544d635a6d936ff3c4d3fca96d611b3cf3",
+          "codec_version": "spine-ingestion-codec-v1",
+          "producer_revision": "spark-text-producer-v1",
+          "representation": "core.memory_projection(versioned_answer_vector)",
+          "representation_version": "unicode-token-hash-v1",
+          "target_positions": 512,
+          "target_sha256": "39ba51442b97d36b5bf57494cf18618d9797874458d8a38279364b98770e890a",
+          "target_shape": [
+            1,
+            512,
+            256
+          ]
+        }
+      },
+      "sequence": 3,
+      "stage": "fit",
+      "teacher_forced": {
+        "correct": 0,
+        "positions": 1,
+        "token_accuracy": 0.0
+      },
+      "verification": {
+        "checker": "fixture-rule-table",
+        "declared": "closed",
+        "expected": "closed",
+        "independent": true,
+        "scoring": {
+          "contains_expected": true,
+          "exact_match": true,
+          "expected_normalized": "closed",
+          "generated_normalized": "closed",
+          "matched": true,
+          "scoring": "normalized_exact_or_contains"
+        },
+        "verified": true
+      },
+      "world_id": "fit_alpha"
+    },
+    {
+      "actual_parameter_update": true,
+      "answer": "standby",
+      "base_unchanged": true,
+      "changed_expert_names": [
+        "expert_0.gate",
+        "expert_0.up",
+        "expert_0.down"
+      ],
+      "changed_trainable_names": [
+        "extension.spine.memory_projection.weight",
+        "extension.spine.ports.memory.3.gate_logit",
+        "extension.spine.ports.memory.3.query_norm.weight",
+        "extension.spine.ports.memory.3.query_norm.bias",
+        "extension.spine.ports.memory.3.query_projection.weight",
+        "extension.spine.ports.memory.3.slot_norm.weight",
+        "extension.spine.ports.memory.3.slot_norm.bias",
+        "extension.spine.ports.memory.3.value_projection.weight",
+        "extension.spine.ports.memory.3.output_norm.weight",
+        "extension.spine.ports.memory.3.output_norm.bias",
+        "extension.spine.ports.memory.3.output_projection.weight",
+        "extension.spine.ports.memory.7.gate_logit",
+        "extension.spine.ports.memory.7.slot_norm.weight",
+        "extension.spine.ports.memory.7.slot_norm.bias",
+        "extension.spine.ports.memory.7.value_projection.weight",
+        "extension.spine.ports.memory.7.output_norm.weight",
+        "extension.spine.ports.memory.7.output_norm.bias",
+        "extension.spine.ports.memory.7.output_projection.weight"
+      ],
+      "charges": {
+        "charged_extra_passes": 0,
+        "codec_calls": 512,
+        "decoder_passes": 1,
+        "e_codec_calls": 0,
+        "e_memory_read_slots": 0,
+        "memory_read_slots": 1,
+        "native_query_passes": 1,
+        "p_codec_calls": 512,
+        "p_memory_read_slots": 1,
+        "p_read_calls": 1,
+        "packet_bytes": 0,
+        "packet_count": 0,
+        "port_calls": 2
+      },
+      "checkpoint": {
+        "artifacts": [
+          {
+            "bytes": 8860309,
+            "path": "fit/event-04/state",
+            "sha256": "2294624b5c5fb61d7aed8ac1cccf61b6ed9bf50fcbed82c3a6eff2caed607665"
+          },
+          {
+            "bytes": 3259937,
+            "path": "fit/event-04/state.text.pt",
+            "sha256": "fd6c9f25ff15e768fb7991cd24ccbf908b5ccdcb31050e47313a7d2fc7726861"
+          }
+        ],
+        "relative": "fit/event-04/state"
+      },
+      "event_id": "fit-04",
+      "execution_complete": true,
+      "expected": "standby",
+      "gradient_audit": {
+        "new": {
+          "eligible_tensors": 83,
+          "finite_gradient_tensors": 23,
+          "gradient_tensors": 23,
+          "missing_gradient_names": [
+            "extension.vision_projector.norm.weight",
+            "extension.vision_projector.norm.bias",
+            "extension.vision_projector.fc1.weight",
+            "extension.vision_projector.fc1.bias",
+            "extension.vision_projector.fc2.weight",
+            "extension.vision_projector.fc2.bias",
+            "extension.spine.codec.slot_queries",
+            "extension.spine.codec.input_norm.weight",
+            "extension.spine.codec.input_norm.bias",
+            "extension.spine.codec.key_projection.weight",
+            "extension.spine.codec.value_projection.weight",
+            "extension.spine.codec.output_norm.weight",
+            "extension.spine.codec.output_norm.bias",
+            "extension.spine.codec.output_projection.weight",
+            "extension.spine.spine_projection.weight",
+            "extension.spine.workspace_projection.weight",
+            "extension.spine.ports.spine.3.gate_logit",
+            "extension.spine.ports.spine.3.query_norm.weight",
+            "extension.spine.ports.spine.3.query_norm.bias",
+            "extension.spine.ports.spine.3.query_projection.weight",
+            "extension.spine.ports.spine.3.slot_norm.weight",
+            "extension.spine.ports.spine.3.slot_norm.bias",
+            "extension.spine.ports.spine.3.key_projection.weight",
+            "extension.spine.ports.spine.3.value_projection.weight",
+            "extension.spine.ports.spine.3.output_norm.weight",
+            "extension.spine.ports.spine.3.output_norm.bias",
+            "extension.spine.ports.spine.3.output_projection.weight",
+            "extension.spine.ports.spine.7.gate_logit",
+            "extension.spine.ports.spine.7.query_norm.weight",
+            "extension.spine.ports.spine.7.query_norm.bias",
+            "extension.spine.ports.spine.7.query_projection.weight",
+            "extension.spine.ports.spine.7.slot_norm.weight",
+            "extension.spine.ports.spine.7.slot_norm.bias",
+            "extension.spine.ports.spine.7.key_projection.weight",
+            "extension.spine.ports.spine.7.value_projection.weight",
+            "extension.spine.ports.spine.7.output_norm.weight",
+            "extension.spine.ports.spine.7.output_norm.bias",
+            "extension.spine.ports.spine.7.output_projection.weight",
+            "extension.spine.ports.workspace.3.gate_logit",
+            "extension.spine.ports.workspace.3.query_norm.weight",
+            "extension.spine.ports.workspace.3.query_norm.bias",
+            "extension.spine.ports.workspace.3.query_projection.weight",
+            "extension.spine.ports.workspace.3.slot_norm.weight",
+            "extension.spine.ports.workspace.3.slot_norm.bias",
+            "extension.spine.ports.workspace.3.key_projection.weight",
+            "extension.spine.ports.workspace.3.value_projection.weight",
+            "extension.spine.ports.workspace.3.output_norm.weight",
+            "extension.spine.ports.workspace.3.output_norm.bias",
+            "extension.spine.ports.workspace.3.output_projection.weight",
+            "extension.spine.ports.workspace.7.gate_logit",
+            "extension.spine.ports.workspace.7.query_norm.weight",
+            "extension.spine.ports.workspace.7.query_norm.bias",
+            "extension.spine.ports.workspace.7.query_projection.weight",
+            "extension.spine.ports.workspace.7.slot_norm.weight",
+            "extension.spine.ports.workspace.7.slot_norm.bias",
+            "extension.spine.ports.workspace.7.key_projection.weight",
+            "extension.spine.ports.workspace.7.value_projection.weight",
+            "extension.spine.ports.workspace.7.output_norm.weight",
+            "extension.spine.ports.workspace.7.output_norm.bias",
+            "extension.spine.ports.workspace.7.output_projection.weight"
+          ],
+          "nonfinite_names": [],
+          "nonzero_gradient_tensors": 18
+        },
+        "new_all_finite": true,
+        "new_any_nonzero": true,
+        "original": {
+          "eligible_tensors": 0,
+          "finite_gradient_tensors": 0,
+          "gradient_tensors": 0,
+          "missing_gradient_names": [],
+          "nonfinite_names": [],
+          "nonzero_gradient_tensors": 0
+        }
+      },
+      "learning_evidence": {
+        "actual_expert_update": false,
+        "actual_parameter_update": true,
+        "actual_parameter_updates_total": 4,
+        "changed_expert_names": [],
+        "changed_trainable_names": [
+          "extension.spine.memory_projection.weight",
+          "extension.spine.ports.memory.3.gate_logit",
+          "extension.spine.ports.memory.3.query_norm.weight",
+          "extension.spine.ports.memory.3.query_norm.bias",
+          "extension.spine.ports.memory.3.query_projection.weight",
+          "extension.spine.ports.memory.3.slot_norm.weight",
+          "extension.spine.ports.memory.3.slot_norm.bias",
+          "extension.spine.ports.memory.3.value_projection.weight",
+          "extension.spine.ports.memory.3.output_norm.weight",
+          "extension.spine.ports.memory.3.output_norm.bias",
+          "extension.spine.ports.memory.3.output_projection.weight",
+          "extension.spine.ports.memory.7.gate_logit",
+          "extension.spine.ports.memory.7.slot_norm.weight",
+          "extension.spine.ports.memory.7.slot_norm.bias",
+          "extension.spine.ports.memory.7.value_projection.weight",
+          "extension.spine.ports.memory.7.output_norm.weight",
+          "extension.spine.ports.memory.7.output_norm.bias",
+          "extension.spine.ports.memory.7.output_projection.weight"
+        ],
+        "execution_complete": true,
+        "learning_success": null,
+        "physical_optimizer_steps": 1,
+        "physical_optimizer_steps_total": 4,
+        "retention": "unevaluated",
+        "train_fit": "unevaluated",
+        "transfer": "unevaluated",
+        "useful_learning": "unevaluated"
+      },
+      "loss": 15.723684310913086,
+      "physical_optimizer_steps": 1,
+      "plastic_clock_events": 4,
+      "plastic_nonzero_gradient_names": [
+        "experts.0.gate",
+        "experts.0.up",
+        "experts.0.down"
+      ],
+      "plastic_optimizer_steps": [
+        4,
+        0
+      ],
+      "plastic_revision": 4,
+      "plastic_teaching": {
+        "feature_vectors": 512,
+        "learning_evidence": {
+          "actual_updates": 1,
+          "backward_calls": 1,
+          "changed_tensor_count": 3,
+          "changed_trainable_names": [
+            "expert_0.gate",
+            "expert_0.up",
+            "expert_0.down"
+          ],
+          "declared_updates": 1,
+          "execution_complete": true,
+          "fit_evaluation_forward_calls": 1,
+          "forward_calls": 1,
+          "learning_success": true,
+          "optimizer_steps": 1,
+          "parameter_update": true,
+          "retention": {
+            "evaluated": false,
+            "retained": null
+          },
+          "retried": false,
+          "status": "passed",
+          "train_fit": {
+            "evaluated": true,
+            "improved": true,
+            "loss_after": 47.39604568481445,
+            "loss_before": 47.47892379760742
+          },
+          "transfer": {
+            "evaluated": false,
+            "improved": null
+          },
+          "useful_learning": true
+        },
+        "outcome": {
+          "eligible_events": 4,
+          "event_id": "fit-04-plastic",
+          "expert_id": 0,
+          "fingerprint": "8fe594093cdefc12680c6dd5fd052534861cb2a639e99c7cdea56ef06d57b73f",
+          "loss": 47.47892379760742,
+          "retried": false,
+          "revision": 4,
+          "status": "committed",
+          "steps": 1
+        },
+        "target": {
+          "answer_sha256": "f8f8922da592b7f3ace2777f428e6c5c0eca681aad18a54fc876dd2432431872",
+          "codec_version": "spine-ingestion-codec-v1",
+          "producer_revision": "spark-text-producer-v1",
+          "representation": "core.memory_projection(versioned_answer_vector)",
+          "representation_version": "unicode-token-hash-v1",
+          "target_positions": 512,
+          "target_sha256": "43d29585b60d5fc68287e215afecf4ef5c09a93f28c33f03c4a1372c10a4be99",
+          "target_shape": [
+            1,
+            512,
+            256
+          ]
+        }
+      },
+      "sequence": 4,
+      "stage": "fit",
+      "teacher_forced": {
+        "correct": 0,
+        "positions": 1,
+        "token_accuracy": 0.0
+      },
+      "verification": {
+        "checker": "fixture-rule-table",
+        "declared": "standby",
+        "expected": "standby",
+        "independent": true,
+        "scoring": {
+          "contains_expected": true,
+          "exact_match": true,
+          "expected_normalized": "standby",
+          "generated_normalized": "standby",
+          "matched": true,
+          "scoring": "normalized_exact_or_contains"
+        },
+        "verified": true
+      },
+      "world_id": "fit_alpha"
+    }
+  ],
+  "evicted_checkpoints": [
+    "fit/event-01"
+  ],
+  "execution_complete": true,
+  "fit_checkpoint": {
+    "artifacts": [
+      {
+        "bytes": 8860309,
+        "path": "fit/final/state",
+        "sha256": "2294624b5c5fb61d7aed8ac1cccf61b6ed9bf50fcbed82c3a6eff2caed607665"
+      },
+      {
+        "bytes": 3259937,
+        "path": "fit/final/state.text.pt",
+        "sha256": "fd6c9f25ff15e768fb7991cd24ccbf908b5ccdcb31050e47313a7d2fc7726861"
+      }
+    ],
+    "relative": "fit/final/state"
+  },
+  "fit_events": 4,
+  "format": "replica.spark_text_memory.fit_receipt.v1",
+  "learning_success": null,
+  "native_admissible": false,
+  "optimizer_scopes": {
+    "plastic": 4,
+    "response": 4,
+    "total": 8
+  },
+  "optimizer_steps": 8,
+  "plastic_changed_tensor_count": 3,
+  "plastic_learning": {
+    "actual_updates": 4,
+    "backward_calls": 4,
+    "changed_tensor_count": 3,
+    "changed_trainable_names": [
+      "expert_0.down",
+      "expert_0.gate",
+      "expert_0.up"
+    ],
+    "clock_events": 4,
+    "declared_updates": 4,
+    "evaluated": true,
+    "fit_evaluation_forward_calls": 4,
+    "forward_calls": 4,
+    "learning_success": true,
+    "optimizer_steps": 4,
+    "per_event": [
+      {
+        "event_id": "fit-01",
+        "learning_evidence": {
+          "actual_updates": 1,
+          "backward_calls": 1,
+          "changed_tensor_count": 3,
+          "changed_trainable_names": [
+            "expert_0.gate",
+            "expert_0.up",
+            "expert_0.down"
+          ],
+          "declared_updates": 1,
+          "execution_complete": true,
+          "fit_evaluation_forward_calls": 1,
+          "forward_calls": 1,
+          "learning_success": true,
+          "optimizer_steps": 1,
+          "parameter_update": true,
+          "retention": {
+            "evaluated": false,
+            "retained": null
+          },
+          "retried": false,
+          "status": "passed",
+          "train_fit": {
+            "evaluated": true,
+            "improved": true,
+            "loss_after": 40.811317443847656,
+            "loss_before": 40.96701431274414
+          },
+          "transfer": {
+            "evaluated": false,
+            "improved": null
+          },
+          "useful_learning": true
+        },
+        "outcome": {
+          "eligible_events": 1,
+          "event_id": "fit-01-plastic",
+          "expert_id": 0,
+          "fingerprint": "39eb04ca23d53398d915a12d9017b287523ce6dc5db2039377f26e2b5bb207b8",
+          "loss": 40.96701431274414,
+          "retried": false,
+          "revision": 1,
+          "status": "committed",
+          "steps": 1
+        },
+        "target": {
+          "answer_sha256": "2348f998744212575d85959674f9607ab26f67708a917157472832386337c904",
+          "codec_version": "spine-ingestion-codec-v1",
+          "producer_revision": "spark-text-producer-v1",
+          "representation": "core.memory_projection(versioned_answer_vector)",
+          "representation_version": "unicode-token-hash-v1",
+          "target_positions": 512,
+          "target_sha256": "6e021db206aef2227b673e4cc7bfa70fa758f151890a6c6f641b91c2e896ba97",
+          "target_shape": [
+            1,
+            512,
+            256
+          ]
+        }
+      },
+      {
+        "event_id": "fit-02",
+        "learning_evidence": {
+          "actual_updates": 1,
+          "backward_calls": 1,
+          "changed_tensor_count": 3,
+          "changed_trainable_names": [
+            "expert_0.gate",
+            "expert_0.up",
+            "expert_0.down"
+          ],
+          "declared_updates": 1,
+          "execution_complete": true,
+          "fit_evaluation_forward_calls": 1,
+          "forward_calls": 1,
+          "learning_success": true,
+          "optimizer_steps": 1,
+          "parameter_update": true,
+          "retention": {
+            "evaluated": false,
+            "retained": null
+          },
+          "retried": false,
+          "status": "passed",
+          "train_fit": {
+            "evaluated": true,
+            "improved": true,
+            "loss_after": 41.165985107421875,
+            "loss_before": 41.26384735107422
+          },
+          "transfer": {
+            "evaluated": false,
+            "improved": null
+          },
+          "useful_learning": true
+        },
+        "outcome": {
+          "eligible_events": 2,
+          "event_id": "fit-02-plastic",
+          "expert_id": 0,
+          "fingerprint": "628a88bcc17e6042edb6053c42ad0b6db3bac93785fcd899694438e2e7d360ca",
+          "loss": 41.26384735107422,
+          "retried": false,
+          "revision": 2,
+          "status": "committed",
+          "steps": 1
+        },
+        "target": {
+          "answer_sha256": "c97ace4c8fef2cee8fa0f3c9f52aab18dbd4f42438afe362ffb8f75ce4c04b84",
+          "codec_version": "spine-ingestion-codec-v1",
+          "producer_revision": "spark-text-producer-v1",
+          "representation": "core.memory_projection(versioned_answer_vector)",
+          "representation_version": "unicode-token-hash-v1",
+          "target_positions": 512,
+          "target_sha256": "706871324742d25101d045a61f3794776f985334a210a39d25f5629ef2efbd86",
+          "target_shape": [
+            1,
+            512,
+            256
+          ]
+        }
+      },
+      {
+        "event_id": "fit-03",
+        "learning_evidence": {
+          "actual_updates": 1,
+          "backward_calls": 1,
+          "changed_tensor_count": 3,
+          "changed_trainable_names": [
+            "expert_0.gate",
+            "expert_0.up",
+            "expert_0.down"
+          ],
+          "declared_updates": 1,
+          "execution_complete": true,
+          "fit_evaluation_forward_calls": 1,
+          "forward_calls": 1,
+          "learning_success": true,
+          "optimizer_steps": 1,
+          "parameter_update": true,
+          "retention": {
+            "evaluated": false,
+            "retained": null
+          },
+          "retried": false,
+          "status": "passed",
+          "train_fit": {
+            "evaluated": true,
+            "improved": true,
+            "loss_after": 40.74103546142578,
+            "loss_before": 40.88570785522461
+          },
+          "transfer": {
+            "evaluated": false,
+            "improved": null
+          },
+          "useful_learning": true
+        },
+        "outcome": {
+          "eligible_events": 3,
+          "event_id": "fit-03-plastic",
+          "expert_id": 0,
+          "fingerprint": "28097b020bb8bd286b01d1a6cf208830d8bc7e37785ac5665e886bf79abebe3f",
+          "loss": 40.88570785522461,
+          "retried": false,
+          "revision": 3,
+          "status": "committed",
+          "steps": 1
+        },
+        "target": {
+          "answer_sha256": "c3eefb58d7c42440a9d4abec51d629544d635a6d936ff3c4d3fca96d611b3cf3",
+          "codec_version": "spine-ingestion-codec-v1",
+          "producer_revision": "spark-text-producer-v1",
+          "representation": "core.memory_projection(versioned_answer_vector)",
+          "representation_version": "unicode-token-hash-v1",
+          "target_positions": 512,
+          "target_sha256": "39ba51442b97d36b5bf57494cf18618d9797874458d8a38279364b98770e890a",
+          "target_shape": [
+            1,
+            512,
+            256
+          ]
+        }
+      },
+      {
+        "event_id": "fit-04",
+        "learning_evidence": {
+          "actual_updates": 1,
+          "backward_calls": 1,
+          "changed_tensor_count": 3,
+          "changed_trainable_names": [
+            "expert_0.gate",
+            "expert_0.up",
+            "expert_0.down"
+          ],
+          "declared_updates": 1,
+          "execution_complete": true,
+          "fit_evaluation_forward_calls": 1,
+          "forward_calls": 1,
+          "learning_success": true,
+          "optimizer_steps": 1,
+          "parameter_update": true,
+          "retention": {
+            "evaluated": false,
+            "retained": null
+          },
+          "retried": false,
+          "status": "passed",
+          "train_fit": {
+            "evaluated": true,
+            "improved": true,
+            "loss_after": 47.39604568481445,
+            "loss_before": 47.47892379760742
+          },
+          "transfer": {
+            "evaluated": false,
+            "improved": null
+          },
+          "useful_learning": true
+        },
+        "outcome": {
+          "eligible_events": 4,
+          "event_id": "fit-04-plastic",
+          "expert_id": 0,
+          "fingerprint": "8fe594093cdefc12680c6dd5fd052534861cb2a639e99c7cdea56ef06d57b73f",
+          "loss": 47.47892379760742,
+          "retried": false,
+          "revision": 4,
+          "status": "committed",
+          "steps": 1
+        },
+        "target": {
+          "answer_sha256": "f8f8922da592b7f3ace2777f428e6c5c0eca681aad18a54fc876dd2432431872",
+          "codec_version": "spine-ingestion-codec-v1",
+          "producer_revision": "spark-text-producer-v1",
+          "representation": "core.memory_projection(versioned_answer_vector)",
+          "representation_version": "unicode-token-hash-v1",
+          "target_positions": 512,
+          "target_sha256": "43d29585b60d5fc68287e215afecf4ef5c09a93f28c33f03c4a1372c10a4be99",
+          "target_shape": [
+            1,
+            512,
+            256
+          ]
+        }
+      }
+    ],
+    "plastic_changed": true,
+    "pre_fit_plastic_digest": "ed18a125a196ffe7ff143476b078c5c93ef7e80c7f8f0a08f5b85b45fa8ee60e",
+    "retained_plastic_digest": "5589eee86ef5e31dbb63d02c34b135dced51bd447cb3a395c4035e4d7472d829",
+    "revisions": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "target_representation": "core.memory_projection(versioned_answer_vector)"
+  },
+  "prepared_manifest_sha256": "b0304d42c689d56b2eba6f55117bcb3c24702054e878637154bd0211c34eec32",
+  "protocol_id": "spark_text_memory_v1",
+  "protocol_sha256": "6981851f316efad55172c2dd1c1f7f56fe2c12a6e5b262eac616f1a7645f2566",
+  "retained_checkpoints": [
+    "fit/event-02",
+    "fit/event-03",
+    "fit/event-04",
+    "fit/final"
+  ],
+  "retention": {
+    "evaluated": false,
+    "retained": null
+  },
+  "run_contract": {
+    "backend": "cpu_fixture",
+    "codec_version": "spine-ingestion-codec-v1",
+    "model_identity": "47539d58d8520863b929cc263ee9daa51b6652421856569b4fb571a23e988ec2",
+    "native_admissible": false,
+    "prepared_manifest_sha256": "b0304d42c689d56b2eba6f55117bcb3c24702054e878637154bd0211c34eec32",
+    "protocol_id": "spark_text_memory_v1",
+    "protocol_sha256": "6981851f316efad55172c2dd1c1f7f56fe2c12a6e5b262eac616f1a7645f2566",
+    "representation_version": "unicode-token-hash-v1",
+    "schema": "replica.spark.spine.v1",
+    "spine_schema": "replica.spark.spine.v1"
+  },
+  "runner_state": {
+    "bytes": 401217,
+    "path": "fit/final/runner_state.pt",
+    "sha256": "404e0bac81fac8b70201cd14124af4682a76b21e47e57c1a49c3701feceaec0c"
+  },
+  "status": "fit_executed",
+  "train_fit": {
+    "diagnostic_only": true,
+    "evaluated": true,
+    "losses": [
+      14.806519508361816,
+      12.678532600402832,
+      12.544323921203613,
+      15.723684310913086
+    ],
+    "teacher_forced": [
+      {
+        "correct": 0,
+        "positions": 1,
+        "token_accuracy": 0.0
+      },
+      {
+        "correct": 0,
+        "positions": 1,
+        "token_accuracy": 0.0
+      },
+      {
+        "correct": 0,
+        "positions": 1,
+        "token_accuracy": 0.0
+      },
+      {
+        "correct": 0,
+        "positions": 1,
+        "token_accuracy": 0.0
+      }
+    ]
+  },
+  "transfer": {
+    "evaluated": false,
+    "improved": null
+  },
+  "useful_learning": "unevaluated",
+  "written_at_utc": "2026-10-29T02:13:37.734609+00:00"
+}

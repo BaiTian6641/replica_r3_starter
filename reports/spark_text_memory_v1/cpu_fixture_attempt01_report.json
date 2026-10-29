@@ -1,0 +1,1224 @@
+{
+  "admitted": false,
+  "backend": {
+    "device": "cpu",
+    "evidence_class": "cpu_fixture_not_protocol_evidence",
+    "label": "cpu_fixture",
+    "native_admissible": false,
+    "official_fp8_only": false,
+    "precision_substitution": false
+  },
+  "checkpoints": {
+    "artifact_bytes": 49326224,
+    "artifact_cap": 134217728,
+    "derived_caches_saved": false,
+    "evicted": [
+      "fit/event-01"
+    ],
+    "extension_only_with_sealed_source": true,
+    "retained": [
+      "fit/event-02",
+      "fit/event-03",
+      "fit/event-04",
+      "fit/final"
+    ],
+    "retained_count": 4,
+    "writes": 5
+  },
+  "cost": {
+    "amortized_over_repeated_tasks": {
+      "autoregressive_forwards": 4,
+      "cache_misses": 1,
+      "forward_calls": 5,
+      "generated_tokens": 4,
+      "generation_requests": 1,
+      "native_query_passes": 1,
+      "processed_text_positions": 2566,
+      "query_sensing_forwards": 1,
+      "reloads": 1,
+      "restart_parity_requests": 1,
+      "retrieval_calls": 1
+    },
+    "cold_and_steady_are_not_added_into_amortized": true,
+    "cold_start": {
+      "backward_calls": 8,
+      "backward_processed_positions": 2048,
+      "cache_misses": 4,
+      "checkpoint_bytes": 60565094,
+      "checkpoint_writes": 5,
+      "fit_events": 4,
+      "forward_calls": 16,
+      "model_loads": 2,
+      "native_query_passes": 8,
+      "omitted_records": 0,
+      "optimizer_steps": 8,
+      "plastic_backward_calls": 4,
+      "plastic_backward_feature_vectors": 2048,
+      "plastic_feature_vectors": 2048,
+      "plastic_fit_evaluation_forwards": 4,
+      "plastic_forward_calls": 4,
+      "processed_text_positions": 6144,
+      "query_sensing_forwards": 8,
+      "retrieval_calls": 4,
+      "selected_records": 0,
+      "tokenizer_loads": 2,
+      "training_forwards": 4,
+      "verification_calls": 4
+    },
+    "steady_state": {
+      "autoregressive_forwards": 440,
+      "cache_misses": 110,
+      "development_cases": 108,
+      "forward_calls": 550,
+      "generated_tokens": 440,
+      "generation_requests": 110,
+      "native_query_passes": 110,
+      "omitted_records": 180,
+      "parity_requests": 2,
+      "processed_text_positions": 282260,
+      "query_sensing_forwards": 110,
+      "restarts": 1,
+      "retrieval_calls": 110,
+      "selected_records": 492,
+      "verification_calls": 108
+    }
+  },
+  "development": {
+    "cases_per_arm": 12,
+    "cases_total": 108,
+    "learning_evidence": {
+      "changed_expert_names": [
+        "expert_0.down",
+        "expert_0.gate",
+        "expert_0.up"
+      ],
+      "changed_trainable_names": [
+        "extension.spine.memory_projection.weight",
+        "extension.spine.ports.memory.3.gate_logit",
+        "extension.spine.ports.memory.3.output_norm.bias",
+        "extension.spine.ports.memory.3.output_norm.weight",
+        "extension.spine.ports.memory.3.output_projection.weight",
+        "extension.spine.ports.memory.3.query_norm.bias",
+        "extension.spine.ports.memory.3.query_norm.weight",
+        "extension.spine.ports.memory.3.query_projection.weight",
+        "extension.spine.ports.memory.3.slot_norm.bias",
+        "extension.spine.ports.memory.3.slot_norm.weight",
+        "extension.spine.ports.memory.3.value_projection.weight",
+        "extension.spine.ports.memory.7.gate_logit",
+        "extension.spine.ports.memory.7.output_norm.bias",
+        "extension.spine.ports.memory.7.output_norm.weight",
+        "extension.spine.ports.memory.7.output_projection.weight",
+        "extension.spine.ports.memory.7.slot_norm.bias",
+        "extension.spine.ports.memory.7.slot_norm.weight",
+        "extension.spine.ports.memory.7.value_projection.weight"
+      ],
+      "correction_effectiveness": {
+        "accuracy": 0.0,
+        "cases": 18,
+        "exact": 0,
+        "exact_accuracy": 0.0,
+        "matched": 0
+      },
+      "execution_complete": true,
+      "learning_success": false,
+      "optimizer_steps": 8,
+      "per_arm": {
+        "E_plus_P": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "full_eligible_context": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "inapplicable_procedure": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "no_update": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "reset_P": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "selective_exact_and_procedure": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "shuffled_memory": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "source_free_P_only": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "spine_E_only": {
+          "accuracy": 0.0,
+          "cases": 12,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        }
+      },
+      "plastic_learning": {
+        "actual_updates": 4,
+        "backward_calls": 4,
+        "changed_tensor_count": 3,
+        "changed_trainable_names": [
+          "expert_0.down",
+          "expert_0.gate",
+          "expert_0.up"
+        ],
+        "clock_events": 4,
+        "declared_updates": 4,
+        "evaluated": true,
+        "fit_evaluation_forward_calls": 4,
+        "forward_calls": 4,
+        "learning_success": true,
+        "optimizer_steps": 4,
+        "per_event": [
+          {
+            "event_id": "fit-01",
+            "learning_evidence": {
+              "actual_updates": 1,
+              "backward_calls": 1,
+              "changed_tensor_count": 3,
+              "changed_trainable_names": [
+                "expert_0.gate",
+                "expert_0.up",
+                "expert_0.down"
+              ],
+              "declared_updates": 1,
+              "execution_complete": true,
+              "fit_evaluation_forward_calls": 1,
+              "forward_calls": 1,
+              "learning_success": true,
+              "optimizer_steps": 1,
+              "parameter_update": true,
+              "retention": {
+                "evaluated": false,
+                "retained": null
+              },
+              "retried": false,
+              "status": "passed",
+              "train_fit": {
+                "evaluated": true,
+                "improved": true,
+                "loss_after": 40.811317443847656,
+                "loss_before": 40.96701431274414
+              },
+              "transfer": {
+                "evaluated": false,
+                "improved": null
+              },
+              "useful_learning": true
+            },
+            "outcome": {
+              "eligible_events": 1,
+              "event_id": "fit-01-plastic",
+              "expert_id": 0,
+              "fingerprint": "39eb04ca23d53398d915a12d9017b287523ce6dc5db2039377f26e2b5bb207b8",
+              "loss": 40.96701431274414,
+              "retried": false,
+              "revision": 1,
+              "status": "committed",
+              "steps": 1
+            },
+            "target": {
+              "answer_sha256": "2348f998744212575d85959674f9607ab26f67708a917157472832386337c904",
+              "codec_version": "spine-ingestion-codec-v1",
+              "producer_revision": "spark-text-producer-v1",
+              "representation": "core.memory_projection(versioned_answer_vector)",
+              "representation_version": "unicode-token-hash-v1",
+              "target_positions": 512,
+              "target_sha256": "6e021db206aef2227b673e4cc7bfa70fa758f151890a6c6f641b91c2e896ba97",
+              "target_shape": [
+                1,
+                512,
+                256
+              ]
+            }
+          },
+          {
+            "event_id": "fit-02",
+            "learning_evidence": {
+              "actual_updates": 1,
+              "backward_calls": 1,
+              "changed_tensor_count": 3,
+              "changed_trainable_names": [
+                "expert_0.gate",
+                "expert_0.up",
+                "expert_0.down"
+              ],
+              "declared_updates": 1,
+              "execution_complete": true,
+              "fit_evaluation_forward_calls": 1,
+              "forward_calls": 1,
+              "learning_success": true,
+              "optimizer_steps": 1,
+              "parameter_update": true,
+              "retention": {
+                "evaluated": false,
+                "retained": null
+              },
+              "retried": false,
+              "status": "passed",
+              "train_fit": {
+                "evaluated": true,
+                "improved": true,
+                "loss_after": 41.165985107421875,
+                "loss_before": 41.26384735107422
+              },
+              "transfer": {
+                "evaluated": false,
+                "improved": null
+              },
+              "useful_learning": true
+            },
+            "outcome": {
+              "eligible_events": 2,
+              "event_id": "fit-02-plastic",
+              "expert_id": 0,
+              "fingerprint": "628a88bcc17e6042edb6053c42ad0b6db3bac93785fcd899694438e2e7d360ca",
+              "loss": 41.26384735107422,
+              "retried": false,
+              "revision": 2,
+              "status": "committed",
+              "steps": 1
+            },
+            "target": {
+              "answer_sha256": "c97ace4c8fef2cee8fa0f3c9f52aab18dbd4f42438afe362ffb8f75ce4c04b84",
+              "codec_version": "spine-ingestion-codec-v1",
+              "producer_revision": "spark-text-producer-v1",
+              "representation": "core.memory_projection(versioned_answer_vector)",
+              "representation_version": "unicode-token-hash-v1",
+              "target_positions": 512,
+              "target_sha256": "706871324742d25101d045a61f3794776f985334a210a39d25f5629ef2efbd86",
+              "target_shape": [
+                1,
+                512,
+                256
+              ]
+            }
+          },
+          {
+            "event_id": "fit-03",
+            "learning_evidence": {
+              "actual_updates": 1,
+              "backward_calls": 1,
+              "changed_tensor_count": 3,
+              "changed_trainable_names": [
+                "expert_0.gate",
+                "expert_0.up",
+                "expert_0.down"
+              ],
+              "declared_updates": 1,
+              "execution_complete": true,
+              "fit_evaluation_forward_calls": 1,
+              "forward_calls": 1,
+              "learning_success": true,
+              "optimizer_steps": 1,
+              "parameter_update": true,
+              "retention": {
+                "evaluated": false,
+                "retained": null
+              },
+              "retried": false,
+              "status": "passed",
+              "train_fit": {
+                "evaluated": true,
+                "improved": true,
+                "loss_after": 40.74103546142578,
+                "loss_before": 40.88570785522461
+              },
+              "transfer": {
+                "evaluated": false,
+                "improved": null
+              },
+              "useful_learning": true
+            },
+            "outcome": {
+              "eligible_events": 3,
+              "event_id": "fit-03-plastic",
+              "expert_id": 0,
+              "fingerprint": "28097b020bb8bd286b01d1a6cf208830d8bc7e37785ac5665e886bf79abebe3f",
+              "loss": 40.88570785522461,
+              "retried": false,
+              "revision": 3,
+              "status": "committed",
+              "steps": 1
+            },
+            "target": {
+              "answer_sha256": "c3eefb58d7c42440a9d4abec51d629544d635a6d936ff3c4d3fca96d611b3cf3",
+              "codec_version": "spine-ingestion-codec-v1",
+              "producer_revision": "spark-text-producer-v1",
+              "representation": "core.memory_projection(versioned_answer_vector)",
+              "representation_version": "unicode-token-hash-v1",
+              "target_positions": 512,
+              "target_sha256": "39ba51442b97d36b5bf57494cf18618d9797874458d8a38279364b98770e890a",
+              "target_shape": [
+                1,
+                512,
+                256
+              ]
+            }
+          },
+          {
+            "event_id": "fit-04",
+            "learning_evidence": {
+              "actual_updates": 1,
+              "backward_calls": 1,
+              "changed_tensor_count": 3,
+              "changed_trainable_names": [
+                "expert_0.gate",
+                "expert_0.up",
+                "expert_0.down"
+              ],
+              "declared_updates": 1,
+              "execution_complete": true,
+              "fit_evaluation_forward_calls": 1,
+              "forward_calls": 1,
+              "learning_success": true,
+              "optimizer_steps": 1,
+              "parameter_update": true,
+              "retention": {
+                "evaluated": false,
+                "retained": null
+              },
+              "retried": false,
+              "status": "passed",
+              "train_fit": {
+                "evaluated": true,
+                "improved": true,
+                "loss_after": 47.39604568481445,
+                "loss_before": 47.47892379760742
+              },
+              "transfer": {
+                "evaluated": false,
+                "improved": null
+              },
+              "useful_learning": true
+            },
+            "outcome": {
+              "eligible_events": 4,
+              "event_id": "fit-04-plastic",
+              "expert_id": 0,
+              "fingerprint": "8fe594093cdefc12680c6dd5fd052534861cb2a639e99c7cdea56ef06d57b73f",
+              "loss": 47.47892379760742,
+              "retried": false,
+              "revision": 4,
+              "status": "committed",
+              "steps": 1
+            },
+            "target": {
+              "answer_sha256": "f8f8922da592b7f3ace2777f428e6c5c0eca681aad18a54fc876dd2432431872",
+              "codec_version": "spine-ingestion-codec-v1",
+              "producer_revision": "spark-text-producer-v1",
+              "representation": "core.memory_projection(versioned_answer_vector)",
+              "representation_version": "unicode-token-hash-v1",
+              "target_positions": 512,
+              "target_sha256": "43d29585b60d5fc68287e215afecf4ef5c09a93f28c33f03c4a1372c10a4be99",
+              "target_shape": [
+                1,
+                512,
+                256
+              ]
+            }
+          }
+        ],
+        "plastic_changed": true,
+        "pre_fit_plastic_digest": "ed18a125a196ffe7ff143476b078c5c93ef7e80c7f8f0a08f5b85b45fa8ee60e",
+        "retained_plastic_digest": "5589eee86ef5e31dbb63d02c34b135dced51bd447cb3a395c4035e4d7472d829",
+        "revisions": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "target_representation": "core.memory_projection(versioned_answer_vector)"
+      },
+      "retention": {
+        "drop_max_allowed": 0.02,
+        "older_rule": {
+          "accuracy": 0.0,
+          "cases": 3,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "retained": false
+      },
+      "train_fit": {
+        "diagnostic_only": true,
+        "evaluated": true,
+        "losses": [
+          14.806519508361816,
+          12.678532600402832,
+          12.544323921203613,
+          15.723684310913086
+        ],
+        "teacher_forced": [
+          {
+            "correct": 0,
+            "positions": 1,
+            "token_accuracy": 0.0
+          },
+          {
+            "correct": 0,
+            "positions": 1,
+            "token_accuracy": 0.0
+          },
+          {
+            "correct": 0,
+            "positions": 1,
+            "token_accuracy": 0.0
+          },
+          {
+            "correct": 0,
+            "positions": 1,
+            "token_accuracy": 0.0
+          }
+        ]
+      },
+      "transfer": {
+        "best_memory_arm": "spine_E_only",
+        "evaluated": true,
+        "gain_over_strongest_nonlearning": 0.0,
+        "paired_by_independent_world": true,
+        "per_arm_accuracy": {
+          "E_plus_P": {
+            "accuracy": 0.0,
+            "cases": 12,
+            "exact": 0,
+            "exact_accuracy": 0.0,
+            "matched": 0
+          },
+          "full_eligible_context": {
+            "accuracy": 0.0,
+            "cases": 12,
+            "exact": 0,
+            "exact_accuracy": 0.0,
+            "matched": 0
+          },
+          "inapplicable_procedure": {
+            "accuracy": 0.0,
+            "cases": 12,
+            "exact": 0,
+            "exact_accuracy": 0.0,
+            "matched": 0
+          },
+          "no_update": {
+            "accuracy": 0.0,
+            "cases": 12,
+            "exact": 0,
+            "exact_accuracy": 0.0,
+            "matched": 0
+          },
+          "reset_P": {
+            "accuracy": 0.0,
+            "cases": 12,
+            "exact": 0,
+            "exact_accuracy": 0.0,
+            "matched": 0
+          },
+          "selective_exact_and_procedure": {
+            "accuracy": 0.0,
+            "cases": 12,
+            "exact": 0,
+            "exact_accuracy": 0.0,
+            "matched": 0
+          },
+          "shuffled_memory": {
+            "accuracy": 0.0,
+            "cases": 12,
+            "exact": 0,
+            "exact_accuracy": 0.0,
+            "matched": 0
+          },
+          "source_free_P_only": {
+            "accuracy": 0.0,
+            "cases": 12,
+            "exact": 0,
+            "exact_accuracy": 0.0,
+            "matched": 0
+          },
+          "spine_E_only": {
+            "accuracy": 0.0,
+            "cases": 12,
+            "exact": 0,
+            "exact_accuracy": 0.0,
+            "matched": 0
+          }
+        },
+        "strongest_nonlearning_control": 0.0
+      },
+      "unknown_false_recall": 1.0,
+      "useful_learning": {
+        "correction": {
+          "accuracy": 0.0,
+          "cases": 18,
+          "exact": 0,
+          "exact_accuracy": 0.0,
+          "matched": 0
+        },
+        "criterion": "memory_arm_gain_ge_0.10_over_strongest_nonlearning_and_correction_and_unknown_false_recall",
+        "evaluated": true,
+        "gain": 0.0,
+        "passed": false,
+        "reset_or_wrong_p_reduces_gain": true,
+        "unknown_false_recall": 1.0,
+        "unknown_false_recall_max": 0.1
+      }
+    },
+    "parity_requests": 2,
+    "report": "development/development_report.json"
+  },
+  "execution_complete": true,
+  "fit": {
+    "changed_trainable_names": [
+      "extension.spine.memory_projection.weight",
+      "extension.spine.ports.memory.3.gate_logit",
+      "extension.spine.ports.memory.3.output_norm.bias",
+      "extension.spine.ports.memory.3.output_norm.weight",
+      "extension.spine.ports.memory.3.output_projection.weight",
+      "extension.spine.ports.memory.3.query_norm.bias",
+      "extension.spine.ports.memory.3.query_norm.weight",
+      "extension.spine.ports.memory.3.query_projection.weight",
+      "extension.spine.ports.memory.3.slot_norm.bias",
+      "extension.spine.ports.memory.3.slot_norm.weight",
+      "extension.spine.ports.memory.3.value_projection.weight",
+      "extension.spine.ports.memory.7.gate_logit",
+      "extension.spine.ports.memory.7.output_norm.bias",
+      "extension.spine.ports.memory.7.output_norm.weight",
+      "extension.spine.ports.memory.7.output_projection.weight",
+      "extension.spine.ports.memory.7.slot_norm.bias",
+      "extension.spine.ports.memory.7.slot_norm.weight",
+      "extension.spine.ports.memory.7.value_projection.weight"
+    ],
+    "checkpoint_writes": 5,
+    "execution_complete": true,
+    "optimizer_steps": 8,
+    "plastic_learning": {
+      "actual_updates": 4,
+      "backward_calls": 4,
+      "changed_tensor_count": 3,
+      "changed_trainable_names": [
+        "expert_0.down",
+        "expert_0.gate",
+        "expert_0.up"
+      ],
+      "clock_events": 4,
+      "declared_updates": 4,
+      "evaluated": true,
+      "fit_evaluation_forward_calls": 4,
+      "forward_calls": 4,
+      "learning_success": true,
+      "optimizer_steps": 4,
+      "per_event": [
+        {
+          "event_id": "fit-01",
+          "learning_evidence": {
+            "actual_updates": 1,
+            "backward_calls": 1,
+            "changed_tensor_count": 3,
+            "changed_trainable_names": [
+              "expert_0.gate",
+              "expert_0.up",
+              "expert_0.down"
+            ],
+            "declared_updates": 1,
+            "execution_complete": true,
+            "fit_evaluation_forward_calls": 1,
+            "forward_calls": 1,
+            "learning_success": true,
+            "optimizer_steps": 1,
+            "parameter_update": true,
+            "retention": {
+              "evaluated": false,
+              "retained": null
+            },
+            "retried": false,
+            "status": "passed",
+            "train_fit": {
+              "evaluated": true,
+              "improved": true,
+              "loss_after": 40.811317443847656,
+              "loss_before": 40.96701431274414
+            },
+            "transfer": {
+              "evaluated": false,
+              "improved": null
+            },
+            "useful_learning": true
+          },
+          "outcome": {
+            "eligible_events": 1,
+            "event_id": "fit-01-plastic",
+            "expert_id": 0,
+            "fingerprint": "39eb04ca23d53398d915a12d9017b287523ce6dc5db2039377f26e2b5bb207b8",
+            "loss": 40.96701431274414,
+            "retried": false,
+            "revision": 1,
+            "status": "committed",
+            "steps": 1
+          },
+          "target": {
+            "answer_sha256": "2348f998744212575d85959674f9607ab26f67708a917157472832386337c904",
+            "codec_version": "spine-ingestion-codec-v1",
+            "producer_revision": "spark-text-producer-v1",
+            "representation": "core.memory_projection(versioned_answer_vector)",
+            "representation_version": "unicode-token-hash-v1",
+            "target_positions": 512,
+            "target_sha256": "6e021db206aef2227b673e4cc7bfa70fa758f151890a6c6f641b91c2e896ba97",
+            "target_shape": [
+              1,
+              512,
+              256
+            ]
+          }
+        },
+        {
+          "event_id": "fit-02",
+          "learning_evidence": {
+            "actual_updates": 1,
+            "backward_calls": 1,
+            "changed_tensor_count": 3,
+            "changed_trainable_names": [
+              "expert_0.gate",
+              "expert_0.up",
+              "expert_0.down"
+            ],
+            "declared_updates": 1,
+            "execution_complete": true,
+            "fit_evaluation_forward_calls": 1,
+            "forward_calls": 1,
+            "learning_success": true,
+            "optimizer_steps": 1,
+            "parameter_update": true,
+            "retention": {
+              "evaluated": false,
+              "retained": null
+            },
+            "retried": false,
+            "status": "passed",
+            "train_fit": {
+              "evaluated": true,
+              "improved": true,
+              "loss_after": 41.165985107421875,
+              "loss_before": 41.26384735107422
+            },
+            "transfer": {
+              "evaluated": false,
+              "improved": null
+            },
+            "useful_learning": true
+          },
+          "outcome": {
+            "eligible_events": 2,
+            "event_id": "fit-02-plastic",
+            "expert_id": 0,
+            "fingerprint": "628a88bcc17e6042edb6053c42ad0b6db3bac93785fcd899694438e2e7d360ca",
+            "loss": 41.26384735107422,
+            "retried": false,
+            "revision": 2,
+            "status": "committed",
+            "steps": 1
+          },
+          "target": {
+            "answer_sha256": "c97ace4c8fef2cee8fa0f3c9f52aab18dbd4f42438afe362ffb8f75ce4c04b84",
+            "codec_version": "spine-ingestion-codec-v1",
+            "producer_revision": "spark-text-producer-v1",
+            "representation": "core.memory_projection(versioned_answer_vector)",
+            "representation_version": "unicode-token-hash-v1",
+            "target_positions": 512,
+            "target_sha256": "706871324742d25101d045a61f3794776f985334a210a39d25f5629ef2efbd86",
+            "target_shape": [
+              1,
+              512,
+              256
+            ]
+          }
+        },
+        {
+          "event_id": "fit-03",
+          "learning_evidence": {
+            "actual_updates": 1,
+            "backward_calls": 1,
+            "changed_tensor_count": 3,
+            "changed_trainable_names": [
+              "expert_0.gate",
+              "expert_0.up",
+              "expert_0.down"
+            ],
+            "declared_updates": 1,
+            "execution_complete": true,
+            "fit_evaluation_forward_calls": 1,
+            "forward_calls": 1,
+            "learning_success": true,
+            "optimizer_steps": 1,
+            "parameter_update": true,
+            "retention": {
+              "evaluated": false,
+              "retained": null
+            },
+            "retried": false,
+            "status": "passed",
+            "train_fit": {
+              "evaluated": true,
+              "improved": true,
+              "loss_after": 40.74103546142578,
+              "loss_before": 40.88570785522461
+            },
+            "transfer": {
+              "evaluated": false,
+              "improved": null
+            },
+            "useful_learning": true
+          },
+          "outcome": {
+            "eligible_events": 3,
+            "event_id": "fit-03-plastic",
+            "expert_id": 0,
+            "fingerprint": "28097b020bb8bd286b01d1a6cf208830d8bc7e37785ac5665e886bf79abebe3f",
+            "loss": 40.88570785522461,
+            "retried": false,
+            "revision": 3,
+            "status": "committed",
+            "steps": 1
+          },
+          "target": {
+            "answer_sha256": "c3eefb58d7c42440a9d4abec51d629544d635a6d936ff3c4d3fca96d611b3cf3",
+            "codec_version": "spine-ingestion-codec-v1",
+            "producer_revision": "spark-text-producer-v1",
+            "representation": "core.memory_projection(versioned_answer_vector)",
+            "representation_version": "unicode-token-hash-v1",
+            "target_positions": 512,
+            "target_sha256": "39ba51442b97d36b5bf57494cf18618d9797874458d8a38279364b98770e890a",
+            "target_shape": [
+              1,
+              512,
+              256
+            ]
+          }
+        },
+        {
+          "event_id": "fit-04",
+          "learning_evidence": {
+            "actual_updates": 1,
+            "backward_calls": 1,
+            "changed_tensor_count": 3,
+            "changed_trainable_names": [
+              "expert_0.gate",
+              "expert_0.up",
+              "expert_0.down"
+            ],
+            "declared_updates": 1,
+            "execution_complete": true,
+            "fit_evaluation_forward_calls": 1,
+            "forward_calls": 1,
+            "learning_success": true,
+            "optimizer_steps": 1,
+            "parameter_update": true,
+            "retention": {
+              "evaluated": false,
+              "retained": null
+            },
+            "retried": false,
+            "status": "passed",
+            "train_fit": {
+              "evaluated": true,
+              "improved": true,
+              "loss_after": 47.39604568481445,
+              "loss_before": 47.47892379760742
+            },
+            "transfer": {
+              "evaluated": false,
+              "improved": null
+            },
+            "useful_learning": true
+          },
+          "outcome": {
+            "eligible_events": 4,
+            "event_id": "fit-04-plastic",
+            "expert_id": 0,
+            "fingerprint": "8fe594093cdefc12680c6dd5fd052534861cb2a639e99c7cdea56ef06d57b73f",
+            "loss": 47.47892379760742,
+            "retried": false,
+            "revision": 4,
+            "status": "committed",
+            "steps": 1
+          },
+          "target": {
+            "answer_sha256": "f8f8922da592b7f3ace2777f428e6c5c0eca681aad18a54fc876dd2432431872",
+            "codec_version": "spine-ingestion-codec-v1",
+            "producer_revision": "spark-text-producer-v1",
+            "representation": "core.memory_projection(versioned_answer_vector)",
+            "representation_version": "unicode-token-hash-v1",
+            "target_positions": 512,
+            "target_sha256": "43d29585b60d5fc68287e215afecf4ef5c09a93f28c33f03c4a1372c10a4be99",
+            "target_shape": [
+              1,
+              512,
+              256
+            ]
+          }
+        }
+      ],
+      "plastic_changed": true,
+      "pre_fit_plastic_digest": "ed18a125a196ffe7ff143476b078c5c93ef7e80c7f8f0a08f5b85b45fa8ee60e",
+      "retained_plastic_digest": "5589eee86ef5e31dbb63d02c34b135dced51bd447cb3a395c4035e4d7472d829",
+      "revisions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "target_representation": "core.memory_projection(versioned_answer_vector)"
+    },
+    "receipt": "fit/fit_receipt.json",
+    "retained_checkpoints": [
+      "fit/event-02",
+      "fit/event-03",
+      "fit/event-04",
+      "fit/final"
+    ],
+    "status": "fit_executed",
+    "train_fit": {
+      "diagnostic_only": true,
+      "evaluated": true,
+      "losses": [
+        14.806519508361816,
+        12.678532600402832,
+        12.544323921203613,
+        15.723684310913086
+      ],
+      "teacher_forced": [
+        {
+          "correct": 0,
+          "positions": 1,
+          "token_accuracy": 0.0
+        },
+        {
+          "correct": 0,
+          "positions": 1,
+          "token_accuracy": 0.0
+        },
+        {
+          "correct": 0,
+          "positions": 1,
+          "token_accuracy": 0.0
+        },
+        {
+          "correct": 0,
+          "positions": 1,
+          "token_accuracy": 0.0
+        }
+      ]
+    }
+  },
+  "format": "replica.spark_text_memory.run.v1",
+  "native_admission": {
+    "admitted": false,
+    "attempted": false,
+    "reason": "cpu_fixture selected; never native-admissible"
+  },
+  "non_claims": [
+    "no native FP8 training support is inferred from FP8 storage or inference",
+    "no official BF16 or dequantized substitution is silent",
+    "no accuracy or speed improvement is inferred from wiring or parameter changes",
+    "no lifelong learning, reasoning improvement or RSI claim follows from this pilot",
+    "no sealed-final result is opened or tuned",
+    "no P-bank, Mkv or read-budget expansion follows from failure"
+  ],
+  "prepared_manifest_sha256": "b0304d42c689d56b2eba6f55117bcb3c24702054e878637154bd0211c34eec32",
+  "protocol_id": "spark_text_memory_v1",
+  "protocol_mismatches": [],
+  "protocol_sha256": "6981851f316efad55172c2dd1c1f7f56fe2c12a6e5b262eac616f1a7645f2566",
+  "restart": {
+    "derived_caches_restored": false,
+    "inventory_after_source_removal": {
+      "candidate_explanations": 0,
+      "evidence_records": 0,
+      "exact_text_records": 0,
+      "p_optimizer_is_distinct": true,
+      "plastic_clock_events": 4,
+      "plastic_expert_steps": [
+        4,
+        0
+      ],
+      "plastic_revision": 4,
+      "procedures": 0,
+      "response_optimizer": "native_fused",
+      "response_parameter_updates": 4,
+      "response_steps": 4,
+      "schema": "replica.spark.spine_text.v1",
+      "task_workspaces": 0
+    },
+    "parity_match_exact_tokens": true,
+    "process": "fresh_process",
+    "request_id": "restart-parity-01",
+    "source_evidence_removed": true,
+    "text_records": 3
+  },
+  "status": "complete",
+  "wall_seconds": 9.05725087504834,
+  "work": {
+    "actual": {
+      "artifact_bytes": 49326224,
+      "autoregressive_forwards": 444,
+      "backward_calls": 8,
+      "backward_processed_positions": 2048,
+      "cache_hits": 0,
+      "cache_misses": 115,
+      "checkpoint_bytes": 60565094,
+      "checkpoint_writes": 5,
+      "consolidation_events": 0,
+      "development_cases": 108,
+      "development_cases_per_arm": 0,
+      "failure_rows": 0,
+      "fit_events": 4,
+      "forward_calls": 571,
+      "generated_tokens": 444,
+      "generation_requests": 111,
+      "model_loads": 2,
+      "native_query_passes": 119,
+      "native_retries": 0,
+      "no_op_steps": 0,
+      "omitted_records": 180,
+      "optimizer_steps": 8,
+      "parity_requests": 2,
+      "plastic_backward_calls": 4,
+      "plastic_backward_feature_vectors": 2048,
+      "plastic_feature_vectors": 2048,
+      "plastic_fit_evaluation_forwards": 4,
+      "plastic_forward_calls": 4,
+      "processed_text_positions": 290970,
+      "query_sensing_forwards": 119,
+      "reloads": 1,
+      "replay_events": 0,
+      "restart_parity_requests": 1,
+      "restarts": 1,
+      "retained_checkpoint_artifacts": 4,
+      "retrieval_calls": 115,
+      "retry_events": 0,
+      "selected_records": 492,
+      "teacher_passes": 0,
+      "tokenizer_loads": 2,
+      "training_forwards": 4,
+      "verification_calls": 112,
+      "zero_new_work_retries": 0
+    },
+    "cap_violations": [],
+    "corrected_caps": {
+      "artifact_bytes": 134217728,
+      "autoregressive_forwards": 444,
+      "backward_calls": 8,
+      "backward_processed_positions": 2048,
+      "cache_hits": 0,
+      "cache_misses": 115,
+      "checkpoint_writes": 5,
+      "consolidation_events": 0,
+      "development_cases": 108,
+      "development_cases_per_arm": 12,
+      "fit_events": 4,
+      "forward_calls": 904,
+      "generated_tokens": 444,
+      "generation_requests": 111,
+      "model_loads": 2,
+      "native_query_passes": 452,
+      "native_retries": 0,
+      "optimizer_steps": 8,
+      "parity_requests": 2,
+      "plastic_backward_calls": 4,
+      "plastic_backward_feature_vectors": 2048,
+      "plastic_feature_vectors": 2048,
+      "plastic_forward_calls": 4,
+      "processed_text_positions": 462132,
+      "query_sensing_forwards": 452,
+      "reloads": 1,
+      "replay_events": 0,
+      "restart_parity_requests": 1,
+      "restarts": 1,
+      "retained_checkpoint_artifacts": 4,
+      "retrieval_calls": 115,
+      "teacher_passes": 0,
+      "tokenizer_loads": 2,
+      "training_forwards": 4,
+      "verification_calls": 112
+    },
+    "cost_phases": {
+      "amortized": {
+        "autoregressive_forwards": 4,
+        "cache_misses": 1,
+        "forward_calls": 5,
+        "generated_tokens": 4,
+        "generation_requests": 1,
+        "native_query_passes": 1,
+        "processed_text_positions": 2566,
+        "query_sensing_forwards": 1,
+        "reloads": 1,
+        "restart_parity_requests": 1,
+        "retrieval_calls": 1
+      },
+      "cold_start": {
+        "backward_calls": 8,
+        "backward_processed_positions": 2048,
+        "cache_misses": 4,
+        "checkpoint_bytes": 60565094,
+        "checkpoint_writes": 5,
+        "fit_events": 4,
+        "forward_calls": 16,
+        "model_loads": 2,
+        "native_query_passes": 8,
+        "omitted_records": 0,
+        "optimizer_steps": 8,
+        "plastic_backward_calls": 4,
+        "plastic_backward_feature_vectors": 2048,
+        "plastic_feature_vectors": 2048,
+        "plastic_fit_evaluation_forwards": 4,
+        "plastic_forward_calls": 4,
+        "processed_text_positions": 6144,
+        "query_sensing_forwards": 8,
+        "retrieval_calls": 4,
+        "selected_records": 0,
+        "tokenizer_loads": 2,
+        "training_forwards": 4,
+        "verification_calls": 4
+      },
+      "steady_state": {
+        "autoregressive_forwards": 440,
+        "cache_misses": 110,
+        "development_cases": 108,
+        "forward_calls": 550,
+        "generated_tokens": 440,
+        "generation_requests": 110,
+        "native_query_passes": 110,
+        "omitted_records": 180,
+        "parity_requests": 2,
+        "processed_text_positions": 282260,
+        "query_sensing_forwards": 110,
+        "restarts": 1,
+        "retrieval_calls": 110,
+        "selected_records": 492,
+        "verification_calls": 108
+      }
+    },
+    "expected": {
+      "autoregressive_forwards": 444,
+      "backward_calls": 8,
+      "backward_processed_positions": 2048,
+      "cache_hits": 0,
+      "cache_misses": 115,
+      "checkpoint_writes": 5,
+      "consolidation_events": 0,
+      "development_cases": 108,
+      "failure_rows": 0,
+      "fit_events": 4,
+      "generated_tokens": 444,
+      "generation_requests": 111,
+      "model_loads": 2,
+      "native_retries": 0,
+      "optimizer_steps": 8,
+      "parity_requests": 2,
+      "plastic_backward_calls": 4,
+      "plastic_backward_feature_vectors": 2048,
+      "plastic_feature_vectors": 2048,
+      "plastic_fit_evaluation_forwards": 4,
+      "plastic_forward_calls": 4,
+      "reloads": 1,
+      "replay_events": 0,
+      "restart_parity_requests": 1,
+      "restarts": 1,
+      "retained_checkpoint_artifacts": 4,
+      "retrieval_calls": 115,
+      "teacher_passes": 0,
+      "tokenizer_loads": 2,
+      "training_forwards": 4,
+      "verification_calls": 112,
+      "zero_new_work_retries": 0
+    },
+    "per_arm": {
+      "E_plus_P": 12,
+      "full_eligible_context": 12,
+      "inapplicable_procedure": 12,
+      "no_update": 12,
+      "reset_P": 12,
+      "selective_exact_and_procedure": 12,
+      "shuffled_memory": 12,
+      "source_free_P_only": 12,
+      "spine_E_only": 12
+    },
+    "reconciled": true,
+    "schedule_declared": {
+      "autoregressive_forwards": 444,
+      "backward_calls": 8,
+      "backward_processed_positions": 2048,
+      "cache_hits": 0,
+      "cache_misses": 115,
+      "checkpoint_writes": 5,
+      "consolidation_events": 0,
+      "development_cases": 108,
+      "development_cases_per_arm": 12,
+      "fit_events": 4,
+      "forward_calls": 904,
+      "generated_tokens": 444,
+      "generation_requests": 111,
+      "model_loads": 2,
+      "native_query_passes": 452,
+      "native_retries": 0,
+      "optimizer_steps": 8,
+      "parity_requests": 2,
+      "plastic_backward_calls": 4,
+      "plastic_backward_feature_vectors": 2048,
+      "plastic_feature_vectors": 2048,
+      "plastic_forward_calls": 4,
+      "processed_text_positions": 462132,
+      "query_sensing_forwards": 452,
+      "reloads": 1,
+      "replay_events": 0,
+      "restart_parity_requests": 1,
+      "restarts": 1,
+      "retained_checkpoint_artifacts": 4,
+      "retrieval_calls": 115,
+      "teacher_passes": 0,
+      "tokenizer_loads": 2,
+      "training_forwards": 4,
+      "verification_calls": 112
+    },
+    "wall_seconds": 9.055980207864195
+  },
+  "work_profile": {
+    "context_tokens": 512,
+    "label": "cpu_fixture",
+    "max_new_tokens": 4,
+    "native_admissible": false
+  },
+  "written_at_utc": "2026-10-29T02:13:46.085159+00:00"
+}

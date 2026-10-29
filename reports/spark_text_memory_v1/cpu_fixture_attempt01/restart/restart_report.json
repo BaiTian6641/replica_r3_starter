@@ -1,0 +1,531 @@
+{
+  "answer": "\u097e \u097e \u097e \u097e",
+  "derived_caches_restored": false,
+  "execution_complete": true,
+  "format": "replica.spark_text_memory.restart.v1",
+  "inventory_after_source_removal": {
+    "candidate_explanations": 0,
+    "evidence_records": 0,
+    "exact_text_records": 0,
+    "p_optimizer_is_distinct": true,
+    "plastic_clock_events": 4,
+    "plastic_expert_steps": [
+      4,
+      0
+    ],
+    "plastic_revision": 4,
+    "procedures": 0,
+    "response_optimizer": "native_fused",
+    "response_parameter_updates": 4,
+    "response_steps": 4,
+    "schema": "replica.spark.spine_text.v1",
+    "task_workspaces": 0
+  },
+  "inventory_before_source_removal": {
+    "candidate_explanations": 0,
+    "evidence_records": 3,
+    "exact_text_records": 3,
+    "p_optimizer_is_distinct": true,
+    "plastic_clock_events": 4,
+    "plastic_expert_steps": [
+      4,
+      0
+    ],
+    "plastic_revision": 4,
+    "procedures": 2,
+    "response_optimizer": "native_fused",
+    "response_parameter_updates": 4,
+    "response_steps": 4,
+    "schema": "replica.spark.spine_text.v1",
+    "task_workspaces": 1
+  },
+  "paired_request_id": "parity-02",
+  "paired_tokens": [
+    2430,
+    2430,
+    2430,
+    2430
+  ],
+  "parity_match_exact_tokens": true,
+  "plastic_digest_after": "5589eee86ef5e31dbb63d02c34b135dced51bd447cb3a395c4035e4d7472d829",
+  "plastic_digest_before": "5589eee86ef5e31dbb63d02c34b135dced51bd447cb3a395c4035e4d7472d829",
+  "raw": {
+    "autoregressive_forwards": 4,
+    "decoded": "\u097e \u097e \u097e \u097e",
+    "generated_tokens": 4,
+    "processed_positions": 2054,
+    "steps": [
+      {
+        "positions": 512,
+        "score": 10.6875,
+        "step": 0,
+        "terminal_stop_ids_excluded": [
+          0,
+          1
+        ],
+        "token_id": 2430,
+        "top_scores": [
+          10.6875,
+          10.3125,
+          9.6875,
+          9.1875,
+          9.0
+        ],
+        "top_token_ids": [
+          2430,
+          7507,
+          2838,
+          2427,
+          4356
+        ]
+      },
+      {
+        "positions": 513,
+        "score": 11.8125,
+        "step": 1,
+        "terminal_stop_ids_excluded": [
+          0,
+          1
+        ],
+        "token_id": 2430,
+        "top_scores": [
+          11.8125,
+          9.625,
+          9.1875,
+          9.0625,
+          8.9375
+        ],
+        "top_token_ids": [
+          2430,
+          732,
+          5223,
+          7507,
+          5613
+        ]
+      },
+      {
+        "positions": 514,
+        "score": 11.8125,
+        "step": 2,
+        "terminal_stop_ids_excluded": [
+          0,
+          1
+        ],
+        "token_id": 2430,
+        "top_scores": [
+          11.8125,
+          9.625,
+          9.1875,
+          9.0625,
+          8.9375
+        ],
+        "top_token_ids": [
+          2430,
+          732,
+          5223,
+          7507,
+          5613
+        ]
+      },
+      {
+        "positions": 515,
+        "score": 11.8125,
+        "step": 3,
+        "terminal_stop_ids_excluded": [
+          0,
+          1
+        ],
+        "token_id": 2430,
+        "top_scores": [
+          11.8125,
+          9.625,
+          9.1875,
+          9.0625,
+          8.9375
+        ],
+        "top_token_ids": [
+          2430,
+          732,
+          5223,
+          7507,
+          5613
+        ]
+      }
+    ],
+    "terminal_stop_ids_excluded": [
+      0,
+      1
+    ],
+    "terminal_stop_tokens_emitted": [],
+    "token_ids": [
+      2430,
+      2430,
+      2430,
+      2430
+    ]
+  },
+  "request_id": "restart-parity-01",
+  "restart_parity_requests": 1,
+  "restart_process": "fresh_process",
+  "restored": {
+    "experiment": {
+      "arm": "arm-0",
+      "checkpoint_version": 2,
+      "completed_evaluations": [
+        {
+          "event_id": "fit-01-plastic",
+          "expert_id": 0,
+          "learning_evidence": {
+            "actual_updates": 1,
+            "backward_calls": 1,
+            "changed_tensor_count": 3,
+            "changed_trainable_names": [
+              "expert_0.gate",
+              "expert_0.up",
+              "expert_0.down"
+            ],
+            "declared_updates": 1,
+            "execution_complete": true,
+            "fit_evaluation_forward_calls": 1,
+            "forward_calls": 1,
+            "learning_success": true,
+            "optimizer_steps": 1,
+            "parameter_update": true,
+            "retention": {
+              "evaluated": false,
+              "retained": null
+            },
+            "retried": false,
+            "status": "passed",
+            "train_fit": {
+              "evaluated": true,
+              "improved": true,
+              "loss_after": 40.811317443847656,
+              "loss_before": 40.96701431274414
+            },
+            "transfer": {
+              "evaluated": false,
+              "improved": null
+            },
+            "useful_learning": true
+          },
+          "outcome": {
+            "eligible_events": 1,
+            "event_id": "fit-01-plastic",
+            "expert_id": 0,
+            "fingerprint": "39eb04ca23d53398d915a12d9017b287523ce6dc5db2039377f26e2b5bb207b8",
+            "loss": 40.96701431274414,
+            "revision": 1,
+            "status": "committed",
+            "steps": 1
+          }
+        },
+        {
+          "event_id": "fit-02-plastic",
+          "expert_id": 0,
+          "learning_evidence": {
+            "actual_updates": 1,
+            "backward_calls": 1,
+            "changed_tensor_count": 3,
+            "changed_trainable_names": [
+              "expert_0.gate",
+              "expert_0.up",
+              "expert_0.down"
+            ],
+            "declared_updates": 1,
+            "execution_complete": true,
+            "fit_evaluation_forward_calls": 1,
+            "forward_calls": 1,
+            "learning_success": true,
+            "optimizer_steps": 1,
+            "parameter_update": true,
+            "retention": {
+              "evaluated": false,
+              "retained": null
+            },
+            "retried": false,
+            "status": "passed",
+            "train_fit": {
+              "evaluated": true,
+              "improved": true,
+              "loss_after": 41.165985107421875,
+              "loss_before": 41.26384735107422
+            },
+            "transfer": {
+              "evaluated": false,
+              "improved": null
+            },
+            "useful_learning": true
+          },
+          "outcome": {
+            "eligible_events": 2,
+            "event_id": "fit-02-plastic",
+            "expert_id": 0,
+            "fingerprint": "628a88bcc17e6042edb6053c42ad0b6db3bac93785fcd899694438e2e7d360ca",
+            "loss": 41.26384735107422,
+            "revision": 2,
+            "status": "committed",
+            "steps": 1
+          }
+        },
+        {
+          "event_id": "fit-03-plastic",
+          "expert_id": 0,
+          "learning_evidence": {
+            "actual_updates": 1,
+            "backward_calls": 1,
+            "changed_tensor_count": 3,
+            "changed_trainable_names": [
+              "expert_0.gate",
+              "expert_0.up",
+              "expert_0.down"
+            ],
+            "declared_updates": 1,
+            "execution_complete": true,
+            "fit_evaluation_forward_calls": 1,
+            "forward_calls": 1,
+            "learning_success": true,
+            "optimizer_steps": 1,
+            "parameter_update": true,
+            "retention": {
+              "evaluated": false,
+              "retained": null
+            },
+            "retried": false,
+            "status": "passed",
+            "train_fit": {
+              "evaluated": true,
+              "improved": true,
+              "loss_after": 40.74103546142578,
+              "loss_before": 40.88570785522461
+            },
+            "transfer": {
+              "evaluated": false,
+              "improved": null
+            },
+            "useful_learning": true
+          },
+          "outcome": {
+            "eligible_events": 3,
+            "event_id": "fit-03-plastic",
+            "expert_id": 0,
+            "fingerprint": "28097b020bb8bd286b01d1a6cf208830d8bc7e37785ac5665e886bf79abebe3f",
+            "loss": 40.88570785522461,
+            "revision": 3,
+            "status": "committed",
+            "steps": 1
+          }
+        },
+        {
+          "event_id": "fit-04-plastic",
+          "expert_id": 0,
+          "learning_evidence": {
+            "actual_updates": 1,
+            "backward_calls": 1,
+            "changed_tensor_count": 3,
+            "changed_trainable_names": [
+              "expert_0.gate",
+              "expert_0.up",
+              "expert_0.down"
+            ],
+            "declared_updates": 1,
+            "execution_complete": true,
+            "fit_evaluation_forward_calls": 1,
+            "forward_calls": 1,
+            "learning_success": true,
+            "optimizer_steps": 1,
+            "parameter_update": true,
+            "retention": {
+              "evaluated": false,
+              "retained": null
+            },
+            "retried": false,
+            "status": "passed",
+            "train_fit": {
+              "evaluated": true,
+              "improved": true,
+              "loss_after": 47.39604568481445,
+              "loss_before": 47.47892379760742
+            },
+            "transfer": {
+              "evaluated": false,
+              "improved": null
+            },
+            "useful_learning": true
+          },
+          "outcome": {
+            "eligible_events": 4,
+            "event_id": "fit-04-plastic",
+            "expert_id": 0,
+            "fingerprint": "8fe594093cdefc12680c6dd5fd052534861cb2a639e99c7cdea56ef06d57b73f",
+            "loss": 47.47892379760742,
+            "revision": 4,
+            "status": "committed",
+            "steps": 1
+          }
+        }
+      ],
+      "counters": {
+        "backward_calls": 4,
+        "changed_tensors": 12,
+        "codec_calls": 4096,
+        "dropped_journal_records": 0,
+        "dropped_taught_lineages": 0,
+        "e_read_calls": 0,
+        "fit_evaluation_forward_calls": 4,
+        "forward_calls": 4,
+        "invalidations": 8,
+        "learning_events": 4,
+        "learning_transactions": 4,
+        "observations": 4,
+        "omitted_read_records": 0,
+        "optimizer_steps": 4,
+        "p_only_clears": 0,
+        "p_read_calls": 8,
+        "read_calls": 8,
+        "retried_learning_events": 0,
+        "snapshots": 8
+      },
+      "event": "event-0",
+      "format": "replica.spark.spine.memory.checkpoint.v1",
+      "memory_state_migration": null,
+      "optimizer_migration": null,
+      "phase": "commit",
+      "run_contract": {
+        "backend": "cpu_fixture",
+        "codec_version": "spine-ingestion-codec-v1",
+        "model_identity": "47539d58d8520863b929cc263ee9daa51b6652421856569b4fb571a23e988ec2",
+        "native_admissible": false,
+        "prepared_manifest_sha256": "b0304d42c689d56b2eba6f55117bcb3c24702054e878637154bd0211c34eec32",
+        "protocol_id": "spark_text_memory_v1",
+        "protocol_sha256": "6981851f316efad55172c2dd1c1f7f56fe2c12a6e5b262eac616f1a7645f2566",
+        "representation_version": "unicode-token-hash-v1",
+        "schema": "replica.spark.spine.v1",
+        "spine_schema": "replica.spark.spine.v1"
+      },
+      "version": 2
+    },
+    "procedures": 2,
+    "task_workspaces": 1,
+    "text_records": 3
+  },
+  "source_evidence_removed": true,
+  "status": "complete",
+  "work": {
+    "cap_violations": [],
+    "caps": {
+      "artifact_bytes": 134217728,
+      "autoregressive_forwards": 444,
+      "backward_calls": 8,
+      "backward_processed_positions": 2048,
+      "cache_hits": 0,
+      "cache_misses": 115,
+      "checkpoint_writes": 5,
+      "consolidation_events": 0,
+      "development_cases": 108,
+      "development_cases_per_arm": 12,
+      "fit_events": 4,
+      "forward_calls": 904,
+      "generated_tokens": 444,
+      "generation_requests": 111,
+      "model_loads": 2,
+      "native_query_passes": 452,
+      "native_retries": 0,
+      "optimizer_steps": 8,
+      "parity_requests": 2,
+      "plastic_backward_calls": 4,
+      "plastic_backward_feature_vectors": 2048,
+      "plastic_feature_vectors": 2048,
+      "plastic_forward_calls": 4,
+      "processed_text_positions": 462132,
+      "query_sensing_forwards": 452,
+      "reloads": 1,
+      "replay_events": 0,
+      "restart_parity_requests": 1,
+      "restarts": 1,
+      "retained_checkpoint_artifacts": 4,
+      "retrieval_calls": 115,
+      "teacher_passes": 0,
+      "tokenizer_loads": 2,
+      "training_forwards": 4,
+      "verification_calls": 112
+    },
+    "counters": {
+      "artifact_bytes": 0,
+      "autoregressive_forwards": 4,
+      "backward_calls": 0,
+      "backward_processed_positions": 0,
+      "cache_hits": 0,
+      "cache_misses": 1,
+      "checkpoint_bytes": 0,
+      "checkpoint_writes": 0,
+      "consolidation_events": 0,
+      "development_cases": 0,
+      "development_cases_per_arm": 0,
+      "failure_rows": 0,
+      "fit_events": 0,
+      "forward_calls": 5,
+      "generated_tokens": 4,
+      "generation_requests": 1,
+      "model_loads": 1,
+      "native_query_passes": 1,
+      "native_retries": 0,
+      "no_op_steps": 0,
+      "omitted_records": 0,
+      "optimizer_steps": 0,
+      "parity_requests": 0,
+      "plastic_backward_calls": 0,
+      "plastic_backward_feature_vectors": 0,
+      "plastic_feature_vectors": 0,
+      "plastic_fit_evaluation_forwards": 0,
+      "plastic_forward_calls": 0,
+      "processed_text_positions": 2566,
+      "query_sensing_forwards": 1,
+      "reloads": 1,
+      "replay_events": 0,
+      "restart_parity_requests": 1,
+      "restarts": 0,
+      "retained_checkpoint_artifacts": 0,
+      "retrieval_calls": 1,
+      "retry_events": 0,
+      "selected_records": 0,
+      "teacher_passes": 0,
+      "tokenizer_loads": 1,
+      "training_forwards": 0,
+      "verification_calls": 0,
+      "zero_new_work_retries": 0
+    },
+    "per_arm": {
+      "E_plus_P": 0,
+      "full_eligible_context": 0,
+      "inapplicable_procedure": 0,
+      "no_update": 0,
+      "reset_P": 0,
+      "selective_exact_and_procedure": 0,
+      "shuffled_memory": 0,
+      "source_free_P_only": 0,
+      "spine_E_only": 0
+    },
+    "per_phase": {
+      "amortized": {
+        "autoregressive_forwards": 4,
+        "cache_misses": 1,
+        "forward_calls": 5,
+        "generated_tokens": 4,
+        "generation_requests": 1,
+        "native_query_passes": 1,
+        "processed_text_positions": 2566,
+        "query_sensing_forwards": 1,
+        "reloads": 1,
+        "restart_parity_requests": 1,
+        "retrieval_calls": 1
+      },
+      "cold_start": {
+        "model_loads": 1,
+        "tokenizer_loads": 1
+      }
+    },
+    "wall_seconds": 0.20778858289122581
+  },
+  "written_at_utc": "2026-10-29T02:13:45.744192+00:00"
+}

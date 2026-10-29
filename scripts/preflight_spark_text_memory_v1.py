@@ -249,10 +249,21 @@ def _validate_authorization(config: Mapping[str, Any], authorization: Path,
     _require(receipt["protocol_sha256"] == sha256_file(config_path),
              "authorization", "protocol hash differs")
     head = _current_head(root)
-    _require(launch.get("protocol_commit") == head,
-             "authorization", "protocol is not bound to current HEAD")
-    _require(receipt["protocol_commit"] == head,
-             "authorization", "receipt commit differs from current HEAD")
+    protocol_commit = launch.get("protocol_commit")
+    _require(isinstance(protocol_commit, str) and len(protocol_commit) == 40,
+             "authorization", "protocol implementation commit is missing")
+    ancestry = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", protocol_commit, head],
+        cwd=root, capture_output=True, check=False)
+    _require(ancestry.returncode == 0, "authorization",
+             "protocol implementation commit is not an ancestor of HEAD")
+    drift = subprocess.run(
+        ["git", "diff", "--quiet", protocol_commit, head, "--",
+         *launch["implementation_files"]], cwd=root, capture_output=True, check=False)
+    _require(drift.returncode == 0, "authorization",
+             "implementation files changed after the protocol commit")
+    _require(receipt["protocol_commit"] == protocol_commit,
+             "authorization", "receipt and protocol implementation commits differ")
     _require(receipt["implementation_sha256"] == dict(implementation_hashes),
              "authorization", "implementation hashes differ")
     _require(launch.get("implementation_sha256") == dict(implementation_hashes),
