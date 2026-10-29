@@ -1,13 +1,12 @@
 # Spark 2/9/36 intrinsic-memory feasibility preparation
 
-**Current successor:** [v10 teacher alignment](../../docs/experiments/20261029_Spark_Memory_Teacher_Alignment_V10.md) is implemented
-and tested on official BF16. Calibration and teacher qualification pass 8/8;
-fitting passes 8/8 and development scores 5/8 versus 8/8 exact text,
-failing the fixed utility criteria. The 2/9/36 CPU
-integration and fresh-process numerical continuation pass. Native density and
-persistent learning remain gated. The user authorizes continuing bounded tests;
-consumed outputs have zero retries. The earlier material below retains its
-historical scope and is not a current launch or approval instruction.
+**Current successor:** [v11 broader teaching](../../docs/experiments/20261029_Spark_Memory_Coverage_V11.md) is implemented with
+fresh data and unchanged per-group gates; the exact official-BF16 control is
+prepared. V10 learned fitting but failed useful development at 5/8 contextual
+versus 8/8 exact text. CPU 2/9/36 integration passes; native density and persistent
+learning remain gated. Standing testing authorization applies to bounded new
+packets, with zero retries on consumed outputs. The material below preserves its
+historical scope and is not the current launch instruction.
 
 The [v5 protocol](../../configs/intrinsic_memory_density_protocol_v5.json) and
 [review packet](native_comparison_packet.json) prepare a separate experiment.

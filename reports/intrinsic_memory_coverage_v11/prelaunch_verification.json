@@ -1,0 +1,130 @@
+{
+  "authorization": {
+    "path": "reports/intrinsic_memory_coverage_v11/authorization_two_v11.json",
+    "sha256": "f39214a1ca7b47481248744ca50300ff632bcc139354880638f28ff222427e0c"
+  },
+  "clean_CPU_integration": {
+    "all_2_9_36_live_gradients_and_fresh_continuation_passed": true,
+    "arm_artifact_bytes": 106222828,
+    "fitting_targets_per_arm": 32,
+    "native_capability_claim": false,
+    "not_repeated_for_time_budget_only_revision": "No producer/reader/engine/CPU workflow code changed; only native stage-time allocations and their bindings changed.",
+    "parent_peak_rss_bytes": 591249408,
+    "receipt": {
+      "path": "reports/intrinsic_memory_coverage_v11/clean_cpu_integrated/result.json",
+      "sha256": "916ee77d6a7a368b455a48fe9cc292db58f775f8503100e598fa6872466c24d0"
+    },
+    "snapshot": "607ba7a8d5b3a6e4cdf4ddc0fd864bb5e545daf5",
+    "synthetic_teacher_qualification": true,
+    "wall_seconds": 18.967672334052622
+  },
+  "clean_regression": {
+    "checkpoint_weights_present": false,
+    "child_peak_rss_bytes": 784957440,
+    "command": [
+      "/Users/flare/replica_r3_starter/.venv/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_spark_device_placement_v2.py",
+      "tests/test_spark_execution_environment.py",
+      "tests/test_spark_derivative_bf16_protocol.py",
+      "tests/test_spark_persistent_learner_protocol.py",
+      "tests/test_baseline_competence.py",
+      "tests/test_contextual_memory.py",
+      "tests/test_contextual_readout_training.py",
+      "tests/test_intrinsic_memory_layout_v4.py",
+      "tests/test_contextual_memory_layout_v4.py",
+      "tests/test_intrinsic_memory_density_protocol.py",
+      "tests/test_tiered_memory.py",
+      "tests/test_tiered_recovery.py",
+      "tests/test_tiered_reset.py",
+      "tests/test_tiered_readout.py",
+      "tests/test_tiered_profiles.py",
+      "tests/test_tiered_selection_metadata.py",
+      "tests/test_persistent_learner_controls.py",
+      "tests/test_spark2_5_adapter.py",
+      "tests/test_contextual_memory_v5.py",
+      "tests/test_intrinsic_diagnostic_v5.py",
+      "tests/test_intrinsic_execution_v5.py",
+      "tests/test_wall_deadline_v1.py",
+      "tests/test_contextual_completion_objective_v1.py",
+      "tests/test_intrinsic_explicit_evidence_v6.py",
+      "tests/test_intrinsic_exposure_v7.py",
+      "tests/test_intrinsic_supported_values_v8.py",
+      "tests/test_intrinsic_smaller_step_v9.py",
+      "tests/test_contextual_teacher_objective_v1.py",
+      "tests/test_intrinsic_teacher_v10.py",
+      "tests/test_intrinsic_alignment_v10.py",
+      "tests/test_intrinsic_coverage_v11.py",
+      "tests/test_intrinsic_teacher_v11.py",
+      "-q",
+      "--junitxml=/Users/flare/replica_r3_starter/reports/intrinsic_memory_coverage_v11/clean_final_regression.xml"
+    ],
+    "cwd": "/private/tmp/replica-intrinsic-v5-clean-20261029",
+    "exit_code": 0,
+    "failed": 0,
+    "format": "replica.intrinsic_memory.current_clean_regression.v1",
+    "git_status": "",
+    "log": {
+      "path": "reports/intrinsic_memory_coverage_v11/clean_final_regression.log",
+      "sha256": "d2edc21025322f1b78478e72a074876cbfc90588e5113cb1f60a0271e47bed8b"
+    },
+    "passed": 562,
+    "protected_module_present": false,
+    "pytest_seconds": 239.645,
+    "receipt": {
+      "path": "reports/intrinsic_memory_coverage_v11/clean_final_regression_summary.json",
+      "sha256": "9afc65cf1845af883b12b6bebeb2249d07dfcd481f3105075162eccf95f56ab7"
+    },
+    "skipped": 0,
+    "snapshot": "71f7ab4d8a7a500a330684703fd28b5d1c7801f8",
+    "tests": 562,
+    "wall_seconds": 240.36012200033292,
+    "xml": {
+      "path": "reports/intrinsic_memory_coverage_v11/clean_final_regression.xml",
+      "sha256": "0d5067d01a5c003a891aac280ce6ed674af4acf4706c22319c818907ac9c6c3a"
+    }
+  },
+  "earlier_pre_reallocation_clean_regression": {
+    "path": "reports/intrinsic_memory_coverage_v11/clean_regression_summary.json",
+    "sha256": "e2167000058af73b079c13e37564c858b5428c0e6bd6c4c2daa96b7e41c4c66c"
+  },
+  "environment_only": {
+    "path": "reports/intrinsic_memory_coverage_v11/environment_check.json",
+    "sha256": "d898af0eb780ed87a2ddbd2d668ca5727559d3056a2b7c4c77b86ae86e07dd2a"
+  },
+  "format": "replica.intrinsic_memory.coverage_prelaunch.v11",
+  "full_source_code_preflight": {
+    "path": "reports/intrinsic_memory_coverage_v11/review_preflight.json",
+    "sha256": "9fd459ec6dfe27ca24cd8530b23762405734c4e5f784ac11756c5f01cdaef1fb"
+  },
+  "historical_execution_bytes_changed": false,
+  "ignored_checkpoint_weights_present": false,
+  "implementation_snapshot": "71f7ab4d8a7a500a330684703fd28b5d1c7801f8",
+  "native_run": false,
+  "outcomes": {
+    "CPU_engineering": "passed",
+    "P_learning": "zero_updates",
+    "native_competence": "unrun_for_v11",
+    "native_density": "gated_unrun",
+    "native_teacher_qualification": "unrun",
+    "source_admission": "passed",
+    "useful_readout": "unqualified"
+  },
+  "packet": {
+    "path": "reports/intrinsic_memory_coverage_v11/native_packet_two_v11.json",
+    "sha256": "1b413f0072b1e81e7b0f80d1bc5dd8734eb2b1c6a8477ee806e90238d9af9ada"
+  },
+  "protected_module_present_in_clean_checkout": false,
+  "resource_revision": {
+    "number": 2,
+    "probe": {
+      "path": "reports/intrinsic_memory_coverage_v11/audit_scaling_cpu_probe.json",
+      "sha256": "3ca620d445c3a10e0e765ec4ebc188dc7ffe8009ec4299e702d3c1277211c19e"
+    },
+    "superseded_unconsumed_packet": {
+      "path": "reports/intrinsic_memory_coverage_v11/preparation_revision1/supersession.json",
+      "sha256": "3c6ba129569890bc8c7be8f864724905a227940bf75115685b61b604e7cbb36d"
+    }
+  }
+}

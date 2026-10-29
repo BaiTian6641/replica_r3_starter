@@ -1,0 +1,88 @@
+{
+  "base": {
+    "artifact_sha256": "58caa70ec09e29f7d7096da6b4ab50b1732b709322bd20b11c525b1571b0e970",
+    "config_digest": "f7b0936456e39ac46d16d76556d6cdfe4dced4444dffa6b89373db8a09c3079b",
+    "derivative_of": null,
+    "geometry_fingerprint": "143e9c2b5eb9e2fb5d8b6c23658510de4e66e935cac6d19b5c4a4643dc952228",
+    "precision_digest": "1b0b8d021318a9c8c85c05c187842997c41b80cd0ccad7e283a78c06436f63ce",
+    "precision_kind": "official_bf16",
+    "quantization_fingerprint": null,
+    "storage": "bf16",
+    "weight_dtype": "BF16"
+  },
+  "codec": "contextual_fp32_slots_v2",
+  "contains_base_weights": false,
+  "external_spine_required": false,
+  "fitting_frozen": true,
+  "format": "replica.intrinsic_memory.contextual_training_checkpoint.v4",
+  "implementation": "replica.intrinsic_memory.contextual_training.v4",
+  "initialization_seed": 17,
+  "layout": {
+    "decoder_layers": 36,
+    "hidden_size": 8,
+    "placement": "block_input_query_to_post_block_residual",
+    "sites": [
+      3,
+      7
+    ],
+    "slots": 8,
+    "width": 256
+  },
+  "optimizer_sha256": "78c22c42cc74a28413820782e841c4cdbfdf8738b7ce57148c90c80cdb63a7d6",
+  "owner": "intrinsic_memory",
+  "parameter_names": {
+    "order": [
+      "order.weight"
+    ],
+    "producer": [
+      "producer.slot_queries",
+      "producer.embedding.weight",
+      "producer.position.weight",
+      "producer.transformer.layers.0.self_attn.in_proj_weight",
+      "producer.transformer.layers.0.self_attn.in_proj_bias",
+      "producer.transformer.layers.0.self_attn.out_proj.weight",
+      "producer.transformer.layers.0.self_attn.out_proj.bias",
+      "producer.transformer.layers.0.linear1.weight",
+      "producer.transformer.layers.0.linear1.bias",
+      "producer.transformer.layers.0.linear2.weight",
+      "producer.transformer.layers.0.linear2.bias",
+      "producer.transformer.layers.0.norm1.weight",
+      "producer.transformer.layers.0.norm1.bias",
+      "producer.transformer.layers.0.norm2.weight",
+      "producer.transformer.layers.0.norm2.bias",
+      "producer.output.0.weight",
+      "producer.output.0.bias",
+      "producer.output.1.weight"
+    ],
+    "reader": [
+      "reader.ports.3.gate_logit",
+      "reader.ports.3.query_norm.weight",
+      "reader.ports.3.query_norm.bias",
+      "reader.ports.3.query_projection.weight",
+      "reader.ports.3.slot_norm.weight",
+      "reader.ports.3.slot_norm.bias",
+      "reader.ports.3.key_projection.weight",
+      "reader.ports.3.value_projection.weight",
+      "reader.ports.3.output_norm.weight",
+      "reader.ports.3.output_norm.bias",
+      "reader.ports.3.output_projection.weight",
+      "reader.ports.7.gate_logit",
+      "reader.ports.7.query_norm.weight",
+      "reader.ports.7.query_norm.bias",
+      "reader.ports.7.query_projection.weight",
+      "reader.ports.7.slot_norm.weight",
+      "reader.ports.7.slot_norm.bias",
+      "reader.ports.7.key_projection.weight",
+      "reader.ports.7.value_projection.weight",
+      "reader.ports.7.output_norm.weight",
+      "reader.ports.7.output_norm.bias",
+      "reader.ports.7.output_projection.weight"
+    ]
+  },
+  "producer": "contextual_byte_transformer_v2",
+  "producer_release": "v2-bec22f137661d135ac71cfb9540a005e416c78333f1c603f569bc614e7e58a8f",
+  "projection_cache": "none",
+  "representation": "four_ordered_contextual_256_v2",
+  "source_identity": "cpu_random_teacher_v11",
+  "weights_sha256": "d719bc9accd512c53eefefd217b1118c76c38144fc2ce4c32766d9ab7d6690d8"
+}

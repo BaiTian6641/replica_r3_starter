@@ -1,84 +1,69 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Active order — 29 October 2026, completed teacher-alignment diagnostic.**
-Read the [teacher-alignment experiment](docs/experiments/20261029_Spark_Memory_Teacher_Alignment_V10.md),
-[current evidence summary](reports/intrinsic_memory_alignment_v10/verification_summary.json) and
-[consumed v10 runbook](reports/intrinsic_memory_alignment_v10/README.md). The earlier
-[v5–v9 diagnostic report](docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md)
-remains a preserved comparison, not the active launch instruction.
+**Active order — 29 October 2026, broader-teaching v11 prepared.**
+Read the [broader-teaching experiment](docs/experiments/20261029_Spark_Memory_Coverage_V11.md)
+and [v11 runbook](reports/intrinsic_memory_coverage_v11/README.md).
+Implementation `607ba7a8` and prelaunch resource revision `71f7ab4d` introduce
+32 fitting worlds across direct lookup and ordered revisions, 16 fresh development
+worlds and unchanged eight-world criteria required for every fixed group.
+The original producer, reader, top-64 teacher objective, learning rate and
+block-input-query/post-block-residual placement remain unchanged. Only the fixed
+final 512-update prefix may open development, after fitting freezes. No earlier
+checkpoint selection or pooled-score escape is allowed.
 
-V10 implements full-context teacher/memory-student alignment under a separate
-execution and checkpoint identity. It aligns answer tokens and one EOS across
-different prompt lengths, caches detached top-64 teacher distributions, and
-normalizes student probabilities over the full vocabulary. Live student tensors
-carry gradients to the producer and every active reader; one NativeFusedAdamW
-owns each intended parameter. Teacher caches cannot revive corrected/revoked
-sources and are evicted when fitting freezes. No original parameter is trained.
-Block-input queries and post-block residual placement remain unchanged.
+The final clean suite passes 562/562, zero skips, at `71f7ab4d` in 239.645 seconds.
+The earlier `607ba7a8` clean result is preserved separately. Clean 2/9/36 CPU integration passes live
+producer/early-reader gradients, one optimizer owner, one shared snapshot,
+exact live/durable logits and fresh-process logits plus an actual update.
+It uses a tiny random BF16 backbone and synthetic teacher qualification: no
+native semantic success is implied. Historical 502/444/3,371-test receipts retain
+their exact original scope and identity.
 
-The official BF16 two-site run is complete. Frozen calibration and the separate
-fitting-teacher qualification each pass 8/8, with zero false recall or truncation.
-Exactly 128 fitting updates ran; the fixed final contextual/exact/wrong/shuffled/
-zero/absent scores are 8/8, 8/8, 0/8,
-8/8, 2/8 and 2/8. All four same-question
-counterfactual pairs pass. Fitting froze before development opened. Development
-contextual/exact/wrong/shuffled/zero/absent scores are 5/8,
-8/8, 0/8, 5/8, 1/8 and
-1/8, with 0 contextual false recalls. Useful recall
-fails its fixed threshold, exact-text gap and shuffled-control criteria. No
-earlier checkpoint was selected. A fresh process restored exact logits and the teacher
-cache, then performed one actual continuation update; full original-weight
-hashes remained unchanged. Correction rejects stale snapshots and revoked reads,
-but the corrected contextual answer is unknown where exact text answers blue.
-This is numerical continuation and partial transfer, not qualified useful recall.
+The exact official-BF16 two-site v11 packet is prepared under the user's standing
+instruction to continue bounded tests without repeated approval questions.
+Environment and full source/code/data bindings pass before loading. Its first
+prepared revision was never launched; CPU audit-write measurements justified a
+new stage-time allocation within the same 7,080 reserved/7,200 outer seconds.
+The unused revision and exact receipt are archived. Each consumed output still
+has zero retries. Native v11 is not yet run at this checkpoint.
 
-The matched v9 direct-CE reference finished at 6/8 fitting. Teacher alignment did
-not qualify useful memory. Posthoc fitting-only target/representation diagnostics
-are recorded separately; they do not establish the cause of failure or native
-generalization. V7 previously reached 8/8 fitting but failed fresh development
-at 0/8 contextual versus 8/8 exact. Preserve those failures and all sealed v3–v10
-protocols, raw answers, logs and consumed outputs.
+Require 8/8 frozen calibration, then 32/32 complete-context teacher qualification.
+Train exactly 512 updates plus one separately charged restart update. All four
+fixed fitting groups must independently pass. Only then may both fresh eight-world
+development groups be evaluated under unchanged usefulness criteria, including
+strict superiority to shuffled values. Maximums per two-site attempt: 8,829
+forwards, 7,256 generated tokens, two sequential loads, 256 MiB artifacts.
+Keep one exclusive native worker, 50 GiB sampled driver, 512 MiB sustained swap
+growth and at least 15% host free. No original weight is trained or exported.
 
-New clean snapshot `ad58c14b` passes 502 affected tests, zero skips, in 226.228 s.
-The new combined 2/9/36 CPU workflow passes live gradients, one shared snapshot,
-complete optimizer ownership, live/durable parity, exact fresh logits and an
-actual continuation update in 14.439167 s. Its tiny random backbone and synthetic
-teacher qualification are engineering evidence. The 502-test scope includes
-the prior affected 444-test scope; the broader 3,371-test suite was not rerun.
+V10 remains a completed historical failure of useful recall: calibration and
+teacher 8/8, fitting 8/8, development contextual 5/8 versus exact 8/8 and shuffled
+5/8, zero contextual false recall. Its correction answer also failed. Fresh
+logits/one continuation update and unchanged originals establish numerical
+continuation only. Its development split is exposed and cannot be fresh v11 data.
+Preserve all raw answers, logs, receipts, failed trajectories and sealed v3–v10
+execution bytes. Official BF16, FP8-derived BF16 and official FP8 remain distinct;
+use qualified `.venv-spark-bf16` and the existing official source revision
+`66e3ae7bee54e0a523d692cb8ef841f35409807b`. No downloads or dependency substitution.
 
-Native v10 used 617.853 s, peak sampled driver memory
-10.488 GiB, peak swap growth 0 bytes and
-minimum host free 70.0%. Driver and RSS overlap; sampled maxima
-are not hard real-time guarantees. Keep one exclusive native worker, 50 GiB
-sampled driver, 512 MiB sustained swap growth and at least 15% host free. Each
-packet separately bounds loads, tokens, updates, wall time and artifacts.
+Native 9/36 arms remain gated on useful matching v11 two-site evidence. Keep P1,
+zero P updates and no promotion in readout. Coverage and total exposure change
+together, so this is a two-rule, one-seed feasibility study, not a broad transfer
+or isolated coverage claim. Density needs later matched-parameter and total-cost
+controls. A parameter estimate is not measured physical fit.
 
-The user authorizes continuing bounded tests without repeated approval questions.
-Record that actual instruction in each new exact packet receipt. Consumed output
-directories still have zero retries. No current v10 two-site launch may be repeated.
-The existing qualified `.venv-spark-bf16` and official
-`XHToken/Spark-X2.6-4B` revision `66e3ae7bee54e0a523d692cb8ef841f35409807b`
-remain bound. Official BF16, FP8-derived BF16 and official FP8 are distinct;
-original FP8 lineage and source code remain intact. No download, dependency
-substitution, duplicate base checkpoint or full-backbone export occurred.
-
-The next comparison must address fresh-world readout and order sensitivity under a
-separately bound protocol before any density launch. The v8 development split
-shared by v9/v10 is now exposed by v10 and cannot be reused as fresh development for a successor. Historical v9 labels stayed closed
-in that attempt; its receipt remains unchanged. Native 9/36 arms remain unrun and require
-useful two-site evidence from their matching protocol. Do not select a better
-observed prefix, relax the shuffled-value criterion or use reader count to bypass
-the failed gate. Keep P1, zero P updates and no promotion in readout diagnostics.
-
-Intrinsic memory participates in Spark. The external spine connects specialists,
-sensors and actors. After useful recall, follow completed-interaction formation,
-separate exactly-once chunk commits, source-free P learning, correction, delayed
-retention and rollback before nested adaptation or RSI. Preserve E/S/P/phi/C/I/K,
-approved identity outside task reward, and the Replica/semi-cognitive-core
-contracts. Storage tiers are independent of learning clocks: bound active
-identity/task state by measured physical memory; recall archival history explicitly.
-Formation, persistent learning, personal fidelity and RSI are not established.
-Native multimodal work remains deferred. Preserve unrelated dirty work.
+Intrinsic memory owns recall/learning within Spark; the external spine connects
+specialists, sensors and actors. The existing semi-cognitive reference is eight
+width-256 workspace slots and two tied iterations, with task-journal authority
+separate from approximate state. Approved I, authentic human source records and
+Replica branch experience remain distinct; task reward cannot rewrite identity.
+Bound active core/task state by measured memory, with explicit archival recall.
+Storage hot/warm/cold placement is independent of learning clocks. After useful
+recall follow completed-interaction formation, separately declared exactly-once
+chunk commits, source-free future-query P learning, correction, retention and
+rollback before nested adaptation or RSI. These successor capabilities are not
+established. Preserve E/S/P/phi/C/I/K and the Replica contracts. Native multimodal
+work remains deferred. Preserve unrelated dirty work.
 Never read, import, edit or stage src/replica_lab/runtime_pilot.py.
 
 **Preserved attempt03 handoff — 29 October 2026; superseded by the active order above.**

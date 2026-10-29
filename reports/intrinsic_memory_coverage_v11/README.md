@@ -9,7 +9,9 @@ every eight-world group. All choices precede native observations.
 [Working CPU evidence](working_cpu_summary.json): 60 passing focused tests and
 an actual tiny BF16 2/9/36 workflow, including fresh-process continuation. This is
 engineering evidence, with synthetic teacher qualification, not native capability.
-Clean-checkout checks and native results are pending at preparation.
+Final clean `71f7ab4d` passes 562/562, zero skips, in 239.645 seconds.
+The clean CPU workflow ran at `607ba7a8` in 18.968 seconds. See
+[immutable prelaunch verification](prelaunch_verification.json). Native results are pending.
 
 The exact [two-site packet](native_packet_two_v11.json) uses official BF16 under
 its recorded identity. [Authorization](authorization_two_v11.json) records the
