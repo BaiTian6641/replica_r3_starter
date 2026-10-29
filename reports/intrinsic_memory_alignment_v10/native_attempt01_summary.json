@@ -1,0 +1,623 @@
+{
+  "P_updates": 0,
+  "RSI": false,
+  "approval_consumed": true,
+  "competence": {
+    "cases": 8,
+    "correct": 8,
+    "false_recall": 0,
+    "passed": true,
+    "truncated": 0
+  },
+  "correction": {
+    "after_revocation": {
+      "correct": true,
+      "false_recall": false,
+      "generated_tokens": 2,
+      "prompt_tokens": 44,
+      "raw_answer": "Unknown",
+      "stop_token": 1,
+      "terminated": true,
+      "token_ids": [
+        38030,
+        1
+      ],
+      "total_latency_ns": 1335037375,
+      "truncated": false
+    },
+    "corrected_contextual": {
+      "correct": false,
+      "false_recall": false,
+      "generated_tokens": 2,
+      "prompt_tokens": 44,
+      "raw_answer": "unknown",
+      "stop_token": 1,
+      "terminated": true,
+      "token_ids": [
+        44914,
+        1
+      ],
+      "total_latency_ns": 1374735417,
+      "truncated": false
+    },
+    "corrected_exact": {
+      "correct": true,
+      "false_recall": false,
+      "generated_tokens": 2,
+      "prompt_tokens": 66,
+      "raw_answer": "blue",
+      "stop_token": 1,
+      "terminated": true,
+      "token_ids": [
+        29397,
+        1
+      ],
+      "total_latency_ns": 1331858125,
+      "truncated": false
+    },
+    "learned_unlearning_claim": false,
+    "revoked_retrieval_rejected": true,
+    "stale_snapshot_rejected": true
+  },
+  "density_launched": false,
+  "density_scientific_gate_passed": false,
+  "development": {
+    "correct": {
+      "absent": 1,
+      "contextual": 5,
+      "exact_text": 8,
+      "shuffled": 5,
+      "wrong": 0,
+      "zero": 1
+    },
+    "false_recall": {
+      "absent": 0,
+      "contextual": 0,
+      "exact_text": 0,
+      "shuffled": 0,
+      "wrong": 1,
+      "zero": 0
+    },
+    "generalization_scope": "one_fixed_synthetic_family_and_seed_feasibility_only",
+    "useful_recall_passed": false
+  },
+  "development_opened": true,
+  "expected_refusals": [
+    {
+      "detail": {
+        "error": "ContextualReadFailure",
+        "message": "incomplete contextual read"
+      },
+      "operation": "retrieval",
+      "stage": "correction"
+    }
+  ],
+  "fit": {
+    "all_controls_fit_generation_prefix_exact": true,
+    "contextual_first_token_correct": 8,
+    "contextual_terminated": 8,
+    "curve": [
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 3,
+          "exact_text": 8,
+          "shuffled": 3,
+          "wrong": 3,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "memory_dependence_passed": false,
+        "updates": 32
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 6,
+          "exact_text": 8,
+          "shuffled": 6,
+          "wrong": 2,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 2,
+        "memory_dependence_passed": false,
+        "updates": 64
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 5,
+          "exact_text": 8,
+          "shuffled": 5,
+          "wrong": 3,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 1,
+        "memory_dependence_passed": false,
+        "updates": 96
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 8,
+          "exact_text": 8,
+          "shuffled": 8,
+          "wrong": 0,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 4,
+        "memory_dependence_passed": true,
+        "updates": 128
+      }
+    ],
+    "fixed_final_prefix": 128,
+    "gradients_after_zero_init": {
+      "order": {
+        "finite": true,
+        "missing": [],
+        "norm": 0.0025108788662138275
+      },
+      "producer": {
+        "finite": true,
+        "missing": [],
+        "norm": 0.07089587871559261
+      },
+      "reader": {
+        "finite": true,
+        "missing": [],
+        "norm": 46.30869426727688
+      },
+      "sites": {
+        "3": {
+          "norm": 42.29691328105451,
+          "output_norm": 42.29685592651367
+        },
+        "7": {
+          "norm": 18.853813715932308,
+          "output_norm": 18.85378646850586
+        }
+      }
+    },
+    "live_durable_exact": true,
+    "loss_prefixes": [
+      {
+        "ce_loss": 3.5943515300750732,
+        "eos_loss": 0.0015812524361535907,
+        "kl_loss": 3.4573495388031006,
+        "loss": 3.4573495388031006,
+        "teacher_retained_mass_mean": 0.9999871253967285,
+        "update": 1,
+        "word_loss": 7.187121868133545
+      },
+      {
+        "ce_loss": 0.18444174528121948,
+        "eos_loss": 0.0013862771447747946,
+        "kl_loss": 0.13392846286296844,
+        "loss": 0.13392846286296844,
+        "teacher_retained_mass_mean": 0.9999890327453613,
+        "update": 2,
+        "word_loss": 0.36749720573425293
+      },
+      {
+        "ce_loss": 7.151379108428955,
+        "eos_loss": 0.0008671099785715342,
+        "kl_loss": 6.863278388977051,
+        "loss": 6.863278388977051,
+        "teacher_retained_mass_mean": 0.9999760985374451,
+        "update": 8,
+        "word_loss": 14.301891326904297
+      },
+      {
+        "ce_loss": 4.074334144592285,
+        "eos_loss": 0.01437369268387556,
+        "kl_loss": 3.8629238605499268,
+        "loss": 3.8629238605499268,
+        "teacher_retained_mass_mean": 0.9999760985374451,
+        "update": 16,
+        "word_loss": 8.134294509887695
+      },
+      {
+        "ce_loss": 1.1271357536315918,
+        "eos_loss": 0.0002108589978888631,
+        "kl_loss": 1.137182593345642,
+        "loss": 1.137182593345642,
+        "teacher_retained_mass_mean": 0.9999760985374451,
+        "update": 24,
+        "word_loss": 2.254060745239258
+      },
+      {
+        "ce_loss": 1.2532284259796143,
+        "eos_loss": 0.0017372767906636,
+        "kl_loss": 1.161733865737915,
+        "loss": 1.161733865737915,
+        "teacher_retained_mass_mean": 0.9999760985374451,
+        "update": 32,
+        "word_loss": 2.5047194957733154
+      },
+      {
+        "ce_loss": 0.4628869295120239,
+        "eos_loss": 0.000339569611242041,
+        "kl_loss": 0.38753101229667664,
+        "loss": 0.38753101229667664,
+        "teacher_retained_mass_mean": 0.9999760985374451,
+        "update": 64,
+        "word_loss": 0.9254342913627625
+      },
+      {
+        "ce_loss": 0.4429986774921417,
+        "eos_loss": 0.000362807244528085,
+        "kl_loss": 0.49781084060668945,
+        "loss": 0.49781084060668945,
+        "teacher_retained_mass_mean": 0.9999760985374451,
+        "update": 96,
+        "word_loss": 0.8856345415115356
+      },
+      {
+        "ce_loss": 0.11280667781829834,
+        "eos_loss": 0.0001908358681248501,
+        "kl_loss": 0.012276360765099525,
+        "loss": 0.012276360765099525,
+        "teacher_retained_mass_mean": 0.9999760985374451,
+        "update": 128,
+        "word_loss": 0.22542251646518707
+      }
+    ],
+    "memory_dependence_passed": true,
+    "no_early_stop_or_best_prefix_selection": true,
+    "updates": 128
+  },
+  "format": "replica.intrinsic_memory.native_attempt_summary.v10",
+  "next_experiment": "Review this fixed result before selecting a separately bound successor. Native density requires useful matching two-site evidence; persistent P remains closed.",
+  "original_weights_unchanged": true,
+  "packet": {
+    "path": "reports/intrinsic_memory_alignment_v10/native_packet_two_v10.json",
+    "sha256": "1369228284d68d91354f05833ad4dffb71deee99fb14ef24b977acf386bb48d9"
+  },
+  "promotion": false,
+  "resources": {
+    "artifact_bytes": 49944544,
+    "audit_serialized_write_bytes": 3084104699,
+    "minimum_host_free_percent": 70.0,
+    "outer_wall_seconds": 617.8534653331153,
+    "peak_driver_bytes": 11261542400,
+    "peak_rss_bytes": 8700542976,
+    "peak_swap_growth_bytes": 0,
+    "reserved_work": {
+      "artifact_bytes": 167772160,
+      "backwards": 129,
+      "forwards": 922,
+      "generated_tokens": 525,
+      "input_tokens": 236032,
+      "model_loads": 2,
+      "retrievals": 51,
+      "source_encodes": 245,
+      "updates": 129,
+      "writes": 112
+    },
+    "source_bytes_hashed_inside_attempt": 24716988741,
+    "stages": {
+      "admission": {
+        "elapsed_seconds": 4.190054875332862,
+        "reserved": {
+          "artifact_bytes": 31457280,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "baseline": {
+        "elapsed_seconds": 7.230464207939804,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 23,
+          "generated_tokens": 23,
+          "input_tokens": 5888,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "passed"
+      },
+      "checkpoint": {
+        "elapsed_seconds": 1.0781496660783887,
+        "reserved": {
+          "artifact_bytes": 134217728,
+          "backwards": 0,
+          "forwards": 1,
+          "generated_tokens": 0,
+          "input_tokens": 256,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "correction": {
+        "elapsed_seconds": 4.851429624948651,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 6,
+          "generated_tokens": 6,
+          "input_tokens": 1536,
+          "model_loads": 0,
+          "retrievals": 2,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 4
+        },
+        "status": "completed"
+      },
+      "development": {
+        "elapsed_seconds": 65.18142570927739,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 96,
+          "generated_tokens": 96,
+          "input_tokens": 24576,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 8,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_utility"
+      },
+      "fit_032": {
+        "elapsed_seconds": 31.167198833078146,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_064": {
+        "elapsed_seconds": 36.28481666697189,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_096": {
+        "elapsed_seconds": 41.56071141595021,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_128": {
+        "elapsed_seconds": 45.975415790919214,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_probes_032": {
+        "elapsed_seconds": 61.497126874979585,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 160,
+          "generated_tokens": 96,
+          "input_tokens": 40960,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_064": {
+        "elapsed_seconds": 71.4713230826892,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 160,
+          "generated_tokens": 96,
+          "input_tokens": 40960,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_096": {
+        "elapsed_seconds": 83.50763029186055,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 160,
+          "generated_tokens": 96,
+          "input_tokens": 40960,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_128": {
+        "elapsed_seconds": 94.31396145792678,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 160,
+          "generated_tokens": 96,
+          "input_tokens": 40960,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "passed"
+      },
+      "load": {
+        "elapsed_seconds": 22.787270958069712,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 1,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "numerical": {
+        "elapsed_seconds": 0.6525147496722639,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 2,
+          "generated_tokens": 0,
+          "input_tokens": 512,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "passed"
+      },
+      "prepare": {
+        "elapsed_seconds": 0.2708271248266101,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 8,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "completed"
+      },
+      "restart": {
+        "elapsed_seconds": 31.350417584180832,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 1,
+          "forwards": 2,
+          "generated_tokens": 0,
+          "input_tokens": 512,
+          "model_loads": 1,
+          "retrievals": 1,
+          "source_encodes": 2,
+          "updates": 1,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "teacher": {
+        "elapsed_seconds": 8.072360666003078,
+        "reserved": {
+          "artifact_bytes": 2097152,
+          "backwards": 0,
+          "forwards": 24,
+          "generated_tokens": 16,
+          "input_tokens": 6144,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 9
+        },
+        "status": "passed"
+      }
+    }
+  },
+  "restart": {
+    "actual_continuation_updates": 1,
+    "fresh_logits_exact": true,
+    "original_weights_unchanged": true,
+    "teacher_cache_restored": true,
+    "teacher_forward_in_update": false,
+    "uninterrupted_equivalence_measured": false
+  },
+  "result": {
+    "path": "reports/intrinsic_memory_alignment_v10/native_bf16_two_v10_attempt01/result.json",
+    "sha256": "74cefedc38e5da04947a778f82a5aec1ad475c99b3569b4bb40bf5625cf608f9"
+  },
+  "source_kind": "official_bf16",
+  "standing_testing_authorization_remains_applicable_to_new_bounded_packets": true,
+  "teacher_competence": {
+    "cases": 8,
+    "correct": 8,
+    "false_recall": 0,
+    "passed": true,
+    "terminated": 8,
+    "truncated": 0
+  },
+  "teacher_targets": {
+    "bytes": 72427,
+    "cache": {
+      "path": "reports/intrinsic_memory_alignment_v10/native_bf16_two_v10_attempt01/teacher_targets.json",
+      "sha256": "86b4928692ba2bbf817f713f039a8a291f8601bff7c84ed49ebd27352c1cbd68"
+    },
+    "cache_reused_for_student_updates": 129,
+    "evicted_before_development": true,
+    "immutable_detached": true,
+    "original_teacher_updates": 0
+  },
+  "useful_recall": false
+}

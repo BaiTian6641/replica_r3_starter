@@ -1,0 +1,18 @@
+{
+  "format": "replica.analysis_script_development.v1",
+  "native_attempt_affected": false,
+  "failures": [
+    {
+      "script": "summarize_attempt01.py",
+      "exception": "AssertionError",
+      "cause": "initial reporting assertion rejected the expected revoked-retrieval refusal event",
+      "repair": "require the exact correction/retrieval refusal and recorded revocation rejection; other noncompleted events still fail"
+    },
+    {
+      "script": "probe_frozen_producer.py",
+      "exception": "ValueError: missing or substituted diagnostic input",
+      "cause": "initial report script expected tensors at checkpoint root; versioned wrapper stores them under components",
+      "repair": "verify root manifest against restart request, then bound components manifest and tensors before CPU inspection"
+    }
+  ]
+}

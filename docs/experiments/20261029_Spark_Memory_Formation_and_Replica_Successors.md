@@ -8,7 +8,7 @@ project: attributable experience, persistent task state, bounded cognitive
 control, approved identity and independently checked learning. It authorizes no
 native execution, P update, capacity expansion or promotion. Current results and
 native authorization belong to the [evidence ledger](../../reports/intrinsic_memory_v3/evidence_ledger_20261029.json)
-and the separately bound [S0–S1 experiment](20261029_Spark_Memory_S0_S1.md).
+and the completed [teacher-alignment diagnostic](20261029_Spark_Memory_Teacher_Alignment_V10.md). The earlier S0–S1 results remain preserved; useful recall is still unqualified.
 
 The [all-layer reader comparison](20261029_Spark_Memory_Layer_Access.md) changes
 where the backbone can read. Formation changes what is written, when it becomes

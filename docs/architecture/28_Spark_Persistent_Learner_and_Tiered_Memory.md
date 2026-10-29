@@ -1,63 +1,85 @@
 # Spark persistent learner, tiered memory and Replica integration
 
-## Current implementation — official BF16 native diagnostics
-Read the [native diagnostic report](../../docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md),
-[current evidence summary](../../reports/intrinsic_memory_native_20261029/verification_summary.json) and
-[smaller-step runbook](../../reports/intrinsic_memory_step_v9/README.md).
-The user selected the existing official `XHToken/Spark-X2.6-4B` BF16 artifact,
-revision `66e3ae7bee54e0a523d692cb8ef841f35409807b`. Qualified execution uses
-`.venv-spark-bf16`. Official BF16, FP8-derived BF16 and official FP8 remain distinct;
-the original FP8 source lineage and sealed historical execution are preserved.
-No download, duplicate base checkpoint or full-backbone export occurred.
+## Current implementation — teacher alignment and measured failure
+Read the [teacher-alignment experiment](../../docs/experiments/20261029_Spark_Memory_Teacher_Alignment_V10.md),
+[current evidence summary](../../reports/intrinsic_memory_alignment_v10/verification_summary.json) and
+[consumed v10 runbook](../../reports/intrinsic_memory_alignment_v10/README.md). The earlier
+[v5–v9 diagnostic report](../../docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md)
+remains a preserved comparison, not the active launch instruction.
 
-V5 passed source admission but failed its frozen competence test at 6/8, so it
-performed no fitting. The explicit entity/color v6 successor passed competence
-8/8 but failed memory-dependent fitting at 0/8 after 32 updates. V7's fixed
-128-update curve learned all eight fitting memories at 64/96/128 updates, with
-four same-question counterfactual pairs correct and wrong/zero/absent memory 0/8.
-Fresh development was 0/8 contextual versus 8/8 exact text, with one false recall:
-useful recall failed. V8 taught the answer vocabulary and unsupported queries on
-fresh entities, but fitting remained 0/8 at all four prefixes and development
-stayed unopened. V9's isolated learning-rate change to 0.0001 is complete: final fitting is 6/8. Its failed fitting gate kept development unopened.
+V10 implements full-context teacher/memory-student alignment under a separate
+execution and checkpoint identity. It aligns answer tokens and one EOS across
+different prompt lengths, caches detached top-64 teacher distributions, and
+normalizes student probabilities over the full vocabulary. Live student tensors
+carry gradients to the producer and every active reader; one NativeFusedAdamW
+owns each intended parameter. Teacher caches cannot revive corrected/revoked
+sources and are evicted when fitting freezes. No original parameter is trained.
+Block-input queries and post-block residual placement remain unchanged.
 
-The user explicitly authorizes continuing bounded tests without repeated approval
-questions. Record that instruction truthfully in each exact packet receipt.
-Consumed output directories still have zero retries. Scientific gates, source,
-code/data bindings and resource limits remain mandatory. Do not rerun a consumed
-v5–v9 launch or treat old approval language as the current instruction.
+The official BF16 two-site run is complete. Frozen calibration and the separate
+fitting-teacher qualification each pass 8/8, with zero false recall or truncation.
+Exactly 128 fitting updates ran; the fixed final contextual/exact/wrong/shuffled/
+zero/absent scores are 8/8, 8/8, 0/8,
+8/8, 2/8 and 2/8. All four same-question
+counterfactual pairs pass. Fitting froze before development opened. Development
+contextual/exact/wrong/shuffled/zero/absent scores are 5/8,
+8/8, 0/8, 5/8, 1/8 and
+1/8, with 0 contextual false recalls. Useful recall
+fails its fixed threshold, exact-text gap and shuffled-control criteria. No
+earlier checkpoint was selected. A fresh process restored exact logits and the teacher
+cache, then performed one actual continuation update; full original-weight
+hashes remained unchanged. Correction rejects stale snapshots and revoked reads,
+but the corrected contextual answer is unknown where exact text answers blue.
+This is numerical continuation and partial transfer, not qualified useful recall.
 
-The v5 cutoff, persistent cold-ticket, immutable producer-release and masked-slot
-repairs remain implemented. The dedicated 2/9/36 producer/store/reader runner has
-one NativeFusedAdamW owner for each trainable parameter and a live producer gradient
-path. Block-input queries and post-block residuals remain explicit. Native v6–v9
-fresh-process logits, actual continuation and full original-weight hashes pass;
-these numerical results do not establish generalization. V7 dynamically rejects
-stale/corrected/revoked storage, but its corrected generated answer is wrong.
+The matched v9 direct-CE reference finished at 6/8 fitting. Teacher alignment did
+not qualify useful memory. Posthoc fitting-only target/representation diagnostics
+are recorded separately; they do not establish the cause of failure or native
+generalization. V7 previously reached 8/8 fitting but failed fresh development
+at 0/8 contextual versus 8/8 exact. Preserve those failures and all sealed v3–v10
+protocols, raw answers, logs and consumed outputs.
 
-New clean snapshot `8ad52904` passes 444 affected tests (0 skips) in 222.11 s. The new 2/9/36 CPU workflow passes live/durable parity and fresh-process continuation in 13.379 s. The earlier 393-test clean result and 2/9/36 CPU
-workflow are recorded engineering evidence, not native learned capability. Keep
-one exclusive native worker, 50 GiB sampled driver memory, 512 MiB sustained swap
-growth and at least 15% host free. Every new packet binds its own full stage work,
-7,200-second outer wall and artifact cap. Nine/all-layer execution still requires
-useful two-site evidence from its matching protocol; reader count cannot repair
-or bypass a failed learning gate. Keep P1 and zero P updates in readout diagnostics.
+New clean snapshot `ad58c14b` passes 502 affected tests, zero skips, in 226.228 s.
+The new combined 2/9/36 CPU workflow passes live gradients, one shared snapshot,
+complete optimizer ownership, live/durable parity, exact fresh logits and an
+actual continuation update in 14.439167 s. Its tiny random backbone and synthetic
+teacher qualification are engineering evidence. The 502-test scope includes
+the prior affected 444-test scope; the broader 3,371-test suite was not rerun.
 
-Intrinsic memory participates in Spark; the external spine connects specialists,
+Native v10 used 617.853 s, peak sampled driver memory
+10.488 GiB, peak swap growth 0 bytes and
+minimum host free 70.0%. Driver and RSS overlap; sampled maxima
+are not hard real-time guarantees. Keep one exclusive native worker, 50 GiB
+sampled driver, 512 MiB sustained swap growth and at least 15% host free. Each
+packet separately bounds loads, tokens, updates, wall time and artifacts.
+
+The user authorizes continuing bounded tests without repeated approval questions.
+Record that actual instruction in each new exact packet receipt. Consumed output
+directories still have zero retries. No current v10 two-site launch may be repeated.
+The existing qualified `.venv-spark-bf16` and official
+`XHToken/Spark-X2.6-4B` revision `66e3ae7bee54e0a523d692cb8ef841f35409807b`
+remain bound. Official BF16, FP8-derived BF16 and official FP8 are distinct;
+original FP8 lineage and source code remain intact. No download, dependency
+substitution, duplicate base checkpoint or full-backbone export occurred.
+
+The next comparison must address fresh-world readout and order sensitivity under a
+separately bound protocol before any density launch. The v8 development split
+shared by v9/v10 is now exposed by v10 and cannot be reused as fresh development for a successor. Historical v9 labels stayed closed
+in that attempt; its receipt remains unchanged. Native 9/36 arms remain unrun and require
+useful two-site evidence from their matching protocol. Do not select a better
+observed prefix, relax the shuffled-value criterion or use reader count to bypass
+the failed gate. Keep P1, zero P updates and no promotion in readout diagnostics.
+
+Intrinsic memory participates in Spark. The external spine connects specialists,
 sensors and actors. After useful recall, follow completed-interaction formation,
 separate exactly-once chunk commits, source-free P learning, correction, delayed
 retention and rollback before nested adaptation or RSI. Preserve E/S/P/phi/C/I/K,
-approved identity outside reward and the Replica/semi-cognitive-core contracts.
-Storage tiers are independent of learning clocks: bound active identity/task state
-within measured memory and recall archives explicitly. Native multimodal work is
-deferred. Never read, import, edit or stage src/replica_lab/runtime_pilot.py.
-Preserve unrelated dirty work and all earlier failed trajectories.
-
-The next research comparison is full-context-teacher/memory-student alignment
-against the direct-CE reference. It still needs a separately versioned objective,
-explicit response-position alignment and detach boundaries, teacher cost accounting,
-CPU gradient/reload checks and a bound native packet. This is preparation work;
-no teacher-trained capability, ready native launch or new approval requirement is
-implied. Keep the failed direct-CE controls and unopened v9 development labels.
+approved identity outside task reward, and the Replica/semi-cognitive-core
+contracts. Storage tiers are independent of learning clocks: bound active
+identity/task state by measured physical memory; recall archival history explicitly.
+Formation, persistent learning, personal fidelity and RSI are not established.
+Native multimodal work remains deferred. Preserve unrelated dirty work.
+Never read, import, edit or stage src/replica_lab/runtime_pilot.py.
 
 ## Preserved intrinsic-memory v3/v4 implementation and native control
 

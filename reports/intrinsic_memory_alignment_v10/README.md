@@ -1,50 +1,71 @@
 # Frozen-teacher intrinsic-memory comparison v10
 
-The [experiment specification](../../docs/experiments/20261029_Spark_Memory_Teacher_Alignment_V10.md)
-defines the new teacher objective and complete budget. The completed v9 run is
-the matched direct-CE reference. V10 preserves its source, data, initialization,
-learning rate, student exposure and competence/fitting/utility criteria.
+**Completed native attempt: fitting passes; useful development recall fails.**
+The [experiment report](../../docs/experiments/20261029_Spark_Memory_Teacher_Alignment_V10.md)
+records the implementation, fixed gates, actual outcomes and full costs. See the
+[current evidence summary](verification_summary.json), [native result summary](native_attempt01_summary.json)
+and [matched direct-CE comparison](direct_ce_comparison.json).
 
-Current preparation at `ad58c14b`: **502/502 clean-checkout tests pass**, zero
-skips, in 226.228 s. This includes 58 new teacher objective,
-reader and admission checks. Environment-only validation and full source/code/
-data/predecessor preflight pass without loading weights. The clean 2/9/36 CPU
-workflow passes in 14.439167 s, with 615,071,744 bytes
-parent peak RSS and 105,446,031 bytes across its arm directories.
-Every active reader and the producer receive gradients; each fresh child restores
-exact logits and one optimizer owner, then performs one actual update using the
-restored teacher cache. Teacher qualification in this random CPU fixture is
-explicitly synthetic; it proves neither pretrained teacher competence nor useful
-memory. See the [prelaunch verification receipt](prelaunch_verification.json).
+| Stage | Result |
+|---|---|
+| Official BF16 source/code/environment admission | Passed |
+| Frozen complete-context calibration | 8/8, false recall 0, truncation 0 |
+| Separate frozen fitting teacher | 8/8, false recall 0, truncation 0 |
+| Fixed final fitting after 128 updates | 8/8; four counterfactual pairs pass |
+| Fresh development | Contextual 5/8, exact 8/8, wrong 0/8, shuffled 5/8, zero/absent 1/8; utility fails |
+| Correction/revocation | Stale/revoked reads refused; corrected contextual answer wrong, exact text correct |
+| Fresh process | Exact logits, restored teacher cache and one actual continuation update |
+| Original weights | Full digest unchanged; zero P updates and no promotion |
+| Native 9/36 | Unrun; useful matching two-site evidence absent |
 
-Native v10 is not yet run. The [exact receipt](authorization_two_v10.json) records the user's standing
-authorization for this bounded comparison.
-No consumed earlier packet or output is reused. The two-site command is:
+New clean snapshot `ad58c14b` passes **502/502** tests, zero skips, in 226.228 s.
+The 2/9/36 CPU workflow passes in 14.439167 s; its teacher qualification is
+synthetic and cannot establish pretrained capability. The immutable
+[prelaunch receipt](prelaunch_verification.json) retains its original prelaunch
+scope. [Frozen producer inspection](frozen_producer_diagnosis.json) is an additional
+CPU-only fitting diagnostic, with no backbone load or update.
+
+Native wall time was 617.853465 s, peak sampled driver
+11,261,542,400 bytes, swap growth zero, minimum host free 70%, and
+output 49,944,544 bytes. Actual work was 922 forwards, 525 generated tokens,
+236,032 padded input positions, 129 backward/updates, two sequential loads,
+245 source encodes, 51 retrievals and 112 declared writes. Raw answers, teacher
+targets, logs, refusal events and resource telemetry are retained. Physical
+memory samples, audit bytes and design reservations have distinct meanings.
+
+## Consumed command and independent density budgets
+
+This exact command has completed and **must not be repeated**:
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 .venv-spark-bf16/bin/python scripts/run_spark_intrinsic_alignment_v10.py --packet reports/intrinsic_memory_alignment_v10/native_packet_two_v10.json --authorization reports/intrinsic_memory_alignment_v10/authorization_two_v10.json --launch
 ```
 
-`--environment-only` checks the qualified interpreter and locked dependencies.
-`--review` checks full source, executable closure, prepared-data and predecessor
-bindings. Neither mode loads weights or launches a worker. `--launch` has zero
-retries and consumes its distinct output directory even if admission later fails.
+The [exact receipt](authorization_two_v10.json) records the user’s standing
+bounded-testing instruction. No more permission question is required for new
+bounded tests, but every new packet still needs its own accurate receipt,
+execution identity, unused output and full budget. Consumed outputs have zero
+retries. Official BF16 is distinct from FP8-derived BF16 and official FP8.
 
-Per arm: 2,469 forwards, 2,072 generated tokens, 632,064 padded input positions,
-129 student updates/backwards, two sequential model loads, 245 source encodes,
-51 retrievals and 112 declared writes. Stage time totals 7,080 s inside the
-7,200-second outer supervisor. Artifact caps remain 160/416/1,056 MiB for 2/9/36.
-Keep one native worker, 50 GiB sampled driver memory, 512 MiB sustained swap
-growth and at least 15% host free. Teacher/original-backbone and P updates are zero.
+Per-arm caps remain 2,469 forwards, 2,072 generated tokens, 632,064 padded input
+positions, 129 updates/backwards, two loads, 245 source encodes, 51 retrievals,
+112 writes, 7,080 s stage allocation and 7,200 s outer wall. Artifact caps are
+160/416/1,056 MiB for 2/9/36. One exclusive worker, 50 GiB sampled driver,
+512 MiB sustained swap growth and >=15% host free remain mandatory. Nine/all-layer
+packets are prepared but their useful two-site prerequisite is not met.
 
-Calibration must pass 8/8 before fitting labels open. Frozen full-context teacher
-answers on the eight fitting worlds must also pass 8/8 with termination, zero
-false recall and no truncation. Only then are detached targets cached and the
-128 student updates run. Only the fixed final fitting prefix can open development.
-Teacher caches are evicted from the engine before evaluation. A final 8/8 fitting
-score is not sufficient to qualify useful recall: the matched control criteria
-still apply. Native 9/36 require useful two-site evidence from this exact protocol.
+## Next evidence boundary
 
-Formation, source-free P learning, capacity expansion, nested adaptation, Replica
-fidelity and RSI remain unqualified. Keep the separate external spine and approved
-identity/state ownership. Preserve every failed trajectory and raw resource record.
+The [development exposure receipt](development_exposure.json) retires the shared
+v8/v9/v10 development split from fresh use. Preserve it as a labeled historical
+control; use fresh predeclared worlds for a successor. The next scientific question
+is whether a controlled improvement to source coverage or ordered readout transfers
+to new entities and relations while beating the same negative controls. This
+needs a new protocol, CPU qualification and measured native budget; it is not an
+admitted launch. Do not tune repeatedly against this exposed development set.
+
+The v10 implementation is complete. Useful memory, native 9/36 feasibility,
+formation, source-free P learning, retention, nested adaptation, Replica fidelity
+and RSI remain unqualified. Keep P1, separate E/S/P/phi/C/I/K ownership, approved
+identity outside task reward, physical tiers independent of learning clocks, and
+the external spine reserved for specialists, sensors and actors.

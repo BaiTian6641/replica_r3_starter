@@ -1,12 +1,13 @@
 # Intrinsic memory v3 — separate from the external spine
 
-**Current successor:** [official BF16 native diagnostics](../../docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md)
-record v5's failed competence, v6's failed fitting, v7's learned fitting but failed
-fresh-world recall, and the v8/v9 exposure/step controls. The dedicated 2/9/36
-runtime and reliability repairs are implemented. The user authorizes continuing
-bounded tests; consumed attempts are not retried and density still requires useful
-matching two-site evidence. The reports below retain their earlier historical scope;
-they are not current launch or approval instructions.
+**Current successor:** [v10 teacher alignment](../../docs/experiments/20261029_Spark_Memory_Teacher_Alignment_V10.md) is implemented
+and tested on official BF16. Calibration and teacher qualification pass 8/8;
+fitting passes 8/8 and development scores 5/8 versus 8/8 exact text,
+failing the fixed utility criteria. The 2/9/36 CPU
+integration and fresh-process numerical continuation pass. Native density and
+persistent learning remain gated. The user authorizes continuing bounded tests;
+consumed outputs have zero retries. The earlier material below retains its
+historical scope and is not a current launch or approval instruction.
 
 The user's 29 October architecture feedback supersedes the combined internal-spine
 wording in the prior increment. Memory is intrinsic model computation; the spine

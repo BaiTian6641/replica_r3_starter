@@ -1,0 +1,387 @@
+{
+  "candidate": {
+    "path": "reports/intrinsic_memory_alignment_v10/native_attempt01_summary.json",
+    "sha256": "37a35c387ac8e4b51b832832879a3711d7f92e9ca79d4516ef151f1559855c25"
+  },
+  "direct_CE_curve": [
+    {
+      "correct": {
+        "absent": 2,
+        "contextual": 3,
+        "exact_text": 8,
+        "shuffled": 3,
+        "wrong": 3,
+        "zero": 2
+      },
+      "counterfactual_pairs_both_correct": 0,
+      "memory_dependence_passed": false,
+      "updates": 32
+    },
+    {
+      "correct": {
+        "absent": 2,
+        "contextual": 6,
+        "exact_text": 8,
+        "shuffled": 6,
+        "wrong": 2,
+        "zero": 2
+      },
+      "counterfactual_pairs_both_correct": 2,
+      "memory_dependence_passed": false,
+      "updates": 64
+    },
+    {
+      "correct": {
+        "absent": 2,
+        "contextual": 7,
+        "exact_text": 8,
+        "shuffled": 7,
+        "wrong": 1,
+        "zero": 2
+      },
+      "counterfactual_pairs_both_correct": 3,
+      "memory_dependence_passed": false,
+      "updates": 96
+    },
+    {
+      "correct": {
+        "absent": 2,
+        "contextual": 6,
+        "exact_text": 8,
+        "shuffled": 6,
+        "wrong": 2,
+        "zero": 2
+      },
+      "counterfactual_pairs_both_correct": 2,
+      "memory_dependence_passed": false,
+      "updates": 128
+    }
+  ],
+  "final_fitting_answers": [
+    {
+      "direct_CE_answer": "red",
+      "direct_CE_correct": true,
+      "teacher_aligned_answer": "red",
+      "teacher_aligned_correct": true,
+      "v10_shuffled_answer": "red",
+      "v10_shuffled_logit_max_delta": 0.25,
+      "v10_wrong_answer": "blue",
+      "world_id": "v8_fit_00"
+    },
+    {
+      "direct_CE_answer": "red",
+      "direct_CE_correct": false,
+      "teacher_aligned_answer": "blue",
+      "teacher_aligned_correct": true,
+      "v10_shuffled_answer": "blue",
+      "v10_shuffled_logit_max_delta": 0.25,
+      "v10_wrong_answer": "red",
+      "world_id": "v8_fit_01"
+    },
+    {
+      "direct_CE_answer": "gold",
+      "direct_CE_correct": false,
+      "teacher_aligned_answer": "green",
+      "teacher_aligned_correct": true,
+      "v10_shuffled_answer": "green",
+      "v10_shuffled_logit_max_delta": 0.25,
+      "v10_wrong_answer": "gold",
+      "world_id": "v8_fit_02"
+    },
+    {
+      "direct_CE_answer": "gold",
+      "direct_CE_correct": true,
+      "teacher_aligned_answer": "gold",
+      "teacher_aligned_correct": true,
+      "v10_shuffled_answer": "gold",
+      "v10_shuffled_logit_max_delta": 0.25,
+      "v10_wrong_answer": "green",
+      "world_id": "v8_fit_03"
+    },
+    {
+      "direct_CE_answer": "red",
+      "direct_CE_correct": true,
+      "teacher_aligned_answer": "red",
+      "teacher_aligned_correct": true,
+      "v10_shuffled_answer": "red",
+      "v10_shuffled_logit_max_delta": 0.375,
+      "v10_wrong_answer": "unknown",
+      "world_id": "v8_fit_04"
+    },
+    {
+      "direct_CE_answer": "unknown",
+      "direct_CE_correct": true,
+      "teacher_aligned_answer": "unknown",
+      "teacher_aligned_correct": true,
+      "v10_shuffled_answer": "unknown",
+      "v10_shuffled_logit_max_delta": 0.25,
+      "v10_wrong_answer": "red",
+      "world_id": "v8_fit_05"
+    },
+    {
+      "direct_CE_answer": "green",
+      "direct_CE_correct": true,
+      "teacher_aligned_answer": "green",
+      "teacher_aligned_correct": true,
+      "v10_shuffled_answer": "green",
+      "v10_shuffled_logit_max_delta": 0.25,
+      "v10_wrong_answer": "unknown",
+      "world_id": "v8_fit_06"
+    },
+    {
+      "direct_CE_answer": "unknown",
+      "direct_CE_correct": true,
+      "teacher_aligned_answer": "unknown",
+      "teacher_aligned_correct": true,
+      "v10_shuffled_answer": "unknown",
+      "v10_shuffled_logit_max_delta": 0.25,
+      "v10_wrong_answer": "green",
+      "world_id": "v8_fit_07"
+    }
+  ],
+  "format": "replica.intrinsic_memory.teacher_reference_comparison.v10",
+  "independent_world_families": 1,
+  "limits": [
+    "This small fitting-only comparison does not establish generalization or statistical superiority.",
+    "Identical decoded controls can still have different logits.",
+    "The target-distribution analysis does not prove the cause of any fitting failure.",
+    "Earlier prefixes are diagnostics; only the fixed final update is eligible for the fitting gate."
+  ],
+  "matched_data": {
+    "calibration": {
+      "path": "data/intrinsic_memory_explicit_v6_20261029/calibration.json",
+      "sha256": "3cd3037805f8c5a9411423724fabd2e9e9ac8a4fc589395f8181ff7b358aa613"
+    },
+    "development": {
+      "path": "data/intrinsic_memory_supported_v8_20261029/development.json",
+      "sha256": "8f58e8109090d2090d39ce5d26e2780d485176e47ff92e34f32a4a8d88284072"
+    },
+    "fit": {
+      "path": "data/intrinsic_memory_supported_v8_20261029/fit.json",
+      "sha256": "82846b47d55cb7628ac519d8cc9ac4d9b54e4672f3ad89469dd052189006b2a0"
+    }
+  },
+  "matched_training": {
+    "batch_size": 1,
+    "lr": 0.0001,
+    "restart_updates": 1,
+    "schedule": "fixed_round_robin_8_worlds_16_passes",
+    "seed": 17,
+    "teacher_updates": 0,
+    "updates": 128
+  },
+  "reference": {
+    "path": "reports/intrinsic_memory_step_v9/native_attempt01_summary.json",
+    "sha256": "e6a2678e72dd91890ed26228213a3923e76ab8680f1a2b3d43c07e5611df14fb"
+  },
+  "scope": "posthoc_fitting_only_diagnosis_no_checkpoint_selection_or_development_access",
+  "seeds": 1,
+  "teacher_alignment_curve": [
+    {
+      "correct": {
+        "absent": 2,
+        "contextual": 3,
+        "exact_text": 8,
+        "shuffled": 3,
+        "wrong": 3,
+        "zero": 2
+      },
+      "counterfactual_pairs_both_correct": 0,
+      "memory_dependence_passed": false,
+      "updates": 32
+    },
+    {
+      "correct": {
+        "absent": 2,
+        "contextual": 6,
+        "exact_text": 8,
+        "shuffled": 6,
+        "wrong": 2,
+        "zero": 2
+      },
+      "counterfactual_pairs_both_correct": 2,
+      "memory_dependence_passed": false,
+      "updates": 64
+    },
+    {
+      "correct": {
+        "absent": 2,
+        "contextual": 5,
+        "exact_text": 8,
+        "shuffled": 5,
+        "wrong": 3,
+        "zero": 2
+      },
+      "counterfactual_pairs_both_correct": 1,
+      "memory_dependence_passed": false,
+      "updates": 96
+    },
+    {
+      "correct": {
+        "absent": 2,
+        "contextual": 8,
+        "exact_text": 8,
+        "shuffled": 8,
+        "wrong": 0,
+        "zero": 2
+      },
+      "counterfactual_pairs_both_correct": 4,
+      "memory_dependence_passed": true,
+      "updates": 128
+    }
+  ],
+  "teacher_target_statistics": [
+    {
+      "canonical_response_probability": [
+        0.9222244457893699,
+        0.9999831917733143
+      ],
+      "response_entropy_nats": [
+        0.275677975733906,
+        0.00021644557008297958
+      ],
+      "response_token_ids": [
+        1468,
+        1
+      ],
+      "retained_mass": [
+        0.9999741911888123,
+        1.0
+      ],
+      "world_id": "v8_fit_00"
+    },
+    {
+      "canonical_response_probability": [
+        0.9476325255585832,
+        0.9999660265080288
+      ],
+      "response_entropy_nats": [
+        0.2076932896017168,
+        0.0004181911607486225
+      ],
+      "response_token_ids": [
+        29397,
+        1
+      ],
+      "retained_mass": [
+        0.9999784231185913,
+        0.9999996423721313
+      ],
+      "world_id": "v8_fit_01"
+    },
+    {
+      "canonical_response_probability": [
+        0.9702220778396308,
+        0.9999783043793048
+      ],
+      "response_entropy_nats": [
+        0.1356376227381089,
+        0.0002736207767732511
+      ],
+      "response_token_ids": [
+        39219,
+        1
+      ],
+      "retained_mass": [
+        0.9999847412109375,
+        1.000000238418579
+      ],
+      "world_id": "v8_fit_02"
+    },
+    {
+      "canonical_response_probability": [
+        0.9761435843479854,
+        0.9999365846769599
+      ],
+      "response_entropy_nats": [
+        0.11448794016612338,
+        0.0007209326698486569
+      ],
+      "response_token_ids": [
+        117243,
+        1
+      ],
+      "retained_mass": [
+        0.999967634677887,
+        1.0
+      ],
+      "world_id": "v8_fit_03"
+    },
+    {
+      "canonical_response_probability": [
+        0.9544188800819375,
+        0.9999849798550975
+      ],
+      "response_entropy_nats": [
+        0.18723305480094166,
+        0.0001975288232815122
+      ],
+      "response_token_ids": [
+        1468,
+        1
+      ],
+      "retained_mass": [
+        0.9999804496765137,
+        1.0
+      ],
+      "world_id": "v8_fit_04"
+    },
+    {
+      "canonical_response_probability": [
+        0.8327829862679458,
+        0.9999977350285647
+      ],
+      "response_entropy_nats": [
+        0.4596633484965661,
+        3.3896762745026755e-05
+      ],
+      "response_token_ids": [
+        44914,
+        1
+      ],
+      "retained_mass": [
+        0.9999513626098633,
+        1.0000001192092896
+      ],
+      "world_id": "v8_fit_05"
+    },
+    {
+      "canonical_response_probability": [
+        0.9781000972752247,
+        0.9999809268774651
+      ],
+      "response_entropy_nats": [
+        0.10672772271041853,
+        0.0002461427691098591
+      ],
+      "response_token_ids": [
+        39219,
+        1
+      ],
+      "retained_mass": [
+        0.9999868273735046,
+        1.0000001192092896
+      ],
+      "world_id": "v8_fit_06"
+    },
+    {
+      "canonical_response_probability": [
+        0.8258126309564763,
+        0.9999965429424904
+      ],
+      "response_entropy_nats": [
+        0.47165978908883716,
+        4.878146198275901e-05
+      ],
+      "response_token_ids": [
+        44914,
+        1
+      ],
+      "retained_mass": [
+        0.9999520778656006,
+        1.0000001192092896
+      ],
+      "world_id": "v8_fit_07"
+    }
+  ]
+}

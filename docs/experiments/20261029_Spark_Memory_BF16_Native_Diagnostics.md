@@ -1,5 +1,7 @@
 # Official BF16 intrinsic-memory diagnostics
 
+**Current successor:** [v10 teacher-alignment results](20261029_Spark_Memory_Teacher_Alignment_V10.md) record the separately versioned implementation, 502-test clean verification and completed native diagnostic. The v5–v9 evidence below is preserved.
+
 29 October 2026. This report follows the v5 preparation at `86ba96e0` and
 preserves the separately bound v5–v9 native attempts. The source is the
 existing official **XHToken/Spark-X2.6-4B BF16** artifact at revision

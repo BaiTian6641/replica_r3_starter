@@ -1022,6 +1022,45 @@ for _version, _directory, _config in [
         FINAL_PRODUCT_INPUT_ROLES.append((f'{_report}/native_packet_{_arm}_v{_version}.json',
                                          f'v{_version} {_arm} separate launch identity and work budget'))
 
+# Teacher alignment is a separate execution identity. Keep the prior direct-CE
+# outcomes and preparation receipts; append current engineering/native evidence.
+FINAL_PRODUCT_INPUT_ROLES.extend([
+    ('docs/experiments/20261029_Spark_Memory_Teacher_Alignment_V10.md', 'teacher response alignment, detach boundaries, fixed gates and measured native outcome'),
+    ('configs/spark_intrinsic_alignment_v10.json', 'separate teacher objective and complete per-arm execution budgets'),
+    ('reports/intrinsic_memory_alignment_v10/README.md', 'current consumed v10 runbook and separated capability claims'),
+    ('reports/intrinsic_memory_alignment_v10/implementation_v10.json', 'actual v10 executable dependency closure'),
+    ('reports/intrinsic_memory_alignment_v10/prelaunch_verification.json', 'immutable prelaunch scope: source admission and 502 clean CPU tests'),
+    ('reports/intrinsic_memory_alignment_v10/verification_summary.json', 'completed teacher diagnostic and current evidence summary'),
+    ('reports/intrinsic_memory_alignment_v10/native_attempt01_summary.json', 'terminal v10 native result, stage costs and physical resources'),
+    ('reports/intrinsic_memory_alignment_v10/direct_ce_comparison.json', 'posthoc matched fitting-only comparison; no checkpoint selection or generalization claim'),
+    ('reports/intrinsic_memory_alignment_v10/development_exposure.json', 'shared development split exposed by v10; successors require fresh worlds'),
+    ('reports/intrinsic_memory_alignment_v10/frozen_producer_diagnosis.json', 'CPU-only frozen extension representation diagnosis; no native model or updates'),
+    ('reports/intrinsic_memory_alignment_v10/authorization_two_v10.json', 'exact v10 packet receipt of the standing user testing instruction'),
+    ('reports/intrinsic_memory_alignment_v10/native_bf16_two_v10_attempt01/result.json', 'completed v10 native outcome; mechanical success is separate from learning utility'),
+    ('reports/intrinsic_memory_alignment_v10/native_bf16_two_v10_attempt01/teacher_qualification.json', 'eight complete-context frozen teacher answers before target caching'),
+    ('reports/intrinsic_memory_alignment_v10/clean_regression_summary.json', '502 affected tests in a clean checkout without source weights or protected module'),
+    ('reports/intrinsic_memory_alignment_v10/clean_cpu_integrated/result.json', '2/9/36 live gradients, one owner and exact fresh logits plus one actual CPU update'),
+])
+for _arm in ('two', 'full_attention_nine', 'all'):
+    FINAL_PRODUCT_INPUT_ROLES.append((f'reports/intrinsic_memory_alignment_v10/native_packet_{_arm}_v10.json',
+                                     f'v10 {_arm} separate execution identity and work budget; density remains gated'))
+for _file in (
+    'src/replica_lab/contextual_teacher_objective_v1.py',
+    'src/replica_lab/intrinsic_memory_alignment_v10.py',
+    'src/replica_lab/intrinsic_memory_teacher_v10.py',
+    'src/replica_lab/intrinsic_memory_native_v10.py',
+    'src/replica_lab/intrinsic_memory_execution_v10.py',
+    'scripts/run_spark_intrinsic_alignment_v10.py',
+    'scripts/prepare_spark_intrinsic_alignment_v10.py',
+    'scripts/run_intrinsic_teacher_cpu_v10.py',
+    'tests/test_contextual_teacher_objective_v1.py',
+    'tests/test_intrinsic_teacher_v10.py',
+    'tests/test_intrinsic_alignment_v10.py',
+    'reports/intrinsic_memory_alignment_v10/summarize_attempt01.py',
+    'reports/intrinsic_memory_alignment_v10/probe_frozen_producer.py',
+):
+    FINAL_PRODUCT_INPUT_ROLES.append((_file, 'versioned teacher implementation or reproducible CPU/posthoc verification'))
+
 PROFILES = {
     "historical": {
         "manifest": DEFAULT_MANIFEST,

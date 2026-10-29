@@ -1,6 +1,6 @@
 {
-  "active_outcome_report": "docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md",
-  "active_protocol": "docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md",
+  "active_outcome_report": "docs/experiments/20261029_Spark_Memory_Teacher_Alignment_V10.md",
+  "active_protocol": "docs/experiments/20261029_Spark_Memory_Teacher_Alignment_V10.md",
   "architecture_target": {
     "candidate": "configs/spark_intrinsic_diagnostic_v5.json",
     "control": "sealed_v3_two_site_protocol_unchanged",
@@ -18,8 +18,8 @@
   },
   "authorized_cpu_implementation": "implemented",
   "completed_latest_packet": {
-    "path": "reports/intrinsic_memory_step_v9/native_packet_two_v9.json",
-    "sha256": "86d18d53421a0488a931371394e6620493c6cc9b4741c174726c38737d17f6e6"
+    "path": "reports/intrinsic_memory_alignment_v10/native_packet_two_v10.json",
+    "sha256": "1369228284d68d91354f05833ad4dffb71deee99fb14ef24b977acf386bb48d9"
   },
   "completed_native_experiment": {
     "authorization_consumed": true,
@@ -62,25 +62,31 @@
   },
   "current_successor": {
     "authorization": "direct_user_standing_bounded_testing_authorization_with_exact_packet_receipts",
-    "implementation_commit": "b3ca64ac",
+    "development_exposure": {
+      "path": "reports/intrinsic_memory_alignment_v10/development_exposure.json",
+      "sha256": "db24b61777db7d70e7567db003b0a5010abd60f59130260caad7fa5b042b043f"
+    },
+    "implementation_commit": "ad58c14ba1ea940067b8f6655c3e64daac440c29",
     "native_execution": true,
     "native_status": "completed",
     "outcomes": {
       "RSI": "closed",
+      "development": "opened_after_freeze_failed_utility_5_of_8",
       "formation": "prepared_not_implemented",
-      "memory_dependent_fitting": "v7_passed_8_of_8_v6_v8_failed_0_of_8_v9_failed_6_of_8",
-      "native_competence": "v5_failed_6_of_8_v6_v7_v8_v9_passed_8_of_8",
+      "memory_dependent_fitting": "passed_8_of_8",
+      "native_competence": "passed_8_of_8",
       "native_density_comparison": "prepared_unrun_gated",
       "persistent_P_learning": "not_established",
       "promotion": "closed",
       "source_admission": "passed_full_hash_environment_code_data_and_predecessor_checks",
+      "teacher_competence": "passed_8_of_8",
       "useful_native_recall": "not_established"
     },
-    "report": "docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md",
+    "report": "docs/experiments/20261029_Spark_Memory_Teacher_Alignment_V10.md",
     "source": "official_BF16_user_selected",
     "summary": {
-      "path": "reports/intrinsic_memory_native_20261029/verification_summary.json",
-      "sha256": "6a9a5f224377e2b78caf6d393304f95294bc48e3576090b34f3921f7cd8f7229"
+      "path": "reports/intrinsic_memory_alignment_v10/verification_summary.json",
+      "sha256": "42908fc7cda00de739662d15b8efb8efb6c8351e85579ff1bb9e97f0290d7677"
     }
   },
   "date": "2026-10-29",
@@ -250,6 +256,10 @@
   "native_execution_scope": "attempt03_completed_S0_S1_controls_and_restart_after_two_execution_failures",
   "native_multimodal": "deferred",
   "native_official_BF16_diagnostics": {
+    "v10": {
+      "path": "reports/intrinsic_memory_alignment_v10/native_attempt01_summary.json",
+      "sha256": "37a35c387ac8e4b51b832832879a3711d7f92e9ca79d4516ef151f1559855c25"
+    },
     "v5": {
       "path": "reports/intrinsic_memory_successor_v5/native_attempt01_summary.json",
       "sha256": "67a7c709f9e272c1633a9c233682a9093ac4f5f47605e23ce34ad9f64a5634b0"
@@ -272,13 +282,15 @@
     }
   },
   "next_executable_experiment": {
+    "CPU_diagnostic_command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python reports/intrinsic_memory_alignment_v10/probe_frozen_producer.py",
+    "CPU_diagnostic_scope": "completed_read_only_extension_probe_no_generation_or_backbone_load",
     "P_updates": 0,
-    "authorization": "standing_direct_user_instruction_applies_to_bounded_tests_with_exact_new_packet_receipts",
+    "authorization": "standing_direct_user_instruction_applies_to_new_bounded_tests_with_exact_receipts",
     "density_gate": "useful_matching_two_site_result_required",
     "launch_allowed": false,
-    "remaining_requirement": "implement_response_position_alignment_detach_and_cost_contracts_then_CPU_gradient_reload_checks_and_bound_native_packet",
-    "stage": "full_context_teacher_memory_student_alignment_with_direct_CE_reference",
-    "status": "not_implemented_or_bound"
+    "remaining_requirement": "prepare_new_split_and_separately_bind_one_controlled_change_with_fixed_utility_gates_and_total_costs",
+    "stage": "new_coverage_and_order_readout_control_with_fresh_development",
+    "status": "v10_completed_no_ready_admitted_successor"
   },
   "outcomes": {
     "baseline_competence": {

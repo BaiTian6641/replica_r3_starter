@@ -1,5 +1,7 @@
 # Smaller-step intrinsic-memory control v9
 
+**Current successor:** [v10 teacher-alignment results](../../docs/experiments/20261029_Spark_Memory_Teacher_Alignment_V10.md) record the separately versioned implementation, 502-test clean verification and completed native diagnostic. The v5–v9 evidence below is preserved.
+
 **Current outcome:** Completed: frozen competence passed 8/8. Contextual fitting was 3/8, 6/8, 7/8 and 6/8 at 32/64/96/128 updates. The fixed final gate failed; the earlier 7/8 checkpoint was not selected and development stayed unopened. Fresh-process continuation and full frozen-weight integrity passed. See the [measured summary](native_attempt01_summary.json) and [current native report](../../docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md). The two-site output is consumed with zero retries. Commands below document its historical preparation and must not be relaunched. Native 9/36 and persistent learning remain gated.
 
 The [v8 result](../intrinsic_memory_supported_v8/native_attempt01_summary.json)

@@ -1,0 +1,372 @@
+{
+  "RSI": false,
+  "arm": "two",
+  "capacity": {
+    "baseline": {
+      "memory_free_percent": 88.0,
+      "swap_used_bytes": 3678865981
+    },
+    "driver_samples": 2318,
+    "host_samples": 283,
+    "minimum_observed_free_percent": 70.0,
+    "peak_driver_bytes": 11261542400,
+    "peak_swap_growth_bytes": 0,
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3,
+      "swap_growth_limit_bytes": 536870912
+    },
+    "stop_reason": null
+  },
+  "main": {
+    "arm": "two",
+    "competence_passed": true,
+    "direct_CE_reference": {
+      "path": "reports/intrinsic_memory_step_v9/native_bf16_two_v9_attempt01/result.json",
+      "sha256": "29ab5e95d96377242b248b57123cddad535926e80f3d69d4aa2d8c9685c542e2"
+    },
+    "final_original_parameters_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+    "fit_curve": [
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 3,
+          "exact_text": 8,
+          "shuffled": 3,
+          "wrong": 3,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "memory_dependence_passed": false,
+        "updates": 32
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 6,
+          "exact_text": 8,
+          "shuffled": 6,
+          "wrong": 2,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 2,
+        "memory_dependence_passed": false,
+        "updates": 64
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 5,
+          "exact_text": 8,
+          "shuffled": 5,
+          "wrong": 3,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 1,
+        "memory_dependence_passed": false,
+        "updates": 96
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 8,
+          "exact_text": 8,
+          "shuffled": 8,
+          "wrong": 0,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 4,
+        "memory_dependence_passed": true,
+        "updates": 128
+      }
+    ],
+    "fit_memory_dependence_passed": true,
+    "fit_updates": 128,
+    "format": "replica.intrinsic_memory.native_result.v10",
+    "original_weights_unchanged": true,
+    "path_costs": {
+      "admission_calls": 16,
+      "admitted_payload_bytes": 66784,
+      "authority_validation_ns": 37981007622,
+      "cold_completed_bytes": 131072,
+      "cold_completed_files": 32,
+      "cold_reserved_bytes": 131072,
+      "cold_reserved_files": 32,
+      "cold_wait_ns": 4931416,
+      "correction_calls": 1,
+      "durable_artifact_growth_bytes": 1340240,
+      "durable_write_bytes": 358880,
+      "durable_write_ns": 133214880,
+      "fallback_bytes": 20062,
+      "fallback_calls": 257,
+      "fallback_tokens": 4626,
+      "producer_bytes": 18952,
+      "producer_calls": 243,
+      "producer_hash_cache_hits": 695,
+      "producer_hash_calls": 5,
+      "producer_hash_ns": 29305418,
+      "producer_wall_ns": 461654880,
+      "read_file_bytes": 227118,
+      "read_file_calls": 166,
+      "retrieval_calls": 50,
+      "retrieval_wall_ns": 25889461,
+      "revalidations": 2749,
+      "snapshot_bytes": 1350565888,
+      "snapshot_copies": 644,
+      "source_revalidations": 2748,
+      "ticket_descriptor_read_bytes": 117696,
+      "ticket_descriptor_read_calls": 32,
+      "value_slots_read": 1232
+    },
+    "persistent_P_updates": 0,
+    "promotion": false,
+    "restart_requested": true,
+    "source_kind": "official_bf16",
+    "status": "completed_frozen_fit_diagnostic",
+    "teacher_cache": {
+      "bytes": 72427,
+      "sha256": "86b4928692ba2bbf817f713f039a8a291f8601bff7c84ed49ebd27352c1cbd68"
+    },
+    "teacher_competence_passed": true,
+    "teacher_parameter_updates": 0,
+    "useful_recall_passed": false
+  },
+  "native_competence": true,
+  "packet_sha256": "1369228284d68d91354f05833ad4dffb71deee99fb14ef24b977acf386bb48d9",
+  "persistent_learning": false,
+  "promotion": false,
+  "protocol_sha256": "c48e8937b7e11fc6fc6fb43dab932ad01dd42d2d2a0cc746bf36310da863e97d",
+  "reservations": {
+    "artifact_bytes": 167772160,
+    "backwards": 129,
+    "forwards": 922,
+    "generated_tokens": 525,
+    "input_tokens": 236032,
+    "model_loads": 2,
+    "retrievals": 51,
+    "source_encodes": 245,
+    "updates": 129,
+    "writes": 112
+  },
+  "restart": {
+    "actual_continuation_updates": 1,
+    "continuation_model_pid": 98610,
+    "corpus_costs": {
+      "authority_read_bytes": 15400,
+      "authority_read_files": 8,
+      "publications": 0,
+      "read_bytes": 0,
+      "read_files": 0,
+      "source_read_bytes": 0,
+      "source_read_files": 0,
+      "write_bytes": 0,
+      "write_ns": 0
+    },
+    "fresh_process_logits_exact": true,
+    "objective": {
+      "alignment": "response_token_index_including_one_EOS",
+      "ce_weight": 0.0,
+      "completion": {
+        "allowed_stop_identity": "994dd6e472a95243ae46cb1214e0c5ef14c5b7109c2518208ce5e4df44cdba93",
+        "allowed_stop_token_ids": [
+          1
+        ],
+        "context_tokens": 256,
+        "eos_token_id": 1,
+        "format": "replica.contextual_complete_response.objective.v1",
+        "ignore_index": -100,
+        "label_alignment": "logit_i_predicts_token_i_plus_1_no_additional_shift",
+        "loss": "mean_cross_entropy_over_answer_tokens_plus_one_EOS",
+        "pad_token_id": 2,
+        "padding_side": "right",
+        "template_identity": "fe75b8ef7b8068513db68dd0dd4eedfcc9df7219a7598034dfd526a61b1c6f6e",
+        "thinking_mode": "none",
+        "tokenizer_identity": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+        "training_terminal_identity": "69ca506e8a06ed07426246410dad1f6e491d9eaa5c93145ac4bae557d9ed14c6",
+        "vocab_size": 131072
+      },
+      "format": "replica.contextual_teacher_alignment.v1",
+      "kl_weight": 1.0,
+      "student_boundary": "live_producer_and_reader_no_serialization",
+      "student_normalization": "full_vocabulary",
+      "teacher_boundary": "frozen_extensions_disabled_detached_targets",
+      "teacher_normalization": "renormalized_top_k",
+      "temperature": 1.0,
+      "top_k": 64
+    },
+    "optimizer_ownership": {
+      "order": [
+        "order.weight"
+      ],
+      "producer": [
+        "producer.slot_queries",
+        "producer.embedding.weight",
+        "producer.position.weight",
+        "producer.transformer.layers.0.self_attn.in_proj_weight",
+        "producer.transformer.layers.0.self_attn.in_proj_bias",
+        "producer.transformer.layers.0.self_attn.out_proj.weight",
+        "producer.transformer.layers.0.self_attn.out_proj.bias",
+        "producer.transformer.layers.0.linear1.weight",
+        "producer.transformer.layers.0.linear1.bias",
+        "producer.transformer.layers.0.linear2.weight",
+        "producer.transformer.layers.0.linear2.bias",
+        "producer.transformer.layers.0.norm1.weight",
+        "producer.transformer.layers.0.norm1.bias",
+        "producer.transformer.layers.0.norm2.weight",
+        "producer.transformer.layers.0.norm2.bias",
+        "producer.output.0.weight",
+        "producer.output.0.bias",
+        "producer.output.1.weight"
+      ],
+      "reader": [
+        "reader.ports.3.gate_logit",
+        "reader.ports.3.query_norm.weight",
+        "reader.ports.3.query_norm.bias",
+        "reader.ports.3.query_projection.weight",
+        "reader.ports.3.slot_norm.weight",
+        "reader.ports.3.slot_norm.bias",
+        "reader.ports.3.key_projection.weight",
+        "reader.ports.3.value_projection.weight",
+        "reader.ports.3.output_norm.weight",
+        "reader.ports.3.output_norm.bias",
+        "reader.ports.3.output_projection.weight",
+        "reader.ports.7.gate_logit",
+        "reader.ports.7.query_norm.weight",
+        "reader.ports.7.query_norm.bias",
+        "reader.ports.7.query_projection.weight",
+        "reader.ports.7.slot_norm.weight",
+        "reader.ports.7.slot_norm.bias",
+        "reader.ports.7.key_projection.weight",
+        "reader.ports.7.value_projection.weight",
+        "reader.ports.7.output_norm.weight",
+        "reader.ports.7.output_norm.bias",
+        "reader.ports.7.output_projection.weight"
+      ]
+    },
+    "original_weights_unchanged": true,
+    "parent_model_pid": 93339,
+    "path_costs": {
+      "admission_calls": 0,
+      "admitted_payload_bytes": 0,
+      "authority_validation_ns": 136327376,
+      "cold_completed_bytes": 4096,
+      "cold_completed_files": 1,
+      "cold_reserved_bytes": 4096,
+      "cold_reserved_files": 1,
+      "cold_wait_ns": 126167,
+      "correction_calls": 0,
+      "durable_artifact_growth_bytes": 0,
+      "durable_write_bytes": 11212,
+      "durable_write_ns": 1550166,
+      "fallback_bytes": 701,
+      "fallback_calls": 9,
+      "fallback_tokens": 162,
+      "producer_bytes": 154,
+      "producer_calls": 2,
+      "producer_hash_cache_hits": 4,
+      "producer_hash_calls": 1,
+      "producer_hash_ns": 7031916,
+      "producer_wall_ns": 70264834,
+      "read_file_bytes": 4608,
+      "read_file_calls": 2,
+      "retrieval_calls": 1,
+      "retrieval_wall_ns": 0,
+      "revalidations": 9,
+      "snapshot_bytes": 4194304,
+      "snapshot_copies": 2,
+      "source_revalidations": 9,
+      "ticket_descriptor_read_bytes": 3677,
+      "ticket_descriptor_read_calls": 1,
+      "value_slots_read": 8
+    },
+    "persistent_P_updates": 0,
+    "teacher_cache_restored": true,
+    "teacher_parameter_updates": 0,
+    "uninterrupted_update_equivalence_measured": false,
+    "update": {
+      "ce_loss": 0.0947195366024971,
+      "changed_tensors": [
+        "producer.slot_queries",
+        "producer.embedding.weight",
+        "producer.position.weight",
+        "producer.transformer.layers.0.self_attn.in_proj_weight",
+        "producer.transformer.layers.0.self_attn.in_proj_bias",
+        "producer.transformer.layers.0.self_attn.out_proj.weight",
+        "producer.transformer.layers.0.self_attn.out_proj.bias",
+        "producer.transformer.layers.0.linear1.weight",
+        "producer.transformer.layers.0.linear1.bias",
+        "producer.transformer.layers.0.linear2.weight",
+        "producer.transformer.layers.0.linear2.bias",
+        "producer.transformer.layers.0.norm1.weight",
+        "producer.transformer.layers.0.norm1.bias",
+        "producer.transformer.layers.0.norm2.weight",
+        "producer.transformer.layers.0.norm2.bias",
+        "producer.output.0.weight",
+        "producer.output.0.bias",
+        "producer.output.1.weight",
+        "order.weight",
+        "reader.ports.3.gate_logit",
+        "reader.ports.3.query_norm.weight",
+        "reader.ports.3.query_norm.bias",
+        "reader.ports.3.query_projection.weight",
+        "reader.ports.3.slot_norm.weight",
+        "reader.ports.3.slot_norm.bias",
+        "reader.ports.3.key_projection.weight",
+        "reader.ports.3.value_projection.weight",
+        "reader.ports.3.output_norm.weight",
+        "reader.ports.3.output_norm.bias",
+        "reader.ports.3.output_projection.weight",
+        "reader.ports.7.gate_logit",
+        "reader.ports.7.query_norm.weight",
+        "reader.ports.7.query_norm.bias",
+        "reader.ports.7.query_projection.weight",
+        "reader.ports.7.slot_norm.weight",
+        "reader.ports.7.slot_norm.bias",
+        "reader.ports.7.key_projection.weight",
+        "reader.ports.7.value_projection.weight",
+        "reader.ports.7.output_norm.weight",
+        "reader.ports.7.output_norm.bias",
+        "reader.ports.7.output_projection.weight"
+      ],
+      "eos_loss": 0.0007329876534640789,
+      "gradients": {
+        "order": {
+          "finite": true,
+          "missing": [],
+          "norm": 0.05087732433415197
+        },
+        "producer": {
+          "finite": true,
+          "missing": [],
+          "norm": 1.030930288176885
+        },
+        "reader": {
+          "finite": true,
+          "missing": [],
+          "norm": 6.2851911444802475
+        },
+        "sites": {
+          "3": {
+            "norm": 5.004857346880874,
+            "output_norm": 4.999828338623047
+          },
+          "7": {
+            "norm": 3.801977204038113,
+            "output_norm": 3.7650041580200195
+          }
+        }
+      },
+      "kl_loss": 0.0344596691429615,
+      "loss": 0.0344596691429615,
+      "objective_sha256": "4e1a1ba911b92222849b33e5b73dc6fe9e65ecf89a9708031929cda1f253664e",
+      "supervised_tokens": 2,
+      "teacher_cache_hit": true,
+      "teacher_forward_in_update": false,
+      "teacher_retained_mass_mean": 0.9999871253967285,
+      "word_loss": 0.18870608508586884
+    }
+  },
+  "source_kind": "official_bf16",
+  "useful_recall": false
+}

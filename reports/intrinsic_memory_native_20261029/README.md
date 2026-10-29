@@ -1,5 +1,7 @@
 # Official BF16 intrinsic-memory evidence, 29 October 2026
 
+**Current successor:** [v10 teacher-alignment results](../../docs/experiments/20261029_Spark_Memory_Teacher_Alignment_V10.md) record the separately versioned implementation, 502-test clean verification and completed native diagnostic. The v5–v9 evidence below is preserved.
+
 The [current report](../../docs/experiments/20261029_Spark_Memory_BF16_Native_Diagnostics.md)
 records five separately bound native attempts. All use the existing official
 Spark-X2.6-4B BF16 source; FP8-derived BF16 and official FP8 remain distinct.
