@@ -1,0 +1,17 @@
+# Earlier full repository regression, before document-lineage repair
+# Command: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts .venv/bin/python -m pytest -q
+# Result: 5 failed, 3358 passed, 9 skipped, 1 warning, 21 subtests passed in 850.95s (0:14:10)
+#
+# All five failures were documentation/bundle lineage checks. The final repaired
+# migration, deliverable and bundle records pass the focused 57 checks, and the
+# subsequent full suite passed 3363 tests with 9 skipped and 21 subtests.
+#
+# Raw summary preserved:
+FAILED tests/test_sparkx_final_product.py::test_clean_checkout_verification_passes_without_source_cache - unexplained_input_drift:docs/architecture/README.md; prepare_sparkx_research_bundle.py; historical_manifest_no_unreviewed_drift
+FAILED tests/test_sparkx_final_product.py::test_v51_reviewed_migration_is_applied_and_pinned - unexplained_input_drift:docs/architecture/README.md; prepare_sparkx_research_bundle.py; historical_manifest_no_unreviewed_drift
+FAILED tests/test_sparkx_first_tranche.py::test_committed_bundle_manifest_matches_local_inputs - unstaged_modification and current-input hash mismatches
+FAILED tests/test_sparkx_v5_1_review.py::test_clean_fixture_passes_and_is_deterministic - deliverable:docs/architecture/README.md; deliverable:AGENT_START.md; migration_identity_digest
+FAILED tests/test_sparkx_v5_1_review.py::test_local_artifact_absence_is_allowed_only_when_declared - deliverable:docs/architecture/README.md; deliverable:AGENT_START.md; migration_identity_digest
+
+The detailed assertion text is retained in the archived test output. No neural,
+protocol or native-backend failure was implicated by these five failures.

@@ -68,6 +68,7 @@ The D-only writer has numerical and software evidence only. It remains an offlin
 ## 4. Preserved failure analysis
 
 Failed attempts remain in their original output directories:
+- Earlier full suite: 3358 passed and five documentation-lineage failures; see [`full_suite_initial_failure.log`](full_suite_initial_failure.log). The repaired migration/deliverable/bundle records pass 57 focused checks, and the subsequent full suite passed 3363 tests.
 
 - `cpu_smoke01`: tokenizer IDs exceeded the initial 32-token fixture vocabulary; the runner now binds an explicit 8192-token fixture vocabulary.
 - `cpu_full01`: dynamic sidecar omitted the required `plastic` key; the serializer now persists plastic, evidence and text state.
