@@ -66,15 +66,18 @@ def test_review_derives_real_profile_and_control_budgets_without_native_work():
     assert report["model_loaded"] is False
     assert report["source"]["source_identity"] == "official_fp8"
     assert report["source"]["execution_format"] == "official_native_fp8"
-    assert report["work_units"]["forward_calls_max"] == 7897
-    assert report["work_units"]["processed_text_positions_max"] == 16295072
-    assert report["work_units"]["verification_calls_max"] == 135
+    assert report["work_units"]["forward_calls_max"] == 8665
+    assert report["work_units"]["processed_text_positions_max"] == 17879840
+    assert report["work_units"]["verification_calls_max"] == 147
     assert report["work_units"]["optimizer_steps_max"] == 8
     assert report["work_units"]["response_port_optimizer_steps_max"] == 4
     assert report["work_units"]["selected_P_optimizer_steps_max"] == 4
     assert "native_fp8_backend_evidence" in report["missing_bindings"]
     assert "external_authorization_receipt" in report["missing_bindings"]
     assert not any("materialize" in item for item in report["remaining_prerequisites"])
+    config = read_json(CONFIG_PATH)
+    assert set(config["launch"]["implementation_files"]) == set(report["implementation_sha256"])
+    assert config["launch"]["implementation_sha256"] == report["implementation_sha256"]
 
 
 def test_independent_fixture_is_hash_bound_and_labels_stay_behind_fit_receipt():
@@ -175,3 +178,15 @@ def test_native_execution_requires_watchdog_and_restart_is_a_continuation(tmp_pa
     assert run_capacity_preflight.continuation_requested(["--stage", "restart"]) is True
     assert run_capacity_preflight.continuation_requested(["--stage", "development"]) is True
     assert run_capacity_preflight.continuation_requested(["--stage", "fit"]) is False
+
+
+def test_tiered_dependency_change_invalidates_authorization(tmp_path: Path):
+    config_path, authorization, output, _ = _valid_launch_inputs(tmp_path)
+    config = read_json(config_path)
+    assert "src/replica_lab/tiered_memory.py" in config["launch"]["implementation_files"]
+    assert "src/replica_lab/tiered_readout.py" in config["launch"]["implementation_files"]
+    receipt = read_json(authorization)
+    receipt["implementation_sha256"]["src/replica_lab/tiered_memory.py"] = "0" * 64
+    authorization.write_text(json.dumps(receipt), encoding="utf-8")
+    with pytest.raises(ProtocolError, match="implementation hashes differ"):
+        preflight(config_path, authorization=authorization, output=output, launch=True)

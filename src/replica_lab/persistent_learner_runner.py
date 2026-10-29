@@ -8,7 +8,7 @@ update is hidden in this protocol.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 import copy
 import gc
@@ -43,6 +43,7 @@ from .p1_response_learning import (
     prepare_arm_query, restore_p_state,
 )
 from .spark_text_memory_runner import Backend, greedy_generate, score_answer
+from .tiered_readout import ReadoutBudget, ScopedMemoryReadout, read_scoped_memory, readout_cache_state, resume_scoped_readout
 from .tiered_memory import (
     EvidenceRecordDraft, MemoryScope, TierCeilings, TieredMemoryStore,
     build_retrieval_key, detect_file_type,
@@ -53,7 +54,7 @@ PROTOCOL_FORMAT = "replica.spark_persistent_learner.protocol.v2"
 PROTOCOL_ID = "spark_persistent_learner_v2"
 FIXTURE_FORMAT = "replica.spark_persistent_learner.fixture.v2"
 FIT_RECEIPT_FORMAT = "replica.spark_persistent_learner.fit_receipt.v2"
-DYNAMIC_FORMAT = "replica.spark_persistent_learner.dynamic_state.v2"
+DYNAMIC_FORMAT = "replica.spark_persistent_learner.dynamic_state.v3"
 DEVELOPMENT_FORMAT = "replica.spark_persistent_learner.development.v2"
 RESTART_FORMAT = "replica.spark_persistent_learner.restart.v2"
 REPORT_FORMAT = "replica.spark_persistent_learner.run.v2"
@@ -61,7 +62,7 @@ CPU_LABEL = "cpu_contextual_fixture"
 NATIVE_LABEL = "native"
 ARMS = (
     "full_eligible_context", "selective_exact_and_procedure", "spine_E_only",
-    "source_free_P_only", "E_plus_P", "no_update", "reset_P",
+    "reader_trained_E_only", "source_free_P_only", "E_plus_P", "no_update", "reset_P",
     "shuffled_memory", "inapplicable_procedure", "matched_replay",
 )
 
@@ -219,7 +220,7 @@ class PreparedDataset:
                      f"content hash differs for {name}")
         counts = manifest.get("counts", {})
         for key, expected in (("fit_events", 4), ("development_cases", 12),
-                              ("development_labels", 12), ("arms", 10),
+                              ("development_labels", 12), ("arms", len(ARMS)),
                               ("parity_requests", 2), ("restart_parity_requests", 1)):
             _require(int(counts.get(key, -1)) == expected, "prepared",
                      f"count {key} differs")
@@ -328,6 +329,9 @@ class WorkLedger:
         "replay_processed_positions", "retrieval_calls", "verification_calls",
         "checkpoint_writes", "retained_checkpoint_artifacts", "reloads", "cache_hits",
         "cache_misses", "teacher_passes", "consolidation_events", "artifact_bytes", "native_retries",
+        "readout_file_reads", "readout_io_bytes", "readout_ns", "cold_recall_tickets",
+        "cold_recall_resumes", "revalidation_failures", "payload_read_calls",
+        "payload_file_reads", "payload_io_bytes", "revalidations",
     )
 
     def __init__(self, protocol: Protocol, *, context_tokens: int, max_new_tokens: int) -> None:
@@ -357,12 +361,14 @@ class WorkLedger:
             raise CapExceeded(f"{name}={value} exceeds cap {self.caps[name]}")
         self.counters[name] = int(value)
 
-    def query_sensing(self, positions: int) -> None:
+    def query_sensing(self, positions: int, *, cache_hits: int = 0,
+                      cache_misses: int = 0) -> None:
         self.charge("query_sensing_forwards")
         self.charge("native_query_passes")
         self.charge("forward_calls")
         self.charge("processed_text_positions", int(positions))
-        self.charge("cache_misses")
+        self.charge("cache_hits", int(cache_hits))
+        self.charge("cache_misses", int(cache_misses))
 
     def retrieval(self) -> None:
         self.charge("retrieval_calls")
@@ -423,6 +429,8 @@ class WorkLedger:
         _require(self.counters["parity_requests"] == 2
                  and self.counters["restart_parity_requests"] == 1
                  and self.counters["restarts"] == 1, "completion", "parity/restart count differs")
+        _require(self.counters["revalidation_failures"] == 0,
+                 "completion", "a scoped readout failed post-I/O revalidation")
         _require(self.counters["response_spine_optimizer_steps"] == 0
                  and self.counters["plastic_forward_calls"] == 0
                  and self.counters["plastic_backward_calls"] == 0,
@@ -444,6 +452,8 @@ class FitState:
     trained_plastic: Mapping[str, Any]
     receipt: Mapping[str, Any]
     run_contract: Mapping[str, Any]
+    pre_port_state: Mapping[str, torch.Tensor]
+    trained_port_state: Mapping[str, torch.Tensor]
 
 
 @dataclass
@@ -457,6 +467,12 @@ class ArmView:
     controller_source: str = ""
     evidence_source: str = ""
     wrong_p_transform: str | None = None
+    port_state: Mapping[str, torch.Tensor] | None = None
+    untouched_baseline: bool = False
+    frozen_trained_reader: bool = False
+    reader_role: str = "pre_reader"
+    tiered_store: TieredMemoryStore | None = None
+    readout_results: dict[str, ScopedMemoryReadout] = field(default_factory=dict)
 
 
 def _port_groups(adapter: Spark2_5Adapter, lr: float) -> list[dict[str, Any]]:
@@ -505,15 +521,36 @@ def _new_path(protocol: Protocol, adapter: Spark2_5Adapter, *,
     return path
 
 
+def _validate_port_state(adapter: Spark2_5Adapter,
+                         port_state: Mapping[str, torch.Tensor]) -> None:
+    expected = {name for name, _ in adapter.new_named_parameters()
+                if name.startswith("extension.spine.") and ".ports." in name
+                and "output_projection" in name}
+    _require(set(expected) == set(port_state), "port_state",
+             "port output identities differ; refusing partial or stale restoration")
+
+
+def _restore_port_output(adapter: Spark2_5Adapter,
+                         port_state: Mapping[str, torch.Tensor]) -> None:
+    _validate_port_state(adapter, port_state)
+    with torch.no_grad():
+        for name, parameter in adapter.new_named_parameters():
+            if name in port_state:
+                parameter.copy_(port_state[name])
+
+
 def _dynamic_payload(path: SparkTextMemoryPath) -> dict[str, Any]:
     return {"format": DYNAMIC_FORMAT,
             "plastic": path.experiment.controller.checkpoint_payload(),
             "evidence": path.experiment.evidence.checkpoint_payload(),
+            "port_state": _port_output_snapshot(path),
+            "port_state_schema": "extension.spine.ports.*.output_projection.v1",
             "text": path._text_checkpoint_payload()}
 
 
 def _apply_dynamic(path: SparkTextMemoryPath, payload: Mapping[str, Any]) -> None:
     _require(payload.get("format") == DYNAMIC_FORMAT, "dynamic_state", "format differs")
+    _validate_port_state(path.adapter, payload["port_state"])
     path.experiment.controller.load_checkpoint(copy.deepcopy(dict(payload["plastic"])))
     path.experiment.evidence.load_checkpoint(copy.deepcopy(dict(payload["evidence"])))
     decoded = path._decode_text_checkpoint(payload["text"])
@@ -525,6 +562,7 @@ def _apply_dynamic(path: SparkTextMemoryPath, payload: Mapping[str, Any]) -> Non
     path.response_parameter_updates = decoded["response_parameter_updates"]
     path._query_sequence = decoded["next_query_sequence"]
     path.response_optimizer.load_state_dict(decoded["response_optimizer_state"])
+    _restore_port_output(path.adapter, payload["port_state"])
     path.queries.invalidate()
 
 
@@ -755,6 +793,39 @@ def _invalidate_path_dependencies(path: SparkTextMemoryPath,
         if len(remaining) != len(workspace.observed_completions):
             path.tasks[task_id] = replace(workspace, observed_completions=remaining)
     path.experiment.invalidate(reason="source_correction_dependents")
+def _restore_readout_records(path: SparkTextMemoryPath,
+                             readout: ScopedMemoryReadout) -> tuple[str, ...]:
+    restored = []
+    for record in readout.records:
+        if record.status not in {"ok", "degraded"}:
+            raise Refused("tiered_readout_restoration",
+                          f"{record.record_id}: {record.reason}")
+        existing = path.texts.get(record.record_id)
+        if existing is not None:
+            if (existing.canonical_text != record.text
+                    or existing.text_sha256 != record.text_sha256
+                    or existing.provenance.get("text_sha256") != record.text_sha256):
+                raise Refused("tiered_readout_restoration",
+                              f"{record.record_id}: mirrored canonical text differs")
+            continue
+        if record.text is None or not record.available_at_mapped \
+                or record.available_at is None or record.valid_from is None \
+                or record.event_at is None or record.durable_ref is None:
+            raise Refused("tiered_readout_restoration",
+                          f"{record.record_id}: incomplete restoration authority")
+        source_lineage = record.source_provenance or record.provenance
+        path.observe_text(
+            record.text, record_id=record.record_id,
+            source_epoch=record.source_epoch, available_at=record.available_at,
+            valid_from=record.valid_from, valid_until=record.valid_until,
+            source_lineage=source_lineage, durable_ref=record.durable_ref,
+            retain_canonical_text=True, payload_type=record.payload_type or "observation",
+            verified=record.verification_state in {"verified_source", "observed_tool", "verified_human"},
+            supersedes=record.supersedes)
+        restored.append(record.record_id)
+    return tuple(restored)
+
+
     path.queries.invalidate()
 
 def _training_content(observation_texts: Sequence[str], question: str) -> str:
@@ -762,17 +833,61 @@ def _training_content(observation_texts: Sequence[str], question: str) -> str:
     return (source + "\n\n" if source else "") + f"Question: {question}\nAnswer:"
 
 
+def _readout_scope(query_time: int) -> MemoryScope:
+    return MemoryScope(subject_id="replica", branch_id="main", purpose="assistant",
+                       as_of=int(query_time))
+
+
+def _tiered_readout(store: TieredMemoryStore, question: str,
+                    query_time: int) -> ScopedMemoryReadout:
+    scope = _readout_scope(query_time)
+    budget = ReadoutBudget(max_records=2, max_value_slots=8, cold_wait_seconds=0)
+    result = read_scoped_memory(store, question, scope, budget=budget)
+    for ticket in result.pending_cold:
+        result = resume_scoped_readout(store, ticket.ticket_id, scope=scope, budget=budget)
+    if (result.pending_cold or result.new_decision_boundary or result.representation_stale
+            or result.incomplete_record_ids or result.invalidated_record_ids
+            or result.denied_record_ids):
+        raise Refused("tiered_readout", result.outcome.reason)
+    return result
+
+
+def _charge_readout(ledger: WorkLedger, result: ScopedMemoryReadout) -> None:
+    metrics = result.metrics
+    ledger.charge("readout_file_reads", metrics.total_file_reads)
+    ledger.charge("readout_io_bytes", metrics.total_io_bytes)
+    ledger.charge("readout_ns", metrics.total_ns)
+    ledger.charge("cold_recall_tickets", metrics.cold_tickets)
+    ledger.charge("cold_recall_resumes", metrics.cold_resumes)
+    ledger.charge("revalidation_failures", metrics.revalidation_failures)
+    ledger.charge("payload_read_calls", metrics.payload_read_calls)
+    ledger.charge("payload_file_reads", metrics.payload_file_reads)
+    ledger.charge("payload_io_bytes", metrics.payload_io_bytes)
+    ledger.charge("revalidations", metrics.revalidations)
+
+
 def _fit_query(path: SparkTextMemoryPath, backend: Backend, event: Mapping[str, Any],
-               observations: Mapping[str, Any], ledger: WorkLedger):
+               observations: Mapping[str, Any], ledger: WorkLedger,
+               tiered: TieredMemoryStore | None = None):
     rows = [observations[str(record_id)] for record_id in event["observation_record_ids"]]
     content = _training_content([str(row["text"]) for row in rows], str(event["question"]))
     ids, mask, labels = backend.encode_training(content, str(event["answer"]), ledger.context_tokens)
     path.experiment.invalidate(reason="v2_fit_no_cache_reuse")
+    readout = None if tiered is None else _tiered_readout(
+        tiered, str(event["question"]), int(event["sequence"]))
+    if readout is not None:
+        _restore_readout_records(path, readout)
     query = prepare_arm_query(
         path, arm="e_plus_p", question=str(event["question"]), input_ids=ids,
         attention_mask=mask, query_time=int(event["sequence"]),
-        token_available_at=tuple(int(event["sequence"]) for _ in range(ids.shape[1])))
-    ledger.query_sensing(int(ids.shape[1]))
+        token_available_at=tuple(int(event["sequence"]) for _ in range(ids.shape[1])),
+        selected_record_ids=None if readout is None else readout.record_ids)
+    if readout is not None:
+        _charge_readout(ledger, readout)
+        ledger.query_sensing(int(ids.shape[1]), cache_hits=readout.metrics.cache_hits,
+                             cache_misses=readout.metrics.cache_misses)
+    else:
+        ledger.query_sensing(int(ids.shape[1]))
     ledger.retrieval()
     return query, labels, rows
 
@@ -1028,6 +1143,7 @@ def run_fit(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
     pre_plastic = copy.deepcopy(path.experiment.controller.checkpoint_payload())
     initial_p_snapshot = capture_p_state(path)
     initial_port_parameters = _port_output_snapshot(path)
+    learning_port_state = initial_port_parameters
     initial_port_optimizer_state = copy.deepcopy(path.response_optimizer.state_dict())
     fit_lineage: list[str] = []
     correction_resets: list[dict[str, Any]] = []
@@ -1065,10 +1181,12 @@ def run_fit(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
                 "event_id": event["event_id"], "admission": tiered_admission,
                 "reset": correction_reset, "exact_unlearning_claimed": False})
             fit_lineage = []
+            learning_port_state = initial_port_parameters
         fit_lineage.extend(str(row["record_id"]) for row in row_observations)
         _tiered_sync_procedures(tiered, procedures)
         _tiered_sync_tasks(tiered, path, dataset)
-        query, labels, _ = _fit_query(path, backend, event, observations, ledger)
+        _restore_port_output(path.adapter, learning_port_state)
+        query, labels, _ = _fit_query(path, backend, event, observations, ledger, tiered=tiered)
         if initial_parity is None:
             initial_parity = _null_comparison(path, query)
             ledger.parity_forwards(int(query.input_ids.shape[1]))
@@ -1087,18 +1205,22 @@ def run_fit(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
             path.response_parameter_updates += int(bool(
                 learned.get("port_changed_parameter_names")))
             learned["optimizer_ownership"]["response_steps_after"] = path.response_steps
-        nl_query, nl_labels, _ = _fit_query(nonlearning_path, backend, event, observations, ledger)
+        learning_port_state = _port_output_snapshot(path)
+        _restore_port_output(nonlearning_path.adapter, initial_port_parameters)
+        nl_query, nl_labels, _ = _fit_query(nonlearning_path, backend, event, observations, ledger, tiered=tiered)
         nonlearning = direct_response_ce_step(
             nonlearning_path, nl_query, nl_labels,
             event_id=str(event["event_id"]) + ":matched_nonlearning", expert_id=0,
             apply=False, port_optimizer=nonlearning_path.response_optimizer, arm="no_update")
         ledger.objective(int(nl_query.input_ids.shape[1]), nonlearning=True)
-        replay_query, replay_labels, _ = _fit_query(replay_path, backend, event, observations, ledger)
+        _restore_port_output(replay_path.adapter, initial_port_parameters)
+        replay_query, replay_labels, _ = _fit_query(replay_path, backend, event, observations, ledger, tiered=tiered)
         replay = evaluate_response_ce(replay_path, replay_query, labels=replay_labels)
         ledger.replay(int(replay_query.input_ids.shape[1]))
         tiered_expert = _tiered_write_expert(tiered, path, lineage=fit_lineage)
         for _ in range(3):
             ledger.charge("verification_calls")
+        _restore_port_output(path.adapter, learning_port_state)
         relative = f"fit/event_{int(event['sequence']):02d}/state"
         receipt = _checkpoint(path, output, relative, run_contract, ledger, meter)
         checkpoints.append(receipt)
@@ -1117,9 +1239,11 @@ def run_fit(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
         _write_jsonl(output, "fit/trajectories.jsonl", rows, meter=meter)
         last_event, last_rows = event, row_observations
     _require(last_event is not None and last_rows is not None, "fit", "no fit events executed")
-    influence_query, _, _ = _fit_query(path, backend, last_event, observations, ledger)
+    _restore_port_output(path.adapter, learning_port_state)
+    influence_query, _, _ = _fit_query(path, backend, last_event, observations, ledger, tiered=tiered)
     influence = _null_comparison(path, influence_query)
     ledger.influence_forwards(int(influence_query.input_ids.shape[1]))
+    trained_port_state = learning_port_state
     tiered_expert = _tiered_write_expert(tiered, path, publish=True, lineage=fit_lineage)
     tiered_state = _tiered_summary(tiered)
     tiered.close()
@@ -1131,8 +1255,10 @@ def run_fit(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
                             meter=meter, reuse_identical=True)
     publication.write_torch(output, "fit/trained_plastic.pt", trained_plastic,
                             meter=meter, reuse_identical=True)
+    _restore_port_output(nonlearning_path.adapter, initial_port_parameters)
     publication.write_torch(output, "fit/nonlearning_dynamic.pt", _dynamic_payload(nonlearning_path),
                             meter=meter, reuse_identical=True)
+    _restore_port_output(replay_path.adapter, initial_port_parameters)
     publication.write_torch(output, "fit/replay_dynamic.pt", _dynamic_payload(replay_path),
                             meter=meter, reuse_identical=True)
     _write_json(output, "fit/checkpoint_index.json", {
@@ -1159,6 +1285,8 @@ def run_fit(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
         "retained_checkpoints": [row["relative"] for row in checkpoints],
         "evicted_checkpoints": [row["relative"] for row in evicted],
         "initial_null_parity": initial_parity, "post_fit_influence": influence,
+        "pre_port_state": initial_port_parameters,
+        "trained_port_state": trained_port_state,
         "correction_resets": correction_resets, "exact_unlearning_claimed": False,
         "tiered_root": "tiered", "tiered_expert": tiered_expert,
         "tiered_state": tiered_state,
@@ -1168,6 +1296,8 @@ def run_fit(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
     _write_json(output, "fit/fit_receipt.json", fit_receipt, meter=meter)
     return FitState(path=path, nonlearning_path=nonlearning_path, replay_path=replay_path,
                     pre_plastic=pre_plastic, trained_plastic=trained_plastic,
+                    pre_port_state=initial_port_parameters,
+                    trained_port_state=trained_port_state,
                     receipt=fit_receipt, run_contract=run_contract)
 
 
@@ -1186,13 +1316,17 @@ def _load_learning_path(protocol: Protocol, dataset: PreparedDataset, backend: B
 def load_fit_state(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
                    output: Path) -> FitState:
     path, pre, trained = _load_learning_path(protocol, dataset, backend, output)
+    trained_port_state = _port_output_snapshot(path)
     receipt = _read_json(output / "fit/fit_receipt.json", "fit_receipt")
     nonlearning = _new_path(protocol, backend.adapter)
     replay = _new_path(protocol, backend.adapter)
     _apply_dynamic(nonlearning, publication.load_torch(output, str(receipt["nonlearning_dynamic"])))
+    pre_port_state = _port_output_snapshot(nonlearning)
     _apply_dynamic(replay, publication.load_torch(output, str(receipt["replay_dynamic"])))
     return FitState(path=path, nonlearning_path=nonlearning, replay_path=replay,
                     pre_plastic=pre, trained_plastic=trained, receipt=receipt,
+                    pre_port_state=pre_port_state,
+                    trained_port_state=trained_port_state,
                     run_contract=_run_contract(protocol, dataset, backend))
 
 
@@ -1228,9 +1362,13 @@ def _shuffle_evidence(path: SparkTextMemoryPath) -> None:
 
 
 def build_arm_views(protocol: Protocol, fit: FitState,
-                    dataset: PreparedDataset) -> dict[str, ArmView]:
+                    dataset: PreparedDataset,
+                    tiered: TieredMemoryStore | None = None) -> dict[str, ArmView]:
+    _restore_port_output(fit.path.adapter, fit.trained_port_state)
     trained_base = _development_base(protocol, fit.path, dataset)
+    _restore_port_output(fit.nonlearning_path.adapter, fit.pre_port_state)
     pre_base = _development_base(protocol, fit.nonlearning_path, dataset)
+    _restore_port_output(fit.replay_path.adapter, fit.pre_port_state)
     replay_base = _development_base(protocol, fit.replay_path, dataset)
     views: dict[str, ArmView] = {}
     for arm in ARMS:
@@ -1245,10 +1383,26 @@ def build_arm_views(protocol: Protocol, fit: FitState,
             controller = "pre_teaching"
         mode = {
             "full_eligible_context": "E", "selective_exact_and_procedure": "E",
-            "spine_E_only": "E", "source_free_P_only": "P", "E_plus_P": "E_plus_P",
-            "no_update": "P", "reset_P": "E_plus_P", "shuffled_memory": "E_plus_P",
-            "inapplicable_procedure": "E", "matched_replay": "E_plus_P",
+            "spine_E_only": "E", "reader_trained_E_only": "E", "source_free_P_only": "P", "no_update": "P", "reset_P": "E_plus_P", "E_plus_P": "E_plus_P",
+            "shuffled_memory": "E_plus_P", "inapplicable_procedure": "E", "matched_replay": "E_plus_P",
         }[arm]
+        port_state = fit.pre_port_state
+        reader_role = "pre_reader"
+        frozen_trained_reader = False
+        untouched_baseline = arm == "full_eligible_context"
+        if arm in {"reader_trained_E_only", "source_free_P_only", "E_plus_P",
+                   "no_update", "reset_P", "shuffled_memory"}:
+            port_state = fit.trained_port_state
+            reader_role = "trained_reader"
+            frozen_trained_reader = arm in {"reader_trained_E_only", "no_update", "reset_P"}
+            if frozen_trained_reader:
+                reader_role = "trained_reader_frozen_comparison"
+        if arm == "no_update" or arm == "reset_P":
+            controller = "pre_teaching_P_frozen_trained_reader"
+        elif arm == "reader_trained_E_only":
+            controller = "trained_reader_frozen_comparison"
+        elif arm == "full_eligible_context":
+            controller = "untouched_original_backbone"
         if arm in {"source_free_P_only", "no_update"}:
             path.clear_for_p_only()
         wrong = None
@@ -1266,8 +1420,23 @@ def build_arm_views(protocol: Protocol, fit: FitState,
             controller_source=controller,
             evidence_source=("source_free" if arm in {"source_free_P_only", "no_update"}
                              else "shuffled" if arm == "shuffled_memory" else "eligible"),
-            wrong_p_transform=wrong)
+            wrong_p_transform=wrong,
+            port_state=port_state, untouched_baseline=untouched_baseline,
+            frozen_trained_reader=frozen_trained_reader, reader_role=reader_role,
+            tiered_store=tiered)
     return views
+
+
+def _readout_for_view(view: ArmView, case: Mapping[str, Any]) -> ScopedMemoryReadout | None:
+    if view.inapplicable:
+        return None
+    key = str(case.get("case_id") or case.get("request_id"))
+    if key not in view.readout_results:
+        _require(view.tiered_store is not None, "tiered_readout",
+                 "evidence-bearing arm has no authoritative tiered store")
+        view.readout_results[key] = _tiered_readout(
+            view.tiered_store, str(case["question"]), int(case.get("query_time", 10)))
+    return view.readout_results[key]
 
 
 def _procedure_hint(procedure: Any) -> str:
@@ -1279,6 +1448,7 @@ def _procedure_hint(procedure: Any) -> str:
 
 def _prompt_for(view: ArmView, case: Mapping[str, Any], dataset: PreparedDataset) -> tuple[str, dict[str, Any]]:
     question = str(case["question"])
+    readout = None if view.mode == "P" else _readout_for_view(view, case)
     context = ""
     information: dict[str, Any] = {
         "source_text_included": False, "procedure_hint": None,
@@ -1287,16 +1457,16 @@ def _prompt_for(view: ArmView, case: Mapping[str, Any], dataset: PreparedDataset
         "wrong_p_transform": view.wrong_p_transform,
     }
     if view.arm_id == "full_eligible_context":
-        records = [record for record in view.path.experiment.evidence.active
-                   if record.valid_from <= int(case["query_time"])
-                   and record.available_at <= int(case["query_time"])
-                   and (record.valid_until is None or int(case["query_time"]) <= record.valid_until)]
-        records.sort(key=lambda record: (record.available_at, record.source_epoch, record.record_id))
-        context = "\n".join(str(view.path.texts[record.record_id].canonical_text)
-                            for record in records if record.record_id in view.path.texts)
+        _require(readout is not None, "tiered_readout",
+                 "full eligible context requires authoritative scoped readout")
+        context = "\n".join(text for text in readout.texts if text)
         information["source_text_included"] = bool(context)
         information["eligible_source_text_sha256"] = (
             hashlib.sha256(context.encode()).hexdigest() if context else None)
+        information["tiered_readout_selected_record_ids"] = list(readout.record_ids)
+        information["canonical_text_reference"] = True
+        information["fallback_mode"] = readout.fallback_mode
+        information["synthetic_value_controls"] = True
     elif view.oracle:
         procedure_id = str(case.get("procedure_id"))
         if procedure_id in view.path.procedures:
@@ -1320,36 +1490,65 @@ def _prepare_query(view: ArmView, backend: Backend, prompt: str, case: Mapping[s
                    ledger: WorkLedger):
     ids, mask = backend.encode_prompt(prompt, ledger.context_tokens)
     path = view.path
+    _require(view.port_state is not None, "port_state", "arm reader state is missing")
+    _restore_port_output(path.adapter, view.port_state)
     path.experiment.invalidate(reason="v2_no_cache_reuse")
     query_time = int(case.get("query_time", 10))
     times = tuple(query_time for _ in range(ids.shape[1]))
-    if view.mode == "P":
-        arm = "p_only"
-    elif view.mode == "E_plus_P":
-        arm = "e_plus_p"
-    elif view.arm_id == "selective_exact_and_procedure":
-        arm = "selected_exact"
-    elif view.inapplicable:
-        arm = "absent_memory"
+    readout = (None if view.mode == "P" or
+               (view.untouched_baseline and view.tiered_store is None)
+               else _readout_for_view(view, case))
+    if readout is not None and not view.untouched_baseline:
+        _restore_readout_records(path, readout)
+    selected_ids = () if readout is None else readout.record_ids
+    if view.untouched_baseline:
+        query = path.prepare_query(
+            str(case["question"]), ids, mask, token_available_at=times,
+            query_time=query_time, memory_source="E", enabled_branches=(),
+            host_eligible_record_ids=(), semantic_top_k=1,
+            selected_record_ids=())
     else:
-        arm = "full_eligible"
-    target = None
-    if arm == "selected_exact":
-        support = [str(value) for value in case.get("support_record_ids", ())]
-        target = support[0] if support else None
-    query = prepare_arm_query(
-        path, arm=arm, question=str(case["question"]), input_ids=ids, attention_mask=mask,
-        target_record_id=target, query_time=query_time, token_available_at=times)
-    ledger.query_sensing(int(ids.shape[1]))
+        if view.mode == "P":
+            arm = "p_only"
+        elif view.mode == "E_plus_P":
+            arm = "e_plus_p"
+        elif view.arm_id == "selective_exact_and_procedure":
+            arm = "selected_exact"
+        elif view.inapplicable:
+            arm = "absent_memory"
+        else:
+            arm = "full_eligible"
+        target = None
+        if arm == "selected_exact":
+            support = [str(value) for value in case.get("support_record_ids", ())]
+            target = support[0] if support else None
+            selected_ids = (target,)
+        query = prepare_arm_query(
+            path, arm=arm, question=str(case["question"]), input_ids=ids,
+            attention_mask=mask, target_record_id=target, query_time=query_time,
+            token_available_at=times, selected_record_ids=selected_ids)
+    if readout is not None:
+        _charge_readout(ledger, readout)
+        ledger.query_sensing(int(ids.shape[1]), cache_hits=readout.metrics.cache_hits,
+                             cache_misses=readout.metrics.cache_misses)
+    else:
+        ledger.query_sensing(int(ids.shape[1]))
     ledger.retrieval()
     details = {"query_id": query.query_id, "memory_source": query.memory_source,
+               "tiered_readout": None if readout is None else readout.document(),
+               "readout_source": "authoritative_tiered_store",
                "selected_record_ids": list(query.selected_record_ids),
                "eligible_record_ids": list(query.eligible_record_ids),
                "semantic_selection": query.semantic_selection,
                "evidence_revision": query.evidence_revision,
                "plastic_revision": query.plastic_revision,
                "context_charges": dict(query.context.charges),
-               "source_prompt_removed": view.source_prompt_removed}
+               "source_prompt_removed": view.source_prompt_removed,
+               "enabled_spine_branches": list(query.context.enabled_branches or ()),
+               "untouched_baseline": view.untouched_baseline,
+               "frozen_trained_reader": view.frozen_trained_reader,
+               "reader_role": view.reader_role,
+    }
     return query, details
 
 
@@ -1385,6 +1584,11 @@ def _learning_metrics(rows: Sequence[Mapping[str, Any]], fit_receipt: Mapping[st
                                     or "new_procedure_instances" in row["streams"])
     retention_trained = accuracy("E_plus_P", lambda row: row["older_rule_retention"])
     retention_exact = accuracy("selective_exact_and_procedure", lambda row: row["older_rule_retention"])
+    new_transfer_reset = accuracy("reset_P", lambda row: "new_information" in row["streams"]
+                                  or "new_procedure_instances" in row["streams"])
+    retention_reset = accuracy("reset_P", lambda row: row["older_rule_retention"])
+    def delta(left, right):
+        return None if left is None or right is None else left - right
     return {
         "by_arm": by_arm,
         "full_context_competence": by_arm["full_eligible_context"]["accuracy"],
@@ -1392,6 +1596,38 @@ def _learning_metrics(rows: Sequence[Mapping[str, Any]], fit_receipt: Mapping[st
         "new_skill_transfer_no_update": nonlearning_transfer,
         "new_skill_absolute_delta": (None if new_transfer is None or nonlearning_transfer is None
                                      else new_transfer - nonlearning_transfer),
+        "new_skill_transfer_reset_P": new_transfer_reset,
+        "P_learning_new_skill_delta": delta(new_transfer, new_transfer_reset),
+        "reader_learning": {
+            "baseline_arm": "spine_E_only", "comparison_arm": "reader_trained_E_only",
+            "accuracy_delta": delta(by_arm["reader_trained_E_only"]["accuracy"],
+                                    by_arm["spine_E_only"]["accuracy"]),
+            "comparison": "same E access; trained port reader versus pre-reader",
+        },
+        "P_learning": {
+            "source_free_delta": delta(by_arm["source_free_P_only"]["accuracy"],
+                                       by_arm["no_update"]["accuracy"]),
+            "with_evidence_delta": delta(by_arm["E_plus_P"]["accuracy"],
+                                         by_arm["reset_P"]["accuracy"]),
+            "comparison": "same frozen trained reader; learned P versus reset/no-update P",
+        },
+        "retrieval_benefit": {
+            "accuracy_delta": delta(by_arm["E_plus_P"]["accuracy"],
+                                    by_arm["source_free_P_only"]["accuracy"]),
+            "comparison": "same trained reader and P; eligible evidence added",
+        },
+        "older_rule_retention_reset_P": retention_reset,
+        "P_learning_retention_drop": delta(retention_reset, retention_trained),
+        "matched_replay": {
+            "accuracy": by_arm["matched_replay"]["accuracy"],
+            "replay_training": False,
+            "label": "replay_compute_without_new_update",
+        },
+        "control_semantics": {
+            "untouched_baseline": "full_eligible_context",
+            "frozen_trained_reader_comparisons": ["reader_trained_E_only", "no_update", "reset_P"],
+            "new_skill_absolute_delta_is_not_a_causal_P_claim": True,
+        },
         "older_rule_retention_E_plus_P": retention_trained,
         "older_rule_retention_exact_baseline": retention_exact,
         "older_rule_retention_drop": (None if retention_trained is None or retention_exact is None
@@ -1408,15 +1644,14 @@ def run_development(protocol: Protocol, dataset: PreparedDataset, backend: Backe
                     output: Path, ledger: WorkLedger, meter: publication.LiveByteMeter,
                     fit: FitState) -> dict[str, Any]:
     dataset.open_development(fit.receipt)
-    views = build_arm_views(protocol, fit, dataset)
+    tiered = _open_tiered(protocol, output)
+    views = build_arm_views(protocol, fit, dataset, tiered=tiered)
     development_dir = output / "development"
     development_dir.mkdir(parents=True, exist_ok=True)
-    tiered = _open_tiered(protocol, output)
     tiered_admission = _tiered_admit_rows(
         tiered, [row for row in dataset.observations() if row.get("role") == "development"])
     _tiered_sync_procedures(tiered, dataset.procedures())
     tiered_state = _tiered_summary(tiered)
-    tiered.close()
     _write_json(output, "development/tiered_receipts.json", {
         "admission": tiered_admission, "state": tiered_state,
         "storage_outside_neural_boundaries": True}, meter=meter)
@@ -1454,7 +1689,10 @@ def run_development(protocol: Protocol, dataset: PreparedDataset, backend: Backe
     parity_rows = []
     null_view = _clone_path(protocol, fit.nonlearning_path)
     null_view.clear_for_p_only()
-    null_view = ArmView("parity_null", null_view, "none", True, controller_source="pre_teaching")
+    null_view = ArmView("parity_null", null_view, "none", True,
+                        controller_source="untouched_original_backbone",
+                        port_state=fit.pre_port_state, untouched_baseline=True,
+                        reader_role="untouched_original_backbone")
     trained_view = views["source_free_P_only"]
     for request in dataset.parity_requests():
         view = null_view if request["memory_source"] == "none" else trained_view
@@ -1472,6 +1710,7 @@ def run_development(protocol: Protocol, dataset: PreparedDataset, backend: Backe
         "protocol_sha256": protocol.sha256, "prepared_manifest_sha256": dataset.manifest_sha256,
         "backend": backend.label, "native_execution": bool(backend.native_admissible),
         "tiered_state": tiered_state, "tiered_receipts": "development/tiered_receipts.json",
+        "readout_cache": readout_cache_state(tiered),
         "arms": list(ARMS), "development_cases_per_arm": 12,
         "development_cases_total": len(rows), "parity_requests": len(parity_rows),
         "learning_evidence": _learning_metrics(rows, fit.receipt, backend),
@@ -1481,6 +1720,10 @@ def run_development(protocol: Protocol, dataset: PreparedDataset, backend: Backe
         "parity_sha256": _sha256(development_dir / "parity.jsonl"), "written_at_utc": _utc(),
     }
     _write_json(output, "development/development_report.json", report, meter=meter)
+    _write_json(output, "development/readout_receipts.json", {
+        "cache": readout_cache_state(tiered),
+        "storage_outside_neural_boundaries": True}, meter=meter)
+    tiered.close()
     return report
 
 
@@ -1522,7 +1765,9 @@ def run_restart(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
                 paired = row
                 break
     _require(paired is not None, "restart_parity", "development parity output is required before restart")
-    view = ArmView("restart_p_only", path, "P", True, controller_source="trained_restored")
+    view = ArmView("restart_p_only", path, "P", True,
+                   controller_source="trained_restored",
+                   port_state=_port_output_snapshot(path), reader_role="trained_restored")
     prompt = f"Question: {request['question']}\nAnswer:"
     ledger.charge("restart_parity_requests")
     raw, details, query = _generate(view, backend, prompt, request, ledger)

@@ -89,6 +89,7 @@ __all__ = [
     "CLUSTER_MANIFEST_FORMAT",
     "EXPERT_MANIFEST_FORMAT",
     "CHECKPOINT_MANIFEST_FORMAT",
+    "AUTHORITY_FORMAT",
     "HOT_CEILING_BYTES",
     "WARM_CEILING_BYTES",
     "COLD_CEILING_BYTES",
@@ -163,6 +164,16 @@ SCHEMA_VERSION = "1"
 CLUSTER_MANIFEST_FORMAT = "replica.tiered_memory.cluster_generation.v1"
 EXPERT_MANIFEST_FORMAT = "replica.tiered_memory.expert_publication.v1"
 CHECKPOINT_MANIFEST_FORMAT = "replica.tiered_memory.checkpoint_generation.v1"
+AUTHORITY_FORMAT = "replica.tiered_memory.authority.v1"
+AUTHORITY_CLASSES = (
+    "procedures",
+    "procedure_invalidations",
+    "identity",
+    "phi",
+    "capabilities",
+    "workspaces",
+    "experts",
+)
 EXPERIMENT_LABEL = "engineering_tiered_memory_unsupported_native"
 
 HOT_CEILING_BYTES = 2 * 1024**3          # 2 GiB
@@ -427,6 +438,22 @@ def _parse_int(value: object, name: str) -> int:
     if type(value) is not int or value < 0:
         raise ValueError(f"{name} must be a nonnegative integer")
     return value
+
+
+_AUTHORITY_SAFE_COMPONENT = re.compile(r"[A-Za-z0-9_-][A-Za-z0-9._-]{0,127}")
+
+
+def _authority_component(value: str) -> str:
+    """Return a filesystem-safe and collision-free path component.
+
+    Readable identifiers are kept verbatim; anything else (including ``..``
+    and values containing path separators) is replaced by a digest so durable
+    authority files can never escape their class directory.
+    """
+    if (isinstance(value, str) and value not in (".", "..")
+            and _AUTHORITY_SAFE_COMPONENT.fullmatch(value)):
+        return value
+    return "x-" + _sha256_text(str(value))[:40]
 
 
 # ---------------------------------------------------------------------------
@@ -1529,6 +1556,9 @@ class RecoveryReport:
     ignored_temporaries: tuple[str, ...]
     accounting_rebuilt: bool
     notes: tuple[str, ...]
+    authority_records_recovered: int = 0
+    incomplete_authority: tuple[str, ...] = ()
+    journal_events_recovered: int = 0
 
     def document(self) -> dict:
         return {
@@ -1542,6 +1572,9 @@ class RecoveryReport:
             "ignored_temporaries": self.ignored_temporaries,
             "accounting_rebuilt": self.accounting_rebuilt,
             "notes": self.notes,
+            "authority_records_recovered": self.authority_records_recovered,
+            "incomplete_authority": self.incomplete_authority,
+            "journal_events_recovered": self.journal_events_recovered,
         }
 
 
@@ -2120,6 +2153,7 @@ class TieredMemoryStore:
             "manifests_clusters": self.root / "manifests/clusters",
             "manifests_experts": self.root / "manifests/experts",
             "manifests_checkpoints": self.root / "manifests/checkpoints",
+            "authority": self.root / "authority",
             "journal": self.root / "journal",
             "artifacts": self.root / "artifacts/sha256",
             "staging": self.root / "staging",
@@ -2151,10 +2185,22 @@ class TieredMemoryStore:
         if (not (existed and had_meta)) and rebuild_if_missing:
             manifests_exist = any(self._directories[name].rglob("*.json") for name in (
                 "manifests_clusters", "manifests_experts", "manifests_checkpoints"))
-            if manifests_exist or not existed:
+            authority_exist = any(
+                self._directories["authority"].rglob("*.json"))
+            rebuild = bool(manifests_exist or authority_exist)
+            if manifests_exist or authority_exist or not existed:
                 self._recovery = self._recover_locked(
-                    rebuild_index=bool(manifests_exist),
+                    rebuild_index=rebuild,
                     remove_temporaries=True)
+        elif existed and had_meta:
+            # A crash may leave a durable authority record newer than the
+            # committed index.  Replay authority rather than silently keeping
+            # the older index.
+            committed = int(self._meta("authority_sequence", "0"))
+            durable = self._durable_authority_sequence()
+            if durable > committed:
+                self._recovery = self._recover_locked(
+                    rebuild_index=True, remove_temporaries=False)
 
     # -- context / connection helpers -------------------------------------
 
@@ -2401,6 +2447,41 @@ class TieredMemoryStore:
                 raise CapacityExceeded("artifacts", category, artifact_used,
                                        self.ceilings.artifact_budget_bytes, additional)
 
+    def _assert_cold_within_limit_locked(self, category: str,
+                                         extra: int = 0) -> None:
+        """Reject a transaction whose *real* post-write bytes exceed the cap.
+
+        ``_ensure_capacity_locked`` runs before a publication writes SQLite and
+        WAL pages.  The transaction's own index growth is not visible until it
+        exists, so a large publication can commit just over the cold ceiling.
+        This check measures the current transaction and raises, which rolls the
+        transaction back; callers must then remove any non-transactional files.
+        """
+        self._sync_database_usage_locked()
+        used = self._usage_total_locked("cold")
+        limit = self.ceilings.cold_bytes
+        if used + extra > limit:
+            raise CapacityExceeded("cold", category, used, limit, extra)
+
+    def _reclaim_transient_index_bytes(self) -> None:
+        """Fold and truncate the WAL outside a write transaction.
+
+        SQLite retains every page a transaction touched in the WAL until a
+        checkpoint.  Counting that retained copy as live bytes can leave a
+        committed publication just over the cold cap, or make a rejected
+        generation look over budget after its transaction rolled back.  A
+        TRUNCATE checkpoint reclaims only this transient duplicate; retained
+        generations and payloads are untouched.
+        """
+        if self._closed or self._txn_depth:
+            return
+        try:
+            self._connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        except sqlite3.Error:
+            return
+        with self._transaction():
+            self._sync_database_usage_locked()
+
     def _charge(self, tier: str, category: str, byte_count: int,
                 component_id: str, detail: str = "") -> None:
         if byte_count < 0:
@@ -2457,6 +2538,7 @@ class TieredMemoryStore:
         del tier, category
 
     def usage(self) -> dict:
+        self._reclaim_transient_index_bytes()
         with self._transaction():
             self._sync_database_usage_locked()
         tiers: dict[str, dict] = {}
@@ -2565,6 +2647,237 @@ class TieredMemoryStore:
         if actual != digest:
             raise CorruptState(f"manifest digest mismatch: {path}")
         return manifest, actual
+
+    # -- durable authority records -----------------------------------------
+
+    def _durable_authority_sequence(self) -> int:
+        maximum = 0
+        root = self._directories["authority"]
+        if not root.is_dir():
+            return 0
+        for path in root.rglob("*.json"):
+            try:
+                record, _ = self._read_authority(path)
+                maximum = max(maximum, int(record.get("authority_sequence", 0)))
+            except (CorruptState, KeyError, TypeError, ValueError):
+                continue
+        return maximum
+
+    def _read_authority(self, path: Path) -> tuple[dict, str]:
+        try:
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise CorruptState(f"unreadable authority record: {path}") from error
+        if not isinstance(document, dict) or "authority" not in document:
+            raise CorruptState(f"authority envelope missing: {path}")
+        record = document.get("authority")
+        digest = document.get("authority_sha256")
+        if not isinstance(record, dict) or not isinstance(digest, str):
+            raise CorruptState(f"invalid authority envelope: {path}")
+        if record.get("format") != AUTHORITY_FORMAT:
+            raise CorruptState(f"unexpected authority format: {path}")
+        actual = _sha256_json(record)
+        if actual != digest:
+            raise CorruptState(f"authority digest mismatch: {path}")
+        return record, actual
+
+    def _authority_write(self, parts: Sequence[str],
+                         record: Mapping[str, object], *,
+                         overwrite: bool = False) -> tuple[str, str]:
+        """Publish one immutable durable authority record.
+
+        The record is fsynced before the index references it.  Capacity is
+        checked first from the exact new byte count; if the index commit fails
+        a later recovery replays the record rather than losing it.
+        """
+        document = dict(record)
+        document.setdefault("format", AUTHORITY_FORMAT)
+        if document.get("format") != AUTHORITY_FORMAT:
+            raise SchemaError("authority records must use AUTHORITY_FORMAT")
+        document.setdefault("store_format", FORMAT)
+        document.setdefault("engineering_evidence", True)
+        document.setdefault("native_capability", False)
+        document.setdefault("created_at_ns", _now_ns())
+        document["authority_sequence"] = int(
+            self._meta("authority_sequence", "0")) + 1
+        digest = _sha256_json(document)
+        envelope = (_canonical({
+            "authority": document,
+            "authority_sha256": digest,
+        }) + "\n").encode("utf-8")
+        relative = "/".join(("authority",) + tuple(parts))
+        path = self.root / relative
+        component = "authority:" + relative
+        with self._transaction():
+            self._sync_database_usage_locked()
+            row = self._connection.execute(
+                "SELECT bytes FROM tier_usage WHERE component_id=?",
+                (component,)).fetchone()
+            old_bytes = 0 if row is None else int(row["bytes"])
+            extra = len(envelope) - old_bytes
+            if extra > 0:
+                self._ensure_capacity_locked("cold", "authority", extra)
+        original = (path.read_bytes()
+                    if overwrite and path.is_file() else None)
+        _atomic_write(path, envelope, overwrite=overwrite)
+        try:
+            with self._transaction():
+                self._set_component_locked(
+                    component, "cold", "authority", len(envelope),
+                    "durable authority record")
+                self._set_meta(
+                    "authority_sequence", str(document["authority_sequence"]))
+                # The record's own index/WAL pages are real bytes.  Refuse to
+                # commit an authority record that would leave the cold tier
+                # over its ceiling, and restore the previous snapshot.
+                self._assert_cold_within_limit_locked("authority")
+        except CapacityExceeded:
+            if original is not None:
+                _atomic_write(path, original, overwrite=True)
+            else:
+                try:
+                    path.unlink()
+                except FileNotFoundError:
+                    pass
+                except OSError:
+                    pass
+            raise
+        return relative, digest
+
+    def _expert_publication_record(self, expert_id: str,
+                                   generation: int) -> dict | None:
+        if generation <= 0:
+            return None
+        row = self._connection.execute(
+            "SELECT * FROM expert_publications WHERE expert_id=? AND generation=?",
+            (expert_id, generation)).fetchone()
+        if row is None:
+            return None
+        return {
+            "generation": int(row["generation"]),
+            "manifest_path": row["manifest_path"],
+            "manifest_sha256": row["manifest_sha256"],
+            "weights": {
+                "path": row["weights_path"],
+                "sha256": row["weights_sha"],
+                "bytes": int(row["weights_bytes"]),
+            },
+            "moments": {
+                "path": row["moments_path"],
+                "sha256": row["moments_sha"],
+                "bytes": int(row["moments_bytes"]),
+            },
+            "clock": int(row["clock"]),
+        }
+
+    def _expert_hot_snapshot(self, row: sqlite3.Row) -> dict | None:
+        expert_id = row["expert_id"]
+        if not row["hot_weights_path"] or not row["hot_moments_path"]:
+            return None
+        weights_path = self.root / row["hot_weights_path"]
+        moments_path = self.root / row["hot_moments_path"]
+        try:
+            weights_bytes = weights_path.stat().st_size
+            moments_bytes = moments_path.stat().st_size
+        except OSError:
+            return None
+        weights_sha = self._meta(f"expert_hot_weights_sha:{expert_id}") or (
+            _sha256_bytes(weights_path.read_bytes()))
+        moments_sha = self._meta(f"expert_hot_moments_sha:{expert_id}") or (
+            _sha256_bytes(moments_path.read_bytes()))
+        return {
+            "weights": {
+                "path": row["hot_weights_path"],
+                "sha256": weights_sha,
+                "bytes": weights_bytes,
+            },
+            "moments": {
+                "path": row["hot_moments_path"],
+                "sha256": moments_sha,
+                "bytes": moments_bytes,
+            },
+            "clock": int(self._meta(f"expert_clock:{expert_id}", "0")),
+        }
+
+    def _write_expert_authority(self, row: sqlite3.Row, *, kind: str,
+                                publication: Mapping[str, object] | None = None,
+                                hot: Mapping[str, object] | None = None,
+                                clock: int | None = None,
+                                lineage: Sequence[str] | None = None,
+                                encoder_id: str | None = None,
+                                quarantine_status: str | None = None,
+                                quarantine_reason: str | None = None,
+                                location: str | None = None,
+                                dirty: bool | None = None,
+                                health: str | None = None,
+                                reason: str | None = None) -> tuple[str, str]:
+        """Append one coherent expert-generation authority record.
+
+        Payload references, clock, lineage, encoder identity and quarantine
+        state are captured together so recovery can never combine newer
+        weights with an older metadata row.
+        """
+        expert_id = row["expert_id"]
+        now = _now_ns()
+        effective_location = row["location"] if location is None else location
+        if lineage is None:
+            lineage_value = tuple(json.loads(row["lineage_json"]))
+        else:
+            lineage_value = tuple(lineage)
+        effective_encoder = row["encoder_id"] if encoder_id is None else encoder_id
+        if quarantine_status is None:
+            quarantine_status = row["quarantine_status"]
+        if quarantine_reason is None:
+            quarantine_reason = row["quarantine_reason"]
+        if publication is None:
+            publication = self._expert_publication_record(
+                expert_id, int(row["publication_generation"]))
+        if hot is None and effective_location == "hot" and (
+                row["dirty"] if dirty is None else dirty):
+            hot = self._expert_hot_snapshot(row)
+        if clock is None:
+            if hot is not None:
+                clock = int(hot.get("clock", 0))
+            elif publication is not None:
+                clock = int(publication.get("clock", 0))
+            else:
+                clock = int(self._meta(f"expert_clock:{expert_id}", "0"))
+        record = {
+            "authority_class": "experts",
+            "kind": kind,
+            "expert_id": expert_id,
+            "profile_id": row["profile_id"],
+            "parameter_count": int(row["parameter_count"]),
+            "location": effective_location,
+            "dirty": bool(row["dirty"] if dirty is None else dirty),
+            "health": row["health"] if health is None else health,
+            "quarantine_status": quarantine_status,
+            "quarantine_reason": quarantine_reason,
+            "publication_generation": int(row["publication_generation"]),
+            "publication": None if publication is None else dict(publication),
+            "hot": None if hot is None else dict(hot),
+            "clock": int(clock),
+            "lineage": list(lineage_value),
+            "lineage_digest": _sha256_json(list(lineage_value)),
+            "encoder_id": effective_encoder,
+            "optimizer": row["optimizer"] or NATIVE_OPTIMIZER,
+            "ablation": row["ablation"],
+            "reason": reason,
+            "updated_at_ns": now,
+            "exact_unlearning_claimed": False,
+        }
+        component = _authority_component(expert_id)
+        directory = self.root / "authority/experts" / component
+        sequence = int(self._meta(f"expert_authority_seq:{expert_id}", "0"))
+        if directory.is_dir():
+            for child in directory.glob("*.json"):
+                if child.stem.isdigit():
+                    sequence = max(sequence, int(child.stem))
+        sequence += 1
+        relative, digest = self._authority_write(
+            ("experts", component, f"{sequence:08d}.json"), record)
+        self._set_meta(f"expert_authority_seq:{expert_id}", str(sequence))
+        return relative, digest
 
     def _record_manifest_entry(self, row: sqlite3.Row) -> dict:
         key = self._key_row(row["record_id"])
@@ -3687,11 +4000,24 @@ class TieredMemoryStore:
         for row in list(self._connection.execute("SELECT * FROM expert_shards")):
             lineage = tuple(json.loads(row["lineage_json"]))
             if record_id in lineage or record_hash in lineage:
+                now = _now_ns()
+                reason = f"dependent evidence {record_id} was corrected or revoked"
                 self._connection.execute(
                     "UPDATE expert_shards SET quarantine_status='quarantined', "
                     "quarantine_reason=?, updated_at_ns=? WHERE expert_id=?",
-                    (f"dependent evidence {record_id} was corrected or revoked",
-                     _now_ns(), row["expert_id"]))
+                    (reason, now, row["expert_id"]))
+                updated = self._connection.execute(
+                    "SELECT * FROM expert_shards WHERE expert_id=?",
+                    (row["expert_id"],)).fetchone()
+                self._write_expert_authority(
+                    updated, kind="quarantined", quarantine_status="quarantined",
+                    quarantine_reason=reason, reason=record_id)
+                self._record_event("expert_quarantined", row["expert_id"], {
+                    "record_id": record_id,
+                    "record_hash": record_hash,
+                    "reason": reason,
+                    "exact_unlearning_claimed": False,
+                }, at_ns=now)
                 quarantined.append(row["expert_id"])
         return tuple(sorted(quarantined))
 
@@ -3702,10 +4028,36 @@ class TieredMemoryStore:
                 "SELECT skill_id, version, evidence_json FROM procedures")):
             evidence = json.loads(row["evidence_json"])
             if record_id in tuple(evidence.get("record_ids", ())):
-                self._connection.execute(
+                now = _now_ns()
+                cursor = self._connection.execute(
                     "INSERT OR IGNORE INTO procedure_invalidations("
                     "skill_id, version, record_id, reason, at_ns) VALUES (?, ?, ?, ?, ?)",
-                    (row["skill_id"], int(row["version"]), record_id, reason, _now_ns()))
+                    (row["skill_id"], int(row["version"]), record_id, reason, now))
+                relative = "/".join((
+                    "authority", "procedure_invalidations",
+                    _authority_component(row["skill_id"]),
+                    f"{int(row['version']):08d}",
+                    _authority_component(record_id) + ".json"))
+                if not (self.root / relative).exists():
+                    self._authority_write((
+                        "procedure_invalidations",
+                        _authority_component(row["skill_id"]),
+                        f"{int(row['version']):08d}",
+                        _authority_component(record_id) + ".json"), {
+                            "authority_class": "procedure_invalidations",
+                            "kind": "procedure_invalidated",
+                            "skill_id": row["skill_id"],
+                            "version": int(row["version"]),
+                            "record_id": record_id,
+                            "reason": reason,
+                            "at_ns": now,
+                            "exact_unlearning_claimed": False,
+                        })
+                if cursor.rowcount:
+                    self._record_event(
+                        "procedure_invalidated", f"{row['skill_id']}@{row['version']}", {
+                            "record_id": record_id, "reason": reason,
+                        }, at_ns=now)
                 invalidated.append((row["skill_id"], int(row["version"])))
         return tuple(invalidated)
 
@@ -4112,6 +4464,27 @@ class TieredMemoryStore:
                      "record_ids": list(evidence_record_ids),
                      "verification": outcome,
                  }), verified_by, now))
+            self._authority_write(
+                ("procedures", _authority_component(skill_id),
+                 f"{version:08d}.json"), {
+                    "authority_class": "procedures",
+                    "kind": "procedure_recorded",
+                    "skill_id": skill_id,
+                    "version": version,
+                    "title": title,
+                    "applicability": dict(applicability),
+                    "prerequisites": list(prerequisites),
+                    "steps": list(steps),
+                    "outcome": outcome,
+                    "error": error,
+                    "evidence": {
+                        "record_ids": list(evidence_record_ids),
+                        "verification": outcome,
+                    },
+                    "verified_by": verified_by,
+                    "created_at_ns": now,
+                    "exact_unlearning_claimed": False,
+                })
             self._record_event("procedure_recorded", f"{skill_id}@{version}", {
                 "outcome": outcome, "verified_by": verified_by,
             }, at_ns=now)
@@ -4191,6 +4564,22 @@ class TieredMemoryStore:
                     "created_at_ns) VALUES (?, ?, 'current', ?, ?, ?, ?, 1, ?, ?)",
                     (identity_id, version, relative, digest, len(payload), authority,
                      supersedes, now))
+                self._authority_write(
+                    ("identity", _authority_component(identity_id),
+                     f"{version:08d}.json"), {
+                        "authority_class": "identity",
+                        "kind": "identity_approved",
+                        "identity_id": identity_id,
+                        "version": version,
+                        "core_path": relative,
+                        "core_sha": digest,
+                        "core_bytes": len(payload),
+                        "authority": authority,
+                        "approved": True,
+                        "supersedes": supersedes,
+                        "created_at_ns": now,
+                        "exact_unlearning_claimed": False,
+                    })
                 self._record_event("identity_approved", identity_id, {
                     "version": version, "bytes": len(payload), "authority": authority,
                 }, at_ns=now)
@@ -4253,6 +4642,19 @@ class TieredMemoryStore:
                 "INSERT INTO phi_releases(codec_id, version, producer_version, "
                 "artifact_sha, status, created_at_ns) VALUES (?, ?, ?, ?, ?, ?)",
                 (codec_id, version, producer_version, artifact_sha256, status, now))
+            self._authority_write(
+                ("phi", _authority_component(codec_id), f"{version:08d}.json"), {
+                    "authority_class": "phi",
+                    "kind": "phi_release_registered",
+                    "codec_id": codec_id,
+                    "version": version,
+                    "producer_version": producer_version,
+                    "artifact_sha256": artifact_sha256,
+                    "status": status,
+                    "created_at_ns": now,
+                    "engineering_only": True,
+                    "exact_unlearning_claimed": False,
+                })
             self._record_event("phi_release_registered", f"{codec_id}@{version}", {
                 "producer_version": producer_version, "status": status,
             }, at_ns=now)
@@ -4298,6 +4700,22 @@ class TieredMemoryStore:
                 "created_at_ns) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (capability_id, model_id, mode, task_family, _canonical(dict(budget)),
                  measured_value, _canonical(dict(uncertainty)), int(measured), now))
+            self._authority_write(
+                ("capabilities", _authority_component(capability_id) + ".json"), {
+                    "authority_class": "capabilities",
+                    "kind": "capability_recorded",
+                    "capability_id": capability_id,
+                    "model_id": model_id,
+                    "mode": mode,
+                    "task_family": task_family,
+                    "budget": dict(budget),
+                    "measured_value": measured_value,
+                    "uncertainty": dict(uncertainty),
+                    "measured": bool(measured),
+                    "created_at_ns": now,
+                    "native_capability": False,
+                    "exact_unlearning_claimed": False,
+                })
             self._record_event("capability_recorded", capability_id, {
                 "measured": measured, "task_family": task_family,
             }, at_ns=now)
@@ -4370,6 +4788,29 @@ class TieredMemoryStore:
                     "sha=excluded.sha, bytes=excluded.bytes, "
                     "resumable=excluded.resumable, created_at_ns=excluded.created_at_ns",
                     (task_id, relative, digest, len(data), int(resumable), _now_ns()))
+                authority_relative = "/".join((
+                    "authority", "workspaces",
+                    _authority_component(task_id) + ".json"))
+                if resumable:
+                    self._authority_write(
+                        ("workspaces", _authority_component(task_id) + ".json"), {
+                            "authority_class": "workspaces",
+                            "kind": "workspace_snapshot",
+                            "task_id": task_id,
+                            "path": relative,
+                            "sha256": digest,
+                            "bytes": len(data),
+                            "resumable": True,
+                            "tier": tier,
+                            "exact_unlearning_claimed": False,
+                        }, overwrite=True)
+                else:
+                    authority_path = self.root / authority_relative
+                    try:
+                        authority_path.unlink()
+                    except FileNotFoundError:
+                        pass
+                    self._release("authority:" + authority_relative)
                 self._record_event("workspace_snapshot", task_id, {
                     "bytes": len(data), "resumable": resumable, "tier": tier,
                 })
@@ -4396,6 +4837,14 @@ class TieredMemoryStore:
             except FileNotFoundError:
                 pass
             self._release(f"workspace:{task_id}")
+            authority_relative = "/".join((
+                "authority", "workspaces",
+                _authority_component(task_id) + ".json"))
+            try:
+                (self.root / authority_relative).unlink()
+            except FileNotFoundError:
+                pass
+            self._release("authority:" + authority_relative)
             self._connection.execute(
                 "DELETE FROM workspace_snapshots WHERE task_id=?", (task_id,))
             self._record_event("workspace_discarded", task_id, {})
@@ -4479,6 +4928,12 @@ class TieredMemoryStore:
                 (expert_id, profile.profile_id, profile.full_parameters, encoder_id,
                  _canonical(list(values)), _sha256_json(list(values)),
                  NATIVE_OPTIMIZER, self.ablation_label, now))
+            registered = self._connection.execute(
+                "SELECT * FROM expert_shards WHERE expert_id=?",
+                (expert_id,)).fetchone()
+            self._write_expert_authority(
+                registered, kind="registered", lineage=values,
+                encoder_id=encoder_id, clock=0)
             self._record_event("expert_registered", expert_id, {
                 "profile_id": profile.profile_id,
                 "parameter_count": profile.full_parameters,
@@ -4554,6 +5009,29 @@ class TieredMemoryStore:
                      total, encoder, _canonical(list(lineage_value)),
                      _sha256_json(list(lineage_value)), _now_ns(), expert_id))
                 self._set_meta(f"expert_clock:{expert_id}", str(clock))
+                self._set_meta(
+                    f"expert_hot_weights_sha:{expert_id}", _sha256_bytes(weights))
+                self._set_meta(
+                    f"expert_hot_moments_sha:{expert_id}", _sha256_bytes(moments))
+                updated = self._connection.execute(
+                    "SELECT * FROM expert_shards WHERE expert_id=?",
+                    (expert_id,)).fetchone()
+                self._write_expert_authority(
+                    updated, kind="dirty", clock=int(clock),
+                    lineage=lineage_value, encoder_id=encoder,
+                    hot={
+                        "weights": {
+                            "path": self._relative(hot_weight_path),
+                            "sha256": _sha256_bytes(weights),
+                            "bytes": len(weights),
+                        },
+                        "moments": {
+                            "path": self._relative(hot_moment_path),
+                            "sha256": _sha256_bytes(moments),
+                            "bytes": len(moments),
+                        },
+                        "clock": int(clock),
+                    })
                 self._record_event("expert_state_written", expert_id, {
                     "clock": clock, "bytes": total, "dirty": True,
                     "active_experts": len(self._active_expert_ids()),
@@ -4596,6 +5074,13 @@ class TieredMemoryStore:
             self._connection.execute(
                 "UPDATE expert_shards SET quarantine_status='none', quarantine_reason=NULL, "
                 "health='ok', updated_at_ns=? WHERE expert_id=?", (_now_ns(), expert_id))
+            updated = self._connection.execute(
+                "SELECT * FROM expert_shards WHERE expert_id=?",
+                (expert_id,)).fetchone()
+            self._write_expert_authority(
+                updated, kind="reset", quarantine_status="none",
+                quarantine_reason=None, clock=int(clock), lineage=tuple(lineage),
+                encoder_id=updated["encoder_id"], reason=reason)
             self._record_event("expert_authenticated_reset", expert_id, {
                 "authorization": authorization, "reason": reason,
                 "previous_quarantine": previous, "clock": int(clock),
@@ -4688,6 +5173,47 @@ class TieredMemoryStore:
                 _atomic_write(weight_path, weights)
                 _atomic_write(moment_path, moments)
                 _atomic_write(self.root / manifest_relative, envelope)
+                authority_row = dict(row)
+                authority_row.update({
+                    "publication_generation": generation,
+                    "dirty": 0,
+                    "published_weights_sha": weights_sha,
+                    "published_moments_sha": moments_sha,
+                    "published_clock": published_clock,
+                })
+                self._write_expert_authority(
+                    authority_row, kind="published",
+                    publication={
+                        "generation": generation,
+                        "manifest_path": manifest_relative,
+                        "manifest_sha256": digest,
+                        "weights": {
+                            "path": weight_relative,
+                            "sha256": weights_sha,
+                            "bytes": len(weights),
+                        },
+                        "moments": {
+                            "path": moment_relative,
+                            "sha256": moments_sha,
+                            "bytes": len(moments),
+                        },
+                        "clock": published_clock,
+                    },
+                    hot={
+                        "weights": {
+                            "path": row["hot_weights_path"],
+                            "sha256": weights_sha,
+                            "bytes": len(weights),
+                        },
+                        "moments": {
+                            "path": row["hot_moments_path"],
+                            "sha256": moments_sha,
+                            "bytes": len(moments),
+                        },
+                        "clock": published_clock,
+                    },
+                    clock=published_clock, lineage=lineage,
+                    encoder_id=row["encoder_id"])
                 self._connection.execute(
                     "INSERT INTO expert_publications(expert_id, generation, "
                     "manifest_path, manifest_sha256, weights_path, weights_sha, "
@@ -4765,6 +5291,11 @@ class TieredMemoryStore:
                 "UPDATE expert_shards SET location='cold', dirty=0, "
                 "hot_weights_path=NULL, hot_moments_path=NULL, hot_bytes=0, "
                 "updated_at_ns=? WHERE expert_id=?", (_now_ns(), expert_id))
+            evicted = self._connection.execute(
+                "SELECT * FROM expert_shards WHERE expert_id=?",
+                (expert_id,)).fetchone()
+            self._write_expert_authority(
+                evicted, kind="evicted", location="cold", dirty=False, hot=None)
             self._record_event("expert_evicted", expert_id, {
                 "location": "cold",
                 "publication_generation": int(self._connection.execute(
@@ -4841,8 +5372,10 @@ class TieredMemoryStore:
             ExpertState(
                 expert_id=expert_id, weights=weights, moments=moments,
                 clock=int(manifest.get("clock", publication["clock"])),
-                lineage=tuple(json.loads(row["lineage_json"])),
-                encoder_id=row["encoder_id"], generation=generation,
+                lineage=tuple(manifest.get("lineage",
+                                           json.loads(row["lineage_json"]))),
+                encoder_id=manifest.get("encoder_id", row["encoder_id"]),
+                generation=generation,
                 source="cold_publication", dirty=False,
                 quarantine_status=row["quarantine_status"],
                 weights_sha256=_sha256_bytes(weights),
@@ -4971,11 +5504,13 @@ class TieredMemoryStore:
         manifest_digest = _sha256_json(manifest)
         total = len(data) + len(envelope)
         component = f"checkpoint:{checkpoint_id}:{generation}"
+        written: list[tuple[str, str]] = []
         try:
             with self._transaction():
                 self._charge("cold", "checkpoint", total, component,
                              "retained checkpoint generation")
                 _atomic_write(self.root / payload_relative, data)
+                written.append((payload_relative, manifest_relative))
                 _atomic_write(self.root / manifest_relative, envelope)
                 self._connection.execute(
                     "INSERT INTO checkpoint_generations(checkpoint_id, generation, "
@@ -4983,13 +5518,25 @@ class TieredMemoryStore:
                     "manifest_sha, created_at_ns) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                     (checkpoint_id, generation, payload_relative, digest, len(data),
                      manifest_relative, manifest_digest, now))
+                # Include a small reserve for the journal event that follows.
+                self._assert_cold_within_limit_locked("checkpoint", 4096)
                 self._record_event("checkpoint_published", checkpoint_id, {
                     "generation": generation, "bytes": total,
                 }, at_ns=now)
         except CapacityExceeded as error:
+            for payload_path, manifest_path in written:
+                for relative in (payload_path, manifest_path):
+                    try:
+                        (self.root / relative).unlink()
+                    except FileNotFoundError:
+                        pass
+                    except OSError:
+                        pass
+            self._reclaim_transient_index_bytes()
             return _outcome("incomplete", "checkpoint_capacity",
                             used=error.used, limit=error.limit,
                             requested=error.requested)
+        self._reclaim_transient_index_bytes()
         return _outcome("ok", "checkpoint_published", generation=generation,
                         bytes=total, digest=manifest_digest)
 
@@ -5252,6 +5799,7 @@ class TieredMemoryStore:
             "warm": self.root / "storage/warm",
             "cold": self.root / "storage/cold",
             "manifests": self.root / "manifests",
+            "authority": self.root / "authority",
             "journal": self.root / "journal",
             "artifacts": self.root / "artifacts",
             "workspace": self.root / "workspace",
@@ -5342,32 +5890,69 @@ class TieredMemoryStore:
         corrupt_manifests: list[str] = []
         corrupt_artifacts: list[str] = []
         ignored: list[str] = []
+        incomplete_authority: set[str] = set()
         clusters_recovered: set[str] = set()
         generations_recovered = 0
         records_recovered = 0
         experts_recovered: set[str] = set()
+        authority_records_recovered = 0
+        journal_events_recovered = 0
+        chain_incomplete = False
         cluster_manifests: dict[str, list[tuple[int, Path, dict, str]]] = {}
         expert_manifests: dict[str, list[tuple[int, Path, dict, str]]] = {}
+        authority_records: dict[str, list[tuple[dict, str]]] = {}
         for path in sorted(self._directories["manifests_clusters"].rglob("*.json")):
+            relative = self._relative(path)
             try:
                 manifest, digest = self._read_manifest(path, CLUSTER_MANIFEST_FORMAT)
                 cluster_id = manifest["cluster_id"]
                 generation = int(manifest["generation"])
+                scope_document = manifest["scope"]
+                if (not isinstance(cluster_id, str)
+                        or not _CLUSTER_ID_RE.fullmatch(cluster_id)
+                        or generation < 1
+                        or not isinstance(scope_document, Mapping)
+                        or scope_document.get("scope_key") != manifest["scope_key"]
+                        or int(manifest["record_count"]) != len(
+                            manifest.get("records", ()))):
+                    raise CorruptState(
+                        "cluster manifest scope, identity or record count mismatch")
                 cluster_manifests.setdefault(cluster_id, []).append(
                     (generation, path, manifest, digest))
             except (CorruptState, KeyError, TypeError, ValueError) as error:
-                corrupt_manifests.append(self._relative(path))
+                corrupt_manifests.append(relative)
                 notes.append(f"manifest_preserved: {error}")
         for path in sorted(self._directories["manifests_experts"].rglob("*.json")):
+            relative = self._relative(path)
             try:
                 manifest, digest = self._read_manifest(path, EXPERT_MANIFEST_FORMAT)
                 expert_id = manifest["expert_id"]
                 generation = int(manifest["generation"])
+                if (not isinstance(expert_id, str) or not expert_id
+                        or generation < 1
+                        or not isinstance(manifest.get("lineage", ()), list)
+                        or not isinstance(manifest.get("encoder_id", ""), str)):
+                    raise CorruptState("expert manifest identity or metadata mismatch")
                 expert_manifests.setdefault(expert_id, []).append(
                     (generation, path, manifest, digest))
             except (CorruptState, KeyError, TypeError, ValueError) as error:
-                corrupt_manifests.append(self._relative(path))
+                corrupt_manifests.append(relative)
                 notes.append(f"expert_manifest_preserved: {error}")
+        for path in sorted(self._directories["authority"].rglob("*.json")):
+            relative = self._relative(path)
+            try:
+                record, digest = self._read_authority(path)
+                parts = relative.split("/")
+                declared = record.get("authority_class")
+                if len(parts) < 3 or declared != parts[1]:
+                    raise CorruptState(
+                        "authority class does not match its durable path")
+                record["_authority_path"] = relative
+                record["_authority_digest"] = digest
+                authority_records.setdefault(parts[1], []).append((record, relative))
+            except (CorruptState, KeyError, TypeError, ValueError) as error:
+                incomplete_authority.add(relative)
+                notes.append(f"authority_preserved: {error}")
         for pattern in (".tmp-*", "*.tmp-*"):
             for path in self.root.rglob(pattern):
                 if path.is_file():
@@ -5381,11 +5966,23 @@ class TieredMemoryStore:
             with self._transaction():
                 for cluster_id, items in sorted(cluster_manifests.items()):
                     items.sort(key=lambda item: item[0])
+                    previous_generation = 0
                     latest_generation = 0
                     latest_manifest: dict | None = None
                     latest_digest = ""
                     latest_path: Path | None = None
                     for generation, path, manifest, digest in items:
+                        if generation <= previous_generation:
+                            corrupt_manifests.append(self._relative(path))
+                            notes.append(
+                                f"cluster_generation_duplicate: {cluster_id}:{generation}")
+                            continue
+                        expected_parent = previous_generation
+                        if int(manifest.get("parent_generation", 0)) != expected_parent:
+                            chain_incomplete = True
+                            notes.append(
+                                f"cluster_generation_chain_gap: {cluster_id}:{generation}")
+                        previous_generation = generation
                         existing = self._connection.execute(
                             "SELECT manifest_sha256 FROM cluster_generations "
                             "WHERE cluster_id=? AND generation=?",
@@ -5431,6 +6028,15 @@ class TieredMemoryStore:
                                 (cluster_id, link["linked_cluster_id"],
                                  link["relation"]))
                         for entry in manifest.get("records", ()):
+                            try:
+                                self._verify_record_entry(entry)
+                            except (CorruptState, KeyError, TypeError, ValueError) as error:
+                                corrupt_artifacts.append(
+                                    f"{self._relative(path)}:{entry.get('record_id', '?')}")
+                                notes.append(
+                                    f"record_payload_invalid: {cluster_id}:"
+                                    f"{entry.get('record_id', '?')}: {error}")
+                                continue
                             self._rebuild_record_row(cluster_id, entry)
                             records_recovered += 1
                     if latest_manifest is not None and latest_path is not None:
@@ -5447,90 +6053,109 @@ class TieredMemoryStore:
                                  int(latest_manifest["record_count"]),
                                  int(latest_manifest["created_at_ns"]), cluster_id))
                         clusters_recovered.add(cluster_id)
-                        if latest_manifest["scope_key"] != latest_manifest["scope"][
-                                "scope_key"]:
-                            notes.append(f"scope_key_mismatch: {cluster_id}")
+                publications: dict[str, dict[int, dict]] = {}
                 for expert_id, items in sorted(expert_manifests.items()):
                     items.sort(key=lambda item: item[0])
                     for generation, path, manifest, digest in items:
+                        relative = self._relative(path)
                         try:
-                            weights = _read_verified(
+                            self._absolute(manifest["weights"]["path"])
+                            self._absolute(manifest["moments"]["path"])
+                            _read_verified(
                                 manifest["weights"]["path"], self.root,
                                 manifest["weights"]["sha256"],
                                 int(manifest["weights"]["bytes"]))
-                            moments = _read_verified(
+                            _read_verified(
                                 manifest["moments"]["path"], self.root,
                                 manifest["moments"]["sha256"],
                                 int(manifest["moments"]["bytes"]))
-                        except (CorruptState, KeyError, TypeError) as error:
-                            corrupt_artifacts.append(self._relative(path))
+                            clock = int(manifest["clock"])
+                            lineage = tuple(manifest.get("lineage", ()))
+                            encoder_id = manifest.get("encoder_id", "unknown")
+                        except (CorruptState, KeyError, TypeError, ValueError) as error:
+                            corrupt_artifacts.append(relative)
                             notes.append(f"expert_payload_missing: {expert_id}: {error}")
                             continue
-                        existing = self._connection.execute(
-                            "SELECT * FROM expert_shards WHERE expert_id=?",
-                            (expert_id,)).fetchone()
-                        lineage = tuple(manifest.get("lineage", ()))
-                        if existing is None:
-                            self._connection.execute(
-                                "INSERT INTO expert_shards(expert_id, profile_id, "
-                                "parameter_count, location, dirty, health, "
-                                "quarantine_status, quarantine_reason, "
-                                "publication_generation, hot_weights_path, "
-                                "hot_moments_path, hot_bytes, published_weights_sha, "
-                                "published_moments_sha, published_clock, encoder_id, "
-                                "lineage_json, lineage_digest, optimizer, ablation, "
-                                "updated_at_ns) VALUES (?, ?, ?, 'cold', 0, 'ok', ?, "
-                                "NULL, ?, NULL, NULL, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                (expert_id, manifest.get("profile_id", self.profile_id),
-                                 int(manifest.get("parameter_count", len(weights) // 4)),
-                                 manifest.get("quarantine_status", "none"),
-                                 generation, manifest["weights"]["sha256"],
-                                 manifest["moments"]["sha256"], int(manifest["clock"]),
-                                 manifest.get("encoder_id", "unknown"),
-                                 _canonical(list(lineage)), _sha256_json(list(lineage)),
-                                 manifest.get("optimizer", NATIVE_OPTIMIZER),
-                                 self.ablation_label, _now_ns()))
-                            self._connection.execute(
-                                "INSERT OR IGNORE INTO expert_publications(expert_id, "
-                                "generation, manifest_path, manifest_sha256, "
-                                "weights_path, weights_sha, weights_bytes, moments_path, "
-                                "moments_sha, moments_bytes, clock, created_at_ns) "
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                (expert_id, generation, self._relative(path), digest,
-                                 manifest["weights"]["path"],
-                                 manifest["weights"]["sha256"],
-                                 int(manifest["weights"]["bytes"]),
-                                 manifest["moments"]["path"],
-                                 manifest["moments"]["sha256"],
-                                 int(manifest["moments"]["bytes"]),
-                                 int(manifest["clock"]),
-                                 int(manifest["created_at_ns"])))
+                        publications.setdefault(expert_id, {})[generation] = {
+                            "generation": generation,
+                            "path": relative,
+                            "manifest": manifest,
+                            "digest": digest,
+                            "clock": clock,
+                            "lineage": lineage,
+                            "encoder_id": encoder_id,
+                        }
+                        self._connection.execute(
+                            "INSERT OR IGNORE INTO expert_publications("
+                            "expert_id, generation, manifest_path, manifest_sha256, "
+                            "weights_path, weights_sha, weights_bytes, moments_path, "
+                            "moments_sha, moments_bytes, clock, created_at_ns) "
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            (expert_id, generation, relative, digest,
+                             manifest["weights"]["path"],
+                             manifest["weights"]["sha256"],
+                             int(manifest["weights"]["bytes"]),
+                             manifest["moments"]["path"],
+                             manifest["moments"]["sha256"],
+                             int(manifest["moments"]["bytes"]), clock,
+                             int(manifest["created_at_ns"])))
+                expert_authority: dict[str, list[tuple[dict, str]]] = {}
+                for record, relative in authority_records.get("experts", ()):
+                    expert_id = record.get("expert_id")
+                    if isinstance(expert_id, str) and expert_id:
+                        expert_authority.setdefault(expert_id, []).append(
+                            (record, relative))
+                    else:
+                        incomplete_authority.add(relative)
+                        notes.append("expert_authority_missing_identity")
+                for expert_id in sorted(set(publications) | set(expert_authority)):
+                    states = expert_authority.get(expert_id, [])
+                    states.sort(key=lambda item: (
+                        int(item[0].get("authority_sequence", 0)),
+                        int(item[0].get("created_at_ns", 0)), item[1]))
+                    valid_states: list[tuple[dict, str]] = []
+                    for record, relative in states:
+                        try:
+                            self._validate_expert_authority(
+                                record, expert_id, relative)
+                        except (CorruptState, KeyError, TypeError, ValueError) as error:
+                            incomplete_authority.add(relative)
+                            notes.append(
+                                f"expert_authority_invalid: {expert_id}: {error}")
+                            continue
+                        valid_states.append((record, relative))
+                    if valid_states:
+                        authority_records_recovered += 1
+                        healthy = self._apply_expert_authority_locked(
+                            expert_id, valid_states[-1], publications.get(expert_id, {}),
+                            notes=notes, corrupt_artifacts=corrupt_artifacts,
+                            incomplete_authority=incomplete_authority)
+                        if healthy:
                             experts_recovered.add(expert_id)
-                        elif int(existing["publication_generation"]) < generation:
-                            self._connection.execute(
-                                "UPDATE expert_shards SET publication_generation=?, "
-                                "published_weights_sha=?, published_moments_sha=?, "
-                                "published_clock=?, health='ok', updated_at_ns=? "
-                                "WHERE expert_id=?",
-                                (generation, manifest["weights"]["sha256"],
-                                 manifest["moments"]["sha256"], int(manifest["clock"]),
-                                 _now_ns(), expert_id))
-                            self._connection.execute(
-                                "INSERT OR IGNORE INTO expert_publications(expert_id, "
-                                "generation, manifest_path, manifest_sha256, "
-                                "weights_path, weights_sha, weights_bytes, moments_path, "
-                                "moments_sha, moments_bytes, clock, created_at_ns) "
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                (expert_id, generation, self._relative(path), digest,
-                                 manifest["weights"]["path"],
-                                 manifest["weights"]["sha256"],
-                                 int(manifest["weights"]["bytes"]),
-                                 manifest["moments"]["path"],
-                                 manifest["moments"]["sha256"],
-                                 int(manifest["moments"]["bytes"]),
-                                 int(manifest["clock"]),
-                                 int(manifest["created_at_ns"])))
+                    elif expert_id in publications:
+                        healthy = self._apply_expert_manifest_locked(
+                            expert_id, publications[expert_id], notes=notes,
+                            corrupt_artifacts=corrupt_artifacts,
+                            incomplete_authority=incomplete_authority)
+                        if healthy:
                             experts_recovered.add(expert_id)
+                authority_records_recovered += (
+                    self._recover_authority_metadata_locked(
+                        authority_records, notes=notes,
+                        corrupt_artifacts=corrupt_artifacts,
+                        incomplete_authority=incomplete_authority))
+                journal_events_recovered += self._recover_journal_locked(
+                    notes=notes, corrupt_artifacts=corrupt_artifacts,
+                    incomplete_authority=incomplete_authority)
+                durable_sequence = 0
+                for records in authority_records.values():
+                    for record, _ in records:
+                        durable_sequence = max(
+                            durable_sequence,
+                            int(record.get("authority_sequence", 0)))
+                self._set_meta("authority_sequence", str(max(
+                    durable_sequence,
+                    int(self._meta("authority_sequence", "0")))))
                 if rebuild_index:
                     self._rebuild_accounting_locked()
         # A selection/ticket from the old process must not be reused.
@@ -5538,13 +6163,16 @@ class TieredMemoryStore:
         self._tickets.clear()
         self._ticket_results.clear()
         self._hot_cache.clear()
-        status = "incomplete" if (corrupt_manifests or corrupt_artifacts) else "ok"
-        reason = ("recovery_incomplete_preserved_corrupt_items" if status == "incomplete"
+        incomplete = bool(corrupt_manifests or corrupt_artifacts
+                          or incomplete_authority or chain_incomplete)
+        status = "incomplete" if incomplete else "ok"
+        reason = ("recovery_incomplete_preserved_corrupt_items" if incomplete
                   else "recovery_scan_complete")
         return RecoveryReport(
             outcome=_outcome(status, reason,
                              corrupt_preserved=True,
-                             native_capability=False),
+                             native_capability=False,
+                             authority_replayed=bool(authority_records)),
             clusters_recovered=tuple(sorted(clusters_recovered)),
             generations_recovered=generations_recovered,
             records_recovered=records_recovered,
@@ -5554,7 +6182,499 @@ class TieredMemoryStore:
             ignored_temporaries=tuple(sorted(ignored)),
             accounting_rebuilt=rebuild_index,
             notes=tuple(notes),
+            authority_records_recovered=authority_records_recovered,
+            incomplete_authority=tuple(sorted(incomplete_authority)),
+            journal_events_recovered=journal_events_recovered,
         )
+
+    def _verify_record_entry(self, entry: Mapping) -> None:
+        if not isinstance(entry, Mapping):
+            raise CorruptState("record manifest entry is not a mapping")
+        text = entry["text"]
+        if not isinstance(text, Mapping):
+            raise CorruptState("record text entry is not a mapping")
+        self._absolute(text["path"])
+        _read_verified(text["path"], self.root, text["sha256"],
+                       int(text["bytes"]))
+        key = entry.get("key")
+        if key is not None:
+            self._absolute(key["path"])
+            _read_verified(key["path"], self.root, key["sha256"],
+                           int(key["bytes"]))
+        for value in entry.get("values", ()):
+            self._absolute(value["path"])
+            _read_verified(value["path"], self.root, value["sha256"],
+                           int(value["bytes"]))
+
+    def _validate_expert_authority(self, record: Mapping, expert_id: str,
+                                   relative: str) -> None:
+        if record.get("expert_id") != expert_id:
+            raise CorruptState("expert authority identity mismatch")
+        if not isinstance(record.get("kind"), str) or not record["kind"]:
+            raise CorruptState("expert authority kind missing")
+        if record.get("location") not in ("hot", "cold"):
+            raise CorruptState("expert authority location invalid")
+        if record.get("quarantine_status") not in ("none", "quarantined"):
+            raise CorruptState("expert authority quarantine state invalid")
+        if not isinstance(record.get("lineage", ()), list):
+            raise CorruptState("expert authority lineage invalid")
+        if not isinstance(record.get("encoder_id"), str):
+            raise CorruptState("expert authority encoder invalid")
+        int(record.get("clock", 0))
+        int(record.get("publication_generation", 0))
+        int(record.get("parameter_count", 0))
+        publication = record.get("publication")
+        if publication is not None:
+            if (not isinstance(publication, Mapping)
+                    or "generation" not in publication
+                    or "manifest_path" not in publication):
+                raise CorruptState("expert authority publication reference invalid")
+        hot = record.get("hot")
+        if hot is not None:
+            if (not isinstance(hot, Mapping)
+                    or "weights" not in hot or "moments" not in hot):
+                raise CorruptState("expert authority hot reference invalid")
+        del relative
+
+    def _apply_expert_authority_locked(
+            self, expert_id: str, state: tuple[dict, str],
+            publications: Mapping[int, Mapping],
+            *, notes: list[str], corrupt_artifacts: list[str],
+            incomplete_authority: set[str]) -> bool:
+        record, relative = state
+        now = _now_ns()
+        profile_id = str(record.get("profile_id", self.profile_id))
+        parameter_count = int(record.get("parameter_count", 0))
+        quarantine_status = record.get("quarantine_status", "none")
+        quarantine_reason = record.get("quarantine_reason")
+        health = str(record.get("health", "ok"))
+        location = str(record.get("location", "cold"))
+        dirty = bool(record.get("dirty", False))
+        optimizer = str(record.get("optimizer", NATIVE_OPTIMIZER))
+        ablation = record.get("ablation")
+        lineage = tuple(record.get("lineage", ()))
+        encoder_id = str(record.get("encoder_id", "unknown"))
+        clock = int(record.get("clock", 0))
+        publication_generation = int(record.get("publication_generation", 0))
+        publication = record.get("publication")
+        hot = record.get("hot")
+        hot_weights_path = hot_moments_path = None
+        hot_bytes = 0
+        hot_verified = False
+        if location == "hot" and isinstance(hot, Mapping):
+            try:
+                self._absolute(hot["weights"]["path"])
+                self._absolute(hot["moments"]["path"])
+                _read_verified(hot["weights"]["path"], self.root,
+                               hot["weights"]["sha256"],
+                               int(hot["weights"]["bytes"]))
+                _read_verified(hot["moments"]["path"], self.root,
+                               hot["moments"]["sha256"],
+                               int(hot["moments"]["bytes"]))
+                hot_weights_path = hot["weights"]["path"]
+                hot_moments_path = hot["moments"]["path"]
+                hot_bytes = int(hot["weights"]["bytes"]) + int(
+                    hot["moments"]["bytes"])
+                hot_verified = True
+            except (CorruptState, KeyError, TypeError, ValueError) as error:
+                corrupt_artifacts.append(
+                    f"{relative}:hot:{expert_id}")
+                notes.append(
+                    f"expert_hot_payload_invalid: {expert_id}: {error}")
+                incomplete_authority.add(relative)
+        chosen = None
+        chosen_info: Mapping | None = None
+        newest_generation = max(publications) if publications else 0
+        state_publication_generation = publication_generation
+        if isinstance(publication, Mapping):
+            try:
+                state_publication_generation = int(publication["generation"])
+            except (KeyError, TypeError, ValueError):
+                incomplete_authority.add(relative)
+                notes.append(f"expert_authority_publication_invalid: {expert_id}")
+                publication = None
+        if hot_verified and location == "hot" and dirty:
+            chosen = "hot"
+        elif state_publication_generation in publications:
+            chosen = "publication"
+            chosen_info = publications[state_publication_generation]
+            if newest_generation > state_publication_generation:
+                notes.append(
+                    f"expert_authority_publication_ahead: {expert_id}")
+                chosen_info = publications[newest_generation]
+                chosen = "publication_ahead"
+        elif newest_generation:
+            chosen = "publication_ahead"
+            chosen_info = publications[newest_generation]
+            notes.append(f"expert_authority_publication_ahead: {expert_id}")
+        if hot_verified and chosen in (None, "publication", "publication_ahead"):
+            # A clean hot copy is a cache of the chosen publication, never a
+            # source of newer lineage or clock metadata than that publication.
+            pass
+        published_weights_sha = None
+        published_moments_sha = None
+        published_clock = None
+        if chosen == "hot":
+            if isinstance(publication, Mapping):
+                published_weights_sha = publication["weights"]["sha256"]
+                published_moments_sha = publication["moments"]["sha256"]
+                published_clock = int(publication.get("clock", clock))
+            self._set_meta(f"expert_clock:{expert_id}", str(clock))
+            self._set_meta(
+                f"expert_hot_weights_sha:{expert_id}",
+                hot["weights"]["sha256"])
+            self._set_meta(
+                f"expert_hot_moments_sha:{expert_id}",
+                hot["moments"]["sha256"])
+        elif chosen_info is not None:
+            manifest = chosen_info["manifest"]
+            generation = int(chosen_info["generation"])
+            publication_generation = generation
+            lineage = tuple(manifest.get("lineage", ()))
+            encoder_id = str(manifest.get("encoder_id", encoder_id))
+            clock = int(manifest.get("clock", chosen_info["clock"]))
+            published_weights_sha = manifest["weights"]["sha256"]
+            published_moments_sha = manifest["moments"]["sha256"]
+            published_clock = clock
+            location = "hot" if (hot_verified and location == "hot") else "cold"
+            dirty = False
+            if not (hot_verified and location == "hot"):
+                hot_weights_path = hot_moments_path = None
+                hot_bytes = 0
+            self._set_meta(f"expert_clock:{expert_id}", str(clock))
+        else:
+            if (publication is None and hot is None
+                    and int(record.get("publication_generation", 0)) == 0):
+                # Registration alone is complete authority: no payload was
+                # ever promised, so the cold metadata row is restorable.
+                location = "cold"
+                dirty = False
+                hot_weights_path = hot_moments_path = None
+                hot_bytes = 0
+                health = str(record.get("health", "ok"))
+            else:
+                health = "incomplete"
+                location = "cold"
+                dirty = False
+                hot_weights_path = hot_moments_path = None
+                hot_bytes = 0
+                incomplete_authority.add(relative)
+                notes.append(f"expert_authority_incomplete: {expert_id}")
+        existing = self._connection.execute(
+            "SELECT * FROM expert_shards WHERE expert_id=?",
+            (expert_id,)).fetchone()
+        lineage_json = _canonical(list(lineage))
+        lineage_digest = _sha256_json(list(lineage))
+        if existing is None:
+            self._connection.execute(
+                "INSERT INTO expert_shards(expert_id, profile_id, parameter_count, "
+                "location, dirty, health, quarantine_status, quarantine_reason, "
+                "publication_generation, hot_weights_path, hot_moments_path, "
+                "hot_bytes, published_weights_sha, published_moments_sha, "
+                "published_clock, encoder_id, lineage_json, lineage_digest, "
+                "optimizer, ablation, updated_at_ns) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (expert_id, profile_id, parameter_count, location, int(dirty),
+                 health, quarantine_status, quarantine_reason,
+                 publication_generation, hot_weights_path, hot_moments_path,
+                 hot_bytes, published_weights_sha, published_moments_sha,
+                 published_clock, encoder_id, lineage_json, lineage_digest,
+                 optimizer, ablation, now))
+        else:
+            self._connection.execute(
+                "UPDATE expert_shards SET profile_id=?, parameter_count=?, "
+                "location=?, dirty=?, health=?, quarantine_status=?, "
+                "quarantine_reason=?, publication_generation=?, "
+                "hot_weights_path=?, hot_moments_path=?, hot_bytes=?, "
+                "published_weights_sha=?, published_moments_sha=?, "
+                "published_clock=?, encoder_id=?, lineage_json=?, "
+                "lineage_digest=?, optimizer=?, ablation=?, updated_at_ns=? "
+                "WHERE expert_id=?",
+                (profile_id, parameter_count, location, int(dirty), health,
+                 quarantine_status, quarantine_reason, publication_generation,
+                 hot_weights_path, hot_moments_path, hot_bytes,
+                 published_weights_sha, published_moments_sha, published_clock,
+                 encoder_id, lineage_json, lineage_digest, optimizer, ablation,
+                 now, expert_id))
+        if location != "hot":
+            for key in (f"expert_hot_weights_sha:{expert_id}",
+                        f"expert_hot_moments_sha:{expert_id}"):
+                self._connection.execute(
+                    "DELETE FROM meta WHERE key=?", (key,))
+        return health == "ok"
+
+    def _apply_expert_manifest_locked(
+            self, expert_id: str, publications: Mapping[int, Mapping],
+            *, notes: list[str], corrupt_artifacts: list[str],
+            incomplete_authority: set[str]) -> bool:
+        """Legacy path for stores that predate durable expert authority."""
+        generation = max(publications)
+        info = publications[generation]
+        manifest = info["manifest"]
+        health = "ok"
+        quarantine_status = manifest.get("quarantine_status", "none")
+        if quarantine_status not in ("none", "quarantined"):
+            incomplete_authority.add(str(info["path"]))
+            notes.append(f"expert_manifest_quarantine_invalid: {expert_id}")
+            quarantine_status = "quarantined"
+            health = "incomplete"
+        existing = self._connection.execute(
+            "SELECT * FROM expert_shards WHERE expert_id=?",
+            (expert_id,)).fetchone()
+        lineage = tuple(manifest.get("lineage", ()))
+        encoder_id = str(manifest.get("encoder_id", "unknown"))
+        clock = int(manifest.get("clock", info["clock"]))
+        values = (
+            manifest.get("profile_id", self.profile_id),
+            int(manifest.get("parameter_count",
+                             int(manifest["weights"]["bytes"]) // 4)),
+            health, quarantine_status, generation,
+            manifest["weights"]["sha256"], manifest["moments"]["sha256"], clock,
+            encoder_id, _canonical(list(lineage)), _sha256_json(list(lineage)),
+            manifest.get("optimizer", NATIVE_OPTIMIZER),
+            self.ablation_label, _now_ns(), expert_id)
+        if existing is None:
+            self._connection.execute(
+                "INSERT INTO expert_shards(expert_id, profile_id, parameter_count, "
+                "location, dirty, health, quarantine_status, quarantine_reason, "
+                "publication_generation, hot_weights_path, hot_moments_path, "
+                "hot_bytes, published_weights_sha, published_moments_sha, "
+                "published_clock, encoder_id, lineage_json, lineage_digest, "
+                "optimizer, ablation, updated_at_ns) VALUES (?, ?, ?, 'cold', 0, ?, ?, "
+                "NULL, ?, NULL, NULL, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (expert_id, values[0], values[1], values[2], values[3],
+                 values[4], values[5], values[6], values[7], values[8],
+                 values[9], values[10], values[11], values[12], values[13]))
+        else:
+            self._connection.execute(
+                "UPDATE expert_shards SET profile_id=?, parameter_count=?, "
+                "location='cold', dirty=0, health=?, quarantine_status=?, "
+                "publication_generation=?, hot_weights_path=NULL, "
+                "hot_moments_path=NULL, hot_bytes=0, published_weights_sha=?, "
+                "published_moments_sha=?, published_clock=?, encoder_id=?, "
+                "lineage_json=?, lineage_digest=?, optimizer=?, ablation=?, "
+                "updated_at_ns=? WHERE expert_id=?",
+                (values[0], values[1], values[2], values[3], values[4],
+                 values[5], values[6], values[7], values[8], values[9],
+                 values[10], values[11], values[12], values[13], values[14]))
+        self._set_meta(f"expert_clock:{expert_id}", str(clock))
+        return health == "ok"
+
+    def _recover_authority_metadata_locked(
+            self, authority_records: Mapping[str, Sequence[tuple[dict, str]]],
+            *, notes: list[str], corrupt_artifacts: list[str],
+            incomplete_authority: set[str]) -> int:
+        recovered = 0
+        for record, relative in sorted(
+                authority_records.get("procedures", ()),
+                key=lambda item: (int(item[0].get("created_at_ns", 0)),
+                                  item[1])):
+            try:
+                skill_id = record["skill_id"]
+                version = int(record["version"])
+                outcome = record["outcome"]
+                if outcome not in PROCEDURE_OUTCOMES:
+                    raise CorruptState("procedure outcome invalid")
+                self._connection.execute(
+                    "INSERT OR IGNORE INTO procedures(skill_id, version, title, "
+                    "applicability_json, prerequisites_json, steps_json, outcome, "
+                    "error, evidence_json, verified_by, created_at_ns) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (skill_id, version, record["title"],
+                     _canonical(dict(record.get("applicability", {}))),
+                     _canonical(list(record.get("prerequisites", ()))),
+                     _canonical(list(record.get("steps", ()))),
+                     outcome, record.get("error"),
+                     _canonical(dict(record.get("evidence", {}))),
+                     record.get("verified_by"),
+                     int(record.get("created_at_ns", 0))))
+                recovered += 1
+            except (CorruptState, KeyError, TypeError, ValueError) as error:
+                incomplete_authority.add(relative)
+                notes.append(f"procedure_authority_invalid: {error}")
+        for record, relative in sorted(
+                authority_records.get("procedure_invalidations", ()),
+                key=lambda item: (int(item[0].get("at_ns", 0)), item[1])):
+            try:
+                self._connection.execute(
+                    "INSERT OR IGNORE INTO procedure_invalidations("
+                    "skill_id, version, record_id, reason, at_ns) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    (record["skill_id"], int(record["version"]),
+                     record["record_id"], record["reason"],
+                     int(record.get("at_ns", 0))))
+                recovered += 1
+            except (KeyError, TypeError, ValueError) as error:
+                incomplete_authority.add(relative)
+                notes.append(f"procedure_invalidation_authority_invalid: {error}")
+        identities: dict[str, list[tuple[dict, str]]] = {}
+        for record, relative in authority_records.get("identity", ()):
+            identity_id = record.get("identity_id")
+            if isinstance(identity_id, str) and identity_id:
+                identities.setdefault(identity_id, []).append((record, relative))
+            else:
+                incomplete_authority.add(relative)
+                notes.append("identity_authority_missing_identity")
+        for identity_id, items in sorted(identities.items()):
+            items.sort(key=lambda item: (
+                int(item[0].get("version", 0)),
+                int(item[0].get("created_at_ns", 0))))
+            valid: list[tuple[dict, str]] = []
+            for record, relative in items:
+                try:
+                    core_path = record["core_path"]
+                    self._absolute(core_path)
+                    _read_verified(core_path, self.root, record["core_sha"],
+                                   int(record["core_bytes"]))
+                    if not record.get("approved", False):
+                        raise CorruptState("identity authority is not approved")
+                    int(record["version"])
+                    valid.append((record, relative))
+                except (CorruptState, KeyError, TypeError, ValueError) as error:
+                    corrupt_artifacts.append(relative)
+                    incomplete_authority.add(relative)
+                    notes.append(
+                        f"identity_core_unverified: {identity_id}: {error}")
+            if not valid:
+                continue
+            max_valid = max(int(record["version"]) for record, _ in valid)
+            existing_current = self._connection.execute(
+                "SELECT version FROM identity_versions WHERE identity_id=? "
+                "AND status='current'", (identity_id,)).fetchall()
+            if any(int(row["version"]) > max_valid for row in existing_current):
+                incomplete_authority.add(identity_id)
+                notes.append(f"identity_authority_behind_index: {identity_id}")
+                continue
+            for record, _ in valid:
+                self._connection.execute(
+                    "INSERT OR IGNORE INTO identity_versions(identity_id, version, "
+                    "status, core_path, core_sha, core_bytes, authority, approved, "
+                    "supersedes, created_at_ns) VALUES (?, ?, 'superseded', ?, ?, ?, "
+                    "?, 1, ?, ?)",
+                    (identity_id, int(record["version"]), record["core_path"],
+                     record["core_sha"], int(record["core_bytes"]),
+                     record["authority"], record.get("supersedes"),
+                     int(record.get("created_at_ns", 0))))
+                recovered += 1
+            self._connection.execute(
+                "UPDATE identity_versions SET status='superseded' "
+                "WHERE identity_id=?", (identity_id,))
+            self._connection.execute(
+                "UPDATE identity_versions SET status='current' "
+                "WHERE identity_id=? AND version=?", (identity_id, max_valid))
+        for record, relative in sorted(
+                authority_records.get("phi", ()),
+                key=lambda item: (int(item[0].get("created_at_ns", 0)),
+                                  item[1])):
+            try:
+                self._connection.execute(
+                    "INSERT OR IGNORE INTO phi_releases(codec_id, version, "
+                    "producer_version, artifact_sha, status, created_at_ns) "
+                    "VALUES (?, ?, ?, ?, ?, ?)",
+                    (record["codec_id"], int(record["version"]),
+                     record["producer_version"], record["artifact_sha256"],
+                     record["status"], int(record.get("created_at_ns", 0))))
+                recovered += 1
+            except (KeyError, TypeError, ValueError) as error:
+                incomplete_authority.add(relative)
+                notes.append(f"phi_authority_invalid: {error}")
+        for record, relative in sorted(
+                authority_records.get("capabilities", ()),
+                key=lambda item: (int(item[0].get("created_at_ns", 0)),
+                                  item[1])):
+            try:
+                measured = bool(record["measured"])
+                measured_value = record.get("measured_value")
+                if measured and (measured_value is None
+                                 or not math.isfinite(measured_value)):
+                    raise CorruptState("measured capability lacks a value")
+                if not measured and measured_value is not None:
+                    raise CorruptState("unmeasured capability claims a value")
+                self._connection.execute(
+                    "INSERT OR IGNORE INTO capability_records(capability_id, "
+                    "model_id, mode, task_family, budget_json, measured_value, "
+                    "uncertainty_json, measured, created_at_ns) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (record["capability_id"], record["model_id"], record["mode"],
+                     record["task_family"], _canonical(dict(record["budget"])),
+                     measured_value,
+                     _canonical(dict(record["uncertainty"])), int(measured),
+                     int(record.get("created_at_ns", 0))))
+                recovered += 1
+            except (CorruptState, KeyError, TypeError, ValueError) as error:
+                incomplete_authority.add(relative)
+                notes.append(f"capability_authority_invalid: {error}")
+        for record, relative in sorted(
+                authority_records.get("workspaces", ()),
+                key=lambda item: (int(item[0].get("created_at_ns", 0)),
+                                  item[1])):
+            try:
+                if not record.get("resumable", False):
+                    continue
+                path = record["path"]
+                self._absolute(path)
+                _read_verified(path, self.root, record["sha256"],
+                               int(record["bytes"]))
+                self._connection.execute(
+                    "INSERT INTO workspace_snapshots(task_id, path, sha, bytes, "
+                    "resumable, created_at_ns) VALUES (?, ?, ?, ?, 1, ?) "
+                    "ON CONFLICT(task_id) DO UPDATE SET path=excluded.path, "
+                    "sha=excluded.sha, bytes=excluded.bytes, resumable=1, "
+                    "created_at_ns=excluded.created_at_ns",
+                    (record["task_id"], path, record["sha256"],
+                     int(record["bytes"]),
+                     int(record.get("created_at_ns", 0))))
+                recovered += 1
+            except (CorruptState, KeyError, TypeError, ValueError) as error:
+                corrupt_artifacts.append(relative)
+                incomplete_authority.add(relative)
+                notes.append(f"workspace_authority_invalid: {error}")
+        return recovered
+
+    def _recover_journal_locked(
+            self, *, notes: list[str], corrupt_artifacts: list[str],
+            incomplete_authority: set[str]) -> int:
+        path = self._directories["journal"] / "events.jsonl"
+        if not path.is_file():
+            return 0
+        existing = {row["sha256"] for row in self._connection.execute(
+            "SELECT sha256 FROM journal_events")}
+        recovered = 0
+        try:
+            stream = path.open("r", encoding="utf-8")
+        except OSError as error:
+            incomplete_authority.add("journal/events.jsonl")
+            notes.append(f"journal_unreadable: {error}")
+            return 0
+        with stream:
+            for line in stream:
+                if not line.strip():
+                    continue
+                encoded = line.encode("utf-8")
+                digest = _sha256_bytes(encoded)
+                if digest in existing:
+                    continue
+                try:
+                    payload = json.loads(line)
+                    at_ns = int(payload["at_ns"])
+                    kind = payload["kind"]
+                    entity_id = payload["entity_id"]
+                    detail = payload["detail"]
+                    if not isinstance(detail, dict):
+                        raise ValueError("journal detail must be an object")
+                except (json.JSONDecodeError, KeyError, TypeError,
+                        ValueError) as error:
+                    corrupt_artifacts.append("journal/events.jsonl")
+                    incomplete_authority.add("journal/events.jsonl")
+                    notes.append(f"journal_event_invalid: {error}")
+                    continue
+                self._connection.execute(
+                    "INSERT INTO journal_events(at_ns, kind, entity_id, "
+                    "detail_json, sha256) VALUES (?, ?, ?, ?, ?)",
+                    (at_ns, kind, entity_id, _canonical(detail), digest))
+                existing.add(digest)
+                recovered += 1
+        return recovered
 
     def _rebuild_record_row(self, cluster_id: str, entry: Mapping) -> None:
         text = entry["text"]
@@ -5737,6 +6857,10 @@ class TieredMemoryStore:
                     "updated_at_ns) VALUES ('journal:file', 'cold', 'journal', ?, ?, ?) "
                     "ON CONFLICT(component_id) DO UPDATE SET bytes=bytes+?",
                     (size, "recovered journal", _now_ns(), size))
+            elif parts[0] == "authority":
+                self._set_component_locked(
+                    "authority:" + relative, "cold", "authority", size,
+                    "recovered durable authority record")
             elif parts[0] == "artifacts":
                 sha = path.stem if _SHA_RE.fullmatch(path.stem) else _sha256_bytes(
                     relative.encode("utf-8"))
@@ -5820,6 +6944,14 @@ class TieredMemoryStore:
             except FileNotFoundError:
                 pass
             self._release(f"workspace:{row['task_id']}")
+            authority_relative = "/".join((
+                "authority", "workspaces",
+                _authority_component(row["task_id"]) + ".json"))
+            try:
+                (self.root / authority_relative).unlink()
+            except FileNotFoundError:
+                pass
+            self._release("authority:" + authority_relative)
             self._connection.execute(
                 "DELETE FROM workspace_snapshots WHERE task_id=?", (row["task_id"],))
         try:

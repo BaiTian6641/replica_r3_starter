@@ -22,7 +22,7 @@ PROTOCOL_ID = "spark_persistent_learner_v2"
 EXPECTED_FORMAT = "replica.spark_persistent_learner.protocol.v2"
 ARMS = {
     "full_eligible_context", "selective_exact_and_procedure", "spine_E_only",
-    "source_free_P_only", "E_plus_P", "no_update", "reset_P",
+    "reader_trained_E_only", "source_free_P_only", "E_plus_P", "no_update", "reset_P",
     "shuffled_memory", "inapplicable_procedure", "matched_replay",
 }
 PROFILES = {"P1", "P4", "P16", "P32", "P64", "P128_stretch"}
@@ -87,8 +87,17 @@ def derive_work(config: Mapping[str, Any]) -> dict[str, int]:
         "checkpoint_writes_max": fit + 1,
         "retained_checkpoint_artifacts_max": fit,
         "reloads_max": restarts,
-        "cache_hits_max": 0,
-        "cache_misses_max": 3 * fit + requests + 1,
+        "cache_hits_max": 2 * (3 * fit + requests + 1),
+        "cache_misses_max": 2 * (3 * fit + requests + 1),
+        "readout_file_reads_max": 30 * (3 * fit + requests + 1),
+        "readout_io_bytes_max": 1073741824,
+        "cold_recall_tickets_max": 2 * (3 * fit + requests + 1),
+        "cold_recall_resumes_max": 2 * (3 * fit + requests + 1),
+        "revalidation_failures_max": 0,
+        "payload_read_calls_max": 2 * (3 * fit + requests + 1),
+        "payload_file_reads_max": 20 * (3 * fit + requests + 1),
+        "payload_io_bytes_max": 1073741824,
+        "revalidations_max": 32 * (3 * fit + requests + 1),
     }
     for key, value in expected.items():
         _require(schedule.get(key) == value, "budget",
@@ -185,6 +194,13 @@ def validate_config(config: Mapping[str, Any], root: Path = ROOT) -> dict[str, A
     _require(config["controls"]["p_only_removes"] == [
         "source_text", "exact_spans", "current_workspace_answers", "approved_identity_records"],
         "controls", "P-only information removal is incomplete")
+    _require(config["controls"]["untouched_baseline"] == "full_eligible_context",
+             "controls", "untouched baseline must be explicit")
+    _require(set(config["controls"]["frozen_trained_reader_comparisons"]) == {
+        "reader_trained_E_only", "no_update", "reset_P"},
+        "controls", "frozen trained-reader comparison set differs")
+    _require(memory["port_state_restoration"] == "exact_output_projection_identity_set_required",
+             "memory", "exact port-state restoration is required")
     _require(config["success_criteria"]["reasoning_reuse"]["accuracy_gain_required"] is False,
              "success", "reasoning noninferiority must not require an accuracy gain")
     _require(config["learned_writer"]["online_parameter"] == "D_only"

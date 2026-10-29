@@ -369,7 +369,8 @@ class SpineTextQueryAdapter:
               memory_source: str, plastic_expert_id: int | None,
               enabled_branches: Iterable[str],
               host_eligible_record_ids: Iterable[str] | None,
-              semantic_top_k: int | None) -> TextQuery:
+              semantic_top_k: int | None,
+              selected_record_ids: Iterable[str] | None = None) -> TextQuery:
         branches = tuple(enabled_branches)
         if memory_source not in {"E", "P", "E_plus_P"}:
             raise SpineError("memory_source must be E, P, or E_plus_P")
@@ -435,16 +436,26 @@ class SpineTextQueryAdapter:
                     or not 1 <= semantic_top_k <= read_cap):
                 raise SpineError("semantic_top_k must be within the declared read cap")
             effective_top_k = read_cap if semantic_top_k is None else semantic_top_k
-            scored = []
-            for record_id in host:
-                payload = by_id[record_id].payload
-                score = float(torch.dot(payload, query_vector) /
-                              (payload.norm() * query_vector.norm()).clamp_min(1e-8))
-                scored.append((-score, record_id))
-            ranked = {record_id for _, record_id in
-                      sorted(scored)[:effective_top_k]}
-            selected = tuple(record_id for record_id in host if record_id in ranked)
-            semantic = f"cosine_top_{effective_top_k}_within_host_eligible"
+            if selected_record_ids is not None:
+                host = tuple(selected_record_ids)
+                if (len(host) > read_cap or len(set(host)) != len(host)
+                        or any(record_id not in record_ids for record_id in host)
+                        or (host_set is not None
+                            and any(record_id not in host_set for record_id in host))):
+                    raise SpineError("ordered scoped selection exceeds eligible read authority")
+                selected = host
+                semantic = "tiered_scoped_ordered_selection"
+            else:
+                scored = []
+                for record_id in host:
+                    payload = by_id[record_id].payload
+                    score = float(torch.dot(payload, query_vector) /
+                                  (payload.norm() * query_vector.norm()).clamp_min(1e-8))
+                    scored.append((-score, record_id))
+                ranked = {record_id for _, record_id in
+                          sorted(scored)[:effective_top_k]}
+                selected = tuple(record_id for record_id in host if record_id in ranked)
+                semantic = f"cosine_top_{effective_top_k}_within_host_eligible"
             eligible = tuple(host)
             if selected:
                 payload = torch.stack([by_id[record_id].payload
@@ -675,7 +686,8 @@ class SparkTextMemoryPath:
                       plastic_expert_id: int | None = None,
                       enabled_branches: Iterable[str] = ("memory",),
                       host_eligible_record_ids: Iterable[str] | None = None,
-                      semantic_top_k: int | None = None) -> TextQuery:
+                      semantic_top_k: int | None = None,
+                      selected_record_ids: Iterable[str] | None = None) -> TextQuery:
         """Finish native query features and memory reads before any injection."""
         _nonempty(question, "question")
         query_time = _time(query_time, "query_time")
@@ -698,7 +710,8 @@ class SparkTextMemoryPath:
             memory_source=memory_source, plastic_expert_id=plastic_expert_id,
             enabled_branches=enabled_branches,
             host_eligible_record_ids=host_eligible_record_ids,
-            semantic_top_k=semantic_top_k)
+            semantic_top_k=semantic_top_k,
+            selected_record_ids=selected_record_ids)
 
     def _assert_fresh(self, query: TextQuery) -> None:
         if query.context.invalidated \

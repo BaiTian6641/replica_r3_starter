@@ -147,7 +147,7 @@ def build() -> dict[str, object]:
         "worlds.json": json.dumps({"format": "replica.spark_persistent_learner.worlds.v2", "worlds": worlds}, indent=2, sort_keys=True) + "\n",
     }
     manifest = {
-        "counts": {"arms": 10, "development_cases": len(development), "development_labels": len(labels),
+        "counts": {"arms": 11, "development_cases": len(development), "development_labels": len(labels),
                    "fit_events": len(fit_events), "observations": len(observations), "parity_requests": 2,
                    "procedures": len(procedures["procedures"]), "restart_parity_requests": 1, "task_workspaces": 1},
         "created_utc": "2026-10-28T00:00:00+00:00", "development_labels_closed_until_fit_receipt": True,

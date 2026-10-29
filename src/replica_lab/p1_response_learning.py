@@ -737,7 +737,8 @@ def prepare_arm_query(
         target_record_id: str | None = None,
         wrong_record_id: str | None = None, expert_id: int = 0,
         query_time: int = 0,
-        token_available_at: Sequence[int] | None = None) -> TextQuery:
+        token_available_at: Sequence[int] | None = None,
+        selected_record_ids: Iterable[str] | None = None) -> TextQuery:
     """Prepare one readout arm without touching any optimizer."""
     if arm not in ARMS:
         raise ValueError(f"unknown arm {arm!r}")
@@ -774,6 +775,7 @@ def prepare_arm_query(
         plastic_expert_id=(int(expert_id)
                            if memory_source in {"P", "E_plus_P"} else None),
         host_eligible_record_ids=host,
+        selected_record_ids=selected_record_ids,
         semantic_top_k=top_k)
 
 
