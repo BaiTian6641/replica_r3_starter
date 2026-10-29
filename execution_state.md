@@ -2,8 +2,8 @@
 
 ## Active order — Spark persistent learner, tiered memory and Replica
 
-**29 October 2026 — v2 engineering implementation and CPU evidence are complete;
-native execution and useful learning remain open.** Read the
+**29 October 2026 — scoped v2 readout, recovery and control engineering are
+verified on CPU; native execution and useful learning remain open.** Read the
 [v2 implementation and evidence runbook](reports/spark_persistent_learner_v2/README.md),
 [design 28](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md),
 [v2 protocol](configs/spark_persistent_learner_protocol_v2.json) and
@@ -12,28 +12,47 @@ native execution and useful learning remain open.** Read the
 - Package 1 is complete: portable protocol tests use tracked metadata mocks and
   production source authentication is unchanged. The contextual fixture has
   real causal attention; the old attention-free result is not a Spark diagnosis.
-- Package 2 is complete: the runner now uses the separately versioned tiered
-  store for scoped records, correction quarantine/authenticated reset,
-  procedures, resumable task journals and raw FP32 P weights/moments/clocks.
-  P4+ profiles remain lazy; no expanded bank is allocated.
-- Package 3 has a real direct-response-CE P1 reference with selected-P and
-  port-output owners, null/influence checks, ten controls and fresh-process
-  restart. Native full-context competence and late-site behavior are unmeasured.
-- Package 4 has an offline D-only writer with exact derivative checks. It is not
-  a native training result or a useful-learning claim; the useful-readout gate
-  remains closed to promotion, expansion, calibration and RSI.
-- Focused regression is **138/138**. The final CPU run preserves raw failures,
-  ten-arm trajectories and independently checked outcomes. All ten arms remain
-  0/12, so learned capability is inconclusive rather than rejected for Spark.
-- Implementation and protocol are committed at `1d8626957c84aa37cf4858ea4a74cd3797a0bff5`.
-  `reports/spark_persistent_learner_v2/review03.json` leaves exact official-FP8
-  backend evidence and external authorization as the only launch blockers;
-  official BF16 and FP8-derived BF16 are not substitutes. No native model job,
-  download or promotion occurred.
+- Package 2 is complete: the runner uses the separately versioned tiered store
+  for scoped records, correction quarantine/authenticated reset, procedures,
+  resumable task journals and raw FP32 P weights/moments/clocks. P4+ profiles
+  remain lazy; no expanded bank is allocated.
+- Package 3 now connects scoped tiered readout to neural queries through one
+  strict current-record restoration contract. It checks source epoch, validity,
+  lineage, producer/representation/codec authority and correction links;
+  incomplete mirrors are refused. Full-scope cold tickets recheck time and
+  verification after I/O. Exact counters include candidate keys and rejected
+  payload reads.
+- Eleven information-matched arms, including untouched all-eligible context,
+  frozen trained-reader, reset/no-update, shuffled, inapplicable and replay
+  controls, are isolated across reader/P state. `integrated06` matches protocol
+  `49cea2ad9d24bd504f88a86595043abc016d4b5fadc5fb60a94d8bb1cf93c4bd` and
+  passes engineering acceptance over 132 development cases; every baseline
+  contains all 11 records without truncation, but all arms remain 0/12.
+- Recovery and pressure evidence cover index-loss rebuilding, cold recall,
+  correction during I/O, stale-scope/version rejection and bounded cache
+  behavior. `readout_pressure04` observes two cache hits, one eviction, five
+  rejected cold payload reads/4,114 bytes and a successful corrected cold read
+  with current provenance. Logical tiers are not physical residency claims.
+- Focused protocol/readout/control/recovery regression passes **62 tests**.
+  The full repository suite passes **3,395 tests with 9 skips and 21 subtests**
+  in 862.73 seconds; one unrelated sparse-tensor warning is preserved in
+  `reports/spark_persistent_learner_v2/full_suite_integrated06.log`.
+  `integrated01` preserves the old I/O-cap refusal; `integrated02` preserves
+  the pre-binding two-record baseline; `integrated03` preserves the shuffled
+  correction mismatch. `integrated04` and `integrated05` are prior protocol
+  generations. No failed output was overwritten.
+- Repair implementation is committed at `11210d99f7391423a22d0a0dae7be78fc87e66c9`.
+  The protocol points to that implementation and hashes 38 executable
+  dependencies. `review_final02.json` leaves exact official-FP8
+  forward/backward/single-update evidence and external authorization as the
+  only launch blockers; official BF16 and FP8-derived BF16 are not substitutes.
+  No native model job, download or promotion occurred.
 
 The next discriminating experiment is one bounded native P1 full-context/direct-CE
 readout at 3/7 and 23/31 after exact backend qualification. Preserve NativeFusedAdamW,
 the 50 GiB / 512 MiB / 15% guards and the protected runtime pilot restriction.
+The D-only writer, larger profiles, capacity expansion, multi-clock learning and
+RSI remain behind useful-readout, retention, correction and matched-cost gates.
 Native multimodal training remains deferred.
 
 ## Previous increment — Spark spine and E/P memory interfaces

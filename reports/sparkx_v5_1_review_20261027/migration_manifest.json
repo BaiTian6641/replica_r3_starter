@@ -2,8 +2,8 @@
   "format": "replica.sparkx_v5_1_review.migration.v1",
   "identity": {
     "id": "sparkx-2.6-v5.1-review-migration-20261027",
-    "digest_sha256": "7390aed6f0f36183107af64039da291c9f7d2722f87785d9bf338a4cc11b1462",
-    "head": "4c5a84851009898bc876c0b8aa3ccb596e04037d",
+    "digest_sha256": "2d337e21ed6fa6bfe5db5b8565a93fc18df9fafd10b7a66153b634074497fd76",
+    "head": "11210d99f7391423a22d0a0dae7be78fc87e66c9",
     "digest_scope": "canonical JSON of the entries array"
   },
   "policy": "Only the identities below are treated as reviewed. A changed existing document must match its recorded old hash and current new hash; an added identity must not exist in the historical snapshot; a retained identity must remain byte-identical. Any other drift fails the portable verifier. Historical failed receipts are not rewritten, and no validator is weakened.",
@@ -89,18 +89,26 @@
         "identity": "Architecture index \u2014 v5.0 pointer"
       },
       "new": {
-        "sha256": "37db2853f80970406e005a0369327eb8c25ee6805545afc5345ee42ba015d7c5",
-        "identity": "Architecture index \u2014 v5.1 pointer; 28 October direction reconciliation"
+        "sha256": "3a141af38655767e98f6aabc691833cf36ad10b854a99c7d3d8b40909804ea3e",
+        "identity": "Architecture index — v5.1 pointer; 29 October scoped-readout repair"
       },
-      "reason": "Points the architecture index at blueprint v5.1 while retaining revision 4.5 as historical design lineage.",
+      "reason": "Updates the active index for scoped canonical readout, all-eligible baseline evidence and the exact native-FP8 blocker while retaining revision 4.5 and historical results.",
       "review_chain": [
         {
           "prior_current_identity": {
             "sha256": "428f44d0228d5770cc8b2f9c207c5a5a034f31c804eb562855b4d65dfcb1854e",
-            "identity": "Architecture index \u2014 v5.1 pointer"
+            "identity": "Architecture index — v5.1 pointer"
           },
           "reviewed_in": "reports/spark_persistent_learner_review_20261028/README.md",
           "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+        },
+        {
+          "prior_current_identity": {
+            "sha256": "37db2853f80970406e005a0369327eb8c25ee6805545afc5345ee42ba015d7c5",
+            "identity": "Architecture index — v5.1 pointer; 28 October direction reconciliation"
+          },
+          "reviewed_in": "docs/experiments/20261029_Spark_Scoped_Readout_and_Recovery.md",
+          "reason": "29 October scoped-readout repair: preserve full-context completeness, current-record authority, exact I/O and native precision boundaries."
         }
       ]
     },
@@ -460,10 +468,18 @@
         "identity": "reviewed HEAD 07f64ab2bc0b93c7c75e57c4c354c0147daddbfd"
       },
       "new": {
-        "sha256": "803d3e3707d468f0815f2b260f655d96e985a54a9ee8a21be2df298381bc13bc",
-        "identity": "28 October persistent learner review: AGENT_START.md"
+        "sha256": "8a6d06897c6963e594b80a9634520c0aa6b35e0686861971f992240b8067b1cc",
+        "identity": "29 October scoped-readout repair: AGENT_START.md"
       },
-      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+      "reason": "29 October scoped-readout repair: update the active handoff with current provenance, full-context controls, exact I/O and native gates.",
+      "review_chain": [{
+        "prior_current_identity": {
+          "sha256": "803d3e3707d468f0815f2b260f655d96e985a54a9ee8a21be2df298381bc13bc",
+          "identity": "28 October persistent learner review: AGENT_START.md"
+        },
+        "reviewed_in": "docs/experiments/20261029_Spark_Scoped_Readout_and_Recovery.md",
+        "reason": "29 October scoped-readout repair: update active handoff evidence and native boundaries."
+      }]
     },
     {
       "path": "execution_state.md",
@@ -473,10 +489,18 @@
         "identity": "reviewed HEAD 07f64ab2bc0b93c7c75e57c4c354c0147daddbfd"
       },
       "new": {
-        "sha256": "8f5469cd192c58a0eddaf502f705081ac5cabb2c612d4f85c18a1044acd0830b",
-        "identity": "28 October persistent learner review: execution_state.md"
+        "sha256": "2a9a722f4c470f74e8c8ec24024077138aba67e88b7f003c19d7892f7083b601",
+        "identity": "29 October scoped-readout repair: execution_state.md"
       },
-      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+      "reason": "29 October scoped-readout repair: update the active handoff with current provenance, full-context controls, exact I/O and native gates.",
+      "review_chain": [{
+        "prior_current_identity": {
+          "sha256": "8f5469cd192c58a0eddaf502f705081ac5cabb2c612d4f85c18a1044acd0830b",
+          "identity": "28 October persistent learner review: execution_state.md"
+        },
+        "reviewed_in": "docs/experiments/20261029_Spark_Scoped_Readout_and_Recovery.md",
+        "reason": "29 October scoped-readout repair: update execution-state evidence and native boundaries."
+      }]
     },
     {
       "path": "docs/architecture/16_Loop_Agent_Instructions.md",
@@ -486,10 +510,18 @@
         "identity": "reviewed HEAD 07f64ab2bc0b93c7c75e57c4c354c0147daddbfd"
       },
       "new": {
-        "sha256": "f9e5b009ecfd76f82cb210cb8faa389e54150b958accaa7585a24a5ac4aea985",
-        "identity": "28 October persistent learner review: 16_Loop_Agent_Instructions.md"
+        "sha256": "198399dacb35c2c66a663052956a82e66c561ceb7d1e0f476aebfd5f9af0bcb1",
+        "identity": "29 October scoped-readout repair: 16_Loop_Agent_Instructions.md"
       },
-      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+      "reason": "29 October scoped-readout repair: update the worker contract for all-eligible baselines, current provenance, exact I/O and native gates.",
+      "review_chain": [{
+        "prior_current_identity": {
+          "sha256": "f9e5b009ecfd76f82cb210cb8faa389e54150b958accaa7585a24a5ac4aea985",
+          "identity": "28 October persistent learner review: 16_Loop_Agent_Instructions.md"
+        },
+        "reviewed_in": "docs/experiments/20261029_Spark_Scoped_Readout_and_Recovery.md",
+        "reason": "29 October scoped-readout repair: update worker instructions and native boundaries."
+      }]
     },
     {
       "path": "docs/architecture/19_Integrated_Memory_Learning_and_RSI_Design.md",
@@ -538,20 +570,38 @@
         "identity": "reviewed HEAD 07f64ab2bc0b93c7c75e57c4c354c0147daddbfd"
       },
       "new": {
-        "sha256": "a6e2d04c6d5da3c520abdb5b054134f8779cd8fafb75899b5a52ecf352bd5161",
-        "identity": "28 October persistent learner review: prepare_sparkx_research_bundle.py"
+        "sha256": "000f70d3befc02d0d1aacddc94663783c443773da4da4cf58ad79c32ab0cf2a7",
+        "identity": "29 October scoped-readout repair: prepare_sparkx_research_bundle.py"
       },
-      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+      "reason": "29 October scoped-readout repair: add repaired protocol, native admission, pressure and claim/evidence inputs to the additive final-product profile only; the standalone full-suite log is not a bundle input and historical inputs remain sealed.",
+      "review_chain": [
+        {
+          "prior_current_identity": {
+            "sha256": "a6e2d04c6d5da3c520abdb5b054134f8779cd8fafb75899b5a52ecf352bd5161",
+            "identity": "28 October persistent learner review: prepare_sparkx_research_bundle.py"
+          },
+          "reviewed_in": "docs/experiments/20261029_Spark_Scoped_Readout_and_Recovery.md",
+          "reason": "29 October scoped-readout repair: add final evidence to the additive bundle without changing the historical profile."
+        }
+      ]
     },
     {
       "path": "docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md",
       "kind": "added",
       "old": null,
       "new": {
-        "sha256": "cb9ce094c4897e548040a6c47dd1c4f0b1e4f28ae02eaba1c82d5fb2cf2b7d14",
-        "identity": "implemented v2 persistent learner and tiered memory architecture"
+        "sha256": "45cfd2907c2c5eb10ebc09fde0b1f7899f64e39e6494b793de9007c440abfa62",
+        "identity": "29 October scoped-readout repair: 28_Spark_Persistent_Learner_and_Tiered_Memory.md"
       },
-      "reason": "28 October Spark persistent-learner review: correct tiny-fixture interpretation and update Spark-first tiered-memory direction; historical results and protocols retained."
+      "reason": "29 October scoped-readout repair: document all-eligible baseline semantics, current-record restoration, correction reconciliation, exact I/O and the native-FP8 blocker.",
+      "review_chain": [{
+        "prior_current_identity": {
+          "sha256": "cb9ce094c4897e548040a6c47dd1c4f0b1e4f28ae02eaba1c82d5fb2cf2b7d14",
+          "identity": "implemented v2 persistent learner and tiered memory architecture"
+        },
+        "reviewed_in": "docs/experiments/20261029_Spark_Scoped_Readout_and_Recovery.md",
+        "reason": "29 October scoped-readout repair: update architecture evidence and native boundaries."
+      }]
     },
     {
       "path": "configs/spark_persistent_learner_tiered_design_v1.json",

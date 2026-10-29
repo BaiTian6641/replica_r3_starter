@@ -929,6 +929,14 @@ FINAL_PRODUCT_INPUT_ROLES.extend([
     ('configs/spark_persistent_learner_protocol_v2.json', 'separately versioned P1 direct-CE and tiered protocol'),
     ('reports/spark_persistent_learner_v2/README.md', 'v2 implementation evidence and native runbook'),
     ('reports/spark_persistent_learner_v2/review02.json', 'preparation-only v2 source and budget review'),
+    ('docs/experiments/20261029_Spark_Scoped_Readout_and_Recovery.md', 'repaired scoped-readout evidence, failure analysis and native/learned boundaries'),
+    ('reports/spark_persistent_learner_v2/native_backend_plan.md', 'exact native-FP8 blocker and distinct derivative backend plan'),
+    ('reports/spark_persistent_learner_v2/native_experiment_packet.json', 'bounded P1 native experiment packet with full-context and exact-I/O budgets'),
+    ('reports/spark_persistent_learner_v2/review_final02.json', 'repaired protocol no-launch admission review'),
+    ('reports/spark_persistent_learner_v2/readout_pressure04.json', 'real-file cache pressure, cold revalidation and correction provenance receipt'),
+    ('reports/spark_persistent_learner_v2/control_baseline.json', 'pre-fix trained-reader leakage reproduction'),
+    ('reports/spark_persistent_learner_v2/control_views_after.json', 'post-fix isolated arm reader and P-state evidence'),
+    ('reports/spark_persistent_learner_v2/recovery_baseline.json', 'recovery reproduction baseline snapshot'),
 ])
 
 PROFILES = {

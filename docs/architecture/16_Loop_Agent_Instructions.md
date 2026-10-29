@@ -38,6 +38,23 @@ before acting; do not repeat already completed repairs.
 - Report measured behavior separately from engineering tests and design
   arithmetic. Check primary research sources before changing a mechanism claim.
 
+## Current receipt — 29 October 2026
+
+The repaired readout/control implementation is committed at `11210d9`.
+`integrated06` matches protocol `49cea2ad` and completes 11 arms and 132
+development cases with engineering acceptance, but all arms remain 0/12. Its
+all-eligible baseline contains all 11 records without truncation. Focused
+protocol/readout/control/recovery tests pass 62.
+The full repository suite passes 3,395 tests with 9 skips and 21 subtests.
+Read the current [v2 runbook](../../reports/spark_persistent_learner_v2/README.md)
+before repeating any storage, recovery or control work.
+
+The native plan and packet are [`native_backend_plan.md`](../../reports/spark_persistent_learner_v2/native_backend_plan.md)
+and [`native_experiment_packet.json`](../../reports/spark_persistent_learner_v2/native_experiment_packet.json).
+Official-FP8 MPS execution is blocked by missing exact forward/backward/update
+backend evidence and external authorization. Do not launch a substitute BF16 or
+dequantized arm under this protocol. No native model job has run.
+
 ## Package 1 — correct the diagnostic and make verification portable
 
 The preserved nine-arm 0/12 result uses a random, pointwise tiny decoder without
@@ -102,6 +119,21 @@ correction during cold I/O, stale encoder versions, cross-scope isolation,
 identity availability and bounded artifact growth. Keep large future checkpoint
 binaries outside Git; detect extensionless archives by size/type. Preserve
 existing historical artifacts.
+
+The connected readout contract is now implemented: call `read_scoped_memory`,
+then restore returned canonical records through the runner's single strict
+restoration path before neural selection/query construction. Ordinary arms use
+two-record semantic selection; only the untouched baseline uses `all_eligible`
+with 16 records/64 slots and refuses truncation. Require current-record
+provenance and matching producer versions; corrections carry current authority
+plus `supersedes`, with explicit reconciliation for an inactive parent. Cold
+tickets bind full scope including `as_of` and revalidate time/verification after
+I/O. Complete all pending tickets before one coherent final selection and
+aggregate every attempt's exact metrics. Empty, stale or incomplete reads are
+refused except for explicitly declared empty controls. Keep `selected_record_ids`
+consistent with the host readout and the baseline free of fitted reader/P state.
+Cache hits, key/payload reads, bytes, cold waits, resumes and revalidations are
+work counters, not quality claims. Logical tier names never establish residency.
 
 ## Package 3 — competent Spark baseline and useful memory readout
 

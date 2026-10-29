@@ -3,9 +3,9 @@
   "kind": "hashed_manifest_not_an_asset_copy",
   "generator": "scripts/prepare_sparkx_research_bundle.py",
   "root_policy": "manifest entry paths are repository-relative; historical receipt contents may quote the origin workspace and are not rewritten",
-  "input_count": 117,
-  "total_input_bytes": 5357521,
-  "bundle_digest": "e1c9a6c085408457a84234fb7af89f5ffa351a833144e4ee969c7e31479bc9d6",
+  "input_count": 125,
+  "total_input_bytes": 5861431,
+  "bundle_digest": "7682e7f8bc992eec8885b3fe8f46e1dc71235daaaebb7110631cc2e9c532d17c",
   "clean_checkout_ready": true,
   "untracked_inputs": [],
   "unstaged_modified_inputs": [],
@@ -14,8 +14,8 @@
     {
       "path": "configs/architecture_implementation_status_v1.json",
       "role": "machine-readable Spark-first construction order and deferred gates",
-      "bytes": 54134,
-      "sha256": "456fe3f8d8e17db67f7fe00a3452c65cd17c609cbb81dc541a3b436cdebe78c5",
+      "bytes": 56252,
+      "sha256": "783cddfd3a8ba9ce5128f55b460334a97c4e1aae4d4da8d52649834f2c066367",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -46,8 +46,8 @@
     {
       "path": "configs/spark_persistent_learner_protocol_v2.json",
       "role": "separately versioned P1 direct-CE and tiered protocol",
-      "bytes": 22770,
-      "sha256": "184d4e06ecea87fe09ab238b7710ff7ab8125d49ed3c42af689b8e8dd6e7b1ed",
+      "bytes": 27343,
+      "sha256": "49cea2ad9d24bd504f88a86595043abc016d4b5fadc5fb60a94d8bb1cf93c4bd",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -166,8 +166,8 @@
     {
       "path": "docs/architecture/16_Loop_Agent_Instructions.md",
       "role": "current bounded worker instructions",
-      "bytes": 10093,
-      "sha256": "f9e5b009ecfd76f82cb210cb8faa389e54150b958accaa7585a24a5ac4aea985",
+      "bytes": 12251,
+      "sha256": "198399dacb35c2c66a663052956a82e66c561ceb7d1e0f476aebfd5f9af0bcb1",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -238,16 +238,16 @@
     {
       "path": "docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md",
       "role": "implemented v2 architecture and native/learned boundaries",
-      "bytes": 24224,
-      "sha256": "cb9ce094c4897e548040a6c47dd1c4f0b1e4f28ae02eaba1c82d5fb2cf2b7d14",
+      "bytes": 27126,
+      "sha256": "45cfd2907c2c5eb10ebc09fde0b1f7899f64e39e6494b793de9007c440abfa62",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
     {
       "path": "docs/architecture/README.md",
       "role": "v5.1 architecture index",
-      "bytes": 11282,
-      "sha256": "37db2853f80970406e005a0369327eb8c25ee6805545afc5345ee42ba015d7c5",
+      "bytes": 11506,
+      "sha256": "3a141af38655767e98f6aabc691833cf36ad10b854a99c7d3d8b40909804ea3e",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -296,6 +296,14 @@
       "role": "Spark text-memory implementation, negative behavioral evidence and next diagnosis",
       "bytes": 7014,
       "sha256": "4469ebe9efa8bd2099b479e9ac9ca392d3129fb073c1f47e2f666b25008bd79b",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "docs/experiments/20261029_Spark_Scoped_Readout_and_Recovery.md",
+      "role": "repaired scoped-readout evidence, failure analysis and native/learned boundaries",
+      "bytes": 9281,
+      "sha256": "8d7d982ba5a3fbc782fc780d75a59150bba63dca0c041b879e6dc561ef6a7724",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -486,8 +494,56 @@
     {
       "path": "reports/spark_persistent_learner_v2/README.md",
       "role": "v2 implementation evidence and native runbook",
-      "bytes": 8654,
-      "sha256": "5d1479ed49bd86227ab070dfbd497a7bd1e474994027707b8026593c7cb3ec4e",
+      "bytes": 16174,
+      "sha256": "41684a6a86b83efcd4f6e440cd40aee0e99ba92e8716d1ee6583f7b6851d3dc4",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/spark_persistent_learner_v2/control_baseline.json",
+      "role": "pre-fix trained-reader leakage reproduction",
+      "bytes": 343,
+      "sha256": "cfa38a6ee4e197abca3b88266cab5971165ccacdd2368845f2d9eeee69634d01",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/spark_persistent_learner_v2/control_views_after.json",
+      "role": "post-fix isolated arm reader and P-state evidence",
+      "bytes": 2676,
+      "sha256": "cabfd5c320eec9dc192e814f5cfa2f834252ee3daabf5340b9a29c1968e25ba0",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/spark_persistent_learner_v2/native_backend_plan.md",
+      "role": "exact native-FP8 blocker and distinct derivative backend plan",
+      "bytes": 5949,
+      "sha256": "f4e7183c4102fd3ebf5f517b4d769274c4175aa01b615e5cd6e68364503cb5bd",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/spark_persistent_learner_v2/native_experiment_packet.json",
+      "role": "bounded P1 native experiment packet with full-context and exact-I/O budgets",
+      "bytes": 5309,
+      "sha256": "0523532d957e57813d6514db8fbb14477f99e26ef22a99af93149cf17276c2ca",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/spark_persistent_learner_v2/readout_pressure04.json",
+      "role": "real-file cache pressure, cold revalidation and correction provenance receipt",
+      "bytes": 445170,
+      "sha256": "d535843c62f1d915ae7304172349b554912d05c2149bbda38b21433897f9ca3b",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/spark_persistent_learner_v2/recovery_baseline.json",
+      "role": "recovery reproduction baseline snapshot",
+      "bytes": 2610,
+      "sha256": "366888559e2b1250c3e285fa7a957e077e01f3ed52406cc6d7669c736fdebcf5",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -496,6 +552,14 @@
       "role": "preparation-only v2 source and budget review",
       "bytes": 5043,
       "sha256": "46f0fe8b6dda1b4f63456c097957de8aa789e189ff69c1d40d8e7a7dbb265379",
+      "tracked_in_git": true,
+      "worktree_matches_index": true
+    },
+    {
+      "path": "reports/spark_persistent_learner_v2/review_final02.json",
+      "role": "repaired protocol no-launch admission review",
+      "bytes": 8050,
+      "sha256": "1a9c8755663323e33f63f69e218bccc61239aa720ed03365d2b0cc941d3cf718",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -551,7 +615,7 @@
       "path": "reports/sparkx_final_product_20261026/portable_evidence.json",
       "role": "portable required-evidence and source-pin inventory",
       "bytes": 17480,
-      "sha256": "c54575156941e3a318d9065d62a313d81fa8f08a5ef98f0aa348820ec5855adf",
+      "sha256": "c3bc48764a3278ba9795cd95ae4ac46c65e01062ee5a897bdf6d9d3c3e88c492",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -574,8 +638,8 @@
     {
       "path": "reports/sparkx_final_product_20261026/reviewed_input_changes.json",
       "role": "explicitly reviewed snapshot and historical-manifest changes",
-      "bytes": 16315,
-      "sha256": "dc9e1e17a2e418d37e6254e707d208877531f8c18ada6c9d46955b2cd9e83e88",
+      "bytes": 17263,
+      "sha256": "e470f2f51eccd03de72c62e206e34d54f5972d14acd69d10385e46cf485f3965",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -663,7 +727,7 @@
       "path": "reports/sparkx_v5_1_review_20261027/deliverables.json",
       "role": "v5.1 authored-output hash pins",
       "bytes": 7998,
-      "sha256": "c6b167d1c80c9a0390248c49f298904bd2099afe852ba5a62e26247eb3d05a19",
+      "sha256": "40cfd4976e14f74962d10ce437bf185ca4e4e1432f64e2cb782d98fb88384c93",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -774,8 +838,8 @@
     {
       "path": "reports/sparkx_v5_1_review_20261027/migration_manifest.json",
       "role": "v5.1 reviewed old/new identity and arithmetic migration manifest",
-      "bytes": 40459,
-      "sha256": "3755b6affc4f427fe0f297e4d780d37eee1282ea8791fe0e71be719466670d31",
+      "bytes": 43320,
+      "sha256": "5ec40f0aa6e3142c615665a01a6473d0384dd9551b7fdc52530c442a86a42520",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
@@ -870,16 +934,16 @@
     {
       "path": "src/replica_lab/architecture/spine_memory.py",
       "role": "bounded evidence bank, selected P reader and source-free intervention",
-      "bytes": 64238,
-      "sha256": "c796bec8d0d6d2135a19fb6144471a26fd715d7204b940061421ab8cd8ed471e",
+      "bytes": 64584,
+      "sha256": "2b826bb70973210a5bd611de0415a5b7ef63914d8ff23dcb724d0362f1ca7626",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },
     {
       "path": "src/replica_lab/architecture/spine_text.py",
       "role": "versioned text producer, causal query adapter and response supervision",
-      "bytes": 52267,
-      "sha256": "954f9807c111a7eb903ed48f02da85259e9e98cba9b6f8716ad01055eea1738a",
+      "bytes": 53139,
+      "sha256": "d359fbbd2a5a5167ff67421fe8bad50b6d879b79192879bddd97bf277e552f9a",
       "tracked_in_git": true,
       "worktree_matches_index": true
     },

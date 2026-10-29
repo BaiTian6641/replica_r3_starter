@@ -11,8 +11,12 @@ The active model is the user's official Spark-X2.6-4B-FP8 source. The
 [architecture audit](27_Spark_X2_6_4B_Architecture_Research_Review.md) governs native
 geometry; the [v1 text milestone](26_Spark_Text_Memory_Milestone.md) preserves
 its implemented contracts and sealed control. V2 implements P1 direct response
-CE and durable tiers on CPU; P4/P128 profiles remain lazy. Native FP8 execution,
-full-context competence and useful learning remain open. MiniCPM remains a
+CE, durable tiers and scoped canonical readout on CPU at `11210d9`; `integrated06`
+passes engineering checks with all 11 baseline records present and all 11 arms
+remain 0/12. P4/P128 profiles remain
+lazy. Native official-FP8 execution is blocked pending exact backend evidence
+and external authorization; full-context competence and useful learning remain
+open. MiniCPM remains a
 control; native multimodal training is deferred. Identity, task workspace and
 measured capability remain separate from learned facts.
 

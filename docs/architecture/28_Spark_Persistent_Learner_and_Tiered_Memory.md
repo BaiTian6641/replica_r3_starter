@@ -44,6 +44,50 @@ late-site behavior and native full-context competence are unmeasured. No native
 model, download, precision substitution, promotion or learned-capability claim
 is established by this engineering work.
 
+### 1.1 Integrated readout, recovery and control receipt
+
+The current implementation adds `tiered_readout.py` between the scoped store and
+the existing neural query builder. Scope, time and verification filters run
+before semantic key reads; failed-check and quarantined records are excluded.
+Selection is semantic and bounded to two records for ordinary arms. The untouched
+baseline instead uses an explicit `all_eligible` mode with at most 16 records/64
+value slots and refuses truncation or incomplete authority.
+
+Restoration accepts only a current-record provenance object whose ID and text
+digest match the store row. Source epoch, validity, lineage,
+producer/representation/codec versions and correction links must match the neural
+producer and any active mirror. Corrections retain an explicit predecessor and
+current provenance; ancestor metadata never substitutes for them. When the
+neural parent is already inactive, an explicit reconciliation path admits the
+authorized correction without reviving it. Missing authority is refused.
+
+Cold tickets bind the complete scope, including `as_of`, and revalidate scope,
+time, verification, status, generation, representation and payload digests after
+I/O. Multiple pending tickets are completed before one coherent final selection;
+all attempt metrics are aggregated and any earlier boundary blocks generation.
+Exact accounting includes candidate keys, admitted text/values and payload reads
+later rejected by validation. The in-process LRU is not physical residency and
+does not remove internal selection I/O.
+
+Eleven arms separate untouched full context, exact/procedure reference,
+pre-reader and frozen-trained-reader E access, source-free P, E+P, reset/no-update,
+shuffled, inapplicable and replay-without-update conditions. Reader and P state
+are restored per arm; shuffling preserves correction links. `integrated06`
+matches the final protocol hash and passes engineering acceptance over 132
+cases. Every baseline contains all 11 eligible records without truncation;
+every arm remains 0/12, so useful learned readout is not established.
+
+The independent pressure probe `readout_pressure04.json` observes two cache hits,
+one eviction, a real cold wait, five rejected cold payload reads/4,114 bytes and
+a successful corrected cold read with current provenance. Conservative ceilings
+are 296 selection attempts, 66,304 total file reads, 23,680 payload/cold reads,
+2,368 cold tickets/resumes and 7,104 revalidations; they are not measurements.
+
+Implementation commit: `11210d99f7391423a22d0a0dae7be78fc87e66c9`. Protocol
+SHA-256: `49cea2ad9d24bd504f88a86595043abc016d4b5fadc5fb60a94d8bb1cf93c4bd`.
+Native official-FP8 execution remains blocked before model launch; see the
+[backend plan](../../reports/spark_persistent_learner_v2/native_backend_plan.md).
+
 ## 2. State ownership and the permanent spine
 
 | State | Content and authority | Persistence and updates |
@@ -356,13 +400,15 @@ A trained lifelong-learning or RSI claim remains unestablished.
 flowchart LR
   A[Known source observations] --> B[Scoped tiered store]
   A --> C[Query sensing and causal selection]
-  B --> C
+  B --> R[Bounded readout and post-I/O revalidation]
+  R --> K[Canonical E restoration]
+  K --> C
   C --> D[Direct response CE]
   D --> E[Selected P owner]
   D --> F[Port-output-only owner]
   E --> G[Extension and dynamic checkpoints]
   F --> G
-  G --> H[Ten controls and raw outcomes]
+  G --> H[Eleven controls and raw outcomes]
   H --> I[Fresh-process P-only restart]
   J[Exact native FP8 backend evidence] -. missing .-> C
 ```
