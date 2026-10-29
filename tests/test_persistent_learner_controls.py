@@ -91,7 +91,7 @@ def test_all_arm_views_restore_declared_state_and_untouched_parity(tmp_path):
     protocol, dataset, backend = _protocol_dataset_backend()
     fit, _, pre_port, trained_port = _trained_path_and_fit(protocol, dataset, backend)
     tiered = _open_tiered(protocol, tmp_path)
-    _tiered_admit_rows(tiered, dataset.observations())
+    _tiered_admit_rows(tiered, dataset.observations(), fit.path.producer)
     _tiered_sync_procedures(tiered, dataset.procedures())
     views = build_arm_views(protocol, fit, dataset, tiered=tiered)
     case = dataset._rows("development.jsonl")[0]
@@ -102,6 +102,11 @@ def test_all_arm_views_restore_declared_state_and_untouched_parity(tmp_path):
         actual = _port_output_snapshot(view.path)
         assert all(torch.equal(actual[name], view.port_state[name]) for name in actual), arm
         if view.untouched_baseline:
+            readout = view.readout_results[str(case["case_id"])]
+            assert readout.candidate_count == len(readout.records)
+            assert readout.truncated is False
+            assert readout.diagnostics["selection_mode"] == "all_eligible"
+            assert all(text in prompt for text in readout.texts if text)
             response = view.path.respond(query, extra_passes=("null",))
             assert torch.equal(response.logits, response.null_logits["null"])
             assert query.context.enabled_branches == ()

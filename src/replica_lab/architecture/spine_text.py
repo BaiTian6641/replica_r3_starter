@@ -597,7 +597,7 @@ class SparkTextMemoryPath:
                      durable_ref: Mapping[str, Any] | None = None,
                      retain_canonical_text: bool = True,
                      payload_type: str = "observation", verified: bool = False,
-                     supersedes: str | None = None) -> StoredText:
+                     supersedes: str | None = None, reconcile: bool = False) -> StoredText:
         produced = self.producer.produce(
             text, record_id=record_id, scope=self.experiment.scope,
             source_epoch=source_epoch, available_at=available_at,
@@ -605,7 +605,7 @@ class SparkTextMemoryPath:
             source_lineage=source_lineage or {"source": "direct_text_observation"},
             durable_ref=durable_ref, retain_canonical_text=retain_canonical_text,
             payload_type=payload_type, verified=verified, supersedes=supersedes)
-        admitted = self.experiment.observe(produced.record)
+        admitted = self.experiment.observe(produced.record, reconcile=reconcile)
         if admitted:
             if supersedes is not None:
                 self.texts.pop(supersedes, None)

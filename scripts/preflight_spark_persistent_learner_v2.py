@@ -42,6 +42,16 @@ def derive_work(config: Mapping[str, Any]) -> dict[str, int]:
     restarts = int(schedule["restarts"])
     replay = int(schedule["replay_events_max"])
     query = 2 * fit + requests * new_tokens + 1
+    readout_queries = 3 * fit + requests + 1
+    memory = config["memory_contract"]
+    full_records = int(memory["full_context_records_max"])
+    candidate_key_reads = int(memory["readout_candidate_key_reads_max_per_selection"])
+    selection_attempts = int(memory["readout_selection_attempts_max_per_query"])
+    # Each selected record costs one text read plus four value reads. This
+    # runner does not request exact-phrase fallback reads.
+    selection_reads = readout_queries * selection_attempts * (
+        candidate_key_reads + 5 * full_records)
+    payload_reads = readout_queries * 2 * 5 * full_records
     expected = {
         "development_cases": arms * cases,
         "arms": arms,
@@ -81,23 +91,24 @@ def derive_work(config: Mapping[str, Any]) -> dict[str, int]:
         "influence_check_processed_positions_max": 2 * prompt,
         "replay_forward_calls_max": replay,
         "replay_processed_positions_max": replay * prompt,
-        "retrieval_calls_max": 3 * fit + requests + 1,
+        "retrieval_calls_max": readout_queries,
         "verification_calls_max": (3 * fit + arms * cases
             + int(schedule["parity_requests"]) + int(schedule["restart_parity_requests"])),
         "checkpoint_writes_max": fit + 1,
         "retained_checkpoint_artifacts_max": fit,
         "reloads_max": restarts,
-        "cache_hits_max": 2 * (3 * fit + requests + 1),
-        "cache_misses_max": 2 * (3 * fit + requests + 1),
-        "readout_file_reads_max": 30 * (3 * fit + requests + 1),
+        "cache_hits_max": 2 * full_records * readout_queries,
+        "cache_misses_max": 2 * full_records * readout_queries,
+        "readout_selection_calls_max": selection_attempts * readout_queries,
+        "readout_file_reads_max": selection_reads + payload_reads,
         "readout_io_bytes_max": 1073741824,
-        "cold_recall_tickets_max": 2 * (3 * fit + requests + 1),
-        "cold_recall_resumes_max": 2 * (3 * fit + requests + 1),
+        "cold_recall_tickets_max": full_records * readout_queries,
+        "cold_recall_resumes_max": full_records * readout_queries,
         "revalidation_failures_max": 0,
-        "payload_read_calls_max": 2 * (3 * fit + requests + 1),
-        "payload_file_reads_max": 20 * (3 * fit + requests + 1),
+        "payload_read_calls_max": 2 * full_records * readout_queries,
+        "payload_file_reads_max": payload_reads,
         "payload_io_bytes_max": 1073741824,
-        "revalidations_max": 32 * (3 * fit + requests + 1),
+        "revalidations_max": 3 * full_records * readout_queries,
     }
     for key, value in expected.items():
         _require(schedule.get(key) == value, "budget",
@@ -141,7 +152,10 @@ def validate_config(config: Mapping[str, Any], root: Path = ROOT) -> dict[str, A
                 "active_read_slots_max", "readable_value_slots_per_record",
                 "readable_value_width", "snapshot_cache_entries_max", "metadata_bytes_max",
                 "replay_bytes_max", "journal_records_max", "journal_bytes_max",
-                "checkpoint_transient_bytes_max", "identity_reservation_bytes"):
+                "checkpoint_transient_bytes_max", "identity_reservation_bytes",
+                "full_context_records_max", "full_context_value_slots_max",
+                "readout_candidate_key_reads_max_per_selection",
+                "readout_selection_attempts_max_per_query"):
         _require(type(memory[key]) is int and memory[key] > 0,
                  "memory", f"{key} must be positive")
     _require(memory["active_read_slots_max"] <= 8, "memory",
@@ -201,6 +215,15 @@ def validate_config(config: Mapping[str, Any], root: Path = ROOT) -> dict[str, A
         "controls", "frozen trained-reader comparison set differs")
     _require(memory["port_state_restoration"] == "exact_output_projection_identity_set_required",
              "memory", "exact port-state restoration is required")
+    _require(memory["full_context_records_max"] == 16
+             and memory["full_context_value_slots_max"] == 64,
+             "memory", "full-context expansion must be explicit 16 records/64 slots")
+    _require(memory["readout_candidate_key_reads_max_per_selection"] == 64
+             and memory["readout_selection_attempts_max_per_query"] == 2,
+             "memory", "readout candidate and selection-attempt caps changed")
+    _require(memory["full_context_selection"] == "all_eligible_without_semantic_score_filter"
+             and memory["verification_filter"] == "exclude_failed_check_and_quarantined_before_key_reads",
+             "memory", "full-context and verification contracts changed")
     _require(config["success_criteria"]["reasoning_reuse"]["accuracy_gain_required"] is False,
              "success", "reasoning noninferiority must not require an accuracy gain")
     _require(config["learned_writer"]["online_parameter"] == "D_only"

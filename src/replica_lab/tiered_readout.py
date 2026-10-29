@@ -61,13 +61,14 @@ What is *not* claimed
 
 Known integration limit
 -----------------------
-``TieredMemoryStore.select`` reads the payload bytes it admits (warm canonical
-text and ordered values) even when the caller only needs ordering and metadata.
-This readout reports those bytes as ``selection_admitted_payload_bytes``
-(store-reported) and performs additional reads only when selection did not
-admit a full payload.  There is currently no ordering-only selection call in
-the store, so a warm read that avoids all readout-level I/O still pays the
-store's internal selection read.  The payload cache removes repeated
+``TieredMemoryStore.select`` reads candidate retrieval keys and the payload
+bytes it admits (warm canonical text and ordered values) even when the caller
+only needs ordering and metadata. This readout reports exact
+``selection_file_reads``/``selection_io_bytes`` from the store, including
+candidate keys, admitted payloads and exact fallback reads; the admitted
+subset remains separately visible. There is currently no ordering-only
+selection call, so a warm read that avoids readout-level payload I/O still pays
+the store's internal selection reads. The payload cache removes repeated
 *readout-level* reads and all repeated cold reads.
 
 Threading / lifetime
@@ -84,7 +85,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields as dataclass_fields
 import hashlib
 import json
 import math
@@ -121,6 +122,7 @@ __all__ = [
     "ScopedMemoryRecord",
     "PendingColdReadout",
     "ReadoutMetrics",
+    "merge_readout_metrics",
     "ScopedMemoryReadout",
     "read_scoped_memory",
     "resume_scoped_readout",
@@ -196,6 +198,7 @@ class ReadoutBudget:
     max_cold_bytes: int = DEFAULT_COLD_IO_BUDGET_BYTES
     cold_wait_seconds: float = 2.0
     cache_bytes: int = DEFAULT_READOUT_CACHE_BYTES
+    allow_expanded_context: bool = False
 
     def __post_init__(self) -> None:
         for name in ("max_records", "max_value_slots", "max_exact_text_bytes",
@@ -204,6 +207,8 @@ class ReadoutBudget:
             _nonnegative_int(name, getattr(self, name))
         if not math.isfinite(self.cold_wait_seconds) or self.cold_wait_seconds < 0:
             raise ValueError("cold_wait_seconds must be finite and nonnegative")
+        if type(self.allow_expanded_context) is not bool:
+            raise ValueError("allow_expanded_context must be boolean")
         # Reuse the store's cap checks (raises BudgetError on over-wide calls).
         RetrievalBudget(
             max_records=self.max_records,
@@ -213,6 +218,7 @@ class ReadoutBudget:
             max_spans=self.max_spans,
             max_cold_bytes=self.max_cold_bytes,
             cold_wait_seconds=self.cold_wait_seconds,
+            allow_expanded_context=self.allow_expanded_context,
         )
 
     def retrieval_budget(self) -> RetrievalBudget:
@@ -224,6 +230,7 @@ class ReadoutBudget:
             max_spans=self.max_spans,
             max_cold_bytes=self.max_cold_bytes,
             cold_wait_seconds=self.cold_wait_seconds,
+            allow_expanded_context=self.allow_expanded_context,
         )
 
     @classmethod
@@ -239,6 +246,7 @@ class ReadoutBudget:
             max_spans=budget.max_spans,
             max_cold_bytes=budget.max_cold_bytes,
             cold_wait_seconds=budget.cold_wait_seconds,
+            allow_expanded_context=budget.allow_expanded_context,
             cache_bytes=(DEFAULT_READOUT_CACHE_BYTES if cache_bytes is None
                          else cache_bytes),
         )
@@ -253,6 +261,7 @@ class ReadoutBudget:
             "max_cold_bytes": self.max_cold_bytes,
             "cold_wait_seconds": self.cold_wait_seconds,
             "cache_bytes": self.cache_bytes,
+            "allow_expanded_context": self.allow_expanded_context,
             "cross_class_borrowing": False,
             "cache_is_logical_tier_copy": False,
         }
@@ -596,6 +605,9 @@ class ReadoutMetrics:
     page_cache_residency_claimed: bool = False
     semantic_compression_claimed: bool = False
     cache_is_in_process_copy: bool = True
+    selection_file_reads: int = 0
+    selection_io_bytes: int = 0
+    selection_calls: int = 0
     io_provenance: Mapping[str, str] = field(default_factory=dict)
 
     def document(self) -> dict:
@@ -617,6 +629,9 @@ class ReadoutMetrics:
                 "admitted_value_slots": self.selection_admitted_value_slots,
                 "admitted_payload_bytes": self.selection_admitted_payload_bytes,
                 "admitted_file_reads": self.selection_admitted_file_reads,
+                "file_reads": self.selection_file_reads,
+                "io_bytes": self.selection_io_bytes,
+                "calls": self.selection_calls,
                 "ns": self.selection_ns,
             },
             "payload_reads": {
@@ -987,7 +1002,8 @@ def _revalidate(store: TieredMemoryStore, pin: Mapping[str, object],
                 scope_key: str, live: _Live | None, *,
                 payload_text: str | None = None,
                 payload_values: Sequence[Sequence[float]] | None = None,
-                payload_value_sha: Sequence[str] | None = None) -> _Verdict:
+                payload_value_sha: Sequence[str] | None = None,
+                scope: MemoryScope | None = None) -> _Verdict:
     """Compare a pre-read pin, post-read index state and the held payload."""
     checks: list[str] = []
     record_id = str(pin["record_id"])
@@ -1003,6 +1019,21 @@ def _revalidate(store: TieredMemoryStore, pin: Mapping[str, object],
                         "record_revoked_or_superseded_during_readout",
                         tuple(checks), True)
     checks.append(f"status:{record_id}")
+    if str(row["verification_state"]) not in {
+            "unverified", "verified_source", "observed_tool", "verified_human"}:
+        return _Verdict("invalidated", "verification_state_changed_during_readout",
+                        tuple(checks), True)
+    checks.append(f"verification:{record_id}")
+    if scope is not None:
+        cutoff = scope.cutoff
+        valid_from = row.get("valid_from")
+        valid_to = row.get("valid_to")
+        if (int(row["observed_at"]) > cutoff
+                or (valid_from is not None and int(valid_from) > cutoff)
+                or (valid_to is not None and int(valid_to) <= cutoff)):
+            return _Verdict("invalidated", "record_outside_time_scope_after_io",
+                            tuple(checks), True)
+        checks.append(f"time_scope:{record_id}")
     if int(row["revision"]) != int(pin["revision"]):
         return _Verdict("invalidated", "record_revision_changed_during_readout",
                         tuple(checks), True)
@@ -1080,6 +1111,9 @@ class _Stats:
     selection_admitted_value_slots: int = 0
     selection_admitted_payload_bytes: int = 0
     selection_admitted_file_reads: int = 0
+    selection_file_reads: int = 0
+    selection_io_bytes: int = 0
+    selection_calls: int = 0
     selection_ns: int = 0
     payload_read_calls: int = 0
     payload_file_reads: int = 0
@@ -1127,10 +1161,10 @@ def _acquire_direct(store: TieredMemoryStore, record_id: str,
         record_id, scope=scope, budget=budget.retrieval_budget())
     stats.payload_read_calls += 1
     stats.payload_io_bytes += int(result.io_bytes)
+    stats.payload_file_reads += int(result.file_reads)
     acquired: _Acquired
     if result.status == "ready" and result.records:
         recalled = result.records[0]
-        stats.payload_file_reads += 1 + int(recalled.value_slots)
         acquired = _Acquired(
             status="ok", reason="direct_payload_ready", retryable=False,
             boundary=bool(result.new_decision_boundary),
@@ -1139,7 +1173,7 @@ def _acquire_direct(store: TieredMemoryStore, record_id: str,
             value_sha256=tuple(recalled.value_sha256),
             payload_source="read_record", checks=tuple(result.checks),
             io_bytes=int(result.io_bytes),
-            file_reads=1 + int(recalled.value_slots))
+            file_reads=int(result.file_reads))
     else:
         acquired = _Acquired(
             status=result.status, reason=result.outcome.reason,
@@ -1147,7 +1181,7 @@ def _acquire_direct(store: TieredMemoryStore, record_id: str,
             boundary=bool(result.new_decision_boundary),
             text=None, values=None, text_sha256="", value_sha256=(),
             payload_source="read_record", checks=tuple(result.checks),
-            io_bytes=int(result.io_bytes), file_reads=0)
+            io_bytes=int(result.io_bytes), file_reads=int(result.file_reads))
     stats.payload_ns += _perf_ns() - started
     return acquired
 
@@ -1186,9 +1220,9 @@ def _acquire_cold(store: TieredMemoryStore, selection_id: str,
     stats.cold_resumes += 1
     stats.cold_io_bytes += int(waited.io_bytes)
     stats.cold_revalidation_checks += len(waited.checks)
+    stats.cold_file_reads += int(waited.file_reads)
     if waited.status == "ready" and waited.records:
         recalled = waited.records[0]
-        stats.cold_file_reads += 1 + int(recalled.value_slots)
         acquired = _Acquired(
             status="ok", reason="cold_payload_ready", retryable=False,
             boundary=bool(waited.new_decision_boundary),
@@ -1197,7 +1231,7 @@ def _acquire_cold(store: TieredMemoryStore, selection_id: str,
             value_sha256=tuple(recalled.value_sha256),
             payload_source="cold_recall", checks=tuple(waited.checks),
             io_bytes=int(waited.io_bytes),
-            file_reads=1 + int(recalled.value_slots))
+            file_reads=int(waited.file_reads))
     else:
         acquired = _Acquired(
             status=waited.status, reason=waited.outcome.reason,
@@ -1206,7 +1240,7 @@ def _acquire_cold(store: TieredMemoryStore, selection_id: str,
             boundary=bool(waited.new_decision_boundary),
             text=None, values=None, text_sha256="", value_sha256=(),
             payload_source="cold_recall", checks=tuple(waited.checks),
-            io_bytes=int(waited.io_bytes), file_reads=0)
+            io_bytes=int(waited.io_bytes), file_reads=int(waited.file_reads))
     stats.cold_ns += _perf_ns() - started
     return acquired
 
@@ -1318,7 +1352,7 @@ def _string_or_none(mapping: Mapping[str, object], name: str) -> str | None:
 def _lineage_and_provenance(row: Mapping[str, object]
                             ) -> tuple[tuple[str, ...],
                                        Mapping[str, object] | None, bool]:
-    """Decode the exact stored source lineage without inventing entries."""
+    """Decode only the lineage object belonging to the current record."""
     try:
         items = json.loads(str(row.get("source_lineage", "[]")))
     except (TypeError, ValueError):
@@ -1327,20 +1361,16 @@ def _lineage_and_provenance(row: Mapping[str, object]
         return (), None, False
     lineage = tuple(item for item in items if isinstance(item, str))
     if len(lineage) != len(items):
-        # Stored lineage is a JSON list of identifiers; refuse to silently
-        # coerce a malformed value into something that looks authoritative.
         return lineage, None, False
-    parsed: Mapping[str, object] | None = None
-    parsed_ok = False
-    if lineage:
+    record_id = str(row.get("record_id", ""))
+    for item in reversed(lineage):
         try:
-            candidate = json.loads(lineage[0])
+            candidate = json.loads(item)
         except (TypeError, ValueError):
-            candidate = None
-        if isinstance(candidate, dict):
-            parsed = dict(candidate)
-            parsed_ok = True
-    return lineage, parsed, parsed_ok
+            continue
+        if isinstance(candidate, dict) and candidate.get("record_id") == record_id:
+            return lineage, dict(candidate), True
+    return lineage, None, False
 
 
 def _manifest_reference(store: TieredMemoryStore, live: _Live
@@ -1446,6 +1476,10 @@ def _restore_fields(store: TieredMemoryStore | None, live: _Live | None
     supersedes = (raw_supersedes
                   if isinstance(raw_supersedes, str) and raw_supersedes
                   else None)
+    if str(row["kind"]) == "correction" and lineage:
+        predecessor = lineage[-1]
+        if predecessor != str(row["record_id"]):
+            supersedes = predecessor
     recorded_durable = provenance_map.get("durable_ref")
     if not isinstance(recorded_durable, Mapping):
         recorded_durable = None
@@ -1496,6 +1530,8 @@ def _restore_fields(store: TieredMemoryStore | None, live: _Live | None
         "representation_version": representation_version,
         "codec_version": codec_version,
         "payload_type": payload_type,
+        "supersedes": supersedes,
+        "supersedes_available": supersedes is not None,
     }
     return {
         "available_at": available_at,
@@ -1520,7 +1556,7 @@ def _restore_fields(store: TieredMemoryStore | None, live: _Live | None
         "payload_type": payload_type,
         "payload_type_available": payload_type is not None,
         "supersedes": supersedes,
-        "supersedes_available": "supersedes" in provenance_map,
+        "supersedes_available": supersedes is not None,
         "superseded_by": row.get("superseded_by"),
         "record_hash": str(row["record_hash"]),
         "scope_key": str(row["scope_key"]),
@@ -1729,9 +1765,9 @@ def _finish_metrics(stats: _Stats, cache: _StoreCache,
         for name in ("ok", "degraded", "incomplete", "denied",
                      "invalidated", "stale", "in_progress")
     }
-    total_file_reads = (stats.selection_admitted_file_reads
+    total_file_reads = (stats.selection_file_reads
                         + stats.payload_file_reads + stats.cold_file_reads)
-    total_io_bytes = (stats.selection_admitted_payload_bytes
+    total_io_bytes = (stats.selection_io_bytes
                       + stats.payload_io_bytes + stats.cold_io_bytes)
     return ReadoutMetrics(
         cache_hits=stats.cache_hits,
@@ -1747,6 +1783,9 @@ def _finish_metrics(stats: _Stats, cache: _StoreCache,
         selection_admitted_value_slots=stats.selection_admitted_value_slots,
         selection_admitted_payload_bytes=stats.selection_admitted_payload_bytes,
         selection_admitted_file_reads=stats.selection_admitted_file_reads,
+        selection_file_reads=stats.selection_file_reads,
+        selection_io_bytes=stats.selection_io_bytes,
+        selection_calls=stats.selection_calls,
         selection_ns=stats.selection_ns,
         payload_read_calls=stats.payload_read_calls,
         payload_file_reads=stats.payload_file_reads,
@@ -1776,18 +1815,44 @@ def _finish_metrics(stats: _Stats, cache: _StoreCache,
         total_ns=total_ns,
         io_provenance={
             "selection": (
-                "store_reported_admitted_payload_bytes_from_select; the store "
-                "does not expose per-file counts for its internal selection read"),
+                "exact verified-read accounting from TieredMemoryStore.select: "
+                "candidate keys, admitted payloads and exact fallback"),
             "payload_reads": (
-                "exact RecallResult.io_bytes from TieredMemoryStore.read_record"),
+                "exact RecallResult.io_bytes and file_reads from "
+                "TieredMemoryStore.read_record"),
             "cold_recall": (
-                "exact RecallResult.io_bytes from wait_recall/resume_recall"),
+                "exact RecallResult.io_bytes and file_reads from "
+                "wait_recall/resume_recall, including rejected reads"),
             "file_read_counts": (
-                "payload and cold counts are exact for ready reads; selection "
-                "counts are derived from admitted payloads"),
+                "actual read_bytes calls, including payloads later rejected "
+                "by digest, scope or generation validation"),
             "artificial_delay": "none",
         },
     )
+
+def merge_readout_metrics(metrics: Sequence[ReadoutMetrics]) -> ReadoutMetrics:
+    """Sum actual work across readout attempts, retaining final state gauges."""
+    items = tuple(metrics)
+    if not items:
+        raise ValueError("at least one readout metric set is required")
+    final = items[-1]
+    gauges = {
+        "cache_entries", "cache_bytes", "cache_bound_bytes", "cold_in_progress",
+        "records_returned", "records_ready", "records_degraded",
+        "records_incomplete", "records_denied", "records_invalidated",
+        "records_stale", "records_in_progress", "timings_are_wall_clock",
+        "artificial_delay", "larger_bank_allocated", "gpu_resident",
+        "page_cache_residency_claimed", "semantic_compression_claimed",
+        "cache_is_in_process_copy", "io_provenance",
+    }
+    values = {}
+    for descriptor in dataclass_fields(ReadoutMetrics):
+        name = descriptor.name
+        if name in gauges:
+            values[name] = getattr(final, name)
+        else:
+            values[name] = sum(getattr(item, name) for item in items)
+    return ReadoutMetrics(**values)
 
 
 def _diagnostics(budget: ReadoutBudget,
@@ -1804,8 +1869,8 @@ def _diagnostics(budget: ReadoutBudget,
         "neural_memory_claimed": False,
         "cold_wait_resume": "begin_recall -> wait_recall -> resume_recall",
         "post_io_revalidation": (
-            "scope,status,revision,cluster_generation,representation_version,"
-            "retrieval_key,ordered_values,payload_digests"),
+            "scope,time_scope,verification,status,revision,cluster_generation,"
+            "representation_version,retrieval_key,ordered_values,payload_digests"),
         "page_cache_residency_measured": False,
         "gpu_residency_measured": False,
         "larger_bank_allocated": False,
@@ -1853,8 +1918,8 @@ def _empty_readout(*, store: TieredMemoryStore, query_text: str,
 
 def read_scoped_memory(store: TieredMemoryStore, query_text: str,
                        scope: MemoryScope,
-                       budget: ReadoutBudget | RetrievalBudget | None = None
-                       ) -> ScopedMemoryReadout:
+                       budget: ReadoutBudget | RetrievalBudget | None = None,
+                       selection_mode: str = "semantic") -> ScopedMemoryReadout:
     """Read scoped evidence for neural query construction.
 
     Returns ordered records with canonical text references, retrieval-key
@@ -1868,6 +1933,8 @@ def read_scoped_memory(store: TieredMemoryStore, query_text: str,
         raise ValueError("query_text must be a string")
     if not isinstance(scope, MemoryScope):
         raise TypeError("scope must be a MemoryScope")
+    if selection_mode not in {"semantic", "all_eligible"}:
+        raise ValueError("selection_mode must be semantic or all_eligible")
     budget = _coerce_budget(budget)
     total_started = _perf_ns()
     stats = _Stats()
@@ -1876,7 +1943,11 @@ def read_scoped_memory(store: TieredMemoryStore, query_text: str,
 
     selection_started = _perf_ns()
     selection = store.select(
-        query_text, scope=scope, budget=budget.retrieval_budget())
+        query_text, scope=scope, budget=budget.retrieval_budget(),
+        selection_mode=selection_mode)
+    stats.selection_calls = 1
+    stats.selection_file_reads = int(selection.file_reads)
+    stats.selection_io_bytes = int(selection.io_bytes)
     stats.selection_ns = _perf_ns() - selection_started
     stats.selection_admitted_text_bytes = int(selection.used_text_bytes)
     stats.selection_admitted_value_slots = int(selection.used_value_slots)
@@ -1950,7 +2021,7 @@ def read_scoped_memory(store: TieredMemoryStore, query_text: str,
                 verdict = _revalidate(
                     store, pin, scope.scope_key, live,
                     payload_text=entry.text, payload_values=entry.values,
-                    payload_value_sha=entry.value_sha256)
+                    payload_value_sha=entry.value_sha256, scope=scope)
                 stats.revalidations += 1
                 if not verdict.ok:
                     stats.revalidation_failures += 1
@@ -2005,7 +2076,7 @@ def read_scoped_memory(store: TieredMemoryStore, query_text: str,
                         store, pin, scope.scope_key, post,
                         payload_text=acquired.text,
                         payload_values=acquired.values,
-                        payload_value_sha=acquired.value_sha256)
+                        payload_value_sha=acquired.value_sha256, scope=scope)
                     stats.revalidation_ns += _perf_ns() - revalidation_started
                     stats.revalidations += 1
                     if not verdict.ok:
@@ -2068,6 +2139,7 @@ def read_scoped_memory(store: TieredMemoryStore, query_text: str,
     detail = {
         "candidate_count": int(selection.candidate_count),
         "semantic_candidate_count": int(selection.candidate_count),
+        "selection_mode": selection_mode,
         "truncated": bool(selection.truncated),
         "fallback_mode": selection.fallback_mode,
         "representation_stale": bool(selection.representation_stale),
@@ -2105,7 +2177,7 @@ def read_scoped_memory(store: TieredMemoryStore, query_text: str,
         incomplete_record_ids=incomplete_ids,
         denied_record_ids=denied_ids,
         invalidated_record_ids=invalidated_ids,
-        diagnostics=_diagnostics(budget),
+        diagnostics={**_diagnostics(budget), "selection_mode": selection_mode},
     )
 
 
@@ -2136,7 +2208,7 @@ def resume_scoped_readout(store: TieredMemoryStore, ticket_id: str,
             status="denied", reason="recall_ticket_unknown", retryable=False,
             stats=stats, total_ns=_perf_ns() - total_started,
             resumed_ticket_id=ticket_id)
-    if ticket.scope.scope_key != scope.scope_key:
+    if ticket.scope != scope:
         return _empty_readout(
             store=store, query_text="", scope=scope,
             status="denied", reason="cross_scope_before_resume",
@@ -2144,7 +2216,9 @@ def resume_scoped_readout(store: TieredMemoryStore, ticket_id: str,
             total_ns=_perf_ns() - total_started,
             resumed_ticket_id=ticket_id,
             detail={"ticket_scope_key": ticket.scope.scope_key,
-                    "requested_scope_key": scope.scope_key})
+                    "requested_scope_key": scope.scope_key,
+                    "ticket_scope": ticket.scope.document(),
+                    "requested_scope": scope.document()})
     pins = tuple(ticket.pinned)
     if not pins:
         return _empty_readout(
@@ -2160,6 +2234,7 @@ def resume_scoped_readout(store: TieredMemoryStore, ticket_id: str,
     stats.cold_resumes += 1
     if not replay:
         stats.cold_io_bytes += int(result.io_bytes)
+        stats.cold_file_reads += int(result.file_reads)
         stats.cold_revalidation_checks += len(result.checks)
     stats.cold_ns += _perf_ns() - resume_started
     recalled = {record.record_id: record for record in result.records}
@@ -2190,7 +2265,7 @@ def resume_scoped_readout(store: TieredMemoryStore, ticket_id: str,
         verdict = _revalidate(
             store, pin, scope.scope_key, post,
             payload_text=acquired.text, payload_values=acquired_values,
-            payload_value_sha=tuple(acquired.value_sha256))
+            payload_value_sha=tuple(acquired.value_sha256), scope=scope)
         stats.revalidation_ns += _perf_ns() - revalidation_started
         stats.revalidations += 1
         if not verdict.ok:
@@ -2205,8 +2280,6 @@ def resume_scoped_readout(store: TieredMemoryStore, ticket_id: str,
                 decision_boundary=True)
             records.append(record)
             continue
-        if not replay:
-            stats.cold_file_reads += 1 + int(acquired.value_slots)
         payload = _Acquired(
             status="ok", reason="cold_resume_ready", retryable=False,
             boundary=bool(verdict.decision_boundary), text=acquired.text,
@@ -2214,7 +2287,7 @@ def resume_scoped_readout(store: TieredMemoryStore, ticket_id: str,
             value_sha256=tuple(acquired.value_sha256),
             payload_source="cold_recall", checks=verdict.checks,
             io_bytes=int(result.io_bytes),
-            file_reads=1 + int(acquired.value_slots))
+            file_reads=int(result.file_reads))
         record, used_text, used_slots = _record_presented(
             store=store,
             rank=rank, pin=pin, live=post, selected=None, acquired=payload,
@@ -2299,7 +2372,9 @@ def readout_contract() -> dict:
     return {
         "format": READOUT_FORMAT,
         "entry_points": {
-            "read": "read_scoped_memory(store, query_text, scope, budget=None)",
+            "read": (
+                "read_scoped_memory(store, query_text, scope, budget=None, "
+                "selection_mode='semantic')"),
             "resume": "resume_scoped_readout(store, ticket_id, scope=scope)",
         },
         "result_fields": (
@@ -2332,9 +2407,9 @@ def readout_contract() -> dict:
             "begin_recall -> bounded wait_recall -> resume_recall; pending tickets "
             "are explicit and complete via resume_scoped_readout"),
         "revalidation": (
-            "live index checks after acquisition: scope, status, revision, "
-            "cluster generation, representation version, retrieval key, ordered "
-            "values and payload digests"),
+            "live index checks after acquisition: scope, time scope, verification, "
+            "status, revision, cluster generation, representation version, "
+            "retrieval key, ordered values and payload digests"),
         "claims": {
             "canonical_text_reference": True,
             "retrieval_keys_are_synthetic_controls": True,
@@ -2350,28 +2425,31 @@ def readout_contract() -> dict:
         },
         "restoration": {
             "available_at": (
-                "records.observed_at only when decoded source provenance "
+                "records.observed_at only when decoded current-record provenance "
                 "identifies the persistent learner mapping (available_at_mapped); "
                 "otherwise null, with observed_at and available_at_mapping exposed"),
             "valid_from": "records.valid_from",
             "valid_until": "records.valid_to",
             "source_lineage": "records.source_lineage (exact stored string list)",
             "source_provenance": (
-                "decoded source_lineage JSON object when the store holds one"),
+                "decoded lineage JSON object whose record_id matches the current "
+                "record; correction lineage may also contain an explicit predecessor"),
             "durable_ref": (
                 "exact store_root-relative text/key/value paths, digests, cluster "
                 "manifest, and any durable_ref embedded in source provenance"),
             "versions": (
                 "producer/representation/codec versions only when present in "
-                "source provenance; tiered key/value producer identities and "
+                "current source provenance; tiered key/value producer identities and "
                 "record_representation_version are exposed separately"),
             "never_approximated": (
-                "missing payload_type/codec_version/supersedes are null with an "
-                "explicit availability flag; they are not inferred"),
+                "missing payload_type/codec_version and current provenance are null "
+                "with explicit availability flags; correction supersedes comes only "
+                "from an explicit predecessor link"),
         },
         "limits": {
             "selection_reads_payloads_internally": True,
-            "selection_payload_read_count_is_store_derived": True,
+            "selection_file_reads_and_io_bytes_are_exact": True,
+            "selection_admitted_file_reads_are_derived_subset": True,
             "cache_is_process_local_and_not_tier_accounted": True,
             "exact_phrase_span_fallback": (
                 "not used by this entry point; spans are canonical-text and "

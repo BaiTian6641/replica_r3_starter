@@ -189,6 +189,8 @@ FREQUENT_RESERVE_FRACTION = 0.25
 
 EVIDENCE_RECORDS_MAX = 8
 EVIDENCE_VALUE_SLOTS_MAX = 32
+FULL_CONTEXT_RECORDS_MAX = 16
+FULL_CONTEXT_VALUE_SLOTS_MAX = 64
 VALUE_SLOTS_PER_RECORD = 4
 VALUE_WIDTH = 256
 KEY_WIDTH = 512
@@ -415,7 +417,8 @@ def _safe_file_bytes(path: Path) -> int:
 
 
 def _read_verified(relative_path: str, root: Path, expected_sha: str,
-                   expected_bytes: int | None = None) -> bytes:
+                   expected_bytes: int | None = None,
+                   accounting: dict[str, int] | None = None) -> bytes:
     path = root / relative_path
     _no_symlink(path)
     try:
@@ -429,6 +432,9 @@ def _read_verified(relative_path: str, root: Path, expected_sha: str,
             f"durable payload size mismatch: {relative_path} "
             f"expected={expected_bytes} actual={stat.st_size}")
     payload = path.read_bytes()
+    if accounting is not None:
+        accounting["file_reads"] = accounting.get("file_reads", 0) + 1
+        accounting["io_bytes"] = accounting.get("io_bytes", 0) + len(payload)
     if _sha256_bytes(payload) != expected_sha:
         raise CorruptState(f"durable payload digest mismatch: {relative_path}")
     return payload
@@ -569,18 +575,21 @@ class RetrievalBudget:
     p_query_slots: int = P_QUERY_SLOTS
     workspace_bytes: int = WORKSPACE_QUOTA_BYTES
     identity_bytes: int = IDENTITY_RESERVED_BYTES
+    allow_expanded_context: bool = False
 
     def __post_init__(self) -> None:
         for name in ("max_records", "max_value_slots", "max_exact_text_bytes",
                      "max_span_bytes", "max_spans", "max_cold_bytes",
                      "p_query_slots", "workspace_bytes", "identity_bytes"):
             _nonnegative_int(name, getattr(self, name))
-        if self.max_records > EVIDENCE_RECORDS_MAX:
-            raise BudgetError(
-                f"evidence selection is capped at {EVIDENCE_RECORDS_MAX} records")
-        if self.max_value_slots > EVIDENCE_VALUE_SLOTS_MAX:
-            raise BudgetError(
-                f"evidence selection is capped at {EVIDENCE_VALUE_SLOTS_MAX} value slots")
+        limit = FULL_CONTEXT_RECORDS_MAX if self.allow_expanded_context else EVIDENCE_RECORDS_MAX
+        slot_limit = FULL_CONTEXT_VALUE_SLOTS_MAX if self.allow_expanded_context else EVIDENCE_VALUE_SLOTS_MAX
+        if type(self.allow_expanded_context) is not bool:
+            raise ValueError("allow_expanded_context must be boolean")
+        if self.max_records > limit:
+            raise BudgetError(f"evidence selection is capped at {limit} records")
+        if self.max_value_slots > slot_limit:
+            raise BudgetError(f"evidence selection is capped at {slot_limit} value slots")
         if self.p_query_slots > P_QUERY_SLOTS:
             raise BudgetError("P-query slots are separate and capped at 32")
         if self.identity_bytes > IDENTITY_RESERVED_BYTES:
@@ -592,8 +601,11 @@ class RetrievalBudget:
 
     def quota_plan(self) -> dict:
         return {
-            "evidence_records": EVIDENCE_RECORDS_MAX,
-            "evidence_value_slots": EVIDENCE_VALUE_SLOTS_MAX,
+            "evidence_records": (FULL_CONTEXT_RECORDS_MAX if self.allow_expanded_context
+                                  else EVIDENCE_RECORDS_MAX),
+            "evidence_value_slots": (FULL_CONTEXT_VALUE_SLOTS_MAX if self.allow_expanded_context
+                                      else EVIDENCE_VALUE_SLOTS_MAX),
+            "allow_expanded_context": self.allow_expanded_context,
             "p_query_slots": self.p_query_slots,
             "identity_bytes": self.identity_bytes,
             "workspace_bytes": self.workspace_bytes,
@@ -1145,6 +1157,8 @@ class RetrievalResult:
     cold_record_ids: tuple[str, ...]
     representation_stale: bool
     budget_plan: Mapping[str, object]
+    file_reads: int = 0
+    io_bytes: int = 0
 
     @property
     def record_ids(self) -> tuple[str, ...]:
@@ -1175,6 +1189,8 @@ class RetrievalResult:
             "cold_record_ids": self.cold_record_ids,
             "representation_stale": self.representation_stale,
             "budget": dict(self.budget_plan),
+            "file_reads": self.file_reads,
+            "io_bytes": self.io_bytes,
         }
 
 
@@ -1347,6 +1363,7 @@ class RecallResult:
     checks: tuple[str, ...]
     new_decision_boundary: bool
     warnings: tuple[str, ...] = ()
+    file_reads: int = 0
 
     def __post_init__(self) -> None:
         if self.status not in RECALL_STATUSES:
@@ -1367,6 +1384,7 @@ class RecallResult:
             "checks": self.checks,
             "new_decision_boundary": self.new_decision_boundary,
             "warnings": self.warnings,
+            "file_reads": self.file_reads,
         }
 
 
@@ -3293,6 +3311,7 @@ class TieredMemoryStore:
             "FROM records r JOIN clusters c ON c.cluster_id=r.cluster_id "
             "WHERE r.scope_key=? AND c.scope_key=? AND r.status='current' "
             "AND c.status='active' AND r.observed_at<=? "
+            "AND r.verification_state IN ('unverified','verified_source','observed_tool','verified_human') "
             "AND (r.valid_from IS NULL OR r.valid_from<=?) "
             "AND (r.valid_to IS NULL OR r.valid_to>?) "
             "ORDER BY r.record_index, r.record_id",
@@ -3305,7 +3324,8 @@ class TieredMemoryStore:
     def select(self, query: str, *, scope: MemoryScope,
                budget: RetrievalBudget | None = None,
                exact_phrases: Sequence[str] = (),
-               include_text: bool = True) -> RetrievalResult:
+               include_text: bool = True,
+               selection_mode: str = "semantic") -> RetrievalResult:
         """Scope-filtered semantic key selection plus charged exact fallback."""
         if not isinstance(query, str):
             raise ValueError("query must be a string")
@@ -3320,6 +3340,14 @@ class TieredMemoryStore:
         selection_id = "sel_" + uuid.uuid4().hex
         now = _now_ns()
         query_key = build_retrieval_key(query)
+        if selection_mode not in {"semantic", "all_eligible"}:
+            raise ValueError("selection_mode must be semantic or all_eligible")
+        read_io = {"file_reads": 0, "io_bytes": 0}
+
+        def read_payload(relative_path: str, expected_sha: str,
+                         expected_bytes: int) -> bytes:
+            return _read_verified(relative_path, self.root, expected_sha,
+                                  expected_bytes, accounting=read_io)
         candidates = self._eligible_record_rows(scope)
         scored: list[tuple[float, sqlite3.Row, bytes, sqlite3.Row]] = []
         representation_stale = False
@@ -3329,13 +3357,13 @@ class TieredMemoryStore:
                 representation_stale = True
                 continue
             try:
-                key_bytes = _read_verified(
-                    key["key_path"], self.root, key["key_sha256"], int(key["key_bytes"]))
+                key_bytes = read_payload(
+                    key["key_path"], key["key_sha256"], int(key["key_bytes"]))
             except CorruptState:
                 representation_stale = True
                 continue
             score = key_similarity(query_key, key_bytes)
-            if score > 0:
+            if score > 0 or selection_mode == "all_eligible":
                 scored.append((score, row, key_bytes, key))
         scored.sort(key=lambda item: (-item[0], -int(item[1]["observed_at"]),
                                       item[1]["record_id"]))
@@ -3365,9 +3393,8 @@ class TieredMemoryStore:
             text_payload: bytes | None = None
             if placement == "warm":
                 try:
-                    text_payload = _read_verified(
-                        row["text_path"], self.root, row["text_sha256"],
-                        int(row["text_bytes"]))
+                    text_payload = read_payload(
+                        row["text_path"], row["text_sha256"], int(row["text_bytes"]))
                 except CorruptState:
                     text_payload = None
                     representation_stale = True
@@ -3381,8 +3408,8 @@ class TieredMemoryStore:
             values_tuple: tuple[tuple[float, ...], ...] = ()
             if value_available and placement == "warm":
                 try:
-                    payloads = [_read_verified(
-                        value["value_path"], self.root, value["value_sha256"],
+                    payloads = [read_payload(
+                        value["value_path"], value["value_sha256"],
                         int(value["value_bytes"])) for value in values]
                     values_tuple = unpack_values(payloads)
                 except CorruptState:
@@ -3451,8 +3478,8 @@ class TieredMemoryStore:
                         text_budget_exhausted = True
                         continue
                     try:
-                        payload = _read_verified(
-                            row["text_path"], self.root, row["text_sha256"], size)
+                        payload = read_payload(
+                            row["text_path"], row["text_sha256"], size)
                     except CorruptState:
                         representation_stale = True
                         continue
@@ -3515,7 +3542,7 @@ class TieredMemoryStore:
             "text_budget_exhausted": text_budget_exhausted,
             "span_budget_exhausted": span_budget_exhausted,
             "representation_stale": representation_stale,
-            "budget": budget.quota_plan(),
+            "budget": {**budget.quota_plan(), "selection_mode": selection_mode},
         }
         outcome = Outcome(status=status, reason=reason, detail=detail)
 
@@ -3567,7 +3594,9 @@ class TieredMemoryStore:
             requires_cold_recall=requires_cold,
             cold_record_ids=tuple(cold_ids),
             representation_stale=representation_stale,
-            budget_plan=budget.quota_plan(),
+            budget_plan={**budget.quota_plan(), "selection_mode": selection_mode},
+            file_reads=read_io["file_reads"],
+            io_bytes=read_io["io_bytes"],
         )
         self._selections[selection_id] = {
             "result": result,
@@ -3786,6 +3815,7 @@ class TieredMemoryStore:
             failed = replace(ticket, status="incomplete", outcome=outcome)
             self._set_ticket(ticket_id, failed, result)
             return result
+        read_io = {"file_reads": 0, "io_bytes": 0}
         staged: dict[str, tuple[bytes, tuple[bytes, ...]]] = {}
         io_bytes = 0
         warnings: list[str] = []
@@ -3793,13 +3823,13 @@ class TieredMemoryStore:
             for pin in ticket.pinned:
                 text = _read_verified(
                     pin["text_path"], self.root, pin["text_sha256"],
-                    int(pin["text_bytes"]))
+                    int(pin["text_bytes"]), accounting=read_io)
                 io_bytes += len(text)
                 values = []
                 for pinned in pin["values"]:
                     payload = _read_verified(
                         pinned["path"], self.root, pinned["sha256"],
-                        int(pinned["bytes"]))
+                        int(pinned["bytes"]), accounting=read_io)
                     io_bytes += len(payload)
                     values.append(payload)
                 staged[pin["record_id"]] = (text, tuple(values))
@@ -3809,9 +3839,10 @@ class TieredMemoryStore:
             result = RecallResult(
                 ticket_id=ticket_id, selection_id=ticket.selection_id,
                 status="failed", outcome=outcome, records=(),
-                io_bytes=io_bytes, checks=(), new_decision_boundary=False)
+                io_bytes=read_io["io_bytes"], checks=(), new_decision_boundary=False,
+                file_reads=read_io["file_reads"])
             self._set_ticket(ticket_id, replace(
-                ticket, status="failed", outcome=outcome, io_bytes=io_bytes), result)
+                ticket, status="failed", outcome=outcome, io_bytes=read_io["io_bytes"]), result)
             return result
         status, reason, checks = self._validate_after_io(ticket, staged)
         if status != "ready":
@@ -3829,10 +3860,10 @@ class TieredMemoryStore:
             result = RecallResult(
                 ticket_id=ticket_id, selection_id=ticket.selection_id,
                 status=status, outcome=outcome, records=(),
-                io_bytes=io_bytes, checks=checks, new_decision_boundary=True,
-                warnings=tuple(warnings))
+                io_bytes=read_io["io_bytes"], checks=checks, new_decision_boundary=True,
+                warnings=tuple(warnings), file_reads=read_io["file_reads"])
             self._set_ticket(ticket_id, replace(
-                ticket, status=status, outcome=outcome, io_bytes=io_bytes,
+                ticket, status=status, outcome=outcome, io_bytes=read_io["io_bytes"],
                 decision_boundary=int(self._meta(
                     "epoch", "0")) + 1), result)
             return result
@@ -3860,10 +3891,10 @@ class TieredMemoryStore:
         result = RecallResult(
             ticket_id=ticket_id, selection_id=ticket.selection_id,
             status="ready", outcome=outcome, records=tuple(recalled),
-            io_bytes=io_bytes, checks=checks, new_decision_boundary=False,
-            warnings=tuple(warnings))
+            io_bytes=read_io["io_bytes"], checks=checks, new_decision_boundary=False,
+            warnings=tuple(warnings), file_reads=read_io["file_reads"])
         self._set_ticket(ticket_id, replace(
-            ticket, status="ready", outcome=outcome, io_bytes=io_bytes), result)
+            ticket, status="ready", outcome=outcome, io_bytes=read_io["io_bytes"]), result)
         return result
 
     def wait_recall(self, ticket_id: str, timeout_seconds: float) -> RecallResult:
@@ -3954,18 +3985,21 @@ class TieredMemoryStore:
                                  required_bytes=required,
                                  max_bytes=budget.max_cold_bytes),
                 records=(), io_bytes=0, checks=(), new_decision_boundary=False)
+        read_io = {"file_reads": 0, "io_bytes": 0}
         try:
             text = _read_verified(row["text_path"], self.root, row["text_sha256"],
-                                  int(row["text_bytes"]))
+                                  int(row["text_bytes"]), accounting=read_io)
             value_payloads = tuple(
-                _read_verified(item["path"], self.root, item["sha256"], int(item["bytes"]))
+                _read_verified(item["path"], self.root, item["sha256"], int(item["bytes"]),
+                               accounting=read_io)
                 for item in pin["values"])
         except (CorruptState, OSError) as error:
             return RecallResult(
                 ticket_id="", selection_id="", status="failed",
                 outcome=_outcome("failed", "payload_verification_failed",
                                  error=str(error)),
-                records=(), io_bytes=0, checks=(), new_decision_boundary=False)
+                records=(), io_bytes=read_io["io_bytes"], checks=(),
+                new_decision_boundary=False, file_reads=read_io["file_reads"])
         ticket = RecallTicket(
             ticket_id="direct_" + uuid.uuid4().hex, selection_id="",
             scope=scope, record_ids=(record_id,), pinned=(pin,),
@@ -3978,8 +4012,8 @@ class TieredMemoryStore:
             return RecallResult(
                 ticket_id=ticket.ticket_id, selection_id="", status=status,
                 outcome=_outcome(status, reason, new_decision_boundary=True),
-                records=(), io_bytes=required, checks=checks,
-                new_decision_boundary=True)
+                records=(), io_bytes=read_io["io_bytes"], checks=checks,
+                new_decision_boundary=True, file_reads=read_io["file_reads"])
         recalled = RecalledRecord(
             record_id=record_id, text=text.decode("utf-8"),
             text_sha256=_sha256_bytes(text),
@@ -3990,7 +4024,8 @@ class TieredMemoryStore:
         return RecallResult(
             ticket_id=ticket.ticket_id, selection_id="", status="ready",
             outcome=_outcome("ok", "direct_read_ready"), records=(recalled,),
-            io_bytes=required, checks=checks, new_decision_boundary=False)
+            io_bytes=read_io["io_bytes"], checks=checks, new_decision_boundary=False,
+            file_reads=read_io["file_reads"])
 
     # -- corrections, revocation and representation invalidation -----------
 
@@ -4098,7 +4133,8 @@ class TieredMemoryStore:
                        value_producer_version: str | None = None,
                        scope: MemoryScope,
                        authenticity: str = "user_approved_correction",
-                       verification_state: str = "verified_human") -> CorrectionResult:
+                       verification_state: str = "verified_human",
+                       source_provenance: Mapping[str, object] | None = None) -> CorrectionResult:
         """Append a correction, invalidate dependent tiers and preserve old bytes."""
         self._validate_scope_argument(scope)
         old = self._connection.execute(
@@ -4110,6 +4146,22 @@ class TieredMemoryStore:
         if old["status"] != "current":
             raise CorruptState("target record is not current")
         new_id = correction_id or f"{record_id}.corr.{uuid.uuid4().hex[:12]}"
+        lineage = tuple(json.loads(old["source_lineage"]))
+        if source_provenance is not None:
+            if not isinstance(source_provenance, Mapping) or not source_provenance:
+                raise ValueError("current correction provenance must be a nonempty mapping")
+            current = dict(source_provenance)
+            if current.get("record_id") != new_id:
+                raise ValueError("current correction provenance record_id differs")
+            if current.get("text_sha256") != _sha256_text(text):
+                raise ValueError("current correction provenance text digest differs")
+            if current.get("source", source_id) != source_id:
+                raise ValueError("current correction provenance source differs")
+            if current.get("supersedes", record_id) != record_id:
+                raise ValueError("current correction provenance supersedes differs")
+            lineage += (json.dumps(current, sort_keys=True), record_id)
+        else:
+            lineage += (record_id,)
         draft = EvidenceRecordDraft(
             record_id=new_id, text=text, source_id=source_id,
             source_epoch=source_epoch, observed_at=observed_at,
@@ -4120,7 +4172,7 @@ class TieredMemoryStore:
             values=None if values is None else tuple(tuple(item) for item in values),
             value_producer_id=value_producer_id,
             value_producer_version=value_producer_version,
-            source_lineage=tuple(json.loads(old["source_lineage"])) + (record_id,),
+            source_lineage=lineage,
         )
         written: list[str] = []
         old_file_paths = [old["text_path"]]

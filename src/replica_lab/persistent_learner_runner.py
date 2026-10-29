@@ -34,8 +34,8 @@ from .architecture.loading import exclusive_mps_worker
 from .architecture.spine import SPINE_SCHEMA
 from .architecture.spine_memory import EvidenceRecord, SpineMemoryExperiment
 from .architecture.spine_text import (
-    TEXT_CODEC_VERSION, TEXT_REPRESENTATION_VERSION, SparkTextMemoryPath,
-    VersionedTextProducer,
+    TEXT_CODEC_VERSION, TEXT_REPRESENTATION_VERSION,
+    SparkTextMemoryPath, VersionedTextProducer,
 )
 from .optimizers import NativeFusedAdamW
 from .p1_response_learning import (
@@ -43,9 +43,9 @@ from .p1_response_learning import (
     prepare_arm_query, restore_p_state,
 )
 from .spark_text_memory_runner import Backend, greedy_generate, score_answer
-from .tiered_readout import ReadoutBudget, ScopedMemoryReadout, read_scoped_memory, readout_cache_state, resume_scoped_readout
+from .tiered_readout import ReadoutBudget, ScopedMemoryReadout, merge_readout_metrics, read_scoped_memory, readout_cache_state, resume_scoped_readout
 from .tiered_memory import (
-    EvidenceRecordDraft, MemoryScope, TierCeilings, TieredMemoryStore,
+    EvidenceRecordDraft, MemoryScope, Outcome, TierCeilings, TieredMemoryStore,
     build_retrieval_key, detect_file_type,
 )
 from .testing import DeterministicTinyTokenizer
@@ -329,7 +329,7 @@ class WorkLedger:
         "replay_processed_positions", "retrieval_calls", "verification_calls",
         "checkpoint_writes", "retained_checkpoint_artifacts", "reloads", "cache_hits",
         "cache_misses", "teacher_passes", "consolidation_events", "artifact_bytes", "native_retries",
-        "readout_file_reads", "readout_io_bytes", "readout_ns", "cold_recall_tickets",
+        "readout_selection_calls", "readout_file_reads", "readout_io_bytes", "readout_ns", "cold_recall_tickets",
         "cold_recall_resumes", "revalidation_failures", "payload_read_calls",
         "payload_file_reads", "payload_io_bytes", "revalidations",
     )
@@ -472,6 +472,8 @@ class ArmView:
     frozen_trained_reader: bool = False
     reader_role: str = "pre_reader"
     tiered_store: TieredMemoryStore | None = None
+    full_context_records_max: int = 16
+    full_context_value_slots_max: int = 64
     readout_results: dict[str, ScopedMemoryReadout] = field(default_factory=dict)
 
 
@@ -800,33 +802,94 @@ def _restore_readout_records(path: SparkTextMemoryPath,
         if record.status not in {"ok", "degraded"}:
             raise Refused("tiered_readout_restoration",
                           f"{record.record_id}: {record.reason}")
-        existing = path.texts.get(record.record_id)
-        if existing is not None:
-            if (existing.canonical_text != record.text
-                    or existing.text_sha256 != record.text_sha256
-                    or existing.provenance.get("text_sha256") != record.text_sha256):
-                raise Refused("tiered_readout_restoration",
-                              f"{record.record_id}: mirrored canonical text differs")
-            continue
-        if record.text is None or not record.available_at_mapped \
-                or record.available_at is None or record.valid_from is None \
-                or record.event_at is None or record.durable_ref is None:
+        required = (
+            record.text, record.source_epoch, record.available_at, record.valid_from,
+            record.event_at, record.durable_ref, record.source_provenance,
+            record.producer_revision, record.representation_version,
+            record.codec_version, record.payload_type,
+        )
+        if (any(value is None for value in required)
+                or not record.available_at_mapped
+                or not record.producer_revision_available
+                or not record.representation_version_available
+                or not record.codec_version_available
+                or not record.payload_type_available):
             raise Refused("tiered_readout_restoration",
                           f"{record.record_id}: incomplete restoration authority")
-        source_lineage = record.source_provenance or record.provenance
+        if record.kind == "correction" and not record.supersedes:
+            raise Refused("tiered_readout_restoration",
+                          f"{record.record_id}: correction predecessor is missing")
+        authority = dict(record.source_provenance)
+        if (authority.get("record_id") != record.record_id
+                or authority.get("text_sha256") != record.text_sha256):
+            raise Refused("tiered_readout_restoration",
+                          f"{record.record_id}: current provenance identity differs")
+        exact_fields = {
+            "source_epoch": record.source_epoch,
+            "available_at": record.available_at,
+            "event_at": record.event_at,
+            "valid_from": record.valid_from,
+            "valid_until": record.valid_until,
+            "producer_revision": record.producer_revision,
+            "representation_version": record.representation_version,
+            "codec_version": record.codec_version,
+            "payload_type": record.payload_type,
+        }
+        for name, value in exact_fields.items():
+            if name in authority and authority[name] != value:
+                raise Refused("tiered_readout_restoration",
+                              f"{record.record_id}: provenance {name} differs")
+            authority[name] = value
+        if authority.get("source", record.source_id) != record.source_id:
+            raise Refused("tiered_readout_restoration",
+                          f"{record.record_id}: source identity differs")
+        if (record.producer_revision != path.producer.producer_revision
+                or record.representation_version != path.producer.representation_version
+                or record.codec_version != path.producer.codec_version):
+            raise Refused("tiered_readout_restoration",
+                          f"{record.record_id}: neural producer version differs")
+        authority["record_lineage"] = list(record.source_lineage)
+        if record.supersedes is not None:
+            if "supersedes" in authority and authority["supersedes"] != record.supersedes:
+                raise Refused("tiered_readout_restoration",
+                              f"{record.record_id}: supersedes differs")
+            authority["supersedes"] = record.supersedes
+        existing = path.texts.get(record.record_id)
+        if existing is not None:
+            evidence = next((item for item in path.experiment.evidence.active
+                             if item.record_id == record.record_id), None)
+            if evidence is None:
+                raise Refused("tiered_readout_restoration",
+                              f"{record.record_id}: active evidence mirror is missing")
+            if (existing.canonical_text != record.text
+                    or existing.text_sha256 != record.text_sha256
+                    or existing.provenance.get("text_sha256") != record.text_sha256
+                    or existing.producer_revision != record.producer_revision
+                    or existing.representation_version != record.representation_version
+                    or existing.codec_version != record.codec_version
+                    or evidence.source_epoch != record.source_epoch
+                    or evidence.available_at != record.available_at
+                    or evidence.valid_from != record.valid_from
+                    or evidence.valid_until != record.valid_until
+                    or evidence.payload_type != record.payload_type
+                    or evidence.supersedes != record.supersedes):
+                raise Refused("tiered_readout_restoration",
+                              f"{record.record_id}: mirrored canonical authority differs")
+            continue
         path.observe_text(
             record.text, record_id=record.record_id,
             source_epoch=record.source_epoch, available_at=record.available_at,
             valid_from=record.valid_from, valid_until=record.valid_until,
-            source_lineage=source_lineage, durable_ref=record.durable_ref,
-            retain_canonical_text=True, payload_type=record.payload_type or "observation",
-            verified=record.verification_state in {"verified_source", "observed_tool", "verified_human"},
-            supersedes=record.supersedes)
+            source_lineage=authority, durable_ref=record.durable_ref,
+            retain_canonical_text=True, payload_type=record.payload_type,
+            verified=record.verification_state in {
+                "verified_source", "observed_tool", "verified_human"},
+            supersedes=record.supersedes,
+            reconcile=(record.supersedes is not None and not any(
+                item.record_id == record.supersedes
+                for item in path.experiment.evidence.active)))
         restored.append(record.record_id)
     return tuple(restored)
-
-
-    path.queries.invalidate()
 
 def _training_content(observation_texts: Sequence[str], question: str) -> str:
     source = "\n".join(text for text in observation_texts if text)
@@ -839,21 +902,72 @@ def _readout_scope(query_time: int) -> MemoryScope:
 
 
 def _tiered_readout(store: TieredMemoryStore, question: str,
-                    query_time: int) -> ScopedMemoryReadout:
+                    query_time: int, *, full_context: bool = False,
+                    full_context_records_max: int = 16,
+                    full_context_value_slots_max: int = 64,
+                    allow_empty: bool = False) -> ScopedMemoryReadout:
     scope = _readout_scope(query_time)
-    budget = ReadoutBudget(max_records=2, max_value_slots=8, cold_wait_seconds=0)
-    result = read_scoped_memory(store, question, scope, budget=budget)
-    for ticket in result.pending_cold:
-        result = resume_scoped_readout(store, ticket.ticket_id, scope=scope, budget=budget)
-    if (result.pending_cold or result.new_decision_boundary or result.representation_stale
-            or result.incomplete_record_ids or result.invalidated_record_ids
-            or result.denied_record_ids):
-        raise Refused("tiered_readout", result.outcome.reason)
-    return result
+    selection_mode = "all_eligible" if full_context else "semantic"
+    budget = ReadoutBudget(
+        max_records=full_context_records_max if full_context else 2,
+        max_value_slots=full_context_value_slots_max if full_context else 8,
+        cold_wait_seconds=0, allow_expanded_context=full_context)
+    attempts = [read_scoped_memory(
+        store, question, scope, budget=budget, selection_mode=selection_mode)]
+    for ticket in attempts[0].pending_cold:
+        attempts.append(resume_scoped_readout(
+            store, ticket.ticket_id, scope=scope, budget=budget))
+    stop = any(attempt.new_decision_boundary or not attempt.ok
+               for attempt in attempts[1:])
+    if not attempts[0].pending_cold:
+        final = attempts[0]
+    elif stop:
+        final = attempts[-1]
+    else:
+        final = read_scoped_memory(
+            store, question, scope, budget=budget, selection_mode=selection_mode)
+        attempts.append(final)
+    boundary = any(attempt.new_decision_boundary for attempt in attempts)
+    diagnostics = dict(final.diagnostics)
+    diagnostics["selection_mode"] = selection_mode
+    diagnostics["readout_attempts"] = [{
+        "selection_id": attempt.selection_id,
+        "resumed_ticket_id": attempt.resumed_ticket_id,
+        "status": attempt.status,
+        "reason": attempt.outcome.reason,
+        "record_ids": list(attempt.record_ids),
+        "new_decision_boundary": attempt.new_decision_boundary,
+        "metrics": attempt.metrics.document(),
+    } for attempt in attempts]
+    final = replace(
+        final, metrics=merge_readout_metrics([attempt.metrics for attempt in attempts]),
+        new_decision_boundary=boundary, diagnostics=diagnostics)
+    if boundary:
+        final = replace(
+            final, status="invalidated",
+            outcome=Outcome(
+                status="invalidated", reason="decision_boundary_during_readout",
+                detail={"attempt_count": len(attempts)}, retryable=True))
+    if (final.pending_cold or final.new_decision_boundary or final.representation_stale
+            or final.incomplete_record_ids or final.invalidated_record_ids
+            or final.denied_record_ids):
+        raise Refused("tiered_readout", final.outcome.reason)
+    empty = (allow_empty and final.candidate_count == 0 and not final.records
+             and final.outcome.reason == "no_semantic_candidate")
+    if not final.ok and not empty:
+        raise Refused("tiered_readout", final.outcome.reason)
+    if not final.records and not empty:
+        raise Refused("tiered_readout", "empty_scoped_readout")
+    if full_context and (final.truncated or final.candidate_count != len(final.records)):
+        raise Refused(
+            "full_context_incomplete",
+            f"eligible={final.candidate_count} restored={len(final.records)}")
+    return final
 
 
 def _charge_readout(ledger: WorkLedger, result: ScopedMemoryReadout) -> None:
     metrics = result.metrics
+    ledger.charge("readout_selection_calls", metrics.selection_calls)
     ledger.charge("readout_file_reads", metrics.total_file_reads)
     ledger.charge("readout_io_bytes", metrics.total_io_bytes)
     ledger.charge("readout_ns", metrics.total_ns)
@@ -952,9 +1066,30 @@ def _readable_values(text: str) -> tuple[tuple[float, ...], ...]:
                  for slot in range(4))
 
 
-def _draft_for_row(row: Mapping[str, Any]) -> EvidenceRecordDraft:
+
+def _row_provenance(row: Mapping[str, Any], producer: VersionedTextProducer) -> dict[str, Any]:
     text = str(row["text"])
+    record_id = str(row["record_id"])
     provenance = dict(row["provenance"])
+    if provenance.get("record_id") != record_id:
+        raise Refused("tiered_provenance", f"{record_id}: record identity differs")
+    digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    if provenance.get("text_sha256") != digest:
+        raise Refused("tiered_provenance", f"{record_id}: text digest differs")
+    expected = {
+        "producer_revision": producer.producer_revision,
+        "representation_version": producer.representation_version,
+        "codec_version": producer.codec_version,
+        "payload_type": "observation",
+    }
+    for name, value in expected.items():
+        if provenance.get(name) not in (None, value):
+            raise Refused("tiered_provenance", f"{record_id}: {name} differs")
+        provenance[name] = value
+    return provenance
+def _draft_for_row(row: Mapping[str, Any], producer: VersionedTextProducer) -> EvidenceRecordDraft:
+    text = str(row["text"])
+    provenance = _row_provenance(row, producer)
     return EvidenceRecordDraft(
         record_id=str(row["record_id"]), text=text,
         source_id=str(provenance.get("source", row["world_id"])),
@@ -969,24 +1104,26 @@ def _draft_for_row(row: Mapping[str, Any]) -> EvidenceRecordDraft:
 
 
 def _tiered_admit_rows(store: TieredMemoryStore,
-                       rows: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
+                       rows: Iterable[Mapping[str, Any]], producer: VersionedTextProducer) -> list[dict[str, Any]]:
     receipts = []
     for row in rows:
         scope = _scope_for_row(row)
+        provenance = _row_provenance(row, producer)
         if row.get("supersedes") is not None:
             result = store.correct_record(
                 str(row["supersedes"]), correction_id=str(row["record_id"]),
-                text=str(row["text"]), source_id=str(row["provenance"].get("source", row["world_id"])),
+                text=str(row["text"]), source_id=str(provenance.get("source", row["world_id"])),
                 source_epoch=int(row["source_epoch"]), observed_at=int(row["available_at"]),
                 event_at=int(row["valid_from"]), valid_from=int(row["valid_from"]),
                 valid_to=None if row.get("valid_until") is None else int(row["valid_until"]),
                 values=_readable_values(str(row["text"])),
                 value_producer_id="v2_deterministic_readable_values",
                 value_producer_version="v1", scope=scope,
-                authenticity="source_report", verification_state="verified_source")
+                authenticity="source_report", verification_state="verified_source",
+                source_provenance=provenance)
         else:
             result = store.admit_cluster(
-                str(row["world_id"]), scope=scope, records=[_draft_for_row(row)], placement="warm")
+                str(row["world_id"]), scope=scope, records=[_draft_for_row(row, producer)], placement="warm")
         receipts.append(result.document())
     return receipts
 
@@ -1169,7 +1306,7 @@ def run_fit(protocol: Protocol, dataset: PreparedDataset, backend: Backend,
                           if row.get("supersedes") is not None})
             _add_procedures(current, procedures)
             _apply_task_rows(current, tasks)
-        tiered_admission = _tiered_admit_rows(tiered, row_observations)
+        tiered_admission = _tiered_admit_rows(tiered, row_observations, path.producer)
         correction_reset = None
         if any(row.get("supersedes") is not None for row in row_observations):
             for current in (path, nonlearning_path, replay_path):
@@ -1356,8 +1493,8 @@ def _shuffle_evidence(path: SparkTextMemoryPath) -> None:
             valid_from=record.valid_from, producer_revision=record.producer_revision,
             representation_version=record.representation_version, codec_version=record.codec_version,
             payload_type=record.payload_type, source_lineage=lineage,
-            valid_until=record.valid_until, supersedes=None)
-        path.experiment.observe(shuffled)
+            valid_until=record.valid_until, supersedes=record.supersedes)
+        path.experiment.observe(shuffled, reconcile=record.supersedes is not None)
     path.queries.invalidate()
 
 
@@ -1371,6 +1508,7 @@ def build_arm_views(protocol: Protocol, fit: FitState,
     _restore_port_output(fit.replay_path.adapter, fit.pre_port_state)
     replay_base = _development_base(protocol, fit.replay_path, dataset)
     views: dict[str, ArmView] = {}
+    memory_contract = protocol.config["memory_contract"]
     for arm in ARMS:
         if arm in {"E_plus_P", "source_free_P_only", "shuffled_memory"}:
             path = _clone_path(protocol, trained_base)
@@ -1423,6 +1561,8 @@ def build_arm_views(protocol: Protocol, fit: FitState,
             wrong_p_transform=wrong,
             port_state=port_state, untouched_baseline=untouched_baseline,
             frozen_trained_reader=frozen_trained_reader, reader_role=reader_role,
+            full_context_records_max=int(memory_contract.get("full_context_records_max", 16)),
+            full_context_value_slots_max=int(memory_contract.get("full_context_value_slots_max", 64)),
             tiered_store=tiered)
     return views
 
@@ -1435,7 +1575,11 @@ def _readout_for_view(view: ArmView, case: Mapping[str, Any]) -> ScopedMemoryRea
         _require(view.tiered_store is not None, "tiered_readout",
                  "evidence-bearing arm has no authoritative tiered store")
         view.readout_results[key] = _tiered_readout(
-            view.tiered_store, str(case["question"]), int(case.get("query_time", 10)))
+            view.tiered_store, str(case["question"]), int(case.get("query_time", 10)),
+            full_context=view.arm_id == "full_eligible_context",
+            full_context_records_max=view.full_context_records_max,
+            full_context_value_slots_max=view.full_context_value_slots_max,
+            allow_empty=view.oracle or view.untouched_baseline)
     return view.readout_results[key]
 
 
@@ -1498,7 +1642,7 @@ def _prepare_query(view: ArmView, backend: Backend, prompt: str, case: Mapping[s
     readout = (None if view.mode == "P" or
                (view.untouched_baseline and view.tiered_store is None)
                else _readout_for_view(view, case))
-    if readout is not None and not view.untouched_baseline:
+    if readout is not None:
         _restore_readout_records(path, readout)
     selected_ids = () if readout is None else readout.record_ids
     if view.untouched_baseline:
@@ -1649,7 +1793,7 @@ def run_development(protocol: Protocol, dataset: PreparedDataset, backend: Backe
     development_dir = output / "development"
     development_dir.mkdir(parents=True, exist_ok=True)
     tiered_admission = _tiered_admit_rows(
-        tiered, [row for row in dataset.observations() if row.get("role") == "development"])
+        tiered, [row for row in dataset.observations() if row.get("role") == "development"], fit.path.producer)
     _tiered_sync_procedures(tiered, dataset.procedures())
     tiered_state = _tiered_summary(tiered)
     _write_json(output, "development/tiered_receipts.json", {

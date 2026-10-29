@@ -466,9 +466,11 @@ class EvidenceBank:
         for listener in list(self._listeners):
             listener._evidence_invalidated()
 
-    def admit(self, record: EvidenceRecord) -> bool:
+    def admit(self, record: EvidenceRecord, *, allow_orphan_correction: bool = False) -> bool:
         if not isinstance(record, EvidenceRecord):
             raise SpineError("evidence bank admits EvidenceRecord instances")
+        if type(allow_orphan_correction) is not bool:
+            raise SpineError("orphan-correction reconciliation flag must be boolean")
         if record.scope != self.scope:
             raise SpineError("evidence scope differs from the bank")
         if record.representation_version != self.representation_version \
@@ -492,13 +494,13 @@ class EvidenceBank:
         parent = None
         if record.supersedes is not None:
             parent = self._active.get(record.supersedes)
-            if parent is None:
+            if parent is None and not allow_orphan_correction:
                 raise SpineError("correction parent is not active")
-            if parent.record_id == record.record_id:
+            if parent is not None and parent.record_id == record.record_id:
                 raise SpineError("correction requires a new record identity")
-            if record.source_epoch <= parent.source_epoch:
+            if parent is not None and record.source_epoch <= parent.source_epoch:
                 raise SpineError("correction source epoch must increase")
-            if record.available_at < parent.available_at:
+            if parent is not None and record.available_at < parent.available_at:
                 raise SpineError("correction cannot be available before its parent")
         active_count = len(self._active) - (1 if parent is not None else 0)
         if active_count >= self.max_records:
@@ -757,8 +759,8 @@ class SpineMemoryExperiment:
         """Backward-compatible alias for complete public invalidation."""
         self.invalidate(reason="spine_state_change")
 
-    def observe(self, record: EvidenceRecord) -> bool:
-        admitted = self.evidence.admit(record)
+    def observe(self, record: EvidenceRecord, *, reconcile: bool = False) -> bool:
+        admitted = self.evidence.admit(record, allow_orphan_correction=reconcile)
         if admitted:
             self.counters["observations"] += 1
             self.phase = "observation"

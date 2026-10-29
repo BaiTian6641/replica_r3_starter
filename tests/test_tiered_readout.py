@@ -34,6 +34,7 @@ from replica_lab.tiered_readout import (
     readout_contract,
     resume_scoped_readout,
 )
+from replica_lab.persistent_learner_runner import Refused, _tiered_readout
 
 
 # ---------------------------------------------------------------------------
@@ -274,8 +275,11 @@ def test_warm_readout_preserves_order_spans_and_producer_identity(
         assert metrics.cache_hits == 0
         assert metrics.cache_misses == len(readout.records)
         assert metrics.cache_inserts == len(readout.records)
-        assert metrics.total_io_bytes == metrics.selection_admitted_payload_bytes
-        assert metrics.total_file_reads == metrics.selection_admitted_file_reads
+        assert metrics.selection_io_bytes >= metrics.selection_admitted_payload_bytes
+        assert metrics.total_io_bytes == metrics.selection_io_bytes
+        assert metrics.selection_file_reads >= metrics.selection_admitted_file_reads
+        assert metrics.total_file_reads == metrics.selection_file_reads
+        assert metrics.selection_calls == 1
         assert metrics.total_ns > 0
         assert metrics.selection_ns >= 0
         assert metrics.artificial_delay is False
@@ -419,8 +423,9 @@ def test_cold_recall_is_real_and_cached_second_read_has_no_cold_io(
         assert metrics.cold_revalidation_checks > 0
         assert metrics.payload_io_bytes == 0
         assert metrics.total_io_bytes == (
-            metrics.selection_admitted_payload_bytes
-            + metrics.cold_io_bytes)
+            metrics.selection_io_bytes + metrics.cold_io_bytes)
+        assert metrics.total_file_reads == (
+            metrics.selection_file_reads + metrics.cold_file_reads)
         assert first.new_decision_boundary is False
         assert first.pending_cold == ()
 
@@ -496,6 +501,9 @@ def test_cold_resume_after_revocation_refuses_payload_and_sets_boundary(
         assert "r1" in resumed.invalidated_record_ids
         # The payload was read before validation, then refused.
         assert resumed.metrics.cold_io_bytes > 0
+        assert resumed.metrics.cold_file_reads > 0
+        assert resumed.metrics.total_file_reads >= resumed.metrics.cold_file_reads
+        assert resumed.metrics.total_io_bytes >= resumed.metrics.cold_io_bytes
         assert resumed.epoch >= revocation.epoch
 
 
@@ -917,12 +925,15 @@ def test_correction_lineage_keeps_restoration_fields_exact(
                 source_epoch=7, observed_at=1000, event_at=1000,
                 valid_from=1000, valid_to=2000,
                 source_lineage=(json.dumps(provenance, sort_keys=True),))])
+        current_provenance = dict(provenance)
+        current_provenance.update(record_id="nurestore-v2", text_sha256=new_digest)
         correction = store.correct_record(
             "nurestore-v1", correction_id="nurestore-v2", text=new_text,
             source_id="owned_test", source_epoch=8, observed_at=1200,
             event_at=1100, valid_from=1100, valid_to=2000,
             values=sample_values(51), value_producer_id="test-values",
-            value_producer_version="test-values-v1", scope=user)
+            value_producer_version="test-values-v1", scope=user,
+            source_provenance=current_provenance)
         assert correction.new_record_id == "nurestore-v2"
 
         record = read_scoped_memory(
@@ -935,21 +946,23 @@ def test_correction_lineage_keeps_restoration_fields_exact(
         assert record.valid_from == 1100
         assert record.valid_until == 2000
 
-        # The store appends the corrected predecessor to source_lineage; the
-        # first entry is the original provenance object.  Both are exact.
-        assert len(record.source_lineage) == 2
-        assert record.source_lineage[1] == "nurestore-v1"
+        # The store retains ancestor provenance, the current correction's
+        # validated provenance and the explicit predecessor in that order.
+        assert len(record.source_lineage) == 3
+        assert record.source_lineage[0] == json.dumps(provenance, sort_keys=True)
+        assert record.source_lineage[1] == json.dumps(current_provenance, sort_keys=True)
+        assert record.source_lineage[2] == "nurestore-v1"
         assert record.lineage_predecessor == "nurestore-v1"
-        assert record.source_provenance == provenance
+        assert record.source_provenance == current_provenance
         assert record.provenance["lineage_predecessor"] == "nurestore-v1"
         assert record.producer_revision == "text-producer-v1"
         assert record.representation_version == "unicode-token-hash-v1"
         assert record.codec_version == "spine-ingestion-codec-v1"
-
-        # Supersedes is not a store column, so it stays null and flagged; the
-        # exact predecessor remains available through source_lineage.
-        assert record.supersedes is None
-        assert record.supersedes_available is False
+        assert record.supersedes == "nurestore-v1"
+        assert record.supersedes_available is True
+        identity = _identity_from_readout(record)
+        assert identity["source_lineage"] == current_provenance
+        assert identity["supersedes"] == "nurestore-v1"
 
         durable = record.durable_ref
         assert durable is not None
@@ -957,3 +970,153 @@ def test_correction_lineage_keeps_restoration_fields_exact(
         assert Path(durable["locator"]).read_text(encoding="utf-8") == new_text
         assert durable["locator"] != str(
             store.root / "storage/warm/records/nurestore-v1/text.bin")
+
+
+def test_correction_without_current_provenance_does_not_inherit_authority(
+        tmp_path: Path) -> None:
+    with open_store(tmp_path) as store:
+        user = scope(as_of=1500)
+        old_text = "oldmissingauthority canonical payload"
+        new_text = "newmissingauthority canonical payload"
+        old_provenance = {
+            "record_id": "missing-authority-v1",
+            "source": "owned_test",
+            "text_sha256": hashlib.sha256(old_text.encode()).hexdigest(),
+            "producer_revision": "text-producer-v1",
+            "representation_version": "unicode-token-hash-v1",
+            "codec_version": "spine-ingestion-codec-v1",
+            "payload_type": "observation",
+        }
+        store.admit_cluster(
+            "corrections", scope=user,
+            records=[make_draft(
+                "missing-authority-v1", old_text, seed=60, source_id="owned_test",
+                source_epoch=7, observed_at=1000, valid_from=1000,
+                source_lineage=(json.dumps(old_provenance, sort_keys=True),))])
+        store.correct_record(
+            "missing-authority-v1", correction_id="missing-authority-v2",
+            text=new_text, source_id="owned_test", source_epoch=8,
+            observed_at=1200, valid_from=1100, values=sample_values(61),
+            value_producer_id="test-values", value_producer_version="test-values-v1",
+            scope=user)
+        record = read_scoped_memory(store, "newmissingauthority", user).records[0]
+        assert record.record_id == "missing-authority-v2"
+        assert record.source_provenance == {}
+        assert record.available_at is None
+        assert record.available_at_mapped is False
+        assert record.producer_revision is None
+        assert record.representation_version is None
+        assert record.codec_version is None
+        assert record.payload_type is None
+        assert record.supersedes == "missing-authority-v1"
+        assert record.supersedes_available is True
+        with pytest.raises(MissingRestoreField):
+            _identity_from_readout(record)
+
+
+def test_cold_resume_rejects_changed_as_of_before_any_io(tmp_path: Path) -> None:
+    with open_store(tmp_path) as store:
+        user = scope(as_of=1000)
+        store.admit_cluster(
+            "cold", scope=user, placement="cold",
+            records=[make_draft("time-scope-cold", "time scope cold payload", seed=70)])
+        budget = ReadoutBudget(max_records=1, cold_wait_seconds=0.0)
+        pending = read_scoped_memory(store, "time scope cold", user, budget)
+        ticket_id = pending.pending_cold[0].ticket_id
+        denied = resume_scoped_readout(
+            store, ticket_id, scope=scope(as_of=10), budget=budget)
+        assert denied.status == "denied"
+        assert denied.outcome.reason == "cross_scope_before_resume"
+        assert denied.outcome.detail["ticket_scope"]["as_of"] == 1000
+        assert denied.outcome.detail["requested_scope"]["as_of"] == 10
+        assert denied.metrics.cold_resumes == 0
+        assert denied.metrics.cold_io_bytes == 0
+        assert denied.metrics.cold_file_reads == 0
+
+
+def test_failed_verification_states_are_excluded_before_key_reads(
+        tmp_path: Path) -> None:
+    with open_store(tmp_path) as store:
+        user = scope()
+        store.admit_cluster(
+            "verification", scope=user,
+            records=[
+                make_draft("good", "verification shared payload", seed=71,
+                           verification_state="verified_source"),
+                make_draft("failed", "verification shared payload", seed=72,
+                           verification_state="failed_check"),
+                make_draft("quarantined", "verification shared payload", seed=73,
+                           verification_state="quarantined"),
+            ])
+        result = read_scoped_memory(store, "verification shared payload", user)
+        assert result.record_ids == ("good",)
+        assert result.candidate_count == 1
+        assert result.metrics.selection_file_reads >= 1
+        assert result.metrics.selection_calls == 1
+
+
+def test_all_eligible_mode_includes_zero_score_records_and_exact_io(
+        tmp_path: Path) -> None:
+    with open_store(tmp_path) as store:
+        user = scope()
+        store.admit_cluster(
+            "all", scope=user,
+            records=[
+                make_draft("match", "alpha unique matching phrase", seed=74),
+                make_draft("zero", "zzzzqvx unrelated content", seed=75),
+                make_draft("other", "beta different content", seed=76),
+            ])
+        result = read_scoped_memory(
+            store, "alpha unique matching phrase", user,
+            ReadoutBudget(max_records=8), selection_mode="all_eligible")
+        assert set(result.record_ids) == {"match", "zero", "other"}
+        assert result.candidate_count == 3
+        assert len(result.records) == 3
+        assert result.truncated is False
+        assert result.diagnostics["selection_mode"] == "all_eligible"
+        assert result.metrics.selection_file_reads >= 3
+        assert result.metrics.total_file_reads == (
+            result.metrics.selection_file_reads + result.metrics.payload_file_reads
+            + result.metrics.cold_file_reads)
+        with pytest.raises(BudgetError):
+            ReadoutBudget(max_records=9)
+        expanded = ReadoutBudget(
+            max_records=16, max_value_slots=64, allow_expanded_context=True)
+        assert expanded.retrieval_budget().quota_plan()["evidence_records"] == 16
+
+
+def test_runner_readout_combines_multiple_cold_resumes_and_metrics(
+        tmp_path: Path) -> None:
+    with open_store(tmp_path) as store:
+        user = scope("replica")
+        store.admit_cluster(
+            "cold", scope=user, placement="cold",
+            records=[
+                make_draft("multi-a", "multi cold shared alpha", seed=77),
+                make_draft("multi-b", "multi cold shared beta", seed=78),
+            ])
+        result = _tiered_readout(store, "multi cold shared", 1000)
+        assert result.status == "ok"
+        assert set(result.record_ids) == {"multi-a", "multi-b"}
+        assert len(result.records) == 2
+        assert result.metrics.cold_resumes == 2
+        assert result.metrics.cold_file_reads == 2 * (1 + VALUE_SLOTS_PER_RECORD)
+        assert result.metrics.selection_calls == 2
+        attempts = result.diagnostics["readout_attempts"]
+        assert len(attempts) == 4
+        assert result.metrics.total_file_reads == sum(
+            attempt["metrics"]["totals"]["file_reads"] for attempt in attempts)
+        assert result.metrics.total_io_bytes == sum(
+            attempt["metrics"]["totals"]["io_bytes"] for attempt in attempts)
+        assert result.metrics.records_returned == 2
+
+
+def test_runner_readout_rejects_empty_incomplete_by_default(tmp_path: Path) -> None:
+    with open_store(tmp_path) as store:
+        with pytest.raises(Refused, match="no_semantic_candidate"):
+            _tiered_readout(store, "no evidence", 1000)
+        empty = _tiered_readout(store, "no evidence", 1000, allow_empty=True)
+        assert empty.status == "incomplete"
+        assert empty.outcome.reason == "no_semantic_candidate"
+        assert empty.records == ()
+        assert empty.candidate_count == 0

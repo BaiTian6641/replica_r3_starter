@@ -63,10 +63,21 @@ def main() -> int:
         third = read_scoped_memory(store, "beta warm", scope, budget=budget)
         fourth = read_scoped_memory(store, "gamma warm", scope, budget=budget)
         cold_pending = read_scoped_memory(store, "cold original", scope, budget=budget)
+        corrected_text = "cold corrected rule"
+        correction_provenance = {
+            "record_id": "cold-rule-corrected",
+            "source": "pressure-correction",
+            "text_sha256": hashlib.sha256(corrected_text.encode()).hexdigest(),
+            "producer_revision": "pressure-neural-producer-v1",
+            "representation_version": "pressure-representation-v1",
+            "codec_version": "pressure-codec-v1",
+            "payload_type": "observation",
+        }
         correction = store.correct_record(
-            "cold-rule", correction_id="cold-rule-corrected", text="cold corrected rule",
+            "cold-rule", correction_id="cold-rule-corrected", text=corrected_text,
             source_id="pressure-correction", source_epoch=2, observed_at=2,
-            scope=scope, authenticity="source_report", verification_state="verified_source")
+            scope=scope, authenticity="source_report", verification_state="verified_source",
+            source_provenance=correction_provenance)
         invalidated = resume_scoped_readout(store, cold_pending.pending_cold[0].ticket_id,
                                             scope=scope, budget=budget)
         corrected = read_scoped_memory(store, "cold corrected", scope, budget=budget)

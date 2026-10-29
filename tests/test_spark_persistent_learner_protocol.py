@@ -78,6 +78,15 @@ def test_review_derives_real_profile_and_control_budgets_without_native_work():
     config = read_json(CONFIG_PATH)
     assert set(config["launch"]["implementation_files"]) == set(report["implementation_sha256"])
     assert config["launch"]["implementation_sha256"] == report["implementation_sha256"]
+    assert {
+        "src/replica_lab/architecture/ports.py",
+        "src/replica_lab/model_identity.py",
+        "src/replica_lab/training_state.py",
+        "scripts/preflight_spark_text_memory_v1.py",
+    } <= set(config["launch"]["implementation_files"])
+    assert report["work_units"]["readout_selection_calls_max"] == 296
+    assert report["work_units"]["readout_file_reads_max"] == 66304
+    assert report["work_units"]["payload_file_reads_max"] == 23680
 
 
 def test_independent_fixture_is_hash_bound_and_labels_stay_behind_fit_receipt():
