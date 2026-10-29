@@ -1,0 +1,87 @@
+{
+  "format": "replica.spark_persistent_learner.procedures.v2",
+  "procedures": [
+    {
+      "applicability": [
+        "zeta beacon pulse sequence"
+      ],
+      "exceptions": [
+        "maintenance revision changes the mapping"
+      ],
+      "failure_lesson": "do not reuse the pre-maintenance mapping after the correction",
+      "outcome": "verify the observed gate state against the current zeta rule",
+      "outcome_checker": "fixture-rule-table",
+      "outcome_independently_checked": true,
+      "prerequisites": [
+        "beacon is visible",
+        "pulse sequence ends"
+      ],
+      "procedure_id": "zeta_procedure",
+      "source_record_ids": [
+        "fit-zeta-correction",
+        "fit-zeta-legacy"
+      ],
+      "world_id": "fit_zeta"
+    },
+    {
+      "applicability": [
+        "eta request routing"
+      ],
+      "exceptions": [
+        "amber tag routes archive"
+      ],
+      "failure_lesson": "an absent tag cannot be routed as an amber exception",
+      "outcome": "route the request to the queue named by the tag rule",
+      "outcome_checker": "fixture-rule-table",
+      "outcome_independently_checked": true,
+      "prerequisites": [
+        "tag is visible",
+        "request is eta"
+      ],
+      "procedure_id": "eta_procedure",
+      "source_record_ids": [
+        "fit-eta-rule"
+      ],
+      "world_id": "fit_eta"
+    },
+    {
+      "applicability": [
+        "theta valve pulse sequence"
+      ],
+      "exceptions": [
+        "pattern order differs"
+      ],
+      "failure_lesson": "two short pulses before one long pulse are not the ready pattern",
+      "outcome": "verify the theta valve state from the ordered pulses",
+      "outcome_checker": "fixture-rule-table",
+      "outcome_independently_checked": true,
+      "prerequisites": [
+        "pulse counts are ordered"
+      ],
+      "procedure_id": "theta_procedure",
+      "source_record_ids": [
+        "dev-theta-rule"
+      ],
+      "world_id": "dev_theta"
+    },
+    {
+      "applicability": [
+        "kappa request tag inspection"
+      ],
+      "exceptions": [
+        "red-tag rule revoked",
+        "tag absent"
+      ],
+      "failure_lesson": "a revoked rule cannot supply a held state",
+      "outcome": "treat an absent or revoked tag as unknown",
+      "outcome_checker": "fixture-rule-table",
+      "outcome_independently_checked": true,
+      "prerequisites": [],
+      "procedure_id": "kappa_procedure",
+      "source_record_ids": [
+        "dev-kappa-revocation"
+      ],
+      "world_id": "dev_kappa"
+    }
+  ]
+}

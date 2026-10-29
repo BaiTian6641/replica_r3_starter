@@ -1,0 +1,116 @@
+{
+  "counts": {
+    "arms": 10,
+    "development_cases": 12,
+    "development_labels": 12,
+    "fit_events": 4,
+    "observations": 13,
+    "parity_requests": 2,
+    "procedures": 4,
+    "restart_parity_requests": 1,
+    "task_workspaces": 1
+  },
+  "created_utc": "2026-10-28T00:00:00+00:00",
+  "development_labels_closed_until_fit_receipt": true,
+  "files": {
+    "development.jsonl": {
+      "bytes": 3768,
+      "sha256": "b02f24f938003db531333f451f8274449371574958d759965339cc580581f590"
+    },
+    "development_labels.jsonl": {
+      "bytes": 496,
+      "sha256": "5ea3a2fe3ef35c8c599d878b4295b58d460c58898b7d201fa8b4d6f2b7046cf3"
+    },
+    "fit_events.jsonl": {
+      "bytes": 1230,
+      "sha256": "b51def86632b94267a6b59035bc5844a9f8616f9a3b925bf6fbf358723934250"
+    },
+    "observations.jsonl": {
+      "bytes": 10624,
+      "sha256": "5e1bd782a81895a702d31e85118a92ecb74ebbf96856e2f8166c23821fb1f18c"
+    },
+    "parity_requests.jsonl": {
+      "bytes": 665,
+      "sha256": "0b490f7d8e62c8d751931ba2c5113391a262a09d13b4176b7aaa8e1df4fb8cea"
+    },
+    "procedures.json": {
+      "bytes": 2540,
+      "sha256": "11e5b99ebc7f094757104f7ecc28f02d382a85a4c5126efd80c988960d1b45a5"
+    },
+    "tasks.json": {
+      "bytes": 702,
+      "sha256": "4ba4b1bfb102f217072f00eb0abdda751f23fba26eaa10897868c16f0e279c09"
+    },
+    "worlds.json": {
+      "bytes": 867,
+      "sha256": "870521a7bef13ad9267fb786baccfe5ff5b31d6ca6b8b59dde328545352466ad"
+    }
+  },
+  "format": "replica.spark_persistent_learner.fixture.v2",
+  "license": {
+    "approval_required_for_identity_records": true,
+    "external_sources": [],
+    "external_text": false,
+    "status": "owned_synthetic_project_generated"
+  },
+  "protocol_id": "spark_persistent_learner_v2",
+  "required_streams": [
+    "new_information",
+    "new_procedure_instances",
+    "corrections",
+    "exceptions",
+    "revocations",
+    "unknowns",
+    "similar_looking_different_procedures",
+    "delayed_recall",
+    "interference",
+    "restart",
+    "capacity_pressure"
+  ],
+  "roles": {
+    "development": "fresh_world_paraphrase_new_instance_and_retention_selection",
+    "fit": "chronological_teaching_and_support_only",
+    "sealed_final": "closed_not_materialized_not_read"
+  },
+  "sealed_final": {
+    "materialized": false,
+    "opened": false,
+    "path": null
+  },
+  "seed": 20261028,
+  "source_lineage": "owned_synthetic_text_rules_v2_independent_worlds_with_exact_verifiable_outcomes",
+  "split_unit": "independent_world_and_rule_family_before_paraphrase_generation",
+  "version": 2,
+  "worlds": [
+    {
+      "kind": "new_rule_correction_and_older_rule",
+      "role": "fit",
+      "rule_family": "zeta_beacon",
+      "world_id": "fit_zeta"
+    },
+    {
+      "kind": "similar_looking_different_procedure",
+      "role": "fit",
+      "rule_family": "eta_tag_routing",
+      "world_id": "fit_eta"
+    },
+    {
+      "kind": "fresh_world_new_rule",
+      "role": "development",
+      "rule_family": "theta_valve",
+      "world_id": "dev_theta"
+    },
+    {
+      "kind": "unknown_and_revocation",
+      "role": "development",
+      "rule_family": "kappa_tag_revocation",
+      "world_id": "dev_kappa"
+    },
+    {
+      "kind": "unrelated_capacity_pressure_records",
+      "role": "development",
+      "rule_family": "capacity_pressure_filler_v2",
+      "world_id": "dev_filler2"
+    }
+  ]
+}

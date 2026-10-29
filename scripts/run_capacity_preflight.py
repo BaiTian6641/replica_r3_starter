@@ -47,7 +47,7 @@ def training_arguments(arguments):
 
 
 def continuation_requested(arguments):
-    """True only for an explicit resume or development/final continuation.
+    """True only for an explicit resume or development/final/restart continuation.
 
     An initial fit must never reuse an existing output.  The continuation flag
     is accepted only when the trainer arguments themselves declare resume or a
@@ -61,7 +61,7 @@ def continuation_requested(arguments):
     position = arguments.index("--stage")
     if position + 1 >= len(arguments):
         return False
-    return arguments[position + 1] in ("development", "final", "sealed_final")
+    return arguments[position + 1] in ("development", "final", "sealed_final", "restart")
 
 
 def stop_child(child):
@@ -105,7 +105,7 @@ def main():
                                                  "analyze_overfit_fit.py",
                                                  "run_m4_pattern.py",
                                                  "run_m4_restart.py",
-                                                 "run_spark_text_memory_v1.py",
+                                                 "run_spark_text_memory_v1.py", "run_spark_persistent_learner_v2.py",
                                                  "run_e2_cross_rerank.py", "run_dc_p1_native_response_v2_20261027.py", "run_dc_r1_native_value_v3_20261028.py", "run_dc_p1_source_free_feature_alignment_v2.py", "vision_smaller_step_v2.py"),
                         default="train_text.py")
     parser.add_argument("--report", type=Path, required=True)

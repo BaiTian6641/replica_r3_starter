@@ -11,6 +11,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
+import preflight_spark_text_memory_v1 as preflight_module
 
 from preflight_spark_text_memory_v1 import (
     CONFIG_PATH, ProtocolError, derive_work, preflight, read_json, sha256_file,
@@ -18,10 +19,42 @@ from preflight_spark_text_memory_v1 import (
 )
 
 
+@pytest.fixture(autouse=True)
+def mock_source_validation(monkeypatch):
+    """Tracked metadata only; never authenticates a native source artifact."""
+    def validate(config, root, *, full_weight_hash):
+        source = config["source_identities"]["official_fp8"]
+        return {
+            "source_identity": "official_fp8",
+            "source_root": str(root / "tracked-source-metadata"),
+            "config_sha256": source["config_sha256"],
+            "weight_path": str(root / "tracked-source-metadata/model.safetensors"),
+            "weight_sha256_checked": bool(full_weight_hash),
+            "execution_format": source["execution_format"],
+            "required_backend": source["required_backend"],
+            "tokenizer_checked": True,
+        }
+    monkeypatch.setattr(preflight_module, "_source_validation", validate)
+
+
+@pytest.fixture(autouse=True)
+def mock_git_metadata(monkeypatch):
+    head = read_json(CONFIG_PATH)["launch"]["protocol_commit"]
+    real_run = subprocess.run
+
+    def run(args, **kwargs):
+        if args[:2] == ["git", "rev-parse"]:
+            return subprocess.CompletedProcess(args, 0, stdout=head)
+        if args[:2] in (["git", "merge-base"], ["git", "diff"]):
+            return subprocess.CompletedProcess(args, 0)
+        return real_run(args, **kwargs)
+
+    monkeypatch.setattr(preflight_module.subprocess, "run", run)
+
+
 def _head() -> str:
     return subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True,
                           capture_output=True, check=True).stdout.strip()
-
 
 def _valid_launch_inputs(tmp_path: Path):
     config = copy.deepcopy(read_json(CONFIG_PATH))

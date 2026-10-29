@@ -1,0 +1,30 @@
+{
+  "format": "replica.spark_persistent_learner.tasks.v2",
+  "tasks": [
+    {
+      "observed_completions": [
+        {
+          "checker": "fixture-rule-table",
+          "evidence_record_ids": [
+            "fit-eta-rule"
+          ],
+          "observation": "the green tag routes to review",
+          "observed_at": 2,
+          "subgoal_id": "route_queue"
+        }
+      ],
+      "subgoals": [
+        {
+          "description": "inspect the eta tag",
+          "subgoal_id": "inspect_tag"
+        },
+        {
+          "description": "route to the named queue",
+          "subgoal_id": "route_queue"
+        }
+      ],
+      "task_id": "fit-eta-task",
+      "world_id": "fit_eta"
+    }
+  ]
+}
