@@ -6,6 +6,8 @@
 native execution and learned capability remain unauthorized and unqualified.**
 Read the [spine/memory integration report](docs/experiments/20261028_Spark_Spine_Memory_Integration.md).
 
+Implementation commit: `591980b0` on `codex/d2-capacity-runtime-pilot`.
+
 - Added typed Spark packets, causal availability, independent spine/memory/workspace
   readers, explicit E/P provenance, native adapter hooks and v2 extension-only
   export validation. The memory experiment can share the adapter's exact spine.
