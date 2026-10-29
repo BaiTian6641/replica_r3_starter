@@ -1,0 +1,89 @@
+{
+  "format": "replica.spark_intrinsic.environment_repair_verification.v1",
+  "date": "2026-10-29",
+  "implementation_commit": "73a5f9ef6aa9d7fe9ed4c79bb3ec87aecd39ee9c",
+  "documentation_snapshot": "4f4932f6192309165bfafb00385e1e847bdf1bf1",
+  "authorized_attempt": {
+    "path": "reports/intrinsic_memory_v3/native_readout01/result.json",
+    "sha256": "5ca2443494ac4972f3df02f69d02768ee058e5a474fd8415bb17334475a33da3"
+  },
+  "attempt_result": "failed_before_competence_model_construction_dependency_mismatch",
+  "native_attempts_executed": 1,
+  "native_retries": 0,
+  "corrected_environment_native_run": false,
+  "portable_tests": {
+    "passed": 21,
+    "seconds": 0.08,
+    "log": {
+      "path": "reports/intrinsic_memory_v3/environment_gate_tests.log",
+      "sha256": "eb561b1d92ca4ac7b279d021bbdd6918af940fa565928750901067ee10fc948c"
+    },
+    "junit": {
+      "path": "reports/intrinsic_memory_v3/environment_gate_tests.xml",
+      "sha256": "10a69bdb2eabef3d6627ce84c968983cff9f3ce33715246e82d97a011782830e"
+    }
+  },
+  "clean_combined_tests": {
+    "passed": 63,
+    "seconds": 12.23,
+    "native_checkpoints_present": false,
+    "log": {
+      "path": "reports/intrinsic_memory_v3/environment_clean_tests.log",
+      "sha256": "8e580084197ec6bb090bd8c90f9715664bd71d667677dab3687544fc0f4a9bc1"
+    },
+    "junit": {
+      "path": "reports/intrinsic_memory_v3/environment_clean_tests.xml",
+      "sha256": "eef38d066061b207cdcdb9258525364c8770c406302d458820c7e8af4d896678"
+    }
+  },
+  "qualified_environment_gate": {
+    "path": "reports/intrinsic_memory_v3/qualified_environment_check.json",
+    "sha256": "3dfe2e7ed303d6a99d2ebe0c9d0d2c72393422734cd0874648b404e45d7f4dad"
+  },
+  "wrong_environment_refused_before_import": {
+    "path": "reports/intrinsic_memory_v3/wrong_environment_refusal.json",
+    "sha256": "c6dd85617eb034010022db66fb080eafd6ec47ff4b6c7d00f4681f2854c6cc9b"
+  },
+  "tiny_source_CPU_probe": {
+    "path": "reports/intrinsic_memory_v3/qualified_environment_source_cpu_smoke.json",
+    "sha256": "11d4df45b501b67d7b8e15773b64e7af81ee801495bb18594dd1bf76607994cd"
+  },
+  "established_clean_checks": {
+    "v51": {
+      "scope": "documentation, reference, arithmetic and migration checks only; no model, training, native execution or measured fit",
+      "checks": 1173,
+      "passed": 1173,
+      "failed": 0,
+      "migration_identity": "sparkx-2.6-v5.1-review-migration-20261027",
+      "native_gates_unresolved": 10
+    },
+    "final_product": {
+      "status": "passed",
+      "checks_count": 516,
+      "passed": 516,
+      "failed": [],
+      "unavailable_source_cache": 0,
+      "reviewed_input_changes_applied": 9,
+      "unexplained_input_drift": [],
+      "blueprint_words": 15765
+    },
+    "artifacts": {
+      "status": "passed",
+      "scope": "tracked",
+      "max_blob_bytes": 52428800,
+      "checked_files": 11776,
+      "largest_checked_blob_bytes": 8860309,
+      "violations": [],
+      "working_files_changed": false
+    },
+    "bundle": "Bundle verified: 143 inputs, 6041544 bytes, digest 655ba337f0f5d03a61da9df9756c33c6c497d1d35a14e7423bbd1eead1232391"
+  },
+  "fresh_review_packet": {
+    "path": "reports/intrinsic_memory_v3/native_experiment_s0_s1_environment_v2.json",
+    "sha256": "0178c42a3a97e0550ac8922c4149895af3c77de4efd9fe3c6bd5381da4d21ea3"
+  },
+  "native_readout02_authorization_present": false,
+  "remaining_gate": "fresh_user_authorization_bound_to_corrected_environment_packet",
+  "no_historical_qualification_or_source_mutation": true,
+  "protected_runtime_pilot_read_import_edit_stage": false
+}
