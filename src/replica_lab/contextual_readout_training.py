@@ -177,7 +177,9 @@ def run_readout(protocol, backend, output, ledger, competence, *, meter=None):
               and counts["contextual"] > max(counts["wrong"], counts["absent"], counts["shuffled"]))
     report = {"format": "replica.contextual_readout.result.v2", "status": "evaluated",
         "protocol_sha256": protocol.sha256, "readout_protocol_sha256": protocol.config["contextual_readout"]["sha256"],
-        "source_qualification": "preflight_validated", "numerical_qualification": True,
+        "source_qualification": "preflight_validated" if backend.native_admissible else "synthetic_engineering_fixture",
+        "numerical_qualification": True,
+        "memory_owner": "intrinsic_memory", "external_spine_required": False,
         "baseline_competence": competence["passed"], "learning_utility": useful,
         "promotion": False, "P_learning_allowed": False,
         "next_gate": "fresh_process_readout_continuation_then_P_protocol" if useful else "useful_contextual_readout_required",

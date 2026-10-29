@@ -32,7 +32,7 @@ def step(path, values):
     loss = F.cross_entropy(logits.float().reshape(-1, logits.shape[-1]), labels_from_ids(ids).reshape(-1))
     loss.backward()
     grads = {"producer": sum(float(p.grad.abs().sum()) for p in path.encoder.parameters() if p.grad is not None),
-             "reader": sum(float(p.grad.abs().sum()) for p in path.adapter.extension.spine.ports["memory"].parameters() if p.grad is not None)}
+             "reader": sum(float(p.grad.abs().sum()) for p in path.reader.ports.parameters() if p.grad is not None)}
     assert all(torch.isfinite(p.grad).all() for group in path.optimizer.param_groups
                for p in group["params"] if p.grad is not None)
     path.optimizer.step()
@@ -164,7 +164,7 @@ def test_P_has_one_owner_and_fixed_reader_and_refuses_unqualified_native_learnin
     p = FrozenContextualP(path, {}, engineering_fixture=True)
     assert p.bank.expert_count == 1
     producer = path.encoder.release()
-    reader = {n:tensor_digest(t) for n,t in path.adapter.extension.spine.ports["memory"].state_dict().items()}
+    reader = {n:tensor_digest(t) for n,t in path.reader.ports.state_dict().items()}
     ids,mask = ids_and_mask()
     labels = labels_from_ids(ids)
     query = "Which rule applies to the next observation?"
@@ -173,7 +173,7 @@ def test_P_has_one_owner_and_fixed_reader_and_refuses_unqualified_native_learnin
     assert receipt["clock"] == 1
     assert p.teach(ids, mask, labels, query, scope=scope(), event_id="teaching-1", lineage=["r1"])["updated"] is False
     assert path.encoder.release() == producer
-    assert reader == {n:tensor_digest(t) for n,t in path.adapter.extension.spine.ports["memory"].state_dict().items()}
+    assert reader == {n:tensor_digest(t) for n,t in path.reader.ports.state_dict().items()}
     assert all(t.grad is None for t in path.encoder.parameters())
     assert not torch.equal(p.forward(ids,mask,query,scope=scope()), p.forward(ids,mask,query,scope=scope(),reset=True))
     p.invalidate("r1")
@@ -181,3 +181,64 @@ def test_P_has_one_owner_and_fixed_reader_and_refuses_unqualified_native_learnin
         p.forward(ids,mask,query,scope=scope())
     p.reset(authorization="test_explicit_reset")
     assert p.clock == 0 and not p.quarantined
+
+
+def test_intrinsic_memory_operates_with_external_spine_removed():
+    path = make_path()
+    assert "memory" not in path.adapter.extension.spine.ports
+    assert not hasattr(path.adapter.extension.spine, "memory_projection")
+    assert path.reader is path.adapter.extension.intrinsic_memory
+    path.adapter.extension.spine = None
+    ids,mask = ids_and_mask()
+    batch = path.training_values(spans(),scope=scope())
+    baseline = path.forward(ids,mask,None,scope=scope())
+    assert torch.equal(baseline,path.forward(ids,mask,batch,scope=scope()))
+    step(path,spans())
+    _,gradients = step(path,spans())
+    assert gradients["producer"] > 0 and gradients["reader"] > 0
+    assert not torch.equal(baseline,path.forward(ids,mask,batch,scope=scope()))
+    assert path.adapter.base_unchanged()
+    assert any(n.startswith("intrinsic_memory.ports.") for n,_ in path.adapter.extension.named_parameters())
+
+
+def test_explicit_legacy_migration_preserves_values_logits_and_optimizer(tmp_path):
+    import hashlib
+    import json
+    from safetensors.torch import load_file,save_file
+    from replica_lab.contextual_memory import LEGACY_FORMAT,FORMAT
+    path=make_path()
+    step(path,spans());step(path,spans())
+    legacy=tmp_path/'legacy'
+    path.save(legacy)
+    # Synthetic historical v2 layout, byte-equivalent to its reader namespace.
+    tensors=load_file(str(legacy/'extension.safetensors'))
+    save_file({k.removeprefix('intrinsic_memory.') if k.startswith('intrinsic_memory.reader.') else k:v
+               for k,v in tensors.items()},str(legacy/'extension.safetensors'))
+    manifest=json.loads((legacy/'manifest.json').read_text())
+    manifest['format']=LEGACY_FORMAT
+    manifest.pop('owner');manifest.pop('external_spine_required')
+    manifest['weights_sha256']=hashlib.sha256((legacy/'extension.safetensors').read_bytes()).hexdigest()
+    (legacy/'manifest.json').write_text(json.dumps(manifest))
+    before={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in legacy.iterdir()}
+    fresh=make_path()
+    with pytest.raises(ContextualMemoryError,match='explicit migration'):fresh.load(legacy)
+    receipt=fresh.migrate_legacy(legacy,tmp_path/'intrinsic')
+    assert receipt['to_format']==FORMAT and receipt['optimizer_state_preserved']
+    assert before=={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in legacy.iterdir()}
+    fresh.adapter.extension.spine=None
+    ids,mask=ids_and_mask()
+    assert torch.equal(path.forward(ids,mask,path.training_values(spans(),scope=scope()),scope=scope()),
+                       fresh.forward(ids,mask,fresh.training_values(spans(),scope=scope()),scope=scope()))
+    step(path,spans());step(fresh,spans())
+    assert path.encoder.release()==fresh.encoder.release()
+    assert all(torch.equal(v,fresh.reader.state_dict()[k]) for k,v in path.reader.state_dict().items())
+
+
+def test_intrinsic_sites_do_not_depend_on_external_spine_sites():
+    torch.manual_seed(17)
+    adapter,*_=build_contextual_adapter(seed=17,layers=8,spine_sites=(1,5),spine_slots=4,memory_size=256)
+    path=ContextualMemoryPath(adapter)
+    assert path.spec.sites==(3,7) and path.spec.slots==8
+    assert adapter.spine_spec.sites==(1,5)
+    ids,mask=ids_and_mask()
+    path.forward(ids,mask,path.training_values(spans(),scope=scope()),scope=scope())

@@ -15,6 +15,7 @@ from .nested_learning import ExpertBank
 
 
 class FrozenContextualP:
+    read_mode = "fixed_question_slot_control_not_hidden_state_conditioned_P"
     def __init__(self, readout, qualification, *, engineering_fixture=False, seed=17):
         if engineering_fixture:
             if (readout.adapter.config.geometry.is_official_geometry
@@ -75,6 +76,7 @@ class FrozenContextualP:
             self.lineage.extend(x for x in lineage if x not in self.lineage)
         self.bank.optimizer.zero_grad(set_to_none=True)
         return {"updated": apply, "loss": float(loss.detach()), "clock": self.clock,
+                "read_mode": self.read_mode,
                 "optimizer": "NativeFusedAdamW", "reader_frozen": True,
                 "source_free_evaluation": "not_established_by_teacher_forced_update",
                 "E": 0, "S": 0, "C": 0, "answer_bearing_I": 0,

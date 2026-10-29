@@ -693,15 +693,16 @@
       "src/replica_lab/contextual_memory.py",
       "src/replica_lab/contextual_readout_training.py",
       "src/replica_lab/contextual_p_learning.py",
-      "src/replica_lab/profiling.py"
+      "src/replica_lab/profiling.py",
+      "src/replica_lab/architecture/intrinsic_memory.py"
     ],
     "implementation_sha256": {
       "scripts/run_spark_persistent_learner_derivative_bf16.py": "3492503615b2eb9c82dee9da844459c7daa9335e47c5afb472b3b8553b143653",
       "scripts/run_capacity_preflight.py": "5117a65966a299a56138634e5dd2e8aedd063af21fdf10d019d038c8af070951",
       "scripts/preflight_spark_persistent_learner_derivative_bf16.py": "d67683fdf14ae1e8e38bcba2fe846684f1c5efc252cdaa110a6b8280e5b5659a",
       "src/replica_lab/architecture/spark2_5.py": "d1fed0d1e3771b2a37229406719583d7b9727983702087f42c156a4d5b8e4c5b",
-      "src/replica_lab/architecture/spark_adapter.py": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
-      "src/replica_lab/architecture/spine.py": "5a4b4fd002e0cea3341639946e3824d8773adf9e1b494486f1f4d35334373703",
+      "src/replica_lab/architecture/spark_adapter.py": "d40375a968413adf4dbab536975ea27384bee25b1b2bfa9a931a81c9edf0c4ed",
+      "src/replica_lab/architecture/spine.py": "89311890cc3ef37c2479b350bebf33a13bb573adc814e4dd4b7bb552685034b0",
       "src/replica_lab/architecture/spine_memory.py": "2b826bb70973210a5bd611de0415a5b7ef63914d8ff23dcb724d0362f1ca7626",
       "src/replica_lab/architecture/spine_text.py": "d359fbbd2a5a5167ff67421fe8bad50b6d879b79192879bddd97bf277e552f9a",
       "src/replica_lab/architecture/spine_checkpoint.py": "7bbf1f24fc428b6063568c1ac6f3d75da13f87128e623400730ad41aaef8681e",
@@ -721,10 +722,11 @@
       "src/replica_lab/checkpoint_storage.py": "7cfd3496f71a23f74b20162f24eaea7514c5fc5d1e4eb2f0100b1e5e428e96a1",
       "src/replica_lab/execution_manifest.py": "7cb4549ca6d4b26ff45cf0eaf08837a1090884140884f085d7bd804a07e11df9",
       "src/replica_lab/baseline_competence.py": "9aecd789505e6551af7f2444ed10439537b21247a232e6f9f55896f08ac6b2ed",
-      "src/replica_lab/contextual_memory.py": "e1d83af714f895a47f353a19a97d3aed1a9a620e39eae73b0616d555dc4a48d8",
-      "src/replica_lab/contextual_readout_training.py": "58c160f10fa7b9b42eeb45d31338610831948993559d7c108a7b63a1e2029fd0",
-      "src/replica_lab/contextual_p_learning.py": "c555316a495c336d6c292483de58b7bf7b86cca6ccd4d02f0f61b85ecbf4a85d",
-      "src/replica_lab/profiling.py": "626efb0718ecfb87613937929292e49105e20c998372a37e2b4c85ccd69d92a3"
+      "src/replica_lab/contextual_memory.py": "1a4d301b7d9f986c0538b391cd1daf5e5532294b1e966b4f5274a65c8ef017e2",
+      "src/replica_lab/contextual_readout_training.py": "3a58d43ccaa3b39a02572c139d229b72c8cb3242fe21a755916b3895c5d55066",
+      "src/replica_lab/contextual_p_learning.py": "ef5863c58a64cf7b49a1c3748da754e627abdbbe9405bd5eefc2fc15977042bd",
+      "src/replica_lab/profiling.py": "626efb0718ecfb87613937929292e49105e20c998372a37e2b4c85ccd69d92a3",
+      "src/replica_lab/architecture/intrinsic_memory.py": "1e62c3722de7a06e756e66a503d91c7281c4074fa8f0e53443ee14c3420223ae"
     },
     "authorization_path": "reports/spark_persistent_learner_v2/derivative_bf16_authorization.json",
     "required_qualification_evidence": {
@@ -770,7 +772,7 @@
     },
     "no_launch_without_exact_authorization": true,
     "no_launch_without_derivative_runner": true,
-    "output_root": "runs/contextual_memory_v2/native_readout01",
+    "output_root": "runs/intrinsic_memory_v3/native_readout01",
     "output_must_be_fresh": true,
     "native_command": null,
     "retirement_guard": "the spark_persistent_learner_v2 runner is official-FP8-bound and is not a valid derivative runner"
@@ -814,7 +816,7 @@
     "sha256": "00be558df3cfe370a86df6ddc470575761c86473a2f5e509a6054f3a7bc09464"
   },
   "contextual_readout": {
-    "path": "configs/contextual_readout_protocol_v2.json",
-    "sha256": "5a517d75b4d84955ec6a31bed76bb8a81ba4f03dd06f1e16dcc41dd425ea8989"
+    "path": "configs/intrinsic_memory_readout_protocol_v3.json",
+    "sha256": "fd2cec4dd6be3e45920c59712d1ef4342ddafe04a42c27437191b1fade17fad1"
   }
 }

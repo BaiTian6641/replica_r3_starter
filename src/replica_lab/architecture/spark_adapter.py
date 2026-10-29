@@ -101,6 +101,7 @@ class _ForwardContext:
     memory_mask: torch.Tensor | None
     spine_context: SpineForwardContext | None = None
     enabled_spine_branches: tuple[str, ...] = ()
+    intrinsic_memory: object | None = None
     traced: list[tuple[int, str]] | None = None
     injected: list[int] | None = None
     deltas: list[float] | None = None
@@ -494,6 +495,10 @@ class Spark2_5Adapter(nn.Module):
                     spine_delta = context.spine_context.delta(
                         branch, index, spine_hidden)
                     delta = spine_delta if delta is None else delta + spine_delta
+            if context.intrinsic_memory is not None and index in context.intrinsic_memory.spec.sites:
+                memory_delta = context.intrinsic_memory.delta(
+                    index, hidden.to(device=device, dtype=torch.float32))
+                delta = memory_delta if delta is None else delta + memory_delta
             if delta is None:
                 return None
             if tuple(delta.shape) != tuple(hidden.shape):
@@ -511,6 +516,7 @@ class Spark2_5Adapter(nn.Module):
              projector_input: torch.Tensor | None, memory: torch.Tensor | None,
              memory_mask: torch.Tensor | None, use_projector: bool, use_ports: bool,
              spine: SpineForwardContext | None = None, use_spine: bool = False,
+             intrinsic_memory=None,
              enabled_spine_branches: tuple[str, ...] = BRANCHES):
         input_ids = input_ids
         mask = self._validate_inputs(input_ids, attention_mask)
@@ -525,6 +531,7 @@ class Spark2_5Adapter(nn.Module):
             projector_input=projector_input, memory=memory,
             memory_mask=memory_mask,
             spine_context=spine if use_spine else None,
+            intrinsic_memory=intrinsic_memory,
             enabled_spine_branches=(tuple(enabled_spine_branches)
                                     if use_spine else ()))
         handles = []
@@ -576,6 +583,7 @@ class Spark2_5Adapter(nn.Module):
                      use_projector: bool = True, use_ports: bool = True,
                      spine: SpineForwardContext | None = None,
                      use_spine: bool = False,
+                     intrinsic_memory=None,
                      enabled_spine_branches: tuple[str, ...] = BRANCHES,
                      return_audit: bool = False):
         logits, audit, _ = self._run(
@@ -583,6 +591,7 @@ class Spark2_5Adapter(nn.Module):
             position_ids=position_ids, projector_input=projector_input, memory=memory,
             memory_mask=memory_mask, use_projector=use_projector, use_ports=use_ports,
             spine=spine, use_spine=use_spine,
+            intrinsic_memory=intrinsic_memory,
             enabled_spine_branches=enabled_spine_branches)
         return (logits, audit) if return_audit else logits
 
@@ -595,6 +604,7 @@ class Spark2_5Adapter(nn.Module):
                      use_projector: bool = True, use_ports: bool = True,
                      spine: SpineForwardContext | None = None,
                      use_spine: bool = False,
+                     intrinsic_memory=None,
                      enabled_spine_branches: tuple[str, ...] = BRANCHES,
                      return_audit: bool = False):
         hidden, audit, _ = self._run(
@@ -602,6 +612,7 @@ class Spark2_5Adapter(nn.Module):
             position_ids=position_ids, projector_input=projector_input, memory=memory,
             memory_mask=memory_mask, use_projector=use_projector, use_ports=use_ports,
             spine=spine, use_spine=use_spine,
+            intrinsic_memory=intrinsic_memory,
             enabled_spine_branches=enabled_spine_branches)
         return (hidden, audit) if return_audit else hidden
 

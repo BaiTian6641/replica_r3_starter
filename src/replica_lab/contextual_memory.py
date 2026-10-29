@@ -1,9 +1,10 @@
-"""Contextual values v2: trainable tensors and separately detached durable state.
+"""Intrinsic memory v3 with contextual values v2 and separate durable state.
 
 The byte transformer sees canonical source text only. Four ordered, width-256
 slots summarize four contiguous source regions with full-span context. Retrieval
 keys remain hash controls; they are never the values. A training graph lives for
 one objective/update; durable writes, inference reads and decisions detach.
+Memory owns its decoder readers; the external spine is optional and independent.
 """
 from __future__ import annotations
 
@@ -17,12 +18,13 @@ from typing import Mapping, Sequence
 import torch
 from torch import nn
 
-from .architecture.spine import DecisionSnapshot, Packet, PACKET_SCHEMA, SpineForwardContext
+from .architecture.intrinsic_memory import IntrinsicMemorySpec, IntrinsicMemoryReader, IntrinsicMemoryContext
 from .optimizers import NativeFusedAdamW
 from .tiered_memory import EvidenceRecordDraft, MemoryScope, TieredMemoryStore, pack_values
 from .tiered_readout import ReadoutBudget, read_scoped_memory
 
-FORMAT = "replica.contextual_memory.implementation.v2"
+FORMAT = "replica.intrinsic_memory.implementation.v3"
+LEGACY_FORMAT = "replica.contextual_memory.implementation.v2"
 PRODUCER = "contextual_byte_transformer_v2"
 REPRESENTATION = "four_ordered_contextual_256_v2"
 CODEC = "contextual_fp32_slots_v2"
@@ -144,16 +146,6 @@ class ValueBatch:
     training: bool = False
 
 
-class ValidatedContext(SpineForwardContext):
-    def __init__(self, *args, validate, **kwargs):
-        self.validate = validate
-        super().__init__(*args, **kwargs)
-
-    def delta(self, *args):
-        self.validate()
-        return super().delta(*args)
-
-
 class ContextualMemoryPath:
     """Exactly one optimizer owner for producer, ordered reader and memory ports.
 
@@ -162,27 +154,27 @@ class ContextualMemoryPath:
     readout, freeze_readout removes every phi tensor from the training graph.
     """
     def __init__(self, adapter, *, lr=1e-3):
-        if tuple(adapter.spine_spec.sites) != (3, 7) or adapter.spine_spec.workspace_width != WIDTH:
-            raise ContextualMemoryError("contextual v2 requires width 256 and sites 3/7")
+        self.spec = IntrinsicMemorySpec(hidden_size=adapter.config.geometry.hidden_size)
         self.adapter = adapter
         for parameter in adapter.base.parameters():
             parameter.requires_grad_(False)
         for parameter in adapter.extension.parameters():
             parameter.requires_grad_(False)
         device = next(adapter.extension.parameters()).device
+        self.reader = IntrinsicMemoryReader.install(adapter, self.spec)
         self.encoder = ContextualValueEncoder().to(device)
-        self.order = nn.Embedding(adapter.spine_spec.slots, WIDTH).to(device)
+        self.order = nn.Embedding(self.spec.slots, WIDTH).to(device)
         nn.init.normal_(self.order.weight, std=0.02)
-        for parameter in adapter.extension.spine.ports["memory"].parameters():
+        for parameter in self.reader.ports.parameters():
             parameter.requires_grad_(True)
         groups = [{"params": list(self.encoder.parameters()), "lr": lr, "name": "producer"},
-                  {"params": list(self.order.parameters()) + list(adapter.extension.spine.ports["memory"].parameters()),
+                  {"params": list(self.order.parameters()) + list(self.reader.ports.parameters()),
                    "lr": lr, "name": "reader"}]
         for group in groups:
             group.update(algorithm="adamw_fused", betas=(0.9, 0.999), eps=1e-8, weight_decay=0.0)
         names = {id(p): "producer."+n for n,p in self.encoder.named_parameters()}
         names.update({id(p): "order."+n for n,p in self.order.named_parameters()})
-        names.update({id(p): "reader."+n for n,p in adapter.extension.spine.ports["memory"].named_parameters()})
+        names.update({id(p): "reader."+n for n,p in self.reader.ports.named_parameters()})
         for group in groups:
             group.update(group_name=group["name"], scope="contextual_phi",
                          param_names=[names[id(p)] for p in group["params"]])
@@ -245,8 +237,8 @@ class ContextualMemoryPath:
     def read(self, store, question, *, scope) -> ValueBatch:
         start = time.monotonic_ns()
         result = read_scoped_memory(store, question, scope, ReadoutBudget(
-            max_records=self.adapter.spine_spec.slots // SLOTS,
-            max_value_slots=self.adapter.spine_spec.slots))
+            max_records=self.spec.slots // SLOTS,
+            max_value_slots=self.spec.slots))
         self.cost["retrieval_wall_ns"] += time.monotonic_ns() - start
         self.cost["read_file_bytes"] += result.metrics.total_io_bytes
         self.cost["read_file_calls"] += result.metrics.total_file_reads
@@ -287,7 +279,7 @@ class ContextualMemoryPath:
         if (batch.scope_key != scope.scope_key or batch.representation != REPRESENTATION
                 or batch.codec != CODEC or batch.slots.ndim != 2
                 or batch.slots.shape != (len(batch.spans) * SLOTS, WIDTH)
-                or len(batch.slots) > self.adapter.spine_spec.slots
+                or len(batch.slots) > self.spec.slots
                 or not torch.isfinite(batch.slots).all()):
             raise ContextualMemoryError("scope, representation or slot budget differs")
         if not batch.training and batch.producer_version != self.encoder.release():
@@ -312,7 +304,6 @@ class ContextualMemoryPath:
             return self.adapter.forward_text(ids, mask, use_projector=False, use_ports=False, use_spine=False)
         if batch is not None:
             self.validate(batch, scope)
-        core = self.adapter.extension.spine
         length = ids.shape[1]
         slots = (batch.slots + self.order(torch.arange(len(batch.slots), device=ids.device))
                  if batch is not None else None)
@@ -320,23 +311,16 @@ class ContextualMemoryPath:
             if p_slots.shape != (1, WIDTH) or not torch.isfinite(p_slots).all():
                 raise ContextualMemoryError("P slots must be one finite width-256 value")
             slots = p_slots if slots is None else torch.cat((slots, p_slots))
-        if len(slots) > core.spec.slots:
+        if len(slots) > self.spec.slots:
             raise ContextualMemoryError("combined E/P slot budget exceeded")
         slot_count = len(slots)
         slots = slots[None, None].expand(ids.shape[0], length, -1, -1)
         available = torch.ones(slots.shape[:3], device=ids.device, dtype=torch.bool)
-        packet = Packet(PACKET_SCHEMA, batch.producer_version if batch is not None else "selected_P", core.representation_version,
-            core.codec_version, scope.scope_key, "contextual", "contextual-read", 0, 0, 0,
-            scope.as_of, 0, "observation", {"format": FORMAT, "state_class": "E" if batch else "P"},
-            torch.zeros(ids.shape[0], 1, 512, device=ids.device),
-            torch.zeros(ids.shape[0], length, 1, device=ids.device, dtype=torch.bool))
-        snapshot = DecisionSnapshot("contextual-read", scope.scope_key, "contextual", 0, "E", "read", "response")
-        context = ValidatedContext(core, packet, snapshot, enabled_branches=("memory",),
-            memory_slots=slots, memory_source="external", memory_availability=available,
+        context = IntrinsicMemoryContext(self.reader, slots, available,
             validate=lambda: self.validate(batch, scope) if batch is not None else None)
         self.cost["value_slots_read"] += slot_count
         return self.adapter.forward_text(ids, mask, use_projector=False, use_ports=False,
-                                        use_spine=True, spine=context, enabled_spine_branches=("memory",))
+                                        use_spine=False, intrinsic_memory=context)
 
     def exact_fallback(self, batch, *, scope, tokenizer, span_indices=None):
         self.validate(batch, scope)
@@ -350,7 +334,7 @@ class ContextualMemoryPath:
         return text
 
     def freeze_readout(self):
-        for module in (self.encoder, self.order, self.adapter.extension.spine.ports["memory"]):
+        for module in (self.encoder, self.order, self.reader.ports):
             for p in module.parameters():
                 p.requires_grad_(False)
                 p.grad = None
@@ -374,31 +358,39 @@ class ContextualMemoryPath:
         path.mkdir(parents=True, exist_ok=False)
         tensors = {"producer."+k: v.detach().cpu().contiguous() for k,v in self.encoder.state_dict().items()}
         tensors.update({"order."+k: v.detach().cpu().contiguous() for k,v in self.order.state_dict().items()})
-        tensors.update({"reader."+k: v.detach().cpu().contiguous() for k,v in self.adapter.extension.spine.ports["memory"].state_dict().items()})
+        tensors.update({"intrinsic_memory.reader."+k: v.detach().cpu().contiguous() for k,v in self.reader.ports.state_dict().items()})
         save_file(tensors, str(path / "extension.safetensors"))
         if self.optimizer is not None:
             torch.save(self.optimizer.state_dict(), path / "optimizer.pt")
         manifest = {"format": FORMAT, "base": self.adapter.base_snapshot(),
                     "producer_version": self.encoder.release(), "representation": REPRESENTATION,
                     "codec": CODEC, "sites": [3,7], "contains_base_weights": False,
+                    "owner": "intrinsic_memory", "external_spine_required": False,
                     "weights_sha256": hashlib.sha256((path / "extension.safetensors").read_bytes()).hexdigest()}
         manifest["optimizer_sha256"] = (hashlib.sha256((path / "optimizer.pt").read_bytes()).hexdigest()
                                          if self.optimizer is not None else None)
         (path / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True)+"\n")
         return manifest
 
-    def load(self, directory):
+    def load(self, directory, *, migrate_legacy=False):
         from safetensors.torch import load_file
         path = Path(directory)
         m = json.loads((path / "manifest.json").read_text())
-        if (m.get("format") != FORMAT or m.get("base") != self.adapter.base_snapshot()
+        legacy = m.get("format") == LEGACY_FORMAT
+        if legacy and not migrate_legacy:
+            raise ContextualMemoryError("legacy spine-owned readout requires explicit migration")
+        if (m.get("format") not in (FORMAT, LEGACY_FORMAT) or m.get("base") != self.adapter.base_snapshot()
+                or (not legacy and (m.get("owner") != "intrinsic_memory" or m.get("external_spine_required") is not False))
                 or m.get("representation") != REPRESENTATION or m.get("codec") != CODEC
                 or m.get("sites") != [3,7] or m.get("contains_base_weights") is not False
                 or hashlib.sha256((path / "extension.safetensors").read_bytes()).hexdigest() != m["weights_sha256"]):
             raise ContextualMemoryError("extension-only reload binding differs")
         tensors = load_file(str(path / "extension.safetensors"))
+        if legacy:
+            tensors = {("intrinsic_memory."+k if k.startswith("reader.") else k):v
+                       for k,v in tensors.items()}
         modules = {"producer": self.encoder, "order": self.order,
-                   "reader": self.adapter.extension.spine.ports["memory"]}
+                   "intrinsic_memory.reader": self.reader.ports}
         if set(tensors) != {prefix+"."+k for prefix,module in modules.items() for k in module.state_dict()}:
             raise ContextualMemoryError("extension-only tensor inventory differs")
         for prefix,module in modules.items():
@@ -410,3 +402,21 @@ class ContextualMemoryPath:
                 raise ContextualMemoryError("optimizer continuation binding differs")
             self.optimizer.load_state_dict(torch.load(path / "optimizer.pt", weights_only=True))
         return m
+
+    def migrate_legacy(self, source, destination):
+        """Explicitly preserve v2 weights/moments while changing only ownership.
+
+        The source artifact is never edited. This is not a new qualification.
+        """
+        old = self.load(source, migrate_legacy=True)
+        if old["format"] != LEGACY_FORMAT:
+            raise ContextualMemoryError("migration requires the legacy v2 format")
+        new = self.save(destination)
+        receipt = {"format": "replica.intrinsic_memory.migration.v1",
+                   "from_format": LEGACY_FORMAT, "to_format": FORMAT,
+                   "source_manifest_sha256": hashlib.sha256((Path(source)/"manifest.json").read_bytes()).hexdigest(),
+                   "destination_manifest_sha256": hashlib.sha256((Path(destination)/"manifest.json").read_bytes()).hexdigest(),
+                   "parameter_values_changed": False, "optimizer_state_preserved": old.get("optimizer_sha256") is not None,
+                   "native_qualification": False}
+        (Path(destination)/"migration.json").write_text(json.dumps(receipt,indent=2)+"\n")
+        return receipt

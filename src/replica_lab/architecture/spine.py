@@ -1,9 +1,10 @@
-"""Internal Spark spine: typed packets, trained codecs and native access ports.
+"""External neural spine: typed packets, trained codecs and model endpoints.
 
-The spine is model-owned. It is not a peripheral registry, a vision projector or
-an external-model compatibility promise. A forward context computes packet
-slots once and local hooks consume that immutable context at declared sites.
-No persistent write, host storage or unbounded global hook state occurs here.
+External communication is distinct from intrinsic memory. Composite memory and
+workspace branches remain here for historical checkpoint compatibility; intrinsic
+v3 explicitly transfers memory ownership to its own decoder path. A spine context
+computes packet slots once for its endpoints. Matching tensor widths alone is not
+a claim of semantic compatibility with another model. No durable writes occur here.
 """
 from __future__ import annotations
 
@@ -390,7 +391,12 @@ class SpinePort(nn.Module):
 
 
 class SpineCore(nn.Module):
-    """Permanent model-owned codec, slot projections and two-site ports."""
+    """Typed external connector, retaining composite branches for legacy loads.
+
+    Intrinsic v3 transfers the old memory reader to its independent owner. New
+    memory execution never constructs a packet or calls this core. Historical
+    full-extension checkpoints can still load before the explicit transfer.
+    """
 
     def __init__(self, spec: SpineSpec, *, codec_version: str = "codec-1",
                  representation_version: str = "repr-1") -> None:
@@ -431,15 +437,15 @@ class SpineCore(nn.Module):
             expanded.reshape(batch * query_count, slot_count, width),
             availability.reshape(batch * query_count, slot_count))
         encoded = encoded.reshape(batch, query_count, slot_count, width)
-        return {
-            "spine": self.spine_projection(encoded),
-            "memory": self.memory_projection(encoded),
-            "workspace": self.workspace_projection(encoded),
-        }
+        # Legacy checkpoints retain all three branches until memory ownership
+        # is explicitly migrated to extension.intrinsic_memory. External
+        # connections continue to use the remaining typed branches afterward.
+        return {branch: getattr(self, branch + "_projection")(encoded)
+                for branch in self.ports}
 
     def port(self, branch: str, site: int, hidden: torch.Tensor,
              slots: torch.Tensor, availability: torch.Tensor) -> torch.Tensor:
-        if branch not in BRANCHES or site not in self.spec.sites:
+        if branch not in self.ports or site not in self.spec.sites:
             raise SpineError(f"undeclared spine port {branch}/{site}")
         return self.ports[branch][str(site)](hidden, slots, availability)
 

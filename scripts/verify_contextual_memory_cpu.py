@@ -25,7 +25,9 @@ from replica_lab.profiling import _ru_maxrss_bytes
 def make_path():
     torch.manual_seed(17)
     adapter,*_ = build_contextual_adapter(seed=17,layers=8,spine_sites=(3,7),spine_slots=8,memory_size=256)
-    return ContextualMemoryPath(adapter,lr=0.01)
+    path = ContextualMemoryPath(adapter,lr=0.01)
+    adapter.extension.spine = None
+    return path
 
 
 def spans():
@@ -50,7 +52,7 @@ def step(path):
 
 def identity(path):
     return {'producer':path.encoder.release(),'order':tensor_digest(path.order.weight),
-            'reader':{n:tensor_digest(t) for n,t in path.adapter.extension.spine.ports['memory'].state_dict().items()}}
+            'reader':{n:tensor_digest(t) for n,t in path.reader.ports.state_dict().items()}}
 
 
 def main():
@@ -83,9 +85,12 @@ def main():
     (output/'child.stdout').write_text(child.stdout);(output/'child.stderr').write_text(child.stderr)
     if child.returncode:raise RuntimeError(child.stderr)
     fresh=json.loads((output/'restart.json').read_text())
-    report={'format':'replica.contextual_memory.cpu_diagnostics.v2','native_execution':False,
+    report={'format':'replica.intrinsic_memory.cpu_diagnostics.v3','native_execution':False,
+            'external_spine_present':False,
             'implementation_sha256': {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in [Path(__file__).resolve(), ROOT/'src/replica_lab/contextual_memory.py',
+                          ROOT/'src/replica_lab/architecture/intrinsic_memory.py',
+                          ROOT/'src/replica_lab/architecture/spark_adapter.py',
                           ROOT/'src/replica_lab/contextual_readout_training.py', ROOT/'src/replica_lab/tiered_memory.py']},
             'evidence_class':'independent_engineering_diagnostics_not_competence_or_learning_utility',
             'zero_init_parity':parity,'fit_updates':3,'fit':traces,
