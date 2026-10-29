@@ -2,28 +2,38 @@
 
 ## Active order — Spark text memory with the internal spine
 
-**Status — implementation and protocol preparation are in progress; no native
-execution or learned capability is established.** Reviewed starting HEAD was
-`b350e87e`; current work preserves unrelated DC/vision repairs. Read the
+**Status — implementation, CPU verification and protocol binding are complete;
+native execution is unrun and useful learning is rejected.** Implementation
+commit: `9b1a02d` on `codex/d2-capacity-runtime-pilot`. Read the
+[milestone handoff](docs/experiments/20261028_Spark_Text_Memory_Milestone.md),
 [active architecture](docs/architecture/26_Spark_Text_Memory_Milestone.md) and
 [versioned protocol](configs/spark_text_memory_protocol_v1.json).
 
-1. Reconcile readout, identity, publication and retired-runner repairs.
-2. Repair query-driven P-only reads, bounded selection, ownership, invalidation,
-   durable rebuild state and actual-update evidence.
-3. Prove text-to-memory-to-response behavior and gradients on tiny CPU fixtures.
-4. Compare chronological knowledge, procedure, retention and cost controls.
-5. Bind the complete implementation and run preflight. Use one guarded native
-   pilot only with exact external authorization for official FP8 and its actual
-   execution backend; no BF16/derivative substitution is silent.
-6. Expand to multi-seed qualification only after useful behavior, never to evade
-   a negative diagnosis through larger P/read budgets or added mechanisms.
+- Completed readout/identity/publication/retirement repairs and spine contracts:
+  query-driven P after E removal, bounded query-dependent reads, ownership,
+  invalidation, durable rebuild and actual-update evidence. Combined E+P is a
+  real summed read with separate availability and charges.
+- Connected versioned text observations, procedures/task state, native E/P reads
+  and frozen-decoder response supervision. Each fit event performs one response
+  and one P update with NativeFusedAdamW; changed tensors and P clock/revision
+  are observed, not inferred.
+- Affected tests pass **177**; additive final-product verification passes **16**
+  with 101 inputs. The preserved CPU fixture completes fit/development/restart
+  and exact-token parity, with **0/12 new-instance accuracy in every arm** and
+  useful learning rejected. Full context also fails, so P is not the sole cause.
+- Raw evidence is under `reports/spark_text_memory_v1/cpu_fixture_attempt01/`.
+  Actual work: 4 response + 4 P updates, 108 development cases, 111 generation
+  requests, 115 retrieval/112 verification calls, 5 checkpoint writes/4 retained,
+  2 model/tokenizer loads, 1 reload, exact restart parity and zero cap violations.
+- Next experiment: frozen-backbone response/readout diagnosis on full eligible
+  context before co-adaptation or capacity expansion. Native FP8 remains blocked
+  by absent backend evidence and external authorization; no native result or
+  speedup/retention/reasoning claim is made.
 
 Native vision/audio, physical actor/sensor work, nested outer learning,
 self-distillation, RSI, personality adaptation and capacity expansion are
 deferred. MiniCPM is a historical/mechanism control, not a prerequisite. The
 50 GiB / 512 MiB / 15% host-free guards and protected runtime pilot remain fixed.
-
 ## Previous increment — Spark spine and E/P memory interfaces
 
 **Current status — scoped CPU implementation and regression verification are complete;

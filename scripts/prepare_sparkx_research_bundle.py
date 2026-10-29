@@ -804,6 +804,10 @@ FINAL_PRODUCT_INPUT_ROLES: list[tuple[str, str]] = [
         "implemented spine scope, verification and explicit native limits",
     ),
     (
+        "docs/experiments/20261028_Spark_Text_Memory_Milestone.md",
+        "Spark text-memory implementation, negative behavioral evidence and next diagnosis",
+    ),
+    (
         "src/replica_lab/architecture/spine_text.py",
         "versioned text producer, causal query adapter and response supervision",
     ),

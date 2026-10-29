@@ -4,6 +4,11 @@
 **Active order — Spark text memory with the internal spine (28 October 2026):**
 read the [versioned protocol](configs/spark_text_memory_protocol_v1.json) and
 [milestone architecture](docs/architecture/26_Spark_Text_Memory_Milestone.md).
+Implementation commit `9b1a02d`; read the [milestone handoff](docs/experiments/20261028_Spark_Text_Memory_Milestone.md).
+The affected suite passes 177 tests and final-product verification passes 16.
+The preserved CPU fixture completes fit/development/restart with exact parity,
+but all nine arms score 0/12 on new instances, so useful learning is rejected.
+Next diagnose frozen-backbone response/readout on full context before co-adaptation or expansion.
 1. Reconcile existing repairs and spine/memory contracts.
 2. Prove the text-to-memory-to-response path and gradients on tiny CPU fixtures.
 3. Evaluate chronological knowledge, procedure and retention controls with matched baselines.

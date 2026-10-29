@@ -6,6 +6,13 @@ The executable budgets and bindings are in
 This chapter reconciles the active roadmap; dated MiniCPM, vision and DC protocols
 remain historical evidence rather than competing priorities.
 
+**Implementation status:** commit `9b1a02d`. The affected suite passes 177
+tests and final-product verification passes 16. The preserved CPU fixture
+completes fit/development/restart with exact parity, but all nine arms score
+0/12 on new instances; useful learning is rejected. The next experiment is a
+frozen-backbone response/readout diagnostic on full eligible context before
+co-adaptation or capacity expansion. See the [milestone handoff](../experiments/20261028_Spark_Text_Memory_Milestone.md).
+
 ## 1. Active source and scope
 
 The active source baseline is `XHToken/Spark-X2.6-4B-FP8` at revision
