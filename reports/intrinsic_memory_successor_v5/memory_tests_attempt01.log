@@ -1,0 +1,88 @@
+...........F..........FF..                                               [100%]
+=================================== FAILURES ===================================
+________ test_release_hash_cache_invalidates_after_optimizer_and_reload ________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1854/test_release_hash_cache_invali0')
+
+    def test_release_hash_cache_invalidates_after_optimizer_and_reload(tmp_path):
+        p=make();v=p.encoder.release();calls=p.cost['producer_hash_calls']
+        for _ in range(5):assert p.encoder.release()==v
+        assert p.cost['producer_hash_calls']==calls
+>       step(p);step(p);assert p.encoder.release()!=v
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 'v2-a59498df4f0033f7dbb60dcca1a3b658302e1eb3a281ce0f318e02e14b351d2f' != 'v2-a59498df4f0033f7dbb60dcca1a3b658302e1eb3a281ce0f318e02e14b351d2f'
+E        +  where 'v2-a59498df4f0033f7dbb60dcca1a3b658302e1eb3a281ce0f318e02e14b351d2f' = _producer_release()
+E        +    where _producer_release = ContextualValueEncoder(\n  (embedding): Embedding(257, 256, padding_idx=0)\n  (position): Embedding(256, 256)\n  (transfo...,), eps=1e-05, elementwise_affine=True, bias=True)\n    (1): Linear(in_features=256, out_features=256, bias=False)\n  )\n).release
+E        +      where ContextualValueEncoder(\n  (embedding): Embedding(257, 256, padding_idx=0)\n  (position): Embedding(256, 256)\n  (transfo...,), eps=1e-05, elementwise_affine=True, bias=True)\n    (1): Linear(in_features=256, out_features=256, bias=False)\n  )\n) = <replica_lab.contextual_memory_v5.ContextualMemoryV5 object at 0x1115b3050>.encoder
+
+tests/test_contextual_memory_v5.py:88: AssertionError
+_____ test_existing_corpus_new_producer_release_and_interruption_recovery ______
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1854/test_existing_corpus_new_produ0')
+
+    def test_existing_corpus_new_producer_release_and_interruption_recovery(tmp_path):
+        p=make();store=open_store(tmp_path);p.admit(store,spans()[0],scope=scope())
+        old=p.read(store,'Badge',scope=scope());corpus=ProducerReleaseCorpus(store,scope());m1=corpus.rebuild(p)
+        p.release_corpus=corpus;before=p.read(store,'Badge',scope=scope());assert torch.equal(old.slots,before.slots)
+        step(p,old);step(p,old)
+>       with pytest.raises(ContextualMemoryError):p.read(store,'Badge',scope=scope())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ContextualMemoryError
+
+tests/test_contextual_memory_v5.py:168: Failed
+_____ test_rebuild_excludes_source_invalidated_before_publish[correction] ______
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1854/test_rebuild_excludes_source_i0')
+change = 'correction'
+
+    @pytest.mark.parametrize('change',['correction','revocation'])
+    def test_rebuild_excludes_source_invalidated_before_publish(tmp_path,change):
+        p=make();store=open_store(tmp_path);p.admit(store,spans()[0],scope=scope());corpus=ProducerReleaseCorpus(store,scope());corpus.rebuild(p)
+        def mutate():
+            if change=='revocation':store.revoke_record('r.span0',reason='withdrawn',scope=scope())
+            else:p.correct(store,'r.span0',replace(spans('Badge blue',name='new',available=6)[0],source_epoch=2,supersedes='r.span0'),scope=scope())
+        with pytest.raises(ContextualMemoryError,match='invalidated'):corpus.rebuild(p,before_publish=mutate)
+        assert corpus._current()[1]['generation']==1
+        if change=='correction':
+>           m=corpus.rebuild(p);assert set(m['records'])=={'new.span0'}
+              ^^^^^^^^^^^^^^^^^
+
+tests/test_contextual_memory_v5.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/contextual_release_v5.py:113: in rebuild
+    span, pin, source = self._source(row)
+                        ^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_release_v5.py:72: in _source
+    value = json.loads(item)
+            ^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/decoder.py:338: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.decoder.JSONDecoder object at 0x106c3fa40>, s = 'r.span0', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/decoder.py:356: JSONDecodeError
+=========================== short test summary info ============================
+FAILED tests/test_contextual_memory_v5.py::test_release_hash_cache_invalidates_after_optimizer_and_reload
+FAILED tests/test_contextual_memory_v5.py::test_existing_corpus_new_producer_release_and_interruption_recovery
+FAILED tests/test_contextual_memory_v5.py::test_rebuild_excludes_source_invalidated_before_publish[correction]
+3 failed, 23 passed in 6.43s

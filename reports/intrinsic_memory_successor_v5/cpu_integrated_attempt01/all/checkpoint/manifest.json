@@ -1,0 +1,25 @@
+{
+  "components_manifest_sha256": "9cbf26d2b6291004a33fb434aec1cff6201801f08e30e59f7a973751bea9b2fd",
+  "format": "replica.contextual_memory.v5.checkpoint",
+  "objective": {
+    "allowed_stop_identity": "994dd6e472a95243ae46cb1214e0c5ef14c5b7109c2518208ce5e4df44cdba93",
+    "allowed_stop_token_ids": [
+      1
+    ],
+    "context_tokens": 8,
+    "eos_token_id": 1,
+    "format": "replica.contextual_complete_response.objective.v1",
+    "ignore_index": -100,
+    "label_alignment": "logit_i_predicts_token_i_plus_1_no_additional_shift",
+    "loss": "mean_cross_entropy_over_answer_tokens_plus_one_EOS",
+    "pad_token_id": 2,
+    "padding_side": "right",
+    "template_identity": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "thinking_mode": "none",
+    "tokenizer_identity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "training_terminal_identity": "69ca506e8a06ed07426246410dad1f6e491d9eaa5c93145ac4bae557d9ed14c6",
+    "vocab_size": 32
+  },
+  "slot_policy": "fixed_eight_masked_padding_v5",
+  "temporal_rule": "MemoryScope.cutoff"
+}

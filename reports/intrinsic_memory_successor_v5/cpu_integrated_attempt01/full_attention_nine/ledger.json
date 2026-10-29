@@ -1,0 +1,1661 @@
+{
+  "deadline": 2423486.503884625,
+  "events": [
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 9760000,
+        "synchronized_wall_ns": 9776000
+      },
+      "elapsed_seconds": 0.010317333973944187,
+      "id": 0,
+      "operation": "admit",
+      "pid": 52026,
+      "reserved": {
+        "source_encodes": 1,
+        "writes": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.517159166,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "costs": {
+          "cold_completed_bytes": 0,
+          "cold_completed_files": 0,
+          "cold_reserved_bytes": 0,
+          "cold_reserved_files": 0,
+          "cold_wait_ns": 0,
+          "read_file_bytes": 4625,
+          "read_file_calls": 6,
+          "retrieval_wall_ns": 2147375
+        },
+        "dispatch_ns": 2483250,
+        "synchronized_wall_ns": 2492334
+      },
+      "elapsed_seconds": 0.0029127919115126133,
+      "id": 1,
+      "operation": "retrieval",
+      "pid": 52026,
+      "reserved": {
+        "retrievals": 1,
+        "writes": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.527969916,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 7956875,
+        "synchronized_wall_ns": 7972041
+      },
+      "elapsed_seconds": 0.00847487524151802,
+      "id": 2,
+      "operation": "admit",
+      "pid": 52026,
+      "reserved": {
+        "source_encodes": 1,
+        "writes": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.54298,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "costs": {
+          "cold_completed_bytes": 0,
+          "cold_completed_files": 0,
+          "cold_reserved_bytes": 0,
+          "cold_reserved_files": 0,
+          "cold_wait_ns": 0,
+          "read_file_bytes": 4626,
+          "read_file_calls": 6,
+          "retrieval_wall_ns": 2095667
+        },
+        "dispatch_ns": 2459959,
+        "synchronized_wall_ns": 2471917
+      },
+      "elapsed_seconds": 0.0029200841672718525,
+      "id": 3,
+      "operation": "retrieval",
+      "pid": 52026,
+      "reserved": {
+        "retrievals": 1,
+        "writes": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.551929791,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "changed_tensors": [
+          "reader.ports.3.output_projection.weight",
+          "reader.ports.7.output_projection.weight",
+          "reader.ports.11.output_projection.weight",
+          "reader.ports.15.output_projection.weight",
+          "reader.ports.19.output_projection.weight",
+          "reader.ports.23.output_projection.weight",
+          "reader.ports.27.output_projection.weight",
+          "reader.ports.31.output_projection.weight",
+          "reader.ports.35.output_projection.weight"
+        ],
+        "dispatch_ns": 37671667,
+        "eos_loss": 7.517701625823975,
+        "gradients": {
+          "order": {
+            "finite": true,
+            "missing": [],
+            "norm": 0.0
+          },
+          "producer": {
+            "finite": true,
+            "missing": [],
+            "norm": 0.0
+          },
+          "reader": {
+            "finite": true,
+            "missing": [],
+            "norm": 28.609526537457935
+          },
+          "sites": {
+            "11": {
+              "norm": 10.489936365565487,
+              "output_norm": 10.489936828613281
+            },
+            "15": {
+              "norm": 8.6159992522768,
+              "output_norm": 8.615999221801758
+            },
+            "19": {
+              "norm": 9.351112960425235,
+              "output_norm": 9.351112365722656
+            },
+            "23": {
+              "norm": 7.799518756203432,
+              "output_norm": 7.7995171546936035
+            },
+            "27": {
+              "norm": 8.961887618548896,
+              "output_norm": 8.96188735961914
+            },
+            "3": {
+              "norm": 10.99452836326616,
+              "output_norm": 10.994527816772461
+            },
+            "31": {
+              "norm": 9.299948612194216,
+              "output_norm": 9.299947738647461
+            },
+            "35": {
+              "norm": 10.25225879622655,
+              "output_norm": 10.25225830078125
+            },
+            "7": {
+              "norm": 9.652049314484374,
+              "output_norm": 9.65204906463623
+            }
+          }
+        },
+        "loss": 7.147736549377441,
+        "synchronized_wall_ns": 37682250,
+        "word_loss": 6.77777099609375
+      },
+      "elapsed_seconds": 0.038372792303562164,
+      "id": 4,
+      "operation": "response_update",
+      "pid": 52026,
+      "reserved": {
+        "backwards": 1,
+        "updates": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.555498833,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 806584,
+        "synchronized_wall_ns": 819084
+      },
+      "elapsed_seconds": 0.00140737509354949,
+      "id": 5,
+      "operation": "source_encoding",
+      "pid": 52026,
+      "reserved": {
+        "source_encodes": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.556288833,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 7231584,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 7244417
+      },
+      "elapsed_seconds": 0.007899625226855278,
+      "id": 6,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.558463833,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "changed_tensors": [
+          "producer.slot_queries",
+          "producer.embedding.weight",
+          "producer.position.weight",
+          "producer.transformer.layers.0.self_attn.in_proj_weight",
+          "producer.transformer.layers.0.self_attn.in_proj_bias",
+          "producer.transformer.layers.0.self_attn.out_proj.weight",
+          "producer.transformer.layers.0.self_attn.out_proj.bias",
+          "producer.transformer.layers.0.linear1.weight",
+          "producer.transformer.layers.0.linear1.bias",
+          "producer.transformer.layers.0.linear2.weight",
+          "producer.transformer.layers.0.linear2.bias",
+          "producer.transformer.layers.0.norm1.weight",
+          "producer.transformer.layers.0.norm1.bias",
+          "producer.transformer.layers.0.norm2.weight",
+          "producer.transformer.layers.0.norm2.bias",
+          "producer.output.0.weight",
+          "producer.output.0.bias",
+          "producer.output.1.weight",
+          "order.weight",
+          "reader.ports.3.gate_logit",
+          "reader.ports.3.query_norm.weight",
+          "reader.ports.3.query_norm.bias",
+          "reader.ports.3.query_projection.weight",
+          "reader.ports.3.slot_norm.weight",
+          "reader.ports.3.slot_norm.bias",
+          "reader.ports.3.key_projection.weight",
+          "reader.ports.3.value_projection.weight",
+          "reader.ports.3.output_norm.weight",
+          "reader.ports.3.output_norm.bias",
+          "reader.ports.3.output_projection.weight",
+          "reader.ports.7.gate_logit",
+          "reader.ports.7.query_norm.weight",
+          "reader.ports.7.query_norm.bias",
+          "reader.ports.7.query_projection.weight",
+          "reader.ports.7.slot_norm.weight",
+          "reader.ports.7.slot_norm.bias",
+          "reader.ports.7.key_projection.weight",
+          "reader.ports.7.value_projection.weight",
+          "reader.ports.7.output_norm.weight",
+          "reader.ports.7.output_norm.bias",
+          "reader.ports.7.output_projection.weight",
+          "reader.ports.11.gate_logit",
+          "reader.ports.11.query_norm.weight",
+          "reader.ports.11.query_norm.bias",
+          "reader.ports.11.query_projection.weight",
+          "reader.ports.11.slot_norm.weight",
+          "reader.ports.11.slot_norm.bias",
+          "reader.ports.11.key_projection.weight",
+          "reader.ports.11.value_projection.weight",
+          "reader.ports.11.output_norm.weight",
+          "reader.ports.11.output_norm.bias",
+          "reader.ports.11.output_projection.weight",
+          "reader.ports.15.gate_logit",
+          "reader.ports.15.query_norm.weight",
+          "reader.ports.15.query_norm.bias",
+          "reader.ports.15.query_projection.weight",
+          "reader.ports.15.slot_norm.weight",
+          "reader.ports.15.slot_norm.bias",
+          "reader.ports.15.key_projection.weight",
+          "reader.ports.15.value_projection.weight",
+          "reader.ports.15.output_norm.weight",
+          "reader.ports.15.output_norm.bias",
+          "reader.ports.15.output_projection.weight",
+          "reader.ports.19.gate_logit",
+          "reader.ports.19.query_norm.weight",
+          "reader.ports.19.query_norm.bias",
+          "reader.ports.19.query_projection.weight",
+          "reader.ports.19.slot_norm.weight",
+          "reader.ports.19.slot_norm.bias",
+          "reader.ports.19.key_projection.weight",
+          "reader.ports.19.value_projection.weight",
+          "reader.ports.19.output_norm.weight",
+          "reader.ports.19.output_norm.bias",
+          "reader.ports.19.output_projection.weight",
+          "reader.ports.23.gate_logit",
+          "reader.ports.23.query_norm.weight",
+          "reader.ports.23.query_norm.bias",
+          "reader.ports.23.query_projection.weight",
+          "reader.ports.23.slot_norm.weight",
+          "reader.ports.23.slot_norm.bias",
+          "reader.ports.23.key_projection.weight",
+          "reader.ports.23.value_projection.weight",
+          "reader.ports.23.output_norm.weight",
+          "reader.ports.23.output_norm.bias",
+          "reader.ports.23.output_projection.weight",
+          "reader.ports.27.gate_logit",
+          "reader.ports.27.query_norm.weight",
+          "reader.ports.27.query_norm.bias",
+          "reader.ports.27.query_projection.weight",
+          "reader.ports.27.slot_norm.weight",
+          "reader.ports.27.slot_norm.bias",
+          "reader.ports.27.key_projection.weight",
+          "reader.ports.27.value_projection.weight",
+          "reader.ports.27.output_norm.weight",
+          "reader.ports.27.output_norm.bias",
+          "reader.ports.27.output_projection.weight",
+          "reader.ports.31.gate_logit",
+          "reader.ports.31.query_norm.weight",
+          "reader.ports.31.query_norm.bias",
+          "reader.ports.31.query_projection.weight",
+          "reader.ports.31.slot_norm.weight",
+          "reader.ports.31.slot_norm.bias",
+          "reader.ports.31.key_projection.weight",
+          "reader.ports.31.value_projection.weight",
+          "reader.ports.31.output_norm.weight",
+          "reader.ports.31.output_norm.bias",
+          "reader.ports.31.output_projection.weight",
+          "reader.ports.35.gate_logit",
+          "reader.ports.35.query_norm.weight",
+          "reader.ports.35.query_norm.bias",
+          "reader.ports.35.query_projection.weight",
+          "reader.ports.35.slot_norm.weight",
+          "reader.ports.35.slot_norm.bias",
+          "reader.ports.35.key_projection.weight",
+          "reader.ports.35.value_projection.weight",
+          "reader.ports.35.output_norm.weight",
+          "reader.ports.35.output_norm.bias",
+          "reader.ports.35.output_projection.weight"
+        ],
+        "dispatch_ns": 35111000,
+        "eos_loss": 4.970550060272217,
+        "gradients": {
+          "order": {
+            "finite": true,
+            "missing": [],
+            "norm": 0.05862178131979395
+          },
+          "producer": {
+            "finite": true,
+            "missing": [],
+            "norm": 1.1688814893270187
+          },
+          "reader": {
+            "finite": true,
+            "missing": [],
+            "norm": 19.389539456653484
+          },
+          "sites": {
+            "11": {
+              "norm": 6.27585530825323,
+              "output_norm": 6.267538070678711
+            },
+            "15": {
+              "norm": 6.594546994352681,
+              "output_norm": 6.5916876792907715
+            },
+            "19": {
+              "norm": 6.480191992249358,
+              "output_norm": 6.474521160125732
+            },
+            "23": {
+              "norm": 6.675477129424932,
+              "output_norm": 6.671488285064697
+            },
+            "27": {
+              "norm": 7.402476103803575,
+              "output_norm": 7.393955707550049
+            },
+            "3": {
+              "norm": 5.020710291763352,
+              "output_norm": 5.019857406616211
+            },
+            "31": {
+              "norm": 6.756664261939232,
+              "output_norm": 6.747747898101807
+            },
+            "35": {
+              "norm": 6.142861543435761,
+              "output_norm": 6.139106750488281
+            },
+            "7": {
+              "norm": 6.567610149574025,
+              "output_norm": 6.554721355438232
+            }
+          }
+        },
+        "loss": 5.337164878845215,
+        "synchronized_wall_ns": 35122209,
+        "word_loss": 5.703779697418213
+      },
+      "elapsed_seconds": 0.03600599989295006,
+      "id": 7,
+      "operation": "response_update",
+      "pid": 52026,
+      "reserved": {
+        "backwards": 1,
+        "updates": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.595099166,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 839209,
+        "synchronized_wall_ns": 850250
+      },
+      "elapsed_seconds": 0.0015700827352702618,
+      "id": 8,
+      "operation": "source_encoding",
+      "pid": 52026,
+      "reserved": {
+        "source_encodes": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.59601275,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 6953750,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 6962334
+      },
+      "elapsed_seconds": 0.007749415934085846,
+      "id": 9,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.598418125,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 762583,
+        "synchronized_wall_ns": 771083
+      },
+      "elapsed_seconds": 0.0019353749230504036,
+      "id": 10,
+      "operation": "source_encoding",
+      "pid": 52026,
+      "reserved": {
+        "source_encodes": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.632628458,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 797292,
+        "synchronized_wall_ns": 813542
+      },
+      "elapsed_seconds": 0.001906875055283308,
+      "id": 11,
+      "operation": "source_encoding",
+      "pid": 52026,
+      "reserved": {
+        "source_encodes": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.635786541,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 4408833,
+        "synchronized_wall_ns": 4419125
+      },
+      "elapsed_seconds": 0.005469958297908306,
+      "id": 12,
+      "operation": "release",
+      "pid": 52026,
+      "reserved": {
+        "source_encodes": 1,
+        "writes": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.639383625,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "costs": {
+          "cold_completed_bytes": 4096,
+          "cold_completed_files": 1,
+          "cold_reserved_bytes": 4096,
+          "cold_reserved_files": 1,
+          "cold_wait_ns": 151167,
+          "read_file_bytes": 4096,
+          "read_file_calls": 1,
+          "ticket_write_bytes_reserved": 10741,
+          "ticket_write_calls": 3
+        },
+        "dispatch_ns": 5921375,
+        "synchronized_wall_ns": 5934833
+      },
+      "elapsed_seconds": 0.006936625111848116,
+      "id": 13,
+      "operation": "retrieval",
+      "pid": 52026,
+      "reserved": {
+        "retrievals": 1,
+        "writes": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.64586175,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5350375,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5357541
+      },
+      "elapsed_seconds": 0.006534374784678221,
+      "id": 14,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.654256708,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 7547292,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 7559333
+      },
+      "elapsed_seconds": 0.008684999775141478,
+      "id": 15,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.661904,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5222083,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5229666
+      },
+      "elapsed_seconds": 0.006323874928057194,
+      "id": 16,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.671805291,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 7768000,
+        "synchronized_wall_ns": 7777500
+      },
+      "elapsed_seconds": 0.008900708984583616,
+      "id": 17,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.679432166,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5275583,
+        "nonpadding_input_tokens": 2,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5283833
+      },
+      "elapsed_seconds": 0.0064199999906122684,
+      "id": 18,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.680572041,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 7628959,
+        "synchronized_wall_ns": 7637292
+      },
+      "elapsed_seconds": 0.008808250073343515,
+      "id": 19,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.689514708,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5092208,
+        "nonpadding_input_tokens": 3,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5099708
+      },
+      "elapsed_seconds": 0.0062911249697208405,
+      "id": 20,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.690707375,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 8461000,
+        "synchronized_wall_ns": 8474750
+      },
+      "elapsed_seconds": 0.009733166545629501,
+      "id": 21,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.699587791,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5775250,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5785667
+      },
+      "elapsed_seconds": 0.0070477500557899475,
+      "id": 22,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.700836541,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 6414416,
+        "synchronized_wall_ns": 6421916
+      },
+      "elapsed_seconds": 0.00768829183652997,
+      "id": 23,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.710691541,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 3755625,
+        "nonpadding_input_tokens": 2,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 3762750
+      },
+      "elapsed_seconds": 0.005046124570071697,
+      "id": 24,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.712000625,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5833917,
+        "synchronized_wall_ns": 5841000
+      },
+      "elapsed_seconds": 0.007182790897786617,
+      "id": 25,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.7196995,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 3176250,
+        "nonpadding_input_tokens": 3,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 3182666
+      },
+      "elapsed_seconds": 0.004517124965786934,
+      "id": 26,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.721102666,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 6349750,
+        "synchronized_wall_ns": 6361750
+      },
+      "elapsed_seconds": 0.007463125046342611,
+      "id": 27,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.728077333,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 3588708,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 3596541
+      },
+      "elapsed_seconds": 0.004914500284940004,
+      "id": 28,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.729177625,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 8290500,
+        "synchronized_wall_ns": 8301958
+      },
+      "elapsed_seconds": 0.009589374996721745,
+      "id": 29,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.736951875,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5675083,
+        "nonpadding_input_tokens": 2,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5682833
+      },
+      "elapsed_seconds": 0.006904041860252619,
+      "id": 30,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.738214916,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 8542583,
+        "synchronized_wall_ns": 8554666
+      },
+      "elapsed_seconds": 0.009887957945466042,
+      "id": 31,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.747881625,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5792875,
+        "nonpadding_input_tokens": 3,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5801208
+      },
+      "elapsed_seconds": 0.007135250139981508,
+      "id": 32,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.749231625,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 8543750,
+        "synchronized_wall_ns": 8551208
+      },
+      "elapsed_seconds": 0.00982920778915286,
+      "id": 33,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.759453583,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5910458,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5918167
+      },
+      "elapsed_seconds": 0.007209582719951868,
+      "id": 34,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.760776875,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 8464833,
+        "synchronized_wall_ns": 8477792
+      },
+      "elapsed_seconds": 0.009956791996955872,
+      "id": 35,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.771027666,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5324083,
+        "nonpadding_input_tokens": 2,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5332583
+      },
+      "elapsed_seconds": 0.006865832954645157,
+      "id": 36,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.772544958,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 8787125,
+        "synchronized_wall_ns": 8797167
+      },
+      "elapsed_seconds": 0.01024687523022294,
+      "id": 37,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.782488958,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5757000,
+        "nonpadding_input_tokens": 3,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5767208
+      },
+      "elapsed_seconds": 0.007179541978985071,
+      "id": 38,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.783974958,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 8648458,
+        "synchronized_wall_ns": 8661500
+      },
+      "elapsed_seconds": 0.010076750069856644,
+      "id": 39,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.794184166,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5534084,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5543584
+      },
+      "elapsed_seconds": 0.006962708197534084,
+      "id": 40,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.795649958,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 8734792,
+        "synchronized_wall_ns": 8748833
+      },
+      "elapsed_seconds": 0.010252874810248613,
+      "id": 41,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.80585625,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5663417,
+        "nonpadding_input_tokens": 2,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5673000
+      },
+      "elapsed_seconds": 0.007121916860342026,
+      "id": 42,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.807403791,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 9051167,
+        "synchronized_wall_ns": 9068625
+      },
+      "elapsed_seconds": 0.010528792161494493,
+      "id": 43,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.817512916,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 5889333,
+        "nonpadding_input_tokens": 3,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 5898833
+      },
+      "elapsed_seconds": 0.007368207909166813,
+      "id": 44,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.818984583,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 9452750,
+        "synchronized_wall_ns": 9461167
+      },
+      "elapsed_seconds": 0.010999083053320646,
+      "id": 45,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.829561208,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 6089125,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 6099750
+      },
+      "elapsed_seconds": 0.007676959037780762,
+      "id": 46,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.831203666,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 6346208,
+        "synchronized_wall_ns": 6357458
+      },
+      "elapsed_seconds": 0.007885541301220655,
+      "id": 47,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.84221575,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 3339000,
+        "nonpadding_input_tokens": 2,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 3345750
+      },
+      "elapsed_seconds": 0.004816791042685509,
+      "id": 48,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.8437965,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 6658791,
+        "synchronized_wall_ns": 6667333
+      },
+      "elapsed_seconds": 0.008074874989688396,
+      "id": 49,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.851533,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 3297791,
+        "nonpadding_input_tokens": 3,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 3304625
+      },
+      "elapsed_seconds": 0.00515149999409914,
+      "id": 50,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.852969208,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 6646625,
+        "synchronized_wall_ns": 6656417
+      },
+      "elapsed_seconds": 0.008094250224530697,
+      "id": 51,
+      "operation": "decode_token",
+      "pid": 52026,
+      "reserved": {
+        "generated_tokens": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.8610125,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 3473458,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 3484208
+      },
+      "elapsed_seconds": 0.004984583240002394,
+      "id": 52,
+      "operation": "backbone_forward",
+      "pid": 52026,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "mechanics",
+      "started": 2423246.862464875,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 41488625,
+        "synchronized_wall_ns": 41503167
+      },
+      "elapsed_seconds": 0.043080790899693966,
+      "id": 53,
+      "operation": "checkpoint",
+      "pid": 52026,
+      "reserved": {
+        "artifact_bytes": 134217728,
+        "writes": 1
+      },
+      "stage": "mechanics",
+      "started": 2423246.87111125,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "costs": {
+          "cold_completed_bytes": 4096,
+          "cold_completed_files": 1,
+          "cold_reserved_bytes": 4096,
+          "cold_reserved_files": 1,
+          "cold_wait_ns": 157459,
+          "read_file_bytes": 4096,
+          "read_file_calls": 1,
+          "ticket_write_bytes_reserved": 10741,
+          "ticket_write_calls": 3
+        },
+        "dispatch_ns": 7238750,
+        "synchronized_wall_ns": 7250125
+      },
+      "elapsed_seconds": 0.009008916094899178,
+      "id": 54,
+      "operation": "retrieval",
+      "pid": 52137,
+      "reserved": {
+        "retrievals": 1,
+        "writes": 1
+      },
+      "stage": "restart",
+      "started": 2423250.012474,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 1064417,
+        "synchronized_wall_ns": 1074917
+      },
+      "elapsed_seconds": 0.0026434166356921196,
+      "id": 55,
+      "operation": "source_encoding",
+      "pid": 52137,
+      "reserved": {
+        "source_encodes": 1
+      },
+      "stage": "restart",
+      "started": 2423250.023053916,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 6036750,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 6044875
+      },
+      "elapsed_seconds": 0.007632874883711338,
+      "id": 56,
+      "operation": "backbone_forward",
+      "pid": 52137,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "restart",
+      "started": 2423250.027282625,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "changed_tensors": [
+          "producer.slot_queries",
+          "producer.embedding.weight",
+          "producer.position.weight",
+          "producer.transformer.layers.0.self_attn.in_proj_weight",
+          "producer.transformer.layers.0.self_attn.in_proj_bias",
+          "producer.transformer.layers.0.self_attn.out_proj.weight",
+          "producer.transformer.layers.0.self_attn.out_proj.bias",
+          "producer.transformer.layers.0.linear1.weight",
+          "producer.transformer.layers.0.linear1.bias",
+          "producer.transformer.layers.0.linear2.weight",
+          "producer.transformer.layers.0.linear2.bias",
+          "producer.transformer.layers.0.norm1.weight",
+          "producer.transformer.layers.0.norm1.bias",
+          "producer.transformer.layers.0.norm2.weight",
+          "producer.transformer.layers.0.norm2.bias",
+          "producer.output.0.weight",
+          "producer.output.0.bias",
+          "producer.output.1.weight",
+          "order.weight",
+          "reader.ports.3.gate_logit",
+          "reader.ports.3.query_norm.weight",
+          "reader.ports.3.query_norm.bias",
+          "reader.ports.3.query_projection.weight",
+          "reader.ports.3.slot_norm.weight",
+          "reader.ports.3.slot_norm.bias",
+          "reader.ports.3.key_projection.weight",
+          "reader.ports.3.value_projection.weight",
+          "reader.ports.3.output_norm.weight",
+          "reader.ports.3.output_norm.bias",
+          "reader.ports.3.output_projection.weight",
+          "reader.ports.7.gate_logit",
+          "reader.ports.7.query_norm.weight",
+          "reader.ports.7.query_norm.bias",
+          "reader.ports.7.query_projection.weight",
+          "reader.ports.7.slot_norm.weight",
+          "reader.ports.7.slot_norm.bias",
+          "reader.ports.7.key_projection.weight",
+          "reader.ports.7.value_projection.weight",
+          "reader.ports.7.output_norm.weight",
+          "reader.ports.7.output_norm.bias",
+          "reader.ports.7.output_projection.weight",
+          "reader.ports.11.gate_logit",
+          "reader.ports.11.query_norm.weight",
+          "reader.ports.11.query_norm.bias",
+          "reader.ports.11.query_projection.weight",
+          "reader.ports.11.slot_norm.weight",
+          "reader.ports.11.slot_norm.bias",
+          "reader.ports.11.key_projection.weight",
+          "reader.ports.11.value_projection.weight",
+          "reader.ports.11.output_norm.weight",
+          "reader.ports.11.output_norm.bias",
+          "reader.ports.11.output_projection.weight",
+          "reader.ports.15.gate_logit",
+          "reader.ports.15.query_norm.weight",
+          "reader.ports.15.query_norm.bias",
+          "reader.ports.15.query_projection.weight",
+          "reader.ports.15.slot_norm.weight",
+          "reader.ports.15.slot_norm.bias",
+          "reader.ports.15.key_projection.weight",
+          "reader.ports.15.value_projection.weight",
+          "reader.ports.15.output_norm.weight",
+          "reader.ports.15.output_norm.bias",
+          "reader.ports.15.output_projection.weight",
+          "reader.ports.19.gate_logit",
+          "reader.ports.19.query_norm.weight",
+          "reader.ports.19.query_norm.bias",
+          "reader.ports.19.query_projection.weight",
+          "reader.ports.19.slot_norm.weight",
+          "reader.ports.19.slot_norm.bias",
+          "reader.ports.19.key_projection.weight",
+          "reader.ports.19.value_projection.weight",
+          "reader.ports.19.output_norm.weight",
+          "reader.ports.19.output_norm.bias",
+          "reader.ports.19.output_projection.weight",
+          "reader.ports.23.gate_logit",
+          "reader.ports.23.query_norm.weight",
+          "reader.ports.23.query_norm.bias",
+          "reader.ports.23.query_projection.weight",
+          "reader.ports.23.slot_norm.weight",
+          "reader.ports.23.slot_norm.bias",
+          "reader.ports.23.key_projection.weight",
+          "reader.ports.23.value_projection.weight",
+          "reader.ports.23.output_norm.weight",
+          "reader.ports.23.output_norm.bias",
+          "reader.ports.23.output_projection.weight",
+          "reader.ports.27.gate_logit",
+          "reader.ports.27.query_norm.weight",
+          "reader.ports.27.query_norm.bias",
+          "reader.ports.27.query_projection.weight",
+          "reader.ports.27.slot_norm.weight",
+          "reader.ports.27.slot_norm.bias",
+          "reader.ports.27.key_projection.weight",
+          "reader.ports.27.value_projection.weight",
+          "reader.ports.27.output_norm.weight",
+          "reader.ports.27.output_norm.bias",
+          "reader.ports.27.output_projection.weight",
+          "reader.ports.31.gate_logit",
+          "reader.ports.31.query_norm.weight",
+          "reader.ports.31.query_norm.bias",
+          "reader.ports.31.query_projection.weight",
+          "reader.ports.31.slot_norm.weight",
+          "reader.ports.31.slot_norm.bias",
+          "reader.ports.31.key_projection.weight",
+          "reader.ports.31.value_projection.weight",
+          "reader.ports.31.output_norm.weight",
+          "reader.ports.31.output_norm.bias",
+          "reader.ports.31.output_projection.weight",
+          "reader.ports.35.gate_logit",
+          "reader.ports.35.query_norm.weight",
+          "reader.ports.35.query_norm.bias",
+          "reader.ports.35.query_projection.weight",
+          "reader.ports.35.slot_norm.weight",
+          "reader.ports.35.slot_norm.bias",
+          "reader.ports.35.key_projection.weight",
+          "reader.ports.35.value_projection.weight",
+          "reader.ports.35.output_norm.weight",
+          "reader.ports.35.output_norm.bias",
+          "reader.ports.35.output_projection.weight"
+        ],
+        "dispatch_ns": 41377500,
+        "eos_loss": 5.243785381317139,
+        "gradients": {
+          "order": {
+            "finite": true,
+            "missing": [],
+            "norm": 0.07220872365770284
+          },
+          "producer": {
+            "finite": true,
+            "missing": [],
+            "norm": 1.624514867346185
+          },
+          "reader": {
+            "finite": true,
+            "missing": [],
+            "norm": 15.436895278250041
+          },
+          "sites": {
+            "11": {
+              "norm": 5.918327161841725,
+              "output_norm": 5.911773681640625
+            },
+            "15": {
+              "norm": 4.156790213268266,
+              "output_norm": 4.150703430175781
+            },
+            "19": {
+              "norm": 4.44265947090635,
+              "output_norm": 4.435684680938721
+            },
+            "23": {
+              "norm": 4.1706604089631245,
+              "output_norm": 4.163355827331543
+            },
+            "27": {
+              "norm": 4.900199797421784,
+              "output_norm": 4.890823841094971
+            },
+            "3": {
+              "norm": 5.4548133355070965,
+              "output_norm": 5.450278282165527
+            },
+            "31": {
+              "norm": 4.690596291062913,
+              "output_norm": 4.681018352508545
+            },
+            "35": {
+              "norm": 4.939760265760124,
+              "output_norm": 4.930215358734131
+            },
+            "7": {
+              "norm": 6.977874426343705,
+              "output_norm": 6.967695236206055
+            }
+          }
+        },
+        "loss": 3.69697904586792,
+        "synchronized_wall_ns": 41396917,
+        "word_loss": 2.150172710418701
+      },
+      "elapsed_seconds": 0.04338454222306609,
+      "id": 57,
+      "operation": "response_update",
+      "pid": 52137,
+      "reserved": {
+        "backwards": 1,
+        "updates": 1
+      },
+      "stage": "restart",
+      "started": 2423250.037774916,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 724167,
+        "synchronized_wall_ns": 735917
+      },
+      "elapsed_seconds": 0.002401208970695734,
+      "id": 58,
+      "operation": "source_encoding",
+      "pid": 52137,
+      "reserved": {
+        "source_encodes": 1
+      },
+      "stage": "restart",
+      "started": 2423250.039941541,
+      "status": "completed"
+    },
+    {
+      "actual": {},
+      "detail": {
+        "dispatch_ns": 7753916,
+        "nonpadding_input_tokens": 4,
+        "phase": "uncached_prefix_with_full_prefill_each_step",
+        "synchronized_wall_ns": 7762125
+      },
+      "elapsed_seconds": 0.009600291959941387,
+      "id": 59,
+      "operation": "backbone_forward",
+      "pid": 52137,
+      "reserved": {
+        "forwards": 1,
+        "input_tokens": 8
+      },
+      "stage": "restart",
+      "started": 2423250.044111208,
+      "status": "completed"
+    }
+  ],
+  "format": "replica.intrinsic_memory.reservations.v5",
+  "identity": "cpu_full_attention_nine",
+  "plan": {
+    "mechanics": {
+      "artifact_bytes": 268435456,
+      "backwards": 10000,
+      "forwards": 10000,
+      "generated_tokens": 10000,
+      "input_tokens": 10000,
+      "model_loads": 10000,
+      "retrievals": 10000,
+      "source_encodes": 10000,
+      "updates": 10000,
+      "wall_seconds": 120,
+      "writes": 10000
+    },
+    "restart": {
+      "artifact_bytes": 268435456,
+      "backwards": 10000,
+      "forwards": 10000,
+      "generated_tokens": 10000,
+      "input_tokens": 10000,
+      "model_loads": 10000,
+      "retrievals": 10000,
+      "source_encodes": 10000,
+      "updates": 10000,
+      "wall_seconds": 120,
+      "writes": 10000
+    }
+  },
+  "plan_sha256": "4acbab870f7cf8ffcf377be620f4b696eedd9637d24ee3300de91ea2ec160946",
+  "reserved": {
+    "artifact_bytes": 134217728,
+    "backwards": 3,
+    "forwards": 25,
+    "generated_tokens": 18,
+    "input_tokens": 200,
+    "model_loads": 0,
+    "retrievals": 4,
+    "source_encodes": 9,
+    "updates": 3,
+    "writes": 8
+  },
+  "reserved_wall_seconds": 240,
+  "stages": {
+    "mechanics": {
+      "deadline": 2423366.50454175,
+      "elapsed_seconds": 0.4115312499925494,
+      "reserved": {
+        "artifact_bytes": 134217728,
+        "backwards": 2,
+        "forwards": 23,
+        "generated_tokens": 18,
+        "input_tokens": 184,
+        "model_loads": 0,
+        "retrievals": 3,
+        "source_encodes": 7,
+        "updates": 2,
+        "writes": 7
+      },
+      "started": 2423246.50454175,
+      "status": "completed"
+    },
+    "restart": {
+      "deadline": 2423366.920016541,
+      "elapsed_seconds": 3.165002124849707,
+      "reserved": {
+        "artifact_bytes": 0,
+        "backwards": 1,
+        "forwards": 2,
+        "generated_tokens": 0,
+        "input_tokens": 16,
+        "model_loads": 0,
+        "retrievals": 1,
+        "source_encodes": 2,
+        "updates": 1,
+        "writes": 1
+      },
+      "started": 2423246.920016541,
+      "status": "completed"
+    }
+  },
+  "started": 2423246.503957
+}

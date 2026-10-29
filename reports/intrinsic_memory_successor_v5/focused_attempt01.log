@@ -1,0 +1,19 @@
+................................F....................................... [ 58%]
+....................................................                     [100%]
+=================================== FAILURES ===================================
+_______ test_producer_change_at_publish_boundary_keeps_previous_release ________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1861/test_producer_change_at_publis0')
+
+    def test_producer_change_at_publish_boundary_keeps_previous_release(tmp_path):
+        p=make();store=open_store(tmp_path);p.admit(store,spans()[0],scope=scope())
+        c=ProducerReleaseCorpus(store,scope());c.rebuild(p)
+        def mutate():step(p)
+>       with pytest.raises(ContextualMemoryError,match='changed before publication'):c.rebuild(p,before_publish=mutate)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ContextualMemoryError
+
+tests/test_contextual_memory_v5.py:268: Failed
+=========================== short test summary info ============================
+FAILED tests/test_contextual_memory_v5.py::test_producer_change_at_publish_boundary_keeps_previous_release
+1 failed, 123 passed in 30.22s

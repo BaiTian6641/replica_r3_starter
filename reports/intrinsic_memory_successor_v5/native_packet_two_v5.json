@@ -1,0 +1,23 @@
+{
+  "all_historical_approvals_consumed": true,
+  "arm": "two",
+  "attempts": 1,
+  "authorization_required": "reports/intrinsic_memory_successor_v5/authorization_two_v5.json",
+  "authorization_status": "absent_prepared_only",
+  "command": [
+    ".venv-spark-bf16/bin/python",
+    "scripts/run_spark_intrinsic_diagnostic_v5.py",
+    "--packet",
+    "reports/intrinsic_memory_successor_v5/native_packet_two_v5.json",
+    "--authorization",
+    "reports/intrinsic_memory_successor_v5/authorization_two_v5.json",
+    "--launch"
+  ],
+  "format": "replica.intrinsic_memory.launch_packet.v5",
+  "output_root": "reports/intrinsic_memory_successor_v5/native_bf16_two_v5_attempt01",
+  "protocol": {
+    "path": "configs/spark_intrinsic_diagnostic_v5.json",
+    "sha256": "8e897812bd78de6584e10b22626a211d0a8d98660a3f2484467a500e5e1ea144"
+  },
+  "retries": 0
+}

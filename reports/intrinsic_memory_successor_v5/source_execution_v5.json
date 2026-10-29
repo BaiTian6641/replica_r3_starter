@@ -1,0 +1,25 @@
+{
+  "artifact_sha256": "c309e44c93edf04187447c27990ecd0979990d7bab9e8dbf5a715afd2f82a50a",
+  "auto_map": {
+    "AutoConfig": "configuration_spark.Spark2_5Config",
+    "AutoModel": "modeling_spark.Spark2_5Model",
+    "AutoModelForCausalLM": "modeling_spark.Spark2_5ForCausalLM"
+  },
+  "config_sha256": "767161ece8ed2891e44345afdf98d29c1cacb964116cb6db7d20dc1c757490ad",
+  "entrypoints": {
+    "AutoConfig": "configuration_spark.py",
+    "AutoModelForCausalLM": "modeling_spark.py"
+  },
+  "files": {
+    "configuration_spark.py": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722",
+    "modeling_spark.py": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4"
+  },
+  "format": "replica.spark.execution_manifest.v1",
+  "policy": "exact_local_executable_inventory_no_symlinks",
+  "relative_dependencies": {
+    "configuration_spark.py": [],
+    "modeling_spark.py": [
+      "configuration_spark.py"
+    ]
+  }
+}

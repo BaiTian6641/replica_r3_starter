@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="26" time="6.420" timestamp="2026-10-29T15:45:41.303139-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_contextual_memory_v5" name="test_snapshot_cutoff_live_and_direct_validation[15-None-False]" time="0.024" /><testcase classname="tests.test_contextual_memory_v5" name="test_snapshot_cutoff_live_and_direct_validation[5-15-True]" time="0.022" /><testcase classname="tests.test_contextual_memory_v5" name="test_snapshot_cutoff_live_and_direct_validation[5-10-False]" time="0.022" /><testcase classname="tests.test_contextual_memory_v5" name="test_snapshot_cutoff_live_and_direct_validation[10-None-True]" time="0.021" /><testcase classname="tests.test_contextual_memory_v5" name="test_durable_time_scope_and_store_restart[15-None-False]" time="0.046" /><testcase classname="tests.test_contextual_memory_v5" name="test_durable_time_scope_and_store_restart[15-None-True]" time="0.094" /><testcase classname="tests.test_contextual_memory_v5" name="test_durable_time_scope_and_store_restart[5-15-False]" time="0.042" /><testcase classname="tests.test_contextual_memory_v5" name="test_durable_time_scope_and_store_restart[5-15-True]" time="0.044" /><testcase classname="tests.test_contextual_memory_v5" name="test_masked_padding_invariance_and_graph[two]" time="0.063" /><testcase classname="tests.test_contextual_memory_v5" name="test_masked_padding_invariance_and_graph[full_attention_nine]" time="0.085" /><testcase classname="tests.test_contextual_memory_v5" name="test_masked_padding_invariance_and_graph[all]" time="0.170" /><testcase classname="tests.test_contextual_memory_v5" name="test_release_hash_cache_invalidates_after_optimizer_and_reload" time="0.049"><failure message="AssertionError: assert 'v2-a59498df4f0033f7dbb60dcca1a3b658302e1eb3a281ce0f318e02e14b351d2f' != 'v2-a59498df4f0033f7dbb60dcca1a3b658302e1eb3a281ce0f318e02e14b351d2f'&#10; +  where 'v2-a59498df4f0033f7dbb60dcca1a3b658302e1eb3a281ce0f318e02e14b351d2f' = _producer_release()&#10; +    where _producer_release = ContextualValueEncoder(\n  (embedding): Embedding(257, 256, padding_idx=0)\n  (position): Embedding(256, 256)\n  (transfo...,), eps=1e-05, elementwise_affine=True, bias=True)\n    (1): Linear(in_features=256, out_features=256, bias=False)\n  )\n).release&#10; +      where ContextualValueEncoder(\n  (embedding): Embedding(257, 256, padding_idx=0)\n  (position): Embedding(256, 256)\n  (transfo...,), eps=1e-05, elementwise_affine=True, bias=True)\n    (1): Linear(in_features=256, out_features=256, bias=False)\n  )\n) = &lt;replica_lab.contextual_memory_v5.ContextualMemoryV5 object at 0x1115b3050&gt;.encoder">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1854/test_release_hash_cache_invali0')
+
+    def test_release_hash_cache_invalidates_after_optimizer_and_reload(tmp_path):
+        p=make();v=p.encoder.release();calls=p.cost['producer_hash_calls']
+        for _ in range(5):assert p.encoder.release()==v
+        assert p.cost['producer_hash_calls']==calls
+&gt;       step(p);step(p);assert p.encoder.release()!=v
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 'v2-a59498df4f0033f7dbb60dcca1a3b658302e1eb3a281ce0f318e02e14b351d2f' != 'v2-a59498df4f0033f7dbb60dcca1a3b658302e1eb3a281ce0f318e02e14b351d2f'
+E        +  where 'v2-a59498df4f0033f7dbb60dcca1a3b658302e1eb3a281ce0f318e02e14b351d2f' = _producer_release()
+E        +    where _producer_release = ContextualValueEncoder(\n  (embedding): Embedding(257, 256, padding_idx=0)\n  (position): Embedding(256, 256)\n  (transfo...,), eps=1e-05, elementwise_affine=True, bias=True)\n    (1): Linear(in_features=256, out_features=256, bias=False)\n  )\n).release
+E        +      where ContextualValueEncoder(\n  (embedding): Embedding(257, 256, padding_idx=0)\n  (position): Embedding(256, 256)\n  (transfo...,), eps=1e-05, elementwise_affine=True, bias=True)\n    (1): Linear(in_features=256, out_features=256, bias=False)\n  )\n) = &lt;replica_lab.contextual_memory_v5.ContextualMemoryV5 object at 0x1115b3050&gt;.encoder
+
+tests/test_contextual_memory_v5.py:88: AssertionError</failure></testcase><testcase classname="tests.test_contextual_memory_v5" name="test_checkpoint_contract_refused_before_mutation[objective]" time="0.092" /><testcase classname="tests.test_contextual_memory_v5" name="test_checkpoint_contract_refused_before_mutation[slot_policy]" time="0.158" /><testcase classname="tests.test_contextual_memory_v5" name="test_checkpoint_contract_refused_before_mutation[temporal_rule]" time="0.084" /><testcase classname="tests.test_contextual_memory_v5" name="test_multiple_cold_tickets_no_partial_success_and_accumulated_cost" time="0.054" /><testcase classname="tests.test_contextual_memory_v5" name="test_invalidated_or_unavailable_cold_payload_never_becomes_partial_success[correction]" time="0.056" /><testcase classname="tests.test_contextual_memory_v5" name="test_invalidated_or_unavailable_cold_payload_never_becomes_partial_success[revocation]" time="0.054" /><testcase classname="tests.test_contextual_memory_v5" name="test_invalidated_or_unavailable_cold_payload_never_becomes_partial_success[corrupt]" time="0.052" /><testcase classname="tests.test_contextual_memory_v5" name="test_invalidated_or_unavailable_cold_payload_never_becomes_partial_success[missing]" time="0.054" /><testcase classname="tests.test_contextual_memory_v5" name="test_bounded_wait_and_correction_during_actual_io" time="0.068" /><testcase classname="tests.test_contextual_memory_v5" name="test_pending_ticket_continues_in_fresh_process" time="2.555" /><testcase classname="tests.test_contextual_memory_v5" name="test_existing_corpus_new_producer_release_and_interruption_recovery" time="0.082"><failure message="Failed: DID NOT RAISE ContextualMemoryError">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1854/test_existing_corpus_new_produ0')
+
+    def test_existing_corpus_new_producer_release_and_interruption_recovery(tmp_path):
+        p=make();store=open_store(tmp_path);p.admit(store,spans()[0],scope=scope())
+        old=p.read(store,'Badge',scope=scope());corpus=ProducerReleaseCorpus(store,scope());m1=corpus.rebuild(p)
+        p.release_corpus=corpus;before=p.read(store,'Badge',scope=scope());assert torch.equal(old.slots,before.slots)
+        step(p,old);step(p,old)
+&gt;       with pytest.raises(ContextualMemoryError):p.read(store,'Badge',scope=scope())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ContextualMemoryError
+
+tests/test_contextual_memory_v5.py:168: Failed</failure></testcase><testcase classname="tests.test_contextual_memory_v5" name="test_rebuild_excludes_source_invalidated_before_publish[correction]" time="0.052"><failure message="json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1854/test_rebuild_excludes_source_i0')
+change = 'correction'
+
+    @pytest.mark.parametrize('change',['correction','revocation'])
+    def test_rebuild_excludes_source_invalidated_before_publish(tmp_path,change):
+        p=make();store=open_store(tmp_path);p.admit(store,spans()[0],scope=scope());corpus=ProducerReleaseCorpus(store,scope());corpus.rebuild(p)
+        def mutate():
+            if change=='revocation':store.revoke_record('r.span0',reason='withdrawn',scope=scope())
+            else:p.correct(store,'r.span0',replace(spans('Badge blue',name='new',available=6)[0],source_epoch=2,supersedes='r.span0'),scope=scope())
+        with pytest.raises(ContextualMemoryError,match='invalidated'):corpus.rebuild(p,before_publish=mutate)
+        assert corpus._current()[1]['generation']==1
+        if change=='correction':
+&gt;           m=corpus.rebuild(p);assert set(m['records'])=={'new.span0'}
+              ^^^^^^^^^^^^^^^^^
+
+tests/test_contextual_memory_v5.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/contextual_release_v5.py:113: in rebuild
+    span, pin, source = self._source(row)
+                        ^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_release_v5.py:72: in _source
+    value = json.loads(item)
+            ^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/decoder.py:338: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;json.decoder.JSONDecoder object at 0x106c3fa40&gt;, s = 'r.span0', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+&gt;           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/decoder.py:356: JSONDecodeError</failure></testcase><testcase classname="tests.test_contextual_memory_v5" name="test_rebuild_excludes_source_invalidated_before_publish[revocation]" time="0.047" /><testcase classname="tests.test_contextual_memory_v5" name="test_release_mixed_versions_and_missing_latest_authority_refused" time="0.045" /></testsuite></testsuites>
