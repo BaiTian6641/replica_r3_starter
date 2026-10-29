@@ -5,9 +5,8 @@ prompt. Earlier MiniCPM-first and native multimodal orders are historical.
 Reading or editing this file does not launch a job, download data, create a chat
 or authorize a new execution format.
 
-Continue TAIS Obsidian / Replica R3 in the existing checkout. Build Spark text
-memory and the permanent internal spine toward persistent learning and Replica
-integration. The active source is XHToken/Spark-X2.6-4B-FP8, revision
+Continue TAIS Obsidian / Replica R3 in the existing checkout. Build intrinsic Spark memory toward persistent learning and Replica
+integration; preserve the separate external spine. The active source is XHToken/Spark-X2.6-4B-FP8, revision
 0318d6f6ab070c7b5b43052db571489b2508006c. Keep official BF16, FP8-derived BF16
 and native-FP8 execution as separate identities. MiniCPM is a historical/control
 path; native multimodal training and physical actor/sensor work remain deferred.
@@ -38,37 +37,39 @@ before acting; do not repeat already completed repairs.
 - Report measured behavior separately from engineering tests and design
   arithmetic. Check primary research sources before changing a mechanism claim.
 
-## Current receipt and executable queue — 29 October 2026
+## Current receipt and memory-layer queue — 29 October 2026
 
-Read [contextual v2](../../reports/contextual_memory_v2/README.md) and its evidence
-packet before repeating work. Code b2489ba implements executable-source binding,
-hot/cold authority separation, complete pre-fit calibration, differentiable
-contextual values and direct stored-slot spine readout. Focused checks pass 135;
-CPU numerical/storage continuation passes, but integrated calibration is 0/8.
-Dependent learning correctly stops with labels closed. Full derivative source
-integration passes; external derivative authorization is absent. No new native
-model job has run. Historical integrated09's eleven arms remain 0/12.
+Read [intrinsic memory v3](../../reports/intrinsic_memory_v3/README.md). The spine is
+external communication; memory owns formation, addressing, recall, retention,
+correction and learning inside Spark. f471f54 extracts intrinsic ownership/config,
+removes the dummy packet, and versions serialization with explicit migration.
+Empty-spine execution, gradients and exact migrated optimizer continuation pass.
+The prior provenance/recovery/calibration repairs remain active. The current CPU
+calibration is 0/8, so dependent learning and labels stay closed. No native run.
 
-Next: obtain only the missing exact readout-stage receipt after review of the
-completed packet. Run frozen-original calibration first (8/8, zero false recall),
-then 32 fixed contextual readout updates and five matched generated controls,
-then fresh-process extension/optimizer continuation. Sites 3/7 are active; 23/31
-requires a separate measured follow-up. Do not unlock learning after incomplete
-or failed competence. Separate source/numerical/competence/utility/promotion.
+1. Qualify intrinsic recall at 3/7: frozen-original calibration, fixed contextual
+   readout updates, matched exact/wrong/shuffled/absent controls, fresh-process
+   continuation. Use the new derivative packet and its still-missing external
+   receipt. Do not reuse an old packet as authorization. Treat 23/31 separately.
+2. After useful recall, add bounded provisional C/F formation. Read an admitted
+   revision, accumulate, commit once, expose only to later computation. Bind
+   sequence positions and update IDs; test interrupted/restarted transitions.
+   Growing-prefix replay must not duplicate writes. Provisional hypotheses are
+   allowed; they do not become authoritative E/S facts without verification.
+3. Compare fixed question-slot P with hidden-state-conditioned plastic experts
+   or associative reads. Keep the eleven controls and same-reader learned/reset
+   comparisons. Remove E/S/C and answer-bearing I/auxiliary state for source-free
+   generated tests. Use distinct teaching/future queries, independent worlds and
+   rule families, chronological corrections, revocations and delayed retention.
+4. Measure new reasoning-task accuracy, old knowledge, false recall and total
+   teaching/retrieval/update/replay/generation cost and physical memory. Keep P1
+   until a capacity bottleneck. Writer/nested/RSI work requires useful readout,
+   repeated retention/correction/rollback and independent candidate evaluation.
 
-Freeze useful qualified phi before a separately bound P1 longitudinal experiment.
-Preserve the repaired eleven controls, same-reader learned/reset comparison and
-source-free removal of E/S/C plus answer-bearing identity/auxiliary state. Use
-distinct teaching/future questions, independent worlds and rule families,
-chronological corrections/revocations and delayed retention. Measure complete
-cost and physical memory; do not treat generated explanations as verification.
-Do not allocate P4+ before a measured capacity bottleneck or evaluate the learned
-writer before useful readout. Repeated retention/correction/rollback and independent
-candidate evaluation precede nested clocks or RSI. Keep approved identity separate
-from task reward and reserve its bounded active core; archive with explicit recall.
-
-The packages below retain architecture requirements and historical evidence;
-completed implementation is not a request to redo it or relax current gates.
+Preserve approved identity outside reward, prioritize its bounded active core and
+active task state, and use explicit recall for archival tiers. E/S/P/phi/C/I/K and
+external spine ownership remain separate. The older packages below preserve design
+requirements and history; they do not override this current sequence.
 
 ## Package 1 — correct the diagnostic and make verification portable
 

@@ -1,53 +1,57 @@
 # Spark persistent learner, tiered memory and Replica integration
 
-## Current implementation addendum — 29 October 2026
+## Current ownership and implementation — intrinsic memory v3
 
-The [contextual v2 runbook](../../reports/contextual_memory_v2/README.md) and its
-bound protocols supersede older implementation-status statements below. Code
-`b2489ba` implements a byte-contextual encoder, four ordered FP32 width-256 slots
-per <=256-byte span, and direct stored-slot consumption at 3/7. Canonical text
-is bounded at 8,192 UTF-8 bytes; active selection is two spans/eight slots.
-The future eight-record/32-slot design below is not allocated or admitted.
-Native attention, positions, gated attention, GELU and tied output remain intact.
-Original weights and unrelated extensions are frozen. One NativeFusedAdamW owns
-the producer and memory reader; a separately gated P1 owner freezes phi first.
-The training graph stays differentiable; disk serialization, inference decisions
-and frozen query features detach. Scope/time, producer/codec, correction,
-generation, revision and digests revalidate before injection. Exact fallback
-charges its text/tokens and prefill. Hash values remain engineering controls.
+The [v3 runbook](../../reports/intrinsic_memory_v3/README.md) is current. The user's
+architecture correction restores separate `intrinsic_memory`, `plastic_knowledge`
+and external `spine` responsibilities already specified in the intrinsic architecture.
+The spine connects external specialist models, sensors and actors through typed,
+trained endpoints; it does not own core memory. Memory owns formation, addressing,
+recall, retention, correction and learning inside Spark, regardless of storage tier.
 
-Latest hot-state authority now binds clock, lineage, encoder, payload digests and
-journal sequence independently of the latest cold publication. Legitimate dirty
-writes recover after SQLite loss; interrupted, uncommitted, revoked or missing
-newest state remains quarantined. Execution manifests bind actual auto_map model,
-configuration and local dependency code before loading, without altering historical
-conversion or qualification receipts. Unit tests use synthetic source/Git fixtures.
+Code f471f54 installs `extension.intrinsic_memory`, its independent two-site/eight-slot
+spec, a dedicated decoder context and v3 checkpoint namespace. The contextual path
+uses `use_spine=False`, no dummy Packet and no external codec. Parameter objects
+transfer out of the legacy memory branch; remaining external endpoints are preserved.
+Historical full-extension models load before transfer; explicit v2-to-v3 readout
+migration retains weights/moments and refuses silent reinterpretation. The actual
+previous CPU artifact has exact migrated logits and exact optimizer continuation.
+Empty-spine forward/backward, unique ownership and different memory/spine sites pass.
 
-A separate pre-fit competence protocol freezes original weights and fixes eight
-calibration cases, scorer, template, thinking mode and budgets before generation.
-It requires 8/8 and zero false recall; incomplete evidence never opens learning
-labels. Current CPU integrated calibration is 0/8, so learning stops. Independent
-CPU engineering tests establish parity, gradients, durable values, invalidation
-and exact extension/optimizer continuation only. Focused checks pass 135 tests.
-Native source integration passes, but no new native model experiment has run.
-Source qualification, numerical qualification, competence, useful readout,
-persistent learning and promotion remain separate outcomes.
+Canonical spans remain bounded to 256 UTF-8 bytes within 8,192-byte sources. Four
+ordered FP32 width-256 contextual slots per span enter the intrinsic reader directly;
+active selection is two spans/eight slots. Scope/time, correction, producer/codec,
+generation/revision and payload identities revalidate. Training preserves encoder
+and reader gradients; durable state and inference detach. Exact fallback charges
+text/tokens and prefill. Original attention, positions, gated attention, GELU and
+tied output remain unchanged. Sites 3/7 are active; 23/31 is a later separate test.
 
-The next native stage uses the existing FP8-derived BF16 artifact under its own
-execution identity: calibration, 32 fixed readout updates, five matched controls,
-then fresh-process continuation. External authorization must bind the new code,
-protocol, execution manifest, stage and output. Useful readout precedes the
-preserved eleven-arm longitudinal P1 protocol; 23/31 is a separate follow-up.
-P4+, the learned local writer, multi-clock learning and RSI remain behind measured
-capacity/usefulness/retention/correction/rollback gates. Current handoffs and the
-runbook contain exact results, cost limits and the next command. Historical
-receipts below remain evidence for their original implementation hashes.
+The prior increment's executable-code manifest, latest-hot/cold-publication authority
+separation and complete pre-fit competence gate remain active. Focused v3 tests pass
+59. Calibration is still 0/8 on the random CPU fixture, so no learning labels open.
+Numerical migration/parity/gradient/restart checks are engineering evidence only.
+Source qualification, numerical qualification, competence, useful readout, durable
+learning and promotion remain separate. See current packet and measured costs in
+the runbook; no new native model experiment has run.
 
+Recall currently queries fixed episodic slots from evolving decoder hidden states.
+The P-only one-slot question-conditioned path remains an explicitly labelled control;
+its single-slot softmax cannot address P differently at each reasoning step. After
+useful recall, add bounded provisional C/F writes with read/accumulate/commit-once
+semantics and explicit sequence positions. Growing-prefix replay must not write old
+tokens again. Generated hypotheses may be provisional working state, not verified
+E/S facts. Then compare hidden-state-conditioned plastic experts/associative reads
+against the fixed control. Native P learning still requires the eleven matched
+controls, distinct future queries, chronological correction/revocation and retention.
+Capacity, learned writers, nested clocks and RSI stay evidence-gated.
+
+The receipts below describe historical implementations or future design requirements;
+they do not supersede this ownership boundary or establish current learned capability.
 
 **29 October 2026 · implemented v2 engineering runtime; native execution and useful learning remain unqualified.**
 This chapter owns the current direction after the Spark architecture audit and
-the user's persistent-learner feedback. Spark text memory and the internal spine
-remain first. Expand storage engineering and parameter profiles now; select
+the user's persistent-learner feedback. Spark intrinsic memory is the priority; the external spine
+remains a separate connection interface. Expand storage engineering and parameter profiles now; select
 larger trained banks only after a small learner demonstrates useful behavior.
 Native multimodal training remains deferred. Specialist models may later send
 typed observations through the same spine.
@@ -138,7 +142,7 @@ its experiment-scope parity, gradient, update, frozen-base, reload and matched
 site checks remain required after authorization. See the
 [backend plan](../../reports/spark_persistent_learner_v2/native_backend_plan.md).
 
-## 2. State ownership and the permanent spine
+## 2. State ownership and the external spine
 
 | State | Content and authority | Persistence and updates |
 |---|---|---|
@@ -150,9 +154,9 @@ site checks remain required after authorization. See the
 | I | Approved identity/personality core and attributable personal history | Versioned authority separate from reward and task success |
 | K | Measured capabilities, uncertainty and cost estimates | Empirical records indexed by model, mode, task family and budget |
 
-The spine mediates typed observations, memory access, task state and native
-response ports. It remains part of the backbone's extension path without an
-external actor. Future sensor/actor or specialist-model interfaces must preserve
+Intrinsic memory and plastic knowledge are model-owned computation and work with
+all external spine connections removed. The spine mediates typed external
+observations, feedback and actions, with separately trained endpoints. Future sensor/actor or specialist-model interfaces must preserve
 source, modality, time, confidence and scope. A generated description from a
 specialist is an observation with provenance, not unqualified ground truth.
 

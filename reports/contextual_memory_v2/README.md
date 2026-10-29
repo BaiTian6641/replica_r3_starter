@@ -1,5 +1,7 @@
 # Contextual memory v2 — CPU implementation and native readout gate
 
+**Superseded ownership:** [intrinsic memory v3](../intrinsic_memory_v3/README.md) removes memory from the external spine. The measurements and packets below remain historical v2 evidence.
+
 29 October 2026. Starting HEAD and latest independent review: `a4d11366`.
 There were no newer commits at inspection. Implementation: `b2489ba133082e494ec1f94cac7d4d54f7b30ad9`.
 The original Spark-X2.6-4B-FP8 lineage and permanent typed spine remain authoritative.

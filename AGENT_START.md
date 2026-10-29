@@ -1,32 +1,35 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Active order — 29 October 2026, contextual memory implementation after review of a4d11366.**
-Read [the current runbook](reports/contextual_memory_v2/README.md),
-[architecture chapter 28](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md)
-and [loop instructions](docs/architecture/16_Loop_Agent_Instructions.md).
-Implementation `b2489ba133082e494ec1f94cac7d4d54f7b30ad9` adds executable-code provenance,
-legitimate dirty-P recovery, a separate pre-fit competence gate, contextual value
-encoding and direct spine readout with extension-only continuation. Current
-protocol hashes and required native bindings are in the new runbook's packet.
+**Active order — 29 October 2026, intrinsic memory separate from the external spine.**
+Read [the intrinsic memory v3 runbook](reports/intrinsic_memory_v3/README.md),
+[chapter 28](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md) and
+[loop instructions](docs/architecture/16_Loop_Agent_Instructions.md).
+Implementation `f471f54a34e99f8143164e00b3247827c6ba1f1c` restores the original
+ownership boundary: intrinsic memory owns recall/learning inside Spark; the spine
+owns external specialist/sensor/actor communication. Memory-layer work is primary.
 
-Focused checks pass 135 tests. The independent CPU diagnostic proves disabled
-parity, producer/reader gradients and exact fresh-process continuation. The
-integrated CPU workflow fails calibration 0/8 and correctly stops before fit or
-learning labels. Historical integrated09 remains 0/12 in every arm. Neither
-result establishes native or persistent-learning capability. Full native source
-validation passes; the new derived-BF16 readout experiment is unrun and awaits
-its exact external authorization. Official FP8 on MPS remains unqualified.
+Memory now has its own configuration, decoder context, parameter owner and v3
+serialization namespace. It runs with the external spine removed; no dummy packet
+or spine codec is used. Explicit migration preserves existing v2 logits and
+optimizer continuation without editing historical artifacts. Focused checks pass
+59; the CPU diagnostic proves empty-spine parity, gradients and fresh continuation.
+Calibration remains 0/8, correctly stopping dependent learning with labels closed.
+See the runbook for completed clean-checkout verification and resource measurements.
 
-Run calibration, then contextual readout at 3/7, then fresh-process continuation.
-Treat 23/31 separately. Only after useful readout freeze phi and isolate P1 with
-the preserved 11 controls and distinct teaching/future queries. Capacity expansion,
-local-writer evaluation, retention/rollback cycles, nested clocks and RSI remain
-evidence-gated. Keep E/S/P/phi/C/I/K separate, approved identity outside reward,
-and the permanent specialist/sensor/actor interfaces. Native multimodal work is deferred.
+Next qualify intrinsic recall at 3/7 using the existing derived-BF16 artifact's
+new exact packet, separate calibration, matched exact/wrong/shuffled/absent controls
+and fresh-process continuation. External authorization is still absent. Official
+FP8 remains blocked on MPS. No native or learned capability is claimed. Treat 23/31
+separately. The fixed question-slot P path is a control, not reasoning-state recall.
+After useful readout, implement exactly-once provisional working-state formation,
+then hidden-state-conditioned P and longitudinal learning/retention/correction.
+Do not let generated hypotheses become authoritative E/S without verification.
 
-Preserve one exclusive native worker and the 50 GiB / 512 MiB / 15% guards.
-NativeFusedAdamW is the ordinary optimizer. No bulk download, duplicate checkpoint,
-full-base export or rewriting of historical receipts is authorized. Preserve
+Keep P1, NativeFusedAdamW, E/S/P/phi/C/I/K separation and approved identity outside
+reward. Capacity, learned writers, nested clocks and RSI remain evidence-gated.
+Preserve the external spine interfaces; native multimodal work is deferred. Keep
+one exclusive native worker and 50 GiB / 512 MiB / 15% limits. No bulk downloads,
+duplicate checkpoints, full-base exports or historical-result rewrites. Preserve
 unrelated work. Never read, import, edit or stage src/replica_lab/runtime_pilot.py.
 
 Historical handoffs below preserve completed protocols and negative results; they are not competing active orders.

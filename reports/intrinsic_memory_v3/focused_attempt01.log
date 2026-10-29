@@ -1,0 +1,57 @@
+..........F................................................              [100%]
+=================================== FAILURES ===================================
+______ test_full_readout_pipeline_keeps_quality_gate_closed_and_restarts _______
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1816/test_full_readout_pipeline_kee0')
+
+    def test_full_readout_pipeline_keeps_quality_gate_closed_and_restarts(tmp_path):
+        p = protocol()
+        config = copy.deepcopy(p.config)
+        derivative = json.loads((p.root / "configs/spark_persistent_learner_derivative_bf16_protocol_v1.json").read_text())
+        config["contextual_readout"] = derivative["contextual_readout"]
+        config["work_and_cost"] = derivative["work_and_cost"]
+        p = replace(p, config=config)
+        competence = passing_evidence()  # fabricated unit evidence; not written to a native report
+        spec,_ = load_spec(p)
+        competence["binding"] = binding_for(p,spec,context_tokens=256,max_new_tokens=2)
+        (tmp_path / "competence").mkdir()
+        (tmp_path / "competence/receipt.json").write_text(json.dumps(competence))
+        ledger = WorkLedger(p,context_tokens=256,max_new_tokens=2)
+>       result = run_readout(p, EngineeringBackend(), tmp_path, ledger, competence)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_contextual_readout_training.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/contextual_readout_training.py:103: in run_readout
+    path = ContextualMemoryPath(backend.adapter, lr=spec["learning_rate"])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_memory.py:164: in __init__
+    self.reader = IntrinsicMemoryReader.install(adapter, self.spec)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'replica_lab.architecture.intrinsic_memory.IntrinsicMemoryReader'>
+adapter = Spark2_5Adapter(
+  (base): ContextualSparkCausalLM(
+    (model): ContextualSparkModel(
+      (embedding): Embedding(32...=True)
+          (output_projection): Linear(in_features=256, out_features=8, bias=False)
+        )
+      )
+    )
+  )
+)
+spec = IntrinsicMemorySpec(hidden_size=8, width=256, slots=8, sites=(3, 7))
+
+    @classmethod
+    def install(cls, adapter, spec):
+        if any(site >= adapter.config.geometry.num_hidden_layers for site in spec.sites):
+            raise ValueError("intrinsic memory site is outside the decoder")
+        if hasattr(adapter.extension, "intrinsic_memory"):
+>           raise ValueError("intrinsic memory already has an owner")
+E           ValueError: intrinsic memory already has an owner
+
+src/replica_lab/architecture/intrinsic_memory.py:48: ValueError
+=========================== short test summary info ============================
+FAILED tests/test_contextual_readout_training.py::test_full_readout_pipeline_keeps_quality_gate_closed_and_restarts
+1 failed, 58 passed in 13.08s
