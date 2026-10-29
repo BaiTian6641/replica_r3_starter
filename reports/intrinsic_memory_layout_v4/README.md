@@ -1,5 +1,13 @@
 # Configurable intrinsic readers v4
 
+Current successor: the [combined v4 training integration](../../docs/experiments/20261029_Spark_Memory_Integrated_Access.md)
+connects this reader to the contextual producer and tiered store and adds a complete
+extension/optimizer checkpoint. Its new checks are in the
+[integration summary](../intrinsic_memory_integration_20261029/verification_summary.json).
+The receipts below remain the original reader-only snapshot. The first two v3
+native attempts are consumed execution failures; neither produced an answer or
+update. Native density remains unrun and needs its own admitted runner/receipts.
+
 This is a separate CPU candidate for 2, 9 or 36 memory-access sites. The sealed
 two-site v3 contextual readout protocol and native packet remain unchanged.
 See the [architecture and comparison](../../docs/experiments/20261029_Spark_Memory_Layer_Access.md)

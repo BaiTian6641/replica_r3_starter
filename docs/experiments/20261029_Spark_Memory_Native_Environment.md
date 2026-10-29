@@ -1,6 +1,18 @@
 # Spark memory S0–S1: first native attempt and environment repair
 
-**29 October 2026 · first authorized attempt stopped before competence.**
+**29 October 2026 · both authorized attempts stopped before a complete competence result.**
+
+The corrected environment packet below was subsequently explicitly authorized.
+[Attempt02](../../reports/intrinsic_memory_v3/native_readout02/result.json) passed
+runtime/source admission and loaded the existing derivative, but its first
+calibration forward failed because the backbone stayed CPU while inputs/extensions
+were MPS. No answer or update completed. It used 9.712113 s, a 1,082,540,032-byte
+sampled driver peak, 700,645,376-byte RSS peak and zero swap growth. The guard did
+not trip. Both zero-retry receipts are consumed. See the
+[current integration report](20261029_Spark_Memory_Integrated_Access.md) for the
+separately versioned placement repair and remaining approval boundary.
+
+The account below preserves the original environment diagnosis and packet history.
 
 The user explicitly authorized the exact original S0–S1 packet. Its receipt and
 full source/implementation admission passed, the exclusive worker lock was free,
@@ -65,8 +77,8 @@ and all work/resource limits. It uses fresh `native_readout02` output and
 new launcher. This remains a two-site v3 readout experiment; the v4 2/9/36 density
 candidate is separate.
 
-The original authorization is consumed and allowed zero retries. The new packet
-requires a fresh explicit receipt; its additional environment/launcher bindings
-cannot be inferred from the earlier approval. No second native attempt is
-authorized by this document. No useful readout, persistent P, retention, reasoning
+The original authorization allowed zero retries. A fresh explicit receipt was
+subsequently supplied for this packet and consumed by attempt02, described above.
+Its additional environment/launcher bindings were not inferred from the earlier
+approval. Neither consumed receipt permits a further attempt. No useful readout, persistent P, retention, reasoning
 cost reduction, capacity expansion or promotion follows from these diagnostics.

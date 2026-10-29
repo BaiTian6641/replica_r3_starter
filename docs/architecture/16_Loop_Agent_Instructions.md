@@ -52,11 +52,15 @@ is not a pretrained Spark competence result. The first authorized native attempt
 failed during model construction before competence. Use the
 [environment-bound successor packet](../experiments/20261029_Spark_Memory_Native_Environment.md);
 the original zero-retry authorization is consumed. CPU environment checks and
-the tiny sealed-source CPU probe pass; a fresh native attempt needs fresh approval.
+the tiny sealed-source CPU probe pass. The newly authorized corrected attempt loaded
+the model but failed its first calibration forward: the backbone remained on CPU
+while inputs/extensions were MPS. Both receipts are consumed; no answer/update or
+competence result exists. Read the [current integration report](../experiments/20261029_Spark_Memory_Integrated_Access.md).
 
 All-layer intrinsic access is the explicit target. The separate
 [v4 CPU candidate](../experiments/20261029_Spark_Memory_Layer_Access.md) supports
-2/9/36 independently configurable sites and a new checkpoint format; it does
+2/9/36 independently configurable sites and a new checkpoint format. Its separate combined wrapper now connects the real
+contextual producer and store with a single optimizer and complete reload. It does
 not change the sealed v3 control or select itself in the native runner. Plan
 the direct comparison with shared values, fixed slots/writer/exposure and new
 per-arm budgets. Numerical/resource checks and competence precede native work.
@@ -65,8 +69,8 @@ fast banks, matched-parameter/cost readers and pre-MLP fusion are separate tests
 
 1. Qualify intrinsic recall at 3/7: frozen-original calibration, fixed contextual
    readout updates, matched exact/wrong/shuffled/absent controls, fresh-process
-   continuation. Use the new derivative packet and its still-missing external
-   receipt. Do not reuse an old packet as authorization. Treat 23/31 separately.
+   continuation. Use the separately versioned device-placement successor after its exact external
+   approval; both prior zero-retry attempts are consumed. Do not reuse either receipt. Treat 23/31 separately.
 2. S2 first tests completed-interaction storage, exposed only next interaction.
    Separately test within-reasoning C/F: read chunk-start state, accumulate,
    commit once, expose only later chunks. Bind sequence positions, revisions,
@@ -85,6 +89,7 @@ fast banks, matched-parameter/cost readers and pre-MLP fusion are separate tests
    until a capacity bottleneck. Writer/nested/RSI work requires useful readout,
    repeated retention/correction/rollback and independent candidate evaluation.
 
+Follow the [formation and Replica successor specification](../experiments/20261029_Spark_Memory_Formation_and_Replica_Successors.md).
 Preserve approved identity outside reward, prioritize its bounded active core and
 active task state, and use explicit recall for archival tiers. E/S/P/phi/C/I/K and
 external spine ownership remain separate. The older packages below preserve design

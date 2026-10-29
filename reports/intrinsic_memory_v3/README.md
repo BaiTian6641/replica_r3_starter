@@ -19,6 +19,13 @@ model construction before competence: its command used general Transformers
 5.20.2 instead of the qualified 4.57.1 environment. The [environment repair](../../docs/experiments/20261029_Spark_Memory_Native_Environment.md)
 adds CPU-tested runtime admission and a fresh review packet without changing
 Spark source. The zero-retry authorization is consumed; no training ran.
+The separately authorized [attempt02](native_readout02/result.json) passed that
+environment gate and loaded the model, then failed on its first calibration
+forward because the backbone remained CPU while inputs/extensions were MPS.
+No answer or update completed; its approval is also consumed. The
+[current integration report](../../docs/experiments/20261029_Spark_Memory_Integrated_Access.md)
+records the placement repair, combined v4 producer/store/reader, density preparation
+and Replica handoff.
 
 ## Implemented separation
 
@@ -113,8 +120,9 @@ and the unchanged [`intrinsic_memory_readout_protocol_v3.json`](../../configs/in
 The new launcher binds `.venv-spark-bf16`, Python, 32 locked package versions, module
 origins and 12 selected runtime files before the original source/authorization gates.
 The command uses the same derivative under its own execution identity and fresh
-`runs/intrinsic_memory_v3/native_readout02`. The original approval was consumed by
-the failed first attempt; a fresh exact environment-bound receipt is required.
+`runs/intrinsic_memory_v3/native_readout02`. That exact environment-bound receipt
+was supplied and consumed. A further attempt must use the separately versioned
+placement successor and its own exact approval; neither old receipt can be reused.
 
 First pass the separate eight-case frozen-original competence stage (8/8, zero false
 recall, no truncation). Then perform 32 fixed producer/reader updates, open eight

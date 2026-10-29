@@ -6,7 +6,10 @@
 [v4 access candidate](../experiments/20261029_Spark_Memory_Layer_Access.md) implements
 independent 2/9/36-site readers over one shared snapshot, active-layer masks,
 unique NativeFusedAdamW ownership and a strict reader-only checkpoint format.
-CPU tests prove parity, all-site gradients and fresh continuation. The sealed
+The [combined v4 training integration](../experiments/20261029_Spark_Memory_Integrated_Access.md)
+now connects the existing contextual producer and tiered store, with one shared
+snapshot and a complete producer/reader/optimizer checkpoint. CPU tests prove
+parity, all-site gradients and fresh continuation; native density remains unrun. The sealed
 v3 3/7 native experiment remains the control. Compare 2, 9 and 36 directly after
 numerical/resource and competence gates; 23/31 or six sites are optional diagnostics.
 Current hooks query block input and add after the block; attention-before-MLP
@@ -58,6 +61,11 @@ the runbook. The first authorized native attempt failed at model construction
 before competence because its command selected the wrong Transformers environment.
 The [environment repair and fresh packet](../experiments/20261029_Spark_Memory_Native_Environment.md)
 bind the already-qualified interpreter; source code and original results are unchanged.
+The corrected attempt was then authorized and loaded successfully, but its first
+calibration forward failed because base placement stayed CPU while inputs were MPS.
+No answer or update completed; this is incomplete execution, not a competence score.
+Both receipts are consumed. A separately versioned placement repair is the next
+S0 control, subject to its own exact approval.
 
 Recall currently queries fixed episodic slots from evolving decoder hidden states.
 The P-only one-slot question-conditioned path remains an explicitly labelled control;
@@ -71,6 +79,11 @@ E/S facts. Then compare hidden-state-conditioned plastic experts/associative rea
 against the fixed control. Native P learning still requires the eleven matched
 controls, distinct future queries, chronological correction/revocation and retention.
 Capacity, learned writers, nested clocks and RSI stay evidence-gated.
+
+The [formation and Replica successor specification](../experiments/20261029_Spark_Memory_Formation_and_Replica_Successors.md)
+connects this work to the existing CognitiveCore, TaskRuntime and approved identity
+contracts. It defines exactly-once schedules and tests hot/warm/cold validity
+independently of learning clocks. Useful recall must precede those capability claims.
 
 The receipts below describe historical implementations or future design requirements;
 they do not supersede this ownership boundary or establish current learned capability.

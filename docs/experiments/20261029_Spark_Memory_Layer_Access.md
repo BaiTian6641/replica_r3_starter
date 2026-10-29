@@ -48,9 +48,11 @@ parameter names, weight hash and optimizer hash. Payloads, moments and named
 ownership are validated before loading weights. Missing, corrupted, stale or
 legacy inputs fail closed. A weights-only reload cannot retain unrelated live
 optimizer moments. Serialization detaches; the live value tensor path does not.
-No base checkpoint is exported. The production contextual producer/store and
-two-site v3 training wrapper remain unchanged; the v4 standalone reader is not
-yet the native readout runner's selected implementation.
+No base checkpoint is exported. The production producer/store implementation and
+two-site v3 training wrapper remain unchanged. A separately versioned
+[combined v4 wrapper](20261029_Spark_Memory_Integrated_Access.md) now connects those
+contracts to this reader and adds complete producer/reader/optimizer checkpoints.
+It remains separate from the native v3 runner's selected implementation.
 
 The [CPU protocol](../../configs/intrinsic_memory_layer_access_protocol_v4.json),
 [tests](../../tests/test_intrinsic_memory_layout_v4.py) and
@@ -114,9 +116,11 @@ is not nested learning. None establishes the best Spark density.
 
 The v3 S0–S1 learning protocol and budgets remain unchanged. Its first authorized
 load failed in the wrong dependency environment; the [runtime-bound successor](20261029_Spark_Memory_Native_Environment.md)
-requires fresh authorization. This v4 CPU protocol authorizes no native work. A density experiment
-needs new execution/data/scoring bindings, per-arm forward/backward/token/model-load
-budgets and an external receipt before launch; do not multiply the two-site packet
-implicitly. Keep one worker, the 50 GiB / 512 MiB sustained swap / 15% host-free
+was authorized, loaded the model and failed on a CPU/MPS placement mismatch before
+any answer. Both receipts are consumed. This v4 CPU protocol authorizes no native
+work. The [density v5 preparation](../../reports/intrinsic_memory_density_v5/native_comparison_packet.json)
+now binds per-arm execution/data/scoring and forward/backward/token/model-load
+budgets; its dedicated native runner and external receipts remain absent. Do not
+multiply the two-site packet implicitly. Keep one worker, the 50 GiB / 512 MiB sustained swap / 15% host-free
 limits and P1. Useful readout must precede persistent-P, learned-writer and nested
 experiments. Preserve all raw failed trajectories and the previous working version.

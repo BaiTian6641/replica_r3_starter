@@ -128,8 +128,12 @@ The first exact authorized attempt failed at model construction before competenc
 because the command selected the general Transformers 5.20.2 environment. The
 [environment-bound successor](20261029_Spark_Memory_Native_Environment.md) verifies
 the existing qualified 4.57.1 environment before model imports and keeps every
-criterion and budget above. Its fresh output/receipt require new authorization;
-the original attempt and packet remain preserved.
+criterion and budget above. That corrected attempt was authorized and executed:
+the model loaded, then the first calibration forward failed due to CPU backbone
+versus MPS inputs. No answer or update completed. Both attempts and receipts are
+preserved and consumed. The separately versioned placement successor is a new
+execution identity requiring its own approval; the sealed v3 learning criteria and
+checkpoint identity remain unchanged. See the [integration report](20261029_Spark_Memory_Integrated_Access.md).
 
 ## Conditional successors, not additional active runs
 

@@ -16,7 +16,10 @@ V0–V4 remain historical/control and multimodal paths, not Spark text prerequis
 All-layer intrinsic access is now an explicit target. The separate [v4 CPU
 reader candidate](docs/experiments/20261029_Spark_Memory_Layer_Access.md) implements
 independent 2/9/36-site layouts, active-layer skipping, shared snapshot reads and
-a versioned reader-only checkpoint. Preserve the sealed two-site v3 control;
+a versioned reader-only checkpoint. The separate combined v4 wrapper now connects
+the contextual producer and store with one optimizer and a complete extension
+checkpoint; see the [integration report](docs/experiments/20261029_Spark_Memory_Integrated_Access.md).
+Preserve the sealed two-site v3 control;
 compare 2, 9 and 36 directly after per-arm numerical/resource and competence checks.
 Keep state sharing and exactly-once write boundaries independent of access count.
 The current hook is block-input query plus post-block residual; pre-MLP fusion
@@ -32,13 +35,22 @@ labels closed; this does not measure pretrained Spark competence.
 Clean f2c772a3 passes 3,371 tests, 104 explicit skips and 21 subtests; the
 independent v4 suite passes 26. See the runbooks for exact clean scope, resource
 measurements and preserved failed attempts.
+The new combined wrapper is committed at `30524be4`. Clean checkout `a4461059`
+passes 268 affected tests; the integrated 2/9/36 CPU workflow passes fresh-process
+logits and actual optimizer continuation in 13.329595 s with 104,937,953 artifact
+bytes. These are engineering checks, not native recall evidence. The separately
+versioned placement repair is bound at `260dc15e`; full source preflight passes
+and only a new exact external authorization remains missing.
 
 The first authorized S0–S1 attempt stopped during model construction before
 competence: the packet selected Transformers 5.20.2 instead of the qualified
 4.57.1 environment. The [native environment repair](docs/experiments/20261029_Spark_Memory_Native_Environment.md)
 records the failure, 21 CPU environment tests and a successful tiny source-code
-CPU probe. The corrected packet binds the existing qualified interpreter and
-requires fresh authorization; the original single attempt is consumed.
+CPU probe. The corrected packet was explicitly authorized and executed. It loaded the model,
+then failed on the first calibration forward because the backbone remained on CPU
+while inputs and extensions were on MPS. No answer or update completed. Both
+single-attempt receipts are consumed; the separately versioned placement repair
+requires its own packet and approval. Preserve both failed trajectories.
 Next qualify intrinsic recall at 3/7 with separate calibration, matched exact/
 wrong/shuffled/absent controls and fresh continuation. Official FP8 remains
 blocked on MPS; native competence and learned capability are unmeasured. Treat
@@ -47,6 +59,10 @@ After useful readout, test completed-interaction storage for the next turn, then
 a separate exactly-once within-reasoning schedule. Follow with hidden-state P
 and longitudinal learning/retention/correction.
 Do not let generated hypotheses become authoritative E/S without verification.
+The [formation and Replica successor specification](docs/experiments/20261029_Spark_Memory_Formation_and_Replica_Successors.md)
+connects tier-valid memory to the existing cognitive core, task journal and approved
+identity contracts. Authentic source history, approved I and later branch experience
+remain distinct; personal fidelity and nested learning are unmeasured.
 
 Keep P1, NativeFusedAdamW, E/S/P/phi/C/I/K separation and approved identity outside
 reward. Capacity, learned writers, nested clocks and RSI remain evidence-gated.
