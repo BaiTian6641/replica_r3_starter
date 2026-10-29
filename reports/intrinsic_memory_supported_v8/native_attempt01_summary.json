@@ -1,0 +1,448 @@
+{
+  "P_updates": 0,
+  "RSI": false,
+  "approval_consumed": true,
+  "competence": {
+    "cases": 8,
+    "correct": 8,
+    "false_recall": 0,
+    "passed": true,
+    "truncated": 0
+  },
+  "correction": null,
+  "density_admitted": false,
+  "development": null,
+  "development_opened": false,
+  "fit": {
+    "all_controls_fit_generation_prefix_exact": true,
+    "contextual_first_token_correct": 2,
+    "contextual_terminated": 6,
+    "curve": [
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 0,
+          "exact_text": 8,
+          "shuffled": 0,
+          "wrong": 0,
+          "zero": 0
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "memory_dependence_passed": false,
+        "updates": 32
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 0,
+          "exact_text": 8,
+          "shuffled": 0,
+          "wrong": 0,
+          "zero": 0
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "memory_dependence_passed": false,
+        "updates": 64
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 0,
+          "exact_text": 8,
+          "shuffled": 0,
+          "wrong": 0,
+          "zero": 0
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "memory_dependence_passed": false,
+        "updates": 96
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 0,
+          "exact_text": 8,
+          "shuffled": 0,
+          "wrong": 0,
+          "zero": 0
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "memory_dependence_passed": false,
+        "updates": 128
+      }
+    ],
+    "fixed_final_prefix": 128,
+    "gradients_after_zero_init": {
+      "order": {
+        "finite": true,
+        "missing": [],
+        "norm": 0.6549981529632035
+      },
+      "producer": {
+        "finite": true,
+        "missing": [],
+        "norm": 18.642277590575766
+      },
+      "reader": {
+        "finite": true,
+        "missing": [],
+        "norm": 453.3108816304465
+      },
+      "sites": {
+        "3": {
+          "norm": 354.85311027218694,
+          "output_norm": 354.3753662109375
+        },
+        "7": {
+          "norm": 282.0815937538779,
+          "output_norm": 282.05023193359375
+        }
+      }
+    },
+    "live_durable_exact": true,
+    "loss_prefixes": [
+      {
+        "eos_loss": 0.0015812524361535907,
+        "loss": 3.5943515300750732,
+        "update": 1,
+        "word_loss": 7.187121868133545
+      },
+      {
+        "eos_loss": 8.360250473022461,
+        "loss": 12.30041790008545,
+        "update": 2,
+        "word_loss": 16.240585327148438
+      },
+      {
+        "eos_loss": 8.98682975769043,
+        "loss": 8.701095581054688,
+        "update": 8,
+        "word_loss": 8.415360450744629
+      },
+      {
+        "eos_loss": 0.09651121497154236,
+        "loss": 1.9941744804382324,
+        "update": 16,
+        "word_loss": 3.8918378353118896
+      },
+      {
+        "eos_loss": 1.1485155820846558,
+        "loss": 1.6711499691009521,
+        "update": 24,
+        "word_loss": 2.193784475326538
+      },
+      {
+        "eos_loss": 0.6959800124168396,
+        "loss": 2.506781578063965,
+        "update": 32,
+        "word_loss": 4.317583084106445
+      },
+      {
+        "eos_loss": 0.77684086561203,
+        "loss": 1.4323207139968872,
+        "update": 64,
+        "word_loss": 2.0878005027770996
+      },
+      {
+        "eos_loss": 0.738587498664856,
+        "loss": 1.5637059211730957,
+        "update": 96,
+        "word_loss": 2.388824462890625
+      },
+      {
+        "eos_loss": 0.7116384506225586,
+        "loss": 1.5573348999023438,
+        "update": 128,
+        "word_loss": 2.403031349182129
+      }
+    ],
+    "memory_dependence_passed": false,
+    "no_early_stop_or_best_prefix_selection": true,
+    "updates": 128
+  },
+  "format": "replica.intrinsic_memory.native_attempt_summary.v8",
+  "next_experiment": "One separately bound smaller-step control at learning rate 0.0001, unchanged data/schedule/gates; development remains unopened.",
+  "original_weights_unchanged": true,
+  "packet": {
+    "path": "reports/intrinsic_memory_supported_v8/native_packet_two_v8.json",
+    "sha256": "4c00ff73e15fd86ea57733f66bf65a75681d702dfe9ac0dd9d978c6baad56d17"
+  },
+  "promotion": false,
+  "resources": {
+    "artifact_bytes": 47584163,
+    "audit_serialized_write_bytes": 1705189653,
+    "minimum_host_free_percent": 70.0,
+    "outer_wall_seconds": 457.87475037481636,
+    "peak_driver_bytes": 11261542400,
+    "peak_rss_bytes": 8629993472,
+    "peak_swap_growth_bytes": 0,
+    "reserved_work": {
+      "artifact_bytes": 167772160,
+      "backwards": 129,
+      "forwards": 710,
+      "generated_tokens": 321,
+      "input_tokens": 181760,
+      "model_loads": 2,
+      "retrievals": 41,
+      "source_encodes": 236,
+      "updates": 129,
+      "writes": 83
+    },
+    "source_bytes_hashed_inside_attempt": 24716988741,
+    "stages": {
+      "admission": {
+        "elapsed_seconds": 4.129791500046849,
+        "reserved": {
+          "artifact_bytes": 33554432,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "baseline": {
+        "elapsed_seconds": 7.227507833857089,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 23,
+          "generated_tokens": 23,
+          "input_tokens": 5888,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "passed"
+      },
+      "checkpoint": {
+        "elapsed_seconds": 0.9318737909197807,
+        "reserved": {
+          "artifact_bytes": 134217728,
+          "backwards": 0,
+          "forwards": 1,
+          "generated_tokens": 0,
+          "input_tokens": 256,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "fit_032": {
+        "elapsed_seconds": 29.40385341597721,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_064": {
+        "elapsed_seconds": 32.472833457868546,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_096": {
+        "elapsed_seconds": 35.62450937507674,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_128": {
+        "elapsed_seconds": 38.608087124768645,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 32,
+          "forwards": 32,
+          "generated_tokens": 0,
+          "input_tokens": 8192,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "updates": 32,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_probes_032": {
+        "elapsed_seconds": 46.95280058356002,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 128,
+          "generated_tokens": 64,
+          "input_tokens": 32768,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_064": {
+        "elapsed_seconds": 52.946640958078206,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 128,
+          "generated_tokens": 64,
+          "input_tokens": 32768,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_096": {
+        "elapsed_seconds": 59.92286799987778,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 128,
+          "generated_tokens": 64,
+          "input_tokens": 32768,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_128": {
+        "elapsed_seconds": 91.45646041678265,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 170,
+          "generated_tokens": 106,
+          "input_tokens": 43520,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 24,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "failed_memory_dependence"
+      },
+      "load": {
+        "elapsed_seconds": 22.452199166174978,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 1,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "numerical": {
+        "elapsed_seconds": 0.6580369998700917,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 2,
+          "generated_tokens": 0,
+          "input_tokens": 512,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "passed"
+      },
+      "prepare": {
+        "elapsed_seconds": 0.27821287512779236,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "retrievals": 8,
+          "source_encodes": 8,
+          "updates": 0,
+          "writes": 16
+        },
+        "status": "completed"
+      },
+      "restart": {
+        "elapsed_seconds": 28.991193125024438,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 1,
+          "forwards": 2,
+          "generated_tokens": 0,
+          "input_tokens": 512,
+          "model_loads": 1,
+          "retrievals": 1,
+          "source_encodes": 2,
+          "updates": 1,
+          "writes": 1
+        },
+        "status": "completed"
+      }
+    }
+  },
+  "restart": {
+    "actual_continuation_updates": 1,
+    "fresh_logits_exact": true,
+    "original_weights_unchanged": true,
+    "uninterrupted_equivalence_measured": false
+  },
+  "result": {
+    "path": "reports/intrinsic_memory_supported_v8/native_bf16_two_v8_attempt01/result.json",
+    "sha256": "4189832bdd025d5199bc617034700569f1be873bf13593ca8721c0d09c9d8518"
+  },
+  "source_kind": "official_bf16",
+  "standing_testing_authorization_remains_applicable_to_new_bounded_packets": true,
+  "useful_recall": false
+}

@@ -1,0 +1,24 @@
+{
+  "arm": "full_attention_nine",
+  "attempts": 1,
+  "authorization_required": "reports/intrinsic_memory_step_v9/authorization_full_attention_nine_v9.json",
+  "authorization_status": "external_receipt_required",
+  "command": [
+    ".venv-spark-bf16/bin/python",
+    "scripts/run_spark_intrinsic_smaller_step_v9.py",
+    "--packet",
+    "reports/intrinsic_memory_step_v9/native_packet_full_attention_nine_v9.json",
+    "--authorization",
+    "reports/intrinsic_memory_step_v9/authorization_full_attention_nine_v9.json",
+    "--launch"
+  ],
+  "experiment_version": 9,
+  "format": "replica.intrinsic_memory.launch_packet.v9",
+  "native_engine_version": 7,
+  "output_root": "reports/intrinsic_memory_step_v9/native_bf16_full_attention_nine_v9_attempt01",
+  "protocol": {
+    "path": "configs/spark_intrinsic_smaller_step_v9.json",
+    "sha256": "88a17e16ed57e4b94e741ff7581e9650095c5a5e9a2f38ebae763e0ae8a89286"
+  },
+  "retries": 0
+}

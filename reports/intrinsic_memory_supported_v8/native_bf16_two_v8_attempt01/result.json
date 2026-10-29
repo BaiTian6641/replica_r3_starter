@@ -1,0 +1,322 @@
+{
+  "RSI": false,
+  "arm": "two",
+  "capacity": {
+    "baseline": {
+      "memory_free_percent": 89.0,
+      "swap_used_bytes": 3720809021
+    },
+    "driver_samples": 1708,
+    "host_samples": 210,
+    "minimum_observed_free_percent": 70.0,
+    "peak_driver_bytes": 11261542400,
+    "peak_swap_growth_bytes": 0,
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3,
+      "swap_growth_limit_bytes": 536870912
+    },
+    "stop_reason": null
+  },
+  "main": {
+    "arm": "two",
+    "competence_passed": true,
+    "final_original_parameters_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+    "fit_curve": [
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 0,
+          "exact_text": 8,
+          "shuffled": 0,
+          "wrong": 0,
+          "zero": 0
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "memory_dependence_passed": false,
+        "updates": 32
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 0,
+          "exact_text": 8,
+          "shuffled": 0,
+          "wrong": 0,
+          "zero": 0
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "memory_dependence_passed": false,
+        "updates": 64
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 0,
+          "exact_text": 8,
+          "shuffled": 0,
+          "wrong": 0,
+          "zero": 0
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "memory_dependence_passed": false,
+        "updates": 96
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 0,
+          "exact_text": 8,
+          "shuffled": 0,
+          "wrong": 0,
+          "zero": 0
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "memory_dependence_passed": false,
+        "updates": 128
+      }
+    ],
+    "fit_memory_dependence_passed": false,
+    "fit_updates": 128,
+    "format": "replica.intrinsic_memory.native_result.v7",
+    "original_weights_unchanged": true,
+    "path_costs": {
+      "admission_calls": 8,
+      "admitted_payload_bytes": 33392,
+      "authority_validation_ns": 28868071169,
+      "cold_completed_bytes": 131072,
+      "cold_completed_files": 32,
+      "cold_reserved_bytes": 131072,
+      "cold_reserved_files": 32,
+      "cold_wait_ns": 4278668,
+      "correction_calls": 0,
+      "durable_artifact_growth_bytes": 669736,
+      "durable_write_bytes": 358688,
+      "durable_write_ns": 84968504,
+      "fallback_bytes": 8128,
+      "fallback_calls": 104,
+      "fallback_tokens": 1872,
+      "producer_bytes": 18250,
+      "producer_calls": 234,
+      "producer_hash_cache_hits": 372,
+      "producer_hash_calls": 5,
+      "producer_hash_ns": 28966334,
+      "producer_wall_ns": 434799297,
+      "read_file_bytes": 184944,
+      "read_file_calls": 112,
+      "retrieval_calls": 40,
+      "retrieval_wall_ns": 11784168,
+      "revalidations": 2132,
+      "snapshot_bytes": 1031798784,
+      "snapshot_copies": 492,
+      "source_revalidations": 2132,
+      "ticket_descriptor_read_bytes": 117632,
+      "ticket_descriptor_read_calls": 32,
+      "value_slots_read": 1088
+    },
+    "persistent_P_updates": 0,
+    "promotion": false,
+    "restart_requested": true,
+    "source_kind": "official_bf16",
+    "status": "completed_frozen_fit_diagnostic",
+    "useful_recall_passed": false
+  },
+  "native_competence": true,
+  "packet_sha256": "4c00ff73e15fd86ea57733f66bf65a75681d702dfe9ac0dd9d978c6baad56d17",
+  "persistent_learning": false,
+  "promotion": false,
+  "protocol_sha256": "46b2566c01bf2680d01f51087d56442ee0c0f293caf95f3db37911c8e53d2c14",
+  "reservations": {
+    "artifact_bytes": 167772160,
+    "backwards": 129,
+    "forwards": 710,
+    "generated_tokens": 321,
+    "input_tokens": 181760,
+    "model_loads": 2,
+    "retrievals": 41,
+    "source_encodes": 236,
+    "updates": 129,
+    "writes": 83
+  },
+  "restart": {
+    "actual_continuation_updates": 1,
+    "continuation_model_pid": 77405,
+    "corpus_costs": {
+      "authority_read_bytes": 15400,
+      "authority_read_files": 8,
+      "publications": 0,
+      "read_bytes": 0,
+      "read_files": 0,
+      "source_read_bytes": 0,
+      "source_read_files": 0,
+      "write_bytes": 0,
+      "write_ns": 0
+    },
+    "fresh_process_logits_exact": true,
+    "optimizer_ownership": {
+      "order": [
+        "order.weight"
+      ],
+      "producer": [
+        "producer.slot_queries",
+        "producer.embedding.weight",
+        "producer.position.weight",
+        "producer.transformer.layers.0.self_attn.in_proj_weight",
+        "producer.transformer.layers.0.self_attn.in_proj_bias",
+        "producer.transformer.layers.0.self_attn.out_proj.weight",
+        "producer.transformer.layers.0.self_attn.out_proj.bias",
+        "producer.transformer.layers.0.linear1.weight",
+        "producer.transformer.layers.0.linear1.bias",
+        "producer.transformer.layers.0.linear2.weight",
+        "producer.transformer.layers.0.linear2.bias",
+        "producer.transformer.layers.0.norm1.weight",
+        "producer.transformer.layers.0.norm1.bias",
+        "producer.transformer.layers.0.norm2.weight",
+        "producer.transformer.layers.0.norm2.bias",
+        "producer.output.0.weight",
+        "producer.output.0.bias",
+        "producer.output.1.weight"
+      ],
+      "reader": [
+        "reader.ports.3.gate_logit",
+        "reader.ports.3.query_norm.weight",
+        "reader.ports.3.query_norm.bias",
+        "reader.ports.3.query_projection.weight",
+        "reader.ports.3.slot_norm.weight",
+        "reader.ports.3.slot_norm.bias",
+        "reader.ports.3.key_projection.weight",
+        "reader.ports.3.value_projection.weight",
+        "reader.ports.3.output_norm.weight",
+        "reader.ports.3.output_norm.bias",
+        "reader.ports.3.output_projection.weight",
+        "reader.ports.7.gate_logit",
+        "reader.ports.7.query_norm.weight",
+        "reader.ports.7.query_norm.bias",
+        "reader.ports.7.query_projection.weight",
+        "reader.ports.7.slot_norm.weight",
+        "reader.ports.7.slot_norm.bias",
+        "reader.ports.7.key_projection.weight",
+        "reader.ports.7.value_projection.weight",
+        "reader.ports.7.output_norm.weight",
+        "reader.ports.7.output_norm.bias",
+        "reader.ports.7.output_projection.weight"
+      ]
+    },
+    "original_weights_unchanged": true,
+    "parent_model_pid": 73456,
+    "path_costs": {
+      "admission_calls": 0,
+      "admitted_payload_bytes": 0,
+      "authority_validation_ns": 138177583,
+      "cold_completed_bytes": 4096,
+      "cold_completed_files": 1,
+      "cold_reserved_bytes": 4096,
+      "cold_reserved_files": 1,
+      "cold_wait_ns": 135084,
+      "correction_calls": 0,
+      "durable_artifact_growth_bytes": 0,
+      "durable_write_bytes": 11206,
+      "durable_write_ns": 1644459,
+      "fallback_bytes": 0,
+      "fallback_calls": 0,
+      "fallback_tokens": 0,
+      "producer_bytes": 154,
+      "producer_calls": 2,
+      "producer_hash_cache_hits": 4,
+      "producer_hash_calls": 1,
+      "producer_hash_ns": 7259667,
+      "producer_wall_ns": 57088292,
+      "read_file_bytes": 4608,
+      "read_file_calls": 2,
+      "retrieval_calls": 1,
+      "retrieval_wall_ns": 0,
+      "revalidations": 9,
+      "snapshot_bytes": 4194304,
+      "snapshot_copies": 2,
+      "source_revalidations": 9,
+      "ticket_descriptor_read_bytes": 3675,
+      "ticket_descriptor_read_calls": 1,
+      "value_slots_read": 8
+    },
+    "persistent_P_updates": 0,
+    "uninterrupted_update_equivalence_measured": false,
+    "update": {
+      "changed_tensors": [
+        "producer.slot_queries",
+        "producer.embedding.weight",
+        "producer.position.weight",
+        "producer.transformer.layers.0.self_attn.in_proj_weight",
+        "producer.transformer.layers.0.self_attn.in_proj_bias",
+        "producer.transformer.layers.0.self_attn.out_proj.weight",
+        "producer.transformer.layers.0.self_attn.out_proj.bias",
+        "producer.transformer.layers.0.linear1.weight",
+        "producer.transformer.layers.0.linear1.bias",
+        "producer.transformer.layers.0.linear2.weight",
+        "producer.transformer.layers.0.linear2.bias",
+        "producer.transformer.layers.0.norm1.weight",
+        "producer.transformer.layers.0.norm1.bias",
+        "producer.transformer.layers.0.norm2.weight",
+        "producer.transformer.layers.0.norm2.bias",
+        "producer.output.0.weight",
+        "producer.output.0.bias",
+        "producer.output.1.weight",
+        "order.weight",
+        "reader.ports.3.gate_logit",
+        "reader.ports.3.query_norm.weight",
+        "reader.ports.3.query_norm.bias",
+        "reader.ports.3.query_projection.weight",
+        "reader.ports.3.slot_norm.weight",
+        "reader.ports.3.slot_norm.bias",
+        "reader.ports.3.key_projection.weight",
+        "reader.ports.3.value_projection.weight",
+        "reader.ports.3.output_norm.weight",
+        "reader.ports.3.output_norm.bias",
+        "reader.ports.3.output_projection.weight",
+        "reader.ports.7.gate_logit",
+        "reader.ports.7.query_norm.weight",
+        "reader.ports.7.query_norm.bias",
+        "reader.ports.7.query_projection.weight",
+        "reader.ports.7.slot_norm.weight",
+        "reader.ports.7.slot_norm.bias",
+        "reader.ports.7.key_projection.weight",
+        "reader.ports.7.value_projection.weight",
+        "reader.ports.7.output_norm.weight",
+        "reader.ports.7.output_norm.bias",
+        "reader.ports.7.output_projection.weight"
+      ],
+      "eos_loss": 1.5419347286224365,
+      "gradients": {
+        "order": {
+          "finite": true,
+          "missing": [],
+          "norm": 0.1354122405673774
+        },
+        "producer": {
+          "finite": true,
+          "missing": [],
+          "norm": 3.3490009617752077
+        },
+        "reader": {
+          "finite": true,
+          "missing": [],
+          "norm": 6.427330242422669
+        },
+        "sites": {
+          "3": {
+            "norm": 5.60965899043114,
+            "output_norm": 5.363986968994141
+          },
+          "7": {
+            "norm": 3.1372440224241607,
+            "output_norm": 3.0533335208892822
+          }
+        }
+      },
+      "loss": 1.0585800409317017,
+      "word_loss": 0.5752253532409668
+    }
+  },
+  "source_kind": "official_bf16",
+  "useful_recall": false
+}
