@@ -418,6 +418,90 @@
       },
       "bundle": "Bundle verified: 152 inputs, 6189741 bytes, digest 521ac231729c90ed7a9ce32b1de1b14449b1f6e94240dae122f0248dec424b21"
     },
-    "final_clean": "pending_documentation_commit"
-  }
+    "final_clean": {
+      "snapshot": "21e08649",
+      "v51": {
+        "scope": "documentation, reference, arithmetic and migration checks only; no model, training, native execution or measured fit",
+        "checks": 1181,
+        "passed": 1181,
+        "failed": 0,
+        "migration_identity": "sparkx-2.6-v5.1-review-migration-20261027",
+        "native_gates_unresolved": 10
+      },
+      "final_product": {
+        "status": "passed",
+        "checks_count": 516,
+        "passed": 516,
+        "failed": [],
+        "unavailable_source_cache": 0,
+        "reviewed_input_changes_applied": 9,
+        "unexplained_input_drift": [],
+        "blueprint_words": 15765
+      },
+      "artifacts": {
+        "status": "passed",
+        "scope": "tracked",
+        "max_blob_bytes": 52428800,
+        "checked_files": 11839,
+        "largest_checked_blob_bytes": 8860309,
+        "violations": [],
+        "working_files_changed": false
+      },
+      "bundle": "Bundle verified: 152 inputs, 6189741 bytes, digest 521ac231729c90ed7a9ce32b1de1b14449b1f6e94240dae122f0248dec424b21",
+      "density": {
+        "status": "review_packet_consistent_native_not_admitted",
+        "bound_inputs_checked": 27,
+        "arm_count": 3,
+        "per_arm_budgets": {
+          "competence_cases": 8,
+          "training_updates": 32,
+          "continuation_updates": 1,
+          "primary_development_responses": 40,
+          "chronology_responses": 32,
+          "generation_requests_max": 80,
+          "generated_tokens_max": 2560,
+          "forward_calls_max": 2595,
+          "backward_calls_max": 33,
+          "optimizer_steps_max": 33,
+          "processed_text_positions_max": 5354240,
+          "backward_processed_positions_max": 67584,
+          "generation_sequence_tokens_max": 2079,
+          "model_loads_max": 2,
+          "tokenizer_loads_max": 2,
+          "P_updates": 0,
+          "native_retries": 0,
+          "wall_seconds_max": 7200,
+          "artifact_bytes_max": 1073741824
+        },
+        "comparison_budget_sum": {
+          "generation_requests_max": 240,
+          "generated_tokens_max": 7680,
+          "forward_calls_max": 7785,
+          "backward_calls_max": 99,
+          "optimizer_steps_max": 99,
+          "processed_text_positions_max": 16062720,
+          "backward_processed_positions_max": 202752,
+          "model_loads_max": 6,
+          "tokenizer_loads_max": 6,
+          "wall_seconds_max": 21600,
+          "artifact_bytes_max": 3221225472
+        },
+        "native_execution": false,
+        "source_weights_read": false,
+        "model_imported": false,
+        "authorization_accepted": false,
+        "launch_allowed": false,
+        "remaining_gates": [
+          "useful_sealed_v3_readout",
+          "clean_CPU_integration_regressions_and_final_binding_verification",
+          "implement_separate_native_runner_and_full_execution_closure",
+          "source_environment_code_prepared_data_and_loaded_base_device_admission_each_arm",
+          "fresh_exact_per_arm_human_authorization",
+          "per_arm_numerical_resource_competence_checks"
+        ]
+      },
+      "native_checkpoints_present": false
+    }
+  },
+  "approval_question_note": "The initial attempt03 question quoted a stale checksum and was explicitly superseded. Only approval to the replacement verified packet SHA-256 3f70b564ef6c743760b15a578fbeae7248997f5dacaa3e353190d26544c612e7 may authorize attempt03. No receipt has been issued."
 }
