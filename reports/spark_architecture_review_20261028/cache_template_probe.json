@@ -1,0 +1,49 @@
+{
+  "scope": "CPU cache/template behavior only; no model weights or native execution",
+  "torch": "2.14.1",
+  "transformers": "4.57.1",
+  "prefill": {
+    "retained_visible_tokens": 511,
+    "returned_attention_tokens": 2048,
+    "visible_key_bytes": 1022,
+    "key_backing_storage_bytes": 4096,
+    "cumulative_tokens": 2048
+  },
+  "after_one_decode_update": {
+    "retained_visible_tokens": 511,
+    "returned_attention_tokens": 512,
+    "visible_key_bytes": 1022,
+    "key_backing_storage_bytes": 1024,
+    "cumulative_tokens": 2049
+  },
+  "template_modes": {
+    "default": {
+      "opens_think": true,
+      "closes_think": false,
+      "high_instruction": true,
+      "low_instruction": false
+    },
+    "none": {
+      "opens_think": false,
+      "closes_think": true,
+      "high_instruction": false,
+      "low_instruction": false
+    },
+    "low": {
+      "opens_think": true,
+      "closes_think": false,
+      "high_instruction": false,
+      "low_instruction": true
+    },
+    "high": {
+      "opens_think": true,
+      "closes_think": false,
+      "high_instruction": true,
+      "low_instruction": false
+    }
+  },
+  "invalid_reasoning_effort_none": {
+    "rejected": true,
+    "exception_type": "TemplateError"
+  }
+}

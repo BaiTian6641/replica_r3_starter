@@ -1,0 +1,67 @@
+{
+  "review_date_local": "2026-10-28",
+  "timezone": "America/Chicago",
+  "method": "Web search and direct primary-source reading; papers inform mechanisms and are not evidence of Spark product qualification.",
+  "sources": [
+    {
+      "title": "GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints",
+      "url": "https://arxiv.org/abs/2305.13245",
+      "version_read": "v3",
+      "supports": "Meaning of grouped-query attention and the KV-head storage tradeoff.",
+      "limit": "Does not evaluate Spark or prove its exact quality/speed tradeoff."
+    },
+    {
+      "title": "Gated Attention for Large Language Models: Non-linearity, Sparsity, and Attention-Sink-Free",
+      "url": "https://arxiv.org/abs/2505.06708",
+      "supports": "Architectural comparison to a head-specific sigmoid gate after attention.",
+      "limit": "No assertion that Spark derives from this paper or that the gate accounts for X2.6 gains."
+    },
+    {
+      "title": "MOPD: Multi-Teacher On-Policy Distillation for Capability Integration in LLM Post-Training",
+      "url": "https://arxiv.org/html/2606.30406v1",
+      "version_read": "v1",
+      "supports": "Method background for distilling domain-specialized teachers on student rollouts.",
+      "limit": "Inspected text names Qwen3-30B-A3B and MiMo-V2-Flash, not Spark; no Spark match in text search."
+    },
+    {
+      "title": "MemT-1.0: Towards Memory-Native Evolution",
+      "url": "https://arxiv.org/html/2610.26825v2",
+      "version_read": "v2",
+      "supports": "A trained native-memory architecture with Gated DeltaNet-2, Mixture-of-Storage, and backbone preparation.",
+      "limit": "Does not validate the project's Spark plastic-expert retrofit; no Spark match in inspected text."
+    },
+    {
+      "title": "Nested Learning: The Illusion of Deep Learning Architectures",
+      "url": "https://arxiv.org/abs/2512.24695",
+      "version_read": "v1",
+      "supports": "Learning levels as optimization problems with distinct context flows; HOPE as a concrete mechanism.",
+      "limit": "Multiple stores or clocks alone do not reproduce HOPE or demonstrate continual-learning gains."
+    },
+    {
+      "title": "Conditional Memory via Scalable Lookup: A New Axis of Sparsity for Large Language Models",
+      "url": "https://arxiv.org/abs/2601.07372",
+      "version_read": "v2",
+      "supports": "Engram conditional n-gram lookup as a separate memory/computation design.",
+      "limit": "Does not establish writable episodic learning, revocation or provenance contracts for Spark."
+    },
+    {
+      "title": "Transformers KV cache strategies",
+      "url": "https://huggingface.co/docs/transformers/v4.57.1/kv_cache",
+      "version_read": "4.57.1",
+      "supports": "Framework cache classes and logical sliding-cache behavior.",
+      "limit": "Physical slice-backing allocation is established by the separate local CPU probe."
+    }
+  ],
+  "search_scope": {
+    "queries_included": [
+      "Spark X2.6 4B architecture",
+      "Spark-X2.6 technical report architecture MOPD",
+      "Spark-X2.5 MOPD arxiv",
+      "Spark-X2.6 technical report site:arxiv.org",
+      "Spark-X2.6 technical report site:xhtoken.ai",
+      "Spark2_5 sliding_window position_ids"
+    ],
+    "standalone_spark_x26_paper_found": false,
+    "interpretation": "No standalone technical report was located in this search. This is not proof of nonexistence or access to unpublished material."
+  }
+}
