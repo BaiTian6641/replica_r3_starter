@@ -72,20 +72,26 @@ does not remove internal selection I/O.
 Eleven arms separate untouched full context, exact/procedure reference,
 pre-reader and frozen-trained-reader E access, source-free P, E+P, reset/no-update,
 shuffled, inapplicable and replay-without-update conditions. Reader and P state
-are restored per arm; shuffling preserves correction links. `integrated06`
-matches the final protocol hash and passes engineering acceptance over 132
-cases. Every baseline contains all 11 eligible records without truncation;
-every arm remains 0/12, so useful learned readout is not established.
+are restored per arm; shuffling preserves correction links. `integrated09`
+matches protocol `91c45fbf75fed46ad383a1c385b77775b1f69e6f16f8aca0079e1eefe6183ec5`
+and passes engineering acceptance over 132 cases. Every baseline contains all
+11 eligible records without truncation; every arm remains 0/12, so useful
+learned readout is not established. Two additional fresh-process restart cycles
+preserve exact token parity and P state under `integrated08/restart/`.
 
-The independent pressure probe `readout_pressure04.json` observes two cache hits,
+The independent pressure probe `readout_pressure05.json` observes two cache hits,
 one eviction, a real cold wait, five rejected cold payload reads/4,114 bytes and
 a successful corrected cold read with current provenance. Conservative ceilings
 are 296 selection attempts, 66,304 total file reads, 23,680 payload/cold reads,
 2,368 cold tickets/resumes and 7,104 revalidations; they are not measurements.
 
-Implementation commit: `11210d99f7391423a22d0a0dae7be78fc87e66c9`. Protocol
-SHA-256: `49cea2ad9d24bd504f88a86595043abc016d4b5fadc5fb60a94d8bb1cf93c4bd`.
-Native official-FP8 execution remains blocked before model launch; see the
+Implementation commit: `83c7214bcf12877e4c7b9d0c367825905a16cf55`; final
+evidence/lineage commit: `7f0ac21f`. Native official-FP8 execution remains
+blocked by exact backend evidence and external authorization. The separate
+[derived-BF16 packet](../../reports/spark_persistent_learner_v2/derivative_bf16_packet.json)
+is prepared, with only external derivative authorization missing from preflight;
+its experiment-scope parity, gradient, update, frozen-base, reload and matched
+site checks remain required after authorization. See the
 [backend plan](../../reports/spark_persistent_learner_v2/native_backend_plan.md).
 
 ## 2. State ownership and the permanent spine
@@ -379,6 +385,9 @@ Order the work as follows:
    parallel with readout engineering. These do not need to wait for a learning
    result. Test pressure, crash/rebuild, revocation and identity preservation on CPU.
 3. Qualify contextual values, exact fallback and the P1 response-CE reference.
+   The [contextual producer/consumer protocol](../../configs/contextual_value_producer_protocol_v1.json)
+   is design-only and untrained: it requires distinct write/future queries,
+   source-free isolation, chronological retention cycles and measured transfer.
    Preserve the pretrained baseline and compare early/late readers.
 4. Only after useful readout, evaluate the exact one-step learned local writer
    with distinct future training queries. Keep a direct-CE reference.
@@ -411,16 +420,22 @@ flowchart LR
   G --> H[Eleven controls and raw outcomes]
   H --> I[Fresh-process P-only restart]
   J[Exact native FP8 backend evidence] -. missing .-> C
+  L[External derivative authorization] -. missing .-> M[Derived BF16 P1 pilot]
 ```
 
 The flow is implemented and exercised on CPU. The tiered store is used by the
 runner, not merely tested in isolation. Direct CE, port ownership, correction
 reset, durable task state and restart are engineering-complete; the learned
-writer remains a separate offline study. See the [v2 implementation and evidence
+writer remains a separate offline study and the contextual producer/consumer is
+design-only and untrained. The full suite passes 3,424 tests with 9 skips and
+21 subtests; 69 final derivative/lineage tests and both bundle profiles pass.
+See the [v2 implementation and evidence
 runbook](../../reports/spark_persistent_learner_v2/README.md) for exact commands,
 measured costs, raw failures and artifact receipts.
 
-Implemented is not native-qualified or learned. The current native blockers are
-exact FP8 forward/backward/single-update evidence and external authorization.
-Current generated-answer quality is inconclusive; no calibration, promotion or
-multi-clock/RSI transition follows from the CPU result.
+Implemented is not native-qualified or learned. Official-FP8 blockers are exact
+forward/backward/single-update evidence and external authorization. The
+derived-BF16 pilot additionally requires its own external authorization before
+the guarded experiment-scope checks. Current generated-answer quality is
+inconclusive; no calibration, promotion or multi-clock/RSI transition follows
+from the CPU result.
