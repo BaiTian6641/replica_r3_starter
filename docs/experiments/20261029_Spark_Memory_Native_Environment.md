@@ -1,6 +1,10 @@
 # Spark memory S0–S1: first native attempt and environment repair
 
-**29 October 2026 · both authorized attempts stopped before a complete competence result.**
+**29 October 2026 · historical attempt01/02 environment and placement failures.**
+
+Current outcome: the separately authorized [attempt03](20261029_Spark_Memory_Native_Readout03.md)
+completed with S0 8/8 and failed S1 useful recall. All three single-attempt receipts
+are consumed. The earlier failures below do not measure Spark capability.
 
 The corrected environment packet below was subsequently explicitly authorized.
 [Attempt02](../../reports/intrinsic_memory_v3/native_readout02/result.json) passed
@@ -10,7 +14,8 @@ were MPS. No answer or update completed. It used 9.712113 s, a 1,082,540,032-byt
 sampled driver peak, 700,645,376-byte RSS peak and zero swap growth. The guard did
 not trip. Both zero-retry receipts are consumed. See the
 [current integration report](20261029_Spark_Memory_Integrated_Access.md) for the
-separately versioned placement repair and remaining approval boundary.
+separately versioned placement repair. Its later authorization and completed result
+are recorded in the attempt03 report above.
 
 The account below preserves the original environment diagnosis and packet history.
 

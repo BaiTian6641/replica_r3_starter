@@ -36,11 +36,11 @@ XHToken/Spark-X2.6-4B-FP8 at revision
 `0318d6f6ab070c7b5b43052db571489b2508006c`. Official FP8, this derivative and
 official BF16 are distinct. The official FP8 MPS blockage remains unresolved.
 
-Freeze the [derivative execution protocol](../../configs/spark_persistent_learner_derivative_bf16_protocol_v1.json),
+Freeze the [derivative execution protocol](../../configs/spark_persistent_learner_derivative_bf16_placement_protocol_v2.json),
 [execution manifest](../../configs/spark_derivative_execution_manifest_v1.json),
 [competence protocol](../../configs/spark_competence_protocol_v1.json) and
 [intrinsic readout protocol](../../configs/intrinsic_memory_readout_protocol_v3.json).
-The [review packet](../../reports/intrinsic_memory_v3/native_experiment_s0_s1.json) binds
+The [review packet](../../reports/intrinsic_memory_v3/native_experiment_s0_s1_placement_v3.json) binds
 their exact hashes, source artifact, tokenizer lineage, implementation files,
 backend, prepared data, output directory and external authorization fields.
 Configuration/model code and local executable dependencies must exist and match
@@ -65,8 +65,10 @@ successful gate test, not evidence that pretrained Spark fails competence.
 
 The hypothesis is that the small contextual producer/reader learns a useful
 readout from admitted text with the original model frozen. Four ordered width-256
-slots represent each bounded canonical span; select two spans/eight slots, with
-intrinsic readers at decoder sites 3/7. The external spine is unnecessary.
+slots represent each bounded canonical span; capacity is at most two selected
+records/eight slots, with intrinsic readers at decoder sites 3/7. The realized
+fit/development worlds each use one record, one span and four slots; no padding
+slots are added. The external spine is unnecessary.
 Sites 23/31, other widths, extra ports and larger banks are separate experiments.
 These dimensions and placements are **project hypotheses**, not measured optima.
 
@@ -79,8 +81,11 @@ intermediate count. Its native qualification, budgets and authorization are sepa
 Pass S0 before 32 fixed training updates on the eight fitting worlds. One
 NativeFusedAdamW owns producer and reader parameters; all originals and other
 extensions remain frozen. Response CE reaches the producer through tensors in
-the same update. Frozen original query features, durable serialization and
-inference decisions are declared detach boundaries. This is one encoding and
+the same update. Durable serialization and inference values detach. The sealed
+implementation does not explicitly detach reader queries: site 3 starts from a
+frozen graph, while site 7 can receive the earlier memory residual through later
+frozen blocks. The historical protocol phrase "frozen_original_query_features"
+must not be read as an explicit detach at every reader. This is one encoding and
 response objective per update, not future-query credit through an earlier write
 or a nested-learning result. Check the expected delayed producer gradients after
 zero-initialized output projections begin learning.
@@ -131,9 +136,13 @@ the existing qualified 4.57.1 environment before model imports and keeps every
 criterion and budget above. That corrected attempt was authorized and executed:
 the model loaded, then the first calibration forward failed due to CPU backbone
 versus MPS inputs. No answer or update completed. Both attempts and receipts are
-preserved and consumed. The separately versioned placement successor is a new
-execution identity requiring its own approval; the sealed v3 learning criteria and
-checkpoint identity remain unchanged. See the [integration report](20261029_Spark_Memory_Integrated_Access.md).
+preserved and consumed. The separately authorized placement-corrected attempt03
+completed: S0 passed 8/8; S1 failed useful recall after the fixed 32 updates. Exact
+fresh-process logits and an actual continuation update passed. Its receipt is now
+also consumed. See the [native outcome](20261029_Spark_Memory_Native_Readout03.md)
+for all arm scores, resources, objective and measurement limits. The sealed v3
+learning criteria and checkpoint identity remain unchanged; no P learning or
+promotion follows. This page preserves the completed protocol, not a reusable launch.
 
 ## Conditional successors, not additional active runs
 

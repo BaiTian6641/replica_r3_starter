@@ -1,0 +1,139 @@
+{
+  "format": "replica.intrinsic_memory.native_readout03.independent_audit.v1",
+  "completed_at_utc": "2026-10-29T20:24:18.632764+00:00",
+  "status": "recorded_evidence_consistent_S0_pass_S1_fail",
+  "scope": "stdlib_rescore_binding_and_raw_resource_reconciliation_no_model_import_weight_load_or_native_execution",
+  "approved_packet_sha256": "3f70b564ef6c743760b15a578fbeae7248997f5dacaa3e353190d26544c612e7",
+  "source_protocol_sha256": "896099e67f0665bbe62deb480e7e004899e0910f51d48c6cc3762cecda10d395",
+  "implementation_files_verified": 55,
+  "archive_files_verified": 13,
+  "evidence_sha256": {
+    "run_report.json": "3d9616b4e6893112a743e2555edfc7c561c2ef09f714ed095966437e1759d822",
+    "competence/receipt.json": "ea585c0b6068b6c4774918b61156e32f9369b62245c8d008233e2e4d43c05465",
+    "contextual_readout/fit.json": "a5ab1e6cec8420bea7760145b5991b7b292d354f76ed89fbfdb263af7062a193",
+    "contextual_readout/development.json": "992f7689052162f67d1068154bc8d649d4934d74391cbeed87b133db7c64b254",
+    "contextual_readout/report.json": "2b6428666c9957d4252833a482ea8f515f1b1db81a3d8ebf8ad62cb681ce4999",
+    "contextual_readout/restart.json": "55e427de16438ee63615e8401b0f6d2cb8cb19c54c27a0fb895fe4ddb0dd372d",
+    "contextual_readout/reload_canary.json": "c62ed9c71fb58e0bbd62aa59b036b76eabc0be024a24b24249a9bb5568dd4eb6",
+    "contextual_readout/extension/manifest.json": "8d34941a8b8fb70be4e942852d6aecaa0941faf068cc2c2c86467f506226b2b9",
+    "base_device_placement.json": "1b06746cb192ec57a4c5acfb7dc009a3f531c647ae724419e7a819cf57ae4ccb",
+    "restart_device_placement.json": "59a252750761ffb02aa66aef6f668c0c24afc4fa3aad340b56286ecd6f709f7b",
+    "contextual_readout/parent_profile_summary.json": "f7934767fd76507e156772f8de581bcc2c753edb2355698305b5be6d59690190",
+    "profile_summary.json": "703f848e3d09cecc17231ffdd047118ab7f29353c280c59ea0b674dc7cfb5073",
+    "profile_samples.jsonl": "dd26954cca332a7204dd76896491aede20400236939d8a1588d51de06de5c110"
+  },
+  "S0": {
+    "cases": 8,
+    "correct": 8,
+    "false_recall": 0,
+    "generated_tokens": 20,
+    "processed_positions": 1472,
+    "passed": true
+  },
+  "fit": {
+    "updates": 32,
+    "first_loss": 8.515210151672363,
+    "last_loss": 1.6801154613494873,
+    "finite": true,
+    "first_producer_gradient": 0,
+    "later_nonzero_producer_updates": 31,
+    "nonzero_reader_updates": 32
+  },
+  "development": {
+    "contextual": {
+      "correct": 0,
+      "false_recall": 1,
+      "cases": 8,
+      "generated_tokens": 256,
+      "processed_positions": 528256,
+      "latency_seconds": 638.7736332495697
+    },
+    "selected_exact": {
+      "correct": 8,
+      "false_recall": 0,
+      "cases": 8,
+      "generated_tokens": 20,
+      "processed_positions": 40976,
+      "latency_seconds": 48.50582991586998
+    },
+    "wrong": {
+      "correct": 0,
+      "false_recall": 1,
+      "cases": 8,
+      "generated_tokens": 256,
+      "processed_positions": 528256,
+      "latency_seconds": 633.9672170025297
+    },
+    "shuffled": {
+      "correct": 0,
+      "false_recall": 1,
+      "cases": 8,
+      "generated_tokens": 256,
+      "processed_positions": 528256,
+      "latency_seconds": 634.2420298331417
+    },
+    "absent": {
+      "correct": 1,
+      "false_recall": 0,
+      "cases": 8,
+      "generated_tokens": 16,
+      "processed_positions": 32776,
+      "latency_seconds": 38.66292720893398
+    }
+  },
+  "useful_readout": false,
+  "restart": {
+    "recorded_exact_logits": true,
+    "recorded_base_stamp_unchanged": true,
+    "actual_update_receipt_finite": true,
+    "producer_changed": true,
+    "loss": 2.6213226318359375,
+    "independently_reexecuted": false
+  },
+  "recomputed_work": {
+    "model_loads": 2,
+    "tokenizer_loads": 2,
+    "forward_calls": 859,
+    "backward_calls": 33,
+    "optimizer_steps": 33,
+    "generated_tokens": 824,
+    "generation_requests": 48,
+    "processed_text_positions": 1731672,
+    "readout_steps": 33,
+    "readout_cases": 40,
+    "competence_cases": 8,
+    "selected_P_optimizer_steps": 0,
+    "native_retries": 0
+  },
+  "within_authorized_packet_observed_limits": true,
+  "resources_from_raw_samples": {
+    "peak_driver_bytes": 39990558720,
+    "peak_mps_allocated_bytes": 32739055104,
+    "peak_process_lifetime_rss_bytes": 8767913984,
+    "peak_swap_growth_bytes": 0,
+    "minimum_host_free_percent": 31.0,
+    "driver_samples": 8571,
+    "host_samples": 1088,
+    "guard_wall_seconds": 2246.0876162080094,
+    "runner_wall_seconds": 2236.954109000042,
+    "native_output_bytes_after_completion": 48141905
+  },
+  "budget_enforcement_scope": {
+    "packet_active_stage_bounds_consumed_by_launcher_or_WorkLedger": false,
+    "numeric_readout_steps_cap": 33,
+    "numeric_readout_cases_cap": 40,
+    "other_WorkLedger_caps": "broader_entire_protocol_ceilings",
+    "bound_control_flow": "32_fit_steps_one_restart_update_8_calibration_40_development_responses_max32_tokens_per_response",
+    "observed_overrun": false,
+    "future_requirement": "derive_active_stage_caps_and_pre_reserve_work_before_execution"
+  },
+  "caveats": [
+    "Base contents were hashed around device placement; later integrity uses frozen ownership and mutation stamps, not a new full post-training bytewise hash.",
+    "Memory cost excludes separate durable-write cost and restart producer costs; dispatch time is not synchronized kernel time.",
+    "MPS/RSS overlap, samples can miss transients, host-free and swap are system-wide; concurrent CPU diagnostics mean performance was not isolated.",
+    "Current dataset realizes one record/span and four slots per world; chronology in text is not actual native correction/revocation mutation.",
+    "No useful recall, persistent P learning, retention, density benefit, reasoning cost reduction, promotion or RSI established.",
+    "Original overall deadline gap was mitigated by external PID/start-identity watcher; future bound process-group supervisor remains separate.",
+    "EOS target omission is a concrete objective gap, not proof of failure cause. Random CPU padding probe found small BF16 numeric differences, no argmax change and no demonstrated mask defect."
+  ]
+}

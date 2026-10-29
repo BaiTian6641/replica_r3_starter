@@ -7,7 +7,7 @@ Read [the intrinsic memory v3 runbook](reports/intrinsic_memory_v3/README.md),
 Implementation `f471f54a34e99f8143164e00b3247827c6ba1f1c` restores the original
 ownership boundary: intrinsic memory owns recall/learning inside Spark; the spine
 owns external specialist/sensor/actor communication. Memory-layer work is primary.
-The active experiment is [Spark memory S0–S1](docs/experiments/20261029_Spark_Memory_S0_S1.md),
+The completed fixed control is [Spark memory S0–S1](docs/experiments/20261029_Spark_Memory_S0_S1.md),
 with status in the [dated evidence ledger](reports/intrinsic_memory_v3/evidence_ledger_20261029.json).
 S2 formation, S3 persistent learning, S4 functional control, S5 nested adaptation
 and S6 learner improvement are separate evidence-gated successors. MiniCPM and
@@ -35,26 +35,42 @@ labels closed; this does not measure pretrained Spark competence.
 Clean f2c772a3 passes 3,371 tests, 104 explicit skips and 21 subtests; the
 independent v4 suite passes 26. See the runbooks for exact clean scope, resource
 measurements and preserved failed attempts.
-The new combined wrapper is committed at `30524be4`. Clean checkout `a4461059`
-passes 268 affected tests; the integrated 2/9/36 CPU workflow passes fresh-process
+The combined wrapper is committed at `30524be4`. Recorded clean checkout `a4461059`
+passed 268 affected tests; the recorded integrated 2/9/36 CPU workflow passed fresh-process
 logits and actual optimizer continuation in 13.329595 s with 104,937,953 artifact
-bytes. These are engineering checks, not native recall evidence. The separately
-versioned placement repair is bound at `260dc15e`; full source preflight passes
-and only a new exact external authorization remains missing.
+bytes. These earlier checks were not rerun during attempt03 and are engineering
+evidence, not native recall evidence. The separately
+versioned placement repair is bound at `260dc15e` and was explicitly authorized
+for attempt03. Future-only wall supervision and EOS-completion objective repairs
+are committed at `d9ef13ad` and `c014dea2`; their clean CPU suite passes 67 in
+5.36 s. Neither change is used by attempt03 or authorizes another native run.
 
-The first authorized S0–S1 attempt stopped during model construction before
-competence: the packet selected Transformers 5.20.2 instead of the qualified
-4.57.1 environment. The [native environment repair](docs/experiments/20261029_Spark_Memory_Native_Environment.md)
-records the failure, 21 CPU environment tests and a successful tiny source-code
-CPU probe. The corrected packet was explicitly authorized and executed. It loaded the model,
-then failed on the first calibration forward because the backbone remained on CPU
-while inputs and extensions were on MPS. No answer or update completed. Both
-single-attempt receipts are consumed; the separately versioned placement repair
-requires its own packet and approval. Preserve both failed trajectories.
-Next qualify intrinsic recall at 3/7 with separate calibration, matched exact/
-wrong/shuffled/absent controls and fresh continuation. Official FP8 remains
-blocked on MPS; native competence and learned capability are unmeasured. Treat
-23/31 separately. The fixed question-slot P path is a control, not reasoning-state recall.
+The [attempt03 report](docs/experiments/20261029_Spark_Memory_Native_Readout03.md)
+and [result receipt](reports/intrinsic_memory_v3/native_readout03/result.json)
+record the first completed native competence stage on the existing FP8-derived
+BF16 artifact: S0 passes 8/8 with zero false recall and no evidence truncation.
+Exactly 32 planned producer/readout updates completed at sites 3/7. S1 fails:
+contextual, exact text, wrong, shuffled and absent values score 0/8, 8/8, 0/8,
+0/8 and 1/8, with respective false-recall counts 1, 0, 1, 1 and 0. The
+fresh process reproduced exact logits and completed one actual continuation update;
+declared frozen-base integrity checks pass. There were 33 total updates and zero P
+updates. This is numerical continuation, not useful memory or native parity of the
+continued weights against an uninterrupted update. Keep formation,
+persistent P learning, capacity expansion and promotion closed.
+Guard wall time was 2,246.088 s, peak sampled driver memory 37.244 GiB, swap
+growth zero and minimum host free 31%; native output was 48,141,905 bytes. The
+report states the sampled-resource, frozen-base-check and cost-accounting limits.
+
+Attempts01 and02 were execution failures before any calibration answer: the
+wrong Transformers environment, then CPU/MPS backbone placement. Preserve both
+trajectories; neither is a failed Spark capability test. All three single-attempt
+authorizations are consumed. Official FP8 remains blocked on MPS; this run is
+neither official FP8 execution nor official BF16. The next native experiment
+requires a separately bound packet, runner/checkpoint identity and exact approval.
+Review the failed readout controls before selecting a repair; omission of EOS in
+the historical answer-word objective is a diagnosis candidate, not an established
+sole cause. Preserve the fixed protocol and its observed results. Treat 23/31
+separately. The fixed question-slot P path is a control, not reasoning-state recall.
 After useful readout, test completed-interaction storage for the next turn, then
 a separate exactly-once within-reasoning schedule. Follow with hidden-state P
 and longitudinal learning/retention/correction.

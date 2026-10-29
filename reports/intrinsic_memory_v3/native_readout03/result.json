@@ -1,0 +1,651 @@
+{
+  "format": "replica.spark_intrinsic.native_attempt_result.v1",
+  "date": "2026-10-29",
+  "attempt_id": "intrinsic_memory_v3_native_readout03",
+  "authorized": true,
+  "authorization_id": "human-spark-placement-s0-s1-20261029-68241b4b-7eef-4aa4-96c5-b6af7e6525b9",
+  "authorization_receipt": {
+    "path": "reports/intrinsic_memory_v3/native_readout03_authorization.json",
+    "sha256": "e1a15f638f4a9b7269556f2836141769690eb079707f65276ea3c957a087c120",
+    "bytes": 9860
+  },
+  "authorized_packet": {
+    "path": "reports/intrinsic_memory_v3/native_experiment_s0_s1_placement_v3.json",
+    "sha256": "3f70b564ef6c743760b15a578fbeae7248997f5dacaa3e353190d26544c612e7",
+    "bytes": 6685
+  },
+  "source_protocol_sha256": "896099e67f0665bbe62deb480e7e004899e0910f51d48c6cc3762cecda10d395",
+  "execution_revision": "spark_intrinsic_frozen_base_placement_v2",
+  "bound_implementation_commit": "260dc15e9f690069bd40b5a852a3efab7d10c8eb",
+  "launch_head": "c2d5f0cf",
+  "native_launch_executed": true,
+  "status": "completed_S0_pass_S1_useful_readout_failed",
+  "guard_exit_code": 0,
+  "runner_exit_code": 0,
+  "environment_verified": true,
+  "transformers": "4.57.1",
+  "source_identity": "existing_FP8_derived_BF16_not_official_FP8_or_official_BF16",
+  "source_code_changed": false,
+  "precision_substituted": false,
+  "completed_model_loads": 2,
+  "completed_tokenizer_loads": 2,
+  "competence": {
+    "correct": 8,
+    "cases": 8,
+    "false_recall": 0,
+    "truncated": 0,
+    "generated_tokens": 20,
+    "passed": true
+  },
+  "fit": {
+    "updates": 32,
+    "first_loss": 8.515210151672363,
+    "last_loss": 1.6801154613494873,
+    "all_finite": true,
+    "first_producer_gradient_l1": 0.0,
+    "nonzero_producer_gradient_updates": 31,
+    "nonzero_reader_gradient_updates": 32,
+    "optimizer": "one_NativeFusedAdamW"
+  },
+  "arms": {
+    "absent": {
+      "cases": 8,
+      "correct": 1,
+      "false_recall": 0,
+      "generated_tokens": 16,
+      "generation_seconds": 38.66292720893398,
+      "processed_positions": 32776
+    },
+    "contextual": {
+      "cases": 8,
+      "correct": 0,
+      "false_recall": 1,
+      "generated_tokens": 256,
+      "generation_seconds": 638.7736332495697,
+      "processed_positions": 528256
+    },
+    "selected_exact": {
+      "cases": 8,
+      "correct": 8,
+      "false_recall": 0,
+      "generated_tokens": 20,
+      "generation_seconds": 48.50582991586998,
+      "processed_positions": 40976
+    },
+    "shuffled": {
+      "cases": 8,
+      "correct": 0,
+      "false_recall": 1,
+      "generated_tokens": 256,
+      "generation_seconds": 634.2420298331417,
+      "processed_positions": 528256
+    },
+    "wrong": {
+      "cases": 8,
+      "correct": 0,
+      "false_recall": 1,
+      "generated_tokens": 256,
+      "generation_seconds": 633.9672170025297,
+      "processed_positions": 528256
+    }
+  },
+  "learning_utility": false,
+  "frozen_base_integrity": true,
+  "frozen_base_integrity_scope": {
+    "placement": "full_unique_tensor_content_hash_before_and_after_CPU_to_MPS",
+    "post_fit_and_restart": "frozen_ownership_and_object_version_shape_dtype_device_pointer_config_stamp",
+    "post_training_full_content_hash_measured": false
+  },
+  "fresh_process_exact_logits": true,
+  "actual_continuation_update": {
+    "loss": 2.6213226318359375,
+    "gradient_l1": {
+      "producer": 4367.175033271313,
+      "reader": 43645.30825006217
+    },
+    "producer_changed": true,
+    "positions": 2048
+  },
+  "backward_calls": 33,
+  "optimizer_steps": 33,
+  "P_updates": 0,
+  "development_labels_opened_after_fit_freeze": true,
+  "sealed_final_opened": false,
+  "work": {
+    "caps": {
+      "artifact_bytes": 268435456,
+      "autoregressive_forwards": 5856,
+      "backward_calls": 41,
+      "backward_processed_positions": 83968,
+      "cache_hits": 4736,
+      "cache_misses": 4736,
+      "checkpoint_writes": 5,
+      "cold_recall_resumes": 2368,
+      "cold_recall_tickets": 2368,
+      "competence_cases": 8,
+      "competence_forwards": 256,
+      "consolidation_events": 0,
+      "development_cases": 132,
+      "direct_response_ce_backward_calls": 8,
+      "direct_response_ce_feature_vectors": 16384,
+      "direct_response_ce_objective_forwards": 8,
+      "fit_events": 4,
+      "forward_calls": 10236,
+      "generated_tokens": 5856,
+      "generation_requests": 183,
+      "influence_check_forwards": 2,
+      "influence_check_processed_positions": 4096,
+      "influence_check_query_sensing": 1,
+      "initialization_parity_forwards": 2,
+      "initialization_parity_processed_positions": 4096,
+      "matched_nonlearning_backward_calls": 4,
+      "matched_nonlearning_fit_events": 4,
+      "matched_nonlearning_forward_calls": 4,
+      "matched_nonlearning_processed_positions": 8192,
+      "model_loads": 2,
+      "native_query_passes": 4329,
+      "native_retries": 0,
+      "optimizer_steps": 41,
+      "parity_requests": 2,
+      "payload_file_reads": 23680,
+      "payload_io_bytes": 1073741824,
+      "payload_read_calls": 4736,
+      "plastic_backward_calls": 0,
+      "plastic_backward_feature_vectors": 0,
+      "plastic_feature_vectors": 0,
+      "plastic_fit_evaluation_forwards": 0,
+      "plastic_forward_calls": 0,
+      "processed_text_positions": 21121056,
+      "query_sensing_forwards": 4329,
+      "readout_cache_bytes": 2097152,
+      "readout_cases": 40,
+      "readout_file_reads": 66304,
+      "readout_io_bytes": 1073741824,
+      "readout_result_bytes": 73728,
+      "readout_selection_calls": 296,
+      "readout_steps": 33,
+      "reloads": 1,
+      "replay_events": 4,
+      "replay_forward_calls": 4,
+      "replay_processed_positions": 8192,
+      "response_port_optimizer_steps": 4,
+      "response_spine_optimizer_steps": 0,
+      "restart_parity_requests": 1,
+      "restarts": 1,
+      "retained_checkpoint_artifacts": 4,
+      "retrieval_calls": 148,
+      "revalidation_failures": 0,
+      "revalidations": 7104,
+      "selected_P_optimizer_steps": 4,
+      "teacher_passes": 0,
+      "tokenizer_loads": 2,
+      "training_forwards": 41,
+      "verification_calls": 195
+    },
+    "context_tokens": 2048,
+    "counters": {
+      "artifact_bytes": 48127417,
+      "autoregressive_forwards": 824,
+      "backward_calls": 33,
+      "backward_processed_positions": 67584,
+      "cache_hits": 0,
+      "cache_misses": 0,
+      "checkpoint_writes": 1,
+      "cold_recall_resumes": 0,
+      "cold_recall_tickets": 0,
+      "competence_cases": 8,
+      "competence_forwards": 20,
+      "consolidation_events": 0,
+      "development_cases": 0,
+      "direct_response_ce_backward_calls": 0,
+      "direct_response_ce_feature_vectors": 0,
+      "direct_response_ce_objective_forwards": 0,
+      "fit_events": 0,
+      "forward_calls": 859,
+      "generated_tokens": 824,
+      "generation_requests": 48,
+      "influence_check_forwards": 0,
+      "influence_check_processed_positions": 0,
+      "influence_check_query_sensing": 0,
+      "initialization_parity_forwards": 0,
+      "initialization_parity_processed_positions": 0,
+      "matched_nonlearning_backward_calls": 0,
+      "matched_nonlearning_fit_events": 0,
+      "matched_nonlearning_forward_calls": 0,
+      "matched_nonlearning_processed_positions": 0,
+      "model_loads": 2,
+      "native_query_passes": 0,
+      "native_retries": 0,
+      "optimizer_steps": 33,
+      "parity_requests": 0,
+      "payload_file_reads": 0,
+      "payload_io_bytes": 0,
+      "payload_read_calls": 0,
+      "plastic_backward_calls": 0,
+      "plastic_backward_feature_vectors": 0,
+      "plastic_feature_vectors": 0,
+      "plastic_fit_evaluation_forwards": 0,
+      "plastic_forward_calls": 0,
+      "processed_text_positions": 1731672,
+      "query_sensing_forwards": 0,
+      "readout_cache_bytes": 0,
+      "readout_cases": 40,
+      "readout_file_reads": 0,
+      "readout_io_bytes": 0,
+      "readout_ns": 0,
+      "readout_result_bytes": 0,
+      "readout_selection_calls": 0,
+      "readout_steps": 33,
+      "reloads": 1,
+      "replay_events": 0,
+      "replay_forward_calls": 0,
+      "replay_processed_positions": 0,
+      "response_port_optimizer_steps": 0,
+      "response_spine_optimizer_steps": 0,
+      "restart_parity_requests": 0,
+      "restarts": 1,
+      "retained_checkpoint_artifacts": 0,
+      "retrieval_calls": 0,
+      "revalidation_failures": 0,
+      "revalidations": 0,
+      "selected_P_optimizer_steps": 0,
+      "teacher_passes": 0,
+      "tokenizer_loads": 2,
+      "training_forwards": 33,
+      "verification_calls": 48
+    },
+    "max_new_tokens": 32,
+    "per_arm": {
+      "E_plus_P": 0,
+      "full_eligible_context": 0,
+      "inapplicable_procedure": 0,
+      "matched_replay": 0,
+      "no_update": 0,
+      "reader_trained_E_only": 0,
+      "reset_P": 0,
+      "selective_exact_and_procedure": 0,
+      "shuffled_memory": 0,
+      "source_free_P_only": 0,
+      "spine_E_only": 0
+    },
+    "upper_bounds_are_not_measurements": true
+  },
+  "memory_cost": {
+    "fallback_bytes": 382,
+    "fallback_calls": 8,
+    "fallback_tokens": 89,
+    "producer_bytes": 2068,
+    "producer_calls": 49,
+    "producer_wall_ns": 298395165,
+    "read_file_bytes": 37246,
+    "read_file_calls": 48,
+    "retrieval_wall_ns": 16281291,
+    "revalidations": 784,
+    "value_slots_read": 3204
+  },
+  "cost_measurement_limits": [
+    "memory_cost_is_parent_only_restart_producer_cost_not_separately_returned",
+    "durable_write_bytes_and_write_latency_not_separately_instrumented",
+    "producer_wall_ns_is_dispatch_time_not_synchronized_kernel_time",
+    "no_separate_exact_text_prefill_timer",
+    "physical_peaks_are_whole_attempt_not_phase_attributed",
+    "whole_wall_and_merged_work_include_restart"
+  ],
+  "resource_guard_triggered": false,
+  "resources": {
+    "guard_wall_seconds": 2246.0876162080094,
+    "runner_wall_seconds_including_load_and_restart": 2236.954109000042,
+    "readout_wall_seconds": 2186.889401082881,
+    "competence_wall_seconds": 3.74295858386904,
+    "peak_driver_bytes": 39990558720,
+    "peak_mps_allocated_sampled_bytes": 32739055104,
+    "peak_process_rss_bytes": 8767913984,
+    "peak_swap_growth_bytes": 0,
+    "minimum_guard_host_free_percent": 31.0,
+    "native_output_bytes": 48141905,
+    "ledger_artifact_peak_bytes": 48127417,
+    "sampled_limits_cannot_exclude_unsampled_transients": true,
+    "RSS_and_driver_overlap_do_not_add": true,
+    "host_swap_and_free_are_system_wide": true
+  },
+  "raw_evidence": {
+    "base_device_placement.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/base_device_placement.json",
+      "sha256": "1b06746cb192ec57a4c5acfb7dc009a3f531c647ae724419e7a819cf57ae4ccb",
+      "bytes": 648,
+      "source": "runs/intrinsic_memory_v3/native_readout03/base_device_placement.json"
+    },
+    "child.log": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/child.log",
+      "sha256": "b21c3571a41236d0d6cc2a56750852fa45cc5535653a2bd78bd71d6a9a354052",
+      "bytes": 355870,
+      "source": "runs/intrinsic_memory_v3/guard_derivative_native03.child.log"
+    },
+    "competence/receipt.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/competence/receipt.json",
+      "sha256": "ea585c0b6068b6c4774918b61156e32f9369b62245c8d008233e2e4d43c05465",
+      "bytes": 7225,
+      "source": "runs/intrinsic_memory_v3/native_readout03/competence/receipt.json"
+    },
+    "contextual_readout/child.stderr": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/child.stderr",
+      "sha256": "a8ff12e2cb425fc5f64e830e80e4002aa916f005f9c016900f49b28f4ac24fa1",
+      "bytes": 3126,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/child.stderr"
+    },
+    "contextual_readout/child.stdout": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/child.stdout",
+      "sha256": "0db0418b41a1e1688dea337b2a7bf25855999d560858febbf1bc61c49a7ba08e",
+      "bytes": 5725,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/child.stdout"
+    },
+    "contextual_readout/development.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/development.json",
+      "sha256": "992f7689052162f67d1068154bc8d649d4934d74391cbeed87b133db7c64b254",
+      "bytes": 28116,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/development.json"
+    },
+    "contextual_readout/extension/manifest.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/extension/manifest.json",
+      "sha256": "8d34941a8b8fb70be4e942852d6aecaa0941faf068cc2c2c86467f506226b2b9",
+      "bytes": 1171,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/extension/manifest.json"
+    },
+    "contextual_readout/fit.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/fit.json",
+      "sha256": "a5ab1e6cec8420bea7760145b5991b7b292d354f76ed89fbfdb263af7062a193",
+      "bytes": 7434,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/fit.json"
+    },
+    "contextual_readout/parent_profile_summary.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/parent_profile_summary.json",
+      "sha256": "f7934767fd76507e156772f8de581bcc2c753edb2355698305b5be6d59690190",
+      "bytes": 1961,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/parent_profile_summary.json"
+    },
+    "contextual_readout/reload_canary.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/reload_canary.json",
+      "sha256": "c62ed9c71fb58e0bbd62aa59b036b76eabc0be024a24b24249a9bb5568dd4eb6",
+      "bytes": 139,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/reload_canary.json"
+    },
+    "contextual_readout/report.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/report.json",
+      "sha256": "2b6428666c9957d4252833a482ea8f515f1b1db81a3d8ebf8ad62cb681ce4999",
+      "bytes": 8124,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/report.json"
+    },
+    "contextual_readout/restart.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/restart.json",
+      "sha256": "55e427de16438ee63615e8401b0f6d2cb8cb19c54c27a0fb895fe4ddb0dd372d",
+      "bytes": 5725,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/restart.json"
+    },
+    "contextual_readout/stores/development-00/journal/events.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-00/journal/events.jsonl",
+      "sha256": "94c3ceedfbd5b5cecd3d37db7eaa2b9e9123281e6eabe97644fe9015dd273295",
+      "bytes": 343,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-00/journal/events.jsonl"
+    },
+    "contextual_readout/stores/development-00/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-00/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json",
+      "sha256": "694edfe0ffcce1785b36ceb37882a4988ac601b3b1f8f6a563185f30315ffa2e",
+      "bytes": 4595,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-00/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json"
+    },
+    "contextual_readout/stores/development-01/journal/events.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-01/journal/events.jsonl",
+      "sha256": "70bd78698aea0f3eac42113a47e2eb5567dff00f2d31b08b5e77213c426381bc",
+      "bytes": 343,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-01/journal/events.jsonl"
+    },
+    "contextual_readout/stores/development-01/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-01/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json",
+      "sha256": "0fbb0d063b096c21bbffbc4df1fdf2c1cf45bf73502cf715033b266cbb72aa8b",
+      "bytes": 4595,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-01/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json"
+    },
+    "contextual_readout/stores/development-02/journal/events.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-02/journal/events.jsonl",
+      "sha256": "f4bc3556d66ecab5dc3b0e2a020da2ab85383aabd1650e7d143f46f5269e39ff",
+      "bytes": 343,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-02/journal/events.jsonl"
+    },
+    "contextual_readout/stores/development-02/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-02/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json",
+      "sha256": "88067349634db3a0a2223ef01732cbeaf43dd17b424813709f08564e6d2bcd5b",
+      "bytes": 4595,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-02/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json"
+    },
+    "contextual_readout/stores/development-03/journal/events.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-03/journal/events.jsonl",
+      "sha256": "6ce03d0e92dc6896df743d12195090ebbea78e6b1a338946345b10fbdc8908ad",
+      "bytes": 343,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-03/journal/events.jsonl"
+    },
+    "contextual_readout/stores/development-03/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-03/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json",
+      "sha256": "e6585c4b17653f5000e334ac07c016371c12e8183c57d0d2ae6e39698ef862bd",
+      "bytes": 4595,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-03/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json"
+    },
+    "contextual_readout/stores/development-04/journal/events.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-04/journal/events.jsonl",
+      "sha256": "d95b6e5117cc2bba2e57f4eb563e101ba5476be18366e0b531e1b1a7e126de60",
+      "bytes": 343,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-04/journal/events.jsonl"
+    },
+    "contextual_readout/stores/development-04/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-04/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json",
+      "sha256": "2e1350ab9b131186f749c80d27cbf96855968d7eb307e7f215992217d1e49efc",
+      "bytes": 4595,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-04/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json"
+    },
+    "contextual_readout/stores/development-05/journal/events.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-05/journal/events.jsonl",
+      "sha256": "a62a9e8c424f349814e04245971f77ab08db4f59c095a50a8807bce8b586b027",
+      "bytes": 343,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-05/journal/events.jsonl"
+    },
+    "contextual_readout/stores/development-05/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-05/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json",
+      "sha256": "e03132596e70b617ad2eeb98ba0f24a8d6dbb161a763195bb818d9654be95eb4",
+      "bytes": 4595,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-05/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json"
+    },
+    "contextual_readout/stores/development-06/journal/events.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-06/journal/events.jsonl",
+      "sha256": "3343f21c0ed7244e5517a76cead8e6a1b7eccee2185da0930ecc10d9c921d916",
+      "bytes": 343,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-06/journal/events.jsonl"
+    },
+    "contextual_readout/stores/development-06/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-06/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json",
+      "sha256": "a4bf7962e84929ba6b3d4442a778fee6e2dc1eeb78372e7500197ee752a05b01",
+      "bytes": 4595,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-06/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json"
+    },
+    "contextual_readout/stores/development-07/journal/events.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-07/journal/events.jsonl",
+      "sha256": "ed9f37d49912461b658de04d16b5514353202d1bb5967b4593a82cb483f4abd8",
+      "bytes": 343,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-07/journal/events.jsonl"
+    },
+    "contextual_readout/stores/development-07/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-07/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json",
+      "sha256": "b27ffb871c01181bcd43804bb5b40695578d769853523dfb719eaefeca652009",
+      "bytes": 4595,
+      "source": "runs/intrinsic_memory_v3/native_readout03/contextual_readout/stores/development-07/manifests/clusters/cl_541b996fbb0637bb6d25ad06022324e1/00000001.json"
+    },
+    "guard.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/guard.json",
+      "sha256": "1449001733b68e43abebf5de830a331eb4164dcfb0326536ea7f7b1909950db9",
+      "bytes": 2389,
+      "source": "runs/intrinsic_memory_v3/guard_derivative_native03.json"
+    },
+    "host.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/host.jsonl",
+      "sha256": "7f0463fd214798b7a0f8de5855c24492490eaff69cddcce1c156a85525e88fff",
+      "bytes": 108215,
+      "source": "runs/intrinsic_memory_v3/guard_derivative_native03.host.jsonl"
+    },
+    "profile_samples.jsonl": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/profile_samples.jsonl",
+      "sha256": "dd26954cca332a7204dd76896491aede20400236939d8a1588d51de06de5c110",
+      "bytes": 2753119,
+      "source": "runs/intrinsic_memory_v3/native_readout03/profile_samples.jsonl"
+    },
+    "profile_summary.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/profile_summary.json",
+      "sha256": "703f848e3d09cecc17231ffdd047118ab7f29353c280c59ea0b674dc7cfb5073",
+      "bytes": 1959,
+      "source": "runs/intrinsic_memory_v3/native_readout03/profile_summary.json"
+    },
+    "restart_device_placement.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/restart_device_placement.json",
+      "sha256": "59a252750761ffb02aa66aef6f668c0c24afc4fa3aad340b56286ecd6f709f7b",
+      "bytes": 648,
+      "source": "runs/intrinsic_memory_v3/native_readout03/restart_device_placement.json"
+    },
+    "run_report.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/run_report.json",
+      "sha256": "3d9616b4e6893112a743e2555edfc7c561c2ef09f714ed095966437e1759d822",
+      "bytes": 14488,
+      "source": "runs/intrinsic_memory_v3/native_readout03/run_report.json"
+    },
+    "external_wall_guard.json": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/external_wall_guard.json",
+      "sha256": "257d2a73b38a918ec5fe6cc8aec8ab4dd2d7b6b02241d48ae1125e008cdbc22e",
+      "bytes": 548,
+      "source": "external_supervision_of_this_attempt"
+    },
+    "external_wall_guard.py": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/external_wall_guard.py",
+      "sha256": "f7b82f381b5d8613a5289eeead0e9469442c1cf855732eff739a846a0057a757",
+      "bytes": 3046,
+      "source": "external_supervision_of_this_attempt"
+    }
+  },
+  "native_retries": 0,
+  "authorization_consumed": true,
+  "outcomes": {
+    "source_qualification": "passed_full_hash_preflight",
+    "current_numerical_qualification": "finite_gradients_actual_updates_frozen_base_exact_fresh_logits_continuation_passed",
+    "baseline_competence": "passed_8_of_8_declared_calibration_worlds",
+    "useful_readout": "failed_declared_feasibility_gate",
+    "persistent_learning": "not_measured",
+    "promotion": false
+  },
+  "realized_scope": {
+    "reader_sites": [
+      3,
+      7
+    ],
+    "selected_records_per_world": 1,
+    "selected_spans_per_world": 1,
+    "selected_value_slots_per_world": 4,
+    "slot_width": 256,
+    "configured_max_selected_records": 2,
+    "configured_max_slots": 8,
+    "padding_slots_added": false,
+    "development_worlds": 8,
+    "world_families": "single_small_feasibility_fixture",
+    "seed_count": 1,
+    "S1_prompt_left_padding_positions": 2048,
+    "growing_prefix_uncached_generation": true,
+    "query_gradient_boundary": "no_explicit_query_detach_site3_starts_frozen_site7_can_receive_earlier_memory_graph"
+  },
+  "supervision": {
+    "overall_deadline": "external_wall_guard.json",
+    "sealed_guard_has_no_global_deadline": true,
+    "future_packet_requires_bound_overall_supervisor": true
+  },
+  "diagnostic_findings": {
+    "historical_word_only_CE_has_no_EOS_target": true,
+    "not_proven_cause_of_wrong_first_word_or_repetition": true,
+    "training_right_padded_generation_left_padded": "separate_fit_only_parity_audit_required",
+    "correction_revocation_scope": "source_text_statements_not_native_chronological_store_mutations",
+    "false_recall_definition": "incorrect_response_on_expected_unknown_including_malformed_repeated_unknown"
+  },
+  "CPU_successors": {
+    "path": "reports/intrinsic_memory_v3/native_readout03/cpu_successor_verification.json",
+    "sha256": "c892d4f33e1999c3db1cb133138083134461671b5ee714014e0ef864b7602970",
+    "bytes": 2524
+  },
+  "next_native_requires_fresh_external_authorization": true,
+  "approved_attempt_budgets_unchanged": true,
+  "active_stage_budget_audit": {
+    "packet_bounds": {
+      "competence_cases": 8,
+      "readout_updates": 32,
+      "continuation_updates": 1,
+      "development_worlds": 8,
+      "arms": 5,
+      "development_responses": 40,
+      "forward_calls_max": 1571,
+      "backward_calls_max": 33,
+      "optimizer_steps_max": 33,
+      "generation_requests_max": 48,
+      "generated_tokens_max": 1536,
+      "processed_text_positions_max": 3241216,
+      "model_loads_max": 2,
+      "tokenizer_loads_max": 2,
+      "P_updates": 0
+    },
+    "counter_comparisons": {
+      "forward_calls_max": {
+        "actual": 859,
+        "maximum": 1571,
+        "within": true
+      },
+      "backward_calls_max": {
+        "actual": 33,
+        "maximum": 33,
+        "within": true
+      },
+      "optimizer_steps_max": {
+        "actual": 33,
+        "maximum": 33,
+        "within": true
+      },
+      "generation_requests_max": {
+        "actual": 48,
+        "maximum": 48,
+        "within": true
+      },
+      "generated_tokens_max": {
+        "actual": 824,
+        "maximum": 1536,
+        "within": true
+      },
+      "processed_text_positions_max": {
+        "actual": 1731672,
+        "maximum": 3241216,
+        "within": true
+      },
+      "model_loads_max": {
+        "actual": 2,
+        "maximum": 2,
+        "within": true
+      },
+      "tokenizer_loads_max": {
+        "actual": 2,
+        "maximum": 2,
+        "within": true
+      }
+    },
+    "all_observed_work_within_exact_packet": true,
+    "runtime_ledger_scope": "broader_whole_protocol_caps_except_readout_steps_33_and_cases_40",
+    "fixed_sealed_loops_and_data_constrain_this_path": true,
+    "generic_pre_reservation_from_packet_active_bounds": false,
+    "future_requirement": "derive_validate_and_pre_reserve_exact_active_stage_budgets_before_work"
+  },
+  "independent_evidence_audit": {
+    "path": "reports/intrinsic_memory_v3/native_readout03/independent_audit.json",
+    "sha256": "e29228e8d572d957ecb729b0e36b22b22437f6becfe3e2795b891809d4420036"
+  },
+  "CPU_padding_probe": {
+    "path": "reports/intrinsic_memory_v3/native_readout03/padding_probe.json",
+    "sha256": "9179236be8a934100bc633b0c331220cc01e077faa5bdb343036caae8a15f4c3"
+  }
+}

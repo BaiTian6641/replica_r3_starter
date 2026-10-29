@@ -17,8 +17,8 @@ fusion and shared/grouped fast banks are separate comparisons. There is no write
 in the reader forward. All-layer parameter arithmetic is not a native memory-fit
 or learning result; use the successor's corrected cost ledger and evidence scope.
 
-The active experiment is [Spark memory S0–S1](../experiments/20261029_Spark_Memory_S0_S1.md):
-qualify the frozen foundation, then useful intrinsic recall and restart. The
+The completed fixed [Spark memory S0–S1 control](../experiments/20261029_Spark_Memory_S0_S1.md)
+measured frozen-baseline competence, intrinsic recall and restart separately. The
 [29 October ledger](../../reports/intrinsic_memory_v3/evidence_ledger_20261029.json)
 is the current evidence/status source. S2 formation, S3 persistent learning,
 S4 functional control, S5 nested adaptation and S6 learner improvement each need
@@ -45,7 +45,8 @@ Empty-spine forward/backward, unique ownership and different memory/spine sites 
 
 Canonical spans remain bounded to 256 UTF-8 bytes within 8,192-byte sources. Four
 ordered FP32 width-256 contextual slots per span enter the intrinsic reader directly;
-active selection is two spans/eight slots. Scope/time, correction, producer/codec,
+the admitted maximum is two spans/eight slots; attempt03 actually selected one
+span/four slots. Scope/time, correction, producer/codec,
 generation/revision and payload identities revalidate. Training preserves encoder
 and reader gradients; durable state and inference detach. Exact fallback charges
 text/tokens and prefill. Original attention, positions, gated attention, GELU and
@@ -57,15 +58,38 @@ separation and complete pre-fit competence gate remain active. Focused v3 tests 
 Numerical migration/parity/gradient/restart checks are engineering evidence only.
 Source qualification, numerical qualification, competence, useful readout, durable
 learning and promotion remain separate. See current packet and measured costs in
-the runbook. The first authorized native attempt failed at model construction
-before competence because its command selected the wrong Transformers environment.
-The [environment repair and fresh packet](../experiments/20261029_Spark_Memory_Native_Environment.md)
-bind the already-qualified interpreter; source code and original results are unchanged.
-The corrected attempt was then authorized and loaded successfully, but its first
-calibration forward failed because base placement stayed CPU while inputs were MPS.
-No answer or update completed; this is incomplete execution, not a competence score.
-Both receipts are consumed. A separately versioned placement repair is the next
-S0 control, subject to its own exact approval.
+the runbook. The [attempt03 report](../experiments/20261029_Spark_Memory_Native_Readout03.md)
+and [result receipt](../../reports/intrinsic_memory_v3/native_readout03/result.json)
+record native S0 competence at 8/8 correct with zero false recall and no evidence
+truncation on the existing FP8-derived BF16 artifact. Exactly 32 planned updates
+completed. S1 fails: contextual/exact/wrong/shuffled/absent score 0/8, 8/8, 0/8,
+0/8 and 1/8; respective false-recall counts are 1, 0, 1, 1 and 0. Fresh-process
+reload reproduced exact logits and completed one actual continuation update.
+Declared frozen-base ownership/version checks pass; these are not a new full
+post-training byte hash. There were 33 total updates and zero P updates. Native
+continued weights were not compared against an uninterrupted update. False recall
+follows the declared scorer on expected unknown cases, including malformed repeated
+unknowns. Neither competence nor optimizer execution establishes useful memory.
+Formation, persistent learning and promotion remain closed.
+
+Guard wall time was 2,246.088 s; peak sampled driver memory was 39,990,558,720 bytes
+(37.244 GiB), swap growth zero and minimum host free 31%. Final native output was
+48,141,905 bytes. The report distinguishes sampled driver/RSS from physical totals,
+actual four-slot occupancy, unsynchronized producer timing and missing separate
+cost categories. Native correction/revocation cases were source-text statements;
+dynamic store invalidation and tier movement remain CPU engineering evidence.
+
+The first two attempts failed before any calibration answer because their launch
+selected the wrong Transformers environment and then left the backbone on CPU
+while inputs were on MPS. Preserve these execution failures separately from
+attempt03's measured competence/readout. All three single-attempt authorizations
+are consumed; there is no automatic retry. Official FP8 remains blocked on MPS.
+The earlier combined-v4 268-test/13.329595-second receipt is recorded evidence,
+not rerun during attempt03. Newly run future-only wall supervision and explicit
+EOS-completion repairs pass 67 clean CPU tests in 5.36 s; neither ran in attempt03. The historical
+answer-word objective's missing EOS is a candidate diagnosis, not a demonstrated
+sole cause. A new native repair must bind its own protocol, runner/checkpoint
+identity, data roles, budget and exact authorization without changing this result.
 
 Recall currently queries fixed episodic slots from evolving decoder hidden states.
 The P-only one-slot question-conditioned path remains an explicitly labelled control;

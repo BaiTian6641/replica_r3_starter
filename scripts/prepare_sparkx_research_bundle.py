@@ -940,6 +940,10 @@ FINAL_PRODUCT_INPUT_ROLES.extend([
 ])
 
 FINAL_PRODUCT_INPUT_ROLES.extend([
+    ('docs/experiments/20261029_Spark_Memory_Native_Readout03.md', 'completed placement-corrected S0-S1 outcome, measured limits and gated successors'),
+    ('reports/intrinsic_memory_v3/native_readout03/result.json', 'third authorized native attempt: competence and useful-readout outcomes separated'),
+    ('reports/intrinsic_memory_v3/native_readout03/cpu_successor_verification.json', 'clean CPU wall-supervisor and explicit-EOS candidate checks; unused by native attempt'),
+    ('configs/contextual_completion_objective_protocol_v1.json', 'CPU completion-objective candidate with separate EOS and decoder-stop identities'),
     ('docs/experiments/20261029_Spark_Memory_Integrated_Access.md', 'combined contextual producer/store/reader CPU integration and native placement outcome'),
     ('docs/experiments/20261029_Spark_Memory_Formation_and_Replica_Successors.md', 'formation and tier-valid Replica cognitive-core successors; not implemented learning claims'),
     ('configs/contextual_memory_layer_training_protocol_v4.json', 'separate combined 2/9/36 contextual training and complete checkpoint contract'),
@@ -948,11 +952,11 @@ FINAL_PRODUCT_INPUT_ROLES.extend([
     ('reports/intrinsic_memory_density_v5/README.md', 'density controls and native runner admission gaps'),
     ('reports/intrinsic_memory_v3/native_readout02/result.json', 'second authorized attempt loaded model but failed first calibration forward placement'),
     ('configs/spark_persistent_learner_derivative_bf16_placement_protocol_v2.json', 'separate frozen-base device placement execution binding'),
-    ('reports/intrinsic_memory_v3/native_experiment_s0_s1_placement_v3.json', 'placement successor S0-S1 packet requiring new exact authorization'),
+    ('reports/intrinsic_memory_v3/native_experiment_s0_s1_placement_v3.json', 'executed placement-corrected S0-S1 packet; single-attempt authorization consumed'),
     ('docs/experiments/20261029_Spark_Memory_Native_Environment.md', 'authorized native load failure and corrected environment-bound successor'),
     ('configs/spark_intrinsic_execution_environment_v1.json', 'qualified interpreter dependency and critical runtime file bindings'),
     ('reports/intrinsic_memory_v3/native_readout01/result.json', 'first authorized S0-S1 attempt stopped before competence'),
-    ('reports/intrinsic_memory_v3/native_experiment_s0_s1_environment_v2.json', 'fresh environment-bound S0-S1 command and unchanged learning budgets'),
+    ('reports/intrinsic_memory_v3/native_experiment_s0_s1_environment_v2.json', 'historical environment-bound attempt02 command; authorization consumed'),
     ('docs/experiments/20261029_Spark_Memory_Layer_Access.md', 'all-layer intrinsic memory target and separately versioned CPU candidate'),
     ('configs/intrinsic_memory_layer_access_protocol_v4.json', 'CPU 2/9/36 layer-access candidate bindings; native density unqualified'),
     ('reports/intrinsic_memory_layout_v4/analytical_costs.json', 'actual reader formula and meta tensor parameter inventory; not native fit'),

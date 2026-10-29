@@ -1,0 +1,64 @@
+{
+  "format": "replica.native_readout03_CPU_successors.v1",
+  "date": "2026-10-29",
+  "clean_snapshot": "c014dea213c3fa5b62de9a195272dd1fa1b741df",
+  "newly_run": {
+    "passed": 67,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 5.36,
+    "suites": [
+      "tests/test_wall_deadline_v1.py",
+      "tests/test_contextual_completion_objective_v1.py"
+    ],
+    "log": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/cpu_successor_tests.log",
+      "sha256": "aaec7504e70dcff9c08d447308ae9c04bb699c8a494acdf02506f6b30dabaf30"
+    },
+    "junit": {
+      "path": "reports/intrinsic_memory_v3/native_readout03/cpu_successor_tests.xml",
+      "sha256": "afeae0e1e13b3384e9f3299249174a123ab276156fa249fa6698219445726832"
+    },
+    "native_weights_or_development_data_loaded": false
+  },
+  "wall_supervisor": {
+    "commit": "d9ef13ad",
+    "scope": "future_outer_command_process_group_monotonic_deadline_and_bounded_cleanup",
+    "used_by_native_attempt03": false
+  },
+  "completion_objective": {
+    "commit": "c014dea2",
+    "protocol": {
+      "path": "configs/contextual_completion_objective_protocol_v1.json",
+      "sha256": "f99ac6c9f57f1abc62a6dabc32484acfe80b60cdccbe404607e77ce3d7e59975"
+    },
+    "scope": "explicit_EOS_target_right_padding_preserved_decoder_stop_inventory_separately_bound_live_gradients",
+    "used_by_native_attempt03": false,
+    "native_semantic_utility": "unknown",
+    "future_checkpoint_binding": "metadata_ready_loader_integration_still_required"
+  },
+  "sealed_execution_preservation": {
+    "path": "reports/intrinsic_memory_v3/native_readout03/sealed_execution_preservation.json",
+    "sha256": "2cb810b7a9aba1bdb96a7c6fb2cbccca07e0d290ca2ec2f566703daba5c74831"
+  },
+  "recorded_prior_CPU_checks_not_rerun": {
+    "affected_clean_regression": {
+      "passed": 268,
+      "seconds": 37.26,
+      "snapshot": "a4461059"
+    },
+    "combined_v4_2_9_36": {
+      "wall_seconds": 13.329594541806728,
+      "artifact_bytes": 104937953,
+      "scope": "CPU_parity_gradients_unique_ownership_shared_snapshot_exact_reload_and_continuation"
+    },
+    "receipt": {
+      "path": "reports/intrinsic_memory_integration_20261029/verification_summary.json",
+      "sha256": "42f1f0016484d68b50912959e343e7ad909560e11a428b9a111ab45c5d28b864"
+    }
+  },
+  "CPU_tests_ran_while_one_native_worker_was_active": true,
+  "timings_are_not_native_capacity_or_controlled_density_latency_results": true,
+  "protected_file_accessed": false,
+  "historical_protocols_or_results_rewritten": false
+}

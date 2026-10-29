@@ -1,0 +1,58 @@
+{
+  "status": "completed_within_declared_sampled_limits",
+  "started_at_utc": "2026-10-29T19:45:12.055344+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv-spark-bf16/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_readout_placement_v2.py",
+    "--device",
+    "mps",
+    "--config",
+    "/Users/flare/replica_r3_starter/configs/spark_persistent_learner_derivative_bf16_placement_protocol_v2.json",
+    "--authorization",
+    "/Users/flare/replica_r3_starter/reports/intrinsic_memory_v3/native_readout03_authorization.json",
+    "--output",
+    "/Users/flare/replica_r3_starter/runs/intrinsic_memory_v3/native_readout03",
+    "--stage",
+    "readout",
+    "--prepared",
+    "/Users/flare/replica_r3_starter/data/spark_persistent_learner_v2"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/intrinsic_memory_v3/native_readout03",
+  "continue_existing_output": false,
+  "continuation_requested": false,
+  "child_log": "/Users/flare/replica_r3_starter/runs/intrinsic_memory_v3/guard_derivative_native03.child.log",
+  "host_samples": "/Users/flare/replica_r3_starter/runs/intrinsic_memory_v3/guard_derivative_native03.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight_spark_placement_v2.py": "0d3e10d98b70ddcd126c2a6136408dba7d0ed40885c5f7169df9baaa48dadb60",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": 0,
+  "elapsed_seconds": 2246.0876162080094,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 3787917885,
+      "memory_free_percent": 92.0
+    },
+    "host_samples": 1088,
+    "driver_samples": 8571,
+    "peak_driver_bytes": 39990558720,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 31.0,
+    "stop_reason": null
+  }
+}

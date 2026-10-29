@@ -1,6 +1,10 @@
 # Spark memory: integrated layer access and current native evidence
 
-**29 October 2026 · continuation from review snapshot 5077d047.**
+**29 October 2026 · integration-stage record following review snapshot 5077d047.**
+
+Latest native evidence is in the [attempt03 report](20261029_Spark_Memory_Native_Readout03.md):
+S0 passed 8/8; the completed S1 failed useful recall. The CPU checks and earlier
+placement-failure measurements below retain their original snapshot and scope.
 
 Intrinsic memory participates in Spark backbone computation. The external typed
 spine continues to connect specialist models, sensors and actors. This increment
@@ -32,21 +36,19 @@ the profiler's separate end sample showed **90%**. The guard did not trip. Outpu
 files totalled **20,437 bytes**. These failed-forward costs do not establish the
 physical memory needed for a correctly placed 4B model or training.
 
-Both native attempts had zero retries, and both approvals are consumed. The
-placement repair is separately versioned and CPU-checked; its review packet must
-bind the changed executable closure, qualified environment and fresh output before
-another exact authorization. That [placement packet](../../reports/intrinsic_memory_v3/native_experiment_s0_s1_placement_v3.json)
-is now bound to implementation `260dc15e`, with 55 executable files and unchanged
-learning budgets. Its full-source preflight passes; only the new external receipt
-is absent. Neither this report nor the density protocol authorizes
-another native run. The v3 source, template, 8/8 competence gate, 32+1 updates,
+Both earlier attempts had zero retries and consumed their approvals. The separately
+versioned [placement packet](../../reports/intrinsic_memory_v3/native_experiment_s0_s1_placement_v3.json)
+binds implementation `260dc15e`, 55 executable files, the qualified environment and
+fresh output with unchanged learning budgets. It subsequently received exact human
+approval and completed as attempt03, linked above. That approval is now consumed
+as well. Neither this report nor the density protocol authorizes another native run. The v3 source, template, 8/8 competence gate, 32+1 updates,
 readout criteria, 3/7 sites and checkpoint namespace remain fixed.
 
 ## Combined v4 training candidate
 
 [ContextualMemoryLayoutV4](../../src/replica_lab/contextual_memory_layout_v4.py)
 connects the existing bounded canonical spans and four ordered width-256 values
-per span to the configurable reader. Two selected spans yield eight slots. One
+per span to the configurable reader. Two selected spans yield eight slots when both are present; current small fixtures realize one span/four slots. One
 NativeFusedAdamW owns producer, order embedding and active readers exactly once.
 Original backbone and unrelated extension parameters stay frozen.
 
@@ -79,7 +81,10 @@ checkpoints. The integrated 2/9/36 CPU diagnostic passes in **13.329595 seconds*
 and writes **104,937,953 bytes** of extension/store artifacts. Its largest parent
 cumulative RSS is **582,729,728 bytes**; the largest fresh child RSS is
 **529,940,480 bytes**. The four-token diagnostic uses one admitted span/four slots;
-the native comparison fixes two selected spans/eight slots. Each forward shares
+the prepared native comparison declares eight slots with masked padding. The
+current combined wrapper retains the realized slot count and does not add padding;
+the density runner must implement and test that contract, or a successor protocol
+must explicitly bind a different realized count, before admission. Each forward shares
 one 16,384-byte snapshot and performs no extra retrieval or write at any density.
 The independent v3 parity/gradient/restart diagnostic still passes. Random-fixture
 competence remains **0/8** with fitting/development closed, as expected. These CPU

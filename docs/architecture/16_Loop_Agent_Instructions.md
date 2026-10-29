@@ -48,14 +48,25 @@ removes the dummy packet, and versions serialization with explicit migration.
 Empty-spine execution, gradients and exact migrated optimizer continuation pass.
 The prior provenance/recovery/calibration repairs remain active. The random CPU
 fixture calibration is 0/8, so dependent learning and labels stay closed. This
-is not a pretrained Spark competence result. The first authorized native attempt
-failed during model construction before competence. Use the
-[environment-bound successor packet](../experiments/20261029_Spark_Memory_Native_Environment.md);
-the original zero-retry authorization is consumed. CPU environment checks and
-the tiny sealed-source CPU probe pass. The newly authorized corrected attempt loaded
-the model but failed its first calibration forward: the backbone remained on CPU
-while inputs/extensions were MPS. Both receipts are consumed; no answer/update or
-competence result exists. Read the [current integration report](../experiments/20261029_Spark_Memory_Integrated_Access.md).
+is not a pretrained Spark competence result. The [attempt03 report](../experiments/20261029_Spark_Memory_Native_Readout03.md)
+and [result receipt](../../reports/intrinsic_memory_v3/native_readout03/result.json)
+record S0 at 8/8 correct, zero false recall and no evidence truncation using the
+existing FP8-derived BF16 artifact. Exactly 32 planned readout updates completed.
+S1 fails: contextual/exact/wrong/shuffled/absent score 0/8, 8/8, 0/8, 0/8 and 1/8;
+false-recall counts are respectively 1, 0, 1, 1 and 0. Fresh-process reload produced
+exact logits and one actual continuation update; declared frozen-base checks pass.
+There were 33 total updates and zero P updates. Keep useful recall, formation and
+persistent P gates closed despite baseline competence and numerical continuation.
+Guard wall time was 2,246.088 s, peak sampled driver memory 37.244 GiB, swap
+growth zero and minimum host free 31%; the report states measurement limitations.
+The first two attempts failed before any calibration answer because of the wrong
+Transformers environment and then CPU/MPS backbone placement. They are execution
+failures, not failed capability tests. All three zero-retry approvals are consumed.
+Read the [current integration report](../experiments/20261029_Spark_Memory_Integrated_Access.md).
+The earlier 268-test/13.329595-second combined-v4 receipt is recorded evidence,
+not rerun during attempt03. Newly run future-only wall supervision and explicit
+EOS-completion checks pass 67 clean CPU tests in 5.36 s; neither repair ran in attempt03. A later native repair needs
+its own bound runner/checkpoint, protocol, budget and exact authorization.
 
 All-layer intrinsic access is the explicit target. The separate
 [v4 CPU candidate](../experiments/20261029_Spark_Memory_Layer_Access.md) supports
@@ -67,10 +78,13 @@ per-arm budgets. Numerical/resource checks and competence precede native work.
 Do not multiply writes, searches or state copies with reader count. Shared/grouped
 fast banks, matched-parameter/cost readers and pre-MLP fusion are separate tests.
 
-1. Qualify intrinsic recall at 3/7: frozen-original calibration, fixed contextual
-   readout updates, matched exact/wrong/shuffled/absent controls, fresh-process
-   continuation. Use the separately versioned device-placement successor after its exact external
-   approval; both prior zero-retry attempts are consumed. Do not reuse either receipt. Treat 23/31 separately.
+1. Review the failed fixed S1 comparison at 3/7 and its exact/wrong/shuffled/absent
+   controls. Preserve all answers and acceptance criteria. Prepare a separately
+   versioned readout repair with closed development labels for any fresh selection;
+   do not tune repeatedly on these eight worlds. The historical answer-word
+   objective lacks EOS supervision, but this alone is not a proven cause. Keep
+   frozen-baseline competence, numerical checks, useful recall and restart as
+   separate outcomes. No further native attempt is authorized. Treat 23/31 separately.
 2. S2 first tests completed-interaction storage, exposed only next interaction.
    Separately test within-reasoning C/F: read chunk-start state, accumulate,
    commit once, expose only later chunks. Bind sequence positions, revisions,

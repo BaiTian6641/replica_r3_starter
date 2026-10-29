@@ -22,7 +22,7 @@ fresh candidate, not a silent v3 migration.
 The three declared Spark layouts are `(3,7)`, the nine full-attention sites
 `(3,7,11,15,19,23,27,31,35)`, and every site `0…35`. Each site has its own query,
 key/value, output projections, three normalizations and scalar gate. Output
-projections start at zero. One incoming eight-slot, width-256 snapshot is shared
+projections start at zero. One incoming width-256 snapshot (up to eight slots) is shared
 by every active layer; no layer performs retrieval, durable writes or an optimizer
 step. Snapshot cloning preserves the training tensor graph. A validation callback
 checks validity at each read, including after correction. An explicit active-site
@@ -117,7 +117,9 @@ is not nested learning. None establishes the best Spark density.
 The v3 S0–S1 learning protocol and budgets remain unchanged. Its first authorized
 load failed in the wrong dependency environment; the [runtime-bound successor](20261029_Spark_Memory_Native_Environment.md)
 was authorized, loaded the model and failed on a CPU/MPS placement mismatch before
-any answer. Both receipts are consumed. This v4 CPU protocol authorizes no native
+any answer. The separately authorized [placement-corrected attempt03](20261029_Spark_Memory_Native_Readout03.md)
+then passed S0 8/8 but failed S1 useful recall. Its exact fresh-process logits and
+continuation passed. All three receipts are consumed. This v4 CPU protocol authorizes no native
 work. The [density v5 preparation](../../reports/intrinsic_memory_density_v5/native_comparison_packet.json)
 now binds per-arm execution/data/scoring and forward/backward/token/model-load
 budgets; its dedicated native runner and external receipts remain absent. Do not

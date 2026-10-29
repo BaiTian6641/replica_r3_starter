@@ -1,0 +1,194 @@
+{
+  "binding": {
+    "competence_sha256": "00be558df3cfe370a86df6ddc470575761c86473a2f5e509a6054f3a7bc09464",
+    "context_tokens": 2048,
+    "criteria": {
+      "complete_cases": 8,
+      "correct_min": 8,
+      "false_recall_max": 0
+    },
+    "data_sha256": "2597c0066b9b1c9dc33ff65d38087cf343234136c864a4ac688fcb3d98394b12",
+    "decode": "greedy_eos_enabled_no_sampling",
+    "max_new_tokens": 32,
+    "protocol_sha256": "896099e67f0665bbe62deb480e7e004899e0910f51d48c6cc3762cecda10d395",
+    "scorer_sha256": "9aecd789505e6551af7f2444ed10439537b21247a232e6f9f55896f08ac6b2ed",
+    "source": {
+      "activation_quantized": false,
+      "activation_semantics": "BF16/FP32 activations with no per-token F8 quantization; this is not the official FP8 forward semantics",
+      "artifact_sha256": "c52c6cc5e6aababa94105cf4612a09013cffd841c71d53d16356e6dc49966882",
+      "authorized_derivative_count": 1,
+      "config_sha256": "87eea28583b637189c33f110b69706f6262aaa9205db4f3af00198f0eb768e87",
+      "dequantization_sha256": "215c9c49b6557be2589d7decdba98ec42719d858585b85b2342045e3a10df488",
+      "derivative_index": 1,
+      "equivalent_to_official_bf16": false,
+      "execution_format": "dequantized_fp8_derivative_bf16_storage",
+      "execution_manifest": {
+        "path": "configs/spark_derivative_execution_manifest_v1.json",
+        "sha256": "f48b467026436ed291003b10fcbe61384db52799e62c6fadd28b13b4983c163c"
+      },
+      "local_path": "checkpoints/spark_fp8_derivative_v1",
+      "manifest_path": "checkpoints/spark_fp8_derivative_v1/derivative_manifest.json",
+      "manifest_schema": "replica.spark2_5_dequantized_derivative.v1",
+      "manifest_sha256": "73d82478abe90391f3ca9c67be079931a6dd46a1e9991bfbda1de0f682055bdc",
+      "parameter_elements": 4112079360,
+      "parent": "official_fp8",
+      "parent_artifact_sha256": "393fedcdff7cd527dc131aa50adb23dc3e363de2c273e33635bf5bf1da04006d",
+      "parent_config_sha256": "2f0a76065de1488dbb1576389e7cd37e28ac77c52fc84f522a5ce4a824da9fb2",
+      "parent_repo_id": "XHToken/Spark-X2.6-4B-FP8",
+      "parent_revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "precision_digest": "144f46f6aabb2b3a623c9d91249032a75b0b53852b7bb2edbbce8fe6bbfb4e9c",
+      "qualification_completion_scope": "export_reload",
+      "qualification_run_id": "derivative_02",
+      "repo_id": "replica/spark-x2.6-4b-dequantized-fp8-v1",
+      "requires_separate_arm_authorization": true,
+      "restores_quantization_loss": false,
+      "revision": "derivative-1",
+      "role": "active_source_baseline_for_this_experiment",
+      "shard_count": 8,
+      "storage": "bf16",
+      "substitution_allowed": false,
+      "tensor_count": 290,
+      "weight_dtype": "BF16"
+    },
+    "template": "Use the complete evidence below. Reply with only the answer word. If the evidence is insufficient or revoked, reply unknown.\nEvidence:\n{context}\nQuestion: {question}\nAnswer:",
+    "thinking_mode": "none",
+    "tokenizer": {
+      "chat_template_sha256": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929",
+      "load_mode": "offline_local_files_only",
+      "repository": "XHToken/Spark-X2.6-4B-FP8",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "tokenizer_config_sha256": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd",
+      "tokenizer_json_sha256": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+      "tokenizer_source": "derivative_local_files_byte_identical_to_the_pinned_parent_tokenizer"
+    }
+  },
+  "correct": 8,
+  "development_labels_opened": false,
+  "engineering_diagnostics_retained": true,
+  "false_recall": 0,
+  "format": "replica.spark.baseline_competence.v1",
+  "frozen_base_unchanged": true,
+  "native_execution": true,
+  "optimizer_steps": 0,
+  "passed": true,
+  "rows": [
+    {
+      "case_id": "cal-1",
+      "complete": true,
+      "decoded": "copper",
+      "generated_tokens": 3,
+      "prompt_sha256": "a0593ddf929502794b2facfa8502e8fc3b50a5ccaa6582b71117dd6fd94ac765",
+      "prompt_tokens": 64,
+      "rendered_sha256": "4c68ef7053e55a63123803e2d7c5b0aab3419d98d37d8f7c1c338933ed649435",
+      "token_ids": [
+        82613,
+        747,
+        1
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-2",
+      "complete": true,
+      "decoded": "violet",
+      "generated_tokens": 3,
+      "prompt_sha256": "bc8653395743ce7061d5a5094faf24bd5c7f32da3b393bc373def8290654b4fd",
+      "prompt_tokens": 65,
+      "rendered_sha256": "fe26ef03e984c4d9ff6b786a379cef4783291994a13c4f1ca62d13a1ef94178d",
+      "token_ids": [
+        99,
+        61424,
+        1
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-3",
+      "complete": true,
+      "decoded": "ready",
+      "generated_tokens": 2,
+      "prompt_sha256": "344ca3e6c7d6187835c38f4d679001261ee9ed4364b9db4397e993b71496a754",
+      "prompt_tokens": 75,
+      "rendered_sha256": "03ad05c6145fe0605494ceda0010ba03950767bf35ef9dc6e580c9127b3c1b72",
+      "token_ids": [
+        4515,
+        1
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-4",
+      "complete": true,
+      "decoded": "closed",
+      "generated_tokens": 2,
+      "prompt_sha256": "b585de3e61acfd16efeaaf1b571435fb304b2026a54437ce67f535caf519e84c",
+      "prompt_tokens": 75,
+      "rendered_sha256": "c51688da7c7cea0e9a6ec350530d81635fd3266d4d8128865b09f0483a562552",
+      "token_ids": [
+        29999,
+        1
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-5",
+      "complete": true,
+      "decoded": "indigo",
+      "generated_tokens": 3,
+      "prompt_sha256": "c639ca60d83540f4ae133dab3be93350569d3eec996ca418fc77e3bdf03a60ba",
+      "prompt_tokens": 81,
+      "rendered_sha256": "00eef33e8dfe5d633f9b9558655de695c5bbc4a9e518aa2a68ee6139432a3875",
+      "token_ids": [
+        672,
+        18102,
+        1
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-6",
+      "complete": true,
+      "decoded": "unknown",
+      "generated_tokens": 2,
+      "prompt_sha256": "561a33e8f643f0e756bcabb168196bdf56cdbb09fc955aa0ca6aea21cb94963d",
+      "prompt_tokens": 73,
+      "rendered_sha256": "9fde3b8f232eee77a8d0888b222cdd146073c9984d67b4bae59dafdc4405cda9",
+      "token_ids": [
+        44914,
+        1
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-7",
+      "complete": true,
+      "decoded": "unknown",
+      "generated_tokens": 2,
+      "prompt_sha256": "b45858001f5d20de1dcebe2c3c56d57f23a1b3e5a4c822f0c53c52f7abf6b73e",
+      "prompt_tokens": 70,
+      "rendered_sha256": "1d2045b5dbcbd650bd8d143957a27680ef5f41ac73ea0ee84227d995626537a4",
+      "token_ids": [
+        44914,
+        1
+      ],
+      "truncated": false
+    },
+    {
+      "case_id": "cal-8",
+      "complete": true,
+      "decoded": "east",
+      "generated_tokens": 3,
+      "prompt_sha256": "8cd876354d922e7d9b754ba21215996b66031cdea1a3cae6838694765733c18e",
+      "prompt_tokens": 80,
+      "rendered_sha256": "d0272da8706617cf2f2189b38890938c643edd9866ef87498c0ab825689736e0",
+      "token_ids": [
+        82,
+        791,
+        1
+      ],
+      "truncated": false
+    }
+  ],
+  "sealed_final_opened": false,
+  "wall_seconds": 3.74295858386904
+}

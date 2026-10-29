@@ -25,12 +25,17 @@ forward because the backbone remained CPU while inputs/extensions were MPS.
 No answer or update completed; its approval is also consumed. The
 [current integration report](../../docs/experiments/20261029_Spark_Memory_Integrated_Access.md)
 records the placement repair, combined v4 producer/store/reader, density preparation
-and Replica handoff.
+and Replica handoff. The separately authorized [attempt03](native_readout03/result.json)
+now completes S0 with 8/8, the fixed 32 fit updates and fresh-process logits plus
+one continuation update. S1 useful recall fails. All three receipts are consumed;
+see the [current native report](../../docs/experiments/20261029_Spark_Memory_Native_Readout03.md)
+for exact arm results, costs and separate CPU successors.
 
 ## Implemented separation
 
 `extension.intrinsic_memory` now owns the decoder memory readers. Its independent
-`IntrinsicMemorySpec` fixes width 256, eight slots and sites 3/7. Memory uses its own
+`IntrinsicMemorySpec` fixes width 256, an eight-slot maximum and sites 3/7. The
+current native worlds realize one span/four slots. Memory uses its own
 `intrinsic_memory` decoder argument and an immutable revalidated read context.
 It constructs no Packet, invokes no codec or SpineCore and keeps `use_spine=False`.
 The residual attention primitive is reused; memory queries still come from current
@@ -110,19 +115,19 @@ The current episodic values are fixed during generation, while hidden-state quer
 vary by token/site. The P wrapper remains a **fixed question-slot control**: one
 available slot makes its attention weight one, so it is not persistent knowledge
 queried afresh from each token's reasoning state. Its receipt now says this explicitly.
-Useful readout, persistent knowledge transfer, retention, reasoning cost reduction,
-learned writing and self-improvement are still unmeasured on native Spark.
+Useful readout is now measured and fails the sealed S1 gate. Persistent knowledge
+transfer, retention, reasoning cost reduction, learned writing and self-improvement
+remain unmeasured on native Spark.
 
-## Active S0–S1 experiment and subsequent gates
+## Completed S0–S1 control and subsequent gates
 
-Review [`native_experiment_s0_s1_environment_v2.json`](native_experiment_s0_s1_environment_v2.json)
-and the unchanged [`intrinsic_memory_readout_protocol_v3.json`](../../configs/intrinsic_memory_readout_protocol_v3.json).
-The new launcher binds `.venv-spark-bf16`, Python, 32 locked package versions, module
-origins and 12 selected runtime files before the original source/authorization gates.
-The command uses the same derivative under its own execution identity and fresh
-`runs/intrinsic_memory_v3/native_readout02`. That exact environment-bound receipt
-was supplied and consumed. A further attempt must use the separately versioned
-placement successor and its own exact approval; neither old receipt can be reused.
+Review the completed [`placement packet`](native_experiment_s0_s1_placement_v3.json)
+and unchanged [`intrinsic_memory_readout_protocol_v3.json`](../../configs/intrinsic_memory_readout_protocol_v3.json).
+The qualified launcher checked the environment and source before moving the frozen
+base explicitly to MPS. Its exact authorization was supplied and consumed by
+`native_readout03`. The following criteria describe that fixed experiment; they
+are not permission to rerun it. A future native attempt needs a complete successor
+packet and fresh exact approval. The current ledger records S0 pass and S1 failure.
 
 First pass the separate eight-case frozen-original competence stage (8/8, zero false
 recall, no truncation). Then perform 32 fixed producer/reader updates, open eight
@@ -137,7 +142,9 @@ requests, 1,536 generated tokens and 3,241,216 processed positions, including ca
 and continuation. The larger conservative whole-protocol reserve retains all eleven
 historical controls. One exclusive native worker, 50 GiB sampled driver, 512 MiB
 sustained swap growth, 15% host free, 7,200 seconds, 256 MiB live artifacts and no retries
-remain enforced. No bulk download, duplicate large checkpoint or full-base export.
+were respected by attempt03. Its overall deadline used external supervision; a
+future packet must bind the new outer supervisor explicitly. No bulk download,
+duplicate large checkpoint or full-base export.
 Directory tiers do not establish physical GPU residency; measure driver, RSS, swap,
 latency and I/O independently. Prior results, raw failures and unrelated work remain.
 
