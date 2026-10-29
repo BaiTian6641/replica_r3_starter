@@ -638,7 +638,7 @@ def validate_config(config: Mapping[str, Any], root: Path = ROOT, *,
     _require(launch.get("runner_status") in RUNNER_STATUSES, "launch",
              "unknown derivative runner status")
     _require(launch.get("preflight") ==
-             "scripts/preflight_spark_persistent_learner_derivative_bf16.py", "launch",
+             "scripts/preflight_spark_intrinsic_readout_placement_v2.py", "launch",
              "preflight path differs")
     _require(launch.get("no_launch_without_exact_authorization") is True
              and launch.get("no_launch_without_derivative_runner") is True

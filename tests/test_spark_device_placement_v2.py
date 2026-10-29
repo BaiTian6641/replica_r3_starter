@@ -1,7 +1,10 @@
 """Portable device-placement tests; no checkpoint weights or MPS execution."""
 from pathlib import Path
+import copy
+import hashlib
 import inspect
 import json
+import shutil
 import subprocess
 import sys
 from types import SimpleNamespace
@@ -215,3 +218,58 @@ def test_guard_only_adds_new_entrypoint_and_preflight_reports_it():
     assert ".venv-spark-bf16/bin/python" in command
     assert ".venv/bin/python" not in command
     assert "run_spark_intrinsic_readout_placement_v2.py" in command
+
+
+@pytest.fixture
+def placement_protocol_tree(tmp_path, monkeypatch):
+    # Reuse the production-format eight-shard synthetic source fixture. Replace
+    # only execution-revision metadata and its actual copied code inventory;
+    # source validation itself remains unpatched and runs with full hashes.
+    from test_spark_derivative_bf16_protocol import portable_protocol
+    path = portable_protocol.__wrapped__(tmp_path, monkeypatch)
+    config = json.loads(path.read_text())
+    root = Path(__file__).resolve().parents[1]
+    revision = json.loads((root / "configs/spark_persistent_learner_derivative_bf16_placement_protocol_v2.json").read_text())
+    for key in ("runner", "preflight", "implementation_files", "required_authorization_fields",
+                "required_execution_binding", "output_root", "authorization_path"):
+        config["launch"][key] = copy.deepcopy(revision["launch"][key])
+    config["execution_revision"] = revision["execution_revision"]
+    for relative in config["launch"]["implementation_files"]:
+        target = path.parent.parent / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(root / relative, target)
+    config["launch"]["implementation_sha256"] = {
+        name: hashlib.sha256((path.parent.parent / name).read_bytes()).hexdigest()
+        for name in config["launch"]["implementation_files"]}
+    path.write_text(json.dumps(config))
+    return path, config
+
+
+def test_new_execution_protocol_passes_full_synthetic_source_validation(placement_protocol_tree):
+    import preflight_spark_intrinsic_readout_placement_v2 as preflight
+    path, config = placement_protocol_tree
+    report = preflight.validate_config(config, path.parent.parent, full_hash=True)
+    assert report["source"]["shard_count"] == 8
+    assert report["implementation_sha256"] == config["launch"]["implementation_sha256"]
+    assert config["launch"]["required_execution_binding"]["execution_revision"] == config["execution_revision"]
+    assert "execution_revision" in config["launch"]["required_authorization_fields"]
+    # A stale launch path must be refused, rather than silently accepted under
+    # the new hash/packet merely because it names an existing script.
+    stale = copy.deepcopy(config)
+    stale["launch"]["preflight"] = "scripts/preflight_spark_persistent_learner_derivative_bf16.py"
+    with pytest.raises(preflight.ProtocolError, match="preflight path differs"):
+        preflight.validate_config(stale, path.parent.parent, full_hash=True)
+
+
+def test_authorization_requires_the_new_execution_revision(placement_protocol_tree, tmp_path):
+    import preflight_spark_intrinsic_readout_placement_v2 as preflight
+    path, config = placement_protocol_tree
+    # This intentionally incomplete synthetic receipt must stop before Git,
+    # source loading or any native execution.
+    receipt = {name: "synthetic" for name in config["launch"]["required_authorization_fields"]}
+    receipt.pop("execution_revision")
+    auth = tmp_path / "synthetic_missing_revision.json"
+    auth.write_text(json.dumps(receipt))
+    with pytest.raises(preflight.ProtocolError, match="missing execution_revision"):
+        preflight._validate_authorization(config, auth, tmp_path / "out", path.parent.parent,
+                                          config["launch"]["implementation_sha256"], config_path=path)
