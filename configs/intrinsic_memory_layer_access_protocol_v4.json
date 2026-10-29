@@ -1,0 +1,132 @@
+{
+  "format": "replica.intrinsic_memory.layer_access.protocol.v4",
+  "date": "2026-10-29",
+  "scope": "CPU_engineering_candidate_native_density_experiment_not_authorized",
+  "architecture_target": "independently_configurable_intrinsic_memory_access_at_all_36_decoder_layers",
+  "sealed_two_site_control": "configs/intrinsic_memory_readout_protocol_v3.json",
+  "native_packet_unchanged": "reports/intrinsic_memory_v3/native_experiment_s0_s1.json",
+  "source_lineage": "XHToken/Spark-X2.6-4B-FP8@0318d6f6ab070c7b5b43052db571489b2508006c",
+  "execution_precision": "CPU_FP32_tiny_fixture_only_not_source_qualification",
+  "implementation": "src/replica_lab/architecture/intrinsic_memory_layout_v4.py",
+  "checkpoint_format": "replica.intrinsic_memory.reader_checkpoint.v4",
+  "placement": "block_input_query_to_post_block_residual",
+  "decoder_layers": 36,
+  "reader_width": 256,
+  "selected_slots": 8,
+  "arms": {
+    "two": [
+      3,
+      7
+    ],
+    "full_attention_nine": [
+      3,
+      7,
+      11,
+      15,
+      19,
+      23,
+      27,
+      31,
+      35
+    ],
+    "all": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35
+    ]
+  },
+  "state": "one_incoming_shared_snapshot_no_per_layer_replication",
+  "access": "independent_query_key_value_norm_output_and_scalar_gate_per_site",
+  "mask": "explicit_active_sites_skips_the_branch_soft_gates_do_not",
+  "retrieval": "performed_before_snapshot_not_inside_layer_hook",
+  "writes": "none_in_v4_reader_forward",
+  "optimizers": "one_NativeFusedAdamW_owner_for_all_reader_parameters_no_step_in_forward",
+  "detach_boundaries": [
+    "frozen_original_query_features_when_independent_of_earlier_trainable_paths",
+    "durable_checkpoint_serialization",
+    "inference"
+  ],
+  "training_tensor_path": "clone_preserves_values_autograd_graph_across_all_layers",
+  "writer_schedule": "future_S2_exactly_once_completed_observation_or_chunk_commit_no_repeated_prefix_writes",
+  "preserved": [
+    "original_attention",
+    "positional_behavior",
+    "gated_attention",
+    "GELU_MLP",
+    "tied_output",
+    "external_spine_specialist_sensor_actor_interfaces"
+  ],
+  "versioning": "new_reader_only_format_binds_layout_source_producer_representation_codec_weights_optimizer_no_implicit_v3_migration",
+  "portable_test_command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts .venv/bin/python -m pytest tests/test_intrinsic_memory_layout_v4.py -q",
+  "direct_comparison_controls": [
+    "same_memory_contents",
+    "same_selected_slots",
+    "same_writer_and_update_frequency",
+    "same_training_exposure",
+    "same_split_scorer_template_generation_budgets"
+  ],
+  "followups": [
+    "matched_parameter_and_total_cost",
+    "shared_projections",
+    "shared_vs_depth_group_fast_banks",
+    "attention_before_MLP_fusion_separate_placement"
+  ],
+  "native_admission": [
+    "new_density_protocol_execution_and_authorization_bindings",
+    "source_and_frozen_base_integrity",
+    "numerical_and_resource_checks_for_each_density",
+    "pre_fit_competence",
+    "useful_generated_readout_not_fixture_loss",
+    "independent_corrections_retention_reasoning_cost_measurement"
+  ],
+  "native_budget": "not_admitted_do_not_multiply_or_reuse_two_site_packet",
+  "larger_P_capacity_allocated": false,
+  "code_bindings": {
+    "src/replica_lab/architecture/intrinsic_memory_layout_v4.py": "c404fda0189b5ab63e3ed4d9bd2e499b09e1bc6eb66f133e66210c64af91c5b2",
+    "src/replica_lab/architecture/spine.py": "89311890cc3ef37c2479b350bebf33a13bb573adc814e4dd4b7bb552685034b0",
+    "src/replica_lab/architecture/spark_adapter.py": "d40375a968413adf4dbab536975ea27384bee25b1b2bfa9a931a81c9edf0c4ed",
+    "src/replica_lab/optimizers.py": "e51d91b9007681fd15827224c3b57e8657550d88590ef3a995dcdf76b5c82adb",
+    "src/replica_lab/contextual_spark_fixture.py": "1ed509df20c76945e9d5166cb8d69aebef10f574fdaf56b1773e33c59951d1a9",
+    "tests/test_intrinsic_memory_layout_v4.py": "c8ac867b79ae6751aace30252c1d758bfa5de7beffc6755be5af81d2bd852fe9"
+  },
+  "code_binding_scope": "direct_CPU_candidate_and_reused_adapter_primitive_fixture_optimizer_only_not_native_authority",
+  "claims": {
+    "native_executed": false,
+    "learned_utility": false,
+    "persistent_learning": false,
+    "promotion": false
+  }
+}
