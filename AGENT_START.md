@@ -6,9 +6,9 @@ read the [v2 implementation and evidence runbook](reports/spark_persistent_learn
 [design chapter 28](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md),
 [architecture audit](docs/architecture/27_Spark_X2_6_4B_Architecture_Research_Review.md)
 and [complete worker prompt](docs/architecture/16_Loop_Agent_Instructions.md).
-The repaired readout/control implementation is committed at
-`11210d99f7391423a22d0a0dae7be78fc87e66c9`; protocol SHA-256 is
-`49cea2ad9d24bd504f88a86595043abc016d4b5fadc5fb60a94d8bb1cf93c4bd`.
+The repaired readout/control and derivative implementation is committed at
+`83c7214bcf12877e4c7b9d0c367825905a16cf55`; protocol SHA-256 is
+`91c45fbf75fed46ad383a1c385b77775b1f69e6f16f8aca0079e1eefe6183ec5`.
 The [native backend plan](reports/spark_persistent_learner_v2/native_backend_plan.md)
 and [experiment packet](reports/spark_persistent_learner_v2/native_experiment_packet.json)
 preserve the exact FP8 blocker and the bounded P1 design. Useful native learning
@@ -20,20 +20,20 @@ remains unestablished; no native job or download occurred.
 2. **Package 2 complete:** separately versioned tiered storage, profiles,
    scoped readable values, correction quarantine/reset, crash recovery and
    resumable task journals are implemented and CPU-verified.
-3. **Integrated readout:** scoped selection restores canonical E records into
-   the neural query path with current-record authority and exact I/O accounting.
-   `integrated06` matches the protocol hash and passes engineering acceptance
-   across 11 arms and 132 development cases; every arm remains 0/12. Its
-   all-eligible baseline contains all 11 records in every case without
-   truncation. Focused protocol/readout/control/recovery tests pass 62.
-   The full repository suite passes 3,395 tests with 9 skips and 21 subtests.
-4. **Pressure evidence:** `readout_pressure04` measures cache hits/evictions,
+3. **Integrated readout:** `integrated09` matches the protocol hash and passes
+   engineering acceptance across 11 arms and 132 development cases; every arm
+   remains 0/12. Its all-eligible baseline contains all 11 records in every
+   case without truncation. Two additional fresh-process restart cycles pass
+   exact token parity and preserve P state under `integrated08/restart/`.
+4. **Pressure evidence:** `readout_pressure05` measures cache hits/evictions,
    cold wait/resume, exact rejected-read I/O and correction-during-I/O
    invalidation with current provenance. Logical tier labels are not physical
    residency claims; no larger bank was allocated.
-5. **Next gate:** exact native FP8 forward/backward/single-update evidence,
-   then one authorized P1 full-context/direct-CE comparison at 3/7 and 23/31.
-   Official BF16 and FP8-derived BF16 are separate identities, not substitutes.
+5. **Next gate:** exact native FP8 forward/backward/single-update evidence and
+   external authorization remain required for the official-FP8 arm. The separate
+   derived-BF16 protocol/packet is prepared at the same commit and awaits only
+   its external derivative authorization; no launch is allowed yet. Official
+   BF16 and FP8-derived BF16 are separate identities, not substitutes.
 6. **Offline only:** the D-only writer has exact derivative checks but no native
    training or useful-learning promotion. Do not expand banks or claim RSI from
    parameter changes. P4+ profiles remain lazy; P128 is a stretch candidate.

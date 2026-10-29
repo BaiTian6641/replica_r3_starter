@@ -39,21 +39,24 @@ before acting; do not repeat already completed repairs.
   arithmetic. Check primary research sources before changing a mechanism claim.
 
 ## Current receipt — 29 October 2026
-
-The repaired readout/control implementation is committed at `11210d9`.
-`integrated06` matches protocol `49cea2ad` and completes 11 arms and 132
-development cases with engineering acceptance, but all arms remain 0/12. Its
-all-eligible baseline contains all 11 records without truncation. Focused
-protocol/readout/control/recovery tests pass 62.
-The full repository suite passes 3,395 tests with 9 skips and 21 subtests.
+The repaired readout/control and derivative implementation is committed at
+`83c7214`. `integrated09` matches protocol `91c45f` and completes 11 arms and
+132 development cases with engineering acceptance, but all arms remain 0/12.
+Its all-eligible baseline contains all 11 records without truncation. Two
+additional fresh-process restart cycles pass exact token parity and preserve P
+state under `integrated08/restart/`. Focused protocol/readout/control/recovery
+tests pass 62; the full-suite result is recorded in `execution_state.md`.
 Read the current [v2 runbook](../../reports/spark_persistent_learner_v2/README.md)
 before repeating any storage, recovery or control work.
 
 The native plan and packet are [`native_backend_plan.md`](../../reports/spark_persistent_learner_v2/native_backend_plan.md)
 and [`native_experiment_packet.json`](../../reports/spark_persistent_learner_v2/native_experiment_packet.json).
 Official-FP8 MPS execution is blocked by missing exact forward/backward/update
-backend evidence and external authorization. Do not launch a substitute BF16 or
-dequantized arm under this protocol. No native model job has run.
+backend evidence and external authorization. The separate derived-BF16 protocol
+and [`derivative_bf16_packet.json`](../../reports/spark_persistent_learner_v2/derivative_bf16_packet.json)
+are prepared but also require external derivative authorization. Do not launch
+a substitute BF16 or dequantized arm under the official-FP8 protocol. No native
+model job has run.
 
 ## Package 1 — correct the diagnostic and make verification portable
 
@@ -63,17 +66,17 @@ Keep its raw results and mechanical restart evidence; correct labels and add a
 real contextual fixture for relevant tests. Do not optimize against its 0/12
 score or claim Spark has a full-context defect.
 
-Six protocol tests currently fail without the ignored local FP8 checkpoint.
-Use tracked source metadata and mocks for unit contracts; keep full weight
-validation in explicit integration/native admission. Unit fixtures must never
-qualify a real source. Prove review/missing-authorization/wrong-format/stale-code/
-missing-backend checks from a clean checkout with no native files.
+Portable protocol tests pass using tracked source/Git metadata mocks; production
+source authentication is unchanged. Keep full weight validation in explicit
+integration/native admission. Unit fixtures must never qualify a real source.
+Prove review/missing-authorization/wrong-format/stale-code/missing-backend checks
+from a clean checkout with no native files.
 
-Bind all optimizer groups to actual named parameters and their single owner.
-The response optimizer currently updates spine modules, while P receives a
-separate projected-answer-hash MSE update. Audit gradients, actual deltas,
-optimizer moments, clocks and checkpoint recovery separately. Do not describe
-discarded response gradients as response-trained P.
+Bind all optimizer groups to actual named parameters and their single owner:
+direct response CE updates selected P, while a dedicated owner updates only final
+port-output projections. Non-port spine and local-MSE steps are zero in this arm.
+Audit actual parameter deltas, optimizer moments, clocks and checkpoint recovery
+separately. Do not describe discarded response gradients as response-trained P.
 
 Preserve a reproducible baseline and failed JUnit evidence. Make the revised
 documentation migration explicit. Refresh bundle manifests with their supported

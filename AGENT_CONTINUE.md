@@ -1,18 +1,29 @@
 # Coding-agent continuation instruction
 
-**Current priority — 28 October 2026, vision acceptance and expansion:** read
-[the vision acceptance and expansion handoff](docs/experiments/20261028_Vision_Acceptance_and_Expansion_Readiness.md).
-Commits `6bccb837` and `97866da0` add committed-implementation launch binding,
-fail-closed vision acceptance and positive-diagnostic expansion readiness. The
-current partition/source checks preserve 9 admitted, 21 exclusions, 8 exposed
-and 24 synthetic scenes; expansion is blocked only by the missing accepted MPS
-diagnostic. Co-adaptation remains behind its failed-smaller-step, diagnosis and
-receipt prerequisites with explicit zero memory/personality trainables. The
-affected 339 tests pass in the provisioned workspace; a detached clean worktree
-passes 295 with 44 explicit provisioning skips. Later 99/135/134/81 preservation
-suites pass. No native
-execution, learned visual improvement, Spark training, RSI or personality work
-occurred. Keep the exact authorization and fresh-output gates unchanged.
+**Active order — 29 October 2026, final CPU integration and derivative preparation:** read
+[the current start guide](AGENT_START.md), [execution state](execution_state.md),
+[persistent-learner architecture](docs/architecture/28_Spark_Persistent_Learner_and_Tiered_Memory.md),
+[v2 runbook](reports/spark_persistent_learner_v2/README.md) and
+[native backend plan](reports/spark_persistent_learner_v2/native_backend_plan.md).
+The repaired readout/control and derivative implementation is committed at
+`83c7214bcf12877e4c7b9d0c367825905a16cf55`; the v2 protocol SHA-256 is
+`91c45fbf75fed46ad383a1c385b77775b1f69e6f16f8aca0079e1eefe6183ec5`.
+`integrated09` is the preserved final CPU engineering run: 11 arms and 132
+development cases pass engineering acceptance, with every arm still 0/12 and
+the untouched baseline containing all 11 eligible records without truncation.
+Two fresh-process restart cycles with exact token parity and preserved P state
+are retained under `integrated08/restart/`; raw fit/development trajectories and
+all unsuccessful outputs remain preserved.
+The separately versioned FP8-derived BF16 protocol/packet is prepared, but its
+only launch blocker is the absent external derivative authorization. Official
+FP8 remains blocked by exact backend evidence and authorization. No native model
+job, download, learned capability, RSI or personality promotion occurred.
+Useful learning, writer expansion, larger profiles and RSI remain gated on
+chronological transfer, correction, retention and rollback. Official FP8,
+derived BF16 and official BF16 remain distinct. Multimodal work and the
+historical instructions below are not the active queue.
+
+**Historical instructions below are preserved, not active orders.**
 
 **Current priority — 28 October 2026, bounded milestone complete:** read
 [the integration report](docs/experiments/20261028_Bounded_Milestone_Integration.md).

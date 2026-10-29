@@ -2,8 +2,8 @@
   "format": "replica.spark_persistent_learner.native_experiment_packet.v1",
   "status": "blocked_exact_fp8_backend",
   "protocol_id": "spark_persistent_learner_v2",
-  "protocol_sha256": "49cea2ad9d24bd504f88a86595043abc016d4b5fadc5fb60a94d8bb1cf93c4bd",
-  "protocol_commit": "11210d99f7391423a22d0a0dae7be78fc87e66c9",
+  "protocol_sha256": "91c45fbf75fed46ad383a1c385b77775b1f69e6f16f8aca0079e1eefe6183ec5",
+  "protocol_commit": "83c7214bcf12877e4c7b9d0c367825905a16cf55",
   "native_execution": false,
   "not_a_receipt": true,
   "source_baseline": {
@@ -53,6 +53,11 @@
     "readout_candidate_key_reads_max_per_selection": 64,
     "readout_selection_attempts_max_per_query": 2,
     "verification_filter": "exclude_failed_check_and_quarantined_before_key_reads",
+    "readout_cache_bytes_max": 2097152,
+    "exact_text_bytes_max": 8192,
+    "readout_result_bytes_max": 73728,
+    "metadata_selection_before_payload_acquisition": true,
+    "admit_payload_default": false,
     "arms": [
       "full_eligible_context",
       "selective_exact_and_procedure",
@@ -81,6 +86,8 @@
     "cache_hits_max": 4736,
     "cache_misses_max": 4736,
     "readout_selection_calls_max": 296,
+    "readout_cache_bytes_max": 2097152,
+    "readout_result_bytes_max": 73728,
     "readout_file_reads_max": 66304,
     "payload_read_calls_max": 4736,
     "payload_file_reads_max": 23680,
@@ -108,6 +115,6 @@
     "costs": ["teaching", "encoding", "retrieval", "replay", "generation", "verification", "latency", "artifact_bytes"],
     "promotion_requires": "useful full-context behavior, retention, correction, abstention and fresh-process evidence at lower or matched total cost"
   },
-  "next_action": "Keep official FP8 closed. If the derivative is selected, create a new derivative protocol, bind exact implementation hashes and obtain external authorization before any launch.",
-  "review_command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts .venv/bin/python scripts/preflight_spark_persistent_learner_v2.py --config configs/spark_persistent_learner_protocol_v2.json --receipt reports/spark_persistent_learner_v2/review_final02.json"
+  "next_action": "Keep official FP8 closed. The separate derived-BF16 protocol is prepared at 83c7214; obtain its exact external authorization before any launch. No native job has run.",
+  "review_command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts .venv/bin/python scripts/preflight_spark_persistent_learner_v2.py --config configs/spark_persistent_learner_protocol_v2.json --receipt reports/spark_persistent_learner_v2/review_final03.json"
 }

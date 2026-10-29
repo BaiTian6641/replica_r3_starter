@@ -4,8 +4,8 @@
 
 ## 0. Current increment — scoped readout, recovery and controls
 
-Implementation commit: `11210d99f7391423a22d0a0dae7be78fc87e66c9`. Protocol
-SHA-256: `49cea2ad9d24bd504f88a86595043abc016d4b5fadc5fb60a94d8bb1cf93c4bd`.
+Implementation commit: `83c7214bcf12877e4c7b9d0c367825905a16cf55`. Protocol
+SHA-256: `91c45fbf75fed46ad383a1c385b77775b1f69e6f16f8aca0079e1eefe6183ec5`.
 The launch pointer and hash map bind 38 executable dependency files, including
 `ports.py`, `model_identity.py`, `training_state.py` and the script preflight.
 This increment is CPU engineering evidence only; no native model was loaded.
@@ -17,18 +17,21 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts PYTORCH_ENABLE_MPS_FALLBA
   .venv/bin/python scripts/run_spark_persistent_learner_v2.py \
   --stage all --backend cpu_contextual_fixture --device cpu \
   --fixture-context-tokens 256 --fixture-max-new-tokens 2 \
-  --output runs/spark_persistent_learner_v2/integrated06 \
+  --output runs/spark_persistent_learner_v2/integrated09 \
   --config configs/spark_persistent_learner_protocol_v2.json \
   --prepared data/spark_persistent_learner_v2
 ```
 
-Raw evidence: [`run_report.json`](../../runs/spark_persistent_learner_v2/integrated06/run_report.json),
-[`fit/trajectories.jsonl`](../../runs/spark_persistent_learner_v2/integrated06/fit/trajectories.jsonl),
-[`development/trajectories.jsonl`](../../runs/spark_persistent_learner_v2/integrated06/development/trajectories.jsonl),
-[`development/parity.jsonl`](../../runs/spark_persistent_learner_v2/integrated06/development/parity.jsonl),
-[`restart/restart_report.json`](../../runs/spark_persistent_learner_v2/integrated06/restart/restart_report.json),
-[`storage_artifacts.json`](../../runs/spark_persistent_learner_v2/integrated06/storage_artifacts.json).
-The report has the same protocol hash shown above and `status=complete`.
+Raw evidence: [`run_report.json`](../../runs/spark_persistent_learner_v2/integrated09/run_report.json),
+[`fit/trajectories.jsonl`](../../runs/spark_persistent_learner_v2/integrated09/fit/trajectories.jsonl),
+[`development/trajectories.jsonl`](../../runs/spark_persistent_learner_v2/integrated09/development/trajectories.jsonl),
+[`development/parity.jsonl`](../../runs/spark_persistent_learner_v2/integrated09/development/parity.jsonl),
+[`restart/restart_report.json`](../../runs/spark_persistent_learner_v2/integrated09/restart/restart_report.json),
+[`storage_artifacts.json`](../../runs/spark_persistent_learner_v2/integrated09/storage_artifacts.json).
+Two additional fresh-process continuation cycles are preserved as
+[`integrated08/restart/cycle01_report.json`](../../runs/spark_persistent_learner_v2/integrated08/restart/cycle01_report.json)
+and [`cycle02_report.json`](../../runs/spark_persistent_learner_v2/integrated08/restart/cycle02_report.json).
+The integrated report has the same protocol hash shown above and `status=complete`.
 Engineering acceptance passes: initial null parity, later nonzero influence,
 source-free P-only audit, correction reset, fresh-process restart and tiered-P
 reload. Every arm scored 0/12; learned benefit remains inconclusive.
@@ -53,11 +56,12 @@ before retrieval-key reads.
 | Logical retrieval calls / actual selection attempts | 148 / 109 |
 | Revalidations / revalidation failures | 317 / 0 |
 | Readout cache hits / misses | 301 / 16 |
-| Exact readout file reads / bytes / wall time | 2,668 / 1,876,983 / 432,027,585 ns |
-| Payload read calls / cold tickets in this warm fixture | 0 / 0 |
-| Wall time | 132.0629 s |
-| Peak live artifact bytes (including temporary overlap) | 96,058,182 |
-| Final artifact receipts | 139 files, 81,614,771 bytes |
+| Exact readout file reads / bytes / wall time | 1,163 / 621,251 / 265,315,668 ns |
+| Payload read calls / payload file reads / payload bytes | 16 / 80 / 66,755 |
+| Cold tickets in this warm fixture | 0 |
+| Wall time | 136.946262 s |
+| Peak live artifact bytes (including temporary overlap) | 93,306,970 |
+| Final artifact receipts | 139 files, 81,630,342 bytes |
 | Tiered E records / readable value slots | 13 / 52 |
 | Tiered clusters / verified procedures / resumable workspaces | 5 / 4 / 1 |
 
@@ -73,10 +77,10 @@ bytes, include extensionless states and do not include base-model weights.
 ```bash
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src \
   .venv/bin/python scripts/measure_tiered_readout_pressure.py \
-  --output reports/spark_persistent_learner_v2/readout_pressure04.json
+  --output reports/spark_persistent_learner_v2/readout_pressure05.json
 ```
 
-[`readout_pressure04.json`](readout_pressure04.json) uses real store files and
+[`readout_pressure05.json`](readout_pressure05.json) uses real store files and
 no artificial delay. It observes two warm-cache hits, one eviction, one cold
 wait ticket, one invalidated resume after correction and a successful corrected
 cold read with current provenance (`cold-rule-corrected`, 19 payload bytes, one
@@ -85,13 +89,18 @@ reads and 4,114 bytes; earlier receipts omitted those file counts. Warm
 selection remains `degraded/selection_truncated` because the two-record budget
 truncates four candidates; selected records themselves are `ok`.
 
-Focused protocol/readout/control/recovery tests: **62 passed**.
-Full repository suite: **3,395 passed, 9 skipped, 21 subtests passed** in
-862.73 seconds; one unrelated sparse-tensor warning is preserved in
-[`full_suite_integrated06.log`](full_suite_integrated06.log).
-Native preflight [`review_final02.json`](review_final02.json) remains preparation-only
-with no model load and exactly the two native bindings missing: exact official
-FP8 backend evidence and external authorization.
+Focused protocol/readout/control/recovery tests: **62 passed**; derivative
+contracts pass **12** and Sparkx lineage/bundle tests pass **57**. The final
+full suite passes **3,424 tests with 9 skips and 21 subtests** in 869.59 s,
+with one unrelated sparse-tensor warning; see
+[`full_suite_integrated09.log`](full_suite_integrated09.log). The earlier
+completed run's eight failures and the first 360 s timeout are preserved in
+[`full_suite_integrated09_attempt01.log`](full_suite_integrated09_attempt01.log)
+and `execution_state.md`. Native preflight [`review_final03.json`](review_final03.json)
+remains preparation-only with no model load and exactly the two official-FP8
+bindings missing: exact backend evidence and external authorization. The
+separate derived-BF16 packet is also preparation-only and has only its external
+derivative authorization binding missing.
 
 ### Preserved failures and protocol generations
 
@@ -107,7 +116,7 @@ FP8 backend evidence and external authorization.
 - The first pressure probe used a 1 KiB cache and correctly recorded zero
   hits/evictions because records did not fit. `readout_pressure02` and
   `readout_pressure03` remain earlier accounting/provenance iterations; only
-  `readout_pressure04` is the final pressure receipt. No failed output was
+  `readout_pressure05` is the final pressure receipt. No failed output was
   overwritten.
 
 The corrected conservative ceilings are 296 selection attempts, 66,304 total
@@ -178,7 +187,7 @@ The artifact receipts use magic bytes, not suffixes, and include extensionless c
 
 Engineering acceptance passed: initial null parity, later nonzero influence, correction reset, exact fresh-process restart, source-free P-only audit and tiered P digest reload. The restart restores the final checkpoint, removes E/S/C/source-bearing query state and preserves P and port state.
 
-Learning is **inconclusive**: the previous ten-arm run and the current eleven-arm `integrated06` run each scored 0/12 on this randomly initialized engineering fixture. Full-context competence and useful P transfer are not established. Parameter changes, optimizer moments and nonzero influence are not presented as useful learning. No calibration, native task-success claim, lifelong-learning claim, reasoning improvement claim or RSI claim is made.
+Learning is **inconclusive**: the previous ten-arm run and the current eleven-arm `integrated09` run each scored 0/12 on this randomly initialized engineering fixture. Full-context competence and useful P transfer are not established. Parameter changes, optimizer moments and nonzero influence are not presented as useful learning. No calibration, native task-success claim, lifelong-learning claim, reasoning improvement claim or RSI claim is made.
 
 The D-only writer has numerical and software evidence only. It remains an offline study behind the useful-readout gate; it was not promoted or used to claim improvement over time.
 
@@ -193,13 +202,13 @@ Failed attempts remain in their original output directories:
 - `cpu_tiered01`: pickled P state was rejected by exact FP32 layout checks; the sidecar now stores ordered raw FP32 weights and two moment arrays.
 - Earlier protocol arithmetic and tiered API failures are preserved in the corresponding test/output history. No failed directory was overwritten.
 - `integrated01` refused when the derived 888-read ceiling was exceeded; the failure and exact accounting correction are preserved in section 0.
-- The first pressure probe used an undersized 1 KiB cache and is preserved separately from the valid `readout_pressure04` receipt.
+- The first pressure probe used an undersized 1 KiB cache and is preserved separately from the valid `readout_pressure05` receipt.
 
 ## 5. Native admission and next experiment
 
 The active source is `XHToken/Spark-X2.6-4B-FP8` at `0318d6f6ab070c7b5b43052db571489b2508006c`, with 36 layers. Sites 3/7 and 23/31 are valid candidates, not measured native results. Official BF16 and FP8-derived BF16 are separate identities and cannot substitute for official native FP8.
 
-The integrated implementation is committed at `11210d99f7391423a22d0a0dae7be78fc87e66c9`; the protocol launch pointer and complete 38-file dependency hash map bind it. [`review_final02.json`](review_final02.json) is preparation-only and leaves only exact official-FP8 forward/backward/single-update backend evidence on MPS and an external authorization receipt. [`native_backend_plan.md`](native_backend_plan.md) and [`native_experiment_packet.json`](native_experiment_packet.json) record the blocker and bounded P1 packet. `review03.json` and `review02.json` preserve earlier reviews. The capacity wrapper registers `run_spark_persistent_learner_v2.py`; native execution requires its watchdog environment, offline flags, `PYTORCH_ENABLE_MPS_FALLBACK=0` and the exclusive MPS worker. The parent releases its model before the supervised restart child starts.
+The integrated implementation is committed at `83c7214bcf12877e4c7b9d0c367825905a16cf55`; the protocol launch pointer and complete 38-file dependency hash map bind it. [`review_final03.json`](review_final03.json) is preparation-only and leaves only exact official-FP8 forward/backward/single-update backend evidence on MPS and an external authorization receipt. [`native_backend_plan.md`](native_backend_plan.md) and [`native_experiment_packet.json`](native_experiment_packet.json) record the blocker and bounded P1 packet. The separate [`derivative_bf16_packet.json`](derivative_bf16_packet.json) is prepared at the same commit and awaits external derivative authorization. `review03.json` and `review02.json` preserve earlier reviews. The capacity wrapper registers `run_spark_persistent_learner_v2.py`; native execution requires its watchdog environment, offline flags, `PYTORCH_ENABLE_MPS_FALLBACK=0` and the exclusive MPS worker. The parent releases its model before the supervised restart child starts.
 
 Review command (no model load):
 
@@ -207,7 +216,7 @@ Review command (no model load):
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts \
   .venv/bin/python scripts/preflight_spark_persistent_learner_v2.py \
   --config configs/spark_persistent_learner_protocol_v2.json \
-  --receipt reports/spark_persistent_learner_v2/review_final02.json
+  --receipt reports/spark_persistent_learner_v2/review_final03.json
 ```
 
 Do not launch native training until the exact backend receipt and external authorization exist. Do not expand to P4/P16/P32/P64 or promote the learned writer merely because the CPU engineering path passes. The next discriminating experiment is one bounded native P1 full-context/direct-CE readout with charged 3/7 versus 23/31 sites and the same controls, after exact backend qualification.

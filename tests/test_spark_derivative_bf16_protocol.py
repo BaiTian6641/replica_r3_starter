@@ -544,9 +544,9 @@ def test_review_preflight_is_preparation_only_and_refuses_launch(tmp_path):
     assert report["source"]["shard_count"] == 8
     assert "external_derivative_authorization" in report["missing_bindings"]
     assert "implemented_derivative_runner" not in report["missing_bindings"]
-    assert "protocol_commit" in report["missing_bindings"]
+    assert "protocol_commit" not in report["missing_bindings"]
     assert report["missing_bindings"] == [
-        "protocol_commit", "external_derivative_authorization"]
+        "external_derivative_authorization"]
     assert report["runner"]["implemented"] is True
     assert report["runner"]["hash_matches"] is True
     assert report["authorization"]["present"] is False
@@ -565,7 +565,7 @@ def test_review_preflight_is_preparation_only_and_refuses_launch(tmp_path):
     with pytest.raises(ProtocolError, match="refused before model load") as refusal:
         preflight(CONFIG_PATH, full_hash=False, launch=True)
     assert "external_derivative_authorization" in refusal.value.detail
-    assert "protocol_commit" in refusal.value.detail
+    assert "protocol_commit" not in refusal.value.detail
     assert "implemented_derivative_runner" not in refusal.value.detail
 
     fabricated = tmp_path / "derivative_authorization.json"
@@ -573,7 +573,7 @@ def test_review_preflight_is_preparation_only_and_refuses_launch(tmp_path):
         "authorization_id": "not-a-real-receipt",
         "protocol_id": "spark_persistent_learner_derivative_bf16_v1",
     }))
-    with pytest.raises(ProtocolError, match="refused before model load"):
+    with pytest.raises(ProtocolError, match="missing protocol_sha256"):
         preflight(CONFIG_PATH, authorization=fabricated,
                   full_hash=False, launch=True)
 
@@ -646,7 +646,7 @@ def test_native_path_refuses_before_any_model_load(tmp_path, monkeypatch):
             CONFIG_PATH, ROOT / "data/spark_persistent_learner_v2", output,
             backend_kind=runner.NATIVE_LABEL, device="mps", stage="all", full_hash=False)
     assert "external_derivative_authorization" in refusal.value.detail
-    assert "protocol_commit" in refusal.value.detail
+    assert "protocol_commit" not in refusal.value.detail
     assert loaded["count"] == 0
     assert not output.exists()
 
@@ -656,7 +656,7 @@ def test_native_path_refuses_before_any_model_load(tmp_path, monkeypatch):
         "protocol_id": "spark_persistent_learner_derivative_bf16_v1",
         "execution_format": "dequantized_fp8_derivative_bf16_storage",
     }) + "\n")
-    with pytest.raises(runner.Refused, match="refused before model load"):
+    with pytest.raises(runner.Refused, match="missing protocol_sha256"):
         runner.run_derivative_protocol(
             CONFIG_PATH, ROOT / "data/spark_persistent_learner_v2", output,
             backend_kind=runner.NATIVE_LABEL, device="mps", stage="all",
@@ -698,7 +698,7 @@ def test_runner_binding_and_stale_hashes_are_refused(tmp_path):
         "source_identity": "dequantized_fp8_derivative",
         "execution_format": "dequantized_fp8_derivative_bf16_storage",
     }) + "\n")
-    with pytest.raises(runner.Refused, match="refused before model load"):
+    with pytest.raises(runner.Refused, match="missing protocol_sha256"):
         runner.verify_derivative_authorization(
             runner.DerivativeProtocol.load(CONFIG_PATH, full_hash=False),
             tmp_path / "fresh_output", fabricated)

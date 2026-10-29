@@ -58,11 +58,11 @@
     },
     {
       "path": "src/replica_lab/architecture/spark_adapter.py",
-      "kind": "reviewed_spine_integration",
+      "kind": "reviewed_spine_and_derivative_integration",
       "prior_sha256": "919b58b75e58d5c01ff933eb44a6f75e977b139885280ed2597f9023ebb77430",
-      "current_sha256": "ff6e296e143b6eab82153a2fd7419590d829595ec2afddd4ebf73bd07e8fa2c4",
-      "reason": "Adds independently gated Spark spine readers and shared native memory ownership; the sealed backbone and historical adapter evidence remain separate.",
-      "reviewed_in": "docs/experiments/20261028_Spark_Spine_Memory_Integration.md"
+      "current_sha256": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
+      "reason": "Adds independently gated Spark spine readers, shared native memory ownership and explicit derivative precision binding; the sealed backbone and historical adapter evidence remain separate.",
+      "reviewed_in": "reports/spark_persistent_learner_v2/derivative_bf16_packet.json"
     },
     {
       "path": "tests/test_spark2_5_adapter.py",
@@ -172,9 +172,9 @@
     {
       "path": "src/replica_lab/architecture/spark_adapter.py",
       "prior_sha256": "919b58b75e58d5c01ff933eb44a6f75e977b139885280ed2597f9023ebb77430",
-      "current_sha256": "ff6e296e143b6eab82153a2fd7419590d829595ec2afddd4ebf73bd07e8fa2c4",
-      "reason": "Reviewed additive spine reader integration; the historical 117-input manifest itself is unchanged.",
-      "reviewed_in": "docs/experiments/20261028_Spark_Spine_Memory_Integration.md"
+      "current_sha256": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
+      "reason": "Reviewed additive spine and derivative precision integration; the historical 117-input manifest itself is unchanged.",
+      "reviewed_in": "reports/spark_persistent_learner_v2/derivative_bf16_packet.json"
     },
     {
       "path": "tests/test_spark2_5_adapter.py",

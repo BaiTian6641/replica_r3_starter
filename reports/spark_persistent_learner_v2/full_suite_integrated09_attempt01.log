@@ -1,0 +1,252 @@
+........................................................................ [  2%]
+........................................................................ [  4%]
+........................................................................ [  6%]
+........................................................................ [  8%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 14%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 25%]
+........................................................................ [ 27%]
+...............................................................s........ [ 29%]
+........................................................................ [ 31%]
+........................................................................ [ 33%]
+........................................................................ [ 35%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 41%]
+........................................................................ [ 44%]
+........................................................................................................................... [ 47%]
+........................................................................ [ 49%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 56%]
+........................................................................ [ 58%]
+.................................................sssssss................ [ 60%]
+........................................................................ [ 62%]
+........................................................................ [ 64%]
+........................................................................ [ 66%]
+...................................................................F.FF. [ 68%]
+........................................................................ [ 70%]
+.............................FF.......................F................. [ 72%]
+...................................F...........F........................ [ 74%]
+........................................................................ [ 76%]
+........................................................................ [ 79%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 87%]
+...................................................................s.... [ 89%]
+........................................................................ [ 91%]
+........................................................................ [ 93%]
+........................................................................ [ 95%]
+........................................................................ [ 97%]
+......................................................................   [100%]
+=================================== FAILURES ===================================
+_________ test_review_preflight_is_preparation_only_and_refuses_launch _________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1787/test_review_preflight_is_prepa0')
+
+    def test_review_preflight_is_preparation_only_and_refuses_launch(tmp_path):
+        report = preflight(CONFIG_PATH, full_hash=False)
+        assert report["status"] == "review_ready_preparation_only"
+        assert report["launch_allowed"] is False
+        assert report["native_command"] is None
+        assert report["native_execution"] is False
+        assert report["model_loaded"] is False
+        assert report["tokenizer_loaded"] is False
+        assert report["labels_read"] is False
+        assert report["downloads"] == 0
+        assert report["admission"]["admitted"] is True
+        assert report["source"]["shard_count"] == 8
+        assert "external_derivative_authorization" in report["missing_bindings"]
+        assert "implemented_derivative_runner" not in report["missing_bindings"]
+>       assert "protocol_commit" in report["missing_bindings"]
+E       AssertionError: assert 'protocol_commit' in ['external_derivative_authorization']
+
+tests/test_spark_derivative_bf16_protocol.py:547: AssertionError
+________________ test_native_path_refuses_before_any_model_load ________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1787/test_native_path_refuses_befor0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11a2d85c0>
+
+    def test_native_path_refuses_before_any_model_load(tmp_path, monkeypatch):
+        import run_spark_persistent_learner_derivative_bf16 as runner
+    
+        loaded = {"count": 0}
+    
+        def forbidden_load(_source_root):
+            loaded["count"] += 1
+            raise AssertionError("native model load must not occur before authorization")
+    
+        monkeypatch.setattr(runner, "_load_derivative_model", forbidden_load)
+        output = tmp_path / "native"
+        with pytest.raises(runner.Refused, match="refused before model load") as refusal:
+            runner.run_derivative_protocol(
+                CONFIG_PATH, ROOT / "data/spark_persistent_learner_v2", output,
+                backend_kind=runner.NATIVE_LABEL, device="mps", stage="all", full_hash=False)
+        assert "external_derivative_authorization" in refusal.value.detail
+>       assert "protocol_commit" in refusal.value.detail
+E       AssertionError: assert 'protocol_commit' in 'refused before model load: external_derivative_authorization'
+E        +  where 'refused before model load: external_derivative_authorization' = Refused('launch: refused before model load: external_derivative_authorization').detail
+E        +    where Refused('launch: refused before model load: external_derivative_authorization') = <ExceptionInfo Refused('launch: refused before model load: external_derivative_authorization') tblen=3>.value
+
+tests/test_spark_derivative_bf16_protocol.py:649: AssertionError
+_______________ test_runner_binding_and_stale_hashes_are_refused _______________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1787/test_runner_binding_and_stale_0')
+
+    def test_runner_binding_and_stale_hashes_are_refused(tmp_path):
+        from preflight_spark_persistent_learner_derivative_bf16 import (
+            _missing_bindings, runner_binding,
+        )
+        import run_spark_persistent_learner_derivative_bf16 as runner
+    
+        config = json.loads(CONFIG_PATH.read_text())
+        binding = runner_binding(config, ROOT)
+        assert binding["implemented"] is True
+        assert binding["hash_matches"] is True
+        assert binding["status"] == "implemented"
+        assert config["launch"]["runner"] == binding["relative"]
+        assert config["launch"]["implementation_sha256"][binding["relative"]] == binding["sha256"]
+    
+        mutated = copy.deepcopy(config)
+        mutated["launch"]["implementation_sha256"][binding["relative"]] = "0" * 64
+        with pytest.raises(ProtocolError, match="implementation hashes differ"):
+            validate_config(mutated, ROOT, full_hash=False)
+    
+        mutated = copy.deepcopy(config)
+        mutated["launch"]["runner_status"] = "absent_derivative_orchestration"
+        report = validate_config(mutated, ROOT, full_hash=False)
+        missing = _missing_bindings(mutated, report, None, ROOT)
+        assert "implemented_derivative_runner" in missing
+        assert "external_derivative_authorization" in missing
+    
+        fabricated = tmp_path / "fabricated_authorization.json"
+        fabricated.write_text(json.dumps({
+            "authorization_id": "fabricated-not-external",
+            "protocol_id": "spark_persistent_learner_derivative_bf16_v1",
+            "source_identity": "dequantized_fp8_derivative",
+            "execution_format": "dequantized_fp8_derivative_bf16_storage",
+        }) + "\n")
+>       with pytest.raises(runner.Refused, match="refused before model load"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'refused before model load'
+E         Actual message: 'authorization: missing protocol_sha256'
+
+tests/test_spark_derivative_bf16_protocol.py:701: AssertionError
+_________ test_clean_checkout_verification_passes_without_source_cache _________
+
+repository = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1787/test_clean_checkout_verificati0/repo')
+
+    def test_clean_checkout_verification_passes_without_source_cache(repository: Path) -> None:
+        result = _run(repository)
+>       assert result["status"] == "passed", result["failed"][:10]
+E       AssertionError: [{'name': 'unexplained_input_drift:src/replica_lab/architecture/spark_adapter.py', 'passed': False, 'detail': '8313354...architecture/spark_adapter.py', 'passed': False}, {'name': 'historical_manifest_no_unreviewed_drift', 'passed': False}]
+E       assert 'failed' == 'passed'
+E         
+E         - passed
+E         + failed
+
+tests/test_sparkx_final_product.py:103: AssertionError
+______________ test_v51_reviewed_migration_is_applied_and_pinned _______________
+
+repository = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1787/test_v51_reviewed_migration_is0/repo')
+
+    def test_v51_reviewed_migration_is_applied_and_pinned(repository: Path) -> None:
+        result = _run(repository)
+>       assert result["status"] == "passed", result["failed"][:10]
+E       AssertionError: [{'name': 'unexplained_input_drift:src/replica_lab/architecture/spark_adapter.py', 'passed': False, 'detail': '8313354...architecture/spark_adapter.py', 'passed': False}, {'name': 'historical_manifest_no_unreviewed_drift', 'passed': False}]
+E       assert 'failed' == 'passed'
+E         
+E         - passed
+E         + failed
+
+tests/test_sparkx_final_product.py:119: AssertionError
+_____________ test_committed_bundle_manifest_matches_local_inputs ______________
+
+    @require_local_artifacts(
+        "reports/sparkx_first_tranche_20261026/research_bundle_manifest.json"
+    )
+    def test_committed_bundle_manifest_matches_local_inputs() -> None:
+        manifest = json.loads(BUNDLE_MANIFEST.read_text(encoding="utf-8"))
+        report = bundle.verify_manifest(ROOT, manifest)
+>       assert report["verified"] is True, report["failures"]
+E       AssertionError: [{'path': 'src/replica_lab/architecture/spark_adapter.py', 'reason': 'size_mismatch', 'expected': 38923, 'actual': 426...a6f75e977b139885280ed2597f9023ebb77430', 'actual': '831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7'}]
+E       assert False is True
+
+tests/test_sparkx_first_tranche.py:200: AssertionError
+________________ test_clean_fixture_passes_and_is_deterministic ________________
+
+repository = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1787/test_clean_fixture_passes_and_0/repo')
+
+    def test_clean_fixture_passes_and_is_deterministic(repository: Path) -> None:
+        first = _run(repository)
+>       assert not first["failed"], first["failed"]
+E       AssertionError: [{'name': 'deliverable:AGENT_START.md', 'passed': False}, {'name': 'deliverable:execution_state.md', 'passed': False},...passed': False}, {'name': 'changed_identity_present:docs/architecture/16_Loop_Agent_Instructions.md', 'passed': False}]
+E       assert not [{'name': 'deliverable:AGENT_START.md', 'passed': False}, {'name': 'deliverable:execution_state.md', 'passed': False},...passed': False}, {'name': 'changed_identity_present:docs/architecture/16_Loop_Agent_Instructions.md', 'passed': False}]
+
+tests/test_sparkx_v5_1_review.py:101: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{
+  "scope": "documentation, reference, arithmetic and migration checks only; no model, training, native execution or measured fit",
+  "checks": 1105,
+  "passed": 1099,
+  "failed": 6,
+  "migration_identity": "sparkx-2.6-v5.1-review-migration-20261027",
+  "native_gates_unresolved": 10
+}
+__________ test_local_artifact_absence_is_allowed_only_when_declared ___________
+
+repository = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1787/test_local_artifact_absence_is0/repo')
+
+    def test_local_artifact_absence_is_allowed_only_when_declared(repository: Path) -> None:
+        # The fixture never copies `runs/`; the declared references are absent and pass.
+        result = _run(repository)
+>       assert not result["failed"]
+E       AssertionError: assert not [{'name': 'deliverable:AGENT_START.md', 'passed': False}, {'name': 'deliverable:execution_state.md', 'passed': False},...passed': False}, {'name': 'changed_identity_present:docs/architecture/16_Loop_Agent_Instructions.md', 'passed': False}]
+
+tests/test_sparkx_v5_1_review.py:229: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{
+  "scope": "documentation, reference, arithmetic and migration checks only; no model, training, native execution or measured fit",
+  "checks": 1105,
+  "passed": 1099,
+  "failed": 6,
+  "migration_identity": "sparkx-2.6-v5.1-review-migration-20261027",
+  "native_gates_unresolved": 10
+}
+=============================== warnings summary ===============================
+tests/test_m4_pattern.py::test_sparse_adamw_step_densifies_and_muon_rejects_sparse_gradient
+  /Users/flare/replica_r3_starter/tests/test_m4_pattern.py:156: UserWarning: Sparse invariant checks are implicitly disabled. Memory errors (e.g. SEGFAULT) will occur when operating on a sparse tensor which violates the invariants, but checks incur performance overhead. To silence this warning, explicitly opt in or out. See `torch.sparse.check_sparse_tensor_invariants.__doc__` for guidance.  (Triggered internally at /Users/runner/work/pytorch/pytorch/aten/src/ATen/Context.cpp:855.)
+    parameter.grad = torch.sparse_coo_tensor(torch.tensor([[0], [0]]), torch.tensor([1.0]), parameter.shape)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_spark_derivative_bf16_protocol.py::test_review_preflight_is_preparation_only_and_refuses_launch - AssertionError: assert 'protocol_commit' in ['external_derivative_authorization']
+FAILED tests/test_spark_derivative_bf16_protocol.py::test_native_path_refuses_before_any_model_load - AssertionError: assert 'protocol_commit' in 'refused before model load: external_derivative_authorization'
+ +  where 'refused before model load: external_derivative_authorization' = Refused('launch: refused before model load: external_derivative_authorization').detail
+ +    where Refused('launch: refused before model load: external_derivative_authorization') = <ExceptionInfo Refused('launch: refused before model load: external_derivative_authorization') tblen=3>.value
+FAILED tests/test_spark_derivative_bf16_protocol.py::test_runner_binding_and_stale_hashes_are_refused - AssertionError: Regex pattern did not match.
+  Expected regex: 'refused before model load'
+  Actual message: 'authorization: missing protocol_sha256'
+FAILED tests/test_sparkx_final_product.py::test_clean_checkout_verification_passes_without_source_cache - AssertionError: [{'name': 'unexplained_input_drift:src/replica_lab/architecture/spark_adapter.py', 'passed': False, 'detail': '8313354...architecture/spark_adapter.py', 'passed': False}, {'name': 'historical_manifest_no_unreviewed_drift', 'passed': False}]
+assert 'failed' == 'passed'
+  
+  - passed
+  + failed
+FAILED tests/test_sparkx_final_product.py::test_v51_reviewed_migration_is_applied_and_pinned - AssertionError: [{'name': 'unexplained_input_drift:src/replica_lab/architecture/spark_adapter.py', 'passed': False, 'detail': '8313354...architecture/spark_adapter.py', 'passed': False}, {'name': 'historical_manifest_no_unreviewed_drift', 'passed': False}]
+assert 'failed' == 'passed'
+  
+  - passed
+  + failed
+FAILED tests/test_sparkx_first_tranche.py::test_committed_bundle_manifest_matches_local_inputs - AssertionError: [{'path': 'src/replica_lab/architecture/spark_adapter.py', 'reason': 'size_mismatch', 'expected': 38923, 'actual': 426...a6f75e977b139885280ed2597f9023ebb77430', 'actual': '831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7'}]
+assert False is True
+FAILED tests/test_sparkx_v5_1_review.py::test_clean_fixture_passes_and_is_deterministic - AssertionError: [{'name': 'deliverable:AGENT_START.md', 'passed': False}, {'name': 'deliverable:execution_state.md', 'passed': False},...passed': False}, {'name': 'changed_identity_present:docs/architecture/16_Loop_Agent_Instructions.md', 'passed': False}]
+assert not [{'name': 'deliverable:AGENT_START.md', 'passed': False}, {'name': 'deliverable:execution_state.md', 'passed': False},...passed': False}, {'name': 'changed_identity_present:docs/architecture/16_Loop_Agent_Instructions.md', 'passed': False}]
+FAILED tests/test_sparkx_v5_1_review.py::test_local_artifact_absence_is_allowed_only_when_declared - AssertionError: assert not [{'name': 'deliverable:AGENT_START.md', 'passed': False}, {'name': 'deliverable:execution_state.md', 'passed': False},...passed': False}, {'name': 'changed_identity_present:docs/architecture/16_Loop_Agent_Instructions.md', 'passed': False}]
+8 failed, 3416 passed, 9 skipped, 1 warning, 21 subtests passed in 869.72s (0:14:29)

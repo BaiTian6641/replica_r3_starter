@@ -1,0 +1,501 @@
+{
+  "format": "replica.spark_persistent_learner_derivative.bf16_packet.v1",
+  "status": "preparation_review_ready_blocked_before_launch",
+  "not_a_receipt": true,
+  "declared_at_utc": "2026-10-29T00:00:00+00:00",
+  "native_execution": false,
+  "model_loaded": false,
+  "downloads": 0,
+  "protocol": {
+    "protocol_id": "spark_persistent_learner_derivative_bf16_v1",
+    "format": "replica.spark_persistent_learner_derivative.protocol.v1",
+    "version": 1,
+    "path": "configs/spark_persistent_learner_derivative_bf16_protocol_v1.json",
+    "sha256": "f6cc1116756b0d5dd8770309224cc89aadaec5c90caafb8ffb08075d9823b9ab",
+    "protocol_commit": "83c7214bcf12877e4c7b9d0c367825905a16cf55",
+    "worktree_head_at_review": "83c7214bcf12877e4c7b9d0c367825905a16cf55",
+    "review_status": "review_ready_preparation_only",
+    "launch_allowed": false,
+    "model_loaded": false,
+    "runner": {
+      "path": "scripts/run_spark_persistent_learner_derivative_bf16.py",
+      "sha256": "d3fe87ad5fac3e94283190ff2b5f7c0ff4671b275fc9475cdb715ba7ff7f55fa",
+      "status": "implemented",
+      "cpu_smoke": "cpu_synthetic_derivative_fixture",
+      "native_backend": "native_derivative"
+    }
+  },
+  "precision_identities": {
+    "official_fp8": {
+      "status": "closed_parent_source_unchanged",
+      "repo_id": "XHToken/Spark-X2.6-4B-FP8",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "config_sha256": "2f0a76065de1488dbb1576389e7cd37e28ac77c52fc84f522a5ce4a824da9fb2",
+      "weight_sha256": "f92114bf9af5588e0bcbc4fe1c4a0420fa17bba58199cb8b6cf1f3564e664be9",
+      "execution_format": "official_native_fp8",
+      "mps_status": "refused_no_native_fp8_receipt",
+      "substitution_allowed": false
+    },
+    "official_bf16": {
+      "status": "closed_official_control_unchanged",
+      "repo_id": "XHToken/Spark-X2.6-4B",
+      "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+      "execution_format": "official_bf16",
+      "equivalent_to_derivative": false,
+      "substitution_allowed": false
+    },
+    "dequantized_fp8_derivative": {
+      "status": "active_source_for_this_experiment_only",
+      "repo_id": "replica/spark-x2.6-4b-dequantized-fp8-v1",
+      "revision": "derivative-1",
+      "parent": "official_fp8",
+      "parent_repo_id": "XHToken/Spark-X2.6-4B-FP8",
+      "parent_revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "parent_artifact_sha256": "393fedcdff7cd527dc131aa50adb23dc3e363de2c273e33635bf5bf1da04006d",
+      "parent_config_sha256": "2f0a76065de1488dbb1576389e7cd37e28ac77c52fc84f522a5ce4a824da9fb2",
+      "parent_weight_sha256": "f92114bf9af5588e0bcbc4fe1c4a0420fa17bba58199cb8b6cf1f3564e664be9",
+      "manifest_path": "checkpoints/spark_fp8_derivative_v1/derivative_manifest.json",
+      "manifest_schema": "replica.spark2_5_dequantized_derivative.v1",
+      "manifest_sha256": "73d82478abe90391f3ca9c67be079931a6dd46a1e9991bfbda1de0f682055bdc",
+      "manifest_fingerprint": "88cca6fc2571c9c471b31aa6fb50fc3ac8c8c4c9d8825e785b9e4b1afd07bbcc",
+      "derivative_index": 1,
+      "artifact_sha256": "c52c6cc5e6aababa94105cf4612a09013cffd841c71d53d16356e6dc49966882",
+      "config_sha256": "87eea28583b637189c33f110b69706f6262aaa9205db4f3af00198f0eb768e87",
+      "dequantization_sha256": "215c9c49b6557be2589d7decdba98ec42719d858585b85b2342045e3a10df488",
+      "precision_digest": "144f46f6aabb2b3a623c9d91249032a75b0b53852b7bb2edbbce8fe6bbfb4e9c",
+      "precision_kind": "dequantized_fp8_derivative",
+      "storage": "bf16",
+      "weight_dtype": "BF16",
+      "activation_semantics": "BF16/FP32 activations with no per-token F8 quantization; this is not the official FP8 forward semantics",
+      "activation_quantized": false,
+      "equivalent_to_official_bf16": false,
+      "restores_quantization_loss": false,
+      "shards": [
+        {
+          "bytes": 1059247928,
+          "filename": "model-00001-of-00008.safetensors",
+          "sha256": "90e4ef120f0631c7e96bcdefb98d767f2cbf795adac7da96b5a477c62bb52f43"
+        },
+        {
+          "bytes": 1049041440,
+          "filename": "model-00002-of-00008.safetensors",
+          "sha256": "01d0cae5a103e00a09a231ca6db1317cc0df3ab4033fa1eb6be347534c160529"
+        },
+        {
+          "bytes": 1049041440,
+          "filename": "model-00003-of-00008.safetensors",
+          "sha256": "6ccf1adb5a60a4c3afdc972207d7c294dcaad411479c9ac02734cf2815e90519"
+        },
+        {
+          "bytes": 1049041432,
+          "filename": "model-00004-of-00008.safetensors",
+          "sha256": "cfd2a9461792a8c728d942202bc4d932988ddf12b2298ce18d7f528fa6709926"
+        },
+        {
+          "bytes": 1049041440,
+          "filename": "model-00005-of-00008.safetensors",
+          "sha256": "2f201c9049479e96385d324911c64f152ad0c297b35179d422cfbddf0090dcd8"
+        },
+        {
+          "bytes": 1049041432,
+          "filename": "model-00006-of-00008.safetensors",
+          "sha256": "7999bae43c5c04e9b755ad0aeb48175f9dafec20e15783bf3c2435e503217067"
+        },
+        {
+          "bytes": 1049041424,
+          "filename": "model-00007-of-00008.safetensors",
+          "sha256": "336b74038a4dec5cf44a77fd4d2aa76719fcc4eb6cc257317959117a138a1e70"
+        },
+        {
+          "bytes": 870695728,
+          "filename": "model-00008-of-00008.safetensors",
+          "sha256": "d6156a23f81c8d6453bbae1610a02036dcf6bb097b26be1ccd45d411ed0aa971"
+        }
+      ],
+      "shard_count": 8,
+      "parameter_elements": 4112079360,
+      "tensor_count": 290,
+      "substitution_allowed": false
+    }
+  },
+  "authorization_status": {
+    "required": true,
+    "present": false,
+    "path": "reports/spark_persistent_learner_v2/derivative_bf16_authorization.json",
+    "existing_valid_authorization_for_this_experiment": false,
+    "existing_spark_protocol_v2_authorization_present": false,
+    "coverage_assessment": "No Spark authorization file exists. The separate persistent-learner v2 authorization path is also absent and, if later issued, would bind official_native_fp8 execution. It cannot cover this dequantized BF16 derivative experiment.",
+    "manufactured": false,
+    "refusal_before_model_load": true
+  },
+  "implemented": {
+    "files": {
+      "configs/spark_persistent_learner_derivative_bf16_protocol_v1.json": "d46d2264af9128b8b1fbd5ac1d9da15414305e49e1c8097616ee93bece0d2476",
+      "scripts/preflight_spark_persistent_learner_derivative_bf16.py": "af6c74164359497c7d6b955ba84de10d3c74450c0f498b41d41d916812e05023",
+      "scripts/run_spark_persistent_learner_derivative_bf16.py": "d3fe87ad5fac3e94283190ff2b5f7c0ff4671b275fc9475cdb715ba7ff7f55fa",
+      "src/replica_lab/architecture/spark2_5.py": "d1fed0d1e3771b2a37229406719583d7b9727983702087f42c156a4d5b8e4c5b",
+      "src/replica_lab/architecture/spark_adapter.py": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
+      "tests/test_spark_derivative_bf16_protocol.py": "d6b7c2d8c7aa0ce94aa99ded9ea4dccb38e2ce624a233a1dd0d2eb3117430f76",
+      "scripts/run_capacity_preflight.py": "38ec04649df919cf7226d74f0ea80b8c138b9eddf17e455a6c7d5a812c3e3928"
+    },
+    "implementation_sha256": {
+      "scripts/run_spark_persistent_learner_derivative_bf16.py": "d3fe87ad5fac3e94283190ff2b5f7c0ff4671b275fc9475cdb715ba7ff7f55fa",
+      "scripts/run_capacity_preflight.py": "38ec04649df919cf7226d74f0ea80b8c138b9eddf17e455a6c7d5a812c3e3928",
+      "scripts/preflight_spark_persistent_learner_derivative_bf16.py": "af6c74164359497c7d6b955ba84de10d3c74450c0f498b41d41d916812e05023",
+      "src/replica_lab/architecture/spark2_5.py": "d1fed0d1e3771b2a37229406719583d7b9727983702087f42c156a4d5b8e4c5b",
+      "src/replica_lab/architecture/spark_adapter.py": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
+      "src/replica_lab/architecture/spine.py": "5a4b4fd002e0cea3341639946e3824d8773adf9e1b494486f1f4d35334373703",
+      "src/replica_lab/architecture/spine_memory.py": "2b826bb70973210a5bd611de0415a5b7ef63914d8ff23dcb724d0362f1ca7626",
+      "src/replica_lab/architecture/spine_text.py": "d359fbbd2a5a5167ff67421fe8bad50b6d879b79192879bddd97bf277e552f9a",
+      "src/replica_lab/architecture/spine_checkpoint.py": "7bbf1f24fc428b6063568c1ac6f3d75da13f87128e623400730ad41aaef8681e",
+      "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+      "src/replica_lab/architecture/plastic.py": "534ce0c3837acb971adb3f1bc50c257199b1226a9135c44d11a9fe6fc5ef3a99",
+      "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+      "src/replica_lab/architecture/core.py": "07117046230d9db4e7be50d6c50deddd573d0b6825768fa841cbcd181710677d",
+      "src/replica_lab/architecture/heads.py": "ac54a4c2f466eea5c668fa7187ebedac223db94a3aa03a62ad1e36392bff1fbf",
+      "src/replica_lab/architecture/contracts.py": "14daa2cc3cdcd171c17da039c06b694a270a6fff6bc9c1306303b93b65db0712",
+      "src/replica_lab/optimizers.py": "e51d91b9007681fd15827224c3b57e8657550d88590ef3a995dcdf76b5c82adb",
+      "src/replica_lab/p1_response_learning.py": "57fcabb986aebcbcbe091c1a13e822ed110c647420e3931454035e74865c5faf",
+      "src/replica_lab/nested_learning.py": "f4adf4a77b8916b38f89af286444ae97b81397e5dc95f8823d687763afeae713",
+      "src/replica_lab/training_state.py": "2697c33edc45c8201b1a0df2cefd17da0a4e0f79ba23ae63f47659bcae88e487",
+      "src/replica_lab/model_identity.py": "53c6f38df2101a1d93c0fd8887bc8c42852bd3f14ea0f85ac61ae5eb5a92ef20",
+      "src/replica_lab/artifact_publication.py": "5323eafe106aa42d3f1f1f55dc1de5a6a2bddcf70a81ae4b9a484d3ac99c3a22",
+      "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+      "src/replica_lab/checkpoint_storage.py": "7cfd3496f71a23f74b20162f24eaea7514c5fc5d1e4eb2f0100b1e5e428e96a1"
+    },
+    "manifest_and_lineage_validation": {
+      "status": "implemented_and_passed",
+      "parent_revision_verified": true,
+      "parent_config_verified": true,
+      "parent_weight_verified": true,
+      "parent_artifact_digest_recomputed": true,
+      "conversion_identity_parent_precision_verified": true,
+      "dequantizer_script_hash_verified": true,
+      "derivative_config_hash_verified": true,
+      "eight_shard_bytes_and_sha256_verified": true,
+      "activation_semantics_verified": true,
+      "precision_digest_verified": true
+    },
+    "precision_substitution_refusal": {
+      "status": "implemented_and_tested",
+      "official_bf16_label_on_derivative_config": "refused",
+      "official_fp8_label_on_derivative_config": "refused",
+      "derivative_manifest_without_replica_precision_provenance": "refused",
+      "adapter_precision_config_mismatch": "refused"
+    },
+    "current_p1_spine_admission": {
+      "status": "implemented_and_tested",
+      "identity": "dequantized_fp8_derivative_bf16_storage",
+      "device": "mps",
+      "admitted": true,
+      "one_active_expert": true,
+      "original_backbone_frozen": true,
+      "optimizer": "NativeFusedAdamW",
+      "sites": [
+        3,
+        7
+      ],
+      "candidate_late_sites": [
+        23,
+        31
+      ],
+      "spine_slot_read_budget": 8,
+      "memory_port_size": 256,
+      "memory_port_heads": 4,
+      "late_sites_admitted": false,
+      "late_sites_refusal_reason": "late sites require the separately justified matched 36-layer comparison",
+      "short_geometry_refused": true
+    },
+    "focused_tests": {
+      "path": "tests/test_spark_derivative_bf16_protocol.py",
+      "sha256": "d6b7c2d8c7aa0ce94aa99ded9ea4dccb38e2ce624a233a1dd0d2eb3117430f76",
+      "result": "12 passed (this file, focused only; no full suite)",
+      "covers": [
+        "manifest fingerprint, parent lineage and all eight shard hashes",
+        "changed shard bytes, activation semantics, parent revision, dequantizer hash, quantized config",
+        "extra or missing shard inventory",
+        "official BF16/FP8 precision substitution refusals in builder, classifier and adapter",
+        "current P1/spine admission, late-site refusal, short-geometry refusal and justified late-site review",
+        "zero-init parity, finite P/reader-port gradients, one actual NativeFusedAdamW P update with moments/clock, frozen base, extension-only export/reload",
+        "protocol mutation refusals for substitution, spine sites, guards, required checks and stale implementation hashes",
+        "CPU synthetic smoke entrypoint behavior and fresh-output refusal",
+        "native authorization refusal before any model load, including a fabricated receipt",
+        "preparation-only preflight still blocked only by protocol_commit and external authorization",
+        "runner implementation/hash binding in the protocol and packet"
+      ],
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts .venv/bin/python -m pytest tests/test_spark_derivative_bf16_protocol.py -q"
+    },
+    "review_command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/preflight_spark_persistent_learner_derivative_bf16.py --config configs/spark_persistent_learner_derivative_bf16_protocol_v1.json --receipt <fresh-generated-receipt.json>",
+    "implemented_derivative_runner": {
+      "status": "implemented",
+      "path": "scripts/run_spark_persistent_learner_derivative_bf16.py",
+      "sha256": "d3fe87ad5fac3e94283190ff2b5f7c0ff4671b275fc9475cdb715ba7ff7f55fa",
+      "protocol_runner_status": "implemented",
+      "protocol_binding": "launch.runner_status=implemented and launch.implementation_sha256 pins this file",
+      "cpu_smoke": {
+        "backend": "cpu_synthetic_derivative_fixture",
+        "stage": "smoke",
+        "synthetic_parent_identity": "official_native_fp8_fixture_never_a_real_checkpoint",
+        "checks": [
+          "derivative config/precision binding and preflight",
+          "zero-init exact logits parity",
+          "finite gradients into P and intended memory reader ports",
+          "one actual NativeFusedAdamW P update plus one separate port-output update with moments and clock",
+          "frozen original backbone integrity",
+          "extension-only export and exact reload into a new adapter instance",
+          "official FP8/BF16 label, classifier and adapter substitution refusals",
+          "parent-artifact reuse and stale dequantization hash refusals"
+        ],
+        "evidence_class": "engineering_only_not_native"
+      },
+      "native_path": {
+        "backend": "native_derivative",
+        "device": "mps",
+        "stages": [
+          "all",
+          "fit",
+          "development",
+          "restart"
+        ],
+        "refusal_before_model_load": true,
+        "authorization_gate": "preflight _missing_bindings + _validate_authorization over the exact derivative identity",
+        "reuses": [
+          "v2 prepared fixture, schedule and WorkLedger",
+          "v2 direct-response-CE/P1 fit controls and checkpoint contract",
+          "v2 development arms including untouched full_eligible_context first",
+          "v2 fresh-process restart plus an extension-only export/reload receipt"
+        ],
+        "late_sites": "3/7 only; matched 23/31 refused unless a completed early report on the same artifact is supplied",
+        "not_executed": true
+      }
+    }
+  },
+  "prior_qualified": {
+    "scope": "frozen-base Spark2_5 adapter qualification on the derivative artifact; not the P1/spine experiment",
+    "evidence_path": "reports/spark_qualification_20261026/selected_runs.json",
+    "evidence_sha256": "65a6b5c175ef3629246612b9686af2d872f2f91dc74cc3cd54316688fd4e2ece",
+    "comparison_path": "reports/spark_qualification_20261026/comparison.json",
+    "comparison_sha256": "c2019734fdd1e85a40c158d6e74cdf701f6417b9e284dee1011de8ef44b52d11",
+    "run_id": "derivative_02",
+    "status": "completed",
+    "completion_scope": "export_reload",
+    "stage_status": {
+      "load": "completed",
+      "inference": "completed",
+      "input_gradients": "completed",
+      "single_update": "completed",
+      "export_reload": "completed"
+    },
+    "artifact_sha256": "c52c6cc5e6aababa94105cf4612a09013cffd841c71d53d16356e6dc49966882",
+    "precision_kind": "dequantized_fp8_derivative",
+    "zero_init_parity": {
+      "zero_init_projector_exact_logits": true,
+      "zero_init_max_abs_logit_difference": 0.0,
+      "perturbation_max_abs_change": 43.8671875,
+      "perturbation_scale": 0.05
+    },
+    "input_gradients": {
+      "grad_enabled": true,
+      "new_gradient_tensors": 24,
+      "new_gradient_tensors_finite": 24,
+      "new_gradient_tensors_nonzero": 4,
+      "base_gradient_tensors": 0,
+      "traced_layers": 36,
+      "base_unchanged": true
+    },
+    "single_update": {
+      "optimizer": "NativeFusedAdamW",
+      "optimizer_group": "new_adamw_fused",
+      "steps": 1,
+      "learning_rate": 0.0002,
+      "loss": 8.743444442749023,
+      "loss_finite": true,
+      "changed_tensor_count": 4,
+      "max_abs_named_delta": 0.0002000000240514055,
+      "all_parameters_finite": true,
+      "base_unchanged": true,
+      "post_update_new_gradient_nonzero": true
+    },
+    "fresh_process_reload": {
+      "fresh_process": true,
+      "child_pid": 26874,
+      "base_identity_verified": true,
+      "rtol": 1e-05,
+      "atol": 1e-06,
+      "logits_finite": true,
+      "max_abs_logit_difference": 0.0,
+      "mean_abs_logit_difference": 0.0,
+      "within_tolerance": true,
+      "exact_greedy_tokens": true,
+      "reload_report_fingerprint": "fc3f71263e321509fe75997d5bfa4a4ae19693ea3f5f6dfdd7ab3a5ff09915c3"
+    },
+    "resources": {
+      "peak_driver_bytes": 9552232448,
+      "peak_mps_allocated_sampled_bytes": 8655145984,
+      "peak_rss_bytes": 760528896,
+      "peak_swap_growth_bytes": 0,
+      "minimum_observed_free_percent": 77.0,
+      "guard_elapsed_seconds": 26.39054508274421,
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent_limit": 15,
+      "sampled_driver_within_limit": true,
+      "stop_reason": null,
+      "guard_status": "completed_within_declared_sampled_limits"
+    },
+    "paired_smoke_generation": {
+      "rows": 3,
+      "exact_token_agreement_count": 2,
+      "non_bitwise": true,
+      "capability_claim": "none"
+    },
+    "limits": "Qualification used the frozen-base adapter and its extension ports, without the P1 plastic bank, the P1 spine sites 3/7, the full-context-first baseline or matched arm protocol. Its completion is not an experiment-scope result."
+  },
+  "still_required": [
+    {
+      "gate": "external_derivative_authorization",
+      "status": "missing",
+      "detail": "An external receipt must bind this protocol hash/commit, implementation hashes, derivative manifest/artifact, qualification evidence, attempt and fresh output root."
+    },
+    {
+      "gate": "experiment_scope_zero_init_parity",
+      "status": "required",
+      "detail": "Re-establish exact logits parity at the 36-layer derivative with P1/spine before any update."
+    },
+    {
+      "gate": "experiment_scope_gradients_P_and_ports",
+      "status": "required",
+      "detail": "Record finite gradients into selected P (expert_0.gate/up/down) and intended reader-port outputs on real Spark activations."
+    },
+    {
+      "gate": "experiment_scope_native_fused_adamw_update",
+      "status": "required",
+      "detail": "One actual NativeFusedAdamW P update with FP32 moments, step counts and one learning-clock/revision advance; port owner remains separate."
+    },
+    {
+      "gate": "experiment_scope_frozen_base_integrity",
+      "status": "required",
+      "detail": "Base parameter/buffer stamps unchanged across forward, backward, update, checkpoint and reload."
+    },
+    {
+      "gate": "experiment_scope_fresh_process_extension_reload",
+      "status": "required",
+      "detail": "Extension-only export reloaded in a fresh process with exact logits/token identity at P1 scope."
+    },
+    {
+      "gate": "untouched_full_eligible_context_first",
+      "status": "required",
+      "detail": "Run the all-eligible full-context baseline before interpreting P; no semantic-score filter."
+    },
+    {
+      "gate": "matched_early_vs_late_sites",
+      "status": "conditional",
+      "detail": "Compare early 3/7 with late 23/31 only on the same 36-layer source after the early result and with charged forward/backward costs."
+    },
+    {
+      "gate": "environment_and_guard_evidence",
+      "status": "required",
+      "detail": "Record transformers 4.57.1 and package versions, one exclusive worker, offline flags, CPU fallback disabled and 50 GiB / 512 MiB / 15% host-free guard receipts. The runner requires REPLICA_CAPACITY_GUARD=1 through scripts/run_capacity_preflight.py, PYTORCH_ENABLE_MPS_FALLBACK=0 and the offline flags before any model import."
+    }
+  ],
+  "experiment": {
+    "profile": "P1",
+    "active_experts": 1,
+    "width": 256,
+    "hidden_width": 512,
+    "original_backbone_frozen": true,
+    "optimizer": "NativeFusedAdamW",
+    "optimizer_state_dtype": "FP32",
+    "objective": "direct_response_cross_entropy",
+    "trainable": [
+      "plastic.expert_0.gate",
+      "plastic.expert_0.up",
+      "plastic.expert_0.down",
+      "extension.spine.ports.*.output_projection"
+    ],
+    "response_spine_optimizer_steps": 0,
+    "selected_P_optimizer_steps_max": 4,
+    "response_port_optimizer_steps_max": 4,
+    "full_context_first": true,
+    "untouched_baseline": "full_eligible_context",
+    "full_context_records_max": 16,
+    "full_context_value_slots_max": 64,
+    "readout_candidate_key_reads_max_per_selection": 64,
+    "readout_selection_attempts_max_per_query": 2,
+    "context_tokens_max": 2048,
+    "max_new_tokens": 32,
+    "greedy": true,
+    "thinking": "off",
+    "arms": 11,
+    "restart_processes": 1,
+    "p4_plus": "lazy_not_preallocated",
+    "p4_statuses": {
+      "P4": "lazy_future_expansion",
+      "P16": "lazy_future_expansion",
+      "P32": "lazy_future_expansion",
+      "P64": "main_design_target_not_preallocated",
+      "P128_stretch": "stretch_two_active_separate_ablation_not_preallocated"
+    }
+  },
+  "guards": {
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_limit_bytes": 536870912,
+    "minimum_host_free_fraction": 0.15,
+    "sustained_host_samples": 3,
+    "exclusive_native_worker": true,
+    "cpu_fallback": false,
+    "full_backbone_fp32_adamw_admitted": false,
+    "offline": true
+  },
+  "verification": {
+    "performed": [
+      "full SHA256 verification of all eight derivative shards and the derivative config",
+      "full SHA256 verification of the sealed parent FP8 config and weight",
+      "manifest fingerprint and artifact-digest recomputation",
+      "dequantizer script hash and conversion provenance verification",
+      "protocol validation and P1/spine MPS admission without model load",
+      "derivative runner implementation, CPU synthetic smoke, substitution/stale-hash refusal and authorization refusal tests"
+    ],
+    "not_performed": [
+      "no model or tokenizer load",
+      "no native MPS job",
+      "no downloads or external requests",
+      "no optimizer update in preparation",
+      "no heldout or sealed-final access",
+      "no native model test suite; CPU repository regression is recorded separately"
+    ],
+    "preflight_missing_bindings": [
+      "external_derivative_authorization"
+    ]
+  },
+  "next_gate": {
+    "exact": "obtain an external derivative authorization for this protocol, manifest/artifact, qualification evidence and fresh output root; no native job has run",
+    "ordered": [
+      "review the committed runner protocol/hash bindings and CPU smoke evidence",
+      "obtain external authorization; no authorization exists today",
+      "run the guarded derivative P1 pilot once, with no retries"
+    ],
+    "no_launch_now": true,
+    "integration_note": "The implementation commit binds the derivative runner and current tiered modules; native launch still requires the external derivative authorization."
+  },
+  "non_claims": [
+    "no native FP8 training support is inferred from FP8 storage, inference or this derivative",
+    "official BF16 and FP8-derived BF16 are separate identities and neither substitutes for official FP8",
+    "the derivative does not restore quantization loss or equal the official BF16 release",
+    "no accuracy or speed improvement is inferred from wiring, manifests or parameter changes",
+    "no useful learning is inferred from preparation, a random fixture or a single optimizer update",
+    "no lifelong learning, reasoning improvement or RSI claim follows from this pilot",
+    "no sealed-final result is opened or tuned",
+    "no P-bank, Mkv or read-budget expansion follows from failure",
+    "late sites are compared only on the same 36-layer source after the early 3/7 result and with charged costs"
+  ],
+  "verified_inputs": {
+    "prepared_fixture_manifest": {
+      "path": "data/spark_persistent_learner_v2/manifest.json",
+      "sha256": "761e17a56fb49a916dfc969e23e4d6f2e7f7295aa7bc4a09a44d13af7ea16b9f",
+      "status": "present_and_hash_matched",
+      "sealed_final_open": false
+    },
+    "authorization_preserved": false
+  }
+}
