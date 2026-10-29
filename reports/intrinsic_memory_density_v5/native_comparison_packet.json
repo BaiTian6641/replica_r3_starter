@@ -1,0 +1,65 @@
+{
+  "format": "replica.intrinsic_memory.density.review_packet.v5",
+  "authorization": false,
+  "launch_allowed": false,
+  "native_execution": false,
+  "protocol_path": "configs/intrinsic_memory_density_protocol_v5.json",
+  "protocol_sha256": "f9f4f3b174a29682e3dfc0d13e43efcf270164e722617f904a1d979700d6fb7b",
+  "runner_status": "not_implemented_native_admission_unavailable",
+  "preparation_check_command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_spark_memory_density_v5.py",
+  "native_launch_command": null,
+  "reason_no_native_command": "The sealed v3 runner cannot accept v4 layouts/checkpoints. A separately versioned native density runner with full local executable closure is required; this validator does not import or launch models.",
+  "arms": {
+    "two": {
+      "arm_sha256": "bd34fc0176f319be1ff6f623cf75fe86192ab5c6260d178b0783d030831cc48f",
+      "output_root": "runs/intrinsic_memory_density_v5/two_attempt01",
+      "guard_report": "runs/intrinsic_memory_density_v5/guard_two_attempt01.json",
+      "authorization_receipt": "reports/intrinsic_memory_density_v5/two_authorization.json",
+      "authorized": false
+    },
+    "full_attention_nine": {
+      "arm_sha256": "642273211e74202bda333ecd8e96ab00800b7cea9b9ddcbe15d1df138489fb0e",
+      "output_root": "runs/intrinsic_memory_density_v5/full_attention_nine_attempt01",
+      "guard_report": "runs/intrinsic_memory_density_v5/guard_full_attention_nine_attempt01.json",
+      "authorization_receipt": "reports/intrinsic_memory_density_v5/full_attention_nine_authorization.json",
+      "authorized": false
+    },
+    "all": {
+      "arm_sha256": "969b790526b9087dcf21931cda890b8e84b080592c9d335a08f4de7b14120248",
+      "output_root": "runs/intrinsic_memory_density_v5/all_attempt01",
+      "guard_report": "runs/intrinsic_memory_density_v5/guard_all_attempt01.json",
+      "authorization_receipt": "reports/intrinsic_memory_density_v5/all_authorization.json",
+      "authorized": false
+    }
+  },
+  "comparison_budget_sum": {
+    "generation_requests_max": 240,
+    "generated_tokens_max": 7680,
+    "forward_calls_max": 7785,
+    "backward_calls_max": 99,
+    "optimizer_steps_max": 99,
+    "processed_text_positions_max": 16062720,
+    "backward_processed_positions_max": 202752,
+    "model_loads_max": 6,
+    "tokenizer_loads_max": 6,
+    "wall_seconds_max": 21600,
+    "artifact_bytes_max": 3221225472
+  },
+  "execution_schedule": "serial_exclusive_worker_per_arm_no_automatic_retries_stop_failed_arm_preserve_diagnostics_continue_other_arms_only_if_individually_authorized",
+  "artifact_budget_note": "1_GiB_per_arm_covers_single_extension_optimizer_checkpoint_and_logs_not_a_fit_claim; all36_FP32_reader_weights_plus_two_moments_are_about596.5MiB_before_producer_and_metadata",
+  "remaining_gates": [
+    "useful_sealed_v3_readout",
+    "clean_CPU_integration_regressions_and_final_binding_verification",
+    "implement_separate_native_runner_and_full_execution_closure",
+    "source_environment_code_prepared_data_and_loaded_base_device_admission_each_arm",
+    "fresh_exact_per_arm_human_authorization",
+    "per_arm_numerical_resource_competence_checks"
+  ],
+  "claims": {
+    "CPU_preparation_only": true,
+    "native_competence": false,
+    "useful_recall": false,
+    "persistent_learning": false,
+    "RSI": false
+  }
+}

@@ -1,0 +1,1021 @@
+{
+  "format": "replica.intrinsic_memory.density.protocol.v5",
+  "date": "2026-10-29",
+  "scope": "review_preparation_for_separate_native_feasibility_study_no_launch_authority",
+  "placement": "block_input_query_to_post_block_residual",
+  "shared": {
+    "source_lineage": "XHToken/Spark-X2.6-4B-FP8@0318d6f6ab070c7b5b43052db571489b2508006c",
+    "execution_identity": "dequantized_fp8_derivative_bf16_storage_without_activation_quantization_on_mps",
+    "official_FP8": false,
+    "official_BF16": false,
+    "active_P_experts": 1,
+    "P_updates": 0,
+    "slots_per_span": 4,
+    "slot_width": 256,
+    "selected_records_max": 2,
+    "selected_slots": 8,
+    "unused_slots": "explicit_masked_padding_identical_across_arms",
+    "source_span_bytes_max": 256,
+    "source_order": "canonical_provenance_order",
+    "training_steps": 32,
+    "continuation_updates": 1,
+    "learning_rate": 0.001,
+    "optimizer": "NativeFusedAdamW_one_owner_per_parameter",
+    "producer_initialization_seed": 1729,
+    "wrapper_initialization_seed": 1729,
+    "reader_initialization": "wrapper_seed_plus_1000_plus_layer_index_2729_plus_layer_same_shared_sites_across_arms",
+    "fit_order": "8_bound_fit_worlds_in_file_order_repeated_four_times",
+    "writer": "existing_contextual_producer_store_admit_only_no_learned_writer",
+    "writer_frequency": "one_admission_per_observation_or_explicit_correction_no_writes_in_forward",
+    "retrieval": "one_pinned_store_read_per_query_generation_no_prefix_retrieval_shared_layer_snapshot_cloned_once_per_forward",
+    "training_tensor_path": "live_producer_tensor_shared_by_active_layers_serialize_only_at_durable_boundary",
+    "training_horizon": "one_source_encoding_and_response_CE_per_update",
+    "thinking_mode": "none",
+    "decode": "greedy_eos_enabled_no_sampling",
+    "max_new_tokens": 32,
+    "context_tokens_max": 2048,
+    "evidence_truncation_allowed": false,
+    "prompt_template": "Reply with only the answer word. If unsupported reply unknown.\nQuestion: {question}\nAnswer:",
+    "exact_template": "Evidence:\n{selected_exact_span_text}\nReply with only the answer word. If unsupported reply unknown.\nQuestion: {question}\nAnswer:",
+    "freeze": "all_32_fit_updates_complete_then_freeze_producer_reader_before_development_and_chronology_labels",
+    "no_adaptive_tuning": "first_arm_results_do_not_change_later_arm_training_data_seeds_hyperparameters_or_scoring",
+    "controls": [
+      "contextual",
+      "selected_exact",
+      "wrong",
+      "shuffled",
+      "absent"
+    ],
+    "chronology_controls": [
+      "contextual",
+      "selected_exact"
+    ],
+    "sealed_final_labels": "closed",
+    "extension_placement": "block_input_query_to_post_block_residual",
+    "external_spine": "not_required_specialist_sensor_actor_interfaces_preserved",
+    "derivative_manifest_sha256": "73d82478abe90391f3ca9c67be079931a6dd46a1e9991bfbda1de0f682055bdc",
+    "derivative_artifact_sha256": "c52c6cc5e6aababa94105cf4612a09013cffd841c71d53d16356e6dc49966882",
+    "source_qualification_run_id": "derivative_02",
+    "operation_limits": {
+      "source_encodings_max": 67,
+      "record_admissions_max": 24,
+      "explicit_revocations_max": 8,
+      "retrieval_requests_max": 32,
+      "layer_snapshot_copies_max": 2595,
+      "exact_fallback_requests_max": 24,
+      "snapshot_copies_per_forward_max": 1,
+      "writes_per_layer_forward_max": 0,
+      "retrievals_per_layer_forward_max": 0
+    }
+  },
+  "bindings": {
+    "source_protocol": {
+      "path": "configs/spark_persistent_learner_derivative_bf16_protocol_v1.json",
+      "sha256": "5aaf601b6f73070384053401559bc8104f8b25daac053ab84b16be2fb2afbe6e"
+    },
+    "source_execution_manifest": {
+      "path": "configs/spark_derivative_execution_manifest_v1.json",
+      "sha256": "f48b467026436ed291003b10fcbe61384db52799e62c6fadd28b13b4983c163c"
+    },
+    "environment": {
+      "path": "configs/spark_intrinsic_execution_environment_v1.json",
+      "sha256": "7bac9e5e963d3b9fa1cb8cc3be846dc72938a7206ddcc7fd978ba07257c67095"
+    },
+    "competence_protocol": {
+      "path": "configs/spark_competence_protocol_v1.json",
+      "sha256": "00be558df3cfe370a86df6ddc470575761c86473a2f5e509a6054f3a7bc09464"
+    },
+    "competence_data": {
+      "path": "data/spark_competence_v1/cases.json",
+      "sha256": "2597c0066b9b1c9dc33ff65d38087cf343234136c864a4ac688fcb3d98394b12"
+    },
+    "readout_protocol_reference": {
+      "path": "configs/intrinsic_memory_readout_protocol_v3.json",
+      "sha256": "fd2cec4dd6be3e45920c59712d1ef4342ddafe04a42c27437191b1fade17fad1"
+    },
+    "prepared_source_manifest": {
+      "path": "data/spark_persistent_learner_v2/manifest.json",
+      "sha256": "761e17a56fb49a916dfc969e23e4d6f2e7f7295aa7bc4a09a44d13af7ea16b9f"
+    },
+    "fit": {
+      "path": "data/contextual_readout_v2/fit.json",
+      "sha256": "d805af627e378e7d7a721d06ac78a3e13ff36e66fc6dc96594331afbb2c8ebf5"
+    },
+    "development": {
+      "path": "data/contextual_readout_v2/development.json",
+      "sha256": "b044cbc49e8fbf0fe6e2fc9065d872d3d263cb3da4f7c9be0950fd8bb8533a31"
+    },
+    "development_labels": {
+      "path": "data/contextual_readout_v2/development_labels.json",
+      "sha256": "9e19620cf1df794fa5ee1ada37d513d669e3d3329fa3bdd0d9da9e3b9c76dcf5"
+    },
+    "chronology": {
+      "path": "reports/intrinsic_memory_density_v5/chronology_cases.json",
+      "sha256": "1d0dd825db5fdd8061e0a90896cff59a935903409be8b5c2a79c4eb74bde7b78"
+    },
+    "chronology_labels": {
+      "path": "reports/intrinsic_memory_density_v5/chronology_labels.json",
+      "sha256": "f0f0dcba48635c87e046dce50e7cfc418340882655dc2f880e1244de3f9c3cc5"
+    },
+    "scorer": {
+      "path": "src/replica_lab/baseline_competence.py",
+      "sha256": "9aecd789505e6551af7f2444ed10439537b21247a232e6f9f55896f08ac6b2ed"
+    },
+    "template_reference": {
+      "path": "src/replica_lab/contextual_readout_training.py",
+      "sha256": "3a58d43ccaa3b39a02572c139d229b72c8cb3242fe21a755916b3895c5d55066"
+    },
+    "producer": {
+      "path": "src/replica_lab/contextual_memory.py",
+      "sha256": "1a4d301b7d9f986c0538b391cd1daf5e5532294b1e966b4f5274a65c8ef017e2"
+    },
+    "reader": {
+      "path": "src/replica_lab/architecture/intrinsic_memory_layout_v4.py",
+      "sha256": "c404fda0189b5ab63e3ed4d9bd2e499b09e1bc6eb66f133e66210c64af91c5b2"
+    },
+    "adapter": {
+      "path": "src/replica_lab/architecture/spark_adapter.py",
+      "sha256": "d40375a968413adf4dbab536975ea27384bee25b1b2bfa9a931a81c9edf0c4ed"
+    },
+    "store": {
+      "path": "src/replica_lab/tiered_memory.py",
+      "sha256": "5121ec79a6faba3e7cdcf62bc56977b9176b2f05c373d75faa6ff0fd532bdf7e"
+    },
+    "optimizer": {
+      "path": "src/replica_lab/optimizers.py",
+      "sha256": "e51d91b9007681fd15827224c3b57e8657550d88590ef3a995dcdf76b5c82adb"
+    },
+    "review_validator": {
+      "path": "scripts/validate_spark_memory_density_v5.py",
+      "sha256": "cc70ed8a14e8a9e8cfa6981b1e8ac7308380e494f1a34267aba78daca39aeb07"
+    },
+    "source_qualification": {
+      "path": "reports/spark_qualification_20261026/selected_runs.json",
+      "sha256": "65a6b5c175ef3629246612b9686af2d872f2f91dc74cc3cd54316688fd4e2ece"
+    },
+    "review_tests": {
+      "path": "tests/test_intrinsic_memory_density_protocol.py",
+      "sha256": "5fb7367d6358bb91ec0353fec0c061c55247a1def431939f84ed8d31de503996"
+    },
+    "integrated_wrapper": {
+      "path": "src/replica_lab/contextual_memory_layout_v4.py",
+      "sha256": "c297ce01c8bd56b7471a1b2b017c945bca6999ff3d3401e5481575701d17b6d7"
+    },
+    "integrated_training_protocol": {
+      "path": "configs/contextual_memory_layer_training_protocol_v4.json",
+      "sha256": "170678aa1d6b1f204d63f27831cc1495968e466c25471e685650ebbbd4cdb2b8"
+    },
+    "integrated_CPU_diagnostic": {
+      "path": "scripts/verify_contextual_memory_layout_v4_cpu.py",
+      "sha256": "a1a3c52765de01f7ddfc32bd52dd4c5578f65da5710344028a87e5a29a9c1cc9"
+    },
+    "placement_helper": {
+      "path": "src/replica_lab/spark_device_placement_v2.py",
+      "sha256": "0a88d138ea877e9da3296890c910bd15369d477fd8a0441e7865720c50faefdd"
+    },
+    "placement_source_protocol": {
+      "path": "configs/spark_persistent_learner_derivative_bf16_placement_protocol_v2.json",
+      "sha256": "896099e67f0665bbe62deb480e7e004899e0910f51d48c6cc3762cecda10d395"
+    }
+  },
+  "guards": {
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_limit_bytes": 536870912,
+    "minimum_host_free_fraction": 0.15,
+    "sustained_host_samples": 3,
+    "exclusive_native_worker": true,
+    "cpu_fallback": false
+  },
+  "numerical": {
+    "before_fit": [
+      "source_and_code_environment_qualification_per_arm",
+      "original_weights_frozen_and_digest_recorded",
+      "complete_native_S0_8_of_8_zero_false_recall_no_truncation",
+      "loaded_original_parameters_and_buffers_on_declared_MPS_device_before_first_forward",
+      "finite_disabled_extension_logits_and_parity"
+    ],
+    "during_fit": [
+      "exactly_32_updates_unless_fail_closed",
+      "finite_loss_and_gradients_every_update",
+      "reader_output_gradient_on_first_update",
+      "nonzero_producer_and_active_reader_query_key_value_gradients_after_output_opens",
+      "unique_optimizer_ownership",
+      "no_early_reader_detach_through_later_frozen_blocks"
+    ],
+    "after_fit": [
+      "original_weights_unchanged",
+      "extension_and_optimizer_saved_no_backbone_export",
+      "fresh_process_bitwise_equal_logits_on_same_device_tolerance_zero",
+      "one_actual_continuation_update_changes_intended_parameters_only"
+    ]
+  },
+  "scoring": {
+    "scorer_binding": "scorer",
+    "competence": {
+      "cases": 8,
+      "correct_min": 8,
+      "false_recall_max": 0,
+      "evidence_truncation_max": 0,
+      "incomplete": "stop_dependent_fit_evaluation"
+    },
+    "primary": {
+      "cases_per_control": 8,
+      "contextual_correct_min": 6,
+      "contextual_false_recall_max": 0,
+      "exact_tolerance_cases": 1,
+      "beats_each_negative_control": true
+    },
+    "chronology": {
+      "worlds": 8,
+      "phases": [
+        "after_correction",
+        "after_revocation"
+      ],
+      "controls": [
+        "contextual",
+        "selected_exact"
+      ],
+      "corrected_correct_min": 6,
+      "revoked_false_recall_max": 0,
+      "stale_snapshot_reads_accepted_max": 0,
+      "obsolete_retrieval_accepted_max": 0,
+      "obsolete_replay_accepted_max": 0,
+      "replay_audit": "read_only_eligibility_filter_no_replay_training",
+      "obsolete_generated_answer_count_recorded_separately": true
+    },
+    "claims": "initial_single_seed_feasibility_not_density_causal_superiority_or_persistent_learning",
+    "promotion": false
+  },
+  "arms": {
+    "two": {
+      "sites": [
+        3,
+        7
+      ],
+      "output_root": "runs/intrinsic_memory_density_v5/two_attempt01",
+      "guard_report": "runs/intrinsic_memory_density_v5/guard_two_attempt01.json",
+      "shared_sha256": "87fa5dfade05ed67f525799b100f1d34633df343ee7c7f9bf03a09d2c79550a4",
+      "bindings": {
+        "source_protocol": {
+          "path": "configs/spark_persistent_learner_derivative_bf16_protocol_v1.json",
+          "sha256": "5aaf601b6f73070384053401559bc8104f8b25daac053ab84b16be2fb2afbe6e"
+        },
+        "source_execution_manifest": {
+          "path": "configs/spark_derivative_execution_manifest_v1.json",
+          "sha256": "f48b467026436ed291003b10fcbe61384db52799e62c6fadd28b13b4983c163c"
+        },
+        "environment": {
+          "path": "configs/spark_intrinsic_execution_environment_v1.json",
+          "sha256": "7bac9e5e963d3b9fa1cb8cc3be846dc72938a7206ddcc7fd978ba07257c67095"
+        },
+        "competence_protocol": {
+          "path": "configs/spark_competence_protocol_v1.json",
+          "sha256": "00be558df3cfe370a86df6ddc470575761c86473a2f5e509a6054f3a7bc09464"
+        },
+        "competence_data": {
+          "path": "data/spark_competence_v1/cases.json",
+          "sha256": "2597c0066b9b1c9dc33ff65d38087cf343234136c864a4ac688fcb3d98394b12"
+        },
+        "readout_protocol_reference": {
+          "path": "configs/intrinsic_memory_readout_protocol_v3.json",
+          "sha256": "fd2cec4dd6be3e45920c59712d1ef4342ddafe04a42c27437191b1fade17fad1"
+        },
+        "prepared_source_manifest": {
+          "path": "data/spark_persistent_learner_v2/manifest.json",
+          "sha256": "761e17a56fb49a916dfc969e23e4d6f2e7f7295aa7bc4a09a44d13af7ea16b9f"
+        },
+        "fit": {
+          "path": "data/contextual_readout_v2/fit.json",
+          "sha256": "d805af627e378e7d7a721d06ac78a3e13ff36e66fc6dc96594331afbb2c8ebf5"
+        },
+        "development": {
+          "path": "data/contextual_readout_v2/development.json",
+          "sha256": "b044cbc49e8fbf0fe6e2fc9065d872d3d263cb3da4f7c9be0950fd8bb8533a31"
+        },
+        "development_labels": {
+          "path": "data/contextual_readout_v2/development_labels.json",
+          "sha256": "9e19620cf1df794fa5ee1ada37d513d669e3d3329fa3bdd0d9da9e3b9c76dcf5"
+        },
+        "chronology": {
+          "path": "reports/intrinsic_memory_density_v5/chronology_cases.json",
+          "sha256": "1d0dd825db5fdd8061e0a90896cff59a935903409be8b5c2a79c4eb74bde7b78"
+        },
+        "chronology_labels": {
+          "path": "reports/intrinsic_memory_density_v5/chronology_labels.json",
+          "sha256": "f0f0dcba48635c87e046dce50e7cfc418340882655dc2f880e1244de3f9c3cc5"
+        },
+        "scorer": {
+          "path": "src/replica_lab/baseline_competence.py",
+          "sha256": "9aecd789505e6551af7f2444ed10439537b21247a232e6f9f55896f08ac6b2ed"
+        },
+        "template_reference": {
+          "path": "src/replica_lab/contextual_readout_training.py",
+          "sha256": "3a58d43ccaa3b39a02572c139d229b72c8cb3242fe21a755916b3895c5d55066"
+        },
+        "producer": {
+          "path": "src/replica_lab/contextual_memory.py",
+          "sha256": "1a4d301b7d9f986c0538b391cd1daf5e5532294b1e966b4f5274a65c8ef017e2"
+        },
+        "reader": {
+          "path": "src/replica_lab/architecture/intrinsic_memory_layout_v4.py",
+          "sha256": "c404fda0189b5ab63e3ed4d9bd2e499b09e1bc6eb66f133e66210c64af91c5b2"
+        },
+        "adapter": {
+          "path": "src/replica_lab/architecture/spark_adapter.py",
+          "sha256": "d40375a968413adf4dbab536975ea27384bee25b1b2bfa9a931a81c9edf0c4ed"
+        },
+        "store": {
+          "path": "src/replica_lab/tiered_memory.py",
+          "sha256": "5121ec79a6faba3e7cdcf62bc56977b9176b2f05c373d75faa6ff0fd532bdf7e"
+        },
+        "optimizer": {
+          "path": "src/replica_lab/optimizers.py",
+          "sha256": "e51d91b9007681fd15827224c3b57e8657550d88590ef3a995dcdf76b5c82adb"
+        },
+        "review_validator": {
+          "path": "scripts/validate_spark_memory_density_v5.py",
+          "sha256": "cc70ed8a14e8a9e8cfa6981b1e8ac7308380e494f1a34267aba78daca39aeb07"
+        },
+        "source_qualification": {
+          "path": "reports/spark_qualification_20261026/selected_runs.json",
+          "sha256": "65a6b5c175ef3629246612b9686af2d872f2f91dc74cc3cd54316688fd4e2ece"
+        },
+        "review_tests": {
+          "path": "tests/test_intrinsic_memory_density_protocol.py",
+          "sha256": "5fb7367d6358bb91ec0353fec0c061c55247a1def431939f84ed8d31de503996"
+        },
+        "integrated_wrapper": {
+          "path": "src/replica_lab/contextual_memory_layout_v4.py",
+          "sha256": "c297ce01c8bd56b7471a1b2b017c945bca6999ff3d3401e5481575701d17b6d7"
+        },
+        "integrated_training_protocol": {
+          "path": "configs/contextual_memory_layer_training_protocol_v4.json",
+          "sha256": "170678aa1d6b1f204d63f27831cc1495968e466c25471e685650ebbbd4cdb2b8"
+        },
+        "integrated_CPU_diagnostic": {
+          "path": "scripts/verify_contextual_memory_layout_v4_cpu.py",
+          "sha256": "a1a3c52765de01f7ddfc32bd52dd4c5578f65da5710344028a87e5a29a9c1cc9"
+        },
+        "placement_helper": {
+          "path": "src/replica_lab/spark_device_placement_v2.py",
+          "sha256": "0a88d138ea877e9da3296890c910bd15369d477fd8a0441e7865720c50faefdd"
+        },
+        "placement_source_protocol": {
+          "path": "configs/spark_persistent_learner_derivative_bf16_placement_protocol_v2.json",
+          "sha256": "896099e67f0665bbe62deb480e7e004899e0910f51d48c6cc3762cecda10d395"
+        }
+      },
+      "guards": {
+        "driver_limit_bytes": 53687091200,
+        "sustained_swap_growth_limit_bytes": 536870912,
+        "minimum_host_free_fraction": 0.15,
+        "sustained_host_samples": 3,
+        "exclusive_native_worker": true,
+        "cpu_fallback": false
+      },
+      "budgets": {
+        "competence_cases": 8,
+        "training_updates": 32,
+        "continuation_updates": 1,
+        "primary_development_responses": 40,
+        "chronology_responses": 32,
+        "generation_requests_max": 80,
+        "generated_tokens_max": 2560,
+        "forward_calls_max": 2595,
+        "backward_calls_max": 33,
+        "optimizer_steps_max": 33,
+        "processed_text_positions_max": 5354240,
+        "backward_processed_positions_max": 67584,
+        "generation_sequence_tokens_max": 2079,
+        "model_loads_max": 2,
+        "tokenizer_loads_max": 2,
+        "P_updates": 0,
+        "native_retries": 0,
+        "wall_seconds_max": 7200,
+        "artifact_bytes_max": 1073741824
+      },
+      "numerical": {
+        "before_fit": [
+          "source_and_code_environment_qualification_per_arm",
+          "original_weights_frozen_and_digest_recorded",
+          "complete_native_S0_8_of_8_zero_false_recall_no_truncation",
+          "loaded_original_parameters_and_buffers_on_declared_MPS_device_before_first_forward",
+          "finite_disabled_extension_logits_and_parity"
+        ],
+        "during_fit": [
+          "exactly_32_updates_unless_fail_closed",
+          "finite_loss_and_gradients_every_update",
+          "reader_output_gradient_on_first_update",
+          "nonzero_producer_and_active_reader_query_key_value_gradients_after_output_opens",
+          "unique_optimizer_ownership",
+          "no_early_reader_detach_through_later_frozen_blocks"
+        ],
+        "after_fit": [
+          "original_weights_unchanged",
+          "extension_and_optimizer_saved_no_backbone_export",
+          "fresh_process_bitwise_equal_logits_on_same_device_tolerance_zero",
+          "one_actual_continuation_update_changes_intended_parameters_only"
+        ]
+      },
+      "scoring": {
+        "scorer_binding": "scorer",
+        "competence": {
+          "cases": 8,
+          "correct_min": 8,
+          "false_recall_max": 0,
+          "evidence_truncation_max": 0,
+          "incomplete": "stop_dependent_fit_evaluation"
+        },
+        "primary": {
+          "cases_per_control": 8,
+          "contextual_correct_min": 6,
+          "contextual_false_recall_max": 0,
+          "exact_tolerance_cases": 1,
+          "beats_each_negative_control": true
+        },
+        "chronology": {
+          "worlds": 8,
+          "phases": [
+            "after_correction",
+            "after_revocation"
+          ],
+          "controls": [
+            "contextual",
+            "selected_exact"
+          ],
+          "corrected_correct_min": 6,
+          "revoked_false_recall_max": 0,
+          "stale_snapshot_reads_accepted_max": 0,
+          "obsolete_retrieval_accepted_max": 0,
+          "obsolete_replay_accepted_max": 0,
+          "replay_audit": "read_only_eligibility_filter_no_replay_training",
+          "obsolete_generated_answer_count_recorded_separately": true
+        },
+        "claims": "initial_single_seed_feasibility_not_density_causal_superiority_or_persistent_learning",
+        "promotion": false
+      },
+      "authorization": {
+        "required": true,
+        "inherited_from_v3": false,
+        "receipt_path": "reports/intrinsic_memory_density_v5/two_authorization.json",
+        "required_fields": [
+          "authorization_id",
+          "issued_by",
+          "issued_at_utc",
+          "expires_at_utc",
+          "attempt_id",
+          "protocol_sha256",
+          "packet_sha256",
+          "arm_sha256",
+          "runner_sha256",
+          "implementation_closure_sha256",
+          "source_execution_manifest_sha256",
+          "environment_sha256",
+          "data_bindings_sha256",
+          "scoring_sha256",
+          "numerical_sha256",
+          "budgets_sha256",
+          "output_root",
+          "guard_report",
+          "single_attempt_zero_retry"
+        ],
+        "retry_count": 0
+      }
+    },
+    "full_attention_nine": {
+      "sites": [
+        3,
+        7,
+        11,
+        15,
+        19,
+        23,
+        27,
+        31,
+        35
+      ],
+      "output_root": "runs/intrinsic_memory_density_v5/full_attention_nine_attempt01",
+      "guard_report": "runs/intrinsic_memory_density_v5/guard_full_attention_nine_attempt01.json",
+      "shared_sha256": "87fa5dfade05ed67f525799b100f1d34633df343ee7c7f9bf03a09d2c79550a4",
+      "bindings": {
+        "source_protocol": {
+          "path": "configs/spark_persistent_learner_derivative_bf16_protocol_v1.json",
+          "sha256": "5aaf601b6f73070384053401559bc8104f8b25daac053ab84b16be2fb2afbe6e"
+        },
+        "source_execution_manifest": {
+          "path": "configs/spark_derivative_execution_manifest_v1.json",
+          "sha256": "f48b467026436ed291003b10fcbe61384db52799e62c6fadd28b13b4983c163c"
+        },
+        "environment": {
+          "path": "configs/spark_intrinsic_execution_environment_v1.json",
+          "sha256": "7bac9e5e963d3b9fa1cb8cc3be846dc72938a7206ddcc7fd978ba07257c67095"
+        },
+        "competence_protocol": {
+          "path": "configs/spark_competence_protocol_v1.json",
+          "sha256": "00be558df3cfe370a86df6ddc470575761c86473a2f5e509a6054f3a7bc09464"
+        },
+        "competence_data": {
+          "path": "data/spark_competence_v1/cases.json",
+          "sha256": "2597c0066b9b1c9dc33ff65d38087cf343234136c864a4ac688fcb3d98394b12"
+        },
+        "readout_protocol_reference": {
+          "path": "configs/intrinsic_memory_readout_protocol_v3.json",
+          "sha256": "fd2cec4dd6be3e45920c59712d1ef4342ddafe04a42c27437191b1fade17fad1"
+        },
+        "prepared_source_manifest": {
+          "path": "data/spark_persistent_learner_v2/manifest.json",
+          "sha256": "761e17a56fb49a916dfc969e23e4d6f2e7f7295aa7bc4a09a44d13af7ea16b9f"
+        },
+        "fit": {
+          "path": "data/contextual_readout_v2/fit.json",
+          "sha256": "d805af627e378e7d7a721d06ac78a3e13ff36e66fc6dc96594331afbb2c8ebf5"
+        },
+        "development": {
+          "path": "data/contextual_readout_v2/development.json",
+          "sha256": "b044cbc49e8fbf0fe6e2fc9065d872d3d263cb3da4f7c9be0950fd8bb8533a31"
+        },
+        "development_labels": {
+          "path": "data/contextual_readout_v2/development_labels.json",
+          "sha256": "9e19620cf1df794fa5ee1ada37d513d669e3d3329fa3bdd0d9da9e3b9c76dcf5"
+        },
+        "chronology": {
+          "path": "reports/intrinsic_memory_density_v5/chronology_cases.json",
+          "sha256": "1d0dd825db5fdd8061e0a90896cff59a935903409be8b5c2a79c4eb74bde7b78"
+        },
+        "chronology_labels": {
+          "path": "reports/intrinsic_memory_density_v5/chronology_labels.json",
+          "sha256": "f0f0dcba48635c87e046dce50e7cfc418340882655dc2f880e1244de3f9c3cc5"
+        },
+        "scorer": {
+          "path": "src/replica_lab/baseline_competence.py",
+          "sha256": "9aecd789505e6551af7f2444ed10439537b21247a232e6f9f55896f08ac6b2ed"
+        },
+        "template_reference": {
+          "path": "src/replica_lab/contextual_readout_training.py",
+          "sha256": "3a58d43ccaa3b39a02572c139d229b72c8cb3242fe21a755916b3895c5d55066"
+        },
+        "producer": {
+          "path": "src/replica_lab/contextual_memory.py",
+          "sha256": "1a4d301b7d9f986c0538b391cd1daf5e5532294b1e966b4f5274a65c8ef017e2"
+        },
+        "reader": {
+          "path": "src/replica_lab/architecture/intrinsic_memory_layout_v4.py",
+          "sha256": "c404fda0189b5ab63e3ed4d9bd2e499b09e1bc6eb66f133e66210c64af91c5b2"
+        },
+        "adapter": {
+          "path": "src/replica_lab/architecture/spark_adapter.py",
+          "sha256": "d40375a968413adf4dbab536975ea27384bee25b1b2bfa9a931a81c9edf0c4ed"
+        },
+        "store": {
+          "path": "src/replica_lab/tiered_memory.py",
+          "sha256": "5121ec79a6faba3e7cdcf62bc56977b9176b2f05c373d75faa6ff0fd532bdf7e"
+        },
+        "optimizer": {
+          "path": "src/replica_lab/optimizers.py",
+          "sha256": "e51d91b9007681fd15827224c3b57e8657550d88590ef3a995dcdf76b5c82adb"
+        },
+        "review_validator": {
+          "path": "scripts/validate_spark_memory_density_v5.py",
+          "sha256": "cc70ed8a14e8a9e8cfa6981b1e8ac7308380e494f1a34267aba78daca39aeb07"
+        },
+        "source_qualification": {
+          "path": "reports/spark_qualification_20261026/selected_runs.json",
+          "sha256": "65a6b5c175ef3629246612b9686af2d872f2f91dc74cc3cd54316688fd4e2ece"
+        },
+        "review_tests": {
+          "path": "tests/test_intrinsic_memory_density_protocol.py",
+          "sha256": "5fb7367d6358bb91ec0353fec0c061c55247a1def431939f84ed8d31de503996"
+        },
+        "integrated_wrapper": {
+          "path": "src/replica_lab/contextual_memory_layout_v4.py",
+          "sha256": "c297ce01c8bd56b7471a1b2b017c945bca6999ff3d3401e5481575701d17b6d7"
+        },
+        "integrated_training_protocol": {
+          "path": "configs/contextual_memory_layer_training_protocol_v4.json",
+          "sha256": "170678aa1d6b1f204d63f27831cc1495968e466c25471e685650ebbbd4cdb2b8"
+        },
+        "integrated_CPU_diagnostic": {
+          "path": "scripts/verify_contextual_memory_layout_v4_cpu.py",
+          "sha256": "a1a3c52765de01f7ddfc32bd52dd4c5578f65da5710344028a87e5a29a9c1cc9"
+        },
+        "placement_helper": {
+          "path": "src/replica_lab/spark_device_placement_v2.py",
+          "sha256": "0a88d138ea877e9da3296890c910bd15369d477fd8a0441e7865720c50faefdd"
+        },
+        "placement_source_protocol": {
+          "path": "configs/spark_persistent_learner_derivative_bf16_placement_protocol_v2.json",
+          "sha256": "896099e67f0665bbe62deb480e7e004899e0910f51d48c6cc3762cecda10d395"
+        }
+      },
+      "guards": {
+        "driver_limit_bytes": 53687091200,
+        "sustained_swap_growth_limit_bytes": 536870912,
+        "minimum_host_free_fraction": 0.15,
+        "sustained_host_samples": 3,
+        "exclusive_native_worker": true,
+        "cpu_fallback": false
+      },
+      "budgets": {
+        "competence_cases": 8,
+        "training_updates": 32,
+        "continuation_updates": 1,
+        "primary_development_responses": 40,
+        "chronology_responses": 32,
+        "generation_requests_max": 80,
+        "generated_tokens_max": 2560,
+        "forward_calls_max": 2595,
+        "backward_calls_max": 33,
+        "optimizer_steps_max": 33,
+        "processed_text_positions_max": 5354240,
+        "backward_processed_positions_max": 67584,
+        "generation_sequence_tokens_max": 2079,
+        "model_loads_max": 2,
+        "tokenizer_loads_max": 2,
+        "P_updates": 0,
+        "native_retries": 0,
+        "wall_seconds_max": 7200,
+        "artifact_bytes_max": 1073741824
+      },
+      "numerical": {
+        "before_fit": [
+          "source_and_code_environment_qualification_per_arm",
+          "original_weights_frozen_and_digest_recorded",
+          "complete_native_S0_8_of_8_zero_false_recall_no_truncation",
+          "loaded_original_parameters_and_buffers_on_declared_MPS_device_before_first_forward",
+          "finite_disabled_extension_logits_and_parity"
+        ],
+        "during_fit": [
+          "exactly_32_updates_unless_fail_closed",
+          "finite_loss_and_gradients_every_update",
+          "reader_output_gradient_on_first_update",
+          "nonzero_producer_and_active_reader_query_key_value_gradients_after_output_opens",
+          "unique_optimizer_ownership",
+          "no_early_reader_detach_through_later_frozen_blocks"
+        ],
+        "after_fit": [
+          "original_weights_unchanged",
+          "extension_and_optimizer_saved_no_backbone_export",
+          "fresh_process_bitwise_equal_logits_on_same_device_tolerance_zero",
+          "one_actual_continuation_update_changes_intended_parameters_only"
+        ]
+      },
+      "scoring": {
+        "scorer_binding": "scorer",
+        "competence": {
+          "cases": 8,
+          "correct_min": 8,
+          "false_recall_max": 0,
+          "evidence_truncation_max": 0,
+          "incomplete": "stop_dependent_fit_evaluation"
+        },
+        "primary": {
+          "cases_per_control": 8,
+          "contextual_correct_min": 6,
+          "contextual_false_recall_max": 0,
+          "exact_tolerance_cases": 1,
+          "beats_each_negative_control": true
+        },
+        "chronology": {
+          "worlds": 8,
+          "phases": [
+            "after_correction",
+            "after_revocation"
+          ],
+          "controls": [
+            "contextual",
+            "selected_exact"
+          ],
+          "corrected_correct_min": 6,
+          "revoked_false_recall_max": 0,
+          "stale_snapshot_reads_accepted_max": 0,
+          "obsolete_retrieval_accepted_max": 0,
+          "obsolete_replay_accepted_max": 0,
+          "replay_audit": "read_only_eligibility_filter_no_replay_training",
+          "obsolete_generated_answer_count_recorded_separately": true
+        },
+        "claims": "initial_single_seed_feasibility_not_density_causal_superiority_or_persistent_learning",
+        "promotion": false
+      },
+      "authorization": {
+        "required": true,
+        "inherited_from_v3": false,
+        "receipt_path": "reports/intrinsic_memory_density_v5/full_attention_nine_authorization.json",
+        "required_fields": [
+          "authorization_id",
+          "issued_by",
+          "issued_at_utc",
+          "expires_at_utc",
+          "attempt_id",
+          "protocol_sha256",
+          "packet_sha256",
+          "arm_sha256",
+          "runner_sha256",
+          "implementation_closure_sha256",
+          "source_execution_manifest_sha256",
+          "environment_sha256",
+          "data_bindings_sha256",
+          "scoring_sha256",
+          "numerical_sha256",
+          "budgets_sha256",
+          "output_root",
+          "guard_report",
+          "single_attempt_zero_retry"
+        ],
+        "retry_count": 0
+      }
+    },
+    "all": {
+      "sites": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ],
+      "output_root": "runs/intrinsic_memory_density_v5/all_attempt01",
+      "guard_report": "runs/intrinsic_memory_density_v5/guard_all_attempt01.json",
+      "shared_sha256": "87fa5dfade05ed67f525799b100f1d34633df343ee7c7f9bf03a09d2c79550a4",
+      "bindings": {
+        "source_protocol": {
+          "path": "configs/spark_persistent_learner_derivative_bf16_protocol_v1.json",
+          "sha256": "5aaf601b6f73070384053401559bc8104f8b25daac053ab84b16be2fb2afbe6e"
+        },
+        "source_execution_manifest": {
+          "path": "configs/spark_derivative_execution_manifest_v1.json",
+          "sha256": "f48b467026436ed291003b10fcbe61384db52799e62c6fadd28b13b4983c163c"
+        },
+        "environment": {
+          "path": "configs/spark_intrinsic_execution_environment_v1.json",
+          "sha256": "7bac9e5e963d3b9fa1cb8cc3be846dc72938a7206ddcc7fd978ba07257c67095"
+        },
+        "competence_protocol": {
+          "path": "configs/spark_competence_protocol_v1.json",
+          "sha256": "00be558df3cfe370a86df6ddc470575761c86473a2f5e509a6054f3a7bc09464"
+        },
+        "competence_data": {
+          "path": "data/spark_competence_v1/cases.json",
+          "sha256": "2597c0066b9b1c9dc33ff65d38087cf343234136c864a4ac688fcb3d98394b12"
+        },
+        "readout_protocol_reference": {
+          "path": "configs/intrinsic_memory_readout_protocol_v3.json",
+          "sha256": "fd2cec4dd6be3e45920c59712d1ef4342ddafe04a42c27437191b1fade17fad1"
+        },
+        "prepared_source_manifest": {
+          "path": "data/spark_persistent_learner_v2/manifest.json",
+          "sha256": "761e17a56fb49a916dfc969e23e4d6f2e7f7295aa7bc4a09a44d13af7ea16b9f"
+        },
+        "fit": {
+          "path": "data/contextual_readout_v2/fit.json",
+          "sha256": "d805af627e378e7d7a721d06ac78a3e13ff36e66fc6dc96594331afbb2c8ebf5"
+        },
+        "development": {
+          "path": "data/contextual_readout_v2/development.json",
+          "sha256": "b044cbc49e8fbf0fe6e2fc9065d872d3d263cb3da4f7c9be0950fd8bb8533a31"
+        },
+        "development_labels": {
+          "path": "data/contextual_readout_v2/development_labels.json",
+          "sha256": "9e19620cf1df794fa5ee1ada37d513d669e3d3329fa3bdd0d9da9e3b9c76dcf5"
+        },
+        "chronology": {
+          "path": "reports/intrinsic_memory_density_v5/chronology_cases.json",
+          "sha256": "1d0dd825db5fdd8061e0a90896cff59a935903409be8b5c2a79c4eb74bde7b78"
+        },
+        "chronology_labels": {
+          "path": "reports/intrinsic_memory_density_v5/chronology_labels.json",
+          "sha256": "f0f0dcba48635c87e046dce50e7cfc418340882655dc2f880e1244de3f9c3cc5"
+        },
+        "scorer": {
+          "path": "src/replica_lab/baseline_competence.py",
+          "sha256": "9aecd789505e6551af7f2444ed10439537b21247a232e6f9f55896f08ac6b2ed"
+        },
+        "template_reference": {
+          "path": "src/replica_lab/contextual_readout_training.py",
+          "sha256": "3a58d43ccaa3b39a02572c139d229b72c8cb3242fe21a755916b3895c5d55066"
+        },
+        "producer": {
+          "path": "src/replica_lab/contextual_memory.py",
+          "sha256": "1a4d301b7d9f986c0538b391cd1daf5e5532294b1e966b4f5274a65c8ef017e2"
+        },
+        "reader": {
+          "path": "src/replica_lab/architecture/intrinsic_memory_layout_v4.py",
+          "sha256": "c404fda0189b5ab63e3ed4d9bd2e499b09e1bc6eb66f133e66210c64af91c5b2"
+        },
+        "adapter": {
+          "path": "src/replica_lab/architecture/spark_adapter.py",
+          "sha256": "d40375a968413adf4dbab536975ea27384bee25b1b2bfa9a931a81c9edf0c4ed"
+        },
+        "store": {
+          "path": "src/replica_lab/tiered_memory.py",
+          "sha256": "5121ec79a6faba3e7cdcf62bc56977b9176b2f05c373d75faa6ff0fd532bdf7e"
+        },
+        "optimizer": {
+          "path": "src/replica_lab/optimizers.py",
+          "sha256": "e51d91b9007681fd15827224c3b57e8657550d88590ef3a995dcdf76b5c82adb"
+        },
+        "review_validator": {
+          "path": "scripts/validate_spark_memory_density_v5.py",
+          "sha256": "cc70ed8a14e8a9e8cfa6981b1e8ac7308380e494f1a34267aba78daca39aeb07"
+        },
+        "source_qualification": {
+          "path": "reports/spark_qualification_20261026/selected_runs.json",
+          "sha256": "65a6b5c175ef3629246612b9686af2d872f2f91dc74cc3cd54316688fd4e2ece"
+        },
+        "review_tests": {
+          "path": "tests/test_intrinsic_memory_density_protocol.py",
+          "sha256": "5fb7367d6358bb91ec0353fec0c061c55247a1def431939f84ed8d31de503996"
+        },
+        "integrated_wrapper": {
+          "path": "src/replica_lab/contextual_memory_layout_v4.py",
+          "sha256": "c297ce01c8bd56b7471a1b2b017c945bca6999ff3d3401e5481575701d17b6d7"
+        },
+        "integrated_training_protocol": {
+          "path": "configs/contextual_memory_layer_training_protocol_v4.json",
+          "sha256": "170678aa1d6b1f204d63f27831cc1495968e466c25471e685650ebbbd4cdb2b8"
+        },
+        "integrated_CPU_diagnostic": {
+          "path": "scripts/verify_contextual_memory_layout_v4_cpu.py",
+          "sha256": "a1a3c52765de01f7ddfc32bd52dd4c5578f65da5710344028a87e5a29a9c1cc9"
+        },
+        "placement_helper": {
+          "path": "src/replica_lab/spark_device_placement_v2.py",
+          "sha256": "0a88d138ea877e9da3296890c910bd15369d477fd8a0441e7865720c50faefdd"
+        },
+        "placement_source_protocol": {
+          "path": "configs/spark_persistent_learner_derivative_bf16_placement_protocol_v2.json",
+          "sha256": "896099e67f0665bbe62deb480e7e004899e0910f51d48c6cc3762cecda10d395"
+        }
+      },
+      "guards": {
+        "driver_limit_bytes": 53687091200,
+        "sustained_swap_growth_limit_bytes": 536870912,
+        "minimum_host_free_fraction": 0.15,
+        "sustained_host_samples": 3,
+        "exclusive_native_worker": true,
+        "cpu_fallback": false
+      },
+      "budgets": {
+        "competence_cases": 8,
+        "training_updates": 32,
+        "continuation_updates": 1,
+        "primary_development_responses": 40,
+        "chronology_responses": 32,
+        "generation_requests_max": 80,
+        "generated_tokens_max": 2560,
+        "forward_calls_max": 2595,
+        "backward_calls_max": 33,
+        "optimizer_steps_max": 33,
+        "processed_text_positions_max": 5354240,
+        "backward_processed_positions_max": 67584,
+        "generation_sequence_tokens_max": 2079,
+        "model_loads_max": 2,
+        "tokenizer_loads_max": 2,
+        "P_updates": 0,
+        "native_retries": 0,
+        "wall_seconds_max": 7200,
+        "artifact_bytes_max": 1073741824
+      },
+      "numerical": {
+        "before_fit": [
+          "source_and_code_environment_qualification_per_arm",
+          "original_weights_frozen_and_digest_recorded",
+          "complete_native_S0_8_of_8_zero_false_recall_no_truncation",
+          "loaded_original_parameters_and_buffers_on_declared_MPS_device_before_first_forward",
+          "finite_disabled_extension_logits_and_parity"
+        ],
+        "during_fit": [
+          "exactly_32_updates_unless_fail_closed",
+          "finite_loss_and_gradients_every_update",
+          "reader_output_gradient_on_first_update",
+          "nonzero_producer_and_active_reader_query_key_value_gradients_after_output_opens",
+          "unique_optimizer_ownership",
+          "no_early_reader_detach_through_later_frozen_blocks"
+        ],
+        "after_fit": [
+          "original_weights_unchanged",
+          "extension_and_optimizer_saved_no_backbone_export",
+          "fresh_process_bitwise_equal_logits_on_same_device_tolerance_zero",
+          "one_actual_continuation_update_changes_intended_parameters_only"
+        ]
+      },
+      "scoring": {
+        "scorer_binding": "scorer",
+        "competence": {
+          "cases": 8,
+          "correct_min": 8,
+          "false_recall_max": 0,
+          "evidence_truncation_max": 0,
+          "incomplete": "stop_dependent_fit_evaluation"
+        },
+        "primary": {
+          "cases_per_control": 8,
+          "contextual_correct_min": 6,
+          "contextual_false_recall_max": 0,
+          "exact_tolerance_cases": 1,
+          "beats_each_negative_control": true
+        },
+        "chronology": {
+          "worlds": 8,
+          "phases": [
+            "after_correction",
+            "after_revocation"
+          ],
+          "controls": [
+            "contextual",
+            "selected_exact"
+          ],
+          "corrected_correct_min": 6,
+          "revoked_false_recall_max": 0,
+          "stale_snapshot_reads_accepted_max": 0,
+          "obsolete_retrieval_accepted_max": 0,
+          "obsolete_replay_accepted_max": 0,
+          "replay_audit": "read_only_eligibility_filter_no_replay_training",
+          "obsolete_generated_answer_count_recorded_separately": true
+        },
+        "claims": "initial_single_seed_feasibility_not_density_causal_superiority_or_persistent_learning",
+        "promotion": false
+      },
+      "authorization": {
+        "required": true,
+        "inherited_from_v3": false,
+        "receipt_path": "reports/intrinsic_memory_density_v5/all_authorization.json",
+        "required_fields": [
+          "authorization_id",
+          "issued_by",
+          "issued_at_utc",
+          "expires_at_utc",
+          "attempt_id",
+          "protocol_sha256",
+          "packet_sha256",
+          "arm_sha256",
+          "runner_sha256",
+          "implementation_closure_sha256",
+          "source_execution_manifest_sha256",
+          "environment_sha256",
+          "data_bindings_sha256",
+          "scoring_sha256",
+          "numerical_sha256",
+          "budgets_sha256",
+          "output_root",
+          "guard_report",
+          "single_attempt_zero_retry"
+        ],
+        "retry_count": 0
+      }
+    }
+  },
+  "cost_measurements": [
+    "generated_answer_quality_and_raw_answers",
+    "false_recall",
+    "correction_retrieval_replay_and_generated_behavior_separately",
+    "generated_and_prompt_tokens",
+    "encoder_and_reader_training_seconds",
+    "teaching_retrieval_replay_seconds_and_operations",
+    "exact_fallback_bytes_tokens_prefill_seconds",
+    "per_stage_wall_seconds_and_latency_distribution",
+    "sampled_MPS_driver_allocated_RSS_host_free_swap",
+    "checkpoint_and_store_bytes",
+    "projection_builds_cache_hits_validation_calls_snapshot_copies",
+    "physical_residency_not_directory_names"
+  ],
+  "chronology_schedule": "independent_synthetic_worlds_admit_then_correct_then_revoke_old_pinned_snapshot_must_refuse_after_each_transition_before_fresh_read",
+  "persistent_learning": false,
+  "capacity_expansion": false,
+  "future_controls": {
+    "matched_parameter": "separately_preregister_shared_projections_or_width_adjustment_with_actual_parameter_inventory_same_evidence_and_exposure",
+    "matched_total_cost": "separately_preregister_wall_token_memory_and_retrieval_ceilings_do_not_stop_accuracy_arms_adaptively",
+    "replication": "new_independent_worlds_rule_families_and_seeds_before_broader_claims",
+    "formation": "completed_interaction_writes_then_separate_chunk_boundary_exactly_once_schedule",
+    "storage_residency": "hot_warm_cold_validity_moves_are_not_learning_or_consolidation"
+  }
+}

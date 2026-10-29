@@ -1,0 +1,166 @@
+{
+  "format": "replica.spark_intrinsic.placement_bound_packet.v3",
+  "authorization": false,
+  "launch_allowed": false,
+  "native_execution": false,
+  "prior_attempt": "reports/intrinsic_memory_v3/native_readout02/result.json",
+  "source_protocol_unchanged": false,
+  "prior_review_packet": {
+    "path": "reports/intrinsic_memory_v3/native_experiment_s0_s1_environment_v2.json",
+    "sha256": "0178c42a3a97e0550ac8922c4149895af3c77de4efd9fe3c6bd5381da4d21ea3"
+  },
+  "protocol": {
+    "path": "configs/spark_persistent_learner_derivative_bf16_placement_protocol_v2.json",
+    "sha256": "896099e67f0665bbe62deb480e7e004899e0910f51d48c6cc3762cecda10d395"
+  },
+  "execution_manifest": {
+    "path": "configs/spark_derivative_execution_manifest_v1.json",
+    "sha256": "f48b467026436ed291003b10fcbe61384db52799e62c6fadd28b13b4983c163c"
+  },
+  "execution_environment": {
+    "path": "configs/spark_intrinsic_execution_environment_v1.json",
+    "sha256": "7bac9e5e963d3b9fa1cb8cc3be846dc72938a7206ddcc7fd978ba07257c67095"
+  },
+  "launcher": {
+    "path": "scripts/launch_spark_intrinsic_readout_placement_v2.py",
+    "sha256": "f4ae8c9bc7dda3bcbb8787771a33106d2bfa748846412b5b98208659a1390d12"
+  },
+  "execution_identity": "existing_FP8_derived_BF16_artifact_in_pinned_Transformers_4.57.1_environment_with_explicit_frozen_base_MPS_placement_v2",
+  "output_root": "runs/intrinsic_memory_v3/native_readout03",
+  "guard_report": "runs/intrinsic_memory_v3/guard_derivative_native03.json",
+  "admission_receipt": "reports/intrinsic_memory_v3/native_readout03_admission.json",
+  "prepared_root": "data/spark_persistent_learner_v2",
+  "authorization_path": "reports/intrinsic_memory_v3/native_readout03_authorization.json",
+  "required_external_receipt_fields": [
+    "authorization_id",
+    "protocol_id",
+    "protocol_sha256",
+    "protocol_commit",
+    "implementation_sha256",
+    "prepared_manifest_sha256",
+    "source_identity",
+    "execution_format",
+    "execution_backend",
+    "derivative_manifest_sha256",
+    "derivative_artifact_sha256",
+    "qualification_evidence_sha256",
+    "attempt_id",
+    "output_root",
+    "issued_by",
+    "expires_at_utc",
+    "execution_manifest_sha256",
+    "execution_stage",
+    "execution_environment_sha256",
+    "launcher_sha256",
+    "approved_packet_sha256",
+    "guard_report",
+    "execution_revision"
+  ],
+  "fresh_authorization_fields": [
+    "authorization_id",
+    "attempt_id",
+    "issued_by",
+    "expires_at_utc",
+    "output_root",
+    "guard_report",
+    "execution_environment_sha256",
+    "launcher_sha256",
+    "approved_packet_sha256",
+    "protocol_sha256",
+    "protocol_commit",
+    "implementation_sha256",
+    "execution_revision"
+  ],
+  "active_stage_upper_bounds": {
+    "competence_cases": 8,
+    "readout_updates": 32,
+    "continuation_updates": 1,
+    "development_worlds": 8,
+    "arms": 5,
+    "development_responses": 40,
+    "forward_calls_max": 1571,
+    "backward_calls_max": 33,
+    "optimizer_steps_max": 33,
+    "generation_requests_max": 48,
+    "generated_tokens_max": 1536,
+    "processed_text_positions_max": 3241216,
+    "model_loads_max": 2,
+    "tokenizer_loads_max": 2,
+    "P_updates": 0
+  },
+  "guards": {
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_limit_bytes": 536870912,
+    "minimum_host_free_fraction": 0.15,
+    "sustained_host_samples": 3,
+    "exclusive_native_worker": true,
+    "cpu_fallback": false,
+    "full_backbone_fp32_adamw_admitted": false
+  },
+  "wall_seconds_max": 7200,
+  "artifact_bytes_max": 268435456,
+  "native_retries": 0,
+  "resource_policy_unchanged": true,
+  "stop_conditions": [
+    "incomplete_or_failed_competence",
+    "source_or_execution_binding_mismatch",
+    "nonfinite_gradient",
+    "frozen_original_changed",
+    "resource_guard",
+    "fresh_process_continuation_mismatch"
+  ],
+  "deferred": [
+    "P_learning",
+    "all_layer_density",
+    "native_multimodal",
+    "RSI"
+  ],
+  "no_downloads_or_source_edits": true,
+  "change": "Place all original parameters and buffers on MPS before adapter construction; verify dtype, exact bounded-chunk content hashes, tied output and frozen originals; use same placement in fresh process. Preserve v3 checkpoint, data and scoring.",
+  "source_lineage": "dequantized_fp8_derivative",
+  "precision_substitution": false,
+  "competence_and_readout": {
+    "competence": {
+      "path": "configs/spark_competence_protocol_v1.json",
+      "sha256": "00be558df3cfe370a86df6ddc470575761c86473a2f5e509a6054f3a7bc09464"
+    },
+    "readout": {
+      "path": "configs/intrinsic_memory_readout_protocol_v3.json",
+      "sha256": "fd2cec4dd6be3e45920c59712d1ef4342ddafe04a42c27437191b1fade17fad1"
+    }
+  },
+  "restart_interpreter": "new_placement_runner_uses_sys.executable_of_verified_parent_and_its_own_script_path",
+  "command_after_fresh_authorization": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv-spark-bf16/bin/python /Users/flare/replica_r3_starter/scripts/launch_spark_intrinsic_readout_placement_v2.py --packet /Users/flare/replica_r3_starter/reports/intrinsic_memory_v3/native_experiment_s0_s1_placement_v3.json --authorization /Users/flare/replica_r3_starter/reports/intrinsic_memory_v3/native_readout03_authorization.json --launch",
+  "environment_check_only_command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv-spark-bf16/bin/python /Users/flare/replica_r3_starter/scripts/launch_spark_intrinsic_readout_placement_v2.py --packet /Users/flare/replica_r3_starter/reports/intrinsic_memory_v3/native_experiment_s0_s1_placement_v3.json",
+  "sealed_source_and_v3_readout_unchanged": true,
+  "execution_revision": "spark_intrinsic_frozen_base_placement_v2",
+  "implementation_commit_binding": "260dc15e9f690069bd40b5a852a3efab7d10c8eb",
+  "required_bindings_from_new_protocol": [
+    "protocol_id_from_config",
+    "protocol_sha256",
+    "protocol_commit_from_implementation_commit",
+    "implementation_sha256",
+    "prepared_manifest_sha256",
+    "source_identity",
+    "execution_format",
+    "execution_backend",
+    "execution_stage",
+    "derivative_manifest_sha256",
+    "derivative_artifact_sha256",
+    "qualification_evidence_sha256",
+    "execution_manifest_sha256",
+    "execution_revision"
+  ],
+  "placement_work": {
+    "placement_checks_max": 2,
+    "device_moves_max": 2,
+    "hash_passes_per_model_load": 2,
+    "hash_chunk_bytes_max": 4194304,
+    "additional_model_forwards": 0,
+    "additional_model_loads": 0,
+    "precision_casts": 0,
+    "within_existing_wall_and_physical_resource_limits": true,
+    "hash_byte_measurements": "base_device_placement.json_and_restart_device_placement.json",
+    "full_base_copy_or_export": false
+  }
+}
