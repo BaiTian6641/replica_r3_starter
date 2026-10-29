@@ -1,6 +1,6 @@
 # Loop-agent execution instructions
 
-**Revised 28 October 2026 after review of 07f64ab2.** This is the active worker
+**Revised 29 October 2026 after intrinsic-memory implementation and review.** This is the active worker
 prompt. Earlier MiniCPM-first and native multimodal orders are historical.
 Reading or editing this file does not launch a job, download data, create a chat
 or authorize a new execution format.
@@ -39,28 +39,34 @@ before acting; do not repeat already completed repairs.
 
 ## Current receipt and memory-layer queue — 29 October 2026
 
-Read [intrinsic memory v3](../../reports/intrinsic_memory_v3/README.md). The spine is
+Read [Spark memory S0–S1](../experiments/20261029_Spark_Memory_S0_S1.md), the
+[dated ledger](../../reports/intrinsic_memory_v3/evidence_ledger_20261029.json) and
+[intrinsic memory v3](../../reports/intrinsic_memory_v3/README.md). The spine is
 external communication; memory owns formation, addressing, recall, retention,
 correction and learning inside Spark. f471f54 extracts intrinsic ownership/config,
 removes the dummy packet, and versions serialization with explicit migration.
 Empty-spine execution, gradients and exact migrated optimizer continuation pass.
-The prior provenance/recovery/calibration repairs remain active. The current CPU
-calibration is 0/8, so dependent learning and labels stay closed. No native run.
+The prior provenance/recovery/calibration repairs remain active. The random CPU
+fixture calibration is 0/8, so dependent learning and labels stay closed. This
+is not a pretrained Spark competence result. No native run.
 
 1. Qualify intrinsic recall at 3/7: frozen-original calibration, fixed contextual
    readout updates, matched exact/wrong/shuffled/absent controls, fresh-process
    continuation. Use the new derivative packet and its still-missing external
    receipt. Do not reuse an old packet as authorization. Treat 23/31 separately.
-2. After useful recall, add bounded provisional C/F formation. Read an admitted
-   revision, accumulate, commit once, expose only to later computation. Bind
-   sequence positions and update IDs; test interrupted/restarted transitions.
+2. S2 first tests completed-interaction storage, exposed only next interaction.
+   Separately test within-reasoning C/F: read chunk-start state, accumulate,
+   commit once, expose only later chunks. Bind sequence positions, revisions,
+   retry IDs and checkpoint recomputation; test interrupted/restarted transitions.
    Growing-prefix replay must not duplicate writes. Provisional hypotheses are
    allowed; they do not become authoritative E/S facts without verification.
-3. Compare fixed question-slot P with hidden-state-conditioned plastic experts
+3. S3 compares fixed question-slot P with hidden-state-conditioned plastic experts
    or associative reads. Keep the eleven controls and same-reader learned/reset
    comparisons. Remove E/S/C and answer-bearing I/auxiliary state for source-free
    generated tests. Use distinct teaching/future queries, independent worlds and
    rule families, chronological corrections, revocations and delayed retention.
+   Test retrieval exclusion, replay exclusion and behavioral correction after
+   old information influenced P separately; a tombstone is not unlearning.
 4. Measure new reasoning-task accuracy, old knowledge, false recall and total
    teaching/retrieval/update/replay/generation cost and physical memory. Keep P1
    until a capacity bottleneck. Writer/nested/RSI work requires useful readout,
@@ -70,6 +76,16 @@ Preserve approved identity outside reward, prioritize its bounded active core an
 active task state, and use explicit recall for archival tiers. E/S/P/phi/C/I/K and
 external spine ownership remain separate. The older packages below preserve design
 requirements and history; they do not override this current sequence.
+
+S4 functional control compares learned choices with fixed policies and equal-cost
+extra generation, including wrong-to-right and right-to-wrong revisions and new-family
+calibration. S5 must connect declared objectives/derivatives across levels and
+match capacity/replay/updates/compute. S6 resets task E/F/P/C and task-derived
+auxiliary channels while retaining only the candidate learning-policy change.
+Approved identity remains fixed and outside task reward. Review before/after each
+costly stage and whenever update rule, state visibility, checkpoint format,
+precision, split or scorer changes; record hypothesis, frozen config, controls,
+results, uncertainty, cost and decision. Do not infer new native authorization.
 
 ## Package 1 — correct the diagnostic and make verification portable
 

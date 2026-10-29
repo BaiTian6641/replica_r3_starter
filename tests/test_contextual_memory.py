@@ -242,3 +242,15 @@ def test_intrinsic_sites_do_not_depend_on_external_spine_sites():
     assert adapter.spine_spec.sites==(1,5)
     ids,mask=ids_and_mask()
     path.forward(ids,mask,path.training_values(spans(),scope=scope()),scope=scope())
+
+
+def test_intrinsic_out_of_decoder_site_refused_before_ownership_transfer():
+    adapter, *_ = build_contextual_adapter(
+        seed=17, layers=4, spine_sites=(1, 3), spine_slots=8, memory_size=256)
+    legacy = adapter.extension.spine
+    ports = legacy.ports["memory"]
+    with pytest.raises(ValueError, match="outside the decoder"):
+        ContextualMemoryPath(adapter)
+    assert not hasattr(adapter.extension, "intrinsic_memory")
+    assert legacy.ports["memory"] is ports
+    assert hasattr(legacy, "memory_projection")

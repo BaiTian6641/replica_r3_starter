@@ -1,5 +1,10 @@
 # Dataset acquisition, evidence and curriculum
 
+**Active Spark text-memory curriculum — 29 October 2026:** use section 10 and
+[Spark memory S0–S1](experiments/20261029_Spark_Memory_S0_S1.md). V0–V4 below
+remain a distinct multimodal curriculum. MiniCPM is historical/control evidence;
+native multimodal qualification is not required before Spark text recall.
+
 **26 October 2026 extension:** the [SparkX multimodal dataset strategy](datasets/20261026_SparkX_Dataset_Plan.md), [36-family source catalog](datasets/20261026_SparkX_Dataset_Catalog.json), and [MiniCPM validation curriculum](datasets/20261026_MiniCPM_Dataset_Validation.md) extend this guide with visual grounding, audio/music/affect, audiovisual reasoning and native-learning episodes. They distinguish source metadata review from asset QA and training admission. The dated observations below remain historical; the extension does not change the runtime registry or existing run caps.
 
 **Real-image evidence update — 26 October 2026:** the
@@ -223,3 +228,50 @@ record unresolved original-source access or terms and continue with eligible
 alternatives. Model weights, bulk corpora and native training remain separate
 actions with explicit resource plans. Report acquired bytes and verified rows,
 not catalog size, as the amount of usable local training data.
+
+## 10. Spark memory curriculum — 29 October 2026
+
+This curriculum follows responsibility and experimental maturity, independently
+of storage tiers and the V0–V4 vision ladder. It adds no acquisition or training
+authorization. Current evidence is in the [dated ledger](../reports/intrinsic_memory_v3/evidence_ledger_20261029.json).
+
+| Stage | Data and decisive comparison | Advancement boundary |
+|---|---|---|
+| S0 foundation | Separate complete-context calibration worlds; frozen original model | Competent generated answers, numerical integrity and reproducible continuation |
+| S1 recall | Nonce facts, exact strings, temporal changes, conflicting evidence, distractors and unknowns; correct/wrong/shuffled/absent values and matched exact text | Useful intrinsic readout and restart, with original weights frozen |
+| S2 formation | Completed observations/interactions; then a separately declared chunked-reasoning stream | Earlier writes help later answers under causal, exactly-once visibility |
+| S3 persistent learning | Multi-step rules, delayed bindings, exceptions, compositions and verified procedures taught on distinct instances | New-instance transfer after source removal, later sessions, correction and retention |
+| S4 functional control | Cases where recall, checking, revision, practice or stopping can help or harm | Calibrated choices versus fixed policies and equal-cost extra generation |
+| S5 nested adaptation | Matched teaching and distinct future queries, old-knowledge replay and interference | Connected levels improve acquisition/retention at matched total work |
+| S6 learner improvement | Fresh task families for independent candidate/parent learning cycles | Reset task-specific knowledge; retain only the nominated learning-policy change |
+
+The existing S0 data are eight separately declared calibration worlds. The S1
+probe has eight fitting and eight development worlds, 32 fixed updates and five
+development arms. These are feasibility quantities and project hypotheses, not
+broad coverage or a convergence claim. The protocol fixes labels, scorer,
+template and budgets before results. Calibration failure closes fitting and
+development; labels open only at their declared stage. Do not turn the random
+CPU fixture's 0/8 result into a claim about pretrained Spark.
+
+Keep mechanism diagnostics, reasoning through memory, persistent skill learning,
+and retention as separate score families. Retention reserves include language,
+reasoning, coding and instruction following. Exact recalled answers do not prove
+procedural transfer. Generated explanations are proposals; executable checks or
+observed outcomes establish eligible targets. For correction, independently test
+retrieval exclusion, replay exclusion and changed behavior after prior P training.
+
+Group complete worlds, users, rule families and related examples before any
+expansion; paraphrases and counterfactual siblings inherit that split. Preserve
+generator/source revision, provenance, availability time, correction lineage,
+verification method and evaluator version. Freeze development choices before
+creating fresh final tasks. Keep final labels out of admission/update decisions.
+Report uncertainty across independent groups and seeds; repeated questions within
+one world are not independent replication.
+
+[LongMemEval](https://arxiv.org/abs/2410.10813v2),
+[LoCoMo](https://arxiv.org/abs/2402.17753v1) and
+[TRACE](https://arxiv.org/abs/2310.06762v1) are candidates for separately admitted
+external evaluation. Their source terms, contamination, split and exact scorer
+must be reviewed before use; they are not default training material. See the
+[research cross-check](research/spark_memory_20261029/Research_Crosscheck.md).
+No external dataset was downloaded or admitted by this update.

@@ -1,5 +1,14 @@
 # Native nested learner: algorithm and integration contract
 
+**Active Spark text-memory override — 29 October 2026.**
+[Spark memory S0–S1](../../experiments/20261029_Spark_Memory_S0_S1.md) is the
+current sequence: competent frozen-original text baseline, then intrinsic recall.
+Full multimodal qualification is not a prerequisite for text episodes. The bank
+sizes, two-clock schedules and MiniCPM-first references below are preserved design
+history, not current allocations or authorization. Keep P1 and the direct-CE
+reference; later levels require useful readout and repeated retention/correction.
+Current implementation status is in the [dated ledger](../../../reports/intrinsic_memory_v3/evidence_ledger_20261029.json).
+
 **26 October 2026 · Proposed reference, unimplemented and unqualified.** This specifies the missing learning connections in revision 4.5. It complements [document 22](../../architecture/22_State_Mechanism_and_RSI_Contracts.md), which owns state authority, transactions, compiled-path admission and bounded RSI. Numeric schedules below are preregistration candidates, not paper-derived optimal settings or run authorization.
 
 ## 1. Product invariants
@@ -91,6 +100,16 @@ Reject local learning if lower local loss fails to improve fresh behavioral quer
 
 ## 5. Offline training and cross-level credit
 
+For the active Spark text-memory sequence, qualify frozen-original text competence
+and useful intrinsic recall before chronological text-learning episodes. Native
+multimodal work is deferred and does not block that sequence. The present S1
+objective is one source encoding and response CE, not a nested objective. A later
+writer/P protocol must connect teaching to distinct future queries and retention,
+and declare which derivatives pass through earlier updates. See the first-order
+limitation below: omitted Adam/moment/learning-rate derivatives cannot train the
+inner learning rate through that path.
+
+**Historical multimodal/two-clock proposal, not an active text-memory gate:**
 The full multimodal phase updates the original backbone, encoders, bridges and relevant intrinsic components. Only after perception and reasoning gates pass, construct chronological episodes of at least 32 eligible teaching transactions for the initial two-clock study. This ensures slower boundaries are exercised. Include corrections, domain recurrence, interference and session restarts. Independent worlds reset to initialization; sessions within a world carry declared state. Train both regimes so deployment persistence is not an unseen reset policy.
 
 For teaching data `Dteach` and separately held-out future queries `Q`:

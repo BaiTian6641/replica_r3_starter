@@ -1,5 +1,10 @@
 # Primary-source review: what supports the nested learner
 
+**29 October supplement:** the [current mechanism cross-check](../spark_memory_20261029/Research_Crosscheck.md)
+clarifies MemT's generation-snapshot/completed-interaction storage schedule,
+Titans' input-independent persistent tokens, and uTTT's reset and boundary-update
+variants. The older review and its pinned evidence below remain historical.
+
 **26 October 2026.** Full methods were inspected, using versioned papers and pinned optimizer source. The [evidence manifest](../../../reports/sparkx_nested_learning_20261026/evidence.json) records URLs, versions, inspected sections and SHA-256 hashes. Sixteen papers are considered below. Results are author-reported, not reproduced in this repository. Proposed Spark connections are our design inferences.
 
 ## 1. Nested Learning is a design framework; HOPE is a particular implementation

@@ -1,0 +1,88 @@
+........................................................................ [  2%]
+...................s..........................ssssssss...........ss..... [  4%]
+.................ssssssssssssssssssssssssssssssssssssss................. [  6%]
+........................................................................ [  8%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 14%]
+....................s................................................... [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 20%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+.............................s.......................................... [ 26%]
+........................................................................ [ 29%]
+...........s............................................................ [ 31%]
+........................................................................ [ 33%]
+........................................................................ [ 35%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+.......s........s..............ss.............sssss....................s [ 41%]
+............s.........s........s................s............s.ss....... [ 43%]
+....................................................................................s...................................... [ 47%]
+........................................................................ [ 49%]
+........................................................................ [ 51%]
+.........................................s..................s........... [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 57%]
+......................................................................ss [ 59%]
+sssss................................................................... [ 61%]
+........................................................................ [ 63%]
+........................................................................ [ 65%]
+.........................................................s......ssss.ss. [ 67%]
+........s.....................F......................................... [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 74%]
+........................................................................ [ 76%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................................ [ 82%]
+..................s...........s......................................... [ 84%]
+..........................................ssss.......................s.. [ 86%]
+.......................................s................................ [ 88%]
+....................................s.............................s..... [ 90%]
+...................s.................................sss................ [ 92%]
+..............sss....................................................... [ 94%]
+........................................................................ [ 96%]
+........................................................................ [ 98%]
+.......................................                                  [100%]
+=================================== FAILURES ===================================
+___ test_review_derives_real_profile_and_control_budgets_without_native_work ___
+
+    def test_review_derives_real_profile_and_control_budgets_without_native_work():
+        report = preflight()
+        assert report["status"] == "review_ready_preparation_only"
+        assert report["native_execution"] is False
+        assert report["model_loaded"] is False
+        assert report["source"]["source_identity"] == "official_fp8"
+        assert report["source"]["execution_format"] == "official_native_fp8"
+        assert report["work_units"]["forward_calls_max"] == 8921
+        assert report["work_units"]["processed_text_positions_max"] == 18408096
+        assert report["work_units"]["verification_calls_max"] == 155
+        assert report["work_units"]["competence_cases"] == 8
+        assert report["work_units"]["optimizer_steps_max"] == 8
+        assert report["work_units"]["response_port_optimizer_steps_max"] == 4
+        assert report["work_units"]["selected_P_optimizer_steps_max"] == 4
+        assert "native_fp8_backend_evidence" in report["missing_bindings"]
+        assert "external_authorization_receipt" in report["missing_bindings"]
+        assert not any("materialize" in item for item in report["remaining_prerequisites"])
+        config = read_json(CONFIG_PATH)
+        assert set(config["launch"]["implementation_files"]) == set(report["implementation_sha256"])
+>       assert config["launch"]["implementation_sha256"] == report["implementation_sha256"]
+E       AssertionError: assert {'scripts/mak...f070951', ...} == {'scripts/mak...f070951', ...}
+E         
+E         Omitting 39 identical items, use -vv to show
+E         Differing items:
+E         {'src/replica_lab/architecture/intrinsic_memory.py': '1e62c3722de7a06e756e66a503d91c7281c4074fa8f0e53443ee14c3420223ae'} != {'src/replica_lab/architecture/intrinsic_memory.py': '5229dbcb774e74fdc7799dfc77ab53f01a508ce2070ea7999119038f3a84e9c8'}
+E         Use -v to get more diff
+
+tests/test_spark_persistent_learner_protocol.py:81: AssertionError
+=============================== warnings summary ===============================
+tests/test_m4_pattern.py::test_sparse_adamw_step_densifies_and_muon_rejects_sparse_gradient
+  /private/tmp/replica-intrinsic-clean-final/tests/test_m4_pattern.py:156: UserWarning: Sparse invariant checks are implicitly disabled. Memory errors (e.g. SEGFAULT) will occur when operating on a sparse tensor which violates the invariants, but checks incur performance overhead. To silence this warning, explicitly opt in or out. See `torch.sparse.check_sparse_tensor_invariants.__doc__` for guidance.  (Triggered internally at /Users/runner/work/pytorch/pytorch/aten/src/ATen/Context.cpp:855.)
+    parameter.grad = torch.sparse_coo_tensor(torch.tensor([[0], [0]]), torch.tensor([1.0]), parameter.shape)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_spark_persistent_learner_protocol.py::test_review_derives_real_profile_and_control_budgets_without_native_work
+1 failed, 3369 passed, 104 skipped, 1 warning, 21 subtests passed in 836.17s (0:13:56)

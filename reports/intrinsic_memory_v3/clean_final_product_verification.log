@@ -1,0 +1,57 @@
+{
+  "status": "failed",
+  "checks_count": 511,
+  "passed": 507,
+  "failed": [
+    {
+      "name": "unexplained_input_drift:src/replica_lab/architecture/spark_adapter.py",
+      "passed": false,
+      "detail": "d40375a968413adf4dbab536975ea27384bee25b1b2bfa9a931a81c9edf0c4ed"
+    },
+    {
+      "name": "no_unexplained_snapshot_drift",
+      "passed": false,
+      "detail": [
+        {
+          "path": "src/replica_lab/architecture/spark_adapter.py",
+          "reviewed_sha256": "919b58b75e58d5c01ff933eb44a6f75e977b139885280ed2597f9023ebb77430",
+          "current_sha256": "d40375a968413adf4dbab536975ea27384bee25b1b2bfa9a931a81c9edf0c4ed",
+          "reviewed_record": {
+            "path": "src/replica_lab/architecture/spark_adapter.py",
+            "kind": "reviewed_spine_and_derivative_integration",
+            "prior_sha256": "919b58b75e58d5c01ff933eb44a6f75e977b139885280ed2597f9023ebb77430",
+            "current_sha256": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
+            "reason": "Adds independently gated Spark spine readers, shared native memory ownership and explicit derivative precision binding; the sealed backbone and historical adapter evidence remain separate.",
+            "reviewed_in": "reports/spark_persistent_learner_v2/derivative_bf16_packet.json"
+          }
+        }
+      ]
+    },
+    {
+      "name": "historical_manifest_update_pin:src/replica_lab/architecture/spark_adapter.py",
+      "passed": false
+    },
+    {
+      "name": "historical_manifest_no_unreviewed_drift",
+      "passed": false
+    }
+  ],
+  "unavailable_source_cache": 0,
+  "reviewed_input_changes_applied": 6,
+  "unexplained_input_drift": [
+    {
+      "path": "src/replica_lab/architecture/spark_adapter.py",
+      "reviewed_sha256": "919b58b75e58d5c01ff933eb44a6f75e977b139885280ed2597f9023ebb77430",
+      "current_sha256": "d40375a968413adf4dbab536975ea27384bee25b1b2bfa9a931a81c9edf0c4ed",
+      "reviewed_record": {
+        "path": "src/replica_lab/architecture/spark_adapter.py",
+        "kind": "reviewed_spine_and_derivative_integration",
+        "prior_sha256": "919b58b75e58d5c01ff933eb44a6f75e977b139885280ed2597f9023ebb77430",
+        "current_sha256": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
+        "reason": "Adds independently gated Spark spine readers, shared native memory ownership and explicit derivative precision binding; the sealed backbone and historical adapter evidence remain separate.",
+        "reviewed_in": "reports/spark_persistent_learner_v2/derivative_bf16_packet.json"
+      }
+    }
+  ],
+  "blueprint_words": 15765
+}

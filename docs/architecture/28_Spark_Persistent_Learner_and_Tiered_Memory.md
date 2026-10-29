@@ -2,6 +2,16 @@
 
 ## Current ownership and implementation — intrinsic memory v3
 
+The active experiment is [Spark memory S0–S1](../experiments/20261029_Spark_Memory_S0_S1.md):
+qualify the frozen foundation, then useful intrinsic recall and restart. The
+[29 October ledger](../../reports/intrinsic_memory_v3/evidence_ledger_20261029.json)
+is the current evidence/status source. S2 formation, S3 persistent learning,
+S4 functional control, S5 nested adaptation and S6 learner improvement each need
+separate controls and advancement evidence. They are not simultaneous active runs.
+The [research cross-check](../research/spark_memory_20261029/Research_Crosscheck.md)
+distinguishes paper mechanisms from our dimensions, sites, update counts and
+acceptance margins, which remain project hypotheses until measured.
+
 The [v3 runbook](../../reports/intrinsic_memory_v3/README.md) is current. The user's
 architecture correction restores separate `intrinsic_memory`, `plastic_knowledge`
 and external `spine` responsibilities already specified in the intrinsic architecture.
@@ -37,8 +47,10 @@ the runbook; no new native model experiment has run.
 Recall currently queries fixed episodic slots from evolving decoder hidden states.
 The P-only one-slot question-conditioned path remains an explicitly labelled control;
 its single-slot softmax cannot address P differently at each reasoning step. After
-useful recall, add bounded provisional C/F writes with read/accumulate/commit-once
-semantics and explicit sequence positions. Growing-prefix replay must not write old
+useful recall, first test completed-interaction storage for the next interaction.
+Separately test provisional C/F writes within reasoning: read chunk-start state,
+accumulate, commit once and expose only to later chunks. Bind sequence positions,
+revisions, retries and checkpoint recomputation. Growing-prefix replay must not write old
 tokens again. Generated hypotheses may be provisional working state, not verified
 E/S facts. Then compare hidden-state-conditioned plastic experts/associative reads
 against the fixed control. Native P learning still requires the eleven matched

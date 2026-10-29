@@ -7,13 +7,19 @@ Read [the intrinsic memory v3 runbook](reports/intrinsic_memory_v3/README.md),
 Implementation `f471f54a34e99f8143164e00b3247827c6ba1f1c` restores the original
 ownership boundary: intrinsic memory owns recall/learning inside Spark; the spine
 owns external specialist/sensor/actor communication. Memory-layer work is primary.
+The active experiment is [Spark memory S0–S1](docs/experiments/20261029_Spark_Memory_S0_S1.md),
+with status in the [dated evidence ledger](reports/intrinsic_memory_v3/evidence_ledger_20261029.json).
+S2 formation, S3 persistent learning, S4 functional control, S5 nested adaptation
+and S6 learner improvement are separate evidence-gated successors. MiniCPM and
+V0–V4 remain historical/control and multimodal paths, not Spark text prerequisites.
 
 Memory now has its own configuration, decoder context, parameter owner and v3
 serialization namespace. It runs with the external spine removed; no dummy packet
 or spine codec is used. Explicit migration preserves existing v2 logits and
 optimizer continuation without editing historical artifacts. Focused checks pass
 59; the CPU diagnostic proves empty-spine parity, gradients and fresh continuation.
-Calibration remains 0/8, correctly stopping dependent learning with labels closed.
+The random CPU fixture remains 0/8, correctly stopping dependent learning with
+labels closed; this does not measure pretrained Spark competence.
 See the runbook for completed clean-checkout verification and resource measurements.
 
 Next qualify intrinsic recall at 3/7 using the existing derived-BF16 artifact's
@@ -21,8 +27,9 @@ new exact packet, separate calibration, matched exact/wrong/shuffled/absent cont
 and fresh-process continuation. External authorization is still absent. Official
 FP8 remains blocked on MPS. No native or learned capability is claimed. Treat 23/31
 separately. The fixed question-slot P path is a control, not reasoning-state recall.
-After useful readout, implement exactly-once provisional working-state formation,
-then hidden-state-conditioned P and longitudinal learning/retention/correction.
+After useful readout, test completed-interaction storage for the next turn, then
+a separate exactly-once within-reasoning schedule. Follow with hidden-state P
+and longitudinal learning/retention/correction.
 Do not let generated hypotheses become authoritative E/S without verification.
 
 Keep P1, NativeFusedAdamW, E/S/P/phi/C/I/K separation and approved identity outside

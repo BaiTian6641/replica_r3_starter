@@ -940,6 +940,9 @@ FINAL_PRODUCT_INPUT_ROLES.extend([
 ])
 
 FINAL_PRODUCT_INPUT_ROLES.extend([
+    ('docs/experiments/20261029_Spark_Memory_S0_S1.md', 'current Spark-only foundation and intrinsic recall experiment with separate successor gates'),
+    ('docs/research/spark_memory_20261029/Research_Crosscheck.md', 'dated primary-source mechanism and schedule distinctions'),
+    ('reports/intrinsic_memory_v3/evidence_ledger_20261029.json', 'dated intrinsic-memory implementation and measured evidence status'),
     ('reports/intrinsic_memory_v3/README.md', 'intrinsic memory ownership, measured separation and current native packet'),
     ('configs/intrinsic_memory_readout_protocol_v3.json', 'intrinsic recall independent of the external spine'),
     ('reports/contextual_memory_v2/README.md', 'contextual CPU evidence and gated native experiment runbook'),

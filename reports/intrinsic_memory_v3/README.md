@@ -41,7 +41,22 @@ E/S/P/phi/C/I/K ownership stays separate. The durable hot-state authority repair
 executable-source manifest remain active and unchanged. Official FP8, existing
 FP8-derived BF16 and official BF16 stay distinct; native multimodal work is deferred.
 
+The active [Spark-only S0–S1 protocol](../../docs/experiments/20261029_Spark_Memory_S0_S1.md)
+separates foundation, recall, formation, persistent learning, functional control,
+nested adaptation and learner improvement. Current status is recorded once in the
+[29 October evidence ledger](evidence_ledger_20261029.json). Dimensions, sites,
+32 updates and acceptance margins are project hypotheses, not measured optima.
+
 ## Evidence and limits
+
+The final clean regression exposed a stale binding: documentation commit 9645547
+had also removed the intrinsic site-range check. Restoring the f471f54 check
+restores the sealed executable identity and now has a test proving out-of-range
+sites fail before ownership transfer. The S0–S1 packet additionally binds the
+local static import closure, including shared runner and tiered-store helpers.
+The earlier packet is retained under its original filename. No historical
+qualification or conversion receipt was changed.
+
 
 - **59 focused tests passed in 13.27 s**, including the separation, independent site
   settings, disabled parity, gradients, invalidation, migration, readout workflow,
@@ -54,11 +69,11 @@ FP8-derived BF16 and official BF16 stay distinct; native multimodal work is defe
   parity, nonzero producer/reader gradients after output projections open, unchanged
   base and exact fresh-process continuation. [`cpu_diagnostics.json`](cpu_diagnostics.json)
   records CPU RSS, time and storage costs; these are not native quality evidence.
-- Integrated calibration remains **0/8**, so fit, development and learning stay
+- Integrated calibration on the **random CPU fixture** remains **0/8**, so fit, development and learning stay
   closed. Independent engineering diagnostics are retained, not used as a bypass.
   See `cpu_competence.json`, `cpu_gate_failure.json` and `cpu_integrated.log`.
 - Full-hash provisioned source validation and the current execution manifest are
-  in `native_readout_packet.json`; no model load or native run is performed by it.
+  in `native_readout_packet_s0_s1.json`; no model load or native run is performed by it.
 - `verification_summary.json` records completed clean-checkout regressions and
   established checks. Historical tests/packets remain under contextual_memory_v2;
   they are not relabelled as v3 evidence.
@@ -76,9 +91,9 @@ queried afresh from each token's reasoning state. Its receipt now says this expl
 Useful readout, persistent knowledge transfer, retention, reasoning cost reduction,
 learned writing and self-improvement are still unmeasured on native Spark.
 
-## Active experiment and subsequent gates
+## Active S0–S1 experiment and subsequent gates
 
-Review [`native_experiment.json`](native_experiment.json) and
+Review [`native_experiment_s0_s1.json`](native_experiment_s0_s1.json) and
 [`intrinsic_memory_readout_protocol_v3.json`](../../configs/intrinsic_memory_readout_protocol_v3.json).
 The command uses the existing derivative under its own execution identity, the exact
 code/protocol/execution-manifest bindings and fresh `runs/intrinsic_memory_v3/native_readout01`.
@@ -105,9 +120,12 @@ latency and I/O independently. Prior results, raw failures and unrelated work re
 After useful intrinsic recall, the next memory work is a bounded **provisional working
 state** under C/F, separate from authoritative E/S and durable P. Generated hypotheses,
 intermediate bindings and subgoals may enter provisional state without being certified
-as facts. Use read-admitted-revision -> accumulate -> commit once -> expose-next-revision.
-Writes need sequence IDs and absolute positions, idempotence and interrupted/restart
-tests. The current uncached generation loop replays the growing prefix; a naive writer
+as facts. First test cross-turn formation: read existing state -> generate -> process
+completed interaction -> commit -> expose next interaction. Test within-reasoning
+formation separately: read chunk-start state -> compute -> accumulate -> commit
+once -> expose later chunks. These schedules are proposals, not implemented writers.
+Writes need sequence IDs, absolute positions, revisions, retry/checkpoint-recompute
+semantics, idempotence and interrupted/restart tests. The current uncached generation loop replays the growing prefix; a naive writer
 would duplicate old writes. Implement exactly-once transitions or explicit replay from
 a snapshot before enabling writes. Future KV caching must bind cache entries to the
 memory revision that produced them; cold recall pauses at a declared boundary.

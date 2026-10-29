@@ -42,6 +42,8 @@ class IntrinsicMemoryReader(nn.Module):
 
     @classmethod
     def install(cls, adapter, spec):
+        if any(site >= adapter.config.geometry.num_hidden_layers for site in spec.sites):
+            raise ValueError("intrinsic memory site is outside the decoder")
         if hasattr(adapter.extension, "intrinsic_memory"):
             raise ValueError("intrinsic memory already has an owner")
         legacy = getattr(adapter.extension, "spine", None)

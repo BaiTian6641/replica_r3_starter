@@ -361,6 +361,19 @@ authentic personal source is bundled.
 
 ## 7. Disposition summary
 
+**Current Spark status is maintained in one [dated evidence ledger](../../reports/intrinsic_memory_v3/evidence_ledger_20261029.json).**
+The [S0–S1 protocol](../experiments/20261029_Spark_Memory_S0_S1.md) maps the
+enduring ownership/transaction contracts to current experiments. Intrinsic-memory
+separation, contextual values, hot-state recovery and CPU continuation are now
+implemented; useful native recall and persistent learning remain unmeasured.
+Storage residency is independent of update timescale; paging is not consolidation.
+
+**Historical disposition captured by the 26 October review:** the table below
+retains its original results and implementation status. It is not the current
+Spark status table and does not reclassify later implemented P/readout engineering
+as design-only. Refer to the ledger for new evidence rather than replacing these
+historical observations.
+
 | Claim area | Current disposition | What would change it |
 |---|---|---|
 | State ownership/version contracts | Implemented host contracts for the ledger, identity store, publication, restart and exact-context scoping; native readers and a diagnostic `F` exist; `A`/`P` and UAP largely design-only | Native state tests with revision invalidation and fresh-process reload |
@@ -372,8 +385,8 @@ authentic personal source is bundled.
 | Personality/identity behavior | Contracts and untrained reader; no behavioral result | Approved source content, trained declared reader, E1/E2 reset series and reserved-family evaluation |
 | UAP/sensor | Proposed interface; no attached module qualification | Adapter training, causal mask tests, observer parity and stale-packet behavior |
 
-Any update to this table must name the gate that passed, the exact artifact and
-scope, the version keys, the cost ledger and the failed gates that remain.
+Every new entry in the current ledger must name the gate that passed, the exact
+artifact and scope, the version keys, costs and the failed gates that remain.
 
 ## 8. Primary sources
 

@@ -1,5 +1,12 @@
 # MiniCPM first: validating the nested learner and closing design gaps
 
+**Historical plan, superseded for active Spark text-memory work on 29 October 2026.**
+Use [Spark memory S0–S1](../../experiments/20261029_Spark_Memory_S0_S1.md) and its
+[dated evidence ledger](../../../reports/intrinsic_memory_v3/evidence_ledger_20261029.json).
+The MiniCPM results and proposed NL ladder below remain historical/control evidence;
+their multimodal prerequisites, sixteen-expert baseline and rejected native results
+do not govern the current frozen-Spark, intrinsic-readout experiment.
+
 **26 October 2026 · Proposed validation, not run authorization.** Use the [algorithm contract](Nested_Learning_Contract.md), [existing data curriculum](../../datasets/20261026_MiniCPM_Dataset_Validation.md), and [state/RSI contracts](../../architecture/22_State_Mechanism_and_RSI_Contracts.md) together. Existing stricter gates and execution limits retain precedence.
 
 ## 1. What is actually ready
