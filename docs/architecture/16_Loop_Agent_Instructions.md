@@ -1,14 +1,15 @@
 # Loop-agent execution instructions
 
-**Revised 29 October 2026 after intrinsic-memory implementation and review.** This is the active worker
+**Revised 29 October 2026 after the v5 CPU implementation and BF16 packet review.** This is the active worker
 prompt. Earlier MiniCPM-first and native multimodal orders are historical.
 Reading or editing this file does not launch a job, download data, create a chat
 or authorize a new execution format.
 
 Continue TAIS Obsidian / Replica R3 in the existing checkout. Build intrinsic Spark memory toward persistent learning and Replica
-integration; preserve the separate external spine. The active source is XHToken/Spark-X2.6-4B-FP8, revision
-0318d6f6ab070c7b5b43052db571489b2508006c. Keep official BF16, FP8-derived BF16
-and native-FP8 execution as separate identities. MiniCPM is a historical/control
+integration; preserve the separate external spine. The next diagnostic uses user-selected official BF16 XHToken/Spark-X2.6-4B,
+revision 66e3ae7bee54e0a523d692cb8ef841f35409807b. The original FP8 lineage is
+XHToken/Spark-X2.6-4B-FP8, revision 0318d6f6ab070c7b5b43052db571489b2508006c.
+Keep official BF16, FP8-derived BF16 and native-FP8 execution as separate identities. MiniCPM is a historical/control
 path; native multimodal training and physical actor/sensor work remain deferred.
 Future specialist models will use the same typed spine.
 
@@ -37,7 +38,55 @@ before acting; do not repeat already completed repairs.
 - Report measured behavior separately from engineering tests and design
   arithmetic. Check primary research sources before changing a mechanism claim.
 
-## Current receipt and memory-layer queue — 29 October 2026
+## Current implementation — official BF16 diagnostic v5
+Read the [current v5 report](../experiments/20261029_Spark_Memory_BF16_Diagnostic_V5.md),
+[runbook](../../reports/intrinsic_memory_successor_v5/README.md) and
+[evidence summary](../../reports/intrinsic_memory_successor_v5/verification_summary.json).
+Implementation `771e9586` follows review `017f7d71`. The user's selected source is
+existing official `XHToken/Spark-X2.6-4B` BF16, revision
+`66e3ae7bee54e0a523d692cb8ef841f35409807b`. All 18 source files were rehashed;
+no download, base copy or native model execution occurred. Keep official BF16,
+FP8-derived BF16 and native official FP8 identities distinct.
+
+V5 implements cutoff-aware reads, persistent bounded cold-read tickets and immutable
+producer-release rebuilds; eight-slot masking; complete-EOS fitting and generation
+probes; and a dedicated 2/9/36 producer/store/reader runner. Live tensors preserve
+producer gradients, and one NativeFusedAdamW owns each intended parameter. The
+complete checkpoint binds source, objective and execution identity. The whole attempt
+has an outer wall supervisor and pre-reserved stage work, including failed work,
+source validation, probes, artifacts and fresh-process continuation. Sealed v3/v4
+execution files and historical results remain unchanged.
+
+Clean code snapshot `771e9586` passes 393 affected tests in 64.60 s. Its 2/9/36 CPU
+workflow passes exact fresh-process logits and one real continuation update per arm
+in 14.605376 s, peak RSS 624,705,536 bytes. A separate unchanged-Spark-code probe uses
+36 tiny random CPU BF16 layers and passes parity, two updates and producer gradients;
+it loads no original checkpoint weights. These are engineering results, not useful
+memory. The historical attempt03 passed S0 8/8 and failed S1 (contextual 0/8,
+selected exact text 8/8). Do not tune on its development worlds.
+
+The next executable experiment is the fully bound
+[two-site v5 packet](../../reports/intrinsic_memory_successor_v5/native_packet_two_v5.json).
+All three earlier approvals are consumed; a new exact approval is absent. The
+packet requires 8/8 complete-context competence, then 32 complete-EOS readout updates,
+a fitting-only memory-dependence gate before fresh development, and one restart update.
+It permits zero P updates, 957 forwards, 856 generated tokens, two sequential model
+loads, 7,200 seconds, 160 MiB artifacts and zero retries. Keep the exclusive worker,
+50 GiB driver / 512 MiB sustained swap / 15% host-free guards. Nine/all-layer packets
+have independent budgets/approvals and require useful current two-site evidence.
+
+The intrinsic memory layer participates in Spark computation; the external spine
+continues to connect specialists, sensors and actors. Keep block-input queries and
+post-block residuals explicit. Useful recall must precede completed-interaction
+formation, within-reasoning commits and source-free P learning. Keep P1; nested
+adaptation, RSI and promotion remain closed. Preserve E/S/P/phi/C/I/K ownership,
+approved identity outside reward and the Replica/semi-cognitive-core contracts.
+Hot/warm/cold placement is independent of learning clocks; bounded active identity
+and task state need measured residency, with explicit archival recall. Native
+multimodal work is deferred. Never read, import, edit or stage
+src/replica_lab/runtime_pilot.py. Preserve unrelated dirty work.
+
+## Preserved attempt03 receipt and successor gates — 29 October 2026
 
 Read [Spark memory S0–S1](../experiments/20261029_Spark_Memory_S0_S1.md), the
 [dated ledger](../../reports/intrinsic_memory_v3/evidence_ledger_20261029.json) and
@@ -72,15 +121,14 @@ All-layer intrinsic access is the explicit target. The separate
 [v4 CPU candidate](../experiments/20261029_Spark_Memory_Layer_Access.md) supports
 2/9/36 independently configurable sites and a new checkpoint format. Its separate combined wrapper now connects the real
 contextual producer and store with a single optimizer and complete reload. It does
-not change the sealed v3 control or select itself in the native runner. Plan
-the direct comparison with shared values, fixed slots/writer/exposure and new
+not change the sealed v3 control or select itself in the native runner. The v5 successor above now implements
+the direct comparison with shared values, fixed slots/writer/exposure and separate
 per-arm budgets. Numerical/resource checks and competence precede native work.
 Do not multiply writes, searches or state copies with reader count. Shared/grouped
 fast banks, matched-parameter/cost readers and pre-MLP fusion are separate tests.
 
 1. Review the failed fixed S1 comparison at 3/7 and its exact/wrong/shuffled/absent
-   controls. Preserve all answers and acceptance criteria. Prepare a separately
-   versioned readout repair with closed development labels for any fresh selection;
+   controls. Preserve all answers and acceptance criteria. Use the prepared v5 repair and its closed development gate for fresh selection;
    do not tune repeatedly on these eight worlds. The historical answer-word
    objective lacks EOS supervision, but this alone is not a proven cause. Keep
    frozen-baseline competence, numerical checks, useful recall and restart as

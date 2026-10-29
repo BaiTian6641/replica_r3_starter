@@ -1,5 +1,12 @@
 # Configurable intrinsic readers v4
 
+**Current successor:** [official BF16 diagnostic v5](../../docs/experiments/20261029_Spark_Memory_BF16_Diagnostic_V5.md) implements the
+bounded cold-read/release repairs, complete-EOS probes and dedicated 2/9/36 runner.
+Its clean CPU regression passes 393; native v5 is prepared and unrun, with exact
+approval absent. All v3 approvals are consumed. The results and preparation below
+remain the preserved earlier scope; statements about missing successor integration
+or runners describe that snapshot, not the current v5 implementation.
+
 Current successor: the [combined v4 training integration](../../docs/experiments/20261029_Spark_Memory_Integrated_Access.md)
 connects this reader to the contextual producer and tiered store and adds a complete
 extension/optimizer checkpoint. Its new checks are in the

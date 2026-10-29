@@ -1,6 +1,54 @@
 # Spark persistent learner, tiered memory and Replica integration
 
-## Current ownership and implementation — intrinsic memory v3
+## Current implementation — official BF16 diagnostic v5
+Read the [current v5 report](../experiments/20261029_Spark_Memory_BF16_Diagnostic_V5.md),
+[runbook](../../reports/intrinsic_memory_successor_v5/README.md) and
+[evidence summary](../../reports/intrinsic_memory_successor_v5/verification_summary.json).
+Implementation `771e9586` follows review `017f7d71`. The user's selected source is
+existing official `XHToken/Spark-X2.6-4B` BF16, revision
+`66e3ae7bee54e0a523d692cb8ef841f35409807b`. All 18 source files were rehashed;
+no download, base copy or native model execution occurred. Keep official BF16,
+FP8-derived BF16 and native official FP8 identities distinct.
+
+V5 implements cutoff-aware reads, persistent bounded cold-read tickets and immutable
+producer-release rebuilds; eight-slot masking; complete-EOS fitting and generation
+probes; and a dedicated 2/9/36 producer/store/reader runner. Live tensors preserve
+producer gradients, and one NativeFusedAdamW owns each intended parameter. The
+complete checkpoint binds source, objective and execution identity. The whole attempt
+has an outer wall supervisor and pre-reserved stage work, including failed work,
+source validation, probes, artifacts and fresh-process continuation. Sealed v3/v4
+execution files and historical results remain unchanged.
+
+Clean code snapshot `771e9586` passes 393 affected tests in 64.60 s. Its 2/9/36 CPU
+workflow passes exact fresh-process logits and one real continuation update per arm
+in 14.605376 s, peak RSS 624,705,536 bytes. A separate unchanged-Spark-code probe uses
+36 tiny random CPU BF16 layers and passes parity, two updates and producer gradients;
+it loads no original checkpoint weights. These are engineering results, not useful
+memory. The historical attempt03 passed S0 8/8 and failed S1 (contextual 0/8,
+selected exact text 8/8). Do not tune on its development worlds.
+
+The next executable experiment is the fully bound
+[two-site v5 packet](../../reports/intrinsic_memory_successor_v5/native_packet_two_v5.json).
+All three earlier approvals are consumed; a new exact approval is absent. The
+packet requires 8/8 complete-context competence, then 32 complete-EOS readout updates,
+a fitting-only memory-dependence gate before fresh development, and one restart update.
+It permits zero P updates, 957 forwards, 856 generated tokens, two sequential model
+loads, 7,200 seconds, 160 MiB artifacts and zero retries. Keep the exclusive worker,
+50 GiB driver / 512 MiB sustained swap / 15% host-free guards. Nine/all-layer packets
+have independent budgets/approvals and require useful current two-site evidence.
+
+The intrinsic memory layer participates in Spark computation; the external spine
+continues to connect specialists, sensors and actors. Keep block-input queries and
+post-block residuals explicit. Useful recall must precede completed-interaction
+formation, within-reasoning commits and source-free P learning. Keep P1; nested
+adaptation, RSI and promotion remain closed. Preserve E/S/P/phi/C/I/K ownership,
+approved identity outside reward and the Replica/semi-cognitive-core contracts.
+Hot/warm/cold placement is independent of learning clocks; bounded active identity
+and task state need measured residency, with explicit archival recall. Native
+multimodal work is deferred. Never read, import, edit or stage
+src/replica_lab/runtime_pilot.py. Preserve unrelated dirty work.
+
+## Preserved intrinsic-memory v3/v4 implementation and native control
 
 **All-layer architecture target:** the separately versioned
 [v4 access candidate](../experiments/20261029_Spark_Memory_Layer_Access.md) implements
@@ -27,7 +75,7 @@ The [research cross-check](../research/spark_memory_20261029/Research_Crosscheck
 distinguishes paper mechanisms from our dimensions, sites, update counts and
 acceptance margins, which remain project hypotheses until measured.
 
-The [v3 runbook](../../reports/intrinsic_memory_v3/README.md) is current. The user's
+The [v3 runbook](../../reports/intrinsic_memory_v3/README.md) preserves the completed control. The user's
 architecture correction restores separate `intrinsic_memory`, `plastic_knowledge`
 and external `spine` responsibilities already specified in the intrinsic architecture.
 The spine connects external specialist models, sensors and actors through typed,

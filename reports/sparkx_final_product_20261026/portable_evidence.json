@@ -156,7 +156,7 @@
       "path": "reports/sparkx_v5_1_review_20261027/migration_manifest.json",
       "role": "v5.1 reviewed old/new identity and arithmetic migration manifest",
       "status": "current",
-      "sha256": "3405501516b634cf4ffbf1af51a81f9cc89af9fb82bac8051074cb73909c69e7",
+      "sha256": "e9ab74991f8d1c60ed592f5409c455446fa185d435342bce81d6619f870738c7",
       "format": "replica.sparkx_v5_1_review.migration.v1",
       "previous_sha256": "6611af82870ba97eee0bae4ad7d05d3c046d9a6b7df896f042180317f45fd47e",
       "reviewed_in": "docs/experiments/20261029_Spark_Memory_Native_Readout03.md",
@@ -215,7 +215,7 @@
       "path": "reports/sparkx_v5_1_review_20261027/deliverables.json",
       "role": "v5.1 authored-output hash pins",
       "status": "current",
-      "sha256": "2d5635ce6485b280c42e9843fb325fb91f9ebe5cb3a30c07569fccb8de92dbe9",
+      "sha256": "29d4686862a5bd4fbc7043b381481190531685a28ddb269a04f782babe8dab46",
       "previous_sha256": "14d0ac349749f1cf20643a45e0940b0aab37f3f9eaeacdb4f9a3b479f63bbcdb",
       "reviewed_in": "docs/experiments/20261029_Spark_Memory_Native_Readout03.md",
       "review_chain": [
@@ -279,6 +279,12 @@
       "role": "v5.1 attachment reference inventory",
       "status": "current",
       "sha256": "7a3cf4a059b939707618202cdaf5d11ab1b62b41800337c55eeef55a80b78e83"
+    },
+    {
+      "path": "reports/intrinsic_memory_successor_v5/verification_summary.json",
+      "role": "v5 current CPU correctness and official BF16 preparation summary",
+      "status": "current",
+      "sha256": "70d8807f838cee6ab9b654f77261c9482e9bc90c1a47ae137e780cd878a576a9"
     }
   ],
   "required_configs": [
@@ -321,6 +327,11 @@
       "path": "configs/sparkx_2_6_v5_1_direction_design.json",
       "role": "v5.1 declarative design, residency inventory and staged learning gates",
       "sha256": "119382bd054fbafbf5bb793f04255b628de2bd7ba8ac3c381fcbb15f6d8bc713"
+    },
+    {
+      "path": "configs/spark_intrinsic_diagnostic_v5.json",
+      "role": "v5 separately gated official BF16 and per-arm diagnostic execution",
+      "sha256": "8e897812bd78de6584e10b22626a211d0a8d98660a3f2484467a500e5e1ea144"
     }
   ],
   "historical_manifest": {
@@ -405,7 +416,12 @@
       "reports/sparkx_v5_1_review_20261027/claim_dispositions.json",
       "reports/sparkx_v5_1_review_20261027/attachment_reference_inventory.json",
       "tests/test_sparkx_v5_1_review.py",
-      "tests/test_sparkx_final_product.py"
+      "tests/test_sparkx_final_product.py",
+      "docs/experiments/20261029_Spark_Memory_BF16_Diagnostic_V5.md",
+      "reports/intrinsic_memory_successor_v5/README.md",
+      "reports/intrinsic_memory_successor_v5/verification_summary.json",
+      "configs/spark_intrinsic_diagnostic_v5.json",
+      "reports/intrinsic_memory_successor_v5/native_packet_two_v5.json"
     ],
     "clean_export_links": [
       "reports/final_verification_20261027/summary.json",

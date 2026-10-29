@@ -1,5 +1,12 @@
 # Spark memory S0–S1: first native attempt and environment repair
 
+**Current successor:** [official BF16 diagnostic v5](20261029_Spark_Memory_BF16_Diagnostic_V5.md) implements the
+bounded cold-read/release repairs, complete-EOS probes and dedicated 2/9/36 runner.
+Its clean CPU regression passes 393; native v5 is prepared and unrun, with exact
+approval absent. All v3 approvals are consumed. The results and preparation below
+remain the preserved earlier scope; statements about missing successor integration
+or runners describe that snapshot, not the current v5 implementation.
+
 **29 October 2026 · historical attempt01/02 environment and placement failures.**
 
 Current outcome: the separately authorized [attempt03](20261029_Spark_Memory_Native_Readout03.md)

@@ -973,6 +973,26 @@ FINAL_PRODUCT_INPUT_ROLES.extend([
     ('configs/spark_persistent_learner_derivative_bf16_protocol_v1.json', 'distinct derivative execution and authorization binding'),
 ])
 
+FINAL_PRODUCT_INPUT_ROLES.extend([
+    ('docs/experiments/20261029_Spark_Memory_BF16_Diagnostic_V5.md', 'current official BF16 correctness, diagnosis, density and Replica evidence boundaries'),
+    ('reports/intrinsic_memory_successor_v5/README.md', 'exact v5 launch and authorization runbook; no native attempt authorized'),
+    ('reports/intrinsic_memory_successor_v5/verification_summary.json', 'new clean CPU engineering evidence, measured resources and historical outcome separation'),
+    ('configs/spark_intrinsic_diagnostic_v5.json', 'complete EOS, competence, fitting, development, restart and per-arm work budgets'),
+    ('reports/intrinsic_memory_successor_v5/implementation_v5.json', 'actual executable closure for the separate v5 runner'),
+    ('reports/intrinsic_memory_successor_v5/source_execution_v5.json', 'official BF16 model/configuration executable source identity'),
+    ('reports/intrinsic_memory_successor_v5/official_bf16_source.json', 'fresh full local official BF16 source hash validation without model loading'),
+    ('reports/intrinsic_memory_successor_v5/native_packet_two_v5.json', 'two-site official BF16 diagnostic packet requiring fresh exact approval'),
+    ('reports/intrinsic_memory_successor_v5/native_packet_full_attention_nine_v5.json', 'nine-site packet with its own budget and useful two-site prerequisite'),
+    ('reports/intrinsic_memory_successor_v5/native_packet_all_v5.json', '36-site packet with its own budget and useful two-site prerequisite'),
+    ('reports/intrinsic_memory_successor_v5/review_preflight_final.json', 'complete source/environment/implementation/data admission check with no weight loading'),
+    ('reports/intrinsic_memory_successor_v5/clean_regression_resources.json', '393-test clean code snapshot and measured CPU resource scope'),
+    ('reports/intrinsic_memory_successor_v5/clean_cpu_integrated/result.json', '2/9/36 shared-snapshot gradients, exact fresh logits and actual continuation CPU receipt'),
+    ('reports/intrinsic_memory_successor_v5/official_code_cpu_probe02/result.json', 'unchanged Spark code with tiny random BF16 CPU weights; not checkpoint capability'),
+    ('data/intrinsic_memory_v5_20261029/calibration.json', 'fresh pre-fit complete-context competence worlds'),
+    ('data/intrinsic_memory_v5_20261029/fit.json', 'counterfactual fitting-only worlds for memory-dependence probes'),
+    ('data/intrinsic_memory_v5_20261029/development.json', 'fresh development worlds opened only after the frozen fitting gate'),
+])
+
 PROFILES = {
     "historical": {
         "manifest": DEFAULT_MANIFEST,

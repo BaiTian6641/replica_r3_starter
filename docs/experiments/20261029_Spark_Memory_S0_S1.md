@@ -1,5 +1,12 @@
 # Spark memory S0–S1: foundation and intrinsic recall
 
+**Current successor:** [official BF16 diagnostic v5](20261029_Spark_Memory_BF16_Diagnostic_V5.md) implements the
+bounded cold-read/release repairs, complete-EOS probes and dedicated 2/9/36 runner.
+Its clean CPU regression passes 393; native v5 is prepared and unrun, with exact
+approval absent. All v3 approvals are consumed. The results and preparation below
+remain the preserved earlier scope; statements about missing successor integration
+or runners describe that snapshot, not the current v5 implementation.
+
 **29 October 2026 · current Spark text-memory protocol and evidence guide.**
 This succeeds the historical MiniCPM-first validation ladder. The implemented
 path is `f471f54a34e99f8143164e00b3247827c6ba1f1c`; current status lives in the

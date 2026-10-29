@@ -1,5 +1,12 @@
 # Spark memory: integrated layer access and current native evidence
 
+**Current successor:** [official BF16 diagnostic v5](20261029_Spark_Memory_BF16_Diagnostic_V5.md) implements the
+bounded cold-read/release repairs, complete-EOS probes and dedicated 2/9/36 runner.
+Its clean CPU regression passes 393; native v5 is prepared and unrun, with exact
+approval absent. All v3 approvals are consumed. The results and preparation below
+remain the preserved earlier scope; statements about missing successor integration
+or runners describe that snapshot, not the current v5 implementation.
+
 **29 October 2026 · integration-stage record following review snapshot 5077d047.**
 
 Latest native evidence is in the [attempt03 report](20261029_Spark_Memory_Native_Readout03.md):
