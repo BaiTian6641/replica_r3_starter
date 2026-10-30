@@ -456,7 +456,11 @@ class DiagnosticEngineV12:
         durable = []
         for row, scope, store in zip(rows, scopes, stores):
             corpus = self.new_release_corpus(store, scope)
-            with self.measured('producer_release_rebuild', writes=3) as event:
+            # The producer reserves the rebuild's own writes (origin_and_lock,
+            # value, manifest, pointer) through its accounting interface, so this
+            # outer event must not reserve them again. Double-charging here would
+            # make the per-world total 21 instead of the actual 18.
+            with self.measured('producer_release_rebuild', writes=0) as event:
                 corpus.rebuild(self.path); event['corpus_cost'] = dict(corpus.cost)
                 # The per-world write cap assumes exactly one eligible E record
                 # (one release_value write). Two records would make it five, so a

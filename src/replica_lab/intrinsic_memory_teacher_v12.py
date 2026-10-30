@@ -172,14 +172,15 @@ class TeacherEngineV12(DiagnosticEngineV12):
         path = Path(path)
         if (self.teacher_qualified or self.targets or self.teacher_evidence or self.fitting_closed
                 or path.is_symlink() or not path.is_file() or path.stat().st_size != pin['bytes']
-                or not 0 < pin['bytes'] <= TEACHER_CACHE_BYTES
-                or hash_file(path) != pin['sha256']):
+                or not 0 < pin['bytes'] <= TEACHER_CACHE_BYTES):
             raise ValueError('teacher cache identity, size or lifecycle differs')
         feature = self.feature_identity()
-        # Hashing the file and then reading it are two full reads.
+        # Hashing the file and then reading it are two full reads, both reserved.
         with self.measured('detached_teacher_cache_restore',
                            artifact_read_bytes=2*pin['bytes'],
                            restart_restores=1) as event:
+            if hash_file(path) != pin['sha256']:
+                raise ValueError('teacher cache content digest differs')
             payload = json.loads(path.read_text())
             event['observed_artifact_read_bytes'] = 2*path.stat().st_size
             if (payload.get('format') != FORMAT

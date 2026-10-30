@@ -82,6 +82,39 @@ def test_probe_cap_is_exact_and_one_world_over_is_refused(tmp_path):
     led.leave('a')
 
 
+def test_thirty_two_world_call_graph_lands_exactly_on_the_probe_cap(tmp_path):
+    """Emit the engine's real per-world operations and hit 580 exactly, then refuse."""
+    from replica_lab.intrinsic_memory_coverage_v12 import (
+        READ_WRITE_BOUND, plan as coverage_plan)
+    cap = coverage_plan('two')['fit_probes_512']['writes']
+    led = WorkLedger.create(tmp_path/'work_ledger.jsonl', identity='packet-sha',
+                            plan=plan(a={'writes': cap}),
+                            deadline=time.monotonic() + 600)
+    led.enter('a')
+    for world in range(32):
+        # second corpus construction: origin reserved, pointer already exists
+        with led.work('a', 'release_origin_and_lock', writes=1):
+            pass
+        # producer-owned rebuild: origin_and_lock, value, manifest, pointer
+        for operation in ('release_origin_and_lock', 'release_value',
+                          'release_manifest', 'release_pointer'):
+            with led.work('a', operation, writes=1):
+                pass
+        # retrieval: stored forward + writer + 11 release events
+        for index in range(READ_WRITE_BOUND):
+            with led.work('a', f'retrieval_{index}', writes=1):
+                pass
+    for receipt in ('probe', 'fit_curve', 'fitting_closed', 'source_cost'):
+        with led.work('a', receipt, writes=1):
+            pass
+    reserved = led.snapshot()['stages']['a']['reserved']['writes']
+    assert reserved == cap == 580
+    with pytest.raises(BudgetError, match='exceeded before dispatch'):
+        with led.work('a', 'world_33', writes=1):
+            pass
+    led.leave('a')
+
+
 def test_plan_requires_every_counter_and_positive_wall():
     with pytest.raises(BudgetError): validate_plan({})
     with pytest.raises(BudgetError): validate_plan({'a': {'wall_seconds': 1}})

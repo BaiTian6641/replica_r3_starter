@@ -33,8 +33,10 @@ What this writes:
 """
 from copy import deepcopy
 import json
-from pathlib import Path
+import os
 import sys
+import tempfile
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'src'))
@@ -68,11 +70,27 @@ OUTPUT_ROOTS = {arm: f'{REPORT}/native_bf16_{arm}_v12_attempt01' for arm in ARMS
 
 
 def save_new(root, relative, value):
+    """Create durably: temp file in the same directory, fsync, then rename.
+
+    A crash between encode and rename leaves either no file or the complete
+    file, never a truncated packet that later reads as a valid receipt.
+    """
     path = root/relative
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open('x') as stream:
-        json.dump(value, stream, indent=2, sort_keys=True)
-        stream.write('\n')
+    body = json.dumps(value, indent=2, sort_keys=True) + '\n'
+    handle, temporary = tempfile.mkstemp(dir=str(path.parent),
+                                         prefix=path.name + '.', suffix='.tmp')
+    try:
+        with os.fdopen(handle, 'w') as stream:
+            stream.write(body); stream.flush(); os.fsync(stream.fileno())
+        os.link(temporary, path)          # fails if the target already exists
+    finally:
+        os.unlink(temporary)
+    directory = os.open(str(path.parent), os.O_RDONLY)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
     return path
 
 

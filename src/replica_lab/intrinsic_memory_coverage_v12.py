@@ -165,10 +165,16 @@ def v12_development_plan():
         unrecorded = reshuffled[5]
         order = _permute(DEVELOPMENT_SEED, f'order|{group}', [0, 1, 2, 3])
         unknown_pairs = set(_permute(DEVELOPMENT_SEED, f'unknown|{group}', [0, 1, 2, 3])[:2])
+        # The unknown entity occupies a seed-chosen side of the pair: fixing it to
+        # one side would make side a perfect predictor of "unrecorded".
+        unknown_sides = {pair: _seed_stream(DEVELOPMENT_SEED,
+                                            f'unknown_side|{group}|{pair}', 1)[0] % 2
+                         for pair in sorted(unknown_pairs)}
         rotation = _seed_stream(DEVELOPMENT_SEED, f'rotation|{group}', 1)[0] % 4
         plan.append({'group': group, 'family': COMPOUND_FAMILIES[group],
                      'anchors': anchors, 'targets': targets, 'unrecorded': unrecorded,
                      'order': order, 'unknown_pairs': sorted(unknown_pairs),
+                     'unknown_sides': unknown_sides,
                      'rotation': rotation})
     return plan
 
@@ -180,7 +186,7 @@ def v12_development_case_positions(plan):
         for slot_position, pair in enumerate(entry['order']):
             for side in (0, 1):
                 positions.append({'group': entry['group'], 'pair': pair, 'side': side,
-                                  'unknown': pair in entry['unknown_pairs'] and side == 1})
+                                  'unknown': entry['unknown_sides'].get(pair) == side})
     return positions
 
 
@@ -201,11 +207,18 @@ def v12_development_worlds():
             cursor += 1
             answers = (first, second)
             for side in (0, 1):
-                unknown = pair in entry['unknown_pairs'] and side == 1
+                unknown = entry['unknown_sides'].get(pair) == side
                 target = entry['unrecorded'] if unknown else known_target
                 answer = answers[side]
-                anchor_colour = palette[(palette.index(answer) + 1 + stream[cursor] % 3) % 4]
-                cursor += 1
+                if family == COMPOUND_FAMILIES[1]:
+                    # The text asserts anchor and target share a colour, so the
+                    # anchor's colour is the answer. Any other value contradicts
+                    # the equality oracle the row is scored against.
+                    anchor_colour = answer
+                else:
+                    anchor_colour = palette[(palette.index(answer) + 1
+                                             + stream[cursor] % 3) % 4]
+                    cursor += 1
                 case = {'anchor': anchor, 'target': target, 'answer': answer,
                         'anchor_colour': anchor_colour,
                         'unrecorded_target': unknown}
@@ -567,9 +580,11 @@ def plan(arm):
         # envelope for the whole owned output tree. Terminal receipts are charged
         # in their own declared stages below, never outside a stage.
         'admission': stage(30, artifact_bytes=ADMISSION_ENVELOPE_BYTES,
-                           artifact_read_bytes=CONTROL_READ_BYTES_BOUND + SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES,
+                           artifact_read_bytes=CONTROL_READ_BYTES_BOUND,
                            writes=2),
-        # One hashing pass over the source, one environment-closure pass, one
+        'preflight': stage(30, artifact_read_bytes=(CONTROL_READ_BYTES_BOUND
+                           + SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES),
+                           writes=1),
         # weight load and the capacity-guard receipt written after that worker.
         'load': stage(180, model_loads=1,
                       artifact_read_bytes=CONTROL_READ_BYTES_BOUND + (2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES

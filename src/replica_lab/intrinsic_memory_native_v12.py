@@ -49,7 +49,7 @@ from .intrinsic_memory_coverage_v12 import (
     SOURCE_HIDDEN_SIZE, SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES)
 from .intrinsic_memory_diagnostic_v12 import (
     PROMPT, StageRef, SourceWorkAccounting, logits_digest, right_padded_prefix)
-from .intrinsic_memory_execution_v5 import bound_json, hash_file
+from .intrinsic_memory_execution_v5 import hash_file
 from .intrinsic_memory_native_v5 import (
     base_hash, store_at, world_scope, verified_source_classes)
 from .intrinsic_memory_teacher_v12 import TeacherEngineV12
@@ -148,27 +148,43 @@ METADATA_FILES = ('config.json', 'chat_template.jinja', 'tokenizer.json',
                   'configuration_spark.py', 'modeling_spark.py')
 
 
+def reserved_read(ledger, stage, operation, path, *, bound=None):
+    """Reserve before reading, then record the bytes actually observed.
+
+    Every metadata and pin read goes through here so a read can never happen
+    outside a reservation, and the charged amount is the length of the data that
+    was returned rather than a stat size that may differ from what was read.
+    """
+    size = path.stat().st_size if bound is None else bound
+    with ledger.work(stage, operation, artifact_read_bytes=max(1, size)) as event:
+        data = path.read_bytes()
+        event['actual'] = {'artifact_read_bytes': len(data)}
+    return data
+
+
 def load_native(root, protocol, arm, ledger, stage):
     """Load the verified official BF16 source, then build the v12 producer."""
     from transformers import AutoTokenizer
     if not torch.backends.mps.is_available(): raise ValueError('native MPS unavailable; no fallback')
-    source = bound_json(root, protocol['source']); directory = root/source['source_root']
+    # Pin reads are reserved and observed like any other read.
+    source = json.loads(reserved_read(ledger, stage, 'source_binding_read',
+                                      root / protocol['source']['path']))
+    directory = root/source['source_root']
     # Configuration, template and tokenizer reads happen before the model load;
-    # reserve them first and record the bytes actually read.
-    with ledger.work(stage, 'source_metadata_reads',
-                     artifact_read_bytes=LOAD_METADATA_READ_BYTES) as metadata:
-        raw = json.loads((directory/'config.json').read_text()); config = load_spark2_5_config(raw)
-        template = (directory/'chat_template.jinja').read_text()
-        tokenizer_identity = load_tokenizer_identity(
-            config, json.loads((directory/'tokenizer_config.json').read_text()), template,
-            tokenizer_json=(directory/'tokenizer.json').read_text())
-        classes = verified_source_classes(directory, raw,
-                                          bound_json(root, protocol['source_execution']))
-        tokenizer = AutoTokenizer.from_pretrained(directory, local_files_only=True,
-                                                 trust_remote_code=True)
-        metadata['actual'] = {'artifact_read_bytes': sum(
-            (directory/name).stat().st_size for name in METADATA_FILES
-            if (directory/name).is_file())}
+    # reserve each file, then record the bytes actually read from it.
+    blobs = {name: reserved_read(ledger, stage, 'source_metadata_reads',
+                                 directory / name, bound=LOAD_METADATA_READ_BYTES)
+             for name in METADATA_FILES if (directory / name).is_file()}
+    raw = json.loads(blobs['config.json']); config = load_spark2_5_config(raw)
+    template = blobs['chat_template.jinja'].decode()
+    tokenizer_identity = load_tokenizer_identity(
+        config, json.loads(blobs['tokenizer_config.json']), template,
+        tokenizer_json=blobs['tokenizer.json'].decode())
+    execution = json.loads(reserved_read(ledger, stage, 'source_execution_read',
+                                         root / protocol['source_execution']['path']))
+    classes = verified_source_classes(directory, raw, execution)
+    tokenizer = AutoTokenizer.from_pretrained(directory, local_files_only=True,
+                                             trust_remote_code=True)
     if not tokenizer.is_fast or (tokenizer.eos_token_id, tokenizer.pad_token_id) != (1, 2):
         raise ValueError('bound fast tokenizer/EOS/PAD differs')
     declared = protocol['source_feature_binding']['tokenizer_identity']
@@ -186,9 +202,13 @@ def load_native(root, protocol, arm, ledger, stage):
             or config.geometry.hidden_size != SOURCE_HIDDEN_SIZE):
         raise ValueError('declared mechanism identity differs from the loaded implementation')
     gen = protocol['generation']
+    tokenizer_hash = hashlib.sha256(reserved_read(
+        ledger, stage, 'source_tokenizer_hash', directory/'tokenizer.json')).hexdigest()
+    template_hash = hashlib.sha256(reserved_read(
+        ledger, stage, 'source_template_hash', directory/'chat_template.jinja')).hexdigest()
     spec = CompletionObjectiveSpec(config.geometry.vocab_size, gen['context_tokens'], 1, 2, (1,),
-        stop_policy_identity((1,)), hash_file(directory/'tokenizer.json'),
-        sha_json({'chat_template_sha256': hash_file(directory/'chat_template.jinja'),
+        stop_policy_identity((1,)), tokenizer_hash,
+        sha_json({'chat_template_sha256': template_hash,
                   'user_prompt': PROMPT,
                   'thinking_mode': resolve_thinking_mode(tokenizer_identity, 'none'),
                   'add_generation_prompt': True}), 'none')
@@ -339,7 +359,9 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
     stores = []
     try:
         begin_stage(engine, 'baseline')
-        calibration = bound_json(root, protocol['data']['calibration'])['rows']; answers = []
+        calibration = json.loads(reserved_read(
+            ledger, 'baseline', 'calibration_split_read',
+            root / protocol['data']['calibration']['path']))['rows']
         if len(calibration) != 8: raise ValueError('incomplete calibration')
         for row in calibration:
             answer = engine.generate(row, None, world_scope(row), control='exact_text')
@@ -355,12 +377,14 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
         if not passed:
             result['status'] = 'baseline_failed_dependent_stages_closed'; return result
         # Fitting labels are parsed only after the frozen pre-fit baseline gate.
-        rows = bound_json(root, protocol['data']['fit'])['rows']
+        begin_stage(engine, 'numerical')
+        rows = json.loads(reserved_read(
+            ledger, 'numerical', 'fit_split_read',
+            root / protocol['data']['fit']['path']))['rows']
         if len(rows) != FIT_CASES or any(
                 rows[i]['question'] != rows[i ^ 1]['question']
                 or rows[i]['answer'] == rows[i ^ 1]['answer'] for i in range(FIT_CASES)):
             raise ValueError('counterfactual fitting corpus differs')
-        begin_stage(engine, 'numerical')
         ids, mask = right_padded_prefix(engine.tokens(rows[0]), spec, engine.device)
         spans = canonical_spans(rows[0]['text'], record_id='numerical', source_id='calibration',
                                 source_epoch=1, available_at=1)
@@ -456,7 +480,9 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
         close_stage(engine, 'checkpoint', 'completed')
         if result['fit_memory_dependence_passed']:
             begin_stage(engine, 'development')
-            development = bound_json(root, protocol['data']['development'])['rows']
+            development = json.loads(reserved_read(
+                ledger, 'development', 'development_split_read',
+                root / protocol['data']['development']['path']))['rows']
             batches, dscopes, dstores = admit_rows(engine, development, output)
             stores.extend(dstores)
             evaluation = engine.evaluate(development, batches, dscopes)

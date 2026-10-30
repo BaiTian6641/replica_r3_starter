@@ -86,7 +86,7 @@ def test_stage_plan_is_complete_finite_and_inside_the_outer_envelope():
             assert set(caps) == set(COUNTERS)|{'wall_seconds'}, stage
             assert all(type(caps[k]) is int and caps[k] >= 0 for k in COUNTERS)
         total = totals(stages)
-        assert total['wall_seconds'] == 6925
+        assert total['wall_seconds'] == 6955
         assert total['wall_seconds'] <= OUTER_WALL_SECONDS-11
         assert total['updates'] == 513
         assert total['model_loads'] == 2
@@ -277,6 +277,41 @@ def test_default_split_is_a_compound_rule_family_holdout():
     assert len(differences) >= 3, differences
     assert DEVELOPMENT_SEED == 2026102912
     assert len(DEVELOPMENT_ROOTS) == 8
+
+
+def test_compound_structured_facts_are_consistent_for_every_row():
+    """Equality rows assert a shared colour, so anchor colour must equal answer."""
+    from replica_lab.intrinsic_memory_coverage_v12 import (
+        COMPOUND_FAMILIES, v12_development_worlds)
+    rows = v12_development_worlds()
+    for row in rows:
+        facts = row['facts']
+        if row['rule_family'] == COMPOUND_FAMILIES[1] and not facts['unrecorded_target']:
+            assert facts['anchor_colour'] == facts['answer']
+            assert f"same recorded color as {facts['target']}" in row['text']
+        if row['rule_family'] == COMPOUND_FAMILIES[0]:
+            assert f"recorded color of {row['query_entity']} is {facts['anchor_colour']}"                 in row['text']
+        if not facts['unrecorded_target']:
+            assert row['answer'] == facts['answer'] != 'unknown'
+            assert f"The recorded color of {facts['target']} is {facts['answer']}" in row['text']
+        else:
+            assert row['answer'] == 'unknown'
+            assert f"No color is recorded for {facts['target']}" in row['text']
+
+
+def test_unknown_entity_side_varies_with_the_seed():
+    """A fixed unknown side would leak the label; both sides must be exercised."""
+    from replica_lab.intrinsic_memory_coverage_v12 import (
+        v12_development_case_positions, v12_development_plan)
+    positions = v12_development_case_positions(v12_development_plan())
+    unknown = [p for p in positions if p['unknown']]
+    assert len(unknown) == 4
+    assert {p['side'] for p in unknown} == {0, 1}
+    # Both sides of a pair are present, and only one of them is unknown.
+    pairs = {(p['group'], p['pair']) for p in positions}
+    for group, pair in pairs:
+        sides = [p['side'] for p in positions if (p['group'], p['pair']) == (group, pair)]
+        assert sides == [0, 1]
 
 
 def test_unknown_cases_render_no_answer_bearing_text():

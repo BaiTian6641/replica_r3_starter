@@ -9,20 +9,21 @@ Three independent things are checked before a model may be loaded:
 1. the *comparison* is the completed v11 experiment, whose development split
    was never opened (verified from its exposure receipt, never by reading
    labels), and whose every shared contract is still byte-identical;
-2. the *prepared data* is the same calibration/fitting/development corpus,
-   reached only through a new v12 manifest with an explicit exposure contract;
+2. the *prepared data* uses exposed calibration/fitting rows and a fresh compound
+   rule-family development corpus, reached only through a new v12 manifest with
+   an explicit exposure contract;
 3. the *code and source* are the exact bound bytes, including the declared
-   source-feature binding (tokenizer identity, source file digest, original
    parameter digest) and the complete local import closure.
 """
+from contextlib import contextmanager
 from copy import deepcopy
 import fcntl
+import hashlib
 import json
 import os
 from pathlib import Path
 import sys
 import time
-
 from .execution_manifest import build_execution_manifest
 from .intrinsic_memory_budget_v12 import atomic, sha_json, validate_plan
 from .intrinsic_memory_coverage_v11 import validate_protocol as validate_previous_protocol
@@ -33,8 +34,42 @@ from .intrinsic_memory_coverage_v12 import (
     declared_tokenizer_identity, plan, public_split_metadata,
     tokenizer_identity_digest, totals, v12_development_public_identity,
     validate_protocol)
-from .intrinsic_memory_execution_v5 import (
-    contained, hash_file, bound_json, local_closure)
+from .intrinsic_memory_execution_v5 import contained, hash_file, local_closure
+
+_BOUND_READ_OBSERVER = None
+
+
+@contextmanager
+def observe_bound_reads(observer):
+    """Observe exact bytes returned by v12 JSON reads; static review uses None."""
+    global _BOUND_READ_OBSERVER
+    previous = _BOUND_READ_OBSERVER
+    _BOUND_READ_OBSERVER = observer
+    try:
+        yield
+    finally:
+        _BOUND_READ_OBSERVER = previous
+
+
+def _observe(path, byte_count):
+    if _BOUND_READ_OBSERVER is not None:
+        _BOUND_READ_OBSERVER(Path(path), byte_count)
+
+
+def bound_json(root, pin):
+    """Validate and decode one bound JSON file, recording observed bytes."""
+    path = contained(root, pin['path'])
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != pin['sha256']:
+        raise ValueError('bound file hash differs: '+pin['path'])
+    _observe(path, len(raw))
+    return json.loads(raw)
+
+
+def read_json(path):
+    raw = Path(path).read_bytes()
+    _observe(path, len(raw))
+    return json.loads(raw)
 
 MANIFEST_FORMAT = 'replica.intrinsic_memory.coverage_split_manifest.v12'
 EXPOSURE_FORMAT = 'replica.intrinsic_memory.development_exposure.v12'
@@ -402,7 +437,7 @@ def charged_write(ledger, output, name, payload, *, stage=None):
 
 def validate_bindings(root, packet_path, *, check_source=True, closure_interpreter=None):
     root = Path(root); packet_path = Path(packet_path)
-    packet = json.loads(packet_path.read_text()); protocol = bound_json(root, packet['protocol'])
+    packet = read_json(packet_path); protocol = bound_json(root, packet['protocol'])
     if (packet.get('format') != PACKET or packet.get('arm') not in ARMS
             or packet.get('attempts') != 1 or packet.get('retries') != 0
             or packet.get('experiment_version') != 12

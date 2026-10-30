@@ -35,9 +35,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'src'))
 from replica_lab.intrinsic_memory_budget_v12 import WorkLedger, atomic, audit_io
 from replica_lab.intrinsic_memory_coverage_v12 import (
-    ENVIRONMENT_CLOSURE_BYTES, SOURCE_FILE_BYTES)
+    CONTROL_READ_BYTES_BOUND, ENVIRONMENT_CLOSURE_BYTES, SOURCE_FILE_BYTES)
 from replica_lab.intrinsic_memory_execution_v12 import (
-    charged_write, record_attempt, validate_authorization, validate_bindings)
+    charged_write, observe_bound_reads, record_attempt, validate_authorization,
+    validate_bindings)
 from replica_lab.intrinsic_memory_execution_v5 import bound_json, contained, hash_file
 from replica_lab.capacity_guard import CapacityGuard, CapacityPolicy, parse_host_readings
 from replica_lab.wall_deadline_v1 import run_wall_bounded, WallPolicy
@@ -166,21 +167,30 @@ def supervised(args):
         pass
     guard = CapacityGuard(CapacityPolicy(), host_reading())
     if guard.stop_reason: raise RuntimeError(guard.stop_reason)
-    with ledger.work('admission', 'environment_source_code_data_preflight',
-                     artifact_read_bytes=SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES) as cost:
+    with ledger.work('admission', 'environment_only',
+                     artifact_read_bytes=CONTROL_READ_BYTES_BOUND):
         environment = environment_only(args.packet)
-        _, _, receipt = validate_bindings(ROOT, args.packet, check_source=True)
-        # Observed, not a constant: the source files actually hashed plus the
-        # environment-closure bytes actually verified.
-        cost['actual'] = {'artifact_read_bytes':
-                          receipt['source_bytes_hashed']
-                          + receipt['environment_closure']['bytes_verified']}
-        cost['source_bytes_hashed'] = receipt['source_bytes_hashed']
-        cost['environment_closure'] = receipt['environment_closure']
-        with ledger.work('admission', 'admission_receipt', writes=1) as event:
-            atomic(output/'admission.json', {'environment_validation': environment, **receipt})
-            event['actual'] = {'writes': 1}
-    ledger.leave('admission', status='completed'); ledger.enter('load')
+    with ledger.work('admission', 'admission_receipt', writes=1) as event:
+        atomic(output/'admission.json', {'environment_validation': environment})
+        event['actual'] = {'writes': 1}
+    ledger.leave('admission', status='completed'); ledger.enter('preflight')
+    observed = []
+    with observe_bound_reads(lambda path, count: observed.append(count)):
+        with ledger.work('preflight', 'environment_source_code_data_preflight',
+                         artifact_read_bytes=(CONTROL_READ_BYTES_BOUND
+                                             + SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES)) as cost:
+            _, _, receipt = validate_bindings(ROOT, args.packet, check_source=True)
+            cost['actual'] = {'artifact_read_bytes':
+                              sum(observed) + receipt['source_bytes_hashed']
+                              + receipt['environment_closure']['bytes_verified']}
+            cost['source_bytes_hashed'] = receipt['source_bytes_hashed']
+            cost['environment_closure'] = receipt['environment_closure']
+            cost['bound_json_bytes_observed'] = sum(observed)
+            with ledger.work('preflight', 'preflight_receipt', writes=1) as event:
+                atomic(output/'preflight.json',
+                       {'environment_validation': environment, **receipt})
+                event['actual'] = {'writes': 1}
+    ledger.leave('preflight', status='completed'); ledger.enter('load')
     supervise_worker('main', args, output, ledger, guard, 'capacity_main')
     main = json.loads((output/'main_result.json').read_text())
     if not main.get('original_weights_unchanged'):
@@ -220,19 +230,19 @@ def worker(args):
     validate_authorization(ROOT, args.packet, args.authorization, allow_existing=True)
     ledger = WorkLedger(output/'work_ledger.jsonl', identity=hash_file(args.packet))
     stage = 'load' if args.worker == 'main' else 'restart'
-    with ledger.work(stage, 'child_source_revalidation',
-                     artifact_read_bytes=(SOURCE_FILE_BYTES
-                                          + ENVIRONMENT_CLOSURE_BYTES)) as event:
-        # Environment and closure checks, source hashing and the data digests all
-        # happen inside this reservation; nothing is hashed before it is charged.
-        environment_only(args.packet)
-        _, protocol, receipt = validate_bindings(ROOT, args.packet, check_source=True)
-        # Observed bytes, not the declared constants.
-        event['actual'] = {'artifact_read_bytes':
-                           receipt['source_bytes_hashed']
-                           + receipt['environment_closure']['bytes_verified']}
-        event['source_bytes_hashed'] = receipt['source_bytes_hashed']
-        event['environment_closure'] = receipt['environment_closure']
+    observed = []
+    with observe_bound_reads(lambda path, count: observed.append(count)):
+        with ledger.work(stage, 'child_source_revalidation',
+                         artifact_read_bytes=(SOURCE_FILE_BYTES
+                                              + ENVIRONMENT_CLOSURE_BYTES)) as event:
+            environment_only(args.packet)
+            _, protocol, receipt = validate_bindings(ROOT, args.packet, check_source=True)
+            event['actual'] = {'artifact_read_bytes':
+                               sum(observed) + receipt['source_bytes_hashed']
+                               + receipt['environment_closure']['bytes_verified']}
+            event['source_bytes_hashed'] = receipt['source_bytes_hashed']
+            event['environment_closure'] = receipt['environment_closure']
+            event['bound_json_bytes_observed'] = sum(observed)
     import torch
     import psutil
     stop = threading.Event()
