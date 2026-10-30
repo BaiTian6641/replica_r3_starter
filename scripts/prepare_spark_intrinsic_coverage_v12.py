@@ -66,7 +66,7 @@ ATTEMPT_MARKER = 'runs/intrinsic_memory_native_v12/attempts.jsonl'
 STANDING_AUTHORIZATION = ('Continued as planned, no need more approval for testing, '
                           'follow the goal, assume I authorize the tests.')
 HISTORICAL_V11_EXPOSURE = 'reports/intrinsic_memory_coverage_v11/development_exposure.json'
-OUTPUT_ROOTS = {arm: f'{REPORT}/native_bf16_{arm}_v12_attempt08' for arm in ARMS}
+OUTPUT_ROOTS = {arm: f'{REPORT}/native_bf16_{arm}_v12_attempt09' for arm in ARMS}
 
 
 def save_new(root, relative, value):
