@@ -1,0 +1,437 @@
+FFFFFFFFFFFFFFFF                                                         [100%]
+=================================== FAILURES ===================================
+______ test_restart_prompt_budget_covers_teacher_revalidation_and_update _______
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1929/test_restart_prompt_budget_cov0')
+
+    def test_restart_prompt_budget_covers_teacher_revalidation_and_update(tmp_path):
+        ledger = WorkLedger.create(tmp_path / "restart.jsonl", identity="independent-review",
+                                   plan=plan("two"), deadline=time.monotonic() + 10000)
+        ledger.enter("restart")
+        for _ in range(FIT_CASES * 2 + 3):
+>           token = ledger.reserve("restart", "prompt_tokenization", prompt_tokenizer_calls=1)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_independent_review_v12_findings.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <replica_lab.intrinsic_memory_budget_v12.WorkLedger object at 0x10ca786b0>
+stage = 'restart', operation = 'prompt_tokenization'
+amounts = {'prompt_tokenizer_calls': 1}
+
+    def reserve(self, stage, operation, **amounts):
+        if not isinstance(operation, str) or not operation:
+            raise BudgetError('invalid reservation operation')
+        amounts = _amounts(amounts, where='reserve')
+        with self._transaction() as (doc, write):
+            state = doc['stages'].get(stage)
+            if state is None or state['status'] != 'active': raise BudgetError('stage is not active')
+            outer, stage_remaining, _ = _remaining(state['deadline'],
+                                                   state['deadline_unix'], doc['clock'])
+            if outer <= 0 or stage_remaining <= 0:
+                raise BudgetError('stage/outer wall budget exceeded')
+            if any(state['reserved'][k]+v > doc['plan'][stage][k] for k, v in amounts.items()):
+>               raise BudgetError('stage work budget exceeded before dispatch')
+E               replica_lab.intrinsic_memory_budget_v12.BudgetError: stage work budget exceeded before dispatch
+
+src/replica_lab/intrinsic_memory_budget_v12.py:392: BudgetError
+______________ test_nonterminating_generation_is_marked_truncated ______________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1929/test_nonterminating_generation0')
+
+    def test_nonterminating_generation_is_marked_truncated(tmp_path):
+        engine = DiagnosticEngineV12.__new__(DiagnosticEngineV12)
+        engine.max_new_tokens = 2
+        engine.spec = types.SimpleNamespace(context_tokens=16, pad_token_id=0,
+                                           allowed_stop_token_ids=(1,), vocab_size=8)
+        engine.path = types.SimpleNamespace(validate=lambda batch, scope: None,
+            adapter=types.SimpleNamespace(base=types.SimpleNamespace(
+                parameters=lambda: iter([torch.zeros(1)]))))
+        engine.backend = types.SimpleNamespace(decode=lambda ids: "red")
+        engine.tokens = lambda row, exact=False: [2]
+        engine.sync = lambda: None
+        def forward(ids, mask, batch, scope, **kwargs):
+            logits = torch.zeros(1, ids.shape[1], 8)
+            logits[:, :, 3] = 1
+            return logits
+        engine.forward = forward
+        @contextmanager
+        def measured(operation, **amounts):
+            yield {}
+        engine.measured = measured
+        result = engine.generate({"text": "badge red", "question": "color", "answer": "red"},
+                                 None, "scope")
+        assert result["terminated"] is False
+>       assert result["truncated"] is True
+E       assert False is True
+
+tests/test_independent_review_v12_findings.py:62: AssertionError
+_______________ test_chunk_recompute_reproduces_committed_digest _______________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1929/test_chunk_recompute_reproduce0')
+
+    def test_chunk_recompute_reproduces_committed_digest(tmp_path):
+        with ChunkStore(tmp_path, subject_id="subject-1") as store:
+            session = make_session(store)
+            session.begin_chunk([20, 21])
+            keys, values = tensors()
+            session.propose(keys, values)
+            receipt = session.commit().receipt
+>           assert session.recompute(keys, values)[1] == receipt.proposal_digest
+E           AssertionError: assert '3abe9d4194bd...cf236a193f25e' == '38fc22046b4f...15f15138a6e90'
+E             
+E             - 38fc22046b4fdc4c46ca2145c1c9cb31c55f47d31edd9dff41015f15138a6e90
+E             + 3abe9d4194bd3c396b5c12e4036cf12eee592659c9d33faceebcf236a193f25e
+
+tests/test_independent_review_v12_findings.py:72: AssertionError
+____________________ test_pending_chunk_cannot_be_replaced _____________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1929/test_pending_chunk_cannot_be_r0')
+
+    def test_pending_chunk_cannot_be_replaced(tmp_path):
+        with ChunkStore(tmp_path, subject_id="subject-1") as store:
+            session = make_session(store)
+            session.begin_chunk([20])
+            session.propose(*tensors())
+>           with pytest.raises(ChunkError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE ChunkError
+
+tests/test_independent_review_v12_findings.py:80: Failed
+________________ test_invalidate_restores_last_committed_state _________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1929/test_invalidate_restores_last_0')
+
+    def test_invalidate_restores_last_committed_state(tmp_path):
+        with ChunkStore(tmp_path, subject_id="subject-1") as store:
+            session = make_session(store)
+            original = session.state.detach().clone()
+            session.begin_chunk([20])
+            session.propose(*tensors())
+            session.invalidate()
+>           assert torch.equal(session.state, original)
+E           assert False
+E            +  where False = <built-in method equal of type object at 0x10a1b13a0>(tensor([[[ 0.2320,  0.0915,  0.7006,  0.1800,  0.2817, -0.1500],\n         [ 0.1777,  0.1672,  0.7378,  0.0762,  0.9702....0153,  0.0880, -0.2804, -0.6000, -0.0319,  0.3652],\n         [ 0.1379,  0.0256,  0.2641,  0.0108, -0.2168,  0.1281]]]), tensor([[[0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.]]]))
+E            +    where <built-in method equal of type object at 0x10a1b13a0> = torch.equal
+E            +    and   tensor([[[ 0.2320,  0.0915,  0.7006,  0.1800,  0.2817, -0.1500],\n         [ 0.1777,  0.1672,  0.7378,  0.0762,  0.9702....0153,  0.0880, -0.2804, -0.6000, -0.0319,  0.3652],\n         [ 0.1379,  0.0256,  0.2641,  0.0108, -0.2168,  0.1281]]]) = <replica_lab.successors.chunks.ChunkSession object at 0x1114648c0>.state
+
+tests/test_independent_review_v12_findings.py:91: AssertionError
+_______________ test_initial_prefix_respects_global_token_bound ________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1929/test_initial_prefix_respects_g0')
+
+    def test_initial_prefix_respects_global_token_bound(tmp_path):
+        with ChunkStore(tmp_path, subject_id="subject-1") as store:
+>           with pytest.raises(ValueError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE ValueError
+
+tests/test_independent_review_v12_findings.py:96: Failed
+_______________ test_cold_resume_revalidates_external_authority ________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1929/test_cold_resume_revalidates_e0')
+
+    def test_cold_resume_revalidates_external_authority(tmp_path):
+        store = TieredBlobStore(tmp_path, io_delay_seconds=0.01)
+        store.publish("record", b"stale", generation=1, kind="e", producer="p",
+                      representation="r", scope_digest="s", tier="cold")
+        store._hot.clear()
+        authority = {"eligible": True, "generation": 1, "eligibility_revision": 0}
+        pending = store.read("record", authority=lambda record_id: dict(authority),
+                             expected_generation=1, budget_seconds=0)
+        assert pending.status == "pending"
+        authority["eligible"] = False
+        result = store.resume(pending.ticket_id)
+>       assert result.status != "ready"
+E       AssertionError: assert 'ready' != 'ready'
+E        +  where 'ready' = ReadResult(status='ready', record_id='record', tier='cold', payload=b'stale', manifest={'bytes': 5, 'created_at_ns': 1..., 'valid_from': 0, 'valid_to': None}, latency_ms=15.151041, bytes_read=5, reason='', ticket_id=None, fallback_tokens=0).status
+
+tests/test_independent_review_v12_findings.py:112: AssertionError
+___________________________ test_p_clock_can_advance ___________________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1929/test_p_clock_can_advance0')
+
+    def test_p_clock_can_advance(tmp_path):
+        store = TieredBlobStore(tmp_path)
+        store.publish_p("expert", weights=b"w1", moments=b"m1", clock=1,
+                        encoder="e1", lineage=["r1"])
+>       store.publish_p("expert", weights=b"w2", moments=b"m2", clock=2,
+                        encoder="e2", lineage=["r1", "r2"])
+
+tests/test_independent_review_v12_findings.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/successors/tiers.py:604: in publish_p
+    return self.publish(
+src/replica_lab/successors/tiers.py:326: in publish
+    written = self._write_record(tier, record_id, payload, manifest)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <replica_lab.successors.tiers.TieredBlobStore object at 0x1113db8f0>
+tier = 'warm', record_id = 'p_expert'
+payload = b'PS1\x006\x01\x00\x00\x00\x00\x00\x00{"clock":2,"encoder":"e2","format":"replica.successors.p_state.v1","lineage":["r...r":"expert","weights_bytes":2,"weights_sha256":"06f8faea3b5f697691b6d063a07ba4ffaf1ece9a1d473c588565231cdc8e59cc"}w2m2'
+manifest = {'format': 'replica.successors.tiers.manifest.v1', 'record_id': 'p_expert', 'kind': 'p', 'generation': 2, ...}
+
+    def _write_record(self, tier: str, record_id: str, payload: bytes,
+                      manifest: Mapping[str, object]) -> int:
+        staging = self.root / "staging" / f"{record_id}.{os.getpid()}.{time.time_ns()}"
+        staging.mkdir(parents=True)
+        payload_path = staging / "payload.bin"
+        with open(payload_path, "wb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        manifest_path = staging / "manifest.json"
+        with open(manifest_path, "w", encoding="utf-8") as handle:
+            handle.write(_canonical(manifest) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        target = self._directory(tier, record_id)
+        if target.exists():
+            existing = self._read_manifest(target)
+            if existing["payload_sha256"] != manifest["payload_sha256"]:
+                shutil.rmtree(staging)
+>               raise TierError("record already exists with different payload bytes")
+E               replica_lab.successors.tiers.TierError: record already exists with different payload bytes
+
+src/replica_lab/successors/tiers.py:255: TierError
+_________________ test_pin_is_immutable_under_later_correction _________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1929/test_pin_is_immutable_under_la0')
+
+    def test_pin_is_immutable_under_later_correction(tmp_path):
+        with make_store(tmp_path) as store:
+            base = commit(store, pin(store), [observation("base", "dated fact")])
+            record_id = base.receipt.record_ids[0]
+            snapshot = pin(store)
+            assert record_id in {item.record_id for item in store.visible(snapshot)}
+            store.correct(record_id, text="corrected later", reason="late evidence",
+                          pin=pin(store), verifier_receipt_id="verifier-late")
+>           assert record_id in {item.record_id for item in store.visible(snapshot)}
+E           AssertionError: assert 'r_a1d9f0b964326b9cb85e8fbeeffb6d8a01a14d6b' in set()
+
+tests/test_independent_review_v12_findings.py:132: AssertionError
+____________________ test_cross_branch_supersede_is_refused ____________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1929/test_cross_branch_supersede_is0')
+
+    def test_cross_branch_supersede_is_refused(tmp_path):
+        with make_store(tmp_path) as store:
+            other = commit(store, pin(store, branch="branch-b"),
+                           [observation("other", "branch b fact")])
+            foreign_id = other.receipt.record_ids[0]
+>           with pytest.raises(ScopeViolation):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE ScopeViolation
+
+tests/test_independent_review_v12_findings.py:140: Failed
+_________________ test_rejected_profiler_instrument_is_atomic __________________
+
+    def test_rejected_profiler_instrument_is_atomic():
+        path = make_profile_path("two")
+        profiler = SiteInvocationProfiler(path, expected_groups=2)
+        try:
+            ids, _ = ids_and_mask(4)
+            snapshot = path.snapshot(ids, training_batch(path), scope=tier_scope())
+            with pytest.raises(DensityError):
+                profiler.instrument(snapshot, forward_id="f-9", active_sites=(7, 3))
+>           assert "f-9" not in profiler.summary()["forward_ids"]
+E           AssertionError: assert 'f-9' not in ['f-9']
+
+tests/test_independent_review_v12_findings.py:153: AssertionError
+____________ test_durable_recompute_permits_authority_revalidation _____________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1929/test_durable_recompute_permits0')
+
+    def test_durable_recompute_permits_authority_revalidation(tmp_path):
+        path = profile.build_path("two")
+        store = profile.open_store(tmp_path / "store")
+        profiler = SiteInvocationProfiler(path, expected_groups=2)
+        try:
+            path.admit(store, profile.spans()[0], scope=profile.scope())
+            batch = path.read(store, "Badge", scope=profile.scope())
+            ids, mask = ids_and_mask(4)
+            snapshot = path.snapshot(ids, batch, scope=profile.scope())
+            first = profiler.instrument(snapshot, forward_id="f-1")
+            path.adapter.forward_text(ids, mask, use_projector=False, use_ports=False,
+                                      use_spine=False, intrinsic_memory=first)
+            before = cost_snapshot(path)
+            second = profiler.instrument(snapshot, phase="recompute", recompute_of="f-1")
+            path.adapter.forward_text(ids, mask, use_projector=False, use_ports=False,
+                                      use_spine=False, intrinsic_memory=second)
+>           assert_no_read_write_effects(before, cost_snapshot(path))
+
+tests/test_independent_review_v12_findings.py:175: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+before = {'format': 'replica.intrinsic_memory.density.v12.cost_ledger', 'memory': {'admission_calls': 1, 'admitted_payload_byte...mpleted_bytes': 0, ...}, 'source': {'cache_bytes': 512, 'cache_evictions': 0, 'cache_hits': 0, 'cache_misses': 1, ...}}
+after = {'format': 'replica.intrinsic_memory.density.v12.cost_ledger', 'memory': {'admission_calls': 1, 'admitted_payload_byte...mpleted_bytes': 0, ...}, 'source': {'cache_bytes': 512, 'cache_evictions': 0, 'cache_hits': 0, 'cache_misses': 1, ...}}
+keys = ('retrieval_calls', 'admission_calls', 'correction_calls', 'snapshot_copies', 'snapshot_bytes', 'durable_write_bytes', ...)
+
+    def assert_no_read_write_effects(before, after, *, keys=READ_WRITE_KEYS):
+        """Raise if a declared recomputation introduced a memory side effect."""
+        delta = ledger_delta(before, after)
+        changed = {key: delta["memory"].get(key, 0) for key in keys
+                   if delta["memory"].get(key, 0) != 0}
+        # Source tokenization/forward recomputation is legitimate work; it may not
+        # run backwards and is reported separately from durable read/write effects.
+        for key in ("requests", "forwards", "cache_misses"):
+            value = delta["source"].get(key, 0)
+            if value < 0:
+                raise DensityError("source-feature counter moved backwards: " + key)
+            if value:
+                changed["source." + key] = value
+        if changed:
+>           raise DensityError("recomputation created retrieval/write/copy effects: "
+                               + ", ".join(sorted(changed)))
+E           replica_lab.intrinsic_memory_density_v12.DensityError: recomputation created retrieval/write/copy effects: source_revalidations
+
+src/replica_lab/intrinsic_memory_density_v12.py:170: DensityError
+__________ test_cost_pilot_zeroes_gradients_for_each_declared_update ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1113d6240>
+
+    def test_cost_pilot_zeroes_gradients_for_each_declared_update(monkeypatch):
+        original_build = cost_pilot.build_path
+        calls = []
+        def counted_build(arm):
+            path = original_build(arm)
+            original_zero = path.optimizer.zero_grad
+            def counted_zero(*args, **kwargs):
+                calls.append(1)
+                return original_zero(*args, **kwargs)
+            monkeypatch.setattr(path.optimizer, "zero_grad", counted_zero)
+            return path
+        monkeypatch.setattr(cost_pilot, "build_path", counted_build)
+        cost_pilot.run_pass("two", 2)
+>       assert len(calls) == 2
+E       assert 0 == 2
+E        +  where 0 = len([])
+
+tests/test_independent_review_v12_findings.py:195: AssertionError
+________ test_buffer_only_source_mutation_invalidates_feature_authority ________
+
+    def test_buffer_only_source_mutation_invalidates_feature_authority():
+        adapter, _, provider, path = build_v12_stack()
+        try:
+            adapter.base.register_buffer("independent_review_buffer", torch.zeros(1))
+            with torch.no_grad():
+                adapter.base.independent_review_buffer.add_(1)
+>           with pytest.raises(ContextualMemoryError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE ContextualMemoryError
+
+tests/test_independent_review_v12_findings.py:205: Failed
+_________________ test_token_cache_binds_actual_canonical_text _________________
+
+    def test_token_cache_binds_actual_canonical_text():
+        _, _, provider, path = build_v12_stack()
+        try:
+            first = canonical_span("badge red", record_id="same")[0]
+            second = replace(first, text="badge tan")
+            provider.token_ids(first)
+            actual = provider.tokenizer(second.text, add_special_tokens=False,
+                                        truncation=False)["input_ids"]
+>           assert provider.token_ids(second) == actual
+E           assert [124, 68] == [124, 28]
+E             
+E             At index 1 diff: 68 != 28
+E             
+E             Full diff:
+E               [
+E                   124,
+E             -     28,
+E             ?     ^
+E             +     68,
+E             ?     ^
+E               ]
+
+tests/test_independent_review_v12_findings.py:219: AssertionError
+__________ test_empty_list_active_sites_skips_memory_and_matches_base __________
+
+    def test_empty_list_active_sites_skips_memory_and_matches_base():
+        adapter, _, _, path = build_v12_stack(sites=(3, 7))
+        try:
+            spans = canonical_span("badge red", record_id="badge")
+            batch = path.training_values(spans, scope=v12_scope())
+            ids, mask = ids_and_mask(4)
+            with torch.no_grad():
+>               actual = path.forward(ids, mask, batch,
+                                      scope=v12_scope(),
+                                      active_sites=[])
+
+tests/test_independent_review_v12_findings.py:231: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/contextual_memory_layout_v12.py:260: in forward
+    context = self.snapshot(ids, batch, scope=scope, active_sites=active_sites)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_memory_layout_v12.py:249: in snapshot
+    context = self.reader.snapshot(values, available,
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:119: in snapshot
+    return LayerMemorySnapshot(self, values, availability, validate=validate,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <replica_lab.architecture.intrinsic_memory_layout_v4.LayerMemorySnapshot object at 0x1118630b0>
+reader = ConfigurableIntrinsicMemoryReader(
+  (ports): ModuleDict(
+    (3): SpinePort(
+      (query_norm): LayerNorm((8,), eps=...wise_affine=True, bias=True)
+      (output_projection): Linear(in_features=256, out_features=8, bias=False)
+    )
+  )
+)
+values = tensor([[[[ 0.0335,  0.2357, -0.9063,  ...,  0.6987,  0.8018,  0.6790],
+          [ 0.0297,  0.2290, -0.9467,  ...,  0...,  0.0000,  ...,  0.0000,  0.0000,  0.0000],
+          [ 0.0000,  0.0000,  0.0000,  ...,  0.0000,  0.0000,  0.0000]]]])
+availability = tensor([[[ True,  True,  True,  True, False, False, False, False],
+         [ True,  True,  True,  True, False, False,...  True,  True,  True, False, False, False, False],
+         [ True,  True,  True,  True, False, False, False, False]]])
+validate = <function ContextualMemoryLayoutV12.snapshot.<locals>.<lambda> at 0x1119cbec0>
+active_sites = []
+
+    def __init__(self, reader, values, availability, *, validate, active_sites=None):
+        sites = reader.spec.sites if active_sites is None else tuple(active_sites)
+        if (not callable(validate) or not sites or any(type(site) is not int for site in sites)
+                or tuple(sorted(set(sites))) != sites
+                or not set(sites) <= set(reader.spec.sites)):
+>           raise ValueError("invalid active layer mask or validation callback")
+E           ValueError: invalid active layer mask or validation callback
+
+src/replica_lab/architecture/intrinsic_memory_layout_v4.py:205: ValueError
+=========================== short test summary info ============================
+FAILED tests/test_independent_review_v12_findings.py::test_restart_prompt_budget_covers_teacher_revalidation_and_update - replica_lab.intrinsic_memory_budget_v12.BudgetError: stage work budget exceeded before dispatch
+FAILED tests/test_independent_review_v12_findings.py::test_nonterminating_generation_is_marked_truncated - assert False is True
+FAILED tests/test_independent_review_v12_findings.py::test_chunk_recompute_reproduces_committed_digest - AssertionError: assert '3abe9d4194bd...cf236a193f25e' == '38fc22046b4f...15f15138a6e90'
+  
+  - 38fc22046b4fdc4c46ca2145c1c9cb31c55f47d31edd9dff41015f15138a6e90
+  + 3abe9d4194bd3c396b5c12e4036cf12eee592659c9d33faceebcf236a193f25e
+FAILED tests/test_independent_review_v12_findings.py::test_pending_chunk_cannot_be_replaced - Failed: DID NOT RAISE ChunkError
+FAILED tests/test_independent_review_v12_findings.py::test_invalidate_restores_last_committed_state - assert False
+ +  where False = <built-in method equal of type object at 0x10a1b13a0>(tensor([[[ 0.2320,  0.0915,  0.7006,  0.1800,  0.2817, -0.1500],\n         [ 0.1777,  0.1672,  0.7378,  0.0762,  0.9702....0153,  0.0880, -0.2804, -0.6000, -0.0319,  0.3652],\n         [ 0.1379,  0.0256,  0.2641,  0.0108, -0.2168,  0.1281]]]), tensor([[[0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.]]]))
+ +    where <built-in method equal of type object at 0x10a1b13a0> = torch.equal
+ +    and   tensor([[[ 0.2320,  0.0915,  0.7006,  0.1800,  0.2817, -0.1500],\n         [ 0.1777,  0.1672,  0.7378,  0.0762,  0.9702....0153,  0.0880, -0.2804, -0.6000, -0.0319,  0.3652],\n         [ 0.1379,  0.0256,  0.2641,  0.0108, -0.2168,  0.1281]]]) = <replica_lab.successors.chunks.ChunkSession object at 0x1114648c0>.state
+FAILED tests/test_independent_review_v12_findings.py::test_initial_prefix_respects_global_token_bound - Failed: DID NOT RAISE ValueError
+FAILED tests/test_independent_review_v12_findings.py::test_cold_resume_revalidates_external_authority - AssertionError: assert 'ready' != 'ready'
+ +  where 'ready' = ReadResult(status='ready', record_id='record', tier='cold', payload=b'stale', manifest={'bytes': 5, 'created_at_ns': 1..., 'valid_from': 0, 'valid_to': None}, latency_ms=15.151041, bytes_read=5, reason='', ticket_id=None, fallback_tokens=0).status
+FAILED tests/test_independent_review_v12_findings.py::test_p_clock_can_advance - replica_lab.successors.tiers.TierError: record already exists with different payload bytes
+FAILED tests/test_independent_review_v12_findings.py::test_pin_is_immutable_under_later_correction - AssertionError: assert 'r_a1d9f0b964326b9cb85e8fbeeffb6d8a01a14d6b' in set()
+FAILED tests/test_independent_review_v12_findings.py::test_cross_branch_supersede_is_refused - Failed: DID NOT RAISE ScopeViolation
+FAILED tests/test_independent_review_v12_findings.py::test_rejected_profiler_instrument_is_atomic - AssertionError: assert 'f-9' not in ['f-9']
+FAILED tests/test_independent_review_v12_findings.py::test_durable_recompute_permits_authority_revalidation - replica_lab.intrinsic_memory_density_v12.DensityError: recomputation created retrieval/write/copy effects: source_revalidations
+FAILED tests/test_independent_review_v12_findings.py::test_cost_pilot_zeroes_gradients_for_each_declared_update - assert 0 == 2
+ +  where 0 = len([])
+FAILED tests/test_independent_review_v12_findings.py::test_buffer_only_source_mutation_invalidates_feature_authority - Failed: DID NOT RAISE ContextualMemoryError
+FAILED tests/test_independent_review_v12_findings.py::test_token_cache_binds_actual_canonical_text - assert [124, 68] == [124, 28]
+  
+  At index 1 diff: 68 != 28
+  
+  Full diff:
+    [
+        124,
+  -     28,
+  ?     ^
+  +     68,
+  ?     ^
+    ]
+FAILED tests/test_independent_review_v12_findings.py::test_empty_list_active_sites_skips_memory_and_matches_base - ValueError: invalid active layer mask or validation callback
+16 failed in 3.27s
