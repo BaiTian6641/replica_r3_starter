@@ -8,9 +8,12 @@ so the same inputs and same code reproduce byte-identical receipts.
 """
 from __future__ import annotations
 
+import errno
+import fcntl
 import hashlib
 import json
 import os
+import sys
 import tempfile
 from pathlib import Path
 
@@ -60,6 +63,26 @@ def _portable(path):
 class ReceiptError(ValueError):
     """Receipt input or destination failed closed."""
 
+    def __init__(self, message, *, notes=None):
+        super().__init__(message)
+        self.notes = list(notes or [])
+
+
+def durability_label():
+    return "darwin_F_FULLFSYNC" if sys.platform == "darwin" else "posix_fsync"
+
+
+def _durable_fsync(descriptor):
+    if sys.platform == "darwin":
+        try:
+            fcntl.fcntl(descriptor, getattr(fcntl, "F_FULLFSYNC", 51))
+            return "darwin_F_FULLFSYNC"
+        except OSError as error:
+            if error.errno not in (errno.EINVAL, getattr(errno, "ENOTSUP", errno.EINVAL)):
+                raise
+    os.fsync(descriptor)
+    return "posix_fsync"
+
 
 def _sha256(path):
     path = Path(path)
@@ -71,9 +94,27 @@ def _sha256(path):
 def _fsync_directory(directory):
     descriptor = os.open(directory, os.O_RDONLY)
     try:
-        os.fsync(descriptor)
+        _durable_fsync(descriptor)
     finally:
         os.close(descriptor)
+
+
+def _remove_final(path):
+    path = Path(path)
+    try:
+        path.unlink()
+        return True
+    except FileNotFoundError:
+        return True
+    except OSError:
+        quarantine = path.with_name(f".{path.name}.failed")
+        try:
+            os.replace(path, quarantine)
+            _unlink_or_queue(quarantine)
+            return True
+        except OSError:
+            _unlink_or_queue(path)
+            return False
 
 
 def write_new_json(path, value):
@@ -97,7 +138,7 @@ def write_new_json(path, value):
         with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
             stream.write(payload)
             stream.flush()
-            os.fsync(stream.fileno())
+            _durable_fsync(stream.fileno())
         try:
             os.link(temporary, path)
         except FileExistsError:
@@ -112,13 +153,13 @@ def write_new_json(path, value):
             _unlink_or_queue(temporary)
         _fsync_directory(path.parent)
         _cleanup_pending()
-    except BaseException:
-        if linked:
-            try:
-                path.unlink()
-            except OSError:
-                pass
+    except BaseException as error:
+        notes = []
+        if linked and not _remove_final(path):
+            notes.append(f"final receipt could not be removed: {path}")
         _unlink_or_queue(temporary)
+        if notes:
+            raise ReceiptError("receipt failure cleanup incomplete", notes=notes) from error
         raise
     return path
 
@@ -335,53 +376,122 @@ def _stage_bytes(path, payload):
         with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
             stream.write(payload)
             stream.flush()
-            os.fsync(stream.fileno())
+            _durable_fsync(stream.fileno())
     except BaseException:
         _unlink_or_queue(temporary)
         raise
     return temporary
 
 
+def _read_backup(path):
+    if not path.exists():
+        return None
+    raw = path.read_bytes()
+    try:
+        json.loads(raw)
+    except ValueError as error:
+        raise ReceiptError(f"corrupt receipt backup: {path}") from error
+    return raw
+
+
+def _stage_raw(path, raw):
+    descriptor, temporary = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    temporary = Path(temporary)
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(raw)
+            stream.flush()
+            _durable_fsync(stream.fileno())
+    except BaseException:
+        _unlink_or_queue(temporary)
+        raise
+    return temporary
+
+
+def _restore_backup(path, raw):
+    if raw is None:
+        return _remove_final(path)
+    temporary = _stage_raw(path, raw)
+    try:
+        os.replace(temporary, path)
+    finally:
+        _unlink_or_queue(temporary)
+    return True
+
+
 def _transactional_replace(entries):
-    """Replace a set of JSON files with complete rollback on any failure."""
+    """Replace a set of JSON files with best-effort complete rollback."""
     entries = [(Path(path), value) for path, value in entries]
     backups, staged = {}, []
     try:
         for path, value in entries:
             path.parent.mkdir(parents=True, exist_ok=True)
-            backups[path] = path.read_bytes() if path.exists() else None
+            backups[path] = _read_backup(path)
             payload = json.dumps(value, indent=2, sort_keys=True) + "\n"
             staged.append((path, _stage_bytes(path, payload)))
         for path, temporary in staged:
             os.replace(temporary, path)
-        directories = {path.parent for path, _ in entries}
-        for directory in sorted(directories):
+        for directory in sorted({path.parent for path, _ in entries}):
             _fsync_directory(directory)
-    except BaseException:
-        # Restore every prior byte state; navigation receipts are regenerable,
-        # but no mixed canonical/noncanonical set may remain after a failure.
+    except BaseException as original:
+        notes = []
         for path, backup in backups.items():
             try:
-                if backup is None:
-                    path.unlink()
-                    continue
-                temporary = _stage_bytes(path, backup.decode("utf-8"))
-                os.replace(temporary, path)
-            except OSError:
-                pass
+                if not _restore_backup(path, backup):
+                    notes.append(f"could not restore {path}")
+            except BaseException as error:  # noqa: BLE001 - collected as rollback note
+                notes.append(f"restore failed for {path}: {type(error).__name__}")
         for path, temporary in staged:
             _unlink_or_queue(temporary)
         for directory in sorted({path.parent for path, _ in entries}):
             try:
                 _fsync_directory(directory)
             except OSError:
-                pass
+                notes.append(f"directory fsync failed after rollback: {directory}")
+        if notes:
+            raise ReceiptError(
+                "receipt transaction rollback incomplete", notes=notes) from original
         raise
 
 
 def _write_replace_json(path, value):
     """Backward-compatible single-file atomic replacement."""
     _transactional_replace([(path, value)])
+
+
+def read_current_navigation(root):
+    """Read CURRENT only, verify every canonical hash, otherwise fail closed.
+
+    CURRENT is the sole navigation authority.  NONCANONICAL markers are never
+    consulted for recovery; a missing, corrupt or hash-mismatched CURRENT is an
+    explicit restart-resolution failure.
+    """
+    root = Path(root)
+    current_path = root / "CURRENT.json"
+    if current_path.is_symlink() or not current_path.is_file():
+        raise ReceiptError("CURRENT navigation receipt is missing or substituted")
+    current = _load(current_path, "current navigation")
+    if current.get("format") != "replica.intrinsic_memory.density.current_navigation.v12":
+        raise ReceiptError("CURRENT navigation format differs")
+    destination = current.get("canonical_destination")
+    files = current.get("files")
+    if not isinstance(destination, str) or not destination or not isinstance(files, dict):
+        raise ReceiptError("CURRENT navigation is incomplete")
+    canonical = Path(destination)
+    if not canonical.is_absolute():
+        canonical = (Path.cwd() / canonical).resolve()
+    if not canonical.is_dir():
+        raise ReceiptError("CURRENT canonical directory is missing")
+    required = ("cpu_engineering_summary.json", "cost_pilot_summary.json",
+                "protocol_summary.json", "verification_results.json",
+                "report_manifest.json")
+    if set(files) != set(required):
+        raise ReceiptError("CURRENT canonical file schema differs")
+    for name in required:
+        if _sha256(canonical / name) != files[name]:
+            raise ReceiptError(f"CURRENT hash mismatch for {name}")
+    return current
 
 
 def write_current_navigation(root, canonical_directory, *, generator,
@@ -447,8 +557,14 @@ def write_current_navigation(root, canonical_directory, *, generator,
         "P_updates": 0,
     }
     entries.append((root / "CURRENT.json", current))
-    _transactional_replace(entries)
-    return current
+    try:
+        _transactional_replace(entries)
+    except ReceiptError as error:
+        if error.notes:
+            if not _remove_final(root / "CURRENT.json"):
+                error.notes.append("could not remove ambiguous CURRENT authority")
+        raise
+    return read_current_navigation(root)
 
 
 def write_repair_receipts(directory, *, cpu_summary_path, cost_pilot_path,
@@ -483,16 +599,19 @@ def write_repair_receipts(directory, *, cpu_summary_path, cost_pilot_path,
                 VERIFICATION_RESULTS: _sha256(directory / VERIFICATION_RESULTS),
             },
             "native_execution": False,
+            "durability": durability_label(),
             "deterministic": True,
         }
         write_new_json(directory / REPORT_MANIFEST, manifest)
         created.append(directory / REPORT_MANIFEST)
         return manifest
-    except BaseException:
+    except BaseException as error:
         # This call's partial receipt set must not block a clean retry.
+        notes = []
         for path in created:
-            try:
-                path.unlink()
-            except OSError:
-                pass
+            if not _remove_final(path):
+                notes.append(f"could not remove partial receipt: {path}")
+        if notes:
+            raise ReceiptError(
+                "receipt set rollback incomplete", notes=notes) from error
         raise

@@ -1,0 +1,57 @@
+{
+  "format": "replica.intrinsic_memory.density.verification_plan.v12.coordinator08",
+  "repair_cycle": "O4-O6-durability-navigation",
+  "scope": "CPU_only_no_native_launch",
+  "native_execution": false,
+  "native_weights_loaded": false,
+  "downloads": false,
+  "P_updates": 0,
+  "promotion": false,
+  "canonical_receipts": "reports/intrinsic_memory_density_v12/coordinator08",
+  "authority_pointer": "reports/intrinsic_memory_density_v12/CURRENT.json",
+  "noncanonical_marker": "reports/intrinsic_memory_density_v12/NONCANONICAL.json",
+  "commands": [
+    {
+      "purpose": "All density tests including timing, navigation, durability and atomicity regressions",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_density_v12_profiler.py tests/test_intrinsic_memory_density_v12_producer.py tests/test_intrinsic_memory_density_v12_matched.py tests/test_intrinsic_memory_density_v12_protocols.py tests/test_intrinsic_memory_density_v12_repairs.py tests/test_intrinsic_memory_density_v12_receipts.py",
+      "timeout_seconds": 1800
+    },
+    {
+      "purpose": "Profile fixed and matched arms with controls",
+      "command": ".venv/bin/python scripts/profile_intrinsic_memory_density_v12.py --output reports/intrinsic_memory_density_v12/coordinator08/cpu_engineering_summary.json",
+      "timeout_seconds": 1800
+    },
+    {
+      "purpose": "Run measured-cost pilot with fail-closed synchronization and MPS-fallback record",
+      "command": ".venv/bin/python scripts/run_intrinsic_memory_density_v12_cost_pilot.py --output reports/intrinsic_memory_density_v12/coordinator08/cost_pilot_summary.json",
+      "timeout_seconds": 1800
+    },
+    {
+      "purpose": "Generate canonical receipts with portable relative identities and durability label",
+      "command": ".venv/bin/python scripts/write_intrinsic_memory_density_v12_receipts.py --directory reports/intrinsic_memory_density_v12/coordinator08 --cpu-summary reports/intrinsic_memory_density_v12/coordinator08/cpu_engineering_summary.json --cost-pilot reports/intrinsic_memory_density_v12/coordinator08/cost_pilot_summary.json --repair-cycle coordinator08",
+      "timeout_seconds": 300
+    },
+    {
+      "purpose": "Generate single-authority CURRENT and advisory NONCANONICAL markers",
+      "command": ".venv/bin/python scripts/write_intrinsic_memory_density_v12_navigation.py --canonical reports/intrinsic_memory_density_v12/coordinator08",
+      "timeout_seconds": 300
+    },
+    {
+      "purpose": "Validate CURRENT-only authority and crash resolution",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_density_v12_receipts.py",
+      "timeout_seconds": 300
+    }
+  ],
+  "required_results": [
+    "unknown accelerator types and unavailable MPS/CUDA synchronization fail closed before timed work",
+    "MPS requires PYTORCH_ENABLE_MPS_FALLBACK=0 and the setting is recorded",
+    "Darwin receipts use F_FULLFSYNC with filesystem error handling",
+    "navigation rollback restores corrupt/partial backups best-effort and preserves the original error with notes",
+    "raised receipt errors leave no final receipt; unlink/fsync/set-rollback paths are covered",
+    "CURRENT is the sole validated authority pointer, verified against canonical file hashes",
+    "crash between renames resolves to a valid CURRENT or fails closed",
+    "NONCANONICAL markers are advisory only",
+    "canonical coordinator08 artifacts contain portable relative identities",
+    "no native launch, scored labels, P update, stage-count or reused-development claim"
+  ]
+}

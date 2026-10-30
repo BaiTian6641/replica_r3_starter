@@ -170,3 +170,27 @@ def test_unavailable_cuda_sync_fails_closed():
     assert synchronize_timing(torch.device("cuda")) == "cuda_unavailable"
     with pytest.raises(DensityError, match="did not execute"):
         require_timing_synchronization(torch.device("cuda"))
+
+
+def test_unknown_accelerator_type_is_refused(monkeypatch):
+    from types import SimpleNamespace
+    unknown = SimpleNamespace(type="xla")
+    assert synchronize_timing(unknown) == "unsupported_accelerator:xla"
+    with pytest.raises(DensityError, match="did not execute"):
+        require_timing_synchronization(unknown)
+
+
+def test_mps_requires_fallback_disabled(monkeypatch):
+    import torch as torch_module
+    if not hasattr(torch_module, "mps"):
+        pytest.skip("torch.mps unavailable")
+    calls = []
+    monkeypatch.setattr(torch_module.mps, "is_available", lambda: True)
+    monkeypatch.setattr(torch_module.mps, "synchronize", lambda: calls.append(1))
+    monkeypatch.delenv("PYTORCH_ENABLE_MPS_FALLBACK", raising=False)
+    assert synchronize_timing(torch.device("mps")) == "mps_cpu_fallback_enabled"
+    with pytest.raises(DensityError, match="did not execute"):
+        require_timing_synchronization(torch.device("mps"))
+    monkeypatch.setenv("PYTORCH_ENABLE_MPS_FALLBACK", "0")
+    assert require_timing_synchronization(torch.device("mps")) == "mps_synchronize"
+    assert calls == [1]

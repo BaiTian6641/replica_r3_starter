@@ -1,5 +1,9 @@
 """Coherent receipt generation refuses overwrite and binds actual pilot values."""
 import json
+import os
+from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 
@@ -103,20 +107,19 @@ def test_receipts_refuse_a_pilot_with_a_different_protocol_digest(tmp_path):
 
 
 def test_partial_write_leaves_no_final_path_and_retry_succeeds(monkeypatch, tmp_path):
-    import os
-    from replica_lab.intrinsic_memory_density_receipts_v12 import write_new_json
+    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
     destination = tmp_path / "receipt.json"
-    real_fsync = os.fsync
+    real_fsync = receipts._durable_fsync
 
     def interrupted(descriptor):
         raise RuntimeError("interrupted")
 
-    monkeypatch.setattr(os, "fsync", interrupted)
+    monkeypatch.setattr(receipts, "_durable_fsync", interrupted)
     with pytest.raises(RuntimeError):
-        write_new_json(destination, {"complete": True})
+        receipts.write_new_json(destination, {"complete": True})
     assert not destination.exists()
-    monkeypatch.setattr(os, "fsync", real_fsync)
-    write_new_json(destination, {"complete": True})
+    monkeypatch.setattr(receipts, "_durable_fsync", real_fsync)
+    receipts.write_new_json(destination, {"complete": True})
     assert json.loads(destination.read_text()) == {"complete": True}
 
 
@@ -271,3 +274,174 @@ def test_navigation_refuses_custom_filename_schema(tmp_path):
     (canonical / "profile.json").write_text("{}\n")
     with pytest.raises(ReceiptError, match="schema filenames"):
         write_current_navigation(root, "custom", generator="test", x6_test="test")
+
+
+def test_navigation_refuses_corrupt_backup_before_mutation(tmp_path):
+    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+    root = tmp_path / "reports"
+    canonical = root / "coordinator08"
+    canonical.mkdir(parents=True)
+    for name in ("cpu_engineering_summary.json", "cost_pilot_summary.json",
+                 "protocol_summary.json", "verification_results.json",
+                 "report_manifest.json"):
+        (canonical / name).write_text('{"x": 1}\n')
+    (root / "CURRENT.json").write_text("not-json\n")
+    before = (root / "CURRENT.json").read_bytes()
+    with pytest.raises(ReceiptError, match="corrupt receipt backup"):
+        receipts.write_current_navigation(
+            root, "coordinator08", generator="test", x6_test="test")
+    assert (root / "CURRENT.json").read_bytes() == before
+
+
+def test_navigation_incomplete_rollback_preserves_original_with_notes(monkeypatch, tmp_path):
+    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+    root = tmp_path / "reports"
+    canonical = root / "coordinator08"
+    canonical.mkdir(parents=True)
+    for name in ("cpu_engineering_summary.json", "cost_pilot_summary.json",
+                 "protocol_summary.json", "verification_results.json",
+                 "report_manifest.json"):
+        (canonical / name).write_text('{"x": 1}\n')
+    (root / "CURRENT.json").write_text('{"old": true}\n')
+    (root / "NONCANONICAL.json").write_text('{"old": true}\n')
+    real_fsync = receipts._fsync_directory
+    calls = {"count": 0}
+
+    def failing(directory):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise OSError("directory fsync failed")
+        return real_fsync(directory)
+
+    monkeypatch.setattr(receipts, "_fsync_directory", failing)
+    monkeypatch.setattr(receipts, "_restore_backup",
+                        lambda path, raw: (_ for _ in ()).throw(OSError("restore failed")))
+    with pytest.raises(ReceiptError) as error:
+        receipts.write_current_navigation(
+            root, "coordinator08", generator="test", x6_test="test")
+    assert isinstance(error.value.__cause__, OSError)
+    assert error.value.notes
+    assert not (root / "CURRENT.json").exists()
+
+
+def test_darwin_durability_uses_fullfsync(monkeypatch, tmp_path):
+    import fcntl
+    import sys
+    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+    if sys.platform != "darwin":
+        assert receipts.durability_label() == "posix_fsync"
+        return
+    calls = []
+    monkeypatch.setattr(fcntl, "fcntl", lambda descriptor, request: calls.append(request))
+    descriptor = (tmp_path / "fd").open("w")
+    try:
+        assert receipts._durable_fsync(descriptor.fileno()) == "darwin_F_FULLFSYNC"
+    finally:
+        descriptor.close()
+    assert calls == [getattr(fcntl, "F_FULLFSYNC", 51)]
+
+
+def test_current_is_single_validated_authority_pointer(tmp_path):
+    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+    root = tmp_path / "reports"
+    canonical = root / "coordinator08"
+    canonical.mkdir(parents=True)
+    for name in ("cpu_engineering_summary.json", "cost_pilot_summary.json",
+                 "protocol_summary.json", "verification_results.json",
+                 "report_manifest.json"):
+        (canonical / name).write_text('{"x": 1}\n')
+    current = receipts.write_current_navigation(
+        root, "coordinator08", generator="test", x6_test="test")
+    assert receipts.read_current_navigation(root) == current
+    (canonical / "protocol_summary.json").write_text('{"x": 2}\n')
+    with pytest.raises(ReceiptError, match="hash mismatch"):
+        receipts.read_current_navigation(root)
+    (root / "CURRENT.json").write_text("not-json\n")
+    with pytest.raises(ReceiptError, match="invalid current navigation"):
+        receipts.read_current_navigation(root)
+
+
+def test_navigation_crash_between_renames_resolves_to_valid_current(tmp_path):
+    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+    root = tmp_path / "reports"
+    old = root / "old"
+    new = root / "new"
+    for directory in (old, new):
+        directory.mkdir(parents=True)
+        for name in ("cpu_engineering_summary.json", "cost_pilot_summary.json",
+                     "protocol_summary.json", "verification_results.json",
+                     "report_manifest.json"):
+            (directory / name).write_text('{"x": 1}\n')
+    receipts.write_current_navigation(
+        root, "old", generator="test", x6_test="test")
+    child = (
+        "import os, sys\n"
+        "sys.path.insert(0, sys.argv[1])\n"
+        "import replica_lab.intrinsic_memory_density_receipts_v12 as r\n"
+        "real = os.replace\n"
+        "state = {'n': 0}\n"
+        "def crash(src, dst):\n"
+        "    state['n'] += 1\n"
+        "    real(src, dst)\n"
+        "    if state['n'] == 1: os._exit(17)\n"
+        "r.os.replace = crash\n"
+        "r.write_current_navigation(sys.argv[2], 'new', generator='test', x6_test='test')\n")
+    result = subprocess.run(
+        [sys.executable, "-c", child, str(Path("src").resolve()), str(root)],
+        cwd=Path.cwd(), capture_output=True, text=True, timeout=60)
+    assert result.returncode == 17, result.stderr
+    current = receipts.read_current_navigation(root)
+    assert current["canonical_destination"].endswith("/old")
+    assert (root / "CURRENT.json").is_file()
+    assert (root / "NONCANONICAL.json").is_file()
+
+
+def test_final_unlink_failure_quarantines_before_raising(monkeypatch, tmp_path):
+    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+    destination = tmp_path / "receipt.json"
+    real_unlink = receipts.Path.unlink
+
+    def failing_unlink(self, *args, **kwargs):
+        if self == destination:
+            raise OSError("final unlink failed")
+        return real_unlink(self, *args, **kwargs)
+
+    def failing_fsync(directory):
+        raise OSError("directory fsync failed")
+
+    monkeypatch.setattr(receipts.Path, "unlink", failing_unlink)
+    monkeypatch.setattr(receipts, "_fsync_directory", failing_fsync)
+    with pytest.raises(OSError):
+        receipts.write_new_json(destination, {"complete": True})
+    assert not destination.exists()
+
+
+def test_receipt_set_rollback_failure_is_reported(monkeypatch, tmp_path):
+    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+    cpu, cost_path, cost = inputs(tmp_path)
+    destination = tmp_path / "repair-set"
+    real_write = receipts.write_new_json
+    calls = {"count": 0}
+
+    def failing_write(path, value):
+        calls["count"] += 1
+        if calls["count"] == 2:
+            raise RuntimeError("second receipt interrupted")
+        return real_write(path, value)
+
+    monkeypatch.setattr(receipts, "write_new_json", failing_write)
+    monkeypatch.setattr(receipts, "_remove_final", lambda path: False)
+    with pytest.raises(ReceiptError) as error:
+        receipts.write_repair_receipts(
+            destination, cpu_summary_path=cpu, cost_pilot_path=cost_path)
+    assert isinstance(error.value.__cause__, RuntimeError)
+    assert error.value.notes
+
+
+def test_current_missing_fails_closed_not_via_noncanonical(tmp_path):
+    from replica_lab.intrinsic_memory_density_receipts_v12 import read_current_navigation
+    root = tmp_path / "reports"
+    root.mkdir()
+    (root / "NONCANONICAL.json").write_text('{"canonical_destination": "elsewhere"}\n')
+    with pytest.raises(ReceiptError, match="CURRENT navigation receipt is missing"):
+        read_current_navigation(root)

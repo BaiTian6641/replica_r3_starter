@@ -1,0 +1,600 @@
+{
+  "P_updates": 0,
+  "aggregate": "median_of_repeats",
+  "arms": {
+    "all": {
+      "arm": "all",
+      "component_measurement": {
+        "cache_bytes": {
+          "available": true,
+          "max_observed": 512,
+          "min_observed": 512
+        },
+        "memory": {
+          "admission_calls": 1,
+          "admitted_payload_bytes": 4112,
+          "authority_validation_ns": 56120582,
+          "cold_completed_bytes": 0,
+          "cold_completed_files": 0,
+          "cold_reserved_bytes": 0,
+          "cold_reserved_files": 0,
+          "cold_wait_ns": 0,
+          "correction_calls": 0,
+          "durable_artifact_growth_bytes": 83748,
+          "durable_write_bytes": 0,
+          "durable_write_ns": 4773625,
+          "fallback_bytes": 0,
+          "fallback_calls": 0,
+          "fallback_tokens": 0,
+          "producer_bytes": 32,
+          "producer_calls": 2,
+          "producer_hash_cache_hits": 3,
+          "producer_hash_calls": 0,
+          "producer_hash_ns": 0,
+          "producer_wall_ns": 7362833,
+          "read_file_bytes": 4624,
+          "read_file_calls": 6,
+          "retrieval_calls": 1,
+          "retrieval_wall_ns": 1373000,
+          "revalidations": 40,
+          "snapshot_bytes": 32768,
+          "snapshot_copies": 1,
+          "source_revalidations": 40,
+          "ticket_descriptor_read_bytes": 0,
+          "ticket_descriptor_read_calls": 0,
+          "value_slots_read": 4
+        },
+        "pilot_cost_ns": 114582292,
+        "post_update_snapshot_copies": 1,
+        "reader": {
+          "activation_forward_bytes": {
+            "by_phase": {
+              "forward": {
+                "input": 1185408,
+                "output": 4608
+              },
+              "recompute": {
+                "input": 0,
+                "output": 0
+              }
+            },
+            "input_total": 1185408,
+            "output_total": 4608
+          },
+          "dispatch_wall_ns": 55096085,
+          "group_wall_ns": 5713957,
+          "invocations": 36,
+          "physical_groups": 36
+        },
+        "source": {
+          "cache_bytes": 512,
+          "cache_evictions": 0,
+          "cache_hits": 1,
+          "cache_misses": 1,
+          "feature_bytes_produced": 512,
+          "forwards": 1,
+          "input_tokens": 16,
+          "peak_cache_bytes": 512,
+          "requests": 2,
+          "source_bytes": 48,
+          "source_traced_layers": 36,
+          "tokenizer_cache_hits": 43,
+          "tokenizer_calls": 1,
+          "wall_ns": 3645291
+        },
+        "timing_synchronization": {
+          "after": "cpu_synchronous",
+          "before": "cpu_synchronous",
+          "boundary": "synchronize_before_and_after_each_timed_pass",
+          "device": "cpu",
+          "mps_fallback_setting": "0"
+        },
+        "training": {
+          "backward_work": {
+            "caller_measured": true,
+            "calls": 1,
+            "processed_positions": 4
+          },
+          "optimizer_steps": 1,
+          "updates": 1,
+          "wall_ns": 114582292
+        },
+        "wall_ns": 114582292
+      },
+      "control_cost_ns": 2196565875,
+      "fit": {
+        "fixed_cost": 12153756.230769247,
+        "marginal_cost": 102420054.46153845,
+        "measurements": {
+          "0": 16606458.0,
+          "1": 108636875.0,
+          "4": 423318208.0
+        }
+      },
+      "median_total_cost_ns": {
+        "0": 16606458,
+        "1": 108636875,
+        "4": 423318208
+      },
+      "pilot_cost_ns": 1785035500,
+      "pilot_runs_ns": {
+        "0": [
+          45674292,
+          16606458,
+          15658208
+        ],
+        "1": [
+          111624750,
+          106973875,
+          108636875
+        ],
+        "4": [
+          381862375,
+          423318208,
+          460098167
+        ]
+      },
+      "repeat": 3,
+      "selection": {
+        "difference_ns": 49704827.00000001,
+        "matched_within_declared_tolerance": true,
+        "matched_within_relative_2_percent": false,
+        "measured_runs_ns": [
+          110345708,
+          108577625,
+          106410917
+        ],
+        "measured_total_cost_ns": 108577625,
+        "measurement_cost_ns": 325334250,
+        "selected_updates": 1,
+        "target_ns": 58872797.99999999,
+        "tolerance_ns": 102420054.46153845
+      },
+      "sites": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ],
+      "total_charged_cost_ns": 4306935625,
+      "update_counts": [
+        0,
+        1,
+        4
+      ]
+    },
+    "full_attention_nine": {
+      "arm": "full_attention_nine",
+      "component_measurement": {
+        "cache_bytes": {
+          "available": true,
+          "max_observed": 512,
+          "min_observed": 512
+        },
+        "memory": {
+          "admission_calls": 1,
+          "admitted_payload_bytes": 4112,
+          "authority_validation_ns": 19686459,
+          "cold_completed_bytes": 0,
+          "cold_completed_files": 0,
+          "cold_reserved_bytes": 0,
+          "cold_reserved_files": 0,
+          "cold_wait_ns": 0,
+          "correction_calls": 0,
+          "durable_artifact_growth_bytes": 83748,
+          "durable_write_bytes": 0,
+          "durable_write_ns": 4008833,
+          "fallback_bytes": 0,
+          "fallback_calls": 0,
+          "fallback_tokens": 0,
+          "producer_bytes": 32,
+          "producer_calls": 2,
+          "producer_hash_cache_hits": 3,
+          "producer_hash_calls": 0,
+          "producer_hash_ns": 0,
+          "producer_wall_ns": 7407209,
+          "read_file_bytes": 4624,
+          "read_file_calls": 6,
+          "retrieval_calls": 1,
+          "retrieval_wall_ns": 1402166,
+          "revalidations": 13,
+          "snapshot_bytes": 32768,
+          "snapshot_copies": 1,
+          "source_revalidations": 13,
+          "ticket_descriptor_read_bytes": 0,
+          "ticket_descriptor_read_calls": 0,
+          "value_slots_read": 4
+        },
+        "pilot_cost_ns": 51798292,
+        "post_update_snapshot_copies": 1,
+        "reader": {
+          "activation_forward_bytes": {
+            "by_phase": {
+              "forward": {
+                "input": 296352,
+                "output": 1152
+              },
+              "recompute": {
+                "input": 0,
+                "output": 0
+              }
+            },
+            "input_total": 296352,
+            "output_total": 1152
+          },
+          "dispatch_wall_ns": 14293290,
+          "group_wall_ns": 1606708,
+          "invocations": 9,
+          "physical_groups": 9
+        },
+        "source": {
+          "cache_bytes": 512,
+          "cache_evictions": 0,
+          "cache_hits": 1,
+          "cache_misses": 1,
+          "feature_bytes_produced": 512,
+          "forwards": 1,
+          "input_tokens": 16,
+          "peak_cache_bytes": 512,
+          "requests": 2,
+          "source_bytes": 48,
+          "source_traced_layers": 36,
+          "tokenizer_cache_hits": 16,
+          "tokenizer_calls": 1,
+          "wall_ns": 3564625
+        },
+        "timing_synchronization": {
+          "after": "cpu_synchronous",
+          "before": "cpu_synchronous",
+          "boundary": "synchronize_before_and_after_each_timed_pass",
+          "device": "cpu",
+          "mps_fallback_setting": "0"
+        },
+        "training": {
+          "backward_work": {
+            "caller_measured": true,
+            "calls": 1,
+            "processed_positions": 4
+          },
+          "optimizer_steps": 1,
+          "updates": 1,
+          "wall_ns": 51798292
+        },
+        "wall_ns": 51798292
+      },
+      "fit": {
+        "fixed_cost": 17708198.576923072,
+        "marginal_cost": 34529397.65384616,
+        "measurements": {
+          "0": 15678083.0,
+          "1": 54944417.0,
+          "4": 155149084.0
+        }
+      },
+      "median_total_cost_ns": {
+        "0": 15678083,
+        "1": 54944417,
+        "4": 155149084
+      },
+      "pilot_cost_ns": 731085292,
+      "pilot_runs_ns": {
+        "0": [
+          14115250,
+          18661167,
+          15678083
+        ],
+        "1": [
+          56841083,
+          54910833,
+          54944417
+        ],
+        "4": [
+          155831125,
+          153155958,
+          155149084
+        ]
+      },
+      "repeat": 3,
+      "selection": {
+        "difference_ns": -8160005.999999993,
+        "matched_within_declared_tolerance": true,
+        "matched_within_relative_2_percent": false,
+        "measured_runs_ns": [
+          50712792,
+          52869708,
+          49304167
+        ],
+        "measured_total_cost_ns": 50712792,
+        "measurement_cost_ns": 152886667,
+        "selected_updates": 1,
+        "target_ns": 58872797.99999999,
+        "tolerance_ns": 34529397.65384616
+      },
+      "sites": [
+        3,
+        7,
+        11,
+        15,
+        19,
+        23,
+        27,
+        31,
+        35
+      ],
+      "total_charged_cost_ns": 883971959,
+      "update_counts": [
+        0,
+        1,
+        4
+      ]
+    },
+    "two": {
+      "arm": "two",
+      "component_measurement": {
+        "cache_bytes": {
+          "available": true,
+          "max_observed": 512,
+          "min_observed": 512
+        },
+        "memory": {
+          "admission_calls": 1,
+          "admitted_payload_bytes": 4112,
+          "authority_validation_ns": 9742293,
+          "cold_completed_bytes": 0,
+          "cold_completed_files": 0,
+          "cold_reserved_bytes": 0,
+          "cold_reserved_files": 0,
+          "cold_wait_ns": 0,
+          "correction_calls": 0,
+          "durable_artifact_growth_bytes": 83748,
+          "durable_write_bytes": 0,
+          "durable_write_ns": 4494583,
+          "fallback_bytes": 0,
+          "fallback_calls": 0,
+          "fallback_tokens": 0,
+          "producer_bytes": 32,
+          "producer_calls": 2,
+          "producer_hash_cache_hits": 3,
+          "producer_hash_calls": 0,
+          "producer_hash_ns": 0,
+          "producer_wall_ns": 7581333,
+          "read_file_bytes": 4624,
+          "read_file_calls": 6,
+          "retrieval_calls": 1,
+          "retrieval_wall_ns": 1339000,
+          "revalidations": 6,
+          "snapshot_bytes": 32768,
+          "snapshot_copies": 1,
+          "source_revalidations": 6,
+          "ticket_descriptor_read_bytes": 0,
+          "ticket_descriptor_read_calls": 0,
+          "value_slots_read": 4
+        },
+        "pilot_cost_ns": 36386375,
+        "post_update_snapshot_copies": 1,
+        "reader": {
+          "activation_forward_bytes": {
+            "by_phase": {
+              "forward": {
+                "input": 65856,
+                "output": 256
+              },
+              "recompute": {
+                "input": 0,
+                "output": 0
+              }
+            },
+            "input_total": 65856,
+            "output_total": 256
+          },
+          "dispatch_wall_ns": 3160624,
+          "group_wall_ns": 333750,
+          "invocations": 2,
+          "physical_groups": 2
+        },
+        "source": {
+          "cache_bytes": 512,
+          "cache_evictions": 0,
+          "cache_hits": 1,
+          "cache_misses": 1,
+          "feature_bytes_produced": 512,
+          "forwards": 1,
+          "input_tokens": 16,
+          "peak_cache_bytes": 512,
+          "requests": 2,
+          "source_bytes": 48,
+          "source_traced_layers": 36,
+          "tokenizer_cache_hits": 9,
+          "tokenizer_calls": 1,
+          "wall_ns": 3735875
+        },
+        "timing_synchronization": {
+          "after": "cpu_synchronous",
+          "before": "cpu_synchronous",
+          "boundary": "synchronize_before_and_after_each_timed_pass",
+          "device": "cpu",
+          "mps_fallback_setting": "0"
+        },
+        "training": {
+          "backward_work": {
+            "caller_measured": true,
+            "calls": 1,
+            "processed_positions": 4
+          },
+          "optimizer_steps": 1,
+          "updates": 1,
+          "wall_ns": 36386375
+        },
+        "wall_ns": 36386375
+      },
+      "fit": {
+        "fixed_cost": 15734175.999999993,
+        "marginal_cost": 21569311.0,
+        "measurements": {
+          "0": 15120541.0,
+          "1": 38121667.0,
+          "4": 101806875.0
+        }
+      },
+      "median_total_cost_ns": {
+        "0": 15120541,
+        "1": 38121667,
+        "4": 101806875
+      },
+      "pilot_cost_ns": 549216167,
+      "pilot_runs_ns": {
+        "0": [
+          15273875,
+          15120541,
+          15080959
+        ],
+        "1": [
+          37782000,
+          87118667,
+          38121667
+        ],
+        "4": [
+          103207666,
+          99317542,
+          101806875
+        ]
+      },
+      "repeat": 3,
+      "selection": {
+        "difference_ns": -1466838.9999999925,
+        "matched_within_declared_tolerance": true,
+        "matched_within_relative_2_percent": false,
+        "measured_runs_ns": [
+          62291375,
+          56412166,
+          57405959
+        ],
+        "measured_total_cost_ns": 57405959,
+        "measurement_cost_ns": 176109500,
+        "selected_updates": 2,
+        "target_ns": 58872797.99999999,
+        "tolerance_ns": 21569311.0
+      },
+      "sites": [
+        3,
+        7
+      ],
+      "total_charged_cost_ns": 725325667,
+      "update_counts": [
+        0,
+        1,
+        4
+      ]
+    }
+  },
+  "claim_limits": [
+    "Tiny CPU fixture measurements are not native Spark latency or physical memory.",
+    "Selection uses measured cost only; no scored labels were opened.",
+    "An arm outside tolerance is unmatched evidence, not a causal density arm.",
+    "Different whole-pass exposure is an explicit confound."
+  ],
+  "cost_metric": "measured_monotonic_wall_nanoseconds",
+  "declared_common_updates": 2,
+  "declared_updates_cap": 8,
+  "downloads": false,
+  "format": "replica.intrinsic_memory.density.cost_pilot.v12",
+  "generated_utc": "2026-10-30T06:07:50.019593+00:00",
+  "matched_arms": [
+    "two",
+    "full_attention_nine",
+    "all"
+  ],
+  "native_execution": false,
+  "native_weights_loaded": false,
+  "out_of_tolerance_control": {
+    "arithmetic_control": {
+      "candidate_cost_ns": 161292853.46153843,
+      "outside_declared_tolerance": true,
+      "target_ns": 58872797.99999999,
+      "tolerance_ns": 102420054.46153845
+    },
+    "charged_to_arm": "all",
+    "control_cost_ns": 2196565875,
+    "deliberate_out_of_tolerance_observed": true,
+    "measured_high_exposure": {
+      "arm": "all",
+      "difference_ns": 673670786.0,
+      "measured_runs_ns": [
+        734761750,
+        732543584,
+        729260541
+      ],
+      "measured_total_cost_ns": 732543584,
+      "outside_declared_tolerance": true,
+      "target_ns": 58872797.99999999,
+      "tolerance_ns": 102420054.46153845,
+      "updates": 8
+    }
+  },
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "promotion": false,
+  "protocol_digests": {
+    "fixed_per_site": "2441bbb184afd76a35a612e79e88698b50f044be39e1fce878523e1c969977ca",
+    "matched_unique_parameters": "125407467909f7cb50267a7b60af2a14ea8af69b70271d598dec923abb46a3da",
+    "preregistered_measured_total_cost": "6fe14bc87e75dc20c5923a161339bed805e2b4768d133213267d5ada6a4ebbe7"
+  },
+  "python": "3.12.14 (main, Sep  1 2026, 14:09:38) [Clang 22.1.3 ]",
+  "repeat": 3,
+  "scope": "CPU_random_36_block_fixture_engineering_only",
+  "scored_labels_read": false,
+  "selected_updates": {
+    "all": 1,
+    "full_attention_nine": 1,
+    "two": 2
+  },
+  "selection_rule": "updates_arm = clamp(floor((target - fixed_cost_arm) / marginal_cost_arm + 1e-9 binary_float_guard), 1, declared_updates_cap)",
+  "target_arm": "two",
+  "target_cost_ns": 58872797.99999999,
+  "timing_synchronization": {
+    "observed": {
+      "after": "cpu_synchronous",
+      "before": "cpu_synchronous",
+      "boundary": "synchronize_before_and_after_each_timed_pass",
+      "device": "cpu",
+      "mps_fallback_setting": "0"
+    },
+    "rule": "synchronize_declared_backend_before_each_timed_boundary"
+  },
+  "tolerance_rule": "max(target*0.02, one_measured_marginal_update_cost_arm)",
+  "torch": "2.14.1",
+  "total_charged_cost_ns": 5916233251,
+  "total_cost_protocol_sha256": "6fe14bc87e75dc20c5923a161339bed805e2b4768d133213267d5ada6a4ebbe7",
+  "unmatched_arms": []
+}

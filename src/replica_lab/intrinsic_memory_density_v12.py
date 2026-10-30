@@ -22,6 +22,7 @@ backend exposes them; deterministic activation bytes are always reported.
 from __future__ import annotations
 
 from contextlib import contextmanager
+import os
 import threading
 import time
 
@@ -118,6 +119,8 @@ def synchronize_timing(device=None):
     CPU engineering receipt cannot imply a native synchronized measurement.
     """
     kind = getattr(device, "type", None)
+    if kind == "cpu" or kind is None:
+        return "cpu_synchronous"
     if kind == "cuda":
         if not torch.cuda.is_available():
             return "cuda_unavailable"
@@ -127,12 +130,14 @@ def synchronize_timing(device=None):
         mps = getattr(torch, "mps", None)
         if mps is None or not mps.is_available():
             return "mps_unavailable"
+        if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") != "0":
+            return "mps_cpu_fallback_enabled"
         synchronize = getattr(mps, "synchronize", None)
         if not callable(synchronize):
             return "mps_unavailable"
         synchronize()
         return "mps_synchronize"
-    return "cpu_synchronous"
+    return "unsupported_accelerator:" + str(kind)
 
 
 def require_timing_synchronization(device=None):

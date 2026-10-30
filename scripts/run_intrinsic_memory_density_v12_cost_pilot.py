@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import platform
 import statistics
@@ -108,6 +109,8 @@ def run_pass(arm, updates, *, profile=False):
                         "before": synchronized_before,
                         "after": synchronized_after,
                         "boundary": "synchronize_before_and_after_each_timed_pass",
+                        "mps_fallback_setting": os.environ.get(
+                            "PYTORCH_ENABLE_MPS_FALLBACK"),
                     },
                     "cost_delta": ledger_delta(before, after),
                 }
