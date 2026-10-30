@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="2.303" timestamp="2026-10-30T01:55:14.806442-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="release_budget_edges" name="test_final_probe_cap_covers_fitting_close_and_source_receipt" time="0.001"><failure message="assert 548 &gt;= 580">def test_final_probe_cap_covers_fitting_close_and_source_receipt():
+        required = FIT_CASES * (5 + 13) + 4
+&gt;       assert plan("two")["fit_probes_512"]["writes"] &gt;= required
+E       assert 548 &gt;= 580
+
+release_budget_edges.py:13: AssertionError</failure></testcase><testcase classname="release_budget_edges" name="test_read_resume_write_reservation_covers_four_waits" time="0.007" /><testcase classname="release_budget_edges" name="test_restart_cap_covers_corpus_result_and_source_receipt" time="0.000"><failure message="assert 15 &gt;= 16">def test_restart_cap_covers_corpus_result_and_source_receipt():
+        required = 1 + 13 + 1 + 1
+&gt;       assert plan("two")["restart"]["writes"] &gt;= required
+E       assert 15 &gt;= 16
+
+release_budget_edges.py:50: AssertionError</failure></testcase></testsuite></testsuites>

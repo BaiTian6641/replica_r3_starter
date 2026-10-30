@@ -1,0 +1,12 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_probe_artifact_bytes_cover_value_payloads_and_origin_metadata ______
+
+    def test_probe_artifact_bytes_cover_value_payloads_and_origin_metadata():
+>       assert plan("two")["fit_probes_128"]["artifact_bytes"] > FIT_CASES * 4096
+E       assert 131072 > (32 * 4096)
+
+release_budget_edges.py:49: AssertionError
+=========================== short test summary info ============================
+FAILED release_budget_edges.py::test_probe_artifact_bytes_cover_value_payloads_and_origin_metadata - assert 131072 > (32 * 4096)
+1 failed in 2.26s

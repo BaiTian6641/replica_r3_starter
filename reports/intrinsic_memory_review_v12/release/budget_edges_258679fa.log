@@ -1,0 +1,22 @@
+F.F                                                                      [100%]
+=================================== FAILURES ===================================
+_________ test_final_probe_cap_covers_fitting_close_and_source_receipt _________
+
+    def test_final_probe_cap_covers_fitting_close_and_source_receipt():
+        required = FIT_CASES * (5 + 13) + 4
+>       assert plan("two")["fit_probes_512"]["writes"] >= required
+E       assert 548 >= 580
+
+release_budget_edges.py:13: AssertionError
+___________ test_restart_cap_covers_corpus_result_and_source_receipt ___________
+
+    def test_restart_cap_covers_corpus_result_and_source_receipt():
+        required = 1 + 13 + 1 + 1
+>       assert plan("two")["restart"]["writes"] >= required
+E       assert 15 >= 16
+
+release_budget_edges.py:50: AssertionError
+=========================== short test summary info ============================
+FAILED release_budget_edges.py::test_final_probe_cap_covers_fitting_close_and_source_receipt - assert 548 >= 580
+FAILED release_budget_edges.py::test_restart_cap_covers_corpus_result_and_source_receipt - assert 15 >= 16
+2 failed, 1 passed in 2.37s
