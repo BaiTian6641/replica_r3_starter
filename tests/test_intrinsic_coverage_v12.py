@@ -14,7 +14,7 @@ import pytest
 from replica_lab.intrinsic_memory_budget_v12 import COUNTERS, validate_plan
 from replica_lab.intrinsic_memory_coverage_v12 import (
     ARMS, BUDGET_DERIVATION, COVERAGE, DIFFERENCES_FROM_V11, FEATURE_CACHE_ENTRIES,
-    ORIGIN_ARTIFACT_BYTES,
+    ORIGIN_ARTIFACT_BYTES, RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD,
     FORMAT, GROUP_SIZE, OUTER_WALL_SECONDS, PREFIXES, REPRESENTATION_VALUE, SLOT_POLICY_V12,
     SOURCE_FEATURES, SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS, TEACHER, TRAINING,
     UNCHANGED_FROM_V11, declared_tokenizer_identity, plan, tokenizer_identity_digest,
@@ -98,7 +98,8 @@ def test_stage_plan_is_complete_finite_and_inside_the_outer_envelope():
         assert stages['restart']['wall_seconds'] > stages['checkpoint']['wall_seconds']
     assert plan('two')['checkpoint']['artifact_bytes'] == 96*1024**2
     stages = plan('two')
-    origin = 32*ORIGIN_ARTIFACT_BYTES*4 + ORIGIN_ARTIFACT_BYTES   # four probes + restart
+    stage = 32*RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD*4 + RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD
+    origin = stage   # four probe stages + restart, per-world origin/payload/manifest/pointer
     assert (stages['admission']['artifact_bytes']
             + stages['teacher']['artifact_bytes']
             + stages['checkpoint']['artifact_bytes']

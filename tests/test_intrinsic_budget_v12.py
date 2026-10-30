@@ -40,6 +40,48 @@ def test_v12_vocabulary_covers_all_v5_counters_and_new_source_work():
     assert len(set(COUNTERS)) == len(COUNTERS)
 
 
+def test_probe_and_restart_caps_follow_constructor_and_call_counts():
+    """Two corpora per probe world: origin 1 + rebuild 3 + origin 1 + read 13."""
+    from replica_lab.intrinsic_memory_coverage_v12 import (
+        CONTROL_READ_BYTES_BOUND, PROBE_CORPUS_CONSTRUCTIONS,
+        RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD, ORIGIN_ARTIFACT_BYTES,
+        READ_WRITE_BOUND)
+    from replica_lab.intrinsic_memory_coverage_v12 import plan as coverage_plan
+    p = coverage_plan('two')
+    assert PROBE_CORPUS_CONSTRUCTIONS == 2
+    per_world = (PROBE_CORPUS_CONSTRUCTIONS - 1) + 4 + READ_WRITE_BOUND
+    assert per_world == 18
+    assert p['fit_probes_512']['writes'] == 32*per_world + 4      # 580
+    assert p['fit_probes_128']['writes'] == 32*per_world + 3      # 579
+    assert p['restart']['writes'] == 1 + READ_WRITE_BOUND + 2     # 16
+    # Artifacts cover origin + payload + manifest + pointer, never payload only.
+    assert RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD == 4*ORIGIN_ARTIFACT_BYTES
+    assert p['fit_probes_512']['artifact_bytes'] == 32*RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD
+    assert p['restart']['artifact_bytes'] == RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD
+    reads = [caps['artifact_read_bytes'] for caps in p.values()
+             if isinstance(caps, dict) and 'artifact_read_bytes' in caps]
+    # Every stage that reads a file reserves the control-plane pins as well.
+    assert all(r >= CONTROL_READ_BYTES_BOUND for r in reads if r)
+    assert p['fit_probes_512']['artifact_read_bytes'] > 32*3*1024**2
+
+
+def test_probe_cap_is_exact_and_one_world_over_is_refused(tmp_path):
+    """The derived probe cap admits exactly 18 writes per world and refuses 19."""
+    from replica_lab.intrinsic_memory_coverage_v12 import READ_WRITE_BOUND
+    from replica_lab.intrinsic_memory_coverage_v12 import plan as coverage_plan
+    cap = coverage_plan('two')['fit_probes_128']['writes']
+    led = WorkLedger.create(tmp_path/'work_ledger.jsonl', identity='packet-sha',
+                            plan=plan(a={'writes': 32*18 + 2}),
+                            deadline=time.monotonic() + 600)
+    led.enter('a')
+    with led.work('a', 'probe_rebuild', writes=32*18 + 1):     # 577 of 579
+        pass
+    with pytest.raises(BudgetError):
+        with led.work('a', 'probe_read', writes=READ_WRITE_BOUND):  # 590 > 579
+            pass
+    led.leave('a')
+
+
 def test_plan_requires_every_counter_and_positive_wall():
     with pytest.raises(BudgetError): validate_plan({})
     with pytest.raises(BudgetError): validate_plan({'a': {'wall_seconds': 1}})

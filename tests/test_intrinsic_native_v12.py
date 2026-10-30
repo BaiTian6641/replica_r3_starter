@@ -574,7 +574,10 @@ def test_admission_reserves_source_and_closure_hashing(tmp_path):
     with ledger.work('admission', 'bounded_audit_and_store_envelope',
                      artifact_bytes=caps['artifact_bytes'], writes=1):
         pass
-    amount = SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES
+    # The cap includes the control-plane pins (packet/protocol/implementation/
+    # source-execution/prepared data), so fill it exactly rather than assuming
+    # the old source+closure sum.
+    amount = caps['artifact_read_bytes']
     with ledger.work('admission', 'environment_source_code_data_preflight',
                      artifact_read_bytes=amount) as event:
         event['actual'] = {'artifact_read_bytes': amount}
@@ -585,6 +588,38 @@ def test_admission_reserves_source_and_closure_hashing(tmp_path):
     # One more byte of hashing would exceed the declared envelope before dispatch.
     with pytest.raises(BudgetError, match='exceeded before dispatch'):
         ledger.reserve('admission', 'extra_hash', artifact_read_bytes=1)
+
+
+def test_stage_artifact_cap_covers_origin_manifest_and_pointer(tmp_path):
+    """Payload-only caps are wrong: origin, manifest and pointer bytes are real."""
+    from replica_lab.contextual_release_v12 import ProducerReleaseCorpus
+    from replica_lab.contextual_v12_fixture import (
+        build_v12_stack, canonical_span, open_v12_store, scope)
+    from replica_lab.intrinsic_memory_coverage_v12 import (
+        ORIGIN_ARTIFACT_BYTES, RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD)
+    stack = build_v12_stack(layers=36, sites=(3, 7))
+    path = stack.path if hasattr(stack, 'path') else stack[-1] if isinstance(stack, tuple) else stack
+    store = open_v12_store(tmp_path)
+    span = canonical_span("Badge means red.", record_id="record0",
+                          source_epoch=1, available_at=1)[0]
+    try:
+        path.admit(store, span, scope=scope(as_of=1000))
+        corpus = ProducerReleaseCorpus(store, scope(as_of=1000))
+        corpus.rebuild(path)
+        actual = corpus.accounting_bytes()
+        writes = {op: b['write_actual'] for op, b in actual.items()}
+        total = sum(writes.values())
+        # First construction also writes the origin JSON (~305 B); the second
+        # construction in the same probe world reserves 0 because it exists.
+        assert 0 < writes.get('release_origin_and_lock', 0) <= ORIGIN_ARTIFACT_BYTES
+        assert writes.get('release_value', 0) > 0            # 4 KiB payload
+        assert writes.get('release_manifest', 0) > 0         # manifest bytes
+        assert writes.get('release_pointer', 0) > 0          # staged pointer bytes
+        # The per-world allowance covers everything, not just the payload.
+        assert total > writes['release_value']
+        assert total <= RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD
+    finally:
+        store.close()
 
 
 def test_attempt_marker_is_durable_append_only_and_survives_output_deletion(tmp_path):
@@ -941,18 +976,22 @@ def test_release_direct_read_bound_scales_with_active_sites():
 
 
 def test_per_world_write_cap_assumes_exactly_one_release_record():
-    """The 4-write per-world formula holds only for one eligible E record."""
-    from replica_lab.intrinsic_memory_coverage_v12 import ORIGIN_ARTIFACT_BYTES
+    """Two corpora per world: origin 1 + rebuild 3 + origin 1 + read 13 = 18."""
+    from replica_lab.intrinsic_memory_coverage_v12 import (
+        ORIGIN_ARTIFACT_BYTES, PROBE_CORPUS_CONSTRUCTIONS,
+        RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD)
     caps = coverage_plan('two')['fit_probes_512']
-    # 4 = provider origin_and_lock (1) + release_value (1 record) + manifest + pointer
-    per_world = 4
-    receipts = 3 + 1                      # probe + fit-curve + fitting_closed + source cost
-    assert caps['writes'] == 32*(per_world + READ_WRITE_BOUND) + receipts
-    # Origin artifact bytes are provider-reserved and covered by 4 KiB per world.
-    assert caps['artifact_bytes'] >= 32*ORIGIN_ARTIFACT_BYTES
+    rebuild = 4                      # origin_and_lock + release_value + manifest + pointer
+    per_world = (PROBE_CORPUS_CONSTRUCTIONS - 1) + rebuild + READ_WRITE_BOUND
+    receipts = 3 + 1                 # probe + fit-curve + fitting_closed + source cost
+    assert per_world == 18
+    assert caps['writes'] == 32*per_world + receipts
+    # Artifacts cover origin + payload + manifest + pointer per world, not payload.
+    assert RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD == 4*ORIGIN_ARTIFACT_BYTES
+    assert caps['artifact_bytes'] == 32*RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD
     # A two-record world would need five rebuild writes; the engine refuses that
     # case instead of overrunning the cap (asserted in fitting_probes).
-    assert per_world + 1 == 5
+    assert rebuild + 1 == 5
 
 
 def test_context_width_and_prefix_bounds_match_the_envelope():

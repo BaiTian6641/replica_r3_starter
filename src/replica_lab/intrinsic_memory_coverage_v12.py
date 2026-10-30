@@ -402,6 +402,12 @@ RESTART_PROMPT_PASSES = (RESTART_TARGET_REVALIDATION_ENCODINGS
                          + RESTART_CANARY_ENCODINGS + RESTART_UPDATE_ENCODINGS)
 RESTART_WALL_SECONDS = 150
 
+# Control-plane reads the engine performs before any work reservation became
+# visible: the prepared data (split manifest, calibration/fitting/development
+# bindings), the packet/protocol/implementation pins, the source-execution
+# receipt, and the teacher-cache hash pins. They are reserved inside each stage's
+# read cap so a late failure cannot leave them uncharged.
+CONTROL_READ_BYTES_BOUND = 8 * 1024**2
 # Executable dependency closure of the qualified environment: interpreter, the
 # declared module origins, the loaded native extensions, every file in torch/lib,
 # every wheel RECORD and the sealed receipt's critical files. The preparation
@@ -470,6 +476,15 @@ READ_FAILURE_DESCRIPTOR_WRITES = 2
 # The provider reserves the origin pointer's own bytes (305 in practice) and the
 # lock create whenever a corpus is constructed. Bound both per construction.
 ORIGIN_ARTIFACT_BYTES = 4 * 1024
+# Per published world the stage must also hold the rebuild's value payload, its
+# manifest and its staged pointer, not only the origin record. Four 4 KiB units
+# cover origin + payload + manifest + pointer with headroom; `fitting_probes`
+# constructs a second corpus per world, which reserves writes=1 (artifact_bytes=0
+# once the pointer exists) and is counted below.
+RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD = 4 * ORIGIN_ARTIFACT_BYTES
+# Two corpus constructions per probe world (rebuild, then the read overlay), so
+# the per-world write total is origin 1 + rebuild 3 + second origin 1 + read 13.
+PROBE_CORPUS_CONSTRUCTIONS = 2
 READ_WRITE_BOUND = (READ_BASE_DESCRIPTOR_WRITES + RESUME_DESCRIPTOR_WRITES*MAX_CALLER_RESUMES
                     + READ_FAILURE_DESCRIPTOR_WRITES)
 # Per-world probe receipts: release rebuild, one durable read with resume
@@ -552,12 +567,12 @@ def plan(arm):
         # envelope for the whole owned output tree. Terminal receipts are charged
         # in their own declared stages below, never outside a stage.
         'admission': stage(30, artifact_bytes=ADMISSION_ENVELOPE_BYTES,
-                           artifact_read_bytes=SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES,
+                           artifact_read_bytes=CONTROL_READ_BYTES_BOUND + SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES,
                            writes=2),
         # One hashing pass over the source, one environment-closure pass, one
         # weight load and the capacity-guard receipt written after that worker.
         'load': stage(180, model_loads=1,
-                      artifact_read_bytes=(2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES
+                      artifact_read_bytes=CONTROL_READ_BYTES_BOUND + (2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES
                                            + LOAD_METADATA_READ_BYTES),
                       writes=1),
         # The supervising parent owns distinct per-window stages so each capacity
@@ -579,7 +594,7 @@ def plan(arm):
         # A read reserves three descriptor writes (the exact enumerated maximum),
         # and one bounded resume (two more) is budgeted as headroom.
         'prepare': stage(60, **span(32, 32), retrievals=32,
-                         artifact_read_bytes=32*RELEASE_READ_BYTES_BOUND,
+                         artifact_read_bytes=CONTROL_READ_BYTES_BOUND + 32*RELEASE_READ_BYTES_BOUND,
                          writes=32*(1 + READ_WRITE_BOUND)),
         # 32 complete frozen teacher answers (8 tokens each) + 32 target forwards.
         'teacher': stage(90, **span(0, 0, prompt_passes=128, backbone_forwards=288,
@@ -593,7 +608,7 @@ def plan(arm):
         # plus the development receipt.
         'development': stage(540, **span(16, 16, prompt_passes=14*16, backbone_forwards=768,
                                         backbone_tokens=256),
-                             artifact_read_bytes=16*RELEASE_READ_BYTES_BOUND,
+                             artifact_read_bytes=CONTROL_READ_BYTES_BOUND + 16*RELEASE_READ_BYTES_BOUND,
                              generated_tokens=768, retrievals=16,
                              writes=16*(1 + READ_WRITE_BOUND) + 1),
         # Two tokenizer passes: the corrected span, then its re-read after the
@@ -602,7 +617,7 @@ def plan(arm):
         # refused post-revocation read (3 + 2 headroom), and the receipt.
         'correction': stage(60, **span(2, 1, prompt_passes=6, backbone_forwards=24,
                                        backbone_tokens=256),
-                            artifact_read_bytes=2*RELEASE_READ_BYTES_BOUND,
+                            artifact_read_bytes=CONTROL_READ_BYTES_BOUND + 2*RELEASE_READ_BYTES_BOUND,
                             generated_tokens=24, retrievals=2,
                             writes=1 + READ_WRITE_BOUND + 1 + READ_WRITE_BOUND + 1),
         # A fresh process reloads (one hashing pass + one weight load), restores
@@ -613,13 +628,13 @@ def plan(arm):
                          **span(2, 2, prompt_passes=RESTART_PROMPT_PASSES,
                                 backbone_forwards=2, backbone_tokens=256),
                          backwards=1, updates=1, model_loads=1,
-                         artifact_read_bytes=(2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES
+                         artifact_read_bytes=CONTROL_READ_BYTES_BOUND + (2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES
                                               + checkpoint + TEACHER_CACHE_BYTES
                                               + RELEASE_READ_BYTES_BOUND + direct_reads
                                               + LEDGER_METADATA_READ_BYTES),
-                         artifact_bytes=ORIGIN_ARTIFACT_BYTES,
+                         artifact_bytes=RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD,
                          restart_restores=2, retrievals=1,
-                         writes=READ_WRITE_BOUND + 1),
+                         writes=1 + READ_WRITE_BOUND + 1),
     }
     for end in PREFIXES:
         updates = 128
@@ -638,11 +653,11 @@ def plan(arm):
         result[f'fit_probes_{end:03d}'] = stage(
             900, **span(worlds*4, worlds*3, prompt_passes=20*worlds,
                         backbone_forwards=backbone, backbone_tokens=256),
-            artifact_read_bytes=worlds*(RELEASE_READ_BYTES_BOUND + direct_reads),
-            artifact_bytes=worlds*ORIGIN_ARTIFACT_BYTES,
+            artifact_read_bytes=CONTROL_READ_BYTES_BOUND + worlds*(RELEASE_READ_BYTES_BOUND + direct_reads),
+            artifact_bytes=worlds*RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD,
             generated_tokens=worlds*controls*tokens, retrievals=worlds,
-            writes=worlds*(4 + READ_WRITE_BOUND) + PROBE_RECEIPTS
-                   + (1 if end == PREFIXES[-1] else 0))
+            writes=worlds*((PROBE_CORPUS_CONSTRUCTIONS - 1) + 4 + READ_WRITE_BOUND)
+                   + PROBE_RECEIPTS + (1 if end == PREFIXES[-1] else 0))
     # The supervised parent writes the admission, capacity-guard and result
     # receipts, and every stage closed through close_stage() also writes one
     # observed source-cost receipt. Those writes are declared, not hidden.
