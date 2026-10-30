@@ -1,0 +1,54 @@
+{
+  "arm": "two",
+  "attempt_marker": "runs/intrinsic_memory_native_v12/attempts.jsonl",
+  "attempts": 1,
+  "authorization_required": "reports/intrinsic_memory_native_v12/authorization_two_v12.json",
+  "authorization_status": "external_receipt_required_not_created",
+  "commands": {
+    "environment_only": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_intrinsic_coverage_v12.py",
+      "--packet",
+      "reports/intrinsic_memory_native_v12/native_packet_two_v12.json",
+      "--environment-only"
+    ],
+    "focused_tests": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_intrinsic_budget_v12.py",
+      "tests/test_intrinsic_coverage_v12.py",
+      "tests/test_intrinsic_native_v12.py"
+    ],
+    "future_launch": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_intrinsic_coverage_v12.py",
+      "--packet",
+      "reports/intrinsic_memory_native_v12/native_packet_two_v12.json",
+      "--authorization",
+      "reports/intrinsic_memory_native_v12/authorization_two_v12.json",
+      "--launch"
+    ],
+    "review": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_intrinsic_coverage_v12.py",
+      "--packet",
+      "reports/intrinsic_memory_native_v12/native_packet_two_v12.json",
+      "--review"
+    ]
+  },
+  "experiment_version": 12,
+  "format": "replica.intrinsic_memory.launch_packet.v12",
+  "gated_arms_not_prepared": [
+    "full_attention_nine",
+    "all"
+  ],
+  "native_engine_version": 12,
+  "output_root": "reports/intrinsic_memory_native_v12/native_bf16_two_v12_attempt06",
+  "protocol": {
+    "path": "configs/spark_intrinsic_coverage_v12.json",
+    "sha256": "23b7973f4e061c18e4c49dd80c282973b0f3353b2a39929002c70710ec575926"
+  },
+  "retries": 0
+}
