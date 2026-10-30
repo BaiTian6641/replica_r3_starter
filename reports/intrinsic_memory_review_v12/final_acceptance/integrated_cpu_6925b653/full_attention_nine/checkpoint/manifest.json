@@ -1,0 +1,68 @@
+{
+  "adapter_contract": "50f1e8de775e7969e332166d1c25f0ca4c4ebaebcc11c0cd1db27dc45491dec2",
+  "base": {
+    "artifact_sha256": "58caa70ec09e29f7d7096da6b4ab50b1732b709322bd20b11c525b1571b0e970",
+    "config_digest": "f7b0936456e39ac46d16d76556d6cdfe4dced4444dffa6b89373db8a09c3079b",
+    "derivative_of": null,
+    "geometry_fingerprint": "143e9c2b5eb9e2fb5d8b6c23658510de4e66e935cac6d19b5c4a4643dc952228",
+    "precision_digest": "1b0b8d021318a9c8c85c05c187842997c41b80cd0ccad7e283a78c06436f63ce",
+    "precision_kind": "official_bf16",
+    "quantization_fingerprint": null,
+    "storage": "bf16",
+    "weight_dtype": "BF16"
+  },
+  "codec": "contextual_source_features_fp32_slots_v12",
+  "components_manifest_sha256": "ced94d2530d98d5282465f01f8f2e6d7a089f61ea93c240f75d5a4d35a23fa28",
+  "contains_base_weights": false,
+  "execution_identity": "CPU_v12_workflow",
+  "feature_cache_serialized": false,
+  "feature_contract": {
+    "detach_boundary": "frozen_original_hidden_before_trainable_compressor",
+    "format": "replica.canonical_source_features.v12",
+    "hidden_size": 8,
+    "input_policy": "canonical_span_only_no_template_no_special_tokens",
+    "max_tokens": 32,
+    "original_parameters_sha256": "9e861a1eeba9bcb81628121c52b9925baf056a479c0899b1b163bac335fe252a",
+    "original_updates": 0,
+    "output_policy": "last_decoder_hidden_after_final_norm",
+    "source_execution_sha256": "50f1e8de775e7969e332166d1c25f0ca4c4ebaebcc11c0cd1db27dc45491dec2",
+    "source_position_ids": "0_to_source_token_count_minus_one",
+    "thinking_mode": "not_applicable_unframed_source",
+    "tokenizer_sha256": "71bc83568c5ca7f9ba9ce9306ae393650400361377316d27eb6e3e645a062e36"
+  },
+  "fitting_frozen": false,
+  "format": "replica.contextual_memory.v12.checkpoint",
+  "layout": {
+    "decoder_layers": 36,
+    "hidden_size": 8,
+    "placement": "block_input_query_to_post_block_residual",
+    "sites": [
+      3,
+      7,
+      11,
+      15,
+      19,
+      23,
+      27,
+      31,
+      35
+    ],
+    "slots": 8,
+    "width": 256
+  },
+  "objective": {
+    "scope": "CPU_v12_correctness_only"
+  },
+  "original_weights_serialized": false,
+  "producer": "frozen_spark_features_contextual_compressor_v12",
+  "producer_release": "v12-a7c7b219bc5d02ce075605d1604b711c1f55354f9b1265529f63c5fcb649d999",
+  "producer_state_release": "v12-204d36f1458f8865469cd4fa2c36caa98cc11d81e7c54ba42efe2dfe2b0e3d8c",
+  "projection_cache": "none",
+  "representation": "four_ordered_frozen_source_contextual_256_v12",
+  "representation_release": "v12-a7c7b219bc5d02ce075605d1604b711c1f55354f9b1265529f63c5fcb649d999",
+  "slot_policy": "fixed_eight_masked_padding_v12",
+  "source_identity": "cpu_v12_random_bf16_full_attention_nine",
+  "task_state_serialized": false,
+  "temporal_rule": "MemoryScope.cutoff",
+  "tokenizer_contract": "71bc83568c5ca7f9ba9ce9306ae393650400361377316d27eb6e3e645a062e36"
+}

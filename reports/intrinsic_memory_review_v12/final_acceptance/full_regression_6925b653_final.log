@@ -1,0 +1,64 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 21%]
+........................................................................ [ 29%]
+........................................................................ [ 36%]
+........................................................................ [ 43%]
+........................................................................ [ 51%]
+........................................................................ [ 58%]
+........................................................................ [ 65%]
+........................................................................ [ 73%]
+........................................................................ [ 80%]
+........................................................................ [ 87%]
+........................................................................ [ 94%]
+.................................................F                       [100%]
+=================================== FAILURES ===================================
+_____________ test_release_origin_is_admitted_in_final_probe_stage _____________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2106/test_release_origin_is_admitte0')
+
+    def test_release_origin_is_admitted_in_final_probe_stage(tmp_path):
+        ledger = WorkLedger.create(tmp_path / "ledger.jsonl", identity="origin-review",
+                                   plan=plan("two"), deadline=time.monotonic() + 10000)
+        ledger.enter("fit_probes_128")
+        store = profile.open_store(tmp_path / "store")
+        try:
+>           ProducerReleaseCorpus(
+                store, profile.scope(),
+                read_accounting=WorkLedgerReleaseReadAccounting(ledger, "fit_probes_128"))
+
+final_acceptance_origin_budget.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/contextual_release_v12.py:105: in __init__
+    token = self._reserve_write("release_origin", size)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_release_v12.py:162: in _reserve_write
+    return self.read_accounting.reserve_write(operation, byte_count, 1)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_release_v12.py:54: in reserve_write
+    return self.ledger.reserve(self.stage, operation, writes=1,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <replica_lab.intrinsic_memory_budget_v12.WorkLedger object at 0x116606f00>
+stage = 'fit_probes_128', operation = 'release_origin'
+amounts = {'writes': 1, 'artifact_bytes': 305}
+
+    def reserve(self, stage, operation, **amounts):
+        if not isinstance(operation, str) or not operation:
+            raise BudgetError('invalid reservation operation')
+        amounts = _amounts(amounts, where='reserve')
+        with self._transaction() as (doc, write):
+            state = doc['stages'].get(stage)
+            if state is None or state['status'] != 'active': raise BudgetError('stage is not active')
+            outer, stage_remaining, _ = _remaining(state['deadline'],
+                                                   state['deadline_unix'], doc['clock'])
+            if outer <= 0 or stage_remaining <= 0:
+                raise BudgetError('stage/outer wall budget exceeded')
+            if any(state['reserved'][k]+v > doc['plan'][stage][k] for k, v in amounts.items()):
+>               raise BudgetError('stage work budget exceeded before dispatch')
+E               replica_lab.intrinsic_memory_budget_v12.BudgetError: stage work budget exceeded before dispatch
+
+src/replica_lab/intrinsic_memory_budget_v12.py:451: BudgetError
+=========================== short test summary info ============================
+FAILED final_acceptance_origin_budget.py::test_release_origin_is_admitted_in_final_probe_stage - replica_lab.intrinsic_memory_budget_v12.BudgetError: stage work budget exceeded before dispatch
+1 failed, 985 passed in 288.94s (0:04:48)

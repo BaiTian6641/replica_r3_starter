@@ -1,0 +1,22 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_unrecorded_target_does_not_render_answer_as_recorded ___________
+
+    def test_unrecorded_target_does_not_render_answer_as_recorded():
+        case = {"anchor": "A", "target": "B", "answer": "red",
+                "anchor_colour": "blue", "unrecorded_target": True}
+        assert _compound_answer(case, COMPOUND_FAMILIES[1], "A") == "unknown"
+>       assert "The recorded color of B is red" not in _render_compound(
+            case, COMPOUND_FAMILIES[1])
+E       AssertionError: assert 'The recorde... of B is red' not in 'A has the s...ther entity.'
+E         
+E         'The recorded color of B is red' is contained here:
+E           A has the same recorded color as B. The recorded color of B is red. No color is recorded for any other entity.
+
+final_acceptance_compound_public.py:10: AssertionError
+=========================== short test summary info ============================
+FAILED final_acceptance_compound_public.py::test_unrecorded_target_does_not_render_answer_as_recorded - AssertionError: assert 'The recorde... of B is red' not in 'A has the s...ther entity.'
+  
+  'The recorded color of B is red' is contained here:
+    A has the same recorded color as B. The recorded color of B is red. No color is recorded for any other entity.
+1 failed in 0.03s

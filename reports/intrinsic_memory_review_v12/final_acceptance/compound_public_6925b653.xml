@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.030" timestamp="2026-10-30T01:24:10.042457-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="final_acceptance_compound_public" name="test_unrecorded_target_does_not_render_answer_as_recorded" time="0.000"><failure message="AssertionError: assert 'The recorde... of B is red' not in 'A has the s...ther entity.'&#10;  &#10;  'The recorded color of B is red' is contained here:&#10;    A has the same recorded color as B. The recorded color of B is red. No color is recorded for any other entity.">def test_unrecorded_target_does_not_render_answer_as_recorded():
+        case = {"anchor": "A", "target": "B", "answer": "red",
+                "anchor_colour": "blue", "unrecorded_target": True}
+        assert _compound_answer(case, COMPOUND_FAMILIES[1], "A") == "unknown"
+&gt;       assert "The recorded color of B is red" not in _render_compound(
+            case, COMPOUND_FAMILIES[1])
+E       AssertionError: assert 'The recorde... of B is red' not in 'A has the s...ther entity.'
+E         
+E         'The recorded color of B is red' is contained here:
+E           A has the same recorded color as B. The recorded color of B is red. No color is recorded for any other entity.
+
+final_acceptance_compound_public.py:10: AssertionError</failure></testcase></testsuite></testsuites>
