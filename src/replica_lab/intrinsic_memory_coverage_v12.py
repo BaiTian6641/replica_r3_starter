@@ -124,14 +124,19 @@ def _permute(seed, label, values):
 
 
 def _render_compound(case, family):
+    """Render the case; an unrecorded target never prints an answer-bearing colour."""
     if family == COMPOUND_FAMILIES[0]:
-        return (f"The recorded color of {case['anchor']} is {case['anchor_colour']}. "
-                f"{case['anchor']} is paired with {case['target']}. "
-                f"The recorded color of {case['target']} is {case['answer']}. "
-                f"No color is recorded for any other entity.")
-    return (f"{case['anchor']} has the same recorded color as {case['target']}. "
-            f"The recorded color of {case['target']} is {case['answer']}. "
-            f"No color is recorded for any other entity.")
+        head = (f"The recorded color of {case['anchor']} is {case['anchor_colour']}. "
+                f"{case['anchor']} is paired with {case['target']}. ")
+    else:
+        head = f"{case['anchor']} has the same recorded color as {case['target']}. "
+    if case.get('unrecorded_target'):
+        # No recorded colour for the target, and no colour that could be mistaken
+        # for its answer: the only colours in this text belong to the anchor.
+        return head + f"No color is recorded for {case['target']}. " \
+                      f"No color is recorded for any other entity."
+    return head + (f"The recorded color of {case['target']} is {case['answer']}. "
+                   f"No color is recorded for any other entity.")
 
 
 def _question_compound(case, family):
@@ -459,7 +464,14 @@ LEDGER_METADATA_READ_BYTES = 64 * 1024
 MAX_CALLER_RESUMES = 4
 READ_BASE_DESCRIPTOR_WRITES = 3
 RESUME_DESCRIPTOR_WRITES = 2
-READ_WRITE_BOUND = READ_BASE_DESCRIPTOR_WRITES + RESUME_DESCRIPTOR_WRITES*MAX_CALLER_RESUMES
+# Failure-path descriptor persistence can add two descriptors beyond the base
+# three plus the four caller resumes.
+READ_FAILURE_DESCRIPTOR_WRITES = 2
+# The provider reserves the origin pointer's own bytes (305 in practice) and the
+# lock create whenever a corpus is constructed. Bound both per construction.
+ORIGIN_ARTIFACT_BYTES = 4 * 1024
+READ_WRITE_BOUND = (READ_BASE_DESCRIPTOR_WRITES + RESUME_DESCRIPTOR_WRITES*MAX_CALLER_RESUMES
+                    + READ_FAILURE_DESCRIPTOR_WRITES)
 # Per-world probe receipts: release rebuild, one durable read with resume
 # headroom, and (on the final prefix only) the fitting-closed receipt.
 PROBE_RECEIPTS = 2
@@ -605,6 +617,7 @@ def plan(arm):
                                               + checkpoint + TEACHER_CACHE_BYTES
                                               + RELEASE_READ_BYTES_BOUND + direct_reads
                                               + LEDGER_METADATA_READ_BYTES),
+                         artifact_bytes=ORIGIN_ARTIFACT_BYTES,
                          restart_restores=2, retrievals=1,
                          writes=READ_WRITE_BOUND + 1),
     }
@@ -626,6 +639,7 @@ def plan(arm):
             900, **span(worlds*4, worlds*3, prompt_passes=20*worlds,
                         backbone_forwards=backbone, backbone_tokens=256),
             artifact_read_bytes=worlds*(RELEASE_READ_BYTES_BOUND + direct_reads),
+            artifact_bytes=worlds*ORIGIN_ARTIFACT_BYTES,
             generated_tokens=worlds*controls*tokens, retrievals=worlds,
             writes=worlds*(4 + READ_WRITE_BOUND) + PROBE_RECEIPTS
                    + (1 if end == PREFIXES[-1] else 0))

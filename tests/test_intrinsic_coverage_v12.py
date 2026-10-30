@@ -7,11 +7,14 @@ from copy import deepcopy
 import json
 from pathlib import Path
 
+import re
+
 import pytest
 
 from replica_lab.intrinsic_memory_budget_v12 import COUNTERS, validate_plan
 from replica_lab.intrinsic_memory_coverage_v12 import (
     ARMS, BUDGET_DERIVATION, COVERAGE, DIFFERENCES_FROM_V11, FEATURE_CACHE_ENTRIES,
+    ORIGIN_ARTIFACT_BYTES,
     FORMAT, GROUP_SIZE, OUTER_WALL_SECONDS, PREFIXES, REPRESENTATION_VALUE, SLOT_POLICY_V12,
     SOURCE_FEATURES, SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS, TEACHER, TRAINING,
     UNCHANGED_FROM_V11, declared_tokenizer_identity, plan, tokenizer_identity_digest,
@@ -94,9 +97,12 @@ def test_stage_plan_is_complete_finite_and_inside_the_outer_envelope():
         assert stages['restart']['prompt_tokenizer_calls'] >= 2*32 + 3
         assert stages['restart']['wall_seconds'] > stages['checkpoint']['wall_seconds']
     assert plan('two')['checkpoint']['artifact_bytes'] == 96*1024**2
-    assert (plan('two')['admission']['artifact_bytes']
-            + plan('two')['teacher']['artifact_bytes']
-            + plan('two')['checkpoint']['artifact_bytes']) == totals(plan('two'))['artifact_bytes']
+    stages = plan('two')
+    origin = 32*ORIGIN_ARTIFACT_BYTES*4 + ORIGIN_ARTIFACT_BYTES   # four probes + restart
+    assert (stages['admission']['artifact_bytes']
+            + stages['teacher']['artifact_bytes']
+            + stages['checkpoint']['artifact_bytes']
+            + origin) == totals(stages)['artifact_bytes']
 
 
 def test_derivation_strings_match_the_computed_totals():
@@ -270,6 +276,34 @@ def test_default_split_is_a_compound_rule_family_holdout():
     assert len(differences) >= 3, differences
     assert DEVELOPMENT_SEED == 2026102912
     assert len(DEVELOPMENT_ROOTS) == 8
+
+
+def test_unknown_cases_render_no_answer_bearing_text():
+    """Compound blocker: an unrecorded target must not print a colour as its answer."""
+    from replica_lab.intrinsic_memory_coverage_v12 import (
+        COMPOUND_FAMILIES, DEVELOPMENT_PALETTE, v12_development_worlds)
+    rows = v12_development_worlds()
+    unknown = [row for row in rows if row['answer'] == 'unknown']
+    assert len(unknown) == 4                      # two per group
+    for row in unknown:
+        target = row['facts']['target']
+        assert f"recorded color of {target} is" not in row['text']
+        assert f"No color is recorded for {target}." in row['text']
+        assert row['facts']['unrecorded_target'] is True
+        # Word-boundary colour words only: "recorded" is not "red".
+        printed = re.findall(r'\b(?:red|blue|green|gold)\b', row['text'])
+        assert printed == [row['facts']['anchor_colour']] or printed == []
+    # The known sibling of each pair does print its answer, so the pair differs.
+    for row in rows:
+        if row['answer'] in DEVELOPMENT_PALETTE:
+            assert row['facts']['unrecorded_target'] is False
+            assert f"The recorded color of {row['facts']['target']} is {row['answer']}." in row['text']
+    # False-recall control: an unknown target is scored as `unknown`, never a colour.
+    from replica_lab.baseline_competence import score
+    assert all(score(row['answer'], 'unknown') for row in unknown)
+    assert not any(score(row['answer'], colour) for row in unknown
+                   for colour in DEVELOPMENT_PALETTE)
+    assert {row['rule_family'] for row in unknown} == set(COMPOUND_FAMILIES)
 
 
 @pytest.mark.parametrize('damage', ['v11_entity', 'world_prefix', 'group_order',

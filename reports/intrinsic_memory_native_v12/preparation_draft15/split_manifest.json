@@ -1,0 +1,170 @@
+{
+  "exposure_contract": {
+    "calibration": {
+      "labels": "already_exposed_in_v11",
+      "reuse": "matched_comparison_only",
+      "role": "reused_v11_calibration",
+      "status": "already_exposed_in_v11"
+    },
+    "development": {
+      "development_file_sha256": "aeaf308178f14122f2be535be9392488dfc6b4ab2cd36b791d3ce0d495477c55",
+      "exposure_receipt": {
+        "path": "reports/intrinsic_memory_native_v12/development_exposure_v12.json",
+        "sha256": "c2647133aa269a49513790c253d0a0b97d8233cbd326a0a44396931932ed2dba"
+      },
+      "fresh_split": true,
+      "labels": "unopened_at_preparation",
+      "preparation_generated_labels_from_oracle": true,
+      "preparation_parsed_development_labels": false,
+      "retired_v11_development": true,
+      "role": "fresh_v12_development",
+      "status": "sealed_until_final_fit_gate"
+    },
+    "fit": {
+      "group_selection": "fixed_predeclared_groups_only",
+      "labels": "already_exposed_in_v11",
+      "reuse": "matched_comparison_only",
+      "role": "reused_v11_fit",
+      "status": "already_exposed_in_v11_no_tuning_escape"
+    }
+  },
+  "format": "replica.intrinsic_memory.coverage_split_manifest.v12",
+  "generator_policy": "predeclared_source_order_revision_oracle_no_generated_explanations",
+  "reuse_policy": "exposed_v11_calibration_and_fit_matched_fresh_v12_development",
+  "splits": {
+    "calibration": {
+      "file": {
+        "path": "data/intrinsic_memory_coverage_v11_20261029/calibration.json",
+        "sha256": "f51a078f261d395bfa5ac8a5ee9fa2e8eeb8aa88b221608acd9e8759574c68f5"
+      },
+      "label_exposure": "already_exposed_in_v11",
+      "public_identity": {
+        "cases": 8,
+        "decision_roots": [
+          "v11_calibration_decision_00",
+          "v11_calibration_decision_01",
+          "v11_calibration_decision_02",
+          "v11_calibration_decision_03"
+        ],
+        "entities": [
+          "Arven",
+          "Belis",
+          "Cevra",
+          "Dunel",
+          "Eshra",
+          "Fovik"
+        ],
+        "rule_families": [
+          "explicit_entity_color_lookup",
+          "latest_recorded_color"
+        ],
+        "seed": 2026102911,
+        "split": "calibration"
+      },
+      "role": "reused_v11_calibration"
+    },
+    "development": {
+      "file": {
+        "path": "data/intrinsic_memory_coverage_v12_20261029/development.json",
+        "sha256": "aeaf308178f14122f2be535be9392488dfc6b4ab2cd36b791d3ce0d495477c55"
+      },
+      "generated_by": "intrinsic_memory_coverage_v12.v12_development_worlds",
+      "label_exposure": "unopened_at_preparation",
+      "public_identity": {
+        "cases": 16,
+        "decision_roots": [
+          "v12_development_decision_00",
+          "v12_development_decision_01",
+          "v12_development_decision_02",
+          "v12_development_decision_03",
+          "v12_development_decision_04",
+          "v12_development_decision_05",
+          "v12_development_decision_06",
+          "v12_development_decision_07"
+        ],
+        "entities": [
+          "Thalric",
+          "Ulmara",
+          "Veskin",
+          "Wendral",
+          "Yorveth",
+          "Zaleth",
+          "Brannoc",
+          "Celdra",
+          "Draveth",
+          "Feldric",
+          "Gorveth",
+          "Halvra"
+        ],
+        "generator": "seeded_compound_rule_holdout_v12",
+        "label_content_included": false,
+        "plan_sha256": "873dc8d64fa6e687fecc3952b5b8cb2ccba1123bb602e65a1feaeace819f9778",
+        "role": "fresh_v12_development",
+        "rule_families": [
+          "partner_colour",
+          "same_colour"
+        ],
+        "seed": 2026102912,
+        "split": "development"
+      },
+      "role": "fresh_v12_development"
+    },
+    "fit": {
+      "file": {
+        "path": "data/intrinsic_memory_coverage_v11_20261029/fit.json",
+        "sha256": "106784510b4c26371c8a1f81736eea92443207d6028f63f1b491df0430dff92c"
+      },
+      "label_exposure": "already_exposed_in_v11",
+      "public_identity": {
+        "cases": 32,
+        "decision_roots": [
+          "v11_fit_decision_00",
+          "v11_fit_decision_01",
+          "v11_fit_decision_02",
+          "v11_fit_decision_03",
+          "v11_fit_decision_04",
+          "v11_fit_decision_05",
+          "v11_fit_decision_06",
+          "v11_fit_decision_07",
+          "v11_fit_decision_08",
+          "v11_fit_decision_09",
+          "v11_fit_decision_10",
+          "v11_fit_decision_11",
+          "v11_fit_decision_12",
+          "v11_fit_decision_13",
+          "v11_fit_decision_14",
+          "v11_fit_decision_15"
+        ],
+        "entities": [
+          "Gavren",
+          "Hesil",
+          "Ivora",
+          "Jumet",
+          "Kovren",
+          "Leris",
+          "Mavik",
+          "Nesra",
+          "Ovrin",
+          "Pelis",
+          "Quvara",
+          "Romet",
+          "Suvren",
+          "Teris",
+          "Uvik",
+          "Vesra",
+          "Woren",
+          "Xelis",
+          "Yavik",
+          "Zesra"
+        ],
+        "rule_families": [
+          "explicit_entity_color_lookup",
+          "latest_recorded_color"
+        ],
+        "seed": 2026102911,
+        "split": "fit"
+      },
+      "role": "reused_v11_fit"
+    }
+  }
+}

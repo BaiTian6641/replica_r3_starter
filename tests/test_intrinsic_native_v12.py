@@ -940,6 +940,21 @@ def test_release_direct_read_bound_scales_with_active_sites():
                                                   + release_direct_read_bound(sites))
 
 
+def test_per_world_write_cap_assumes_exactly_one_release_record():
+    """The 4-write per-world formula holds only for one eligible E record."""
+    from replica_lab.intrinsic_memory_coverage_v12 import ORIGIN_ARTIFACT_BYTES
+    caps = coverage_plan('two')['fit_probes_512']
+    # 4 = provider origin_and_lock (1) + release_value (1 record) + manifest + pointer
+    per_world = 4
+    receipts = 3 + 1                      # probe + fit-curve + fitting_closed + source cost
+    assert caps['writes'] == 32*(per_world + READ_WRITE_BOUND) + receipts
+    # Origin artifact bytes are provider-reserved and covered by 4 KiB per world.
+    assert caps['artifact_bytes'] >= 32*ORIGIN_ARTIFACT_BYTES
+    # A two-record world would need five rebuild writes; the engine refuses that
+    # case instead of overrunning the cap (asserted in fitting_probes).
+    assert per_world + 1 == 5
+
+
 def test_context_width_and_prefix_bounds_match_the_envelope():
     spec = types.SimpleNamespace(context_tokens=256, pad_token_id=2)
     ids, mask = right_padded_prefix([5, 6, 7], spec, torch.device('cpu'))

@@ -458,6 +458,14 @@ class DiagnosticEngineV12:
             corpus = self.new_release_corpus(store, scope)
             with self.measured('producer_release_rebuild', writes=3) as event:
                 corpus.rebuild(self.path); event['corpus_cost'] = dict(corpus.cost)
+                # The per-world write cap assumes exactly one eligible E record
+                # (one release_value write). Two records would make it five, so a
+                # wider store fails closed here instead of overrunning the cap.
+                multiplicity = corpus.accounting_multiplicity()
+                event['accounting_multiplicity'] = multiplicity
+                if multiplicity.get('release_value', {}).get('write', 0) != 1:
+                    raise ContextualMemoryError(
+                        'release rebuild expects one eligible record per probe world')
             self.path.release_corpus = corpus
             durable.append(self.read(store, scope, row['question']))
         self.path.release_corpus = None  # batches below are validated with their corpus explicitly

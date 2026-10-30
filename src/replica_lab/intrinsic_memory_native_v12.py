@@ -45,7 +45,8 @@ from .contextual_source_features_v12 import (
 from .intrinsic_memory_budget_v12 import atomic, sha_json
 from .intrinsic_memory_coverage_v12 import (
     DEVELOPMENT_CASES, FEATURE_CACHE_BYTES, FEATURE_CACHE_ENTRIES, FIT_CASES,
-    SOURCE_FILE_BYTES, SOURCE_HIDDEN_SIZE, SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES)
+    LEDGER_METADATA_READ_BYTES, LOAD_METADATA_READ_BYTES, SOURCE_FILE_BYTES,
+    SOURCE_HIDDEN_SIZE, SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES)
 from .intrinsic_memory_diagnostic_v12 import (
     PROMPT, StageRef, SourceWorkAccounting, logits_digest, right_padded_prefix)
 from .intrinsic_memory_execution_v5 import bound_json, hash_file
@@ -141,20 +142,33 @@ def observed_tokenizer_identity(tokenizer, directory):
     return identity
 
 
+METADATA_FILES = ('config.json', 'chat_template.jinja', 'tokenizer.json',
+                  'tokenizer_config.json', 'special_tokens_map.json', 'vocab.json',
+                  'merges.txt', 'generation_config.json', 'model.safetensors.index.json',
+                  'configuration_spark.py', 'modeling_spark.py')
+
+
 def load_native(root, protocol, arm, ledger, stage):
     """Load the verified official BF16 source, then build the v12 producer."""
     from transformers import AutoTokenizer
     if not torch.backends.mps.is_available(): raise ValueError('native MPS unavailable; no fallback')
     source = bound_json(root, protocol['source']); directory = root/source['source_root']
-    raw = json.loads((directory/'config.json').read_text()); config = load_spark2_5_config(raw)
-    template = (directory/'chat_template.jinja').read_text()
-    tokenizer_identity = load_tokenizer_identity(
-        config, json.loads((directory/'tokenizer_config.json').read_text()), template,
-        tokenizer_json=(directory/'tokenizer.json').read_text())
-    classes = verified_source_classes(directory, raw,
-                                      bound_json(root, protocol['source_execution']))
-    tokenizer = AutoTokenizer.from_pretrained(directory, local_files_only=True,
-                                             trust_remote_code=True)
+    # Configuration, template and tokenizer reads happen before the model load;
+    # reserve them first and record the bytes actually read.
+    with ledger.work(stage, 'source_metadata_reads',
+                     artifact_read_bytes=LOAD_METADATA_READ_BYTES) as metadata:
+        raw = json.loads((directory/'config.json').read_text()); config = load_spark2_5_config(raw)
+        template = (directory/'chat_template.jinja').read_text()
+        tokenizer_identity = load_tokenizer_identity(
+            config, json.loads((directory/'tokenizer_config.json').read_text()), template,
+            tokenizer_json=(directory/'tokenizer.json').read_text())
+        classes = verified_source_classes(directory, raw,
+                                          bound_json(root, protocol['source_execution']))
+        tokenizer = AutoTokenizer.from_pretrained(directory, local_files_only=True,
+                                                 trust_remote_code=True)
+        metadata['actual'] = {'artifact_read_bytes': sum(
+            (directory/name).stat().st_size for name in METADATA_FILES
+            if (directory/name).is_file())}
     if not tokenizer.is_fast or (tokenizer.eos_token_id, tokenizer.pad_token_id) != (1, 2):
         raise ValueError('bound fast tokenizer/EOS/PAD differs')
     declared = protocol['source_feature_binding']['tokenizer_identity']
@@ -506,11 +520,17 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
 
 
 def run_restart(root, protocol, arm, ledger, output, path, backend, spec, initial_hash, stage_ref):
-    request = json.loads((output/'restart_request.json').read_text())
+    with ledger.work('restart', 'restart_identity_reads',
+                     artifact_read_bytes=LEDGER_METADATA_READ_BYTES) as identity:
+        request = json.loads((output/'restart_request.json').read_text())
+        manifest_sha256 = hash_file(output/'checkpoint/manifest.json')
+        identity['actual'] = {'artifact_read_bytes': (
+            (output/'restart_request.json').stat().st_size
+            + (output/'checkpoint/manifest.json').stat().st_size)}
     if request.get('parent_model_pid') == os.getpid() or type(request.get('parent_model_pid')) is not int:
         raise ValueError('restart must use a different model process')
     if (request['objective'] != path.objective_identity
-            or hash_file(output/'checkpoint/manifest.json') != request['checkpoint_manifest_sha256']):
+            or manifest_sha256 != request['checkpoint_manifest_sha256']):
         raise ValueError('restart objective/checkpoint differs')
     if initial_hash != request['original_parameters_sha256']:
         raise ValueError('restart original base differs')
