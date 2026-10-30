@@ -1,0 +1,13 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_final_probe_cap_covers_fitting_close_and_source_receipt _________
+
+    def test_final_probe_cap_covers_fitting_close_and_source_receipt():
+        required = FIT_CASES * (1 + 3 + 3 + 1 + 13) + 4
+>       assert plan("two")["fit_probes_512"]["writes"] >= required
+E       assert 580 >= 676
+
+final_gate_budget_edges.py:13: AssertionError
+=========================== short test summary info ============================
+FAILED final_gate_budget_edges.py::test_final_probe_cap_covers_fitting_close_and_source_receipt - assert 580 >= 676
+1 failed in 2.26s
