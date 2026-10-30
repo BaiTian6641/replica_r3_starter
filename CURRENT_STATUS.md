@@ -19,6 +19,15 @@
 - Pre-MLP terminal protocol and evidence: `docs/experiments/20261030_Spark_Pre_MLP_Fusion_V14.md` and `reports/intrinsic_memory_pre_mlp_v14/`.
 - Bounded release/archive costs: `reports/intrinsic_memory_successors_v13/release_costs_attempt10.json` — 128 rebuilds, 281.676 seconds and 8,557,737 current archive bytes; incremental migration is unmeasured.
 
+
+### Evidence-gated blockers
+
+- Native 2/9/36 density and matched-cost utility remain unmeasured because useful two-site recall failed.
+- Spark formation/Replica connection is blocked by the same prerequisite; existing CPU formation, chunk, tier and adapter contracts passed 146 focused tests.
+- Persistent learning, nested adaptation, personal fidelity and RSI remain closed. No P updates or capacity expansion occurred.
+- Reader/query alignment is a documented fallback only, not an authorized running arm. No additional mechanism is silently selected here.
+- Large-scale and incremental migration remain unmeasured; bounded release cost and current archive size are recorded instead.
+
 ## Learning and capability state
 
 Useful intrinsic recall is **not established**. Attempt10 failed its fixed final fitting gate; no best prefix was selected and development was not measured. Fresh-process continuation did not complete. Formation, persistent learning, density promotion, personal fidelity, nested adaptation, and RSI remain evidence-gated.
