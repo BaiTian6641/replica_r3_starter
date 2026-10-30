@@ -35,6 +35,8 @@ New tests (not run by this worker; the main agent owns verification):
 - `tests/test_successor_tiers_v12.py`
 - `tests/test_successor_adapters_v12.py`
 
+- `tests/test_replica_successor_repairs_v1.py`
+
 Exact test command:
 
 ```bash
@@ -45,13 +47,14 @@ Exact test command:
   tests/test_successor_adapters_v12.py
 ```
 
-Coordinator verification after two repair cycles: **38 passed, zero failed/skipped**.
-The first two failing runs are preserved in `verification_attempt01.log` (6 failures)
-and `verification_attempt02.log` (1 failure). Repairs covered derived-index
-reporting, exactly-once retry ordering, complete logical-key reconstruction and
-contract-test corrections for stale pins and identity-only intervention. The
-final measurement workflow also completed with `formation_used_new=true`,
-`task_improvement_requires_write=true`, `chunk_retry_same=true` and cold `ready`.
+Initial coordinator verification passed 38 tests after two repair cycles. After
+independent review and two further repair cycles, **73 tests passed**, including
+all 16 independent reproductions. Failed attempts 01–03 remain preserved.
+Review repairs covered branch lineage, immutable pins, cold authority, P clocks,
+chunk pre-state, tier read contracts, workspace/epoch interventions, observed
+attribution and token bounds. The final measurement workflow completed with
+`formation_used_new=true`, `task_improvement_requires_write=true`,
+`chunk_retry_same=true` and cold `ready`; see `review_repair_verification.json`.
 
 ## 2. Contract behavior that is actually implemented
 
@@ -75,15 +78,27 @@ final measurement workflow also completed with `formation_used_new=true`,
   every payload digest; the record index is derived and can only be rebuilt from
   committed events. A corrupt payload is quarantined by report while unrelated
   healthy records remain readable.
-- Correction creates a verified successor, tombstones the parent and all known
-  descendants; new records cannot cite invalidated lineage. Revocation is
-  idempotent and tombstones descendants.
-- New records become visible only to pins taken after the commit.
+- Correction creates a verified successor and tombstones the parent and all
+  known in-scope descendants; parents/ancestors must match subject/branch/
+  purpose/mode. Revocation is idempotent; cross-scope revocation needs the
+  explicit `scope="host_wide", authorized_by="host"` contract.
+- Tombstones carry their event generation and are applied only when visible to
+  the pin. A pin is therefore immutable under a later correction/revocation; a
+  later pin excludes the tombstoned record.
+- New records become visible only to pins taken after the commit. Records inside
+  one event retain proposal ordinal; outcome receipts are cutoff/source-epoch
+  filtered and ordered by event sequence then ordinal.
+- Recovery authenticates derived tombstone, note, lineage and revocation tables
+  and reports `derived_errors` rather than claiming health.
 
 ### S2b chunk formation
 
 - The logical key binds exactly the fields in the specification; attempt IDs,
   transport retries and recomputation IDs are audit-only.
+- `open_sequence` enforces the global token bound and integer token types.
+- Recomputation replays the pre-chunk committed state and recorded operations,
+  and reproduces the actual committed receipt digest. A second `begin_chunk`
+  while pending is refused; `invalidate` restores the last committed state.
 - A chunk starts at the committed absolute-position watermark; the prefix digest
   must match. Overlap, gaps and changed prefixes are refused.
 - `functional_inner_update` is a pure tensor delta rule. `recompute()` has no
@@ -97,15 +112,23 @@ final measurement workflow also completed with `formation_used_new=true`,
 
 ### Tiers
 
-- Explicit `ready`, `pending`, `unavailable`, `corrupt`, `rejected` and
-  `ineligible` results; failures never return payload bytes.
-- Authority is checked before selection and again after cold I/O. A correction
-  during the ticket rejects the resumed read and invalidates caches.
-- Payloads and manifests are digest-bound; interrupted moves are quarantined by
-  `recover()` while healthy records remain.
-- Dirty P state cannot be evicted before coherent publication. Projection cache
-  keys include generation, producer, representation, reader release, site and
-  eligibility revision. Replay eligibility is invalidated separately.
+- Explicit `ready`, `pending`, `unavailable`, `corrupt`, `rejected`,
+  `ineligible`, `mismatch`, `not_yet_valid` and `expired` results; failures never
+  return payload bytes.
+- Reads require a `ReadContract` (producer, representation, scope, optional
+  cutoff/generation) or a validating authority callback. The contract is
+  enforced on cache hits and after I/O; authority is rechecked before and after
+  cold I/O and for fallback. Cold tickets retain the callback and contract.
+- Payloads and manifests are digest-bound with central schema validation;
+  malformed records are quarantined by `recover()` while healthy records remain.
+- Movement into warm/cold charges actual write bytes and temporary overlap.
+  Dirty hot state is skipped when a clean eviction candidate exists.
+- P state is clock-versioned (`p_<owner>_c<clock>`) with an atomic current
+  pointer and latest-valid selection; `revoke_p` requires explicit host
+  authority and blocks later publication/reads.
+- Projection cache keys include generation, producer, representation, reader
+  release, site and eligibility revision. Replay eligibility is invalidated
+  separately.
 - Budgets are proposals (2/8/64 GiB, 8 MiB identity inside hot, 256 MiB replay
   inside warm), not allocations. The measurement run uses tiny local limits.
   Hot, warm and cold are separate accounts; no summed physical-memory total is
@@ -120,8 +143,12 @@ final measurement workflow also completed with `formation_used_new=true`,
   parity is exact.
 - `TaskRuntimeFormationAdapter` pins before decisions and commits at the exact
   host boundary. Only host outcome receipts become observations; generated raw
-  text becomes provisional notes. Task success authority remains with the
-  runtime verifier.
+  text becomes provisional notes. The runtime's admitted `source_epoch` is
+  propagated to every observation/outcome and validated at commit. Task success
+  authority remains with the runtime verifier. `run`/`finish` clear pin state in
+  `finally`; `identity_then_task` and `task_then_identity` record their true
+  operation order. Task reset always clears `runtime.previous_workspace` even
+  without a `WorkspaceStore`.
 - Interventions implement task-reset, identity-null, both orders and both-reset
   on fresh worlds. Approved identity cannot satisfy a verifier or change scope.
 - `formation_authority(...)` maps formation eligibility into tier reads.

@@ -411,7 +411,12 @@ class ChunkStore:
         _identifier("sequence_id", sequence_id)
         if type(decision_revision) is not int or decision_revision < 0:
             raise ValueError("decision_revision must be a nonnegative integer")
-        digest = prefix_digest(initial_prefix)
+        prefix_tokens = tuple(initial_prefix)
+        if len(prefix_tokens) > MAX_TOKENS:
+            raise ValueError("initial prefix exceeds the global token bound")
+        if any(type(item) is not int or item < 0 for item in prefix_tokens):
+            raise ValueError("initial prefix tokens must be nonnegative integers")
+        digest = prefix_digest(prefix_tokens)
         now = _now_ns()
         with self._transaction():
             row = self._connection.execute(
@@ -424,7 +429,7 @@ class ChunkStore:
                     "revision, decision_revision, committed_position, prefix_digest, "
                     "status, updated_ns) VALUES (?, ?, ?, ?, 0, ?, ?, ?, 'active', ?)",
                     (self.subject_id, owner, branch_id, sequence_id,
-                     decision_revision, len(initial_prefix), digest, now))
+                     decision_revision, len(prefix_tokens), digest, now))
             else:
                 if int(row["decision_revision"]) != decision_revision:
                     raise StaleChunk("sequence already exists at another decision revision")
@@ -678,9 +683,16 @@ class ChunkSession:
         self._pending_tokens: tuple[int, ...] = ()
         self._pending_key: ChunkKey | None = None
         self._last_receipt: ChunkReceipt | None = None
+        self._committed_state = state.detach().to("cpu").contiguous().clone()
+        self._chunk_start_state = self._committed_state
+        self._last_chunk_start_state = self._committed_state
+        self._operations: list[tuple[Tensor, Tensor, object, object]] = []
+        self._last_operations: tuple[tuple[Tensor, Tensor, object, object], ...] = ()
 
     def begin_chunk(self, tokens: Sequence[int]) -> ChunkKey:
         """Read one immutable snapshot and return the logical key for this chunk."""
+        if self._pending is not None or self._pending_key is not None:
+            raise ChunkError("a pending chunk must be committed or invalidated first")
         positions = tuple(int(item) for item in tokens)
         if not positions or len(positions) > MAX_TOKENS:
             raise ValueError("a chunk requires a bounded nonempty token range")
@@ -700,6 +712,8 @@ class ChunkSession:
             writer_version=self.writer_version, effect_kind=self.effect_kind)
         self._pending_tokens = positions
         self._pending_key = key
+        self._chunk_start_state = self.state
+        self._operations = []
         return key
 
     def propose(self, keys: Tensor, values: Tensor, *, decay: float | Tensor = 0.95,
@@ -711,6 +725,7 @@ class ChunkSession:
             keys, values, self.state, decay=decay, rate=rate)
         self.state = next_state
         self._pending = next_state
+        self._operations.append((keys, values, decay, rate))
         self._unrolled += 1
         return next_state
 
@@ -726,6 +741,11 @@ class ChunkSession:
         self._committed_tokens = self._committed_tokens + self._pending_tokens
         self.snapshot = self.store.snapshot(self.snapshot.owner, self.snapshot.branch_id,
                                             self.snapshot.sequence_id)
+        self._last_chunk_start_state = self._chunk_start_state
+        self._last_operations = tuple(self._operations)
+        self._operations = []
+        self._committed_state = durable
+        self._chunk_start_state = durable
         self._pending = None
         self._pending_key = None
         self._chunk_index += 1
@@ -738,14 +758,35 @@ class ChunkSession:
     def recompute(self, keys: Tensor, values: Tensor, *,
                   decay: float | Tensor = 0.95,
                   rate: float | Tensor = 0.5) -> tuple[Tensor, str]:
-        """Pure checkpoint recomputation; no durable effect or session mutation."""
-        base = self._pending if self._pending is not None else self.state
-        next_state, _ = functional_inner_update(
-            keys, values, base, decay=decay, rate=rate)
+        """Recompute from the pre-chunk committed state; no mutation or I/O.
+
+        The pending chunk (or the most recently committed chunk) defines the
+        operation sequence. ``keys``/``values`` are used only when no chunk
+        operation has been recorded, so a call after commit reproduces the
+        actual receipt rather than applying the update a second time.
+        """
+        if self._operations:
+            base, operations = self._chunk_start_state, tuple(self._operations)
+        elif self._last_operations:
+            base, operations = self._last_chunk_start_state, self._last_operations
+        else:
+            base, operations = self._committed_state, ()
+        if operations:
+            state = base
+            for item_keys, item_values, item_decay, item_rate in operations:
+                state, _ = functional_inner_update(
+                    item_keys, item_values, state, decay=item_decay, rate=item_rate)
+            next_state = state
+        else:
+            next_state, _ = functional_inner_update(
+                keys, values, base, decay=decay, rate=rate)
         return next_state, tensor_digest(next_state.detach())
 
     def invalidate(self) -> None:
-        """Discard an uncommitted proposal after a correction or revision change."""
+        """Discard an uncommitted proposal and restore the last committed state."""
+        self.state = self._committed_state.detach().clone()
+        self._chunk_start_state = self.state
+        self._operations = []
         self._pending = None
         self._pending_key = None
         self._unrolled = 0

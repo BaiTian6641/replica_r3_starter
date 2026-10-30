@@ -45,7 +45,8 @@ from replica_lab.successors.chunks import (AttemptAudit, ChunkConflict,  # noqa:
                                            StaleChunk, prefix_digest)
 from replica_lab.successors.formation import FormationStore  # noqa: E402
 from replica_lab.successors.protocols import all_protocols  # noqa: E402
-from replica_lab.successors.tiers import (TieredBlobStore, TierLimits)  # noqa: E402
+from replica_lab.successors.tiers import (ReadContract, TieredBlobStore,  # noqa: E402
+                                          TierLimits)
 
 FIXTURE_GOAL = "Make the evaluator pass by setting the required value."
 REPAIR = '{"rate": 0.25}\n'
@@ -365,36 +366,39 @@ def measure_tiers(root: Path) -> dict:
                         identity_reservation_bytes=64,
                         replay_reservation_bytes=64)
     root.mkdir(parents=True, exist_ok=True)
+    contract = ReadContract("producer-v1", "rep-v1", "b" * 64)
     store = TieredBlobStore(root, limits=limits, hot_capacity_bytes=256,
                             io_delay_seconds=0.002)
     payload = b"evidence-payload-" * 4
     manifest = store.publish("rec-a", payload, generation=1, kind="evidence",
                              producer="producer-v1", representation="rep-v1",
                              scope_digest="b" * 64)
-    hot = store.read("rec-a")
+    hot = store.read("rec-a", contract=contract)
     store.demote("rec-a")
     cold_store = TieredBlobStore(root, limits=limits, hot_capacity_bytes=256,
                                  io_delay_seconds=0.002)
-    cold = cold_store.read("rec-a", expected_generation=1)
+    cold = cold_store.read("rec-a", contract=contract, expected_generation=1)
     cold_store.promote("rec-a")
     warm_store = TieredBlobStore(root, limits=limits, hot_capacity_bytes=256,
                                  io_delay_seconds=0.002)
-    warm = warm_store.read("rec-a", expected_generation=1)
+    warm = warm_store.read("rec-a", contract=contract, expected_generation=1)
     warm_store.demote("rec-a")
     cold_store2 = TieredBlobStore(root, limits=limits, hot_capacity_bytes=256,
                                   io_delay_seconds=0.002)
     # Bounded pending on a cold read, then correction during the ticket.
-    pending = cold_store2.read("rec-a", expected_generation=1, budget_seconds=0.0001)
+    pending = cold_store2.read("rec-a", contract=contract,
+                                expected_generation=1, budget_seconds=0.0001)
     cold_store2.invalidate("rec-a", reason="correction", revoked=True)
     resumed = cold_store2.resume(pending.ticket_id) if pending.ticket_id else None
     # Missing and corrupt cases on separate records.
-    missing = cold_store.read("rec-missing")
+    missing = cold_store.read("rec-missing", contract=contract)
     cold_store.publish("rec-corrupt", b"good", generation=2, kind="evidence",
                        producer="producer-v1", representation="rep-v1",
                        scope_digest="c" * 64)
     (root / "warm" / "rec-corrupt" / "payload.bin").write_bytes(b"corrupted")
     corrupt_store = TieredBlobStore(root, limits=limits, hot_capacity_bytes=256)
-    corrupt = corrupt_store.read("rec-corrupt")
+    corrupt = corrupt_store.read(
+        "rec-corrupt", contract=ReadContract("producer-v1", "rep-v1", "c" * 64))
     # P state publication, eviction and recovery.
     p_store = TieredBlobStore(root / "p", limits=limits, hot_capacity_bytes=256)
     p_store.publish_p("p1", weights=b"w" * 32, moments=b"m" * 32, clock=3,
@@ -421,8 +425,10 @@ def measure_tiers(root: Path) -> dict:
     fallback_store.publish("canonical", b"canonical-text", generation=0,
                            kind="canonical", producer="host", representation="text",
                            scope_digest="d" * 64)
-    fallback = fallback_store.read("absent", fallback_id="canonical",
-                                   fallback_tokens=12)
+    fallback = fallback_store.read(
+        "absent", contract=contract, fallback_id="canonical",
+        fallback_contract=ReadContract("host", "text", "d" * 64),
+        fallback_tokens=12)
     return {
         "hot_status": hot.status, "warm_status": warm.status,
         "cold_status": cold.status,

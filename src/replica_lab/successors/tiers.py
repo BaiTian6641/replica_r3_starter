@@ -134,6 +134,34 @@ class ReadResult:
                 "fallback_tokens": self.fallback_tokens}
 
 
+@dataclass(frozen=True, slots=True)
+class ReadContract:
+    """Expected read identity and validity, enforced before and after I/O."""
+    producer: str
+    representation: str
+    scope_digest: str
+    cutoff: int | None = None
+    generation: int | None = None
+
+    def __post_init__(self) -> None:
+        for name in ("producer", "representation", "scope_digest"):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"read contract {name} required")
+        if self.cutoff is not None and (type(self.cutoff) is not int
+                                        or self.cutoff < 0):
+            raise ValueError("read contract cutoff must be a nonnegative integer")
+        if self.generation is not None and (type(self.generation) is not int
+                                            or self.generation < 0):
+            raise ValueError("read contract generation must be a nonnegative integer")
+
+    def document(self) -> dict:
+        return {"producer": self.producer,
+                "representation": self.representation,
+                "scope_digest": self.scope_digest, "cutoff": self.cutoff,
+                "generation": self.generation}
+
+
 class ProjectionCache:
     """Learned projection/KV cache keyed by complete eligibility identity."""
 
@@ -218,6 +246,7 @@ class TieredBlobStore:
             "reads": 0, "writes": 0, "cache_hits": 0, "cache_misses": 0,
             "failed_reads": 0, "ineligible": 0, "fallback_tokens": 0,
             "bytes_read": 0, "bytes_written": 0, "overlap_bytes": 0,
+            "movement_bytes": 0,
             "latency_ns": {"warm": [], "cold": [], "hot": []},
             "tier_reads": {"hot": 0, "warm": 0, "cold": 0},
         }
@@ -278,9 +307,45 @@ class TieredBlobStore:
             manifest = json.loads(path.read_text(encoding="utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as error:
             raise TierError("manifest is not canonical JSON") from error
+        self._validate_manifest(manifest)
+        return manifest
+
+    @staticmethod
+    def _validate_manifest(manifest: object) -> None:
+        if not isinstance(manifest, dict):
+            raise TierError("manifest must be an object")
         if manifest.get("format") != MANIFEST_FORMAT:
             raise TierError("manifest format is unknown")
-        return manifest
+        record_id = manifest.get("record_id")
+        if not isinstance(record_id, str) or not record_id:
+            raise TierError("manifest record_id is invalid")
+        for name in ("kind", "producer", "representation", "scope_digest"):
+            value = manifest.get(name)
+            if not isinstance(value, str) or not value:
+                raise TierError(f"manifest {name} is invalid")
+        generation = manifest.get("generation")
+        if type(generation) is not int or generation < 0:
+            raise TierError("manifest generation is invalid")
+        valid_from = manifest.get("valid_from")
+        valid_to = manifest.get("valid_to")
+        if type(valid_from) is not int or valid_from < 0:
+            raise TierError("manifest valid_from is invalid")
+        if valid_to is not None and (type(valid_to) is not int
+                                     or valid_to <= valid_from):
+            raise TierError("manifest valid_to is invalid")
+        digest = manifest.get("payload_sha256")
+        if not isinstance(digest, str) or len(digest) != 64 \
+                or any(char not in "0123456789abcdef" for char in digest):
+            raise TierError("manifest payload digest is invalid")
+        size = manifest.get("bytes")
+        if type(size) is not int or size < 0:
+            raise TierError("manifest byte count is invalid")
+        created = manifest.get("created_at_ns")
+        if type(created) is not int or created < 0:
+            raise TierError("manifest creation time is invalid")
+        extra = manifest.get("extra")
+        if not isinstance(extra, dict):
+            raise TierError("manifest extra metadata is invalid")
 
     def _read_payload(self, tier: str, record_id: str) -> tuple[bytes, dict]:
         directory = self._directory(tier, record_id)
@@ -324,6 +389,8 @@ class TieredBlobStore:
             "created_at_ns": _now_ns(), "extra": dict(extra or {}),
         }
         written = self._write_record(tier, record_id, payload, manifest)
+        if written == 0:
+            manifest = dict(self._read_manifest(self._directory(tier, record_id)))
         self._metrics["writes"] += 1
         self._metrics["bytes_written"] += written
         self._eligibility.setdefault(record_id, 0)
@@ -338,9 +405,11 @@ class TieredBlobStore:
             raise ValueError("demotion target is cold")
         payload, manifest = self._read_payload("warm", record_id)
         self._metrics["overlap_bytes"] += len(payload) + len(_canonical(manifest)) + 1
-        self._write_record("cold", record_id, payload, manifest)
+        written = self._write_record("cold", record_id, payload, manifest)
+        self._metrics["writes"] += 1
+        self._metrics["bytes_written"] += written
+        self._metrics["movement_bytes"] += written
         shutil.rmtree(self._directory("warm", record_id))
-        self._metrics["tier_reads"]["cold"] += 0
         return dict(manifest)
 
     def promote(self, record_id: str, *, to: str = "warm") -> dict:
@@ -348,7 +417,10 @@ class TieredBlobStore:
             raise ValueError("promotion target is warm")
         payload, manifest = self._read_payload("cold", record_id)
         self._metrics["overlap_bytes"] += len(payload) + len(_canonical(manifest)) + 1
-        self._write_record("warm", record_id, payload, manifest)
+        written = self._write_record("warm", record_id, payload, manifest)
+        self._metrics["writes"] += 1
+        self._metrics["bytes_written"] += written
+        self._metrics["movement_bytes"] += written
         shutil.rmtree(self._directory("cold", record_id))
         return dict(manifest)
 
@@ -366,6 +438,30 @@ class TieredBlobStore:
         if revoked:
             self._tombstones[record_id] = reason
         return cleared
+
+    @staticmethod
+    def _contract_state(manifest: Mapping[str, object],
+                        contract: ReadContract | None) -> tuple[str, str]:
+        if contract is None:
+            return "ok", ""
+        if manifest.get("producer") != contract.producer:
+            return "mismatch", "producer mismatch"
+        if manifest.get("representation") != contract.representation:
+            return "mismatch", "representation mismatch"
+        if manifest.get("scope_digest") != contract.scope_digest:
+            return "mismatch", "scope mismatch"
+        if contract.generation is not None and \
+                manifest.get("generation") != contract.generation:
+            return "mismatch", "generation mismatch"
+        if contract.cutoff is not None:
+            valid_from = manifest.get("valid_from")
+            valid_to = manifest.get("valid_to")
+            if type(valid_from) is not int or valid_from > contract.cutoff:
+                return "not_yet_valid", "record is not valid at the cutoff"
+            if valid_to is not None and (type(valid_to) is not int
+                                         or contract.cutoff >= valid_to):
+                return "expired", "record has expired at the cutoff"
+        return "ok", ""
 
     def _authority_state(self, record_id: str,
                          authority: Callable[[str], Mapping[str, object] | None] | None,
@@ -412,11 +508,20 @@ class TieredBlobStore:
 
     def read(self, record_id: str, *,
              authority: Callable[[str], Mapping[str, object] | None] | None = None,
+             contract: ReadContract | None = None,
              expected_generation: int | None = None,
              budget_seconds: float | None = None,
              fallback_id: str | None = None,
+             fallback_contract: ReadContract | None = None,
              fallback_tokens: int = 0) -> ReadResult:
         _identifier("record_id", record_id)
+        if contract is not None and not isinstance(contract, ReadContract):
+            raise TypeError("contract must be a ReadContract or None")
+        if fallback_contract is not None and not isinstance(fallback_contract,
+                                                            ReadContract):
+            raise TypeError("fallback_contract must be a ReadContract or None")
+        if contract is None and authority is None:
+            raise ValueError("tier reads require a ReadContract or authority callback")
         if budget_seconds is not None and budget_seconds < 0:
             raise ValueError("budget must be nonnegative")
         start = time.perf_counter_ns()
@@ -435,6 +540,20 @@ class TieredBlobStore:
                     "rejected", record_id, "hot", None, None,
                     (time.perf_counter_ns() - start) / 1e6, 0,
                     "generation mismatch"), "hot")
+            contract_status, contract_reason = self._contract_state(
+                cached.manifest, contract)
+            if contract_status != "ok":
+                return self._finish(ReadResult(
+                    contract_status, record_id, "hot", None, None,
+                    (time.perf_counter_ns() - start) / 1e6, 0,
+                    contract_reason), "hot")
+            current_generation = detail.get("generation")
+            if current_generation is not None \
+                    and int(current_generation) != int(cached.manifest["generation"]):
+                return self._finish(ReadResult(
+                    "rejected", record_id, "hot", None, None,
+                    (time.perf_counter_ns() - start) / 1e6, 0,
+                    "authority generation mismatch"), "hot")
             self._hot.move_to_end(record_id)
             latency = (time.perf_counter_ns() - start) / 1e6
             self._metrics["cache_hits"] += 1
@@ -446,8 +565,8 @@ class TieredBlobStore:
             "cold" if self._directory("cold", record_id).exists() else None)
         if tier is None:
             if fallback_id is not None:
-                return self._fallback(fallback_id, authority, start,
-                                      fallback_tokens, "primary unavailable")
+                return self._fallback(fallback_id, authority, fallback_contract,
+                                      start, fallback_tokens, "primary unavailable")
             return self._finish(ReadResult(
                 "unavailable", record_id, None, None, None,
                 (time.perf_counter_ns() - start) / 1e6, 0,
@@ -460,15 +579,18 @@ class TieredBlobStore:
             self._tickets[ticket] = {
                 "record_id": record_id, "tier": tier, "revision": revision,
                 "expected_generation": expected_generation,
-                "fallback_id": fallback_id, "fallback_tokens": fallback_tokens,
+                "authority": authority, "contract": contract,
+                "fallback_id": fallback_id, "fallback_contract": fallback_contract,
+                "fallback_tokens": fallback_tokens,
                 "budget_seconds": budget_seconds,
             }
             return self._finish(ReadResult(
                 "pending", record_id, tier, None, None,
                 (time.perf_counter_ns() - start) / 1e6, 0,
                 "bounded cold budget exceeded; resume the ticket", ticket_id=ticket), tier)
-        return self._read_tier(tier, record_id, authority, expected_generation,
-                               revision, start, fallback_id, fallback_tokens,
+        return self._read_tier(tier, record_id, authority, contract,
+                               expected_generation, revision, start, fallback_id,
+                               fallback_contract, fallback_tokens,
                                fallback_reason="cold read failed")
 
     def resume(self, ticket_id: str) -> ReadResult:
@@ -478,13 +600,17 @@ class TieredBlobStore:
         if self.io_delay_seconds:
             time.sleep(self.io_delay_seconds)
         start = time.perf_counter_ns()
-        return self._read_tier(ticket["tier"], ticket["record_id"], None,
+        return self._read_tier(ticket["tier"], ticket["record_id"],
+                               ticket["authority"], ticket["contract"],
                                ticket["expected_generation"], ticket["revision"],
-                               start, ticket["fallback_id"], ticket["fallback_tokens"],
+                               start, ticket["fallback_id"],
+                               ticket["fallback_contract"], ticket["fallback_tokens"],
                                fallback_reason="resumed cold read failed")
 
-    def _read_tier(self, tier: str, record_id: str, authority, expected_generation,
+    def _read_tier(self, tier: str, record_id: str, authority,
+                   contract: ReadContract | None, expected_generation,
                    revision: int, start: int, fallback_id: str | None,
+                   fallback_contract: ReadContract | None,
                    fallback_tokens: int, *, fallback_reason: str) -> ReadResult:
         if tier == "cold" and self.io_delay_seconds:
             time.sleep(self.io_delay_seconds)
@@ -494,8 +620,8 @@ class TieredBlobStore:
             reason = str(error)
             corrupt = "digest" in reason or "not canonical" in reason
             if fallback_id is not None:
-                return self._fallback(fallback_id, authority, start,
-                                      fallback_tokens, fallback_reason)
+                return self._fallback(fallback_id, authority, fallback_contract,
+                                      start, fallback_tokens, fallback_reason)
             return self._finish(ReadResult(
                 "corrupt" if corrupt else "unavailable", record_id, tier, None, None,
                 (time.perf_counter_ns() - start) / 1e6, 0, reason), tier)
@@ -505,14 +631,20 @@ class TieredBlobStore:
             return self._finish(ReadResult(
                 "rejected", record_id, tier, None, None, elapsed,
                 len(payload), "generation mismatch"), tier)
+        contract_status, contract_reason = self._contract_state(manifest, contract)
+        if contract_status != "ok":
+            return self._finish(ReadResult(
+                contract_status, record_id, tier, None, None, elapsed,
+                len(payload), contract_reason), tier)
         after, after_revision, detail = self._authority_state(
             record_id, authority, expected_generation)
         if after != "ok" or after_revision != revision:
             self._hot.pop(record_id, None)
             self.projections.invalidate(record_id)
             if fallback_id is not None:
-                return self._fallback(fallback_id, authority, start,
-                                      fallback_tokens, "authority changed during I/O")
+                return self._fallback(fallback_id, authority, fallback_contract,
+                                      start, fallback_tokens,
+                                      "authority changed during I/O")
             return self._finish(ReadResult(
                 "rejected", record_id, tier, None, None, elapsed,
                 len(payload), "authority changed during I/O"), tier)
@@ -523,9 +655,10 @@ class TieredBlobStore:
             "ready", record_id, tier, payload, dict(manifest), elapsed,
             len(payload)), tier)
 
-    def _fallback(self, fallback_id: str, authority, start: int,
+    def _fallback(self, fallback_id: str, authority,
+                  contract: ReadContract | None, start: int,
                   tokens: int, reason: str) -> ReadResult:
-        state, _, detail = self._authority_state(fallback_id, authority, None)
+        state, revision, detail = self._authority_state(fallback_id, authority, None)
         if state != "ok":
             return self._finish(ReadResult(
                 "unavailable", fallback_id, None, None, None,
@@ -544,6 +677,21 @@ class TieredBlobStore:
             return self._finish(ReadResult(
                 "corrupt", fallback_id, tier, None, None,
                 (time.perf_counter_ns() - start) / 1e6, 0, str(error)), tier)
+        contract_status, contract_reason = self._contract_state(manifest, contract)
+        if contract_status != "ok":
+            return self._finish(ReadResult(
+                contract_status, fallback_id, tier, None, None,
+                (time.perf_counter_ns() - start) / 1e6, len(payload),
+                contract_reason), tier)
+        after, after_revision, _ = self._authority_state(
+            fallback_id, authority, None)
+        if after != "ok" or after_revision != revision:
+            self._hot.pop(fallback_id, None)
+            self.projections.invalidate(fallback_id)
+            return self._finish(ReadResult(
+                "rejected", fallback_id, tier, None, None,
+                (time.perf_counter_ns() - start) / 1e6, len(payload),
+                "fallback authority changed during I/O"), tier)
         self._metrics["fallback_tokens"] += int(tokens)
         return self._finish(ReadResult(
             "fallback", fallback_id, tier, payload, dict(manifest),
@@ -552,14 +700,14 @@ class TieredBlobStore:
 
     def _enforce_hot(self, *, protect: str | None = None) -> None:
         while sum(len(item.payload) for item in self._hot.values()) > self.hot_capacity_bytes:
-            candidate = next((key for key, item in self._hot.items()
-                              if key != protect), None)
-            if candidate is None:
-                break
-            entry = self._hot[candidate]
-            if entry.dirty:
+            candidates = [key for key in self._hot if key != protect]
+            clean = [key for key in candidates if not self._hot[key].dirty]
+            if clean:
+                del self._hot[clean[0]]
+                continue
+            if candidates:
                 raise DirtyState("dirty P hot state must be published before eviction")
-            del self._hot[candidate]
+            break
 
     # -- P state -----------------------------------------------------------
 
@@ -596,45 +744,150 @@ class TieredBlobStore:
         header["moments"] = moments
         return header
 
+    def _p_pointer_path(self, owner: str) -> Path:
+        return self.root / "p_current" / f"{owner}.json"
+
+    def _p_revoked_path(self, owner: str) -> Path:
+        return self.root / "p_revoked" / f"{owner}.json"
+
+    def _p_record_ids(self, owner: str) -> list[str]:
+        prefix = f"p_{owner}_c"
+        legacy = f"p_{owner}"
+        found = []
+        for tier in ("warm", "cold"):
+            for directory in (self.root / tier).iterdir():
+                if not directory.is_dir():
+                    continue
+                if directory.name == legacy or directory.name.startswith(prefix):
+                    found.append(directory.name)
+        return sorted(set(found))
+
+    def _p_versions(self, owner: str) -> list[dict]:
+        versions = []
+        for record_id in self._p_record_ids(owner):
+            tier = "warm" if self._directory("warm", record_id).exists() else "cold"
+            try:
+                payload, manifest = self._read_payload(tier, record_id)
+                state = self.unpack_p_state(payload)
+            except TierError:
+                continue
+            clock = state.get("clock")
+            extra = manifest.get("extra", {})
+            if state.get("owner") != owner or type(clock) is not int or clock < 0:
+                continue
+            if manifest.get("generation") != clock or extra.get("clock") != clock:
+                continue
+            if extra.get("owner") not in (None, owner):
+                continue
+            state["tier"] = tier
+            state["manifest"] = manifest
+            state["record_id"] = record_id
+            versions.append(state)
+        return versions
+
+    def _latest_p(self, owner: str) -> dict:
+        versions = sorted(self._p_versions(owner),
+                          key=lambda item: (int(item["clock"]),
+                                            item["tier"] != "warm"))
+        if not versions:
+            raise TierError("P state is unavailable")
+        return versions[-1]
+
+    def _write_p_pointer(self, owner: str, *, clock: int, record_id: str,
+                         manifest: Mapping[str, object]) -> None:
+        directory = self.root / "p_current"
+        directory.mkdir(exist_ok=True)
+        pointer = {
+            "format": "replica.successors.p_pointer.v1", "owner": owner,
+            "clock": clock, "record_id": record_id,
+            "payload_sha256": manifest["payload_sha256"],
+            "manifest_sha256": _sha256_json(manifest),
+            "committed_at_ns": _now_ns(),
+        }
+        target = self._p_pointer_path(owner)
+        temporary = target.parent / f".{owner}.{time.time_ns()}.tmp"
+        with open(temporary, "w", encoding="utf-8") as handle:
+            handle.write(_canonical(pointer) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, target)
+        try:
+            directory_fd = os.open(target.parent, os.O_RDONLY)
+        except OSError:
+            directory_fd = None
+        if directory_fd is not None:
+            try:
+                os.fsync(directory_fd)
+            except OSError:
+                pass
+            finally:
+                os.close(directory_fd)
+
     def publish_p(self, owner: str, *, weights: bytes, moments: bytes, clock: int,
                   encoder: str, lineage: Sequence[str], tier: str = "warm",
                   dirty: bool = False) -> dict:
+        _identifier("owner", owner)
+        if type(clock) is not int or clock < 0:
+            raise ValueError("P clock must be a nonnegative integer")
+        if self._p_revoked_path(owner).exists():
+            raise PermissionError("P state is revoked; explicit host restoration required")
+        versions = self._p_versions(owner)
+        if versions and max(int(item["clock"]) for item in versions) > clock:
+            raise TierError("P clock must not move backwards")
         payload = self.pack_p_state(owner=owner, clock=clock, encoder=encoder,
                                     lineage=lineage, weights=weights, moments=moments)
-        return self.publish(
-            f"p_{owner}", payload, generation=clock, kind="p", producer=f"p:{owner}",
+        record_id = f"p_{owner}_c{clock}"
+        manifest = self.publish(
+            record_id, payload, generation=clock, kind="p", producer=f"p:{owner}",
             representation=encoder, scope_digest=_sha256_json({"owner": owner}),
-            extra={"clock": clock, "encoder": encoder, "lineage": list(lineage)},
+            extra={"clock": clock, "encoder": encoder, "lineage": list(lineage),
+                   "owner": owner},
             tier=tier, dirty=dirty)
+        self._write_p_pointer(owner, clock=clock, record_id=record_id,
+                              manifest=manifest)
+        return manifest
 
     def evict_p(self, owner: str) -> str:
-        key = f"p_{owner}"
+        _identifier("owner", owner)
+        state = self._latest_p(owner)
+        key = state["record_id"]
         entry = self._hot.get(key)
         if entry is not None and entry.dirty:
             raise DirtyState("publish dirty P state before eviction")
         self._hot.pop(key, None)
-        tier = "warm" if self._directory("warm", key).exists() else (
-            "cold" if self._directory("cold", key).exists() else None)
-        if tier is None:
-            raise TierError("no published P state to evict")
-        state = self.unpack_p_state(self._read_payload(tier, key)[0])
-        if state["owner"] != owner:
-            raise TierError("P state owner mismatch")
-        return tier
+        return str(state["tier"])
 
     def read_p(self, owner: str) -> dict:
-        key = f"p_{owner}"
-        tier = "warm" if self._directory("warm", key).exists() else (
-            "cold" if self._directory("cold", key).exists() else None)
-        if tier is None:
-            raise TierError("P state is unavailable")
-        payload, manifest = self._read_payload(tier, key)
-        state = self.unpack_p_state(payload)
-        if state["owner"] != owner:
-            raise TierError("P state owner mismatch")
-        state["tier"] = tier
-        state["manifest"] = manifest
-        return state
+        _identifier("owner", owner)
+        if self._p_revoked_path(owner).exists():
+            raise PermissionError("P state is revoked")
+        return self._latest_p(owner)
+
+    def revoke_p(self, owner: str, *, reason: str, authorized_by: str) -> dict:
+        """Explicit P revocation; only the host may authorize it."""
+        _identifier("owner", owner)
+        if not isinstance(reason, str) or not reason.strip():
+            raise ValueError("P revocation reason required")
+        if authorized_by != "host":
+            raise PermissionError("P revocation requires host authority")
+        directory = self.root / "p_revoked"
+        directory.mkdir(exist_ok=True)
+        record = {"format": "replica.successors.p_revocation.v1", "owner": owner,
+                  "reason": reason, "authorized_by": authorized_by,
+                  "revoked_at_ns": _now_ns()}
+        target = self._p_revoked_path(owner)
+        temporary = target.parent / f".{owner}.{time.time_ns()}.tmp"
+        with open(temporary, "w", encoding="utf-8") as handle:
+            handle.write(_canonical(record) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, target)
+        for key in [item for item in self._hot if item.startswith(f"p_{owner}_")
+                    or item == f"p_{owner}"]:
+            self._hot.pop(key, None)
+        self.projections.invalidate(f"p_{owner}")
+        self.replay.invalidate(f"p_{owner}")
+        return record
 
     # -- recovery and metrics ---------------------------------------------
 
@@ -653,10 +906,11 @@ class TieredBlobStore:
                     continue
                 try:
                     self._read_payload(tier, directory.name)
-                    self._read_manifest(directory)
                     healthy += 1
                 except TierError:
                     damaged.append(f"{tier}/{directory.name}")
+                    target = self.root / "quarantine" / f"{tier}-{directory.name}-{_now_ns()}"
+                    os.replace(directory, target)
         status = "degraded" if quarantined or damaged else "ok"
         return {"status": status, "healthy_records": healthy,
                 "quarantined_staging": tuple(quarantined),
@@ -707,6 +961,7 @@ class TieredBlobStore:
             "bytes_read": self._metrics["bytes_read"],
             "bytes_written": self._metrics["bytes_written"],
             "temporary_overlap_bytes": self._metrics["overlap_bytes"],
+            "movement_bytes": self._metrics["movement_bytes"],
             "reads_by_tier": dict(self._metrics["tier_reads"]),
             "latency_ms": {
                 tier: {"p50": percentile(samples, 0.5),

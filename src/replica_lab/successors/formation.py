@@ -380,6 +380,7 @@ class OutcomeReceipt:
     observed_at: int
     summary: str
     revision: int = 0
+    source_epoch: int = 0
 
     def __post_init__(self) -> None:
         _identifier("outcome_id", self.outcome_id)
@@ -394,13 +395,16 @@ class OutcomeReceipt:
             raise ValueError("outcome summary exceeds the bounded span")
         if type(self.revision) is not int or self.revision < 0:
             raise ValueError("outcome revision must be nonnegative")
+        if type(self.source_epoch) is not int or self.source_epoch < 0:
+            raise ValueError("outcome source_epoch must be nonnegative")
 
     def document(self) -> dict:
         return {"outcome_id": self.outcome_id, "action_id": self.action_id,
                 "status": self.status, "receipt_id": self.receipt_id,
                 "observed_at": self.observed_at, "summary": self.summary,
                 "summary_sha256": _sha256_text(self.summary),
-                "revision": self.revision, "actual": True}
+                "revision": self.revision, "source_epoch": self.source_epoch,
+                "actual": True}
 
 
 @dataclass(frozen=True, slots=True)
@@ -653,6 +657,7 @@ class RecoveryReport:
     orphan_payloads: int
     quarantined: tuple[str, ...]
     index_rebuilt: bool
+    derived_errors: tuple[str, ...] = ()
 
     def document(self) -> dict:
         return {"status": self.status, "events": self.events,
@@ -660,7 +665,8 @@ class RecoveryReport:
                 "head_digest": self.head_digest,
                 "orphan_payloads": self.orphan_payloads,
                 "quarantined": list(self.quarantined),
-                "index_rebuilt": self.index_rebuilt}
+                "index_rebuilt": self.index_rebuilt,
+                "derived_errors": list(self.derived_errors)}
 
 
 class FormationStore:
@@ -744,6 +750,7 @@ class FormationStore:
             CREATE TABLE IF NOT EXISTS record_index(
                 record_id TEXT PRIMARY KEY, event_key TEXT NOT NULL,
                 record_digest TEXT NOT NULL, kind TEXT NOT NULL,
+                ordinal INTEGER NOT NULL DEFAULT 0,
                 FOREIGN KEY(event_key) REFERENCES events(event_key));
             CREATE TABLE IF NOT EXISTS record_lineage(
                 record_id TEXT NOT NULL, ancestor_id TEXT NOT NULL,
@@ -751,7 +758,8 @@ class FormationStore:
             CREATE TABLE IF NOT EXISTS tombstones(
                 record_id TEXT PRIMARY KEY, kind TEXT NOT NULL, reason TEXT NOT NULL,
                 event_key TEXT, at_ns INTEGER NOT NULL,
-                observed_at INTEGER NOT NULL);
+                observed_at INTEGER NOT NULL,
+                generation INTEGER NOT NULL DEFAULT 0);
             CREATE TABLE IF NOT EXISTS notes(
                 note_id TEXT PRIMARY KEY, event_key TEXT NOT NULL, branch_id TEXT NOT NULL,
                 purpose TEXT NOT NULL, interaction_id TEXT NOT NULL, origin TEXT NOT NULL,
@@ -765,6 +773,15 @@ class FormationStore:
                 path TEXT NOT NULL, stored_at_ns INTEGER NOT NULL);
             """
         )
+        self._ensure_column("record_index", "ordinal", "INTEGER NOT NULL DEFAULT 0")
+        self._ensure_column("tombstones", "generation", "INTEGER NOT NULL DEFAULT 0")
+
+    def _ensure_column(self, table: str, column: str, declaration: str) -> None:
+        names = {row["name"] for row in self._connection.execute(
+            f"PRAGMA table_info({table})")}
+        if column not in names:
+            self._connection.execute(
+                f"ALTER TABLE {table} ADD COLUMN {column} {declaration}")
 
     def __enter__(self) -> "FormationStore":
         return self
@@ -867,6 +884,8 @@ class FormationStore:
                 raise ScopeViolation("observation predates the immutable read pin")
             if observation.observed_at > now:
                 raise ScopeViolation("observation time is in the future")
+            if observation.source_epoch != proposal.source_epoch:
+                raise ScopeViolation("observation source epoch differs from the proposal")
             if not set(observation.permitted_uses) <= set(pin.permitted_uses):
                 raise ScopeViolation("observation permitted use exceeds the pin")
         for outcome in proposal.outcomes:
@@ -874,6 +893,8 @@ class FormationStore:
                 raise ScopeViolation("outcome predates the immutable read pin")
             if outcome.observed_at > now:
                 raise ScopeViolation("outcome time is in the future")
+            if outcome.source_epoch != proposal.source_epoch:
+                raise ScopeViolation("outcome source epoch differs from the proposal")
 
     def _build_payload(self, proposal: InteractionProposal, pin: MemoryPin,
                        ) -> tuple[dict, tuple[str, ...], tuple[str, ...]]:
@@ -912,7 +933,8 @@ class FormationStore:
             "pin_digest": pin.digest,
             "records": records,
             "notes": [item.document() for item in proposal.notes],
-            "outcomes": [item.document() for item in proposal.outcomes],
+            "outcomes": [{**item.document(), "ordinal": index}
+                         for index, item in enumerate(proposal.outcomes)],
             "scope": {
                 "subject_id": proposal.subject_id,
                 "branch_id": proposal.branch_id,
@@ -974,7 +996,15 @@ class FormationStore:
             (event_key, payload_digest, str(path.relative_to(self.root)), _now_ns()))
         self._metrics["conflicts"] += 1
 
+    @staticmethod
+    def _scope_matches(record: FormationRecord, scope: Mapping[str, object]) -> bool:
+        return (record.subject_id == scope["subject_id"]
+                and record.branch_id == scope["branch_id"]
+                and record.purpose == scope["purpose"]
+                and record.mode == scope["mode"])
+
     def _validate_corrections(self, payload: Mapping[str, object]) -> list[str]:
+        scope = payload["scope"]
         affected: list[str] = []
         for record in payload["records"]:
             parent = record.get("supersedes")
@@ -990,10 +1020,16 @@ class FormationStore:
                 raise IneligibleRecord(
                     f"correction parent is already {tombstone['kind']}")
             parent_payload = self._load_record(parent)
+            if not self._scope_matches(parent_payload, scope):
+                raise ScopeViolation("correction parent is outside the proposal scope")
             if parent_payload.observed_at >= record["observed_at"]:
                 raise ScopeViolation("correction must be observed after its parent")
             affected.append(parent)
-            affected.extend(self._descendants(parent))
+            for descendant in self._descendants(parent):
+                descendant_record = self._load_record(descendant)
+                if not self._scope_matches(descendant_record, scope):
+                    raise ScopeViolation("correction descendant is outside the proposal scope")
+                affected.append(descendant)
         return sorted(set(affected))
 
     def _load_payload(self, payload_digest: str) -> tuple[dict, bytes]:
@@ -1118,17 +1154,21 @@ class FormationStore:
                      receipt.payload_digest, _canonical(receipt.document()),
                      scope["subject_id"], scope["branch_id"], scope["purpose"],
                      scope["mode"], scope["source_epoch"], observed, now))
-                for record in payload["records"]:
+                for ordinal, record in enumerate(payload["records"]):
                     self._connection.execute(
-                        "INSERT INTO record_index(record_id, event_key, record_digest, kind) "
-                        "VALUES (?, ?, ?, ?)",
+                        "INSERT INTO record_index(record_id, event_key, record_digest, "
+                        "kind, ordinal) VALUES (?, ?, ?, ?, ?)",
                         (record["record_id"], receipt.event_key,
-                         record["record_digest"], record["kind"]))
+                         record["record_digest"], record["kind"], ordinal))
                     for ancestor in record["source_lineage"]:
                         if self._connection.execute(
                                 "SELECT 1 FROM record_index WHERE record_id=?",
                                 (ancestor,)).fetchone() is None:
                             raise IneligibleRecord("source lineage names an unknown record")
+                        ancestor_record = self._load_record(ancestor)
+                        if not self._scope_matches(ancestor_record, scope):
+                            raise ScopeViolation(
+                                "source lineage ancestor is outside the proposal scope")
                         if self._connection.execute(
                                 "SELECT 1 FROM tombstones WHERE record_id=?",
                                 (ancestor,)).fetchone() is not None:
@@ -1139,19 +1179,20 @@ class FormationStore:
                     if record["supersedes"] is not None:
                         self._connection.execute(
                             "INSERT INTO tombstones(record_id, kind, reason, event_key, "
-                            "at_ns, observed_at) VALUES (?, 'superseded', ?, ?, ?, ?)",
+                            "at_ns, observed_at, generation) VALUES (?, 'superseded', "
+                            "?, ?, ?, ?, ?)",
                             (record["supersedes"], "correction successor",
-                             receipt.event_key, now, record["observed_at"]))
+                             receipt.event_key, now, record["observed_at"], generation))
                 correction_observed = max(
                     [record["observed_at"] for record in payload["records"]
                      if record["supersedes"] is not None] or [now])
                 for affected_id in affected:
                     self._connection.execute(
                         "INSERT OR IGNORE INTO tombstones(record_id, kind, reason, "
-                        "event_key, at_ns, observed_at) VALUES (?, 'ancestor_superseded', "
-                        "?, ?, ?, ?)",
+                        "event_key, at_ns, observed_at, generation) VALUES "
+                        "(?, 'ancestor_superseded', ?, ?, ?, ?, ?)",
                         (affected_id, "ancestor correction", receipt.event_key, now,
-                         correction_observed))
+                         correction_observed, generation))
                 for note in payload["notes"]:
                     self._connection.execute(
                         "INSERT INTO notes(note_id, event_key, branch_id, purpose, "
@@ -1198,15 +1239,16 @@ class FormationStore:
         if not set(record.permitted_uses) & set(pin.permitted_uses):
             return "permitted_use"
         tombstone = self._connection.execute(
-            "SELECT kind, observed_at FROM tombstones WHERE record_id=?",
+            "SELECT kind, observed_at, generation FROM tombstones WHERE record_id=?",
             (record.record_id,)).fetchone()
-        if tombstone is not None:
+        if tombstone is not None and int(tombstone["generation"]) <= pin.generation:
+            # Immutable read snapshot: a tombstone committed after the pin is
+            # invisible to that pin. A correction observed after the historical
+            # cutoff also does not leak backward.
             if tombstone["kind"] == "revoked":
                 return "tombstoned:revoked"
             if int(tombstone["observed_at"]) <= pin.cutoff:
                 return f"tombstoned:{tombstone['kind']}"
-            # A correction observed after this historical cutoff does not leak
-            # backward; the dated predecessor remains visible to that view.
         return None
 
     def visible(self, pin: MemoryPin) -> tuple[FormationRecord, ...]:
@@ -1217,7 +1259,7 @@ class FormationStore:
             "SELECT record_id FROM record_index ri JOIN events e "
             "ON e.event_key=ri.event_key WHERE e.generation<=? "
             "AND e.subject_id=? AND e.branch_id=? AND e.purpose=? AND e.mode=? "
-            "ORDER BY e.sequence, ri.record_id",
+            "ORDER BY e.sequence, ri.ordinal, ri.record_id",
             (pin.generation, pin.subject_id, pin.branch_id, pin.purpose, pin.mode)
         ).fetchall()
         output: list[FormationRecord] = []
@@ -1258,12 +1300,19 @@ class FormationStore:
             "AND purpose=? AND mode=? ORDER BY sequence",
             (pin.generation, pin.subject_id, pin.branch_id, pin.purpose, pin.mode)
         ).fetchall()
-        output: list[dict] = []
+        entries: list[tuple[int, int, dict]] = []
         for row in rows:
             payload, data = self._load_payload(str(row["payload_digest"]))
             self._metrics["bytes_read"] += len(data)
-            output.extend(payload.get("outcomes", ()))
-        return tuple(output)
+            for outcome in payload.get("outcomes", ()):
+                if int(outcome.get("observed_at", 0)) > pin.cutoff:
+                    continue
+                if int(outcome.get("source_epoch", 0)) not in pin.source_epochs:
+                    continue
+                entries.append((int(row["sequence"]), int(outcome.get("ordinal", 0)),
+                                dict(outcome)))
+        entries.sort(key=lambda item: (item[0], item[1]))
+        return tuple(item[2] for item in entries)
 
     def read_provisional(self, *, branch_id: str, purpose: str) -> tuple[dict, ...]:
         """Branch-owned provisional notes; never evidence and never reader input."""
@@ -1303,13 +1352,36 @@ class FormationStore:
             permitted_uses=pin.permitted_uses, observations=(observation,))
         return self.commit_interaction(proposal, pin=pin)
 
-    def revoke(self, record_id: str, *, reason: str) -> CommitReport:
+    def revoke(self, record_id: str, *, reason: str,
+               scope: str = "record_scope",
+               authorized_by: str | None = None) -> CommitReport:
+        """Revoke one record and its in-scope descendants.
+
+        ``scope='record_scope'`` (default) cannot cross subject/branch/purpose/
+        mode. ``scope='host_wide'`` is an explicit host authority operation and
+        requires ``authorized_by='host'``. A pin created after the revocation
+        event excludes the record; an earlier pin remains immutable.
+        """
         _identifier("record_id", record_id)
         if not isinstance(reason, str) or not reason.strip():
             raise ValueError("revocation reason required")
+        if scope not in ("record_scope", "host_wide"):
+            raise ValueError("unknown revocation scope")
+        if scope == "host_wide" and authorized_by != "host":
+            raise PermissionError("host-wide revocation requires host authority")
+        record = self._load_record(record_id)
+        descendants = self._descendants(record_id)
+        if scope == "record_scope":
+            descendants = [item for item in descendants
+                           if self._scope_matches(self._load_record(item),
+                                                  {"subject_id": record.subject_id,
+                                                   "branch_id": record.branch_id,
+                                                   "purpose": record.purpose,
+                                                   "mode": record.mode})]
         payload_body = {
             "format": EVENT_FORMAT, "kind": "revocation", "record_id": record_id,
-            "reason": reason, "descendants": sorted(self._descendants(record_id)),
+            "reason": reason, "descendants": sorted(descendants),
+            "revocation_scope": scope, "authorized_by": authorized_by,
         }
         payload = {**payload_body, "event_key": "", "records": [], "notes": [],
                    "outcomes": []}
@@ -1344,7 +1416,7 @@ class FormationStore:
                 sequence = int(authority["sequence"]) + 1
                 generation = int(authority["generation"]) + 1
                 now = _now_ns()
-                affected = [record_id] + self._descendants(record_id)
+                affected = [record_id] + sorted(descendants)
                 receipt = FormationReceipt(
                     event_key=event_key, kind="revocation", sequence=sequence,
                     generation=generation,
@@ -1352,7 +1424,8 @@ class FormationStore:
                     predecessor_digest=str(authority["head_digest"]),
                     payload_digest=payload_digest, record_ids=(record_id,),
                     record_digests=(), note_ids=(), outcome_ids=(),
-                    pin_digest=_sha256_json({"record_id": record_id, "reason": reason}),
+                    pin_digest=_sha256_json({"record_id": record_id, "reason": reason,
+                                             "scope": scope}),
                     committed_at_ns=now, affected_record_ids=tuple(affected))
                 self._connection.execute(
                     "INSERT INTO events(event_key, sequence, generation, kind, payload_digest, "
@@ -1364,9 +1437,10 @@ class FormationStore:
                 for affected_id in affected:
                     self._connection.execute(
                         "INSERT OR REPLACE INTO tombstones(record_id, kind, reason, "
-                        "event_key, at_ns, observed_at) VALUES (?, 'revoked', ?, ?, ?, ?)",
+                        "event_key, at_ns, observed_at, generation) VALUES "
+                        "(?, 'revoked', ?, ?, ?, ?, ?)",
                         (affected_id, reason if affected_id == record_id
-                         else "ancestor revoked", event_key, now, now))
+                         else "ancestor revoked", event_key, now, now, generation))
                 self._connection.execute(
                     "INSERT INTO revocations(record_id, event_key, payload_digest, "
                     "receipt_json, at_ns) VALUES (?, ?, ?, ?, ?)",
@@ -1388,25 +1462,27 @@ class FormationStore:
     def _rebuild_index(self) -> bool:
         rows = self._connection.execute(
             "SELECT * FROM events ORDER BY sequence").fetchall()
-        expected: dict[str, tuple[str, str, str]] = {}
+        expected: dict[str, tuple[str, str, str, int]] = {}
         for row in rows:
             payload, _ = self._load_payload(str(row["payload_digest"]))
-            for record in payload.get("records", ()):
+            for ordinal, record in enumerate(payload.get("records", ())):
                 expected[record["record_id"]] = (
-                    str(row["event_key"]), record["record_digest"], record["kind"])
+                    str(row["event_key"]), record["record_digest"], record["kind"],
+                    ordinal)
         current = {
             str(row["record_id"]): (str(row["event_key"]), str(row["record_digest"]),
-                                    str(row["kind"]))
+                                    str(row["kind"]), int(row["ordinal"]))
             for row in self._connection.execute("SELECT * FROM record_index")}
         if current == expected:
             return False
         with self._transaction():
             self._connection.execute("DELETE FROM record_index")
             self._connection.execute("DELETE FROM record_lineage")
-            for record_id, (event_key, digest, kind) in expected.items():
+            for record_id, (event_key, digest, kind, ordinal) in expected.items():
                 self._connection.execute(
-                    "INSERT INTO record_index(record_id, event_key, record_digest, kind) "
-                    "VALUES (?, ?, ?, ?)", (record_id, event_key, digest, kind))
+                    "INSERT INTO record_index(record_id, event_key, record_digest, "
+                    "kind, ordinal) VALUES (?, ?, ?, ?, ?)",
+                    (record_id, event_key, digest, kind, ordinal))
                 payload, _ = self._load_payload(
                     str(self._existing_receipt(event_key)["payload_digest"]))
                 record = self._record_payloads(payload)[record_id]
@@ -1415,6 +1491,31 @@ class FormationStore:
                         "INSERT OR IGNORE INTO record_lineage(record_id, ancestor_id) "
                         "VALUES (?, ?)", (record_id, ancestor))
         return True
+
+    def _derived_errors(self) -> tuple[str, ...]:
+        """Authenticate derived tombstone/note/lineage/revocation references."""
+        errors: list[str] = []
+        events = {str(row["event_key"]) for row in self._connection.execute(
+            "SELECT event_key FROM events")}
+        records = {str(row["record_id"]) for row in self._connection.execute(
+            "SELECT record_id FROM record_index")}
+        for row in self._connection.execute("SELECT * FROM tombstones"):
+            if row["event_key"] is not None and str(row["event_key"]) not in events:
+                errors.append(f"tombstone {row['record_id']} cites absent event")
+            if str(row["record_id"]) not in records:
+                errors.append(f"tombstone names absent record {row['record_id']}")
+            if int(row["generation"]) < 0 or int(row["observed_at"]) < 0:
+                errors.append(f"tombstone {row['record_id']} has invalid time/generation")
+        for row in self._connection.execute("SELECT * FROM notes"):
+            if str(row["event_key"]) not in events:
+                errors.append(f"note {row['note_id']} cites absent event")
+        for row in self._connection.execute("SELECT * FROM record_lineage"):
+            if str(row["record_id"]) not in records or str(row["ancestor_id"]) not in records:
+                errors.append("lineage references an absent record")
+        for row in self._connection.execute("SELECT * FROM revocations"):
+            if str(row["event_key"]) not in events:
+                errors.append(f"revocation {row['record_id']} cites absent event")
+        return tuple(errors)
 
     def recover(self) -> RecoveryReport:
         """Verify the chain and payloads; rebuild only the derived record index."""
@@ -1456,14 +1557,16 @@ class FormationStore:
         if str(authority["head_digest"]) != previous:
             raise CorruptAuthority("authority head differs from the receipt chain")
         index_rebuilt = False if quarantined else self._rebuild_index()
+        derived_errors = self._derived_errors()
         referenced = {str(row["payload_digest"]) for row in rows}
         orphans = [path for path in (self.root / "payloads").glob("*.json")
                    if path.stem not in referenced]
         return RecoveryReport(
-            status="degraded" if quarantined else "ok", events=sequence,
-            generation=sequence, sequence=sequence, head_digest=previous,
-            orphan_payloads=len(orphans), quarantined=tuple(quarantined),
-            index_rebuilt=index_rebuilt)
+            status="degraded" if (quarantined or derived_errors) else "ok",
+            events=sequence, generation=sequence, sequence=sequence,
+            head_digest=previous, orphan_payloads=len(orphans),
+            quarantined=tuple(quarantined), index_rebuilt=index_rebuilt,
+            derived_errors=derived_errors)
 
     # -- metrics -----------------------------------------------------------
 

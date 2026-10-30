@@ -89,6 +89,9 @@ def s2a_protocol() -> dict:
             "correction and revocation invalidate the record and descendants",
             "unrelated healthy state remains available",
             "generated explanation remains provisional and is not evidence",
+            "a pin remains immutable under later correction/revocation; a later pin excludes it",
+            "observation/outcome source epochs match the admitted runtime epoch",
+            "records retain proposal ordinal; outcomes are cutoff/epoch filtered",
         ],
         "metrics": [
             "later-answer use of the new observation (enabled vs disabled)",
@@ -149,6 +152,9 @@ def tier_protocol() -> dict:
             "slow cold recall returns bounded pending/resume",
             "canonical fallback only when eligible and separately charged",
             "unrelated healthy state survives another owner's quarantine",
+            "expected producer/representation/scope/cutoff contract checked before and after I/O",
+            "P clock advances via clock-versioned records and latest-valid selection",
+            "P revocation requires explicit host authority",
         ],
         "metrics": [
             "successful/failed reads and cache misses", "bytes read/written",

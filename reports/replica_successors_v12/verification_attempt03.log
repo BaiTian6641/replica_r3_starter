@@ -1,0 +1,44 @@
+Command: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -m pytest -q tests/test_successor_formation_v12.py tests/test_successor_chunks_v12.py tests/test_successor_tiers_v12.py tests/test_successor_adapters_v12.py tests/test_replica_successor_repairs_v1.py tests/test_independent_review_v12_findings.py
+Exit: 1
+Repair cycle: 4/5
+Result: 71 passed, 2 failed in 3.26s. All 16 independent review reproductions passed.
+
+_______________ test_canonical_fallback_is_eligible_and_charged ________________
+
+>       assert result.status == "fallback" and result.record_id == "canonical"
+E       AssertionError: assert ('mismatch' == 'fallback'
+E         - fallback
+E         + mismatch)
+
+tests/test_successor_tiers_v12.py:124: AssertionError
+
+___________ test_adapter_derives_admitted_epoch_and_validates_items ____________
+
+self = <replica_lab.successors.adapters.TaskRuntimeFormationAdapter object at 0x1120fac30>
+
+    def begin_interaction(self) -> MemoryPin:
+        if self._pin is not None:
+            raise RuntimeError("one pin per interaction; finish before beginning another")
+        state = self.runtime.state
+        if state is None:
+            raise RuntimeError("runtime has no initialized exact task state")
+        self._pin = self.formation.pin(
+            branch_id=self.branch_id, purpose=self.purpose, mode=self.mode,
+            as_of=_now_ns() + self.as_of_skew_ns, task_id=state.task_id,
+            task_revision=state.revision,
+            permitted_uses=self.permitted_uses,
+            include_verification_states=("verified", "unverified"))
+        self._baseline_outcomes = frozenset(item.outcome_id for item in state.outcomes)
+        self._baseline_revision = state.revision
+        self._source_epoch = int(getattr(state, "source_epoch", 0))
+        if self._source_epoch not in self._pin.source_epochs:
+            self._clear_pin()
+>           raise ScopeViolation("runtime source epoch is not admitted by the formation pin")
+E           NameError: name 'ScopeViolation' is not defined
+
+src/replica_lab/successors/adapters.py:272: NameError
+
+Pytest summary:
+FAILED tests/test_successor_tiers_v12.py::test_canonical_fallback_is_eligible_and_charged - mismatch != fallback
+FAILED tests/test_replica_successor_repairs_v1.py::test_adapter_derives_admitted_epoch_and_validates_items - NameError: ScopeViolation is not defined
+2 failed, 71 passed in 3.26s

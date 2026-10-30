@@ -4,12 +4,14 @@ from __future__ import annotations
 import pytest
 
 from replica_lab.successors.tiers import (CapacityExceeded, DirtyState,
-                                          ProjectionCache, ReplayEligibility,
-                                          TieredBlobStore, TierLimits)
+                                          ProjectionCache, ReadContract,
+                                          ReplayEligibility, TieredBlobStore,
+                                          TierLimits)
 
 LIMITS = TierLimits(hot_bytes=2048, warm_bytes=4096, cold_bytes=8192,
                     identity_reservation_bytes=128,
                     replay_reservation_bytes=128)
+CONTRACT = ReadContract("producer-v1", "rep-v1", "a" * 64)
 
 
 def make_store(root, *, delay=0.0, limits=LIMITS) -> TieredBlobStore:
@@ -27,15 +29,15 @@ def publish(store, record_id="rec-a", payload=b"payload-" * 8, **changes):
 def test_tier_transitions_preserve_complete_payload(tmp_path):
     store = make_store(tmp_path)
     manifest = publish(store)
-    hot = store.read("rec-a")
+    hot = store.read("rec-a", contract=CONTRACT)
     assert hot.status == "ready" and hot.tier == "hot"
     store.demote("rec-a")
-    cold = make_store(tmp_path).read("rec-a", expected_generation=1)
+    cold = make_store(tmp_path).read("rec-a", contract=CONTRACT, expected_generation=1)
     assert cold.status == "ready" and cold.tier == "cold"
     assert cold.payload == b"payload-" * 8
     cold_store = make_store(tmp_path)
     cold_store.promote("rec-a")
-    warm = make_store(tmp_path).read("rec-a", expected_generation=1)
+    warm = make_store(tmp_path).read("rec-a", contract=CONTRACT, expected_generation=1)
     assert warm.status == "ready" and warm.tier == "warm"
     assert warm.manifest["payload_sha256"] == manifest["payload_sha256"]
 
@@ -45,26 +47,26 @@ def test_correction_during_cold_io_rejects_stale_ticket(tmp_path):
     publish(store)
     store.demote("rec-a")
     reader = make_store(tmp_path, delay=0.01)
-    pending = reader.read("rec-a", expected_generation=1, budget_seconds=0.0001)
+    pending = reader.read("rec-a", contract=CONTRACT, expected_generation=1, budget_seconds=0.0001)
     assert pending.status == "pending" and pending.ticket_id
     assert pending.payload is None
     reader.invalidate("rec-a", reason="correction", revoked=True)
     resumed = reader.resume(pending.ticket_id)
     assert resumed.status == "rejected"
     assert resumed.payload is None
-    assert reader.read("rec-a").status == "ineligible"
+    assert reader.read("rec-a", contract=CONTRACT).status == "ineligible"
 
 
 def test_missing_corrupt_and_generation_mismatch_are_explicit(tmp_path):
     store = make_store(tmp_path)
-    assert store.read("absent").status == "unavailable"
+    assert store.read("absent", contract=CONTRACT).status == "unavailable"
     publish(store, "rec-b", b"good-bytes")
     store.demote("rec-b")
     (tmp_path / "cold" / "rec-b" / "payload.bin").write_bytes(b"corrupt")
-    corrupt = make_store(tmp_path).read("rec-b")
+    corrupt = make_store(tmp_path).read("rec-b", contract=CONTRACT)
     assert corrupt.status == "corrupt" and corrupt.payload is None
     publish(store, "rec-c", b"current")
-    mismatch = store.read("rec-c", expected_generation=7)
+    mismatch = store.read("rec-c", contract=CONTRACT, expected_generation=7)
     assert mismatch.status == "rejected" and mismatch.payload is None
 
 
@@ -77,7 +79,7 @@ def test_recovery_quarantines_interrupted_move_and_keeps_healthy_state(tmp_path)
     assert report["status"] == "degraded"
     assert "interrupted" in report["quarantined_staging"]
     assert report["healthy_records"] == 1
-    assert make_store(tmp_path).read("healthy").status == "ready"
+    assert make_store(tmp_path).read("healthy", contract=CONTRACT).status == "ready"
 
 
 def test_p_state_requires_coherent_publication_before_eviction(tmp_path):
@@ -115,13 +117,17 @@ def test_projection_cache_identity_includes_eligibility_revision(tmp_path):
 def test_canonical_fallback_is_eligible_and_charged(tmp_path):
     store = make_store(tmp_path)
     publish(store, "canonical", b"exact canonical text", kind="canonical",
-            producer="host", representation="text")
-    result = store.read("absent", fallback_id="canonical", fallback_tokens=12)
+            producer="host", representation="text", scope_digest="d" * 64)
+    result = store.read("absent", contract=CONTRACT, fallback_id="canonical",
+                        fallback_contract=ReadContract("host", "text", "d" * 64),
+                        fallback_tokens=12)
     assert result.status == "fallback" and result.record_id == "canonical"
     assert result.fallback_tokens == 12
     assert store.metrics_document()["fallback_tokens"] == 12
     store.invalidate("canonical", reason="revoked", revoked=True)
-    refused = store.read("absent", fallback_id="canonical", fallback_tokens=12)
+    refused = store.read("absent", contract=CONTRACT, fallback_id="canonical",
+                         fallback_contract=ReadContract("host", "text", "d" * 64),
+                         fallback_tokens=12)
     assert refused.status == "unavailable"
 
 

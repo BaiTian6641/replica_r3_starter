@@ -11,6 +11,10 @@
     "query": "vault code",
     "conditions": {
       "enabled": {
+        "new_record_id": "r_a06b1d0c2e207b155b87eabbea13987b872bd721",
+        "provisional_note_ids": [
+          "explanation-1"
+        ],
         "before": {
           "answer": "unknown",
           "record_id": null,
@@ -42,6 +46,9 @@
         "duplicate_same_receipt": true,
         "conflict_rejected": true,
         "provisional_notes": 1,
+        "provisional_note_ids_all": [
+          "explanation-1"
+        ],
         "base_record_count": 2
       },
       "corrected": {
@@ -99,7 +106,14 @@
           ]
         },
         "branch_a_records": 1,
-        "branch_b_records": 1
+        "branch_b_records": 1,
+        "branch_a_record_ids": [
+          "r_a27b5038401c4ec8fd31eb5b0b1de560d31e21a3"
+        ],
+        "branch_b_record_ids": [
+          "r_d90475a2dd54cc099c5e408ea2a9f5257e6e7d45"
+        ],
+        "branch_b_record_id": "r_d90475a2dd54cc099c5e408ea2a9f5257e6e7d45"
       }
     },
     "enabled_metrics": {
@@ -107,18 +121,18 @@
       "commits": 4,
       "duplicates": 1,
       "conflicts": 1,
-      "reads": 38,
+      "reads": 40,
       "failed_reads": 0,
-      "bytes_written": 17665,
-      "bytes_read": 173282,
+      "bytes_written": 17812,
+      "bytes_read": 181897,
       "commit_latency_ms": {
-        "p50": 0.3,
-        "p95": 0.567125,
+        "p50": 0.3055,
+        "p95": 0.603125,
         "samples": 6
       },
       "read_latency_ms": {
-        "p50": 0.241625,
-        "p95": 0.306833,
+        "p50": 0.239416,
+        "p95": 0.279625,
         "samples": 11
       },
       "recovery": {
@@ -126,10 +140,11 @@
         "events": 4,
         "generation": 4,
         "sequence": 4,
-        "head_digest": "cdb9929aa25a26dfb9084563311fac7d98c49da6c765956a6e077a5bce8a522a",
+        "head_digest": "37de57e4003079700f077ccc74b4dcbaef3582f4bc89ffeb85c4f5c65d3fb167",
         "orphan_payloads": 1,
         "quarantined": [],
-        "index_rebuilt": false
+        "index_rebuilt": false,
+        "derived_errors": []
       }
     },
     "recovery_after_lifecycle": {
@@ -137,10 +152,11 @@
       "events": 4,
       "generation": 4,
       "sequence": 4,
-      "head_digest": "cdb9929aa25a26dfb9084563311fac7d98c49da6c765956a6e077a5bce8a522a",
+      "head_digest": "37de57e4003079700f077ccc74b4dcbaef3582f4bc89ffeb85c4f5c65d3fb167",
       "orphan_payloads": 1,
       "quarantined": [],
-      "index_rebuilt": false
+      "index_rebuilt": false,
+      "derived_errors": []
     },
     "measurement": {
       "enabled_used_new_observation": true,
@@ -221,6 +237,7 @@
     "conditions": {
       "none": {
         "intervention": "none",
+        "order": [],
         "identity_null": false,
         "task_workspace_cleared": false,
         "workspace_absent": false,
@@ -228,6 +245,10 @@
       },
       "task_then_identity": {
         "intervention": "task_then_identity",
+        "order": [
+          "task",
+          "identity"
+        ],
         "identity_null": true,
         "task_workspace_cleared": true,
         "workspace_absent": true,
@@ -235,6 +256,10 @@
       },
       "identity_then_task": {
         "intervention": "identity_then_task",
+        "order": [
+          "identity",
+          "task"
+        ],
         "identity_null": true,
         "task_workspace_cleared": true,
         "workspace_absent": true,
@@ -242,6 +267,10 @@
       },
       "both_reset": {
         "intervention": "both_reset",
+        "order": [
+          "task",
+          "identity"
+        ],
         "identity_null": true,
         "task_workspace_cleared": true,
         "workspace_absent": true,
@@ -275,8 +304,8 @@
       "stale_rejections": 1,
       "prefix_refusals": 2,
       "commit_latency_ms": {
-        "p50": 0.034917,
-        "p95": 0.30975,
+        "p50": 0.0305,
+        "p95": 0.241167,
         "samples": 7
       }
     },
@@ -316,15 +345,16 @@
       "hot_read": {
         "format": "replica.successors.tiers.v1",
         "reads": 1,
-        "writes": 1,
+        "writes": 2,
         "cache_hits": 1,
         "cache_misses": 0,
         "failed_reads": 0,
         "ineligible_reads": 0,
         "fallback_tokens": 0,
         "bytes_read": 68,
-        "bytes_written": 477,
+        "bytes_written": 954,
         "temporary_overlap_bytes": 477,
+        "movement_bytes": 477,
         "reads_by_tier": {
           "hot": 1,
           "warm": 0,
@@ -342,8 +372,8 @@
             "samples": 0
           },
           "hot": {
-            "p50": 0.002708,
-            "p95": 0.002708,
+            "p50": 0.003,
+            "p95": 0.003,
             "samples": 1
           }
         },
@@ -376,15 +406,16 @@
       "cold_read": {
         "format": "replica.successors.tiers.v1",
         "reads": 2,
-        "writes": 1,
+        "writes": 2,
         "cache_hits": 0,
         "cache_misses": 2,
         "failed_reads": 1,
         "ineligible_reads": 0,
         "fallback_tokens": 0,
         "bytes_read": 68,
-        "bytes_written": 418,
+        "bytes_written": 895,
         "temporary_overlap_bytes": 477,
+        "movement_bytes": 477,
         "reads_by_tier": {
           "hot": 0,
           "warm": 0,
@@ -397,8 +428,8 @@
             "samples": 0
           },
           "cold": {
-            "p50": 3.137584,
-            "p95": 3.137584,
+            "p50": 2.668458,
+            "p95": 2.668458,
             "samples": 1
           },
           "hot": {
@@ -436,15 +467,16 @@
       "warm_read": {
         "format": "replica.successors.tiers.v1",
         "reads": 1,
-        "writes": 0,
+        "writes": 1,
         "cache_hits": 0,
         "cache_misses": 1,
         "failed_reads": 0,
         "ineligible_reads": 0,
         "fallback_tokens": 0,
         "bytes_read": 68,
-        "bytes_written": 0,
+        "bytes_written": 477,
         "temporary_overlap_bytes": 477,
+        "movement_bytes": 477,
         "reads_by_tier": {
           "hot": 0,
           "warm": 1,
@@ -452,8 +484,8 @@
         },
         "latency_ms": {
           "warm": {
-            "p50": 0.094917,
-            "p95": 0.094917,
+            "p50": 0.122375,
+            "p95": 0.122375,
             "samples": 1
           },
           "cold": {
@@ -505,6 +537,7 @@
         "bytes_read": 0,
         "bytes_written": 0,
         "temporary_overlap_bytes": 0,
+        "movement_bytes": 0,
         "reads_by_tier": {
           "hot": 0,
           "warm": 0,
@@ -517,8 +550,8 @@
             "samples": 0
           },
           "cold": {
-            "p50": 0.032041,
-            "p95": 3.151667,
+            "p50": 0.030666,
+            "p95": 2.401709,
             "samples": 2
           },
           "hot": {
@@ -555,5 +588,5 @@
       }
     }
   },
-  "elapsed_seconds": 0.18370716739445925
+  "elapsed_seconds": 0.1712901247665286
 }

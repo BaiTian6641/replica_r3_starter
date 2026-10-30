@@ -22,7 +22,7 @@ from ..runtime.workspace_store import WorkspaceStore, detach_to_cpu
 from .chunks import tensor_digest
 from .formation import (FormationRecord, FormationStore, IneligibleRecord,
                         InteractionProposal, MemoryPin, Observation, OutcomeReceipt,
-                        ProvisionalNote)
+                        ProvisionalNote, ScopeViolation)
 
 CORE_ADAPTER_VERSION = "replica.successors.core_adapter.v1"
 TASK_ADAPTER_VERSION = "replica.successors.task_adapter.v1"
@@ -250,6 +250,7 @@ class TaskRuntimeFormationAdapter:
         self._pin: MemoryPin | None = None
         self._baseline_outcomes: frozenset[str] = frozenset()
         self._baseline_revision = 0
+        self._source_epoch = 0
 
     def begin_interaction(self) -> MemoryPin:
         if self._pin is not None:
@@ -265,12 +266,28 @@ class TaskRuntimeFormationAdapter:
             include_verification_states=("verified", "unverified"))
         self._baseline_outcomes = frozenset(item.outcome_id for item in state.outcomes)
         self._baseline_revision = state.revision
+        self._source_epoch = int(getattr(state, "source_epoch", 0))
+        if self._source_epoch not in self._pin.source_epochs:
+            self._clear_pin()
+            raise ScopeViolation("runtime source epoch is not admitted by the formation pin")
         return self._pin
+
+    def _clear_pin(self) -> None:
+        self._pin = None
+        self._baseline_outcomes = frozenset()
+        self._baseline_revision = 0
 
     def finish_interaction(self, *, traces: Sequence[Mapping[str, object]] = ()
                            ) -> InteractionCommit:
         if self._pin is None:
             raise RuntimeError("finish requires an active pin")
+        try:
+            return self._finish_locked(traces=traces)
+        finally:
+            self._clear_pin()
+
+    def _finish_locked(self, *, traces: Sequence[Mapping[str, object]] = ()
+                       ) -> InteractionCommit:
         pin = self._pin
         state = self.runtime.state
         if state is None:
@@ -289,11 +306,13 @@ class TaskRuntimeFormationAdapter:
             outcomes.append(OutcomeReceipt(
                 outcome_id=item.outcome_id, action_id=item.action_id,
                 status=item.status, receipt_id=receipt_id,
-                observed_at=observed_at, summary=summary, revision=item.revision))
+                observed_at=observed_at, summary=summary, revision=item.revision,
+                source_epoch=self._source_epoch))
             observations.append(Observation(
                 observation_id="obs_" + item.outcome_id,
                 text=summary, source_id="task-runtime",
-                source_epoch=0, observed_at=observed_at, receipt_id=receipt_id,
+                source_epoch=self._source_epoch, observed_at=observed_at,
+                receipt_id=receipt_id,
                 verification_state="unverified", authenticity="host_observed",
                 permitted_uses=tuple(self.permitted_uses)))
         notes: list[ProvisionalNote] = []
@@ -310,7 +329,8 @@ class TaskRuntimeFormationAdapter:
             purpose=pin.purpose, mode=pin.mode, task_id=pin.task_id,
             task_revision=pin.task_revision,
             decision_revision=pin.decision_revision + 1,
-            source_epoch=0, producer_versions=pin.producer_versions,
+            source_epoch=self._source_epoch,
+            producer_versions=pin.producer_versions,
             representation_version=pin.representation_version,
             codec_id=pin.codec_id, permitted_uses=pin.permitted_uses,
             observations=tuple(observations), outcomes=tuple(outcomes),
@@ -318,15 +338,18 @@ class TaskRuntimeFormationAdapter:
         report = None
         if self.writer_enabled and (observations or notes or outcomes):
             report = self.formation.commit_interaction(proposal, pin=pin)
-        self._pin = None
         return InteractionCommit(self.writer_enabled, report, proposal)
 
     def run(self, proposer, max_decisions: int) -> dict:
         self.begin_interaction()
-        result = self.runtime.run(proposer, max_decisions)
-        completion = self.finish_interaction(traces=tuple(result.get("trace", ())))
-        result["formation"] = completion.document()
-        return result
+        try:
+            result = self.runtime.run(proposer, max_decisions)
+            completion = self.finish_interaction(
+                traces=tuple(result.get("trace", ())))
+            result["formation"] = completion.document()
+            return result
+        finally:
+            self._clear_pin()
 
     # -- interventions -----------------------------------------------------
 
@@ -334,8 +357,7 @@ class TaskRuntimeFormationAdapter:
         """Reset C (latent workspace) while retaining identity and evidence."""
         if self.runtime.workspace_store is not None:
             self.runtime.workspace_store.clear()
-        if hasattr(self.runtime, "_previous_workspace"):
-            self.runtime._previous_workspace = None
+        self.runtime.previous_workspace = None
 
     def reset_identity(self) -> None:
         """Null the identity context while retaining the exact task and evidence."""
@@ -349,18 +371,26 @@ class TaskRuntimeFormationAdapter:
     def apply_intervention(self, name: str) -> dict:
         if name not in self.intervention_conditions():
             raise ValueError("unknown intervention")
-        if name in ("task_reset", "task_then_identity", "identity_then_task",
-                    "both_reset"):
-            self.reset_task_workspace()
-        if name in ("identity_null", "task_then_identity", "identity_then_task",
-                    "both_reset"):
-            self.reset_identity()
-        return {"intervention": name,
+        order = {
+            "none": (),
+            "task_reset": ("task",),
+            "identity_null": ("identity",),
+            "task_then_identity": ("task", "identity"),
+            "identity_then_task": ("identity", "task"),
+            "both_reset": ("task", "identity"),
+        }[name]
+        operations: list[str] = []
+        for step in order:
+            if step == "task":
+                self.reset_task_workspace()
+                operations.append("task")
+            else:
+                self.reset_identity()
+                operations.append("identity")
+        return {"intervention": name, "order": list(operations),
                 "identity_null": bool(self.runtime.identity is not None
                                       and self.runtime.identity.is_null),
-                "task_workspace_cleared": name in (
-                    "task_reset", "task_then_identity", "identity_then_task",
-                    "both_reset")}
+                "task_workspace_cleared": "task" in operations}
 
 
 def formation_authority(formation: FormationStore, pin: MemoryPin):

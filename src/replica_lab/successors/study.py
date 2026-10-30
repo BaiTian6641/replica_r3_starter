@@ -152,7 +152,11 @@ def run_later_answer_comparison(root: Path | str) -> dict:
         provisional = store.read_provisional(branch_id=branch, purpose=PURPOSE)
         visible_ids = tuple(record.record_id for record in store.visible(later_pin))
         new_id = new_commit.receipt.record_ids[0]
+        provisional_ids = tuple(note["note_id"] for note in store.read_provisional(
+            branch_id=branch, purpose=PURPOSE))
         report["conditions"]["enabled"] = {
+            "new_record_id": new_id,
+            "provisional_note_ids": provisional_ids,
             "before": before, "after": after, "stale_pin_answer": stale_pin_answer,
             "new_record_visible_later": new_id in visible_ids,
             "new_record_visible_to_stale_pin": new_id in tuple(
@@ -162,6 +166,7 @@ def run_later_answer_comparison(root: Path | str) -> dict:
             == new_commit.receipt.receipt_digest,
             "conflict_rejected": conflict is not None,
             "provisional_notes": len(provisional),
+            "provisional_note_ids_all": provisional_ids,
             "base_record_count": len(base_commit.receipt.record_ids),
         }
         # Correction: the successor is eligible, the parent is not.
@@ -225,31 +230,53 @@ def run_later_answer_comparison(root: Path | str) -> dict:
             _observation(BASE_TEXT + " [base]", index=1, verification="unverified")],
             interaction="seed-a")
         pin_b = _pin(store, branch_b)
-        _commit(store, pin_b, [
+        branch_b_commit = _commit(store, pin_b, [
             _observation(NEW_TEXT, index=2, verification="unverified")],
             interaction="other-branch")
         later_a = _pin(store, branch_a)
+        branch_a_visible = store.visible(later_a)
+        branch_b_visible = store.visible(_pin(store, branch_b))
         report["conditions"]["wrong_branch"] = {
-            "answer": answer_query(QUERY, store.visible(later_a)),
-            "branch_a_records": len(store.visible(later_a)),
-            "branch_b_records": len(store.visible(_pin(store, branch_b))),
+            "answer": answer_query(QUERY, branch_a_visible),
+            "branch_a_records": len(branch_a_visible),
+            "branch_b_records": len(branch_b_visible),
+            "branch_a_record_ids": tuple(item.record_id for item in branch_a_visible),
+            "branch_b_record_ids": tuple(item.record_id for item in branch_b_visible),
+            "branch_b_record_id": branch_b_commit.receipt.record_ids[0],
         }
 
     enabled = report["conditions"]["enabled"]
     disabled = report["conditions"]["disabled"]
+    wrong = report["conditions"]["wrong_branch"]
+    new_id = enabled["new_record_id"]
+    enabled_after_id = enabled["after"]["record_id"]
+    disabled_after_id = disabled["after"]["record_id"]
+    note_ids = set(enabled["provisional_note_ids"])
+    enabled_used = enabled_after_id == new_id
+    disabled_used = disabled_after_id == new_id if disabled_after_id else False
+    before_absent = enabled["before"]["record_id"] is None
+    provisional_excluded = (
+        new_id not in note_ids
+        and all(note_id not in enabled["after"]["evidence"] for note_id in note_ids)
+        and enabled_after_id not in note_ids)
     report["measurement"] = {
-        "enabled_used_new_observation": enabled["after"]["record_id"] is not None,
-        "disabled_used_new_observation": disabled["after"]["record_id"] is not None,
+        "enabled_used_new_observation": enabled_used,
+        "disabled_used_new_observation": disabled_used,
         "delayed_visibility_holds": (
             enabled["stale_pin_answer"]["answer"] == UNKNOWN_ANSWER
-            and enabled["after"]["record_id"] is not None),
+            and enabled["new_record_visible_later"]
+            and enabled_used),
         "removing_write_removes_improvement": (
-            enabled["after"]["record_id"] is not None
-            and disabled["after"]["record_id"] is None),
-        "wrong_branch_isolated": report["conditions"]["wrong_branch"]["answer"]["answer"]
-        == UNKNOWN_ANSWER,
-        "provisional_not_evidence": enabled["provisional_notes"] == 1
-        and enabled["after"]["record_id"] != "explanation-1",
-        "improvement_attributable_to_write": True,
+            enabled_used and not disabled_used
+            and disabled_after_id is None),
+        "wrong_branch_isolated": (
+            wrong["answer"]["answer"] == UNKNOWN_ANSWER
+            and wrong["branch_b_record_id"] not in wrong["branch_a_record_ids"]
+            and wrong["branch_b_record_id"] in wrong["branch_b_record_ids"]),
+        "provisional_not_evidence": provisional_excluded,
+        "improvement_attributable_to_write": (
+            before_absent and enabled_used and not disabled_used
+            and enabled["new_record_visible_later"]
+            and not enabled["new_record_visible_to_stale_pin"]),
     }
     return report

@@ -266,4 +266,12 @@ def test_formation_authority_controls_tier_selection(tmp_path):
         authority = formation_authority(formation, later)
         assert tiers.read(record_id, authority=authority).status == "ready"
         formation.revoke(record_id, reason="source revoked")
-        assert tiers.read(record_id, authority=authority).status == "ineligible"
+        current = formation.pin(branch_id="branch-a", purpose="test",
+                                mode="assistant_for_source",
+                                as_of=time.time_ns() + 3600 * 10 ** 9,
+                                task_id="task-1", task_revision=0,
+                                include_verification_states=("unverified",))
+        current_authority = formation_authority(formation, current)
+        assert tiers.read(record_id, authority=current_authority).status == "ineligible"
+        # The pre-revocation pin remains an immutable snapshot.
+        assert tiers.read(record_id, authority=authority).status == "ready"
