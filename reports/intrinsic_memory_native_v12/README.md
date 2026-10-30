@@ -153,16 +153,19 @@ stages, terminal-receipt paths, release-read charging and failure-path masking
 fixes, `preparation_draft09/` the packet before the release-corpus
 direct-read accounting provider was wired and budgeted, and
 `preparation_draft10/` the same packet made while producer cycle 6 and the
-consumer edits were working-tree changes, and `preparation_draft11/` the packet
-before the structural stage write caps and the bounded read-resume reservation. No attempt or historical evidence was moved or deleted.
+consumer edits were working-tree changes, and `preparation_draft11/` the packet before the structural stage write caps and the
+bounded read-resume reservation, and `preparation_draft12/` the structural-budget
+packet made before the confirmation regeneration that binds only committed bytes
+(every artifact except `preparation.json` is byte-identical to the current
+canonical ones). No attempt or historical evidence was moved or deleted.
 
 Provenance: the v12 producer was committed at `6dede67e`, repaired at
-`6ba07e1b`, `826aac6b` and `7cf57766`, and closed at **`fb8c1425`**
-(`fix: complete release rollback and read accounting`); the native consumer is
-committed at **`7516bfeb`** (`fix: complete native terminal and release
-accounting`). **All 62 closure entries equal their `HEAD` blob content**, and
-regenerating after both commits changed only `preparation.json` (its measured
-hashing wall time) — the packet hash is unchanged at `908a50a4…`.
+`6ba07e1b`, `826aac6b` and `7cf57766`, and closed at **`e1ac4e24`**
+(`fix: make release rollback and origin creation fail closed`); the native
+consumer is committed at **`08f41f6d`** (`fix: reserve structural native probe
+and resume work`). **All 62 closure entries equal their `HEAD` blob content**,
+and regenerating after both commits changed only `preparation.json` (its measured
+hashing wall time) — the packet hash is unchanged at `24beaa07…`.
 
 The coordinator lifecycle preflight
 (`preflight_verification_lifecycle.json`, format
@@ -300,6 +303,7 @@ gate stay matched to v11. The hypothesis is about source representation only.
 | `reports/intrinsic_memory_native_v12/preparation_draft09/` | Preserved packet before the release-corpus direct-read accounting provider was wired and budgeted; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft10/` | Preserved packet made while producer cycle 6 and the consumer edits were uncommitted; all artifacts except `preparation.json` were byte-identical to its successor; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft11/` | Preserved packet before the structural stage write caps and the bounded read-resume reservation; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft12/` | Preserved structural-budget packet made before the confirmation regeneration; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/environment_closure_v12.json` | Executable dependency closure: resolved interpreter, module origins, native extensions, all `torch/lib` files, all wheel RECORDs and critical files, by actual hash |
 | `reports/intrinsic_memory_native_v12/development_exposure_v12.json` | Current exposure receipt: fresh split unopened, retired v11 split, reading incident recorded; historical receipt unedited |
 
