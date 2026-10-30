@@ -29,6 +29,11 @@ REPORT_MANIFEST = "report_manifest.json"
 
 
 _PENDING_CLEANUP = set()
+_DURABILITY_MODES = set()
+
+
+def reset_durability():
+    _DURABILITY_MODES.clear()
 
 
 def _unlink_or_queue(path):
@@ -80,18 +85,22 @@ class ReceiptError(ValueError):
 
 
 def durability_label():
-    return "darwin_F_FULLFSYNC" if sys.platform == "darwin" else "posix_fsync"
+    if not _DURABILITY_MODES:
+        return "not_executed"
+    return "+".join(sorted(_DURABILITY_MODES))
 
 
 def _durable_fsync(descriptor):
     if sys.platform == "darwin":
         try:
             fcntl.fcntl(descriptor, getattr(fcntl, "F_FULLFSYNC", 51))
+            _DURABILITY_MODES.add("darwin_F_FULLFSYNC")
             return "darwin_F_FULLFSYNC"
         except OSError as error:
             if error.errno not in (errno.EINVAL, getattr(errno, "ENOTSUP", errno.EINVAL)):
                 raise
     os.fsync(descriptor)
+    _DURABILITY_MODES.add("posix_fsync")
     return "posix_fsync"
 
 
@@ -198,6 +207,9 @@ def build_protocol_summary(protocols, cost_pilot, cpu_summary, *, repair_cycle):
     if cost_pilot.get("total_cost_protocol_sha256") != canonical_digest(
             protocols["preregistered_measured_total_cost"]):
         raise ReceiptError("cost pilot does not cite the checked-in total-cost protocol")
+    if cost_pilot.get("cost_metric") != protocols[
+            "preregistered_measured_total_cost"]["pilot"]["cost_metric"]:
+        raise ReceiptError("cost pilot metric differs from the frozen protocol")
     if "selected_updates" not in cost_pilot or "matched_arms" not in cost_pilot:
         raise ReceiptError("cost pilot selection receipt is incomplete")
     if cpu_summary.get("protocol_digests") != {
@@ -279,6 +291,9 @@ def build_verification_results(cpu_summary, cost_pilot, protocols, *, repair_cyc
     if cost_pilot.get("total_cost_protocol_sha256") != canonical_digest(
             protocols["preregistered_measured_total_cost"]):
         raise ReceiptError("cost pilot does not cite the checked-in total-cost protocol")
+    if cost_pilot.get("cost_metric") != protocols[
+            "preregistered_measured_total_cost"]["pilot"]["cost_metric"]:
+        raise ReceiptError("cost pilot metric differs from the frozen protocol")
     for kind in ("arms", "matched_arms"):
         for arm, row in cpu_summary.get(kind, {}).items():
             control = row.get("no_update_control")
@@ -590,6 +605,7 @@ def write_current_navigation(root, canonical_directory, *, generator,
 
 def write_repair_receipts(directory, *, cpu_summary_path, cost_pilot_path,
                           protocols_directory="configs", repair_cycle=None):
+    reset_durability()
     directory = Path(directory)
     derived_cycle = directory.resolve().name
     if repair_cycle is None:

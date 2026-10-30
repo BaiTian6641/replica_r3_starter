@@ -23,9 +23,8 @@ def main():
     current = write_current_navigation(
         args.root, args.canonical,
         generator="scripts/write_intrinsic_memory_density_v12_navigation.py",
-        x6_test=("reports/intrinsic_memory_review_v12/rereview/"
-                 "test_rereview_edge_cases.py::"
-                 "test_configured_tolerance_is_refused_and_execution_is_bound"))
+        x6_test=("tests/test_intrinsic_memory_density_v12_protocols.py::"
+                 "test_measured_cost_fit_selection_and_tolerance_are_deterministic"))
     print(json.dumps(current, indent=2, sort_keys=True))
 
 

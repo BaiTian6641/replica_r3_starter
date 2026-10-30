@@ -23,7 +23,7 @@ def inputs(tmp_path):
         "format": "test.pilot", "total_cost_protocol_sha256": digest,
         "target_cost_ns": 123.5, "selected_updates": {"two": 2, "all": 1},
         "matched_arms": ["two", "all"], "unmatched_arms": [],
-        "scored_labels_read": False, "cost_metric": "measured_wall",
+        "scored_labels_read": False, "cost_metric": "measured_synchronized_wall_nanoseconds_for_one_complete_declared_pass",
         "repeat": 3, "aggregate": "median_of_repeats",
         "declared_common_updates": 2, "declared_updates_cap": 8,
         "out_of_tolerance_control": {
@@ -464,3 +464,14 @@ def test_repair_cycle_derives_from_canonical_directory(tmp_path):
         write_repair_receipts(
             tmp_path / "coordinator12", cpu_summary_path=cpu,
             cost_pilot_path=cost_path, repair_cycle="repair03")
+
+
+def test_receipts_refuse_arbitrary_cost_metric(tmp_path):
+    cpu, cost_path, cost = inputs(tmp_path)
+    changed = dict(cost)
+    changed["cost_metric"] = "measured_wall"
+    write_new_json(tmp_path / "wrong-metric.json", changed)
+    with pytest.raises(ReceiptError, match="frozen protocol"):
+        write_repair_receipts(
+            tmp_path / "coordinator12", cpu_summary_path=cpu,
+            cost_pilot_path=tmp_path / "wrong-metric.json")
