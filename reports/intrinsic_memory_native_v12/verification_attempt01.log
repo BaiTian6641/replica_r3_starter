@@ -1,0 +1,84 @@
+Command: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -m pytest -q tests/test_intrinsic_budget_v12.py tests/test_intrinsic_coverage_v12.py tests/test_intrinsic_native_v12.py
+Exit: 1
+Repair cycle: 1/5
+Result: 39 passed, 18 failed in 2.38s.
+
+The 13 budget tests all fail at WorkLedger.create -> _write -> os.open with FileNotFoundError because the new JSONL path is not created. The five native failures are reproduced below from the pytest output.
+
+_______ test_tokenizer_reservation_precedes_work_and_has_no_token_count ________
+
+    def test_tokenizer_reservation_precedes_work_and_has_no_token_count():
+        adapter, ledger, _ = accounting()
+        token = adapter.reserve(SourceWorkRequest(SOURCE_TOKENIZE, source_bytes=120,
+                                                  max_tokens=SOURCE_MAX_TOKENS))
+        assert token == 0
+        stage, operation, amounts = ledger.reserved[0]
+>       assert stage == 'fit_128' and operation == 'source_tokenize'
+E       AssertionError: assert ('fit_128' == 'fit_128'
+E           fit_128 and 'source_source_tokenize' == 'source_tokenize'
+E         - source_tokenize
+E         + source_source_tokenize
+E         ? +++++++)
+
+___________ test_forward_reservation_carries_the_full_v12_vocabulary ___________
+
+    def test_forward_reservation_carries_the_full_v12_vocabulary():
+        adapter, ledger, _ = accounting()
+        adapter.reserve(SourceWorkRequest(SOURCE_FORWARD, source_bytes=120,
+                                          max_tokens=SOURCE_MAX_TOKENS, tokens=37))
+        _, operation, amounts = ledger.reserved[0]
+>       assert operation == 'source_forward'
+E       AssertionError: assert 'source_source_forward' == 'source_forward'
+E         - source_forward
+E         + source_source_forward
+E         ? +++++++
+
+_____________ test_wrong_control_requires_its_own_validated_source _____________
+
+>       assert path.log.count('validate') == 4
+E       AssertionError: assert 5 == 4
+E        +  where 5 = <built-in method count of list object at 0x111cf70c0>('validate')
+E        +    where ['validate', 'validate', 'validate', 'order', 'reader_snapshot', 'validate', ...] = <test_intrinsic_native_v12.FakePath object at 0x111c738f0>.log
+
+______ test_declared_feature_bounds_are_accepted_by_the_producer_contract ______
+
+        for damage in ({'max_tokens': 512}, {'max_tokens': 0},
+                       {'cache_bytes': 64*1024**2}, {'cache_entries': 65},
+                       {'input_policy': 'chat_template'},
+                       {'output_policy': 'pooled_mean'}):
+            with pytest.raises(ContextualMemoryError):
+>               SourceFeatureSpec(original_parameters_sha256='a'*64,
+                                  source_execution_sha256='b'*64,
+                                  tokenizer_sha256='c'*64, hidden_size=2560,
+                                  max_tokens=SOURCE_MAX_TOKENS, cache_bytes=FEATURE_CACHE_BYTES,
+                                  cache_entries=FEATURE_CACHE_ENTRIES, **damage)
+E               TypeError: replica_lab.contextual_source_features_v12.SourceFeatureSpec() got multiple values for keyword argument 'max_tokens'
+
+_______ test_successful_read_reserves_the_unconditional_descriptor_bound _______
+
+>       assert retrieval[0]['reserved'] == {'retrievals': 1, 'writes': 4}
+E       AssertionError: assert {'retrievals': 1, 'writes': 3} == {'retrievals': 1, 'writes': 4}
+E         Omitting 1 identical items, use -vv to show
+E         Differing items:
+E         {'retrievals': 1, 'writes': 3} != {'retrievals': 1, 'writes': 4}
+
+Pytest short summary:
+FAILED tests/test_intrinsic_budget_v12.py::test_reservation_precedes_work_and_refuses_over_cap_before_dispatch - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_budget_v12.py::test_failed_work_remains_charged_and_actual_cannot_exceed_reservation - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_budget_v12.py::test_reservation_outside_active_stage_or_with_unknown_counter_is_refused - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_budget_v12.py::test_single_active_stage_and_no_stage_reuse - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_budget_v12.py::test_stage_with_uncertain_work_cannot_be_closed_without_recovery - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_budget_v12.py::test_journal_is_append_only_and_logical_bytes_equal_appended_bytes - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_budget_v12.py::test_totals_and_deadlines_survive_a_fresh_process_view - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_budget_v12.py::test_tampered_journal_is_refused - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_budget_v12.py::test_torn_tail_is_fail_closed - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_budget_v12.py::test_cached_state_cannot_hide_another_process_append - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_budget_v12.py::test_expired_ledger_cannot_be_entered - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_budget_v12.py::test_create_refuses_existing_journal_and_bad_identity - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_budget_v12.py::test_plan_digest_and_format_are_bound - FileNotFoundError: work_ledger.jsonl
+FAILED tests/test_intrinsic_native_v12.py::test_tokenizer_reservation_precedes_work_and_has_no_token_count - source_source_tokenize != source_tokenize
+FAILED tests/test_intrinsic_native_v12.py::test_forward_reservation_carries_the_full_v12_vocabulary - source_source_forward != source_forward
+FAILED tests/test_intrinsic_native_v12.py::test_wrong_control_requires_its_own_validated_source - 5 validations != 4
+FAILED tests/test_intrinsic_native_v12.py::test_declared_feature_bounds_are_accepted_by_the_producer_contract - duplicate max_tokens keyword
+FAILED tests/test_intrinsic_native_v12.py::test_successful_read_reserves_the_unconditional_descriptor_bound - writes 3 != 4
+18 failed, 39 passed in 2.38s
