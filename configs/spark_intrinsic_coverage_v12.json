@@ -378,7 +378,7 @@
         },
         "load": {
           "artifact_bytes": 0,
-          "artifact_read_bytes": 16969997120,
+          "artifact_read_bytes": 17003551552,
           "backwards": 0,
           "cache_evictions": 0,
           "cache_misses": 0,
@@ -509,7 +509,7 @@
           "writes": 34
         }
       },
-      "output_root": "reports/intrinsic_memory_native_v12/native_bf16_all_v12_attempt03",
+      "output_root": "reports/intrinsic_memory_native_v12/native_bf16_all_v12_attempt04",
       "resource_limits": {
         "driver_bytes": 53687091200,
         "minimum_host_free_percent": 15,
@@ -557,7 +557,7 @@
       ],
       "total_reservations": {
         "artifact_bytes": 1178615808,
-        "artifact_read_bytes": 93205280425,
+        "artifact_read_bytes": 93238834857,
         "backwards": 513,
         "cache_evictions": 949,
         "cache_misses": 949,
@@ -957,7 +957,7 @@
         },
         "load": {
           "artifact_bytes": 0,
-          "artifact_read_bytes": 16969997120,
+          "artifact_read_bytes": 17003551552,
           "backwards": 0,
           "cache_evictions": 0,
           "cache_misses": 0,
@@ -1088,7 +1088,7 @@
           "writes": 34
         }
       },
-      "output_root": "reports/intrinsic_memory_native_v12/native_bf16_full_attention_nine_v12_attempt03",
+      "output_root": "reports/intrinsic_memory_native_v12/native_bf16_full_attention_nine_v12_attempt04",
       "resource_limits": {
         "driver_bytes": 53687091200,
         "minimum_host_free_percent": 15,
@@ -1109,7 +1109,7 @@
       ],
       "total_reservations": {
         "artifact_bytes": 507527168,
-        "artifact_read_bytes": 63316670121,
+        "artifact_read_bytes": 63350224553,
         "backwards": 513,
         "cache_evictions": 949,
         "cache_misses": 949,
@@ -1509,7 +1509,7 @@
         },
         "load": {
           "artifact_bytes": 0,
-          "artifact_read_bytes": 16969997120,
+          "artifact_read_bytes": 17003551552,
           "backwards": 0,
           "cache_evictions": 0,
           "cache_misses": 0,
@@ -1640,7 +1640,7 @@
           "writes": 34
         }
       },
-      "output_root": "reports/intrinsic_memory_native_v12/native_bf16_two_v12_attempt03",
+      "output_root": "reports/intrinsic_memory_native_v12/native_bf16_two_v12_attempt04",
       "resource_limits": {
         "driver_bytes": 53687091200,
         "minimum_host_free_percent": 15,
@@ -1654,7 +1654,7 @@
       ],
       "total_reservations": {
         "artifact_bytes": 205537280,
-        "artifact_read_bytes": 55439767209,
+        "artifact_read_bytes": 55473321641,
         "backwards": 513,
         "cache_evictions": 949,
         "cache_misses": 949,
@@ -1682,8 +1682,8 @@
   "budget_derivation": {
     "I/O_costs": "logical/serialized bytes, synchronized wall and dispatch wall are recorded separately; physical I/O is unmeasured",
     "artifact_accounting": "194 MiB reserved = 96 MiB audit/store/receipt/log envelope + 2 MiB teacher cache + 96 MiB two-site extension/optimizer checkpoint. Checkpoint arithmetic: 4.22M trainable float32 parameters (2.90M reader + 1.32M compressor) plus two AdamW moment buffers; this is a bound, not a fit measurement",
-    "artifact_read_accounting": "55439767209 declared file-read bytes: 8238996247 of source hashing per process admission/worker and the same again for each weight load (2x in load and 2x in restart), 450061586 of environment-closure hashing in admission, load and restart, and the checkpoint plus teacher cache at restart. Physical page-cache reuse is not measured and is not subtracted",
-    "artifact_read_bytes_value": 55439767209,
+    "artifact_read_accounting": "55473321641 declared file-read bytes: 8238996247 of source hashing per process admission/worker and the same again for each weight load (2x in load and 2x in restart), 450061586 of environment-closure hashing in admission, load and restart, and the checkpoint plus teacher cache at restart. Physical page-cache reuse is not measured and is not subtracted",
+    "artifact_read_bytes_value": 55473321641,
     "audit_io": "append-only journal: logical appended bytes equal appended bytes; physical SSD amplification and flush cost are not measured and are not claimed to be lower than v11. Lower audit cost is not better learning",
     "backbone_token_unit": "each decode/parity forward reserves forwards=1 and input_tokens=256 (fixed right-padded context width)",
     "baseline_forwards": "8 worlds * 8 reserved tokens = 64; no source features",
@@ -1922,7 +1922,7 @@
   },
   "implementation": {
     "path": "reports/intrinsic_memory_native_v12/implementation_v12.json",
-    "sha256": "6de6785f189387fed94eee7ef85df67ba344d4feb3c5a03f551a810a3e8ae76a"
+    "sha256": "b5ead1cf9d29b193e81a9abad95696a90a92c1231562d8216616bf4ce4f97ccb"
   },
   "numerical_restart_on_failed_fit": "allowed diagnostic, one update already budgeted; no generalization claim",
   "optimizer": "NativeFusedAdamW",
