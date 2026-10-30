@@ -110,6 +110,27 @@ def _device_allocator_bytes(device=None):
     return None
 
 
+def synchronize_timing(device=None):
+    """Execute the declared timing synchronization boundary for a device.
+
+    CPU is synchronous and returns without a backend wait; CUDA/MPS execute
+    their declared synchronization call.  The returned label is recorded so a
+    CPU engineering receipt cannot imply a native synchronized measurement.
+    """
+    kind = getattr(device, "type", None)
+    if kind == "cuda" and torch.cuda.is_available():
+        torch.cuda.synchronize(device)
+        return "cuda_synchronize"
+    if kind == "mps":
+        mps = getattr(torch, "mps", None)
+        synchronize = getattr(mps, "synchronize", None) if mps is not None else None
+        if callable(synchronize):
+            synchronize()
+            return "mps_synchronize"
+        return "mps_unavailable"
+    return "cpu_synchronous"
+
+
 def _int_cost(value):
     if isinstance(value, bool):
         return None

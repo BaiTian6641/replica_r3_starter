@@ -9,7 +9,7 @@ import torch
 from replica_lab.intrinsic_memory_density_receipts_v12 import write_new_json
 from replica_lab.intrinsic_memory_density_v12 import (
     DensityError, DensityProducerBoundary, ProducerBoundaryViolation,
-    SiteInvocationProfiler, assert_no_read_write_effects,
+    SiteInvocationProfiler, assert_no_read_write_effects, synchronize_timing,
 )
 from test_intrinsic_memory_density_v12_profiler import make, training_batch
 from test_tiered_memory import scope
@@ -142,3 +142,8 @@ def test_profile_and_pilot_temp_dirs_are_scoped_and_removed(monkeypatch, tmp_pat
     assert not list(tmp_path.glob("density-v12-store-*"))
     cost_pilot.run_pass("two", 0)
     assert not list(tmp_path.glob("density-cost-pilot-*"))
+
+
+def test_cpu_timing_synchronization_boundary_is_explicit():
+    assert synchronize_timing(torch.device("cpu")) == "cpu_synchronous"
+    assert synchronize_timing(None) == "cpu_synchronous"

@@ -164,6 +164,7 @@
     "declared_common_updates": 2,
     "declared_updates_cap": 8,
     "declared_updates_cap_fixed_before_pilot": true,
+    "epsilon": 1e-09,
     "outside_tolerance": "arm_is_unmatched_evidence_not_a_causal_arm",
     "rounding": "floor_no_residual_reallocation_no_post_hoc_budget",
     "rule": "updates_arm = clamp(floor((target - fixed_cost_arm) / marginal_cost_arm + 1e-9 binary_float_guard), 1, declared_updates_cap)",

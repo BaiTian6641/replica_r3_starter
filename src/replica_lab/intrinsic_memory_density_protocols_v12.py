@@ -366,6 +366,7 @@ def total_cost_protocol():
             "target_arm": "two",
             "declared_common_updates": DECLARED_COMMON_UPDATES,
             "declared_updates_cap": DECLARED_UPDATES_CAP,
+            "epsilon": SELECTION_EPSILON,
             "target": "measured_total_cost_of_the_two_site_arm_at_the_declared_common_exposure",
             "target_formula": TARGET_FORMULA,
             "rule": SELECTION_RULE,
@@ -464,17 +465,19 @@ def measured_cost_target(fit, common_updates=DECLARED_COMMON_UPDATES):
 
 
 def select_updates(fixed_cost, marginal_cost, target_cost, *,
-                   updates_cap=DECLARED_UPDATES_CAP):
+                   updates_cap=DECLARED_UPDATES_CAP,
+                   selection_epsilon=SELECTION_EPSILON):
     """Frozen rule: floor the affordable whole passes, clamp to 1..cap."""
     if (not all(math.isfinite(value) for value in
                 (fixed_cost, marginal_cost, target_cost))
             or marginal_cost <= 0 or target_cost <= 0
-            or type(updates_cap) is not int or updates_cap < 1):
+            or type(updates_cap) is not int or updates_cap < 1
+            or not math.isfinite(selection_epsilon) or selection_epsilon < 0):
         raise ValueError("invalid measured cost selection inputs")
     # The epsilon only absorbs binary-float representation of an exact affine
     # target; it does not add a free update beyond the measured fit.
     whole = (target_cost - fixed_cost) / marginal_cost
-    return max(1, min(updates_cap, math.floor(whole + SELECTION_EPSILON)))
+    return max(1, min(updates_cap, math.floor(whole + selection_epsilon)))
 
 
 def cost_tolerance(target_cost, marginal_cost, *, relative=COST_TOLERANCE_RELATIVE):
@@ -569,9 +572,14 @@ def validate_protocol(protocol, *, comparison=None):
             raise ValueError("total-cost selection must precede scored labels")
         if selection.get("target_arm") != "two":
             raise ValueError("measured-cost target must remain the two-site arm")
-        if (selection.get("declared_common_updates") != DECLARED_COMMON_UPDATES
-                or selection.get("declared_updates_cap") != DECLARED_UPDATES_CAP):
-            raise ValueError("exposure target and cap must be the frozen numeric values")
+        common = selection.get("declared_common_updates")
+        cap = selection.get("declared_updates_cap")
+        epsilon = selection.get("epsilon")
+        if (type(common) is not int or common != DECLARED_COMMON_UPDATES
+                or type(cap) is not int or cap != DECLARED_UPDATES_CAP
+                or type(epsilon) is not float or epsilon != SELECTION_EPSILON):
+            raise ValueError(
+                "exposure target and cap must be exact frozen ints (not float/bool)")
         if selection.get("outside_tolerance") != "arm_is_unmatched_evidence_not_a_causal_arm":
             raise ValueError("outside-tolerance arms must remain unmatched")
         if selection.get("selection_inputs") != "measured_cost_only_never_development_or_final_answers":

@@ -25,11 +25,13 @@ def main():
     parser.add_argument("--cpu-summary", type=Path, required=True)
     parser.add_argument("--cost-pilot", type=Path, required=True)
     parser.add_argument("--protocols-directory", type=Path, default=ROOT / "configs")
+    parser.add_argument("--repair-cycle", default="repair03")
     args = parser.parse_args()
     manifest = write_repair_receipts(
         args.directory, cpu_summary_path=args.cpu_summary,
         cost_pilot_path=args.cost_pilot,
-        protocols_directory=args.protocols_directory)
+        protocols_directory=args.protocols_directory,
+        repair_cycle=args.repair_cycle)
     print(json.dumps(manifest, indent=2, sort_keys=True))
 
 

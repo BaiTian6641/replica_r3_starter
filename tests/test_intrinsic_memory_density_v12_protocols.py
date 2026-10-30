@@ -88,10 +88,16 @@ def test_total_cost_protocol_preregisters_cost_only_selection_before_labels():
     assert protocol["shared_contract"] != build_protocols()["fixed_per_site"]["shared_contract"]
     assert selection["declared_common_updates"] == 2
     assert selection["declared_updates_cap"] == 8
-    weakened = deepcopy(protocol)
-    weakened["selection"]["declared_common_updates"] = 3
-    with pytest.raises(ValueError):
-        validate_protocol(weakened, comparison="preregistered_measured_total_cost")
+    for invalid in (3, 2.0, True):
+        weakened = deepcopy(protocol)
+        weakened["selection"]["declared_common_updates"] = invalid
+        with pytest.raises(ValueError):
+            validate_protocol(weakened, comparison="preregistered_measured_total_cost")
+    for invalid in (8.0, False):
+        weakened = deepcopy(protocol)
+        weakened["selection"]["declared_updates_cap"] = invalid
+        with pytest.raises(ValueError):
+            validate_protocol(weakened, comparison="preregistered_measured_total_cost")
 
 
 @pytest.mark.parametrize("change", ("post_label_budget", "score_selection",
@@ -140,6 +146,10 @@ def test_measured_cost_fit_selection_and_tolerance_are_deterministic():
         validate_protocol(changed, comparison="preregistered_measured_total_cost")
     changed = deepcopy(build_protocols()["preregistered_measured_total_cost"])
     changed["selection"]["rounding"] = "round_half_up"
+    with pytest.raises(ValueError):
+        validate_protocol(changed, comparison="preregistered_measured_total_cost")
+    changed = deepcopy(build_protocols()["preregistered_measured_total_cost"])
+    changed["selection"]["epsilon"] = 2e-9
     with pytest.raises(ValueError):
         validate_protocol(changed, comparison="preregistered_measured_total_cost")
     with pytest.raises(ValueError):

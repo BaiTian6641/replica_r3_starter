@@ -1,0 +1,34 @@
+{
+  "format": "replica.intrinsic_memory.density.coordinator_verification.v12.repair03",
+  "repair_cycle": 3,
+  "findings": ["X13", "D2", "D5", "X6", "X8", "X11", "X12-density"],
+  "tests": {
+    "exit_code": 0,
+    "passed": 108,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 33.80,
+    "scope": "73 density + 29 matched-v5 + 3 original independent + 2 updated edge + 1 residual exposure reproduction"
+  },
+  "profile": {
+    "path": "coordinator03/cpu_engineering_summary.json",
+    "sha256": "bc23235e06fa9dd4bce6386a162cedb81634b9db9f55946e6f310a844a8824a1",
+    "fresh_process_continuation_all_layouts": true
+  },
+  "pilot": {
+    "path": "coordinator03/cost_pilot_summary.json",
+    "sha256": "148a5b6ed6601c8e79305ce43b2d05cb3e0b13ab9124b08a8554ce71ca80ac3d",
+    "target_cost_ns": 58620432.615384616,
+    "selected_updates": {"two": 2, "full_attention_nine": 1, "all": 1},
+    "matched_arms": ["two", "full_attention_nine", "all"],
+    "scored_labels_read": false
+  },
+  "receipts": {
+    "deterministic": true,
+    "protocol_summary_sha256": "81f550538530a18c18004d439dfb2a5a10d7f32e2fd59be0a235675f94b0451f",
+    "verification_results_sha256": "5d75a57e1195bdd7af20080e8c9bdcedff49adc41e6cc5a05bf2948d3052e175",
+    "target_matches_pilot": true
+  },
+  "native_execution": false,
+  "P_updates": 0
+}

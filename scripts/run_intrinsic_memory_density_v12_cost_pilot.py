@@ -38,7 +38,7 @@ from profile_intrinsic_memory_density_v12 import (  # noqa: E402
 from replica_lab.contextual_spark_fixture import ids_and_mask, labels_from_ids
 from replica_lab.intrinsic_memory_density_receipts_v12 import write_new_json  # noqa: E402
 from replica_lab.intrinsic_memory_density_v12 import (  # noqa: E402
-    SiteInvocationProfiler, cost_snapshot, ledger_delta,
+    DensityProducerBoundary, cost_snapshot, ledger_delta, synchronize_timing,
 )
 from replica_lab.intrinsic_memory_density_protocols_v12 import (  # noqa: E402
     canonical_digest, cost_tolerance, fit_fixed_marginal, load_protocols,
@@ -58,6 +58,7 @@ def scope():
 def run_pass(arm, updates, *, profile=False):
     """Measure one admission/read plus ``updates`` training passes."""
     path = build_path(arm)
+    device = next(path.encoder.parameters()).device
     profiler = None
     try:
         with tempfile.TemporaryDirectory(prefix="density-cost-pilot-") as temp:
@@ -70,10 +71,14 @@ def run_pass(arm, updates, *, profile=False):
                     workspace_quota_bytes=1 * 1024**2, artifact_budget_bytes=4 * 1024**2,
                     frequent_reserve_fraction=0.5, frequent_min_accesses=2))
             try:
-                profiler = (SiteInvocationProfiler(path, expected_groups=len(ARMS[arm]))
+                boundary = DensityProducerBoundary(
+                    path, comparison="fixed_per_site",
+                    expected_groups=len(ARMS[arm]))
+                profiler = (boundary.profiler(expected_groups=len(ARMS[arm]))
                             if profile else None)
                 ids, mask = ids_and_mask(4)
                 before = cost_snapshot(path)
+                synchronized_before = synchronize_timing(device)
                 started = time.perf_counter_ns()
                 path.admit(store, spans()[0], scope=scope())
                 batch = path.read(store, "Badge", scope=scope())
@@ -91,11 +96,18 @@ def run_pass(arm, updates, *, profile=False):
                         profiler.record_backward(calls=1,
                                                  processed_positions=int(ids.numel()))
                     path.optimizer.step()
+                synchronized_after = synchronize_timing(device)
                 elapsed = time.perf_counter_ns() - started
                 after = cost_snapshot(path)
                 result = {
                     "updates": updates,
                     "elapsed_ns": elapsed,
+                    "timing_synchronization": {
+                        "device": str(device),
+                        "before": synchronized_before,
+                        "after": synchronized_after,
+                        "boundary": "synchronize_before_and_after_each_timed_pass",
+                    },
                     "cost_delta": ledger_delta(before, after),
                 }
                 if profiler is not None:
@@ -144,6 +156,7 @@ def arm_pilot(arm, update_counts, repeat):
                 "backward_work": diagnostic["profiler"]["backward_work"],
                 "wall_ns": diagnostic["elapsed_ns"],
             },
+            "timing_synchronization": diagnostic["timing_synchronization"],
             "post_update_snapshot_copies": component["memory"]["snapshot_copies"],
             "cache_bytes": diagnostic["profiler"]["cache_bytes"],
             "wall_ns": diagnostic["elapsed_ns"],
@@ -169,6 +182,7 @@ def main():
     repeat = pilot_config["repeat"]
     common_updates = selection_config["declared_common_updates"]
     updates_cap = selection_config["declared_updates_cap"]
+    selection_epsilon = selection_config["epsilon"]
     relative_tolerance = selection_config["tolerance"]["relative"]
     arms = {arm: arm_pilot(arm, update_counts, repeat) for arm in ARMS}
     target_fit = arms["two"]["fit"]
@@ -177,7 +191,8 @@ def main():
     for arm, result in arms.items():
         updates = select_updates(result["fit"]["fixed_cost"],
                                  result["fit"]["marginal_cost"], target_ns,
-                                 updates_cap=updates_cap)
+                                 updates_cap=updates_cap,
+                                 selection_epsilon=selection_epsilon)
         measured = [run_pass(arm, updates)["elapsed_ns"] for _ in range(repeat)]
         median = statistics.median(measured)
         tolerance = cost_tolerance(
@@ -228,7 +243,10 @@ def main():
         },
         "deliberate_out_of_tolerance_observed": control_out,
         "control_cost_ns": sum(control_runs),
+        "charged_to_arm": control_arm,
     }
+    arms[control_arm]["control_cost_ns"] = sum(control_runs)
+    arms[control_arm]["total_charged_cost_ns"] += sum(control_runs)
     report = {
         "format": FORMAT,
         "generated_utc": datetime.now(timezone.utc).isoformat(),
@@ -243,6 +261,10 @@ def main():
         "torch": torch.__version__,
         "platform": platform.platform(),
         "cost_metric": "measured_monotonic_wall_nanoseconds",
+        "timing_synchronization": {
+            "rule": pilot_config["timing_rule"],
+            "observed": arms["two"]["component_measurement"]["timing_synchronization"],
+        },
         "repeat": repeat,
         "aggregate": pilot_config["aggregate"],
         "declared_common_updates": common_updates,
@@ -260,6 +282,8 @@ def main():
                            if not row["matched_within_declared_tolerance"]],
         "arms": arms,
         "out_of_tolerance_control": out_of_tolerance_control,
+        "total_charged_cost_ns": sum(
+            row["total_charged_cost_ns"] for row in arms.values()),
         "protocol_digests": {name: canonical_digest(protocol)
                              for name, protocol in protocols.items()},
         "claim_limits": [
