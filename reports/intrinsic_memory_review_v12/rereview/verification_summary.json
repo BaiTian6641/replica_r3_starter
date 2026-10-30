@@ -1,0 +1,76 @@
+{
+  "format": "replica.intrinsic_memory.independent_rereview.v12",
+  "head": "c95d3e23958d3b76299b01afc2b31a714395707b",
+  "component_commits": ["6ba07e1ba0850da6b8329fe8ce357ef07720ee5a", "cb7d4634660e677b3090cc4c0940bf7dd2ec9b1f", "c268d56126f44d8940a49f9d15ec43388974ccfc", "c95d3e23958d3b76299b01afc2b31a714395707b"],
+  "verdict": "incorrect_residual_findings",
+  "cpu_engineering_qualified": false,
+  "native_packet_ready": false,
+  "native_packet_sha256": "98c3f47abfa12d29222ae6b90e4c2b944396f4fb00bb29ba63ec20236773012d",
+  "protocol_sha256": "b6247f6c0bf46097f864f4c558b90b683d21200c7d89dfb3233c949835cf3f0a",
+  "implementation_receipt_sha256": "e4e7df7fcbac7bf5347bc2d8dbce4bbb0e89cc885d06557b3b5e97e761db806c",
+  "original_ids": {
+    "fixed": ["N1", "N2", "N3", "V1", "V2", "V3", "V4", "V5", "R1", "R2", "R3", "R4", "F2", "T2", "A1", "A2", "A3", "S1", "C1", "D1", "D2", "D3", "D4", "D5"],
+    "fixed_code_policy_open": ["F1"],
+    "still_open_partial": ["T1"]
+  },
+  "original_independent_reproductions": {"passed": 16, "failed": 0, "skipped": 0},
+  "new_confirmed_findings": ["X0_development_exposure", "X1_derived_recovery_fail_open", "X2_torn_ledger_append", "X3_uncharged_native_work", "X4_generic_P_read_after_revocation", "X5_cold_failure_accounting_and_error_masking", "X6_tolerance_not_bound", "X7_unverified_correction_policy", "X8_inconsistent_evidence", "X9_attempt_and_environment_closure", "X10_density_empty_list", "X11_temp_and_overwrite_safety"],
+  "source_free": {
+    "checkout": "/private/tmp/replica-independent-v12-c95d3e23-rereview",
+    "sparse_exclusion_before_checkout": true,
+    "protected_module_present": false,
+    "checkpoint_tree_present": false,
+    "production_files_edited": false,
+    "weights_downloaded_or_copied": false,
+    "edge_test_sha256": "b9fbe2e837198adc03c4bc04ec95782f6ce65d1353ef23754208502bf195d04a"
+  },
+  "full_regression": {"passed": 859, "failed": 0, "skipped": 0, "pytest_seconds": 284.73, "wall_seconds": 285.27, "max_rss_bytes": 1001111552, "junit": "full_regression_c95d3e23.xml", "log": "full_regression_c95d3e23.log"},
+  "edge_reproductions": {"passed": 0, "failed": 7, "skipped": 0, "pytest_seconds": 2.78, "wall_seconds": 3.26, "max_rss_bytes": 403243008, "purpose": "intentional_residual_defect_confirmation"},
+  "integrated_cpu": {"arms": ["two", "full_attention_nine", "all"], "actual_continuation_update_per_arm": 1, "uninterrupted_weights_and_moments_match": true, "artifact_bytes": 102218469, "workflow_wall_seconds": 15.266464415937662, "outer_wall_seconds": 17.90, "max_rss_bytes": 777371648, "native_capability": false},
+  "density": {
+    "profile_post_update_all_six_changed": true,
+    "profile_wall_seconds": 24.48,
+    "profile_max_rss_bytes": 823771136,
+    "pilot_target_cost_ns": 63576216.34615384,
+    "pilot_selected_updates": {"two": 2, "full_attention_nine": 1, "all": 1},
+    "pilot_matched_arms_under_current_executable_tolerance": ["two", "full_attention_nine", "all"],
+    "pilot_wall_seconds": 8.70,
+    "pilot_max_rss_bytes": 951582720,
+    "retained_temp_directories": 41,
+    "retained_temp_kib": 9760,
+    "native_cost_or_capability": false
+  },
+  "replica_workflow": {"formation_used_new": true, "task_improvement_requires_write": true, "chunk_retry_same": true, "wall_seconds": 2.60, "max_rss_bytes": 357580800},
+  "established": {
+    "migration": {"checks": 1482, "failed": 0, "wall_seconds": 10.91, "max_rss_bytes": 31424512},
+    "final_product": {"passed": 552, "failed": 0, "wall_seconds": 8.30, "max_rss_bytes": 38813696},
+    "bundle": {"inputs": 293, "bytes": 7657081, "sha256": "5be29a21022408aca555ba77284940ff42a734d3a4e9bd64909a34e09f1970d3", "wall_seconds": 7.83, "max_rss_bytes": 27688960},
+    "artifacts": {"scope": "tracked", "checked_files": 13364, "violations": 0, "wall_seconds": 0.18, "max_rss_bytes": 34488320}
+  },
+  "native_review": {
+    "implementation_files": 62,
+    "source_execution_files": 2,
+    "source_bytes_hashed": 8238996247,
+    "code_before_model_loading": true,
+    "environment_verified": true,
+    "model_imported": false,
+    "native_execution": false,
+    "review_wall_seconds": 4.18,
+    "review_max_rss_bytes": 76316672,
+    "environment_wall_seconds": 0.06,
+    "environment_max_rss_bytes": 30998528,
+    "authorization_created": false,
+    "native_attempt_consumed": false
+  },
+  "exposure": {
+    "historical_receipt_development_opened": false,
+    "development_file_read_by_rereview_scout": true,
+    "fresh_for_successor_utility_after_this_review": false,
+    "label_contents_reproduced_in_report": false,
+    "coordinator_notification": "this_final_report_after_agent_channel_write_failed_read_only"
+  },
+  "claims": {"native_model_loaded": false, "native_job_started": false, "downloads": false, "useful_recall": false, "persistent_learning": false, "promotion": false, "rsi": false},
+  "negative_report_modified": false,
+  "exact_commands": "commands.md",
+  "detailed_findings": "README.md"
+}
