@@ -338,7 +338,10 @@ class DiagnosticEngineV12:
         self.path.cost['snapshot_copies'] += 1
         self.path.cost['snapshot_bytes'] += context.values.numel()*context.values.element_size()
         return self.path.adapter.forward_text(ids, mask, use_projector=False, use_ports=False,
-                                              use_spine=False, intrinsic_memory=context)
+                                              use_spine=False, intrinsic_memory=context,
+                                              intrinsic_placement=getattr(
+                                                  self.path.spec, 'placement',
+                                                  'block_input_query_to_post_block_residual'))
 
     def forward(self, ids, mask, batch, scope, **kwargs):
         with self.measured('backbone_forward', forwards=1, input_tokens=ids.numel()) as event:

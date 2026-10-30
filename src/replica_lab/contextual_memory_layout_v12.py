@@ -277,7 +277,8 @@ class ContextualMemoryLayoutV12(FeatureIdentityPath):
                                               use_ports=False, use_spine=False)
         context = self.snapshot(ids, batch, scope=scope, active_sites=active_sites)
         return self.adapter.forward_text(ids, mask, use_projector=False, use_ports=False,
-                                          use_spine=False, intrinsic_memory=context)
+                                         use_spine=False, intrinsic_memory=context,
+                                         intrinsic_placement=self.spec.placement)
 
     # ------------------------------------------------------------------
     # Training phase and complete extension checkpoint

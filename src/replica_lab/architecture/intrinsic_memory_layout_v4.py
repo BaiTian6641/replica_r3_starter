@@ -19,6 +19,7 @@ from ..optimizers import NativeFusedAdamW
 
 FORMAT = "replica.intrinsic_memory.reader_checkpoint.v4"
 PLACEMENT = "block_input_query_to_post_block_residual"
+PRE_MLP_PLACEMENT = "block_input_query_to_pre_mlp_residual"
 
 
 @dataclass(frozen=True)
@@ -35,7 +36,7 @@ class IntrinsicMemoryLayout:
                 or type(self.decoder_layers) is not int or self.decoder_layers < 1
                 or type(self.width) is not int or self.width != 256
                 or type(self.slots) is not int or self.slots != 8
-                or self.placement != PLACEMENT
+                or self.placement not in (PLACEMENT, PRE_MLP_PLACEMENT)
                 or not isinstance(self.sites, tuple) or not self.sites
                 or any(type(s) is not int or not 0 <= s < self.decoder_layers for s in self.sites)
                 or tuple(sorted(set(self.sites))) != self.sites):
@@ -56,12 +57,14 @@ class IntrinsicMemoryLayout:
         return len(self.sites) * (2*d*m + 2*m*m + 2*d + 4*m + 1)
 
 
-def spark_layout(arm, *, hidden_size=2560):
+def spark_layout(arm, *, hidden_size=2560, placement=PLACEMENT):
     sites = {"two": (3, 7), "full_attention_nine": tuple(range(3, 36, 4)),
              "all": tuple(range(36))}
     if arm not in sites:
         raise ValueError("unknown Spark memory density arm")
-    return IntrinsicMemoryLayout(hidden_size, sites=sites[arm])
+    if placement not in (PLACEMENT, PRE_MLP_PLACEMENT):
+        raise ValueError("unknown intrinsic-memory placement")
+    return IntrinsicMemoryLayout(hidden_size, sites=sites[arm], placement=placement)
 
 
 def _sha(path):

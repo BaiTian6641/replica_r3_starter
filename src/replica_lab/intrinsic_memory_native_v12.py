@@ -252,7 +252,9 @@ def load_native(root, protocol, arm, ledger, stage):
             cache_entries=FEATURE_CACHE_ENTRIES)
         provider = FrozenSourceFeatures(adapter, bound_tokenizer, feature_spec,
             accounting=SourceWorkAccounting(ledger, stage_ref))
-        path = ContextualMemoryV12(adapter, spark_layout(arm),
+        path = ContextualMemoryV12(adapter, spark_layout(
+            arm, placement=protocol.get('intrinsic_placement',
+                                        'block_input_query_to_post_block_residual')),
             source_identity=sha_json(source['files']),
             feature_provider=provider, lr=protocol['training']['lr'], initialization_seed=17,
             objective_identity=spec.identity(),

@@ -184,6 +184,7 @@ def build_v12_stack(*, seed=17, layers=36, sites=(3, 7), slots=8, vocab_size=DEF
                     tokenizer=None, tokenizer_mode="alnum", pre_buffers=(),
                     source_identity="cpu_v12_tiny_bf16_fixture",
                     execution_identity="CPU_v12_fixture",
+                    placement="block_input_query_to_post_block_residual",
                     objective_identity=None):
     """Build the real v12 producer/store path over a tiny random BF16 backbone."""
     sites = tuple(int(site) for site in sites)
@@ -211,7 +212,7 @@ def build_v12_stack(*, seed=17, layers=36, sites=(3, 7), slots=8, vocab_size=DEF
     provider = FrozenSourceFeatures(adapter, tokenizer, spec, accounting=accounting)
     layout = IntrinsicMemoryLayout(hidden_size=config.geometry.hidden_size,
                                    decoder_layers=layers, sites=sites,
-                                   width=256, slots=slots)
+                                   width=256, slots=slots, placement=placement)
     path = ContextualMemoryV12(
         adapter, layout, source_identity=source_identity, feature_provider=provider,
         lr=lr, initialization_seed=initialization_seed,

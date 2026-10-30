@@ -102,15 +102,21 @@ class _ForwardContext:
     spine_context: SpineForwardContext | None = None
     enabled_spine_branches: tuple[str, ...] = ()
     intrinsic_memory: object | None = None
+    intrinsic_placement: str = "block_input_query_to_post_block_residual"
     traced: list[tuple[int, str]] | None = None
     injected: list[int] | None = None
     deltas: list[float] | None = None
     projector_source: torch.Tensor | None = None
 
+    pre_mlp_deltas: dict[int, torch.Tensor] | None = None
+    pre_mlp_injected: set[int] | None = None
+
     def __post_init__(self) -> None:
         self.traced = []
         self.injected = []
         self.deltas = []
+        self.pre_mlp_deltas = {}
+        self.pre_mlp_injected = set()
 
 
 def _config_fingerprint(base: nn.Module, config: Spark2_5Config) -> str:
@@ -495,7 +501,9 @@ class Spark2_5Adapter(nn.Module):
                     spine_delta = context.spine_context.delta(
                         branch, index, spine_hidden)
                     delta = spine_delta if delta is None else delta + spine_delta
-            if context.intrinsic_memory is not None and index in context.intrinsic_memory.spec.sites:
+            if (context.intrinsic_memory is not None
+                    and context.intrinsic_placement == "block_input_query_to_post_block_residual"
+                    and index in context.intrinsic_memory.spec.sites):
                 memory_delta = context.intrinsic_memory.delta(
                     index, hidden.to(device=device, dtype=torch.float32))
                 delta = memory_delta if delta is None else delta + memory_delta
@@ -511,12 +519,40 @@ class Spark2_5Adapter(nn.Module):
             return output + delta
         return hook
 
+    def _make_layer_pre_hook(self, index: int, context: _ForwardContext):
+        def hook(module: nn.Module, args: tuple):
+            if not args or not torch.is_tensor(args[0]):
+                raise SparkAdapterError("decoder layer did not receive a hidden-state tensor")
+            if context.intrinsic_memory is not None and index in context.intrinsic_memory.spec.sites:
+                device = next(self.extension.vision_projector.parameters()).device
+                context.pre_mlp_deltas[index] = context.intrinsic_memory.delta(
+                    index, args[0].to(device=device, dtype=torch.float32))
+            return None
+        return hook
+
+    def _make_mlp_pre_hook(self, index: int, context: _ForwardContext):
+        def hook(module: nn.Module, args: tuple):
+            delta = context.pre_mlp_deltas.get(index)
+            if delta is None or not args or not torch.is_tensor(args[0]):
+                raise SparkAdapterError("pre-MLP memory delta or input is missing")
+            hidden = args[0]
+            if tuple(delta.shape) != tuple(hidden.shape):
+                raise SparkAdapterError("pre-MLP memory delta shape differs")
+            delta = delta.to(hidden.dtype)
+            if index not in context.pre_mlp_injected:
+                context.injected.append(index)
+                context.deltas.append(float(delta.detach().abs().max().item()))
+                context.pre_mlp_injected.add(index)
+            return (hidden + delta, *args[1:])
+        return hook
+
     def _run(self, *, hidden_only: bool, input_ids: torch.Tensor,
              attention_mask: torch.Tensor | None, position_ids: torch.Tensor | None,
              projector_input: torch.Tensor | None, memory: torch.Tensor | None,
              memory_mask: torch.Tensor | None, use_projector: bool, use_ports: bool,
              spine: SpineForwardContext | None = None, use_spine: bool = False,
-             intrinsic_memory=None,
+            intrinsic_memory=None,
+            intrinsic_placement="block_input_query_to_post_block_residual",
              enabled_spine_branches: tuple[str, ...] = BRANCHES):
         input_ids = input_ids
         mask = self._validate_inputs(input_ids, attention_mask)
@@ -526,12 +562,15 @@ class Spark2_5Adapter(nn.Module):
             raise SparkAdapterError("spine context was supplied while spine is disabled")
         if use_spine and spine is None:
             raise SparkAdapterError("spine context is required when spine is enabled")
+        if intrinsic_placement not in (
+                "block_input_query_to_post_block_residual", "block_input_query_to_pre_mlp_residual"):
+            raise SparkAdapterError("undeclared intrinsic-memory placement")
         context = _ForwardContext(
             use_projector=use_projector, use_ports=use_ports,
             projector_input=projector_input, memory=memory,
             memory_mask=memory_mask,
             spine_context=spine if use_spine else None,
-            intrinsic_memory=intrinsic_memory,
+            intrinsic_memory=intrinsic_memory, intrinsic_placement=intrinsic_placement,
             enabled_spine_branches=(tuple(enabled_spine_branches)
                                     if use_spine else ()))
         handles = []
@@ -539,6 +578,19 @@ class Spark2_5Adapter(nn.Module):
             for index, layer in enumerate(self.base.model.layers):
                 handles.append(layer.register_forward_hook(
                     self._make_hook(index, self.config.geometry.layer_types[index], context)))
+            if (intrinsic_placement == "block_input_query_to_pre_mlp_residual"
+                    and intrinsic_memory is not None):
+                for index, layer in enumerate(self.base.model.layers):
+                    if index in intrinsic_memory.spec.sites:
+                        handles.append(layer.register_forward_pre_hook(
+                            self._make_layer_pre_hook(index, context)))
+                        if hasattr(layer, "mlp"):
+                            handles.append(layer.mlp.register_forward_pre_hook(
+                                self._make_mlp_pre_hook(index, context)))
+                        else:
+                            for name in ("gate_proj", "up_proj"):
+                                handles.append(getattr(layer, name).register_forward_pre_hook(
+                                    self._make_mlp_pre_hook(index, context)))
             common = {"input_ids": input_ids, "attention_mask": mask,
                       "position_ids": position_ids, "use_cache": False}
             if hidden_only:
@@ -584,6 +636,7 @@ class Spark2_5Adapter(nn.Module):
                      spine: SpineForwardContext | None = None,
                      use_spine: bool = False,
                      intrinsic_memory=None,
+                     intrinsic_placement="block_input_query_to_post_block_residual",
                      enabled_spine_branches: tuple[str, ...] = BRANCHES,
                      return_audit: bool = False):
         logits, audit, _ = self._run(
@@ -591,7 +644,7 @@ class Spark2_5Adapter(nn.Module):
             position_ids=position_ids, projector_input=projector_input, memory=memory,
             memory_mask=memory_mask, use_projector=use_projector, use_ports=use_ports,
             spine=spine, use_spine=use_spine,
-            intrinsic_memory=intrinsic_memory,
+            intrinsic_memory=intrinsic_memory, intrinsic_placement=intrinsic_placement,
             enabled_spine_branches=enabled_spine_branches)
         return (logits, audit) if return_audit else logits
 
@@ -605,6 +658,7 @@ class Spark2_5Adapter(nn.Module):
                      spine: SpineForwardContext | None = None,
                      use_spine: bool = False,
                      intrinsic_memory=None,
+                     intrinsic_placement="block_input_query_to_post_block_residual",
                      enabled_spine_branches: tuple[str, ...] = BRANCHES,
                      return_audit: bool = False):
         hidden, audit, _ = self._run(
@@ -612,7 +666,7 @@ class Spark2_5Adapter(nn.Module):
             position_ids=position_ids, projector_input=projector_input, memory=memory,
             memory_mask=memory_mask, use_projector=use_projector, use_ports=use_ports,
             spine=spine, use_spine=use_spine,
-            intrinsic_memory=intrinsic_memory,
+            intrinsic_memory=intrinsic_memory, intrinsic_placement=intrinsic_placement,
             enabled_spine_branches=enabled_spine_branches)
         return (hidden, audit) if return_audit else hidden
 
