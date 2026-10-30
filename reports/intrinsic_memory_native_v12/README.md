@@ -81,17 +81,18 @@ and independent review is still required before authorization or launch. Note
 that `--review`/`--launch` now also verify the 450,061,586-byte environment
 closure and, for launch, the durable attempt marker.
 
-Three earlier unlaunched preparations are preserved verbatim, unmodified and
+Five earlier unlaunched preparations are preserved verbatim, unmodified and
 clearly non-canonical, each with a computed-hash status record:
 `preparation_draft01/` binds pre-repair bytes, `preparation_draft02/` carries the
 N1–N3 repairs made before the producer commit, and `preparation_draft03/` carries
 the retired v11-development reuse contract before the fresh split and the
-X-series repairs. `preparation_draft04/` preserves the working-tree packet made
-while producer cycle 4 was uncommitted; its config, split manifest, fresh
-development corpus, packet, implementation receipt, environment closure and
-exposure receipt are byte-identical to the current canonical ones, and only its
-`preparation.json` differs (measured hashing wall time). No attempt or historical
-evidence was moved or deleted.
+X-series repairs. `preparation_draft04/` preserves the working-tree packet made while producer
+cycle 4 was uncommitted, and `preparation_draft05/` preserves the packet made
+while the consumer repairs were uncommitted. Both drafts' config, split
+manifest, fresh development corpus, packet, implementation receipt, environment
+closure and exposure receipt are byte-identical to the current canonical ones;
+only their `preparation.json` differs (measured hashing wall time). No attempt or
+historical evidence was moved or deleted.
 
 Provenance: the v12 producer was committed at `6dede67e`, repaired for the
 independent review at `6ba07e1b`, and repaired again for the re-review at
@@ -105,10 +106,12 @@ The five producer modules in this closure are **committed** blobs: every
 producer hash in `implementation_v12.json` equals its `HEAD` blob content at
 `826aac6b`. The seven consumer files of the X0/X2/X3/X9 repairs
 (`intrinsic_memory_{budget,coverage,diagnostic,execution,native}_v12.py` and
-both runner/preparation scripts) are still working-tree changes, so those closure
-entries pin working-tree bytes: commit them and regenerate once more before
-sealing. `--review` recomputes the closure statically and refuses any difference,
-so a future `src/` change fails closed until re-preparation.
+both runner/preparation scripts) are committed at `257c722e` (`fix: close native
+recovery and fresh-split gates`). **All 62 closure entries now equal their `HEAD`
+blob content**, and the regenerated packet is byte-identical to the one the
+coordinator gates passed — only `preparation.json` differs, in its measured
+hashing wall time. `--review` recomputes the closure statically and refuses any
+difference, so a future `src/` change fails closed until re-preparation.
 
 Bound after regeneration: the content-attestation change (the adapter contract
 includes the exact base content digest, supplied as the already-verified full
@@ -220,6 +223,7 @@ gate stay matched to v11. The hypothesis is about source representation only.
 | `reports/intrinsic_memory_native_v12/preparation_draft02/` | Preserved N1–N3 preparation made before the producer commit; its config, packet and closure matched that moment; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft03/` | Preserved packet with the retired v11-development reuse contract, before the fresh split and X-series repairs; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft04/` | Preserved working-tree packet made while producer cycle 4 was uncommitted; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft05/` | Preserved packet made while the consumer repairs were uncommitted; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/environment_closure_v12.json` | Executable dependency closure: resolved interpreter, module origins, native extensions, all `torch/lib` files, all wheel RECORDs and critical files, by actual hash |
 | `reports/intrinsic_memory_native_v12/development_exposure_v12.json` | Current exposure receipt: fresh split unopened, retired v11 split, reading incident recorded; historical receipt unedited |
 
