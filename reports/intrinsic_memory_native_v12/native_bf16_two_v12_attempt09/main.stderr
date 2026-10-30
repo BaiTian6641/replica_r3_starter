@@ -1,0 +1,57 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 142.16it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 434, in run_main
+    probes = engine.fitting_probes(rows, sources, scopes, stores)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_teacher_v12.py", line 271, in fitting_probes
+    groups.append(DiagnosticEngineV12.fitting_probes(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_diagnostic_v12.py", line 499, in fitting_probes
+    greedy = self.generate(row, live, scope, control=control, wrong=wrong,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_diagnostic_v12.py", line 359, in generate
+    tokens = self.tokens(row, exact=control == 'exact_text'); prefix = len(tokens)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_diagnostic_v12.py", line 178, in tokens
+    with self.measured('prompt_tokenization', prompt_tokenizer_calls=1):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_diagnostic_v12.py", line 163, in measured
+    with self.ledger.work(self.stage, operation, **amounts) as event:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_budget_v12.py", line 474, in work
+    token = self.reserve(stage, operation, **amounts)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_budget_v12.py", line 449, in reserve
+    raise BudgetError('stage/outer wall budget exceeded')
+replica_lab.intrinsic_memory_budget_v12.BudgetError: stage/outer wall budget exceeded
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 338, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 334, in main
+    worker(args); return 0
+    ^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 263, in worker
+    load_and_run(ROOT, protocol, packet['arm'], ledger, output,
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 649, in load_and_run
+    return run_main(root, protocol, arm, ledger, output, path, backend, spec,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 540, in run_main
+    result['final_original_parameters_sha256'] = base_hash(path.adapter.base)
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v5.py", line 38, in base_hash
+    return _content_digest([v for v in named if v[0].startswith('parameter/')],
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/spark_device_placement_v2.py", line 61, in _content_digest
+    digest.update(memoryview(chunk.numpy()))
+KeyboardInterrupt

@@ -1,0 +1,53 @@
+{
+  "format": "replica.intrinsic_memory.native_attempt_failure_analysis.v12",
+  "attempt": 9,
+  "packet_sha256": "cd93b86e11c2e673ad3c9e23994e980337b7e81ac270d6d3925f07f4c568582d",
+  "status": "execution_failure_during_third_fitting_probe",
+  "wall_seconds": 2652.43,
+  "error": {
+    "type": "BudgetError",
+    "message": "stage/outer wall budget exceeded",
+    "stage": "fit_probes_384",
+    "operation": "prompt_tokenization",
+    "prompt_passes_before_stop": 761,
+    "reserved_prompt_passes": 800
+  },
+  "completed_before_failure": {
+    "calibration_correct": 8,
+    "calibration_cases": 8,
+    "teacher_correct": 32,
+    "teacher_cases": 32,
+    "fitting_updates_completed": 384,
+    "fit_probes_128_seconds": 370.07524995785207,
+    "fit_probes_256_seconds": 649.6911969999783,
+    "fit_probes_128_memory_dependence_passed": false,
+    "fit_probes_256_memory_dependence_passed": false,
+    "fit_probes_128_correct": {
+      "absent": 8,
+      "contextual": 12,
+      "exact_text": 32,
+      "shuffled": 12,
+      "wrong": 10,
+      "zero": 8
+    },
+    "fit_probes_256_correct": {
+      "absent": 8,
+      "contextual": 18,
+      "exact_text": 32,
+      "shuffled": 19,
+      "wrong": 6,
+      "zero": 7
+    }
+  },
+  "not_completed": [
+    "fit_probes_384",
+    "fit_512",
+    "fit_probes_512",
+    "development",
+    "correction",
+    "restart",
+    "final_result"
+  ],
+  "scientific_interpretation": "The two completed prefix probes failed their predeclared memory-dependence gates. They are preserved as partial results, not used to tune the model or data. The interrupted third probe has no scientific verdict. No development, useful-recall, persistent-learning or promotion claim is available.",
+  "repair": "Allocate probe walls by observed prefix duration: 500, 800, 1100 and 1400 seconds. Total reserved stage wall becomes 7155 seconds inside the unchanged 7200-second outer ceiling. Keep all work counts, model parameters, data, fitting schedule and scientific gates unchanged. Prepare a fresh attempt10 packet, output identity and authorization; preserve attempt09 unchanged."
+}

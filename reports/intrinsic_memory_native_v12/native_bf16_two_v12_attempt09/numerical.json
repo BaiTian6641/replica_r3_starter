@@ -1,0 +1,68 @@
+{
+  "disabled_zero_init_exact": true,
+  "feature_contract": {
+    "detach_boundary": "frozen_original_hidden_before_trainable_compressor",
+    "format": "replica.canonical_source_features.v12",
+    "hidden_size": 2560,
+    "input_policy": "canonical_span_only_no_template_no_special_tokens",
+    "max_tokens": 256,
+    "original_parameters_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+    "original_updates": 0,
+    "output_policy": "last_decoder_hidden_after_final_norm",
+    "source_execution_sha256": "0e1c03b8d5bf26464c449ec5292f8bf38cbad84403310ac90818fbdd3da4d1da",
+    "source_position_ids": "0_to_source_token_count_minus_one",
+    "thinking_mode": "not_applicable_unframed_source",
+    "tokenizer_sha256": "f74b126e248feb33df37f78fcd28f3839f5b9184378aa4419e727736270e7b8f"
+  },
+  "single_optimizer_owner": {
+    "order": [
+      "order.weight"
+    ],
+    "producer": [
+      "producer.slot_queries",
+      "producer.input_norm.weight",
+      "producer.input_norm.bias",
+      "producer.input_projection.weight",
+      "producer.position.weight",
+      "producer.transformer.layers.0.self_attn.in_proj_weight",
+      "producer.transformer.layers.0.self_attn.in_proj_bias",
+      "producer.transformer.layers.0.self_attn.out_proj.weight",
+      "producer.transformer.layers.0.self_attn.out_proj.bias",
+      "producer.transformer.layers.0.linear1.weight",
+      "producer.transformer.layers.0.linear1.bias",
+      "producer.transformer.layers.0.linear2.weight",
+      "producer.transformer.layers.0.linear2.bias",
+      "producer.transformer.layers.0.norm1.weight",
+      "producer.transformer.layers.0.norm1.bias",
+      "producer.transformer.layers.0.norm2.weight",
+      "producer.transformer.layers.0.norm2.bias",
+      "producer.output.0.weight",
+      "producer.output.0.bias",
+      "producer.output.1.weight"
+    ],
+    "reader": [
+      "reader.ports.3.gate_logit",
+      "reader.ports.3.query_norm.weight",
+      "reader.ports.3.query_norm.bias",
+      "reader.ports.3.query_projection.weight",
+      "reader.ports.3.slot_norm.weight",
+      "reader.ports.3.slot_norm.bias",
+      "reader.ports.3.key_projection.weight",
+      "reader.ports.3.value_projection.weight",
+      "reader.ports.3.output_norm.weight",
+      "reader.ports.3.output_norm.bias",
+      "reader.ports.3.output_projection.weight",
+      "reader.ports.7.gate_logit",
+      "reader.ports.7.query_norm.weight",
+      "reader.ports.7.query_norm.bias",
+      "reader.ports.7.query_projection.weight",
+      "reader.ports.7.slot_norm.weight",
+      "reader.ports.7.slot_norm.bias",
+      "reader.ports.7.key_projection.weight",
+      "reader.ports.7.value_projection.weight",
+      "reader.ports.7.output_norm.weight",
+      "reader.ports.7.output_norm.bias",
+      "reader.ports.7.output_projection.weight"
+    ]
+  }
+}

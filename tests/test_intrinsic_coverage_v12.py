@@ -86,7 +86,7 @@ def test_stage_plan_is_complete_finite_and_inside_the_outer_envelope():
             assert set(caps) == set(COUNTERS)|{'wall_seconds'}, stage
             assert all(type(caps[k]) is int and caps[k] >= 0 for k in COUNTERS)
         total = totals(stages)
-        assert total['wall_seconds'] == 6955
+        assert total['wall_seconds'] == 7155
         assert total['wall_seconds'] <= OUTER_WALL_SECONDS-11
         assert total['updates'] == 513
         assert total['model_loads'] == 2

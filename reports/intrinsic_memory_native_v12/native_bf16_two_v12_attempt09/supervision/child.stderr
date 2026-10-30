@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 338, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 333, in main
+    supervised(args); return 0
+    ^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 194, in supervised
+    supervise_worker('main', args, output, ledger, guard, 'capacity_main')
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 112, in supervise_worker
+    if reason: raise RuntimeError(reason)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: stage_or_outer_deadline

@@ -665,10 +665,14 @@ def plan(arm):
         # (1 tokenizer + 1 forward) and wrong-world re-encode (1 tokenizer +
         # 1 forward); then 2 parity + 6 control + 6*8 generation forwards. Plus
         # the probe and curve receipts.
+        # Attempt09 measured 370.08 s and 649.69 s for the first two probes and
+        # hit 900 s during the third. Allocate 500/800/1100/1400 s by prefix;
+        # the 7155 s total remains inside the unchanged 7200 s outer envelope.
         worlds, controls, tokens = FIT_CASES, 6, 8
         backbone = worlds*(2 + controls + controls*tokens)
+        probe_walls = {128: 500, 256: 800, 384: 1100, 512: 1400}
         result[f'fit_probes_{end:03d}'] = stage(
-            900, **span(worlds*4, worlds*3, prompt_passes=25*worlds,
+            probe_walls[end], **span(worlds*4, worlds*3, prompt_passes=25*worlds,
                         backbone_forwards=backbone, backbone_tokens=256),
             artifact_read_bytes=CONTROL_READ_BYTES_BOUND + worlds*(RELEASE_READ_BYTES_BOUND + direct_reads),
             artifact_bytes=worlds*RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD,
