@@ -1,6 +1,6 @@
 # Spark pre-MLP fusion placement v14
 
-Status: **native attempt01 is running under one exclusive MPS worker.** No fitting, development, restart, utility or promotion result is available yet.
+Status: **attempt01 is terminal: final fitting failed, development stayed closed, and fresh-process restart passed.** Pre-MLP placement did not establish useful recall or justify promotion. No native worker is active.
 
 ## Predeclared mechanism
 
@@ -32,3 +32,28 @@ Development labels remain unread unless final fitting passes. Persistent-P updat
 ## Evidence to append
 
 Terminal raw answers, every fitting group, counterfactual pairs, completion/truncation, live/durable parity, original-weight checks, restart, development exposure, token/tool/action counts, latency, memory, artifacts, unsuccessful trajectories and independently reconciled outcomes will be appended after attempt01 terminates. CPU pre-MLP mechanics pass 96 focused tests, but those tests establish only null parity, gradients, placement-specific influence and checkpoint identity—not native learning.
+
+## Terminal outcome
+
+Baseline passed 8/8 and teacher 32/32 with zero false recall and zero truncation.
+After exactly 512 updates, contextual/exact/shuffled/wrong/zero/absent scored
+25/32/25/7/7/8 out of 32. Groups scored 6, 7, 6 and 6 of 8, with both sides
+correct for 9/16 counterfactual pairs. Every final group failed, so development
+had zero read events. All final responses terminated and live/durable parity was
+32/32. Original weights remained unchanged.
+
+Fresh-process restart restored exact logits and completed one actual continuation
+update with original hashes unchanged. Uninterrupted-update equivalence was not
+measured. Supervision wall was 4,453.024 seconds; peak sampled driver was
+11,290,918,912 bytes, swap growth zero, minimum host free 71%, and the raw tree
+was 72,116,086 bytes.
+
+Against v12 attempt10, contextual and shuffled each changed by +1/32 and paired
+success changed from 8 to 9. This is not a passing result or causal benefit claim.
+See `reports/intrinsic_memory_pre_mlp_v14/attempt01_terminal_reconciliation.json`
+and `attempt01_outcome_analysis.json`. If another mechanism is authorized, the
+decision-bound fallback is reader/query alignment with source representation
+fixed, not more slots or another encoder/objective change.
+
+Independent implementation review before launch returned no findings:
+`reports/intrinsic_memory_pre_mlp_v14/independent_review.json`.

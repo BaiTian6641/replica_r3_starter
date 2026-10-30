@@ -1,0 +1,68 @@
+{
+  "canary_logits_sha256": "7efcf7e135e3c0545241b6bee8529458208f1fdd1ed6b9fb18c90ab143929398",
+  "checkpoint_manifest_sha256": "322bd022083decdb12da3fdb6d23737d28c41913eadfec93fb833160c1baf9d5",
+  "feature_binding": {
+    "adapter_content_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+    "adapter_contract": "0e1c03b8d5bf26464c449ec5292f8bf38cbad84403310ac90818fbdd3da4d1da",
+    "feature_contract_sha256": "572532571c1747c6a3eae8eb725f9ca7ce6f33d87e288bcec4598aa39c2975fa",
+    "original_parameters_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+    "tokenizer_contract": "f74b126e248feb33df37f78fcd28f3839f5b9184378aa4419e727736270e7b8f",
+    "tokenizer_sha256": "f74b126e248feb33df37f78fcd28f3839f5b9184378aa4419e727736270e7b8f"
+  },
+  "feature_contract": {
+    "detach_boundary": "frozen_original_hidden_before_trainable_compressor",
+    "format": "replica.canonical_source_features.v12",
+    "hidden_size": 2560,
+    "input_policy": "canonical_span_only_no_template_no_special_tokens",
+    "max_tokens": 256,
+    "original_parameters_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+    "original_updates": 0,
+    "output_policy": "last_decoder_hidden_after_final_norm",
+    "source_execution_sha256": "0e1c03b8d5bf26464c449ec5292f8bf38cbad84403310ac90818fbdd3da4d1da",
+    "source_position_ids": "0_to_source_token_count_minus_one",
+    "thinking_mode": "not_applicable_unframed_source",
+    "tokenizer_sha256": "f74b126e248feb33df37f78fcd28f3839f5b9184378aa4419e727736270e7b8f"
+  },
+  "feature_contract_sha256": "572532571c1747c6a3eae8eb725f9ca7ce6f33d87e288bcec4598aa39c2975fa",
+  "objective": {
+    "alignment": "response_token_index_including_one_EOS",
+    "ce_weight": 0.0,
+    "completion": {
+      "allowed_stop_identity": "994dd6e472a95243ae46cb1214e0c5ef14c5b7109c2518208ce5e4df44cdba93",
+      "allowed_stop_token_ids": [
+        1
+      ],
+      "context_tokens": 256,
+      "eos_token_id": 1,
+      "format": "replica.contextual_complete_response.objective.v1",
+      "ignore_index": -100,
+      "label_alignment": "logit_i_predicts_token_i_plus_1_no_additional_shift",
+      "loss": "mean_cross_entropy_over_answer_tokens_plus_one_EOS",
+      "pad_token_id": 2,
+      "padding_side": "right",
+      "template_identity": "fe75b8ef7b8068513db68dd0dd4eedfcc9df7219a7598034dfd526a61b1c6f6e",
+      "thinking_mode": "none",
+      "tokenizer_identity": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+      "training_terminal_identity": "69ca506e8a06ed07426246410dad1f6e491d9eaa5c93145ac4bae557d9ed14c6",
+      "vocab_size": 131072
+    },
+    "format": "replica.contextual_teacher_alignment.v1",
+    "kl_weight": 1.0,
+    "student_boundary": "live_producer_and_reader_no_serialization",
+    "student_normalization": "full_vocabulary",
+    "teacher_boundary": "frozen_extensions_disabled_detached_targets",
+    "teacher_normalization": "renormalized_top_k",
+    "temperature": 1.0,
+    "top_k": 64
+  },
+  "original_parameters_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+  "parent_model_pid": 84472,
+  "restart_source_recomputation_required": true,
+  "teacher_cache": {
+    "bytes": 284919,
+    "sha256": "d1f07f5117c2413554c18ee46a71b79b6413eaa10f2a623a33840cf05c799117"
+  },
+  "uninterrupted_equivalence_claim": false,
+  "updates_allowed": 1,
+  "world_id": "v11_fit_00"
+}

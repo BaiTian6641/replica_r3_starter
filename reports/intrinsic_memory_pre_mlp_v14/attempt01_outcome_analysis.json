@@ -1,0 +1,48 @@
+{
+  "format": "replica.intrinsic_memory.pre_mlp_outcome_analysis.v14",
+  "attempt": 1,
+  "packet_sha256": "074bee9bdc0b8f77f892ac491b3465e4fcb56c022bf7a5cca17af381751af7ff",
+  "status": "final_fit_failed_development_closed_restart_passed",
+  "baseline_correct": 8,
+  "teacher_correct": 32,
+  "fitting_updates": 512,
+  "correct": {
+    "absent": 8,
+    "contextual": 25,
+    "exact_text": 32,
+    "shuffled": 25,
+    "wrong": 7,
+    "zero": 7
+  },
+  "group_contextual_correct": [6, 7, 6, 6],
+  "counterfactual_pairs_both_correct": 9,
+  "counterfactual_pairs": 16,
+  "development_opened": false,
+  "development_split_read_events": 0,
+  "fresh_process_logits_exact": true,
+  "actual_continuation_updates": 1,
+  "original_weights_unchanged": true,
+  "comparison_with_v12_attempt10": {
+    "contextual_delta": 1,
+    "shuffled_delta": 1,
+    "exact_text_delta": 0,
+    "wrong_delta": 1,
+    "zero_delta": 2,
+    "absent_delta": 0,
+    "counterfactual_pairs_delta": 1,
+    "group_contextual_delta": [0, 2, 0, -1],
+    "both_final_gates_failed": true,
+    "interpretation": "Pre-MLP placement alone did not establish useful memory or a causal benefit. The +1/32 contextual change is not a passing result or a basis for promotion."
+  },
+  "resources": {
+    "supervision_elapsed_seconds": 4453.024444957729,
+    "peak_driver_bytes": 11290918912,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 71.0,
+    "artifact_bytes_current_raw_tree": 72116086
+  },
+  "independent_reconciliation": "reports/intrinsic_memory_pre_mlp_v14/attempt01_terminal_reconciliation.json",
+  "next_fallback": "If another mechanism is authorized, isolate reader/query alignment with the source representation fixed and post-block placement as the control. Do not add slots, change the source encoder, or change the objective. Reader/query benefit remains unmeasured.",
+  "persistent_learning": false,
+  "density_or_promotion": false
+}

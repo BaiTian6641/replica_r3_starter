@@ -1,0 +1,89 @@
+{
+  "adapter_contract": "0e1c03b8d5bf26464c449ec5292f8bf38cbad84403310ac90818fbdd3da4d1da",
+  "base": {
+    "artifact_sha256": "c309e44c93edf04187447c27990ecd0979990d7bab9e8dbf5a715afd2f82a50a",
+    "config_digest": "540bfbe3a23312c34e359e3907550c0783a0e3bccb3ef2524bbe22d495977019",
+    "derivative_of": null,
+    "geometry_fingerprint": "4af04881df74db63705ecf779e4c5e9c388f0bfcc622c7ad96064a9aa7bbcd86",
+    "precision_digest": "7eeaf968b5e7601d684c0c9b596c33e0883098f4f1946e1f113bc9be632f317e",
+    "precision_kind": "official_bf16",
+    "quantization_fingerprint": null,
+    "storage": "bf16",
+    "weight_dtype": "BF16"
+  },
+  "codec": "contextual_source_features_fp32_slots_v12",
+  "components_manifest_sha256": "694f6554fe8efa9173c70d76bdff3ea2c39d0782fc852445d243d6048b15f411",
+  "contains_base_weights": false,
+  "execution_identity": "379813d3e5d0bbb74c83dcd866631ab12e4f25c6274b66d980e481fd054abea7",
+  "feature_cache_serialized": false,
+  "feature_contract": {
+    "detach_boundary": "frozen_original_hidden_before_trainable_compressor",
+    "format": "replica.canonical_source_features.v12",
+    "hidden_size": 2560,
+    "input_policy": "canonical_span_only_no_template_no_special_tokens",
+    "max_tokens": 256,
+    "original_parameters_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+    "original_updates": 0,
+    "output_policy": "last_decoder_hidden_after_final_norm",
+    "source_execution_sha256": "0e1c03b8d5bf26464c449ec5292f8bf38cbad84403310ac90818fbdd3da4d1da",
+    "source_position_ids": "0_to_source_token_count_minus_one",
+    "thinking_mode": "not_applicable_unframed_source",
+    "tokenizer_sha256": "f74b126e248feb33df37f78fcd28f3839f5b9184378aa4419e727736270e7b8f"
+  },
+  "fitting_frozen": true,
+  "format": "replica.contextual_memory.v12.checkpoint",
+  "layout": {
+    "decoder_layers": 36,
+    "hidden_size": 2560,
+    "placement": "block_input_query_to_pre_mlp_residual",
+    "sites": [
+      3,
+      7
+    ],
+    "slots": 8,
+    "width": 256
+  },
+  "objective": {
+    "alignment": "response_token_index_including_one_EOS",
+    "ce_weight": 0.0,
+    "completion": {
+      "allowed_stop_identity": "994dd6e472a95243ae46cb1214e0c5ef14c5b7109c2518208ce5e4df44cdba93",
+      "allowed_stop_token_ids": [
+        1
+      ],
+      "context_tokens": 256,
+      "eos_token_id": 1,
+      "format": "replica.contextual_complete_response.objective.v1",
+      "ignore_index": -100,
+      "label_alignment": "logit_i_predicts_token_i_plus_1_no_additional_shift",
+      "loss": "mean_cross_entropy_over_answer_tokens_plus_one_EOS",
+      "pad_token_id": 2,
+      "padding_side": "right",
+      "template_identity": "fe75b8ef7b8068513db68dd0dd4eedfcc9df7219a7598034dfd526a61b1c6f6e",
+      "thinking_mode": "none",
+      "tokenizer_identity": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+      "training_terminal_identity": "69ca506e8a06ed07426246410dad1f6e491d9eaa5c93145ac4bae557d9ed14c6",
+      "vocab_size": 131072
+    },
+    "format": "replica.contextual_teacher_alignment.v1",
+    "kl_weight": 1.0,
+    "student_boundary": "live_producer_and_reader_no_serialization",
+    "student_normalization": "full_vocabulary",
+    "teacher_boundary": "frozen_extensions_disabled_detached_targets",
+    "teacher_normalization": "renormalized_top_k",
+    "temperature": 1.0,
+    "top_k": 64
+  },
+  "original_weights_serialized": false,
+  "producer": "frozen_spark_features_contextual_compressor_v12",
+  "producer_release": "v12-41d11b15b5e30b6d95701d1a6a5f50d0455b4d97ef913e852164cca7df95fc9e",
+  "producer_state_release": "v12-270b747f14fcad48f044bc1bf3d6f16f87f4819c06459491bdb1a999ce520af8",
+  "projection_cache": "none",
+  "representation": "four_ordered_frozen_source_contextual_256_v12",
+  "representation_release": "v12-41d11b15b5e30b6d95701d1a6a5f50d0455b4d97ef913e852164cca7df95fc9e",
+  "slot_policy": "fixed_eight_masked_padding_v12",
+  "source_identity": "c309e44c93edf04187447c27990ecd0979990d7bab9e8dbf5a715afd2f82a50a",
+  "task_state_serialized": false,
+  "temporal_rule": "MemoryScope.cutoff",
+  "tokenizer_contract": "f74b126e248feb33df37f78fcd28f3839f5b9184378aa4419e727736270e7b8f"
+}

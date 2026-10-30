@@ -1,6 +1,6 @@
 # Current Spark intrinsic-memory status
 
-**30 October 2026 — pre-MLP fusion-placement attempt01 is running under one exclusive MPS worker.** V12 attempt10 failed final fitting; the completed v13 diagnostic selected this single mechanism. Development remains closed unless final fitting passes; useful recall is unestablished.
+**30 October 2026 — pre-MLP attempt01 failed final fitting and no native worker is active.** Contextual was 25/32 with 9/16 pairs; development stayed closed. Fresh-process restart passed with exact logits and one continuation update. Useful recall and generalization remain unestablished.
 
 ## Authoritative current evidence
 
@@ -16,7 +16,8 @@
 - Research boundaries: `docs/research/spark_memory_20261029/Contextual_Compression_V12_Crosscheck.md` and `Research_Crosscheck.md`.
 - Successor engineering: full-lifecycle fixture and restart repair `ca5144cc`; incremental WorkLedger evidence `reports/intrinsic_memory_successors_v13/`; response/correction contracts `src/replica_lab/intrinsic_memory_acceptance_v13.py`.
 - Counterfactual diagnosis and next mechanism: `docs/experiments/20261030_Spark_Counterfactual_Diagnosis_V13.md` plus `reports/intrinsic_memory_counterfactual_v13/attempt03_mechanism_decision.json`. Native attempt03 completed with all intermediate tensors preserved.
-- Pre-MLP protocol and pending evidence: `docs/experiments/20261030_Spark_Pre_MLP_Fusion_V14.md` and `reports/intrinsic_memory_pre_mlp_v14/`.
+- Pre-MLP terminal protocol and evidence: `docs/experiments/20261030_Spark_Pre_MLP_Fusion_V14.md` and `reports/intrinsic_memory_pre_mlp_v14/`.
+- Bounded release/archive costs: `reports/intrinsic_memory_successors_v13/release_costs_attempt10.json` — 128 rebuilds, 281.676 seconds and 8,557,737 current archive bytes; incremental migration is unmeasured.
 
 ## Learning and capability state
 
@@ -32,6 +33,6 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/inspect_spark_intrinsic_packe
   --output reports/intrinsic_memory_native_v12/current_packet_budget.json
 ```
 
-The running experiment is **pre-MLP fusion placement at the existing 3/7 sites**, with frozen source features, four slots, objective, optimizer and fitting rows fixed. It was selected because every diagnostic pair retained slot and reader distinctions while residual distinctions were smaller and eight pairs had an incorrect side. Less-compressed features were not selected; reader/query alignment is the fallback if placement fails. No held-out labels open before the corresponding gates pass.
+The completed experiment was **pre-MLP fusion placement at the existing 3/7 sites**, with frozen source features, four slots, objective, optimizer and fitting rows fixed. It changed contextual by only +1/32 and did not pass any final group, so placement alone is insufficient. The declared fallback is **reader/query alignment with source representation fixed**, not more slots or another encoder/objective change. Density, formation and persistent learning remain gated; no held-out labels opened.
 
 Historical v11 and attempt01–10 material remains evidence, not current navigation. Protected and unrelated dirty work remains untouched; `src/replica_lab/runtime_pilot.py` must never be read, imported, edited, or staged.

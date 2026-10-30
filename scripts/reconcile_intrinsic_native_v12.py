@@ -91,7 +91,9 @@ def reconcile(run: Path, packet: Path, protocol_path: Path):
     guard_main = load(run / "capacity_guard_main.json")
     guard_restart = load(run / "capacity_guard_restart.json")
     supervision = load(run / "supervision/receipt.json")
-    failure = load(run / "restart.failure.json")
+    restart_success = (run / "restart_result.json").is_file()
+    restart_document = (load(run / "restart_result.json") if restart_success
+                        else load(run / "restart.failure.json"))
     checkpoint = load(run / "checkpoint/manifest.json")
     artifact_bytes = sum(path.stat().st_size for path in run.rglob("*") if path.is_file())
     final_fit_passed = (main["fit_updates"] == 512
@@ -105,6 +107,8 @@ def reconcile(run: Path, packet: Path, protocol_path: Path):
                  "main_result.json", "restart.failure.json", "work_ledger.jsonl",
                  "capacity_guard_main.json", "capacity_guard_restart.json",
                  "supervision/receipt.json", "checkpoint/manifest.json"]
+    if restart_success:
+        raw_names[raw_names.index("restart.failure.json")] = "restart_result.json"
     return {
         "format": "replica.intrinsic_memory.terminal_reconciliation.v12",
         "run_root": str(run), "packet_path": str(packet),
@@ -135,13 +139,16 @@ def reconcile(run: Path, packet: Path, protocol_path: Path):
             "process_group_exit_confirmed": supervision["process_group_exit_confirmed"],
         },
         "restart": {
-            "requested": main["restart_requested"], "failure_type": failure["type"],
-            "failure_message": failure["message"],
+            "requested": main["restart_requested"],
+            "failure_type": None if restart_success else restart_document["type"],
+            "failure_message": None if restart_success else restart_document["message"],
             "extension_restore_completed": any(
                 event["operation"] == "extension_optimizer_restore"
                 and event["status"] == "completed" for event in ledger["events"]),
-            "fresh_process_logits_exact": False, "actual_continuation_updates": 0,
-            "fresh_process_continuation_measured": False,
+            "fresh_process_logits_exact": bool(restart_success and restart_document["fresh_process_logits_exact"]),
+            "actual_continuation_updates": (restart_document["actual_continuation_updates"]
+                                             if restart_success else 0),
+            "fresh_process_continuation_measured": restart_success,
         },
         "checkpoint": {"contains_base_weights": checkpoint["contains_base_weights"],
                        "original_weights_serialized": checkpoint["original_weights_serialized"],
@@ -172,10 +179,16 @@ def reconcile(run: Path, packet: Path, protocol_path: Path):
         "outcome": {
             "native_competence": main["competence_passed"],
             "final_fitting_passed": final_fit_passed,
-            "useful_recall": False, "development_generalization_measured": False,
-            "fresh_process_continuation_passed": False,
+            "useful_recall": bool(main["useful_recall_passed"] and restart_success
+                                  and restart_document["fresh_process_logits_exact"]),
+            "development_generalization_measured": development_opened,
+            "fresh_process_continuation_passed": bool(
+                restart_success and restart_document["fresh_process_logits_exact"]
+                and restart_document["actual_continuation_updates"] == 1
+                and restart_document["original_weights_unchanged"]),
             "persistent_learning": False, "promotion": False, "RSI": False,
-            "status": "final_fit_failed_development_closed_restart_execution_failed",
+            "status": ("final_fit_failed_development_closed_restart_passed" if restart_success
+                       else "final_fit_failed_development_closed_restart_execution_failed"),
         },
         "analysis_written_outside_raw_run": True,
     }
