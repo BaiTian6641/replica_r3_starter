@@ -252,6 +252,18 @@ class WorkLedger:
                 self._cache = None
                 fcntl.flock(stream, fcntl.LOCK_UN)
 
+    @contextmanager
+    def _shared(self):
+        """Shared reader lock; writers hold the same lock exclusively."""
+        lock = self.path.with_suffix('.lock')
+        if lock.is_symlink() or self.path.is_symlink(): raise BudgetError('substituted ledger')
+        with lock.open('a') as stream:
+            fcntl.flock(stream, fcntl.LOCK_SH)
+            try:
+                yield
+            finally:
+                fcntl.flock(stream, fcntl.LOCK_UN)
+
     def _cached_read(self):
         stat = self.path.stat()
         key = (stat.st_size, stat.st_mtime_ns)
@@ -328,7 +340,14 @@ class WorkLedger:
         return ledger
 
     def snapshot(self, *, cached=False):
-        return self._cached_read() if cached else self._read()
+        """Read the current state under the shared lock, never mid-append.
+
+        A writer holds the same lock exclusively for the whole append, so a
+        reader cannot observe a partially written line. The size-keyed cache is
+        only consulted while the shared lock is held.
+        """
+        with self._shared():
+            return self._cached_read() if cached else self._read()
 
     def deadline_state(self, doc=None):
         """Stricter remaining outer/stage seconds plus observed clock skew."""

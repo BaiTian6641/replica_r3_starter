@@ -5,6 +5,9 @@ that must be right *before* an expensive attempt: reservation amounts and
 refusals, the single order addition, and agreement between the prepared
 declaration and the producer's own contract.
 """
+import hashlib
+import json
+import threading
 import types
 from contextlib import contextmanager
 
@@ -17,8 +20,10 @@ from replica_lab.contextual_source_features_v12 import (
     SourceWorkAccounting as SourceWorkAccountingProtocol, SourceWorkRequest,
     tokenizer_contract_digest)
 from replica_lab.intrinsic_memory_coverage_v12 import (
-    FEATURE_CACHE_BYTES, FEATURE_CACHE_ENTRIES, SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS,
-    declared_tokenizer_identity, tokenizer_identity_digest)
+    FEATURE_CACHE_BYTES, FEATURE_CACHE_ENTRIES, FIT_CASES, RESTART_PROMPT_PASSES,
+    SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES,
+    declared_tokenizer_identity, plan as coverage_plan, tokenizer_identity_digest)
+from replica_lab.intrinsic_memory_budget_v12 import BudgetError, WorkLedger
 from replica_lab.intrinsic_memory_diagnostic_v12 import (
     DiagnosticEngineV12, SourceWorkAccounting, StageRef, right_padded_prefix)
 
@@ -339,28 +344,154 @@ def test_unresolved_pending_read_refuses_after_five_waits(tmp_path):
     assert [r['operation'] for r in ledger.reserved].count('contextual_resume') == 4
 
 
-def test_tokenizer_wrapper_reproduces_the_declared_digest():
-    from replica_lab.intrinsic_memory_native_v12 import BoundSourceTokenizer
-    identity = declared_tokenizer_identity(
-        [{'path': f'x/{name}', 'sha256': str(index)*64}
-         for index, name in enumerate(
-             ('chat_template.jinja', 'merges.txt', 'special_tokens_map.json',
-              'tokenizer.json', 'tokenizer_config.json', 'vocab.json'))])
+def test_tokenizer_identity_is_derived_from_the_loaded_tokenizer(tmp_path):
+    from replica_lab.intrinsic_memory_native_v12 import (
+        BoundSourceTokenizer, observed_tokenizer_identity)
+
+    directory = tmp_path/'source'; directory.mkdir()
+    for name in TOKENIZER_IDENTITY_FILES:
+        (directory/name).write_bytes(('content:'+name).encode())
+    declared = {
+        'files': {name: hashlib.sha256((directory/name).read_bytes()).hexdigest()
+                  for name in TOKENIZER_IDENTITY_FILES},
+        'vocab_size': 8, 'eos_token_id': 1, 'pad_token_id': 2, 'is_fast': True,
+        'add_special_tokens_for_source': False, 'truncation_for_source': False,
+        'local_files_only': True}
 
     class Real:
+        def __init__(self, *, origin=None, vocab_size=8, fast=True):
+            self.name_or_path = str(origin or directory)
+            self.vocab_size, self.eos_token_id, self.pad_token_id = vocab_size, 1, 2
+            self.is_fast = fast
+        def get_vocab(self): return {str(i): i for i in range(self.vocab_size)}
         def __call__(self, text, **kwargs): return {'input_ids': [1, 2, 3]}
         def decode(self, ids): return 'decoded'
 
-    wrapped = BoundSourceTokenizer(Real(), identity)
-    assert wrapped.identity() == identity
+    loaded = Real()
+    assert observed_tokenizer_identity(loaded, directory) == declared
+    wrapped = BoundSourceTokenizer(loaded, directory, declared)
+    assert wrapped.identity() == declared
+    assert tokenizer_contract_digest(wrapped) == tokenizer_identity_digest(declared)
     assert wrapped('anything') == {'input_ids': [1, 2, 3]}
     assert wrapped.decode([1]) == 'decoded'
-    assert tokenizer_contract_digest(wrapped) == tokenizer_identity_digest(identity)
-    with pytest.raises(ValueError, match='identity'):
-        BoundSourceTokenizer(Real(), {})
-    # A changed declared mapping can never reproduce the previous digest.
-    changed = dict(identity); changed['vocab_size'] = 1
-    assert tokenizer_identity_digest(changed) != tokenizer_identity_digest(identity)
+
+    # A substituted file byte, vocabulary size, fast-tokenizer property or
+    # directory of origin is refused before any source work.
+    (directory/'vocab.json').write_bytes(b'substituted')
+    with pytest.raises(ValueError, match='differs from the loaded tokenizer'):
+        BoundSourceTokenizer(loaded, directory, declared)
+    (directory/'vocab.json').write_bytes(('content:vocab.json').encode())
+    with pytest.raises(ValueError, match='differs from the loaded tokenizer'):
+        BoundSourceTokenizer(Real(vocab_size=9), directory, declared)
+    with pytest.raises(ValueError, match='differs from the loaded tokenizer'):
+        BoundSourceTokenizer(Real(fast=False), directory, declared)
+    with pytest.raises(ValueError, match='verified source directory'):
+        BoundSourceTokenizer(Real(origin=tmp_path), directory, declared)
+    with pytest.raises(ValueError, match='declared tokenizer identity'):
+        BoundSourceTokenizer(loaded, directory, {})
+    changed = json.loads(json.dumps(declared)); changed['vocab_size'] = 1
+    assert tokenizer_identity_digest(changed) != tokenizer_identity_digest(declared)
+
+
+def test_restart_plan_reserves_the_derived_prompt_tokenization():
+    # 2 encodings for each of 32 restored targets, plus canary, update student
+    # and the exact-text binding that alignment re-derives.
+    assert RESTART_PROMPT_PASSES == 2*FIT_CASES + 3
+    stage = coverage_plan('two')['restart']
+    assert stage['prompt_tokenizer_calls'] == RESTART_PROMPT_PASSES
+    assert stage['prompt_tokenizer_calls'] >= 2*FIT_CASES + 3
+
+
+def test_restart_stage_accepts_exactly_the_derived_prompt_passes(tmp_path):
+    """Real ledger consumption: the derived cap is usable and refuses the next."""
+    from replica_lab.intrinsic_memory_coverage_v12 import plan as stage_plan
+    ledger = WorkLedger.create(tmp_path/'restart.jsonl', identity='packet-sha',
+                               plan={'restart': stage_plan('two')['restart']},
+                               deadline=__import__('time').monotonic()+600)
+    ledger.enter('restart')
+    path = FakePath()
+    backend = types.SimpleNamespace(encode=lambda content: [1, 2, 3],
+                                    answer_ids=lambda text: [1], decode=lambda ids: 'x')
+    ref = StageRef(); ref.name = 'restart'
+    built = DiagnosticEngineV12(path, backend, types.SimpleNamespace(), ledger,
+                                max_new_tokens=8, output=tmp_path, stage_ref=ref)
+    row = {'text': 'badge red', 'question': 'color', 'answer': 'red'}
+    for _ in range(RESTART_PROMPT_PASSES):
+        built.tokens(row)
+    snapshot = ledger.snapshot()
+    assert snapshot['reserved']['prompt_tokenizer_calls'] == RESTART_PROMPT_PASSES
+    assert snapshot['stages']['restart']['reserved']['prompt_tokenizer_calls'] \
+        == RESTART_PROMPT_PASSES
+    # The next reservation is refused before dispatch, which is the failure the
+    # review reproduced at the fifth pass of 67.
+    with pytest.raises(BudgetError, match='exceeded before dispatch'):
+        built.tokens(row)
+
+
+def test_nonterminating_generation_is_marked_truncated(tmp_path):
+    from replica_lab.intrinsic_memory_diagnostic_v12 import StageRef as Ref
+    path = types.SimpleNamespace(validate=lambda batch, scope: None,
+        adapter=types.SimpleNamespace(base=types.SimpleNamespace(
+            parameters=lambda: iter([torch.zeros(1)]))))
+    ref = Ref(); ref.name = 'baseline'
+    built = DiagnosticEngineV12(path, None, types.SimpleNamespace(
+        context_tokens=16, pad_token_id=0, allowed_stop_token_ids=(1,), vocab_size=8),
+        None, max_new_tokens=2, output=tmp_path, stage_ref=ref)
+    built.backend = types.SimpleNamespace(decode=lambda ids: 'red')
+    built.tokens = lambda row, exact=False: [2]
+
+    @contextmanager
+    def measured(operation, **amounts):
+        yield {}
+
+    built.measured = measured
+
+    def forward(ids, mask, batch, scope, **kwargs):
+        logits = torch.zeros(1, ids.shape[1], 8)
+        logits[:, :, 3] = 1        # never the bound stop token
+        return logits
+
+    built.forward = forward
+    result = built.generate({'text': 'badge red', 'question': 'color', 'answer': 'red'},
+                            None, 'scope')
+    assert result['terminated'] is False
+    assert result['truncated'] is True
+    assert result['generated_tokens'] == 2
+    # A terminating answer reports the opposite pair.
+    def stopping(ids, mask, batch, scope, **kwargs):
+        logits = torch.zeros(1, ids.shape[1], 8)
+        logits[:, :, 1] = 1        # bound stop token first
+        return logits
+
+    built.forward = stopping
+    stopped = built.generate({'text': 'badge red', 'question': 'color', 'answer': 'red'},
+                             None, 'scope')
+    assert stopped['terminated'] is True and stopped['truncated'] is False
+
+
+def test_snapshot_reads_under_a_shared_lock(tmp_path):
+    """A reader must not observe a mid-append journal."""
+    import fcntl, time as _time
+    log = WorkLedger.create(tmp_path/'ledger.jsonl', identity='packet-sha',
+                            plan={'restart': coverage_plan('two')['restart']},
+                            deadline=_time.monotonic()+600)
+    log.enter('restart')
+    lock_path = log.path.with_suffix('.lock')
+    holder = lock_path.open('a')
+    fcntl.flock(holder, fcntl.LOCK_EX)
+    finished = threading.Event()
+
+    def reader():
+        log.snapshot(cached=True)
+        finished.set()
+
+    thread = threading.Thread(target=reader, daemon=True)
+    thread.start()
+    assert not finished.wait(0.2)      # blocked while the writer is mid-append
+    fcntl.flock(holder, fcntl.LOCK_UN); holder.close()
+    assert finished.wait(5)
+    thread.join(timeout=5)
+    assert not thread.is_alive()
 
 
 def test_context_width_and_prefix_bounds_match_the_envelope():

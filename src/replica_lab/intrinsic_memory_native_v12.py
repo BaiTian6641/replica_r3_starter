@@ -20,9 +20,11 @@ No original parameter is trainable, exported or serialized. No P update, no
 promotion, no 9/36 arm and no development opening can occur here unless the
 sealed protocol's gates allow it.
 """
+import hashlib
 import json
 import os
 from dataclasses import replace
+from pathlib import Path
 
 import torch
 
@@ -42,7 +44,7 @@ from .contextual_source_features_v12 import (
 from .intrinsic_memory_budget_v12 import atomic, sha_json
 from .intrinsic_memory_coverage_v12 import (
     DEVELOPMENT_CASES, FEATURE_CACHE_BYTES, FEATURE_CACHE_ENTRIES, FIT_CASES,
-    SOURCE_HIDDEN_SIZE, SOURCE_MAX_TOKENS)
+    SOURCE_HIDDEN_SIZE, SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES)
 from .intrinsic_memory_diagnostic_v12 import (
     PROMPT, StageRef, SourceWorkAccounting, logits_digest, right_padded_prefix)
 from .intrinsic_memory_execution_v5 import bound_json, hash_file
@@ -71,19 +73,32 @@ class NativeBackend:
 
 
 class BoundSourceTokenizer:
-    """Immutable identity wrapper around the verified fast tokenizer.
+    """Immutable identity wrapper derived from the *loaded* tokenizer.
 
     The frozen-source provider refuses a tokenizer without an explicit
-    ``identity()``. The mapping is declared in the prepared protocol and is
-    recomputed at load; a substituted vocabulary cannot be concealed.
+    ``identity()``. That identity is now computed from the tokenizer actually
+    returned by ``from_pretrained`` and from the bytes of the files in the
+    verified source directory: the six declared tokenizer files are re-hashed,
+    the vocabulary size and special-token ids are read from the live object, and
+    the wrapping directory is compared with the tokenizer's own ``name_or_path``.
+    It is then compared with the identity declared in the reviewed protocol, so
+    a substituted tokenizer is refused *before* any source work rather than
+    being compared with its own declaration.
+
+    The independent full-source file and parameter hashes in admission remain
+    the primary authority check; this is the runtime binding of the object that
+    is actually used.
     """
 
-    def __init__(self, tokenizer, identity):
+    def __init__(self, tokenizer, directory, declared):
         if not callable(getattr(tokenizer, '__call__', None)):
             raise ValueError('callable tokenizer required')
-        if not isinstance(identity, dict) or not identity:
+        if not isinstance(declared, dict) or not declared:
             raise ValueError('declared tokenizer identity required')
-        self._tokenizer, self._identity = tokenizer, json.loads(json.dumps(identity))
+        observed = observed_tokenizer_identity(tokenizer, directory)
+        if observed != declared:
+            raise ValueError('declared tokenizer identity differs from the loaded tokenizer')
+        self._tokenizer, self._identity = tokenizer, observed
 
     def identity(self):
         return json.loads(json.dumps(self._identity))
@@ -93,6 +108,36 @@ class BoundSourceTokenizer:
 
     def __getattr__(self, name):
         return getattr(self._tokenizer, name)
+
+
+def observed_tokenizer_identity(tokenizer, directory):
+    """Identity of the loaded tokenizer, derived from bytes and live properties."""
+    directory = Path(directory)
+    files = {}
+    for name in TOKENIZER_IDENTITY_FILES:
+        path = directory/name
+        if path.is_symlink() or not path.is_file():
+            raise ValueError('tokenizer file missing or substituted: '+name)
+        files[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+    origin = getattr(tokenizer, 'name_or_path', None)
+    if not isinstance(origin, str) or Path(origin).resolve() != directory.resolve():
+        raise ValueError('loaded tokenizer did not come from the verified source directory')
+    vocab_size = getattr(tokenizer, 'vocab_size', None)
+    if type(vocab_size) is not int or vocab_size < 1:
+        raise ValueError('loaded tokenizer exposes no vocabulary size')
+    vocabulary = tokenizer.get_vocab()
+    if not isinstance(vocabulary, dict) or len(vocabulary) < vocab_size:
+        raise ValueError('loaded tokenizer vocabulary is smaller than its declared size')
+    identity = {'files': files, 'vocab_size': vocab_size,
+                'eos_token_id': tokenizer.eos_token_id,
+                'pad_token_id': tokenizer.pad_token_id,
+                'is_fast': bool(tokenizer.is_fast),
+                'add_special_tokens_for_source': False,
+                'truncation_for_source': False, 'local_files_only': True}
+    if (type(identity['eos_token_id']) is not int
+            or type(identity['pad_token_id']) is not int):
+        raise ValueError('loaded tokenizer special-token ids are not integers')
+    return identity
 
 
 def load_native(root, protocol, arm, ledger, stage):
@@ -112,7 +157,7 @@ def load_native(root, protocol, arm, ledger, stage):
     if not tokenizer.is_fast or (tokenizer.eos_token_id, tokenizer.pad_token_id) != (1, 2):
         raise ValueError('bound fast tokenizer/EOS/PAD differs')
     declared = protocol['source_feature_binding']['tokenizer_identity']
-    bound_tokenizer = BoundSourceTokenizer(tokenizer, declared)
+    bound_tokenizer = BoundSourceTokenizer(tokenizer, directory, declared)
     tokenizer_digest = tokenizer_contract_digest(bound_tokenizer)
     if tokenizer_digest != protocol['source_feature_binding']['tokenizer_sha256']:
         raise ValueError('declared tokenizer contract differs from the loaded tokenizer')
@@ -253,7 +298,8 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
             answers.append({'world_id': row['world_id'], **answer})
             write_receipt(output, 'baseline', {'rows': answers, 'complete': len(answers) == 8})
         passed = len(answers) == 8 and all(
-            r['correct'] and not r['false_recall'] and not r['truncated'] for r in answers)
+            r['correct'] and not r['false_recall'] and r['terminated'] and not r['truncated']
+            for r in answers)
         result['competence_passed'] = passed
         close_stage(engine, 'baseline', 'passed' if passed else 'failed_competence')
         if not passed:

@@ -83,11 +83,13 @@ def test_stage_plan_is_complete_finite_and_inside_the_outer_envelope():
             assert set(caps) == set(COUNTERS)|{'wall_seconds'}, stage
             assert all(type(caps[k]) is int and caps[k] >= 0 for k in COUNTERS)
         total = totals(stages)
-        assert total['wall_seconds'] == 6835
+        assert total['wall_seconds'] == 6845
         assert total['wall_seconds'] <= OUTER_WALL_SECONDS-11
         assert total['updates'] == 513
         assert total['model_loads'] == 2
         assert total['backwards'] == 513
+        assert stages['restart']['prompt_tokenizer_calls'] >= 2*32 + 3
+        assert stages['restart']['wall_seconds'] > stages['checkpoint']['wall_seconds']
     assert plan('two')['checkpoint']['artifact_bytes'] == 96*1024**2
     assert (plan('two')['admission']['artifact_bytes']
             + plan('two')['teacher']['artifact_bytes']
@@ -145,7 +147,8 @@ def test_tokenizer_identity_requires_the_verified_file_set():
     'format', 'slot_policy', 'slot_policy_v12', 'source_features', 'feature_binding',
     'tokenizer_digest', 'training_updates', 'teacher_cases', 'coverage_groups',
     'prefixes', 'curve_selection', 'budget_forward', 'stage_wall', 'checkpoint_artifact',
-    'derivation', 'outer_wall', 'arm_sites', 'differences',
+    'derivation', 'outer_wall', 'arm_sites', 'differences', 'restart_prompt_cap',
+    'restart_wall', 'read_bytes_value',
 ])
 def test_no_silent_contract_or_envelope_change(damage):
     protocol = candidate()
@@ -185,6 +188,13 @@ def test_no_silent_contract_or_envelope_change(damage):
         protocol['arms']['two']['sites'] = [3, 8]
     elif damage == 'differences':
         protocol['experiment_variant']['changed'] = list(DIFFERENCES_FROM_V11)[:-1]
+    elif damage == 'restart_prompt_cap':
+        # The review's P0: a cap below the 67 real passes must be refused.
+        protocol['arms']['two']['budget']['restart']['prompt_tokenizer_calls'] = 4
+    elif damage == 'restart_wall':
+        protocol['arms']['two']['budget']['restart']['wall_seconds'] = 140
+    elif damage == 'read_bytes_value':
+        protocol['budget_derivation']['artifact_read_bytes_value'] = 0
     with pytest.raises(ValueError): validate_protocol(protocol)
 
 

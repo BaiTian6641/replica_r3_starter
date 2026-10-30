@@ -6,23 +6,54 @@ no native attempt was consumed. This directory holds preparation and review
 material for the separately versioned v12 source-feature successor to the
 consumed v11 two-site attempt.
 
-Coordinator preflight after one repair cycle: **57 focused tests passed**, the
-environment-only check passed with no model import, and `--review` passed with
-62 implementation files, two source-execution files and 8,238,996,247 source
-bytes hashed. Packet SHA-256 is
-`3a2a7af1d08118df902e1dd20f5b3ca74b1c651005a2e0bf7f9eda7868198cc2`.
-The initial 18-failure run is preserved in `verification_attempt01.log`; exact
-commands/results are in `preflight_verification.json`. Independent review is
-still required before authorization or launch.
+Current preparation (post-commit, after repair cycles 1–3 and the N1–N3
+native repairs): **64 focused tests passed** in
+`tests/test_intrinsic_budget_v12.py`, `tests/test_intrinsic_coverage_v12.py`
+and `tests/test_intrinsic_native_v12.py`, run by me against these bytes. The
+independent review's own N1/N2 reproductions pass against this packet as well.
+Envelope: stage wall 6845 s inside 7200 s, 4029 prompt-tokenizer passes,
+41,297,741,683 declared file-read bytes, 2049 declared writes, restart 150 s /
+67 passes.
 
-Provenance: the producer implementation was repaired and committed at
-`6dede67e` (`feat: implement frozen-source contextual memory v12`) and the
-matched density/measured-cost controls at `3cd683c3`; the density modules are a
-separate track and are not part of this experiment's executable closure. The
-earlier pre-repair preparation is preserved verbatim, unmodified and clearly
-non-canonical, in `preparation_draft01/`; it binds pre-repair bytes, was never
-launched and carries no authorization. The canonical files in this directory and
-`configs/` + `data/` were regenerated against the repaired bytes.
+Current packet SHA-256 is
+`98c3f47abfa12d29222ae6b90e4c2b944396f4fb00bb29ba63ec20236773012d`; protocol
+SHA-256 `b6247f6c0bf46097f864f4c558b90b683d21200c7d89dfb3233c949835cf3f0a`;
+implementation receipt SHA-256
+`e4e7df7fcbac7bf5347bc2d8dbce4bbb0e89cc885d06557b3b5e97e761db806c`.
+
+The earlier coordinator preflight (57 focused tests, environment-only, and
+`--review` over 62 implementation files, two source-execution files and
+8,238,996,247 source bytes) applies to the superseded packet
+`3a2a7af1d08118df902e1dd20f5b3ca74b1c651005a2e0bf7f9eda7868198cc2`. Its exact
+commands and results remain in `preflight_verification.json` and the initial
+18-failure run in `verification_attempt01.log`. **Environment-only and `--review`
+have not been run against the current packet**; `--environment-only`, `--review`,
+the full suite and the independent reproduction are the coordinator's next gates,
+and independent review is still required before authorization or launch.
+
+`preparation_draft02/` is retained even though the producer commit reproduced the
+working-tree bytes exactly: its config, packet and implementation receipt are
+byte-identical to the current canonical ones, while its `preparation.json`
+differs only in the measured hashing wall time.
+
+Provenance: the v12 producer was committed at `6dede67e`, repaired for the
+independent review at `6ba07e1b` (`fix: close independent v12 authority
+findings`; named-buffer authority and pre-export revalidation, slice-text cache
+keys, release `source_identity` binding, deterministic durable order, failed
+release cleanup, iterable `active_sites`, and a single-record stale error), and
+the matched density/measured-cost controls at `3cd683c3` — the density modules
+are a separate track and are not part of this experiment's executable closure.
+The canonical files here bind **committed** producer blobs; every producer hash
+in `implementation_v12.json` equals the `HEAD` blob content, and `--review`
+recomputes the closure statically and refuses any difference, so a future `src/`
+change fails closed until re-preparation.
+
+Two earlier unlaunched preparations are preserved verbatim, unmodified and
+clearly non-canonical: `preparation_draft01/` binds pre-repair bytes, and
+`preparation_draft02/` carries the N1–N3 repairs generated while cycle 3 was
+still uncommitted. Neither was launched or carries an authorization, and each
+has a computed-hash status record. No attempt or historical evidence was moved
+or deleted.
 
 Bound after regeneration: the content-attestation change (the adapter contract
 includes the exact base content digest, supplied as the already-verified full
@@ -33,6 +64,59 @@ producer modules and the local executable closure are pinned by hash in
 `implementation_v12.json`; `--review` recomputes the closure statically and
 refuses any difference, so a later `src/` change fails closed until
 re-preparation.
+
+Repair cycle 2 (independent review `f98247f8`, this directory) fixed three
+native findings and refreshed the envelope:
+
+* **N1 — restart prompt-tokenization cap.** Restart restores 32 teacher targets;
+  each revalidation performs a student and an exact-text encoding (64), and the
+  canary plus the continuation update add three more, so the stage now reserves
+  **67** passes instead of 4. The cap is derived in code
+  (`RESTART_PROMPT_PASSES = 2*FIT_CASES + 3`), `validate_protocol` refuses any
+  protocol whose restart cap is below the required passes, and a real-ledger
+  consumption test proves the 67 reservations are usable and the 68th is
+  refused before dispatch.
+* **N2 — truncation.** Generation that exhausts the token budget without the
+  bound stop token now reports `terminated: false, truncated: true`, and
+  baseline competence additionally requires `terminated` for every calibration
+  answer.
+* **N3 — tokenizer identity.** `BoundSourceTokenizer` no longer compares a
+  declaration with itself: it re-hashes the six tokenizer files in the verified
+  source directory, reads vocabulary size, special-token ids and the
+  fast-tokenizer property from the loaded object, requires the tokenizer's
+  `name_or_path` to be that directory, and only then compares the derived
+  mapping with the reviewed declaration. A substituted file byte, vocabulary
+  size, property or origin is refused before any source work. The independent
+  full-source file and parameter hashes remain the primary authority check.
+
+Envelope after cycle 2: stage wall **6845 s** (restart raised from 140 s to
+150 s with explicit arithmetic) inside the 7200 s ceiling; 4029 prompt-tokenizer
+passes; 41,297,741,683 declared file-read bytes (admission hashing,
+per-worker pre-load hashing plus weight loads, and the restart restores);
+writes unchanged at 2049.
+
+Remaining risks recorded, not claimed as passes:
+
+* **Attempt consumption is the output directory.** A crash after `mkdir` but
+  before any receipt leaves an empty directory that consumes the attempt with
+  zero retries; recovery is operator action against a fresh output root and a
+  new authorization receipt. Not behaviourally exercised here.
+* **Torn-tail append.** A partial final line blocks recovery until an operator
+  reviews it; the run is charged and cannot silently resume.
+* **Ledger read/write window.** Readers now take the same lock shared and
+  writers hold it exclusively across the append, so a snapshot cannot observe a
+  partial line; the size-keyed cache is only consulted under that lock.
+* **Uncharged work.** Source hashing, weight loads and restart restores are now
+  declared read bytes; receipt writes are declared per stage; model-weight read
+  bandwidth and page-cache reuse are not measured.
+* **Restart wall headroom.** 150 s covers model load, 8.2 GB hashing, restore,
+  67 encodings, two forwards, one update and two parameter digests with roughly
+  a third of the allocation unused; it is an allocation, not a measurement.
+* **False-recall coverage** is limited to the declared eight-world groups, and
+  **shared-library/wheel origins** are bound by the environment receipt, not by
+  this closure.
+* Producer-side findings V1/V2 (buffer mutation, tokenizer-cache text binding)
+  belong to the producer track and are outside this packet's files.
 
 Re-preparation after any further `src/` change (remove only the preparation
 outputs, never an attempt directory, then rerun):
@@ -64,6 +148,7 @@ gate stay matched to v11. The hypothesis is about source representation only.
 | `reports/intrinsic_memory_native_v12/native_packet_two_v12.json` | The single two-site packet; dense arms stay gated and unpacketized |
 | `reports/intrinsic_memory_native_v12/preparation.json` | What was and was not done, the derivation, the intended commands |
 | `reports/intrinsic_memory_native_v12/preparation_draft01/` | Preserved pre-repair preparation (README, config, manifest, closure, packet, receipt) with its own status record; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft02/` | Preserved N1–N3 preparation made before the producer commit; config, packet and closure are byte-identical to the current ones; non-canonical, never launched |
 
 Produced by:
 
@@ -138,15 +223,25 @@ reserves `forwards=1`, `input_tokens=256` (fixed right-padded width).
 | checkpoint | 60 | 2 | 1 / 1 | 0 | 0 | 0 | 7 |
 | development | 540 | 784 | 16 / 16 | 0 | 768 | 16 | 98 |
 | correction | 60 | 25 | 2 / 1 | 0 | 24 | 2 | 14 |
-| restart | 140 | 4 | 2 / 2 | 1 | 0 | 1 | 7 |
+| restart | 150 | 4 | 2 / 2 | 1 | 0 | 1 | 7 |
 
-Totals: stage wall **6835 s** inside the unchanged **7200 s** outer envelope
-(365 s outer headroom, never a stage allowance); 9778 forwards; 949 source
-feature forwards; 1078 canonical-source tokenizer passes; 3966 prompt tokenizer
+Totals: stage wall **6845 s** inside the unchanged **7200 s** outer envelope
+(355 s outer headroom, never a stage allowance); 9778 forwards; 949 source
+feature forwards; 1078 canonical-source tokenizer passes; 4029 prompt tokenizer
 passes; 513 backwards; 513 updates (512 fitting + 1 fresh-process
 continuation); 7256 generated tokens; 179 retrievals; 2049 declared writes;
-194 MiB artifacts (96 MiB envelope + 2 MiB teacher cache + 96 MiB checkpoint);
-102,760,448 read bytes at restart; 2 model loads.
+41,297,741,683 declared file-read bytes; 194 MiB artifacts (96 MiB envelope +
+2 MiB teacher cache + 96 MiB checkpoint); 2 model loads.
+
+Restart alone reserves 150 s, 67 prompt-tokenizer passes (64 teacher-target
+revalidations + canary + two update encodings), 16,580,752,942 read bytes (one
+hashing pass plus the weight load plus the two restores), and 2 source spans
+recomputed from a cleared cache.
+
+Read-byte accounting: 8,238,996,247 bytes for the admission source-hashing pass;
+twice that in load and twice that in restart (a per-worker pre-load hashing pass
+plus the weight load itself); plus the checkpoint and teacher cache at restart.
+Physical page-cache reuse is not measured and is not subtracted.
 
 Write accounting: a successful wait-based read persists three pending
 descriptors (initial pending, dispatch reservation, terminal), a waiting read
@@ -264,11 +359,12 @@ preparation deliberately did not create, and a fresh output root:
 
 1. Integrated CPU producer/reader workflow, its gradients and its fresh-process
    continuation must exist and pass for this mechanism. The earlier CPU evidence
-   predates the v12 files and does not validate them, and the repaired producers
-   committed at `6dede67e` are bound by this closure.
+   predates the v12 files and does not validate them; the repaired producers
+   committed at `6ba07e1b` are bound by this closure, and my three focused files
+   pass at 64 tests against these bytes.
 2. Independent review of these exact bytes, then the packet hash is sealed.
 3. `--environment-only` and `--review` must pass under the qualified
-   interpreter.
+   interpreter; neither has been run against the current packet.
 4. Only then may a truthful receipt be bound to the standing instruction and
    this exact packet. No old receipt bytes cover changed code.
 5. Exactly one launch. A failure closes its dependent stages; it does not

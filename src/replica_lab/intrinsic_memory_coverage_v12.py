@@ -162,6 +162,22 @@ SOURCE_VOCAB_SIZE = 131072
 SOURCE_HIDDEN_SIZE = 2560
 SOURCE_FEATURE_BINDING_KEYS = ('tokenizer_identity', 'tokenizer_sha256',
                                'original_parameters_sha256', 'source_files_sha256')
+# Verified size of the official BF16 local source, from its own receipt. Every
+# mandatory hashing pass and weight load reads these bytes; the admission
+# validator re-derives the total from the bound file list.
+SOURCE_FILE_BYTES = 8238996247
+
+# Restart restores 32 teacher targets and each `expected(row)` performs a student
+# encoding and an exact-text encoding. The canary then adds one encoding, and the
+# continuation update adds a student encoding plus the exact-text encoding that
+# `alignment_loss` re-binds. That is 64 + 3 = 67 prompt-tokenizer reservations;
+# the cap below is derived from those call sites, not estimated.
+RESTART_TARGET_REVALIDATION_ENCODINGS = FIT_CASES * 2
+RESTART_CANARY_ENCODINGS = 1
+RESTART_UPDATE_ENCODINGS = 2
+RESTART_PROMPT_PASSES = (RESTART_TARGET_REVALIDATION_ENCODINGS
+                         + RESTART_CANARY_ENCODINGS + RESTART_UPDATE_ENCODINGS)
+RESTART_WALL_SECONDS = 150
 
 
 def identity_digest(value):
@@ -236,8 +252,10 @@ def plan(arm):
         # Audit, store, receipt and log envelope for the whole owned output tree,
         # including the receipts written outside a stage (main result, capacity
         # guard, supervision result) and the admission receipt.
-        'admission': stage(30, artifact_bytes=ADMISSION_ENVELOPE_BYTES, writes=5),
-        'load': stage(180, model_loads=1),
+        'admission': stage(30, artifact_bytes=ADMISSION_ENVELOPE_BYTES,
+                           artifact_read_bytes=SOURCE_FILE_BYTES, writes=5),
+        # One hashing pass over the source plus one weight load.
+        'load': stage(180, model_loads=1, artifact_read_bytes=2*SOURCE_FILE_BYTES),
         # 8 calibration worlds x 8 reserved answer tokens, extensions disabled.
         'baseline': stage(45, **span(0, 0, prompt_passes=16, backbone_forwards=64,
                                      backbone_tokens=256),
@@ -268,12 +286,16 @@ def plan(arm):
         'correction': stage(60, **span(2, 1, prompt_passes=6, backbone_forwards=24,
                                        backbone_tokens=256),
                             generated_tokens=24, retrievals=2, writes=1+3+2+1+3+2+1),
-        # A fresh process must reload, restore, recompute every source span and
-        # write its own result (read 3 + 2 resume headroom, plus the receipt).
-        'restart': stage(140, **span(2, 2, prompt_passes=4, backbone_forwards=2,
-                                     backbone_tokens=256),
+        # A fresh process reloads (one hashing pass + one weight load), restores
+        # the extension and the teacher cache, recomputes every source span and
+        # writes its own result. Prompt tokenization is derived from the real
+        # call sites (64 target re-validations + canary + 2 update encodings).
+        'restart': stage(RESTART_WALL_SECONDS,
+                         **span(2, 2, prompt_passes=RESTART_PROMPT_PASSES,
+                                backbone_forwards=2, backbone_tokens=256),
                          backwards=1, updates=1, model_loads=1,
-                         artifact_read_bytes=checkpoint+TEACHER_CACHE_BYTES,
+                         artifact_read_bytes=(2*SOURCE_FILE_BYTES + checkpoint
+                                              + TEACHER_CACHE_BYTES),
                          restart_restores=2, retrievals=1, writes=3+2+1),
     }
     for end in PREFIXES:
@@ -307,12 +329,15 @@ def plan(arm):
     return result
 
 
-# The declared write total is computed from the same stage caps the validator
+# The declared totals are computed from the same stage caps the validator
 # checks, term by term, so the prose cannot drift from the envelope.
 _TWO_SITE_CAPS = plan('two')
-_TWO_SITE_TOTAL_WRITES = totals(_TWO_SITE_CAPS)['writes']
+_TWO_SITE_TOTALS = totals(_TWO_SITE_CAPS)
+_TWO_SITE_TOTAL_WRITES = _TWO_SITE_TOTALS['writes']
 _WRITE_STAGE_TERMS = ' + '.join(f"{name}={caps['writes']}"
                                 for name, caps in _TWO_SITE_CAPS.items())
+_WALL_STAGE_TERMS = ' + '.join(f"{name}={caps['wall_seconds']}"
+                               for name, caps in _TWO_SITE_CAPS.items())
 
 BUDGET_DERIVATION = {
     'basis': ('every stage is re-derived from the v12 mechanism, not projected from the v11 '
@@ -349,9 +374,16 @@ BUDGET_DERIVATION = {
     'total_backwards': '512 fitting + 1 restart = 513',
     'total_updates': '512 fitting + 1 fresh-process continuation = 513',
     'total_tokenizer_passes': '0 + 1 + 32 + 0 + 512 + 512 + 1 + 16 + 2 + 2 = 1078',
-    'total_prompt_tokenizer_passes': ('16 + 2 + 0 + 128 + 4*256 + 4*640 + 2 + 224 + 6 + 4 = 3966 '
-                                      'chat-template passes, charged separately from '
-                                      'canonical-source tokenization'),
+    'restart_prompt_tokenization': (
+        f'restart reserves {RESTART_PROMPT_PASSES} prompt-tokenizer passes = '
+        f'{RESTART_TARGET_REVALIDATION_ENCODINGS} (2 encodings for each of {FIT_CASES} '
+        f'restored teacher targets: student and exact text) + {RESTART_CANARY_ENCODINGS} '
+        f'(canary encoding) + {RESTART_UPDATE_ENCODINGS} (continuation student encoding '
+        'and the exact-text encoding that the alignment binding re-derives). Nothing '
+        'else in the restart path tokenizes a prompt'),
+    'total_prompt_tokenizer_passes': (
+        f'all-stage canonical chat-template passes = {_TWO_SITE_TOTALS["prompt_tokenizer_calls"]}'),
+    'total_prompt_tokenizer_passes_value': _TWO_SITE_TOTALS['prompt_tokenizer_calls'],
     'total_source_forwards': '0 + 1 + 32 + 0 + 512 + 384 + 1 + 16 + 1 + 2 = 949',
     'total_input_tokens': '16384 + 1024 + 16384 + 73728 + 393216 + 2064384 + 768 + 204800 '
                           '+ 6912 + 1536 = 2779136',
@@ -372,15 +404,25 @@ BUDGET_DERIVATION = {
                      'including descriptor persists, one observed source-cost receipt per '
                      'closed stage, and the receipts written outside a stage'),
     'total_writes_value': _TWO_SITE_TOTAL_WRITES,
-    'stage_wall': ('30+180+45+30+60+90+4*500+4*900+60+540+60+140 = 6835 seconds of stage '
-                   'allocation inside the 7200-second whole-process-group envelope; the '
-                   'remaining 365 seconds are outer headroom, never a stage allowance'),
+    'stage_wall': (f'sum of all {len(_TWO_SITE_CAPS)} two-site stage caps: {_WALL_STAGE_TERMS} '
+                   f'= {_TWO_SITE_TOTALS["wall_seconds"]} seconds inside the 7200-second '
+                   'whole-process-group envelope; the remaining '
+                   f'{7200-_TWO_SITE_TOTALS["wall_seconds"]} seconds are outer headroom, never '
+                   'a stage allowance'),
+    'stage_wall_value': _TWO_SITE_TOTALS['wall_seconds'],
     'artifact_accounting': ('194 MiB reserved = 96 MiB audit/store/receipt/log envelope + 2 MiB '
                             'teacher cache + 96 MiB two-site extension/optimizer checkpoint. '
                             'Checkpoint arithmetic: 4.22M trainable float32 parameters '
                             '(2.90M reader + 1.32M compressor) plus two AdamW moment buffers; '
                             'this is a bound, not a fit measurement'),
-    'artifact_read_accounting': '96 MiB checkpoint + 2 MiB teacher cache = 102760448 read bytes at restart',
+    'artifact_read_accounting': (
+        f'{_TWO_SITE_TOTALS["artifact_read_bytes"]} declared file-read bytes: '
+        f'{SOURCE_FILE_BYTES} for the admission source-hashing pass, the same again for the '
+        'pre-load hashing in each worker plus the weight load itself (2x in load and 2x in '
+        'restart), and the checkpoint plus teacher cache at restart. Physical page-cache '
+        'reuse is not measured and is not subtracted'),
+    'artifact_read_bytes_value': _TWO_SITE_TOTALS['artifact_read_bytes'],
+    'source_file_bytes': SOURCE_FILE_BYTES,
     'audit_io': ('append-only journal: logical appended bytes equal appended bytes; physical SSD '
                  'amplification and flush cost are not measured and are not claimed to be lower '
                  'than v11. Lower audit cost is not better learning'),
@@ -434,10 +476,24 @@ def validate_protocol(protocol):
             != 'all_512_updates_fixed_final_prefix_all_groups_only_opens_development'):
         raise ValueError('fixed v12 source-feature, coverage or training contract differs')
     validate_source_feature_binding(protocol.get('source_feature_binding'))
-    # The declared write total must equal the sum of every stage cap, not a
-    # hand-written list, so an under-declared per-world write cannot hide.
-    if protocol['budget_derivation'].get('total_writes_value') != totals(plan('two'))['writes']:
+    # Derived totals must equal the summed stage caps, not a hand-written list.
+    derivation = protocol['budget_derivation']
+    if derivation.get('total_writes_value') != totals(plan('two'))['writes']:
         raise ValueError('declared total write envelope differs from the stage caps')
+    if derivation.get('total_prompt_tokenizer_passes_value') != \
+            totals(plan('two'))['prompt_tokenizer_calls']:
+        raise ValueError('declared total prompt-tokenization envelope differs from the caps')
+    if derivation.get('stage_wall_value') != totals(plan('two'))['wall_seconds']:
+        raise ValueError('declared stage wall differs from the stage caps')
+    if derivation.get('artifact_read_bytes_value') != totals(plan('two'))['artifact_read_bytes']:
+        raise ValueError('declared read-byte envelope differs from the stage caps')
+    # Restart must reserve every prompt tokenization its own call sites perform.
+    restart = protocol['arms']['two']['budget']['restart']
+    required = (2*FIT_CASES + 3)
+    if restart['prompt_tokenizer_calls'] < required:
+        raise ValueError('restart prompt-tokenization cap is below its required passes')
+    if derivation.get('source_file_bytes') != SOURCE_FILE_BYTES:
+        raise ValueError('declared source byte size differs from the reviewed constant')
     variant = protocol.get('experiment_variant') or {}
     if (variant.get('changed') != list(DIFFERENCES_FROM_V11)
             or variant.get('unchanged') != list(UNCHANGED_FROM_V11)):

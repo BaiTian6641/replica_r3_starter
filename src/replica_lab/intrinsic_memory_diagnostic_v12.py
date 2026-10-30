@@ -321,7 +321,10 @@ class DiagnosticEngineV12:
         content = answer[:-1] if stopped else answer
         return {'raw_answer': self.backend.decode(content), 'token_ids': answer,
                 'terminated': stopped, 'stop_token': answer[-1] if stopped else None,
-                'generated_tokens': len(answer), 'prompt_tokens': prefix, 'truncated': False,
+                'generated_tokens': len(answer), 'prompt_tokens': prefix,
+                # A run that exhausts the token budget without the bound stop
+                # token is truncated, never a complete answer.
+                'truncated': not stopped,
                 'total_latency_ns': time.monotonic_ns()-started,
                 'correct': score(row['answer'], self.backend.decode(content)),
                 'false_recall': (row['answer'] == 'unknown'

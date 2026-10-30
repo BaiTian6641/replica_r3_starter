@@ -25,7 +25,7 @@ from .intrinsic_memory_budget_v12 import sha_json, validate_plan
 from .intrinsic_memory_coverage_v11 import validate_protocol as validate_previous_protocol
 from .intrinsic_memory_coverage_v12 import (
     ARMS, AUTHORIZATION, DIFFERENCES_FROM_V11, GATED_ARMS, OUTER_WALL_SECONDS,
-    PACKET, SOURCE_FEATURE_BINDING_KEYS, TEACHER, UNCHANGED_FROM_V11,
+    PACKET, SOURCE_FEATURE_BINDING_KEYS, SOURCE_FILE_BYTES, TEACHER, UNCHANGED_FROM_V11,
     declared_tokenizer_identity, plan, tokenizer_identity_digest, totals,
     validate_protocol)
 from .intrinsic_memory_execution_v5 import (
@@ -158,6 +158,11 @@ def validate_source_feature_binding(root, protocol):
         if name not in declared: raise ValueError('source-feature binding is incomplete')
     source = bound_json(root, protocol['source'])
     files = source['files']
+    # The read-byte envelope is derived from this exact size; it must be the
+    # receipt's own total, not a copied constant.
+    if (sum(item['bytes'] for item in files) != SOURCE_FILE_BYTES
+            or source.get('total_bytes') != SOURCE_FILE_BYTES):
+        raise ValueError('declared source byte size differs from the verified receipt')
     if declared['source_files_sha256'] != sha_json(files):
         raise ValueError('declared source file digest differs')
     expected_identity = declared_tokenizer_identity(files)
