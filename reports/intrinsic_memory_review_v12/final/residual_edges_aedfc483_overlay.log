@@ -1,0 +1,185 @@
+FFFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+_______________ test_fitting_closed_receipt_has_an_active_stage ________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1981/test_fitting_closed_receipt_ha0')
+
+    def test_fitting_closed_receipt_has_an_active_stage(tmp_path):
+        ledger = WorkLedger.create(tmp_path / "ledger.jsonl", identity="final-review",
+                                   plan=plan("two"), deadline=time.monotonic() + 10000)
+        ledger.enter("fit_probes_512")
+        ledger.leave("fit_probes_512", status="completed")
+        engine = DiagnosticEngineV12.__new__(DiagnosticEngineV12)
+        engine.ledger, engine.output = ledger, tmp_path
+        engine._stage_ref = StageRef()
+        engine.stage = "fit_probes_512"
+>       engine.write_receipt("fitting_closed", {"closed": True})
+
+final_residual_edges.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/intrinsic_memory_diagnostic_v12.py:236: in write_receipt
+    with self.measured(operation, writes=1) as event:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/replica_lab/intrinsic_memory_diagnostic_v12.py:160: in measured
+    with self.ledger.work(self.stage, operation, **amounts) as event:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/replica_lab/intrinsic_memory_budget_v12.py:474: in work
+    token = self.reserve(stage, operation, **amounts)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <replica_lab.intrinsic_memory_budget_v12.WorkLedger object at 0x111b1fa40>
+stage = 'fit_probes_512', operation = 'receipt_write', amounts = {'writes': 1}
+
+    def reserve(self, stage, operation, **amounts):
+        if not isinstance(operation, str) or not operation:
+            raise BudgetError('invalid reservation operation')
+        amounts = _amounts(amounts, where='reserve')
+        with self._transaction() as (doc, write):
+            state = doc['stages'].get(stage)
+>           if state is None or state['status'] != 'active': raise BudgetError('stage is not active')
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           replica_lab.intrinsic_memory_budget_v12.BudgetError: stage is not active
+
+src/replica_lab/intrinsic_memory_budget_v12.py:445: BudgetError
+________ test_external_p_revocation_blocks_second_instance_generic_read ________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1981/test_external_p_revocation_blo0')
+
+    def test_external_p_revocation_blocks_second_instance_generic_read(tmp_path):
+        first = TieredBlobStore(tmp_path)
+        first.publish_p("expert", weights=b"w", moments=b"m", clock=1,
+                        encoder="e1", lineage=["r1"])
+        state = first.read_p("expert")
+        manifest = state["manifest"]
+        second = TieredBlobStore(tmp_path)
+        first.revoke_p("expert", reason="external", authorized_by="host")
+        contract = ReadContract(manifest["producer"], manifest["representation"],
+                                manifest["scope_digest"])
+>       assert second.read(state["record_id"], contract=contract).status != "ready"
+E       assert 'ready' != 'ready'
+E        +  where 'ready' = ReadResult(status='ready', record_id='p_expert_c1', tier='warm', payload=b'PS1\x001\x01\x00\x00\x00\x00\x00\x00{"clock... 'valid_from': 0, 'valid_to': None}, latency_ms=0.086125, bytes_read=319, reason='', ticket_id=None, fallback_tokens=0).status
+E        +    where ReadResult(status='ready', record_id='p_expert_c1', tier='warm', payload=b'PS1\x001\x01\x00\x00\x00\x00\x00\x00{"clock... 'valid_from': 0, 'valid_to': None}, latency_ms=0.086125, bytes_read=319, reason='', ticket_id=None, fallback_tokens=0) = read('p_expert_c1', contract=ReadContract(producer='p:expert', representation='e1', scope_digest='da277f13775eea50f9ea6f25ff0fc6b3ba070204fb6d0b5a8b837b8663bcd15a', cutoff=None, generation=None))
+E        +      where read = <replica_lab.successors.tiers.TieredBlobStore object at 0x111b1eae0>.read
+
+final_residual_edges.py:38: AssertionError
+______________ test_revoke_p_clears_clocked_projection_and_replay ______________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1981/test_revoke_p_clears_clocked_p0')
+
+    def test_revoke_p_clears_clocked_projection_and_replay(tmp_path):
+        store = TieredBlobStore(tmp_path)
+        store.publish_p("expert", weights=b"w", moments=b"m", clock=1,
+                        encoder="e1", lineage=["r1"])
+        record_id = store.read_p("expert")["record_id"]
+        key = ProjectionCache.key(record_id, generation=1, producer="p:expert",
+                                  representation="e1", reader_release="r1", site=3,
+                                  eligibility_revision=0)
+        store.projections.put(key, object())
+        store.replay.register(record_id, generation=1, producer="p:expert")
+        store.revoke_p("expert", reason="revoked", authorized_by="host")
+>       assert store.projections.get(key) is None
+E       AssertionError: assert <object object at 0x111a67470> is None
+E        +  where <object object at 0x111a67470> = get(('p_expert_c1', 1, 'p:expert', 'e1', 'r1', 3, ...))
+E        +    where get = <replica_lab.successors.tiers.ProjectionCache object at 0x111b64200>.get
+E        +      where <replica_lab.successors.tiers.ProjectionCache object at 0x111b64200> = <replica_lab.successors.tiers.TieredBlobStore object at 0x111b66a50>.projections
+
+final_residual_edges.py:52: AssertionError
+____________ test_minimal_authority_cannot_bypass_manifest_contract ____________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1981/test_minimal_authority_cannot_0')
+
+    def test_minimal_authority_cannot_bypass_manifest_contract(tmp_path):
+        store = TieredBlobStore(tmp_path)
+        store.publish("record", b"payload", generation=1, kind="e", producer="expected",
+                      representation="r1", scope_digest="scope", valid_to=1)
+        result = store.read("record", authority=lambda record_id: {"eligible": True})
+>       assert result.status != "ready"
+E       AssertionError: assert 'ready' != 'ready'
+E        +  where 'ready' = ReadResult(status='ready', record_id='record', tier='hot', payload=b'payload', manifest={'format': 'replica.successors...s': 1793332111916517000, 'extra': {}}, latency_ms=0.003958, bytes_read=7, reason='', ticket_id=None, fallback_tokens=0).status
+
+final_residual_edges.py:61: AssertionError
+____________ test_noninteger_exposure_is_refused_during_validation _____________
+
+    def test_noninteger_exposure_is_refused_during_validation():
+        protocol = total_cost_protocol()
+        protocol["selection"]["declared_common_updates"] = 2.0
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+final_residual_edges.py:67: Failed
+___________ test_receipt_creation_does_not_leave_partial_final_file ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x111b66ed0>
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1981/test_receipt_creation_does_not0')
+
+    def test_receipt_creation_does_not_leave_partial_final_file(monkeypatch, tmp_path):
+        import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+        destination = tmp_path / "receipt.json"
+        real_open = Path.open
+        class PartialWriter:
+            def __init__(self, stream):
+                self.stream = stream
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                self.stream.close()
+            def write(self, payload):
+                self.stream.write(payload[:5])
+                raise RuntimeError("interrupted")
+            def flush(self):
+                pass
+        def failing_open(self, *args, **kwargs):
+            if self == destination:
+                return PartialWriter(real_open(self, "x", encoding="utf-8"))
+            return real_open(self, *args, **kwargs)
+        monkeypatch.setattr(receipts.Path, "open", failing_open)
+        with pytest.raises(RuntimeError):
+            receipts.write_new_json(destination, {"complete": True})
+>       assert not destination.exists()
+E       AssertionError: assert not True
+E        +  where True = exists()
+E        +    where exists = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1981/test_receipt_creation_does_not0/receipt.json').exists
+
+final_residual_edges.py:94: AssertionError
+___________ test_cold_staging_propagates_process_control_exceptions ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x111b67ce0>
+
+    def test_cold_staging_propagates_process_control_exceptions(monkeypatch):
+        import replica_lab.contextual_memory_v12 as module
+        def interrupted(*args, **kwargs):
+            raise KeyboardInterrupt()
+        monkeypatch.setattr(module, "_payload_read_verified", interrupted)
+        ticket = {"pinned": [{"record_id": "r", "text_path": "missing",
+                             "text_sha256": "0" * 64, "text_bytes": 1, "values": []}]}
+>       with pytest.raises(KeyboardInterrupt):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE KeyboardInterrupt
+
+final_residual_edges.py:104: Failed
+=========================== short test summary info ============================
+FAILED final_residual_edges.py::test_fitting_closed_receipt_has_an_active_stage - replica_lab.intrinsic_memory_budget_v12.BudgetError: stage is not active
+FAILED final_residual_edges.py::test_external_p_revocation_blocks_second_instance_generic_read - assert 'ready' != 'ready'
+ +  where 'ready' = ReadResult(status='ready', record_id='p_expert_c1', tier='warm', payload=b'PS1\x001\x01\x00\x00\x00\x00\x00\x00{"clock... 'valid_from': 0, 'valid_to': None}, latency_ms=0.086125, bytes_read=319, reason='', ticket_id=None, fallback_tokens=0).status
+ +    where ReadResult(status='ready', record_id='p_expert_c1', tier='warm', payload=b'PS1\x001\x01\x00\x00\x00\x00\x00\x00{"clock... 'valid_from': 0, 'valid_to': None}, latency_ms=0.086125, bytes_read=319, reason='', ticket_id=None, fallback_tokens=0) = read('p_expert_c1', contract=ReadContract(producer='p:expert', representation='e1', scope_digest='da277f13775eea50f9ea6f25ff0fc6b3ba070204fb6d0b5a8b837b8663bcd15a', cutoff=None, generation=None))
+ +      where read = <replica_lab.successors.tiers.TieredBlobStore object at 0x111b1eae0>.read
+FAILED final_residual_edges.py::test_revoke_p_clears_clocked_projection_and_replay - AssertionError: assert <object object at 0x111a67470> is None
+ +  where <object object at 0x111a67470> = get(('p_expert_c1', 1, 'p:expert', 'e1', 'r1', 3, ...))
+ +    where get = <replica_lab.successors.tiers.ProjectionCache object at 0x111b64200>.get
+ +      where <replica_lab.successors.tiers.ProjectionCache object at 0x111b64200> = <replica_lab.successors.tiers.TieredBlobStore object at 0x111b66a50>.projections
+FAILED final_residual_edges.py::test_minimal_authority_cannot_bypass_manifest_contract - AssertionError: assert 'ready' != 'ready'
+ +  where 'ready' = ReadResult(status='ready', record_id='record', tier='hot', payload=b'payload', manifest={'format': 'replica.successors...s': 1793332111916517000, 'extra': {}}, latency_ms=0.003958, bytes_read=7, reason='', ticket_id=None, fallback_tokens=0).status
+FAILED final_residual_edges.py::test_noninteger_exposure_is_refused_during_validation - Failed: DID NOT RAISE ValueError
+FAILED final_residual_edges.py::test_receipt_creation_does_not_leave_partial_final_file - AssertionError: assert not True
+ +  where True = exists()
+ +    where exists = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1981/test_receipt_creation_does_not0/receipt.json').exists
+FAILED final_residual_edges.py::test_cold_staging_propagates_process_control_exceptions - Failed: DID NOT RAISE KeyboardInterrupt
+7 failed in 2.37s
