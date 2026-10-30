@@ -1328,3 +1328,115 @@ def test_release_origin_write_reservation_refusal_leaves_no_charge_or_root(tmp_p
         "SELECT COUNT(*) AS c FROM tier_usage WHERE component_id=?",
         ("release_pointer:" + sc.scope_key,)).fetchone()["c"] == 0
     store.close()
+
+
+def test_published_pointer_cleanup_failure_keeps_live_pointer_and_charge(tmp_path, monkeypatch):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    first = corpus.rebuild(path)
+    component = "release_pointer:" + sc.scope_key
+    old_size = store.connection.execute(
+        "SELECT bytes FROM tier_usage WHERE component_id=?", (component,)).fetchone()["bytes"]
+    original = Path.unlink
+
+    def failing(self, *args, **kwargs):
+        if self.name.startswith("current.json.pending"):
+            raise OSError("simulated pending cleanup failure")
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", failing)
+    second = corpus.rebuild(path)
+    assert second["generation"] > first["generation"]
+    assert corpus._current()[1]["generation"] == second["generation"]
+    new_size = store.connection.execute(
+        "SELECT bytes FROM tier_usage WHERE component_id=?", (component,)).fetchone()["bytes"]
+    assert new_size == (corpus.root / "current.json").stat().st_size
+    assert corpus.cost["cleanup_failures"] >= 1
+    store.close()
+
+
+def test_pointer_charge_rollback_survives_pending_cleanup_failure(tmp_path, monkeypatch):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    first = corpus.rebuild(path)
+    pointer_path = corpus.root / "current.json"
+    before = pointer_path.read_bytes()
+    component = "release_pointer:" + sc.scope_key
+    old_size = store.connection.execute(
+        "SELECT bytes FROM tier_usage WHERE component_id=?", (component,)).fetchone()["bytes"]
+    original_unlink = Path.unlink
+
+    def failing_unlink(self, *args, **kwargs):
+        if self.name.startswith("current.json.pending"):
+            raise OSError("simulated pending cleanup failure")
+        return original_unlink(self, *args, **kwargs)
+
+    def failing_fsync(directory):
+        raise OSError("simulated post-replace fsync failure")
+
+    monkeypatch.setattr(Path, "unlink", failing_unlink)
+    monkeypatch.setattr(corpus, "_fsync_directory", failing_fsync)
+    with pytest.raises(OSError):
+        corpus.rebuild(path)
+    assert pointer_path.read_bytes() == before
+    assert corpus._current()[1]["generation"] == first["generation"]
+    assert store.connection.execute(
+        "SELECT bytes FROM tier_usage WHERE component_id=?", (component,)
+    ).fetchone()["bytes"] == old_size
+    store.close()
+
+
+def test_origin_completion_failure_does_not_mask_atomic_error(tmp_path, monkeypatch):
+    import replica_lab.contextual_release_v12 as module
+    from replica_lab.contextual_release_v12 import WorkLedgerReleaseReadAccounting
+
+    class Ledger:
+        def reserve(self, stage, operation, **amounts):
+            return 1
+
+        def finish(self, token, *, status="completed", actual=None, detail=None):
+            raise RuntimeError("simulated completion failure")
+
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    original = module.atomic_json
+
+    def failing(path_value, value):
+        if path_value.name == "current.json":
+            raise OSError("simulated origin atomic failure")
+        return original(path_value, value)
+
+    monkeypatch.setattr(module, "atomic_json", failing)
+    with pytest.raises(OSError) as error:
+        ProducerReleaseCorpus(store, sc, read_accounting=WorkLedgerReleaseReadAccounting(
+            Ledger(), "mechanics"))
+    assert any("accounting completion failed" in note
+               for note in getattr(error.value, "__notes__", []))
+    assert not (store.root / "artifacts" / "contextual_v12" / "releases"
+                / sc.scope_key / "current.json").exists()
+    store.close()
+
+
+def test_release_origin_and_pointer_byte_accounting_are_exposed(tmp_path):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    first = ProducerReleaseCorpus(store, sc)
+    origin = first.accounting_bytes()["release_origin_and_lock"]
+    assert origin["write_reserved"] > 0
+    first.rebuild(path)
+    pointer = first.accounting_bytes()["release_pointer"]
+    manifest = first.accounting_bytes()["release_manifest"]
+    assert pointer["write_reserved"] == pointer["write_actual"] > 0
+    assert manifest["write_reserved"] == manifest["write_actual"] > 0
+    second = ProducerReleaseCorpus(store, sc)
+    assert second.accounting_bytes()["release_origin_and_lock"]["write_reserved"] == 0
+    store.close()

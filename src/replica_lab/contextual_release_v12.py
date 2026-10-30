@@ -83,7 +83,11 @@ class ProducerReleaseCorpus:
                          write_ns=0, read_bytes=0, read_files=0, publications=0,
                          authority_read_bytes=0, authority_read_files=0,
                          artifact_read_bytes=0, artifact_read_files=0,
-                         artifact_write_bytes=0, artifact_write_files=0)
+                         artifact_write_bytes=0, artifact_write_files=0,
+                         accounting_completion_failures=0, cleanup_failures=0)
+        self._operation_bytes = {}
+        self._actual_bytes = {}
+        self._cleanup_notes = []
         origin = {"format": FORMAT + ".pointer", "scope": asdict(scope),
                   "generation": 0, "manifest_sha256": None}
         size = len(json.dumps(origin, sort_keys=True, indent=2).encode()) + 1
@@ -107,14 +111,16 @@ class ProducerReleaseCorpus:
                     component = "release_pointer:" + scope.scope_key
                     try:
                         store._charge("cold", "artifacts", size, component, "release origin")
-                    except BaseException:
-                        self._complete_write(token, actual_bytes=0, status="failed")
+                    except BaseException as charge_error:
+                        self._complete_write_best(token, actual_bytes=0, status="failed",
+                                                  error=charge_error)
                         completed = True
                         raise
                     try:
                         atomic_json(pointer, origin)
                     except BaseException as error:
-                        self._complete_write(token, actual_bytes=0, status="failed")
+                        self._complete_write_best(token, actual_bytes=0, status="failed",
+                                                  error=error)
                         completed = True
                         authority_live = pointer.exists() and not pointer.is_symlink()
                         durable = not authority_live
@@ -134,6 +140,11 @@ class ProducerReleaseCorpus:
                             raise ContextualMemoryError(
                                 "release origin rollback failed; authority/charge retained"
                             ) from error
+                        cleanup_failures = self._cleanup_pointer_temps(error)
+                        if cleanup_failures:
+                            raise ContextualMemoryError(
+                                "release origin rollback left orphan temp; charge retained"
+                            ) from error
                         try:
                             store._release(component)
                         except BaseException as release_error:
@@ -141,22 +152,18 @@ class ProducerReleaseCorpus:
                                 f"origin charge rollback failed: {release_error}")
                             raise ContextualMemoryError(
                                 "release origin charge rollback failed") from error
-                        self._cleanup_pointer_temps(error)
                         raise
                     self.cost["write_bytes"] += size
                     self.cost["artifact_write_bytes"] += size
                     self.cost["artifact_write_files"] += 1
-                    self._complete_write(token, actual_bytes=size)
+                    self._complete_write_best(token, actual_bytes=size)
                     completed = True
                 else:
-                    self._complete_write(token, actual_bytes=0)
+                    self._complete_write_best(token, actual_bytes=0)
                     completed = True
         finally:
             if not completed:
-                try:
-                    self._complete_write(token, actual_bytes=0, status="failed")
-                except BaseException:
-                    pass
+                self._complete_write_best(token, actual_bytes=0, status="failed")
             self._cleanup_pointer_temps()
         self._manifest_cache = None
 
@@ -167,12 +174,44 @@ class ProducerReleaseCorpus:
         """Exact counted provider calls by logical operation and direction."""
         return {name: dict(counts) for name, counts in sorted(self._operation_counts.items())}
 
-    def _count(self, direction, operation):
+    def accounting_bytes(self):
+        """Reserved and observed bytes per operation and direction."""
+        result = {}
+        for operation in sorted(set(self._operation_bytes) | set(self._actual_bytes)):
+            reserved = self._operation_bytes.get(operation, {"read": 0, "write": 0})
+            actual = self._actual_bytes.get(operation, {"read": 0, "write": 0})
+            result[operation] = {
+                "read_reserved": reserved["read"], "write_reserved": reserved["write"],
+                "read_actual": actual["read"], "write_actual": actual["write"]}
+        return result
+
+    def _count(self, direction, operation, byte_count):
         counts = self._operation_counts.setdefault(operation, {"read": 0, "write": 0})
         counts[direction] += 1
+        reserved = self._operation_bytes.setdefault(operation, {"read": 0, "write": 0})
+        reserved[direction] += byte_count
+
+    def _count_actual(self, direction, operation, byte_count):
+        actual = self._actual_bytes.setdefault(operation, {"read": 0, "write": 0})
+        actual[direction] += byte_count
+
+    def _complete_write_best(self, token, *, actual_bytes, status="completed", error=None):
+        try:
+            self._complete_write(token, actual_bytes=actual_bytes, status=status)
+            if status == "completed":
+                self._count_actual("write", self._last_write_operation, actual_bytes)
+            return True
+        except Exception as completion_error:
+            self.cost["accounting_completion_failures"] += 1
+            message = f"release write accounting completion failed: {completion_error}"
+            if error is not None:
+                error.add_note(message)
+            else:
+                self._cleanup_notes.append(message)
+            return False
 
     def _reserve_read(self, operation, byte_count):
-        self._count("read", operation)
+        self._count("read", operation, byte_count)
         if self.read_accounting is None:
             return None
         return self.read_accounting.reserve_read(operation, byte_count, 1)
@@ -182,7 +221,8 @@ class ProducerReleaseCorpus:
             self.read_accounting.complete_read(token, actual_bytes=actual_bytes, status=status)
 
     def _reserve_write(self, operation, byte_count):
-        self._count("write", operation)
+        self._last_write_operation = operation
+        self._count("write", operation, byte_count)
         if self.read_accounting is None or getattr(self.read_accounting, "reserve_write", None) is None:
             return None
         return self.read_accounting.reserve_write(operation, byte_count, 1)
@@ -221,11 +261,9 @@ class ProducerReleaseCorpus:
         try:
             self.store._charge("cold", "artifacts", len(payload), component,
                                "immutable producer release")
-        except BaseException:
-            try:
-                self._complete_write(token, actual_bytes=0, status="failed")
-            except BaseException:
-                pass
+        except BaseException as charge_error:
+            self._complete_write_best(token, actual_bytes=0, status="failed",
+                                      error=charge_error)
             raise
         start = time.monotonic_ns()
         created = False
@@ -236,10 +274,7 @@ class ProducerReleaseCorpus:
                 out.flush()
                 os.fsync(out.fileno())
         except BaseException as error:
-            try:
-                self._complete_write(token, actual_bytes=0, status="failed")
-            except BaseException as accounting_error:
-                error.add_note(f"release write accounting failed: {accounting_error}")
+            self._complete_write_best(token, actual_bytes=0, status="failed", error=error)
             orphan = False
             if created:
                 try:
@@ -257,7 +292,7 @@ class ProducerReleaseCorpus:
             except BaseException as release_error:
                 error.add_note(f"release write charge rollback failed: {release_error}")
             raise
-        self._complete_write(token, actual_bytes=len(payload))
+        self._complete_write_best(token, actual_bytes=len(payload))
         self.cost["write_bytes"] += len(payload)
         self.cost["write_ns"] += time.monotonic_ns() - start
         self.cost["artifact_write_bytes"] += len(payload)
@@ -368,14 +403,21 @@ class ProducerReleaseCorpus:
             os.close(fd)
 
     def _cleanup_pointer_temps(self, error=None):
+        failures = []
         for candidate in self.root.glob("current.json.*"):
             try:
                 candidate.unlink()
             except FileNotFoundError:
                 pass
             except Exception as cleanup_error:
+                failures.append(str(cleanup_error))
+                self.cost["cleanup_failures"] += 1
                 if error is not None:
                     error.add_note(f"pointer temp cleanup failed: {cleanup_error}")
+                else:
+                    self._cleanup_notes.append(
+                        f"pointer temp cleanup failed: {cleanup_error}")
+        return failures
 
     def _stage_pointer(self, pointer):
         current = self.root / "current.json"
@@ -385,12 +427,9 @@ class ProducerReleaseCorpus:
         try:
             atomic_json(pending, pointer)
         except BaseException as error:
-            try:
-                self._complete_write(token, actual_bytes=0, status="failed")
-            except BaseException as accounting_error:
-                error.add_note(f"pointer write accounting failed: {accounting_error}")
+            self._complete_write_best(token, actual_bytes=0, status="failed", error=error)
             raise
-        self._complete_write(token, actual_bytes=size)
+        self._complete_write_best(token, actual_bytes=size)
         self.cost["artifact_write_bytes"] += size
         self.cost["artifact_write_files"] += 1
         return pending
@@ -412,10 +451,7 @@ class ProducerReleaseCorpus:
                     os.fsync(stream.fileno())
                 os.replace(temporary, current)
             except BaseException as error:
-                try:
-                    self._complete_write(token, actual_bytes=0, status="failed")
-                except BaseException as accounting_error:
-                    error.add_note(f"pointer restore accounting failed: {accounting_error}")
+                self._complete_write_best(token, actual_bytes=0, status="failed", error=error)
                 try:
                     temporary.unlink()
                 except FileNotFoundError:
@@ -423,7 +459,7 @@ class ProducerReleaseCorpus:
                 except Exception as cleanup_error:
                     error.add_note(f"pointer restore temp cleanup failed: {cleanup_error}")
                 raise
-            self._complete_write(token, actual_bytes=len(previous))
+            self._complete_write_best(token, actual_bytes=len(previous))
             self.cost["artifact_write_bytes"] += len(previous)
             self.cost["artifact_write_files"] += 1
         try:
@@ -478,8 +514,11 @@ class ProducerReleaseCorpus:
             except FileNotFoundError:
                 pass
             except Exception as cleanup_error:
-                raise ContextualMemoryError(
-                    "pointer staging cleanup failed") from cleanup_error
+                # The new pointer is live and its charge must remain. A staging
+                # cleanup failure is recorded, never converted into a rollback.
+                self.cost["cleanup_failures"] += 1
+                self._cleanup_notes.append(
+                    f"published pointer staging cleanup failed: {cleanup_error}")
 
     def _revert_pointer_charge(self, previous):
         component = "release_pointer:" + self.scope.scope_key
@@ -585,6 +624,8 @@ class ProducerReleaseCorpus:
                     pending.unlink()
                 except FileNotFoundError:
                     pass
+                except Exception as cleanup_error:
+                    error.add_note(f"pointer staging cleanup failed: {cleanup_error}")
                 try:
                     self._revert_pointer_charge(previous_pointer)
                 except BaseException as charge_error:

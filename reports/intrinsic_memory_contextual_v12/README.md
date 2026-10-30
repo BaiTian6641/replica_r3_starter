@@ -8,10 +8,10 @@ integration. Nothing in this directory is native evidence or a capability claim.
 Coordinator history: 61 tests passed before independent review, 69 after V1–V5,
 and 79 after cold-failure/parity repairs. After cycle 5, 88 checks passed. The
 continuation then added release rollback, direct-read accounting and handler
-coverage: **107 checks passed**. Fresh `run08` passes all 2/9/36 layouts with true
+coverage: **111 checks passed**. Fresh `run09` passes all 2/9/36 layouts with true
 live/release and two-record cold parity plus exact continuation. Measured parent
-wall was 15.780237 s and peak RSS 762,888,192 bytes; run08 has 244 files /
-102,308,486 bytes. `native_admissible` remains `false`: CPU engineering only.
+wall was 15.831786 s and peak RSS 769,425,408 bytes; run09 has 244 files /
+102,308,714 bytes. `native_admissible` remains `false`: CPU engineering only.
 
 ## Scope delivered
 
