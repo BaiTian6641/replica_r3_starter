@@ -1,0 +1,129 @@
+{
+  "format": "replica.intrinsic_memory.matched_reader_control.v1",
+  "implementation": "replica.intrinsic_memory.matched_reader.v1",
+  "status": "CPU_implemented_native_unqualified",
+  "native_launch_enabled": false,
+  "source_lineage": "Spark-X2.6-4B-FP8",
+  "native_source_candidate": "official_Spark-X2.6-4B_BF16_distinct_execution_identity",
+  "placement": "block_input_query_to_post_block_residual",
+  "sharing": "group=(layer//4)%2",
+  "group_initialization_sites": [
+    3,
+    7
+  ],
+  "initialization_seed": 17,
+  "unique_reader_groups": 2,
+  "native_hidden_size": 2560,
+  "unique_native_reader_parameters": 2895874,
+  "producer": "unchanged_ContextualMemoryV5_live_contextual_encoder",
+  "stored_contract": "four_ordered_width256_slots_per_span_eight_slot_budget_masked_padding",
+  "shared_state": "one_snapshot_per_forward_no_layer_retrieval_or_write",
+  "optimizer": "NativeFusedAdamW_one_owner_canonical_group_names",
+  "checkpoint": "complete_producer_order_two_reader_groups_optimizer_and_explicit_mapping",
+  "detach_boundaries": [
+    "durable_admission",
+    "durable_read",
+    "extension_checkpoint"
+  ],
+  "projection_cache": "none",
+  "native_usefulness_required_before_density": true,
+  "P_updates": 0,
+  "promotion": false,
+  "arms": {
+    "two": {
+      "active_sites": [
+        3,
+        7
+      ],
+      "unique_reader_groups": 2,
+      "unique_native_reader_parameters": 2895874
+    },
+    "full_attention_nine": {
+      "active_sites": [
+        3,
+        7,
+        11,
+        15,
+        19,
+        23,
+        27,
+        31,
+        35
+      ],
+      "unique_reader_groups": 2,
+      "unique_native_reader_parameters": 2895874
+    },
+    "all": {
+      "active_sites": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ],
+      "unique_reader_groups": 2,
+      "unique_native_reader_parameters": 2895874
+    }
+  },
+  "claim_limits": [
+    "Equal parameters do not imply equal compute, latency, physical fit or learning utility.",
+    "Sharing changes parameter reuse as well as access density; report its interaction with independent-reader arms.",
+    "CPU fixture tests are not native Spark competence."
+  ],
+  "native_successor_requirements": [
+    "Qualified useful two-site readout and correction evidence.",
+    "Separate per-arm execution, source, scorer, numerical, resource, authorization and output bindings.",
+    "Fixed identical evidence, selected slots, data splits, writer, updates, template, thinking mode and generation budget.",
+    "Measure every source encode, retrieval, store publication, teacher target, update, probe and restart; preserve raw answers.",
+    "One native worker; 50GiB driver, 512MiB sustained swap-growth, 15percent host-free; no reuse of consumed v11 output."
+  ],
+  "matched_total_cost_followup": {
+    "status": "specified_not_executed_not_native_launchable",
+    "design": "separate_budget_frontier_control_with_prefit_cost_calibration",
+    "calibration": "Use independent unlabeled fitting-like pilot inputs; bind counts and ceilings in a new packet before any pilot. Restore the common initial extension after the pilot. Charge pilot cost.",
+    "freeze_before_labels": "Use measured per-arm fixed and marginal teaching costs to predeclare a balanced whole-pass schedule under the same total cost envelope before opening fitting/development outcomes. No observed-answer early stopping or schedule adjustment.",
+    "measure": [
+      "total_wall_seconds",
+      "generated_and_input_tokens",
+      "source_and_teacher_compute",
+      "retrieval_replay_and_publication_cost",
+      "peak_MPS_driver_and_RSS",
+      "host_free_and_swap_growth",
+      "artifact_and_serialized_IO_bytes"
+    ],
+    "matching_tolerance": "Declare the allowed measured-cost tolerance and treatment of envelope breaches before launch. An arm outside tolerance is unmatched evidence, never an assumed matched-cost success.",
+    "exposure_caveat": "Equal total-cost runs may have different update exposure; keep the equal-exposure primary comparison separate and report both.",
+    "no_inference": "Parameter arithmetic or nominal operation counts cannot establish measured total-cost matching."
+  }
+}
