@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 337, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 333, in main
+    worker(args); return 0
+    ^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 235, in worker
+    with ledger.work(stage, 'child_source_revalidation',
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 144, in __exit__
+    next(self.gen)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_budget_v12.py", line 485, in work
+    self.finish(token, actual=observation.pop('actual', None), detail=observation)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_budget_v12.py", line 466, in finish
+    raise BudgetError('actual work exceeds reservation')
+replica_lab.intrinsic_memory_budget_v12.BudgetError: actual work exceeds reservation

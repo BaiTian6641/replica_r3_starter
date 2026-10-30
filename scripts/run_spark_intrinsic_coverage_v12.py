@@ -233,7 +233,8 @@ def worker(args):
     observed = []
     with observe_bound_reads(lambda path, count: observed.append(count)):
         with ledger.work(stage, 'child_source_revalidation',
-                         artifact_read_bytes=(SOURCE_FILE_BYTES
+                         artifact_read_bytes=(CONTROL_READ_BYTES_BOUND
+                                              + SOURCE_FILE_BYTES
                                               + ENVIRONMENT_CLOSURE_BYTES)) as event:
             environment_only(args.packet)
             _, protocol, receipt = validate_bindings(ROOT, args.packet, check_source=True)

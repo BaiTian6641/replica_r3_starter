@@ -1,0 +1,27 @@
+{
+  "format": "replica.intrinsic_memory.native_attempt_failure_analysis.v12",
+  "attempt": 1,
+  "packet_sha256": "6dc96d507bee85d807657cf81187146ab226d7d0146c6abf3d4f56f9377bb6e1",
+  "authorization_sha256": "b8865d4220fd7fb6244c1f351391f76632bc158938b7375de938fbd87695f74c",
+  "status": "execution_failure_before_model_calibration",
+  "wall_seconds": 9.36,
+  "error": "replica_lab.intrinsic_memory_budget_v12.BudgetError: actual work exceeds reservation",
+  "stage": "load/child_source_revalidation",
+  "root_cause": "Observed bound-JSON reads were added to the worker's actual accounting without adding CONTROL_READ_BYTES_BOUND to its reservation. The stage's actual bytes therefore exceeded the reservation before any model calibration answer.",
+  "capability_evaluation": {
+    "calibration_answers": 0,
+    "fitting_updates": 0,
+    "development_opened": false,
+    "capability_claim": false
+  },
+  "resources": {
+    "artifact_bytes_observed": 22279,
+    "minimum_observed_free_percent": 89.0,
+    "peak_driver_bytes": 0,
+    "peak_swap_growth_bytes": 0,
+    "stop_reason": null
+  },
+  "attempt_consumed": true,
+  "retry_allowed_for_same_packet": false,
+  "repair": "Add CONTROL_READ_BYTES_BOUND to the worker revalidation reservation and prepare a fresh attempt02 packet with a new output identity and authorization. Attempt01 evidence is preserved unchanged."
+}
