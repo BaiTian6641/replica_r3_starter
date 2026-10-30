@@ -272,7 +272,9 @@ Unsatisfied gates (unchanged by this work):
 
 ## 6. Exact commands
 
-Measurements (writes `measurements.json`, `protocols.json`, `interface_map.json`):
+Measurements (writes a no-overwrite `measurements_<sha>.json`, updates
+`CURRENT.json` with its digest, preserves prior outputs, and writes
+`protocols.json`/`interface_map.json`):
 
 ```bash
 .venv/bin/python reports/replica_successors_v12/run_cpu_successors_v12.py \

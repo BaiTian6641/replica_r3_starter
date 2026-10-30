@@ -12,7 +12,9 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import os
 import platform
 from pathlib import Path
 import sys
@@ -51,6 +53,55 @@ from replica_lab.successors.tiers import (ReadContract, TieredBlobStore,  # noqa
 FIXTURE_GOAL = "Make the evaluator pass by setting the required value."
 REPAIR = '{"rate": 0.25}\n'
 ORIGINAL = '{"rate": 1.0}\n'
+
+
+def _write_new_bytes(path: Path, data: bytes) -> bool:
+    """Create a new durable file without overwriting an existing one."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.parent / f".{path.name}.{os.getpid()}.{time.time_ns()}.tmp"
+    try:
+        with open(temporary, "wb") as handle:
+            handle.write(data)
+            handle.flush()
+            os.fsync(handle.fileno())
+        try:
+            os.link(temporary, path)
+        except FileExistsError:
+            return False
+        directory = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+        return True
+    finally:
+        try:
+            if temporary.exists():
+                temporary.unlink()
+        except OSError:
+            pass
+
+
+def _write_current_pointer(path: Path, data: dict) -> None:
+    text = json.dumps(data, indent=2) + "\n"
+    temporary = path.parent / f".{path.name}.{os.getpid()}.{time.time_ns()}.tmp"
+    try:
+        with open(temporary, "w", encoding="utf-8") as handle:
+            handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+        directory = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    finally:
+        try:
+            if temporary.exists():
+                temporary.unlink()
+        except OSError:
+            pass
 
 
 def _write_case(root: Path) -> FixtureWorkspace:
@@ -602,8 +653,18 @@ def main() -> int:
         if args.only in ("tiers", "all"):
             measurements["tiers"] = measure_tiers(work / "tiers")
         measurements["elapsed_seconds"] = time.perf_counter() - started
-    (output / "measurements.json").write_text(
-        json.dumps(measurements, indent=2) + "\n", encoding="utf-8")
+    measurement_text = json.dumps(measurements, indent=2) + "\n"
+    measurement_bytes = measurement_text.encode("utf-8")
+    identity = hashlib.sha256(measurement_bytes).hexdigest()
+    versioned = output / f"measurements_{identity[:16]}.json"
+    _write_new_bytes(versioned, measurement_bytes)
+    _write_new_bytes(output / "measurements.json", measurement_bytes)
+    _write_current_pointer(output / "CURRENT.json", {
+        "format": "replica.successors.current.v1",
+        "measurements": versioned.name,
+        "measurements_sha256": identity,
+        "written_at_ns": time.time_ns(),
+    })
     protocols = all_protocols()
     (output / "protocols.json").write_text(
         json.dumps(protocols, indent=2) + "\n", encoding="utf-8")
@@ -611,6 +672,8 @@ def main() -> int:
         json.dumps(protocols["interface_map"], indent=2) + "\n", encoding="utf-8")
     print(json.dumps({
         "output": str(output),
+        "measurements": versioned.name,
+        "measurements_sha256": identity,
         "elapsed_seconds": measurements["elapsed_seconds"],
         "formation_used_new": measurements.get("formation_study", {})
         .get("measurement", {}).get("enabled_used_new_observation"),

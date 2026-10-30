@@ -1,0 +1,606 @@
+{
+  "format": "replica.successors.measurements.v1",
+  "status": "isolated CPU engineering measurements; no native job",
+  "environment": {
+    "python": "3.12.14",
+    "torch": "2.14.1",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  },
+  "formation_study": {
+    "format": "replica.successors.study.v1",
+    "query": "vault code",
+    "conditions": {
+      "enabled": {
+        "new_record_id": "r_a06b1d0c2e207b155b87eabbea13987b872bd721",
+        "provisional_note_ids": [
+          "explanation-1"
+        ],
+        "before": {
+          "answer": "unknown",
+          "record_id": null,
+          "evidence": [
+            "r_6ab4d45c9070a9ede577f21ab7946172991e7e51",
+            "r_c6294608678c7a1aeb42ad1b8af4cb3417788af1"
+          ]
+        },
+        "after": {
+          "answer": "vault code 4127 was observed for shelf seven",
+          "record_id": "r_a06b1d0c2e207b155b87eabbea13987b872bd721",
+          "evidence": [
+            "r_6ab4d45c9070a9ede577f21ab7946172991e7e51",
+            "r_c6294608678c7a1aeb42ad1b8af4cb3417788af1",
+            "r_a06b1d0c2e207b155b87eabbea13987b872bd721"
+          ]
+        },
+        "stale_pin_answer": {
+          "answer": "unknown",
+          "record_id": null,
+          "evidence": [
+            "r_6ab4d45c9070a9ede577f21ab7946172991e7e51",
+            "r_c6294608678c7a1aeb42ad1b8af4cb3417788af1"
+          ]
+        },
+        "new_record_visible_later": true,
+        "new_record_visible_to_stale_pin": false,
+        "duplicate_status": "duplicate",
+        "duplicate_same_receipt": true,
+        "conflict_rejected": true,
+        "provisional_notes": 1,
+        "provisional_note_ids_all": [
+          "explanation-1"
+        ],
+        "base_record_count": 2
+      },
+      "corrected": {
+        "correction_status": "committed",
+        "answer": {
+          "answer": "vault code 9001 was observed after review",
+          "record_id": "r_2c5ef148ff042bcdb35b06c1ce5c48d51a32a38d",
+          "evidence": [
+            "r_6ab4d45c9070a9ede577f21ab7946172991e7e51",
+            "r_c6294608678c7a1aeb42ad1b8af4cb3417788af1",
+            "r_2c5ef148ff042bcdb35b06c1ce5c48d51a32a38d"
+          ]
+        },
+        "old_record_excluded": true
+      },
+      "revoked": {
+        "revocation_status": "committed",
+        "answer": {
+          "answer": "unknown",
+          "record_id": null,
+          "evidence": [
+            "r_6ab4d45c9070a9ede577f21ab7946172991e7e51",
+            "r_c6294608678c7a1aeb42ad1b8af4cb3417788af1"
+          ]
+        },
+        "revoked_record_absent": true,
+        "healthy_unrelated_visible": true
+      },
+      "disabled": {
+        "before": {
+          "answer": "unknown",
+          "record_id": null,
+          "evidence": [
+            "r_6ab4d45c9070a9ede577f21ab7946172991e7e51",
+            "r_c6294608678c7a1aeb42ad1b8af4cb3417788af1"
+          ]
+        },
+        "after": {
+          "answer": "unknown",
+          "record_id": null,
+          "evidence": [
+            "r_6ab4d45c9070a9ede577f21ab7946172991e7e51",
+            "r_c6294608678c7a1aeb42ad1b8af4cb3417788af1"
+          ]
+        },
+        "new_record_visible_later": false,
+        "base_record_count": 2
+      },
+      "wrong_branch": {
+        "answer": {
+          "answer": "unknown",
+          "record_id": null,
+          "evidence": [
+            "r_a27b5038401c4ec8fd31eb5b0b1de560d31e21a3"
+          ]
+        },
+        "branch_a_records": 1,
+        "branch_b_records": 1,
+        "branch_a_record_ids": [
+          "r_a27b5038401c4ec8fd31eb5b0b1de560d31e21a3"
+        ],
+        "branch_b_record_ids": [
+          "r_d90475a2dd54cc099c5e408ea2a9f5257e6e7d45"
+        ],
+        "branch_b_record_id": "r_d90475a2dd54cc099c5e408ea2a9f5257e6e7d45"
+      }
+    },
+    "enabled_metrics": {
+      "format": "replica.successors.s2a.v1",
+      "commits": 4,
+      "duplicates": 1,
+      "conflicts": 1,
+      "reads": 40,
+      "failed_reads": 0,
+      "bytes_written": 17812,
+      "bytes_read": 181897,
+      "commit_latency_ms": {
+        "p50": 0.281667,
+        "p95": 0.553042,
+        "samples": 6
+      },
+      "read_latency_ms": {
+        "p50": 0.252666,
+        "p95": 0.318375,
+        "samples": 11
+      },
+      "recovery": {
+        "status": "ok",
+        "events": 4,
+        "generation": 4,
+        "sequence": 4,
+        "head_digest": "ef220b9f6f47b4926812d83216c1241affecfcba097b33799f035e0bd7f2a52d",
+        "orphan_payloads": 1,
+        "quarantined": [],
+        "index_rebuilt": false,
+        "derived_errors": [],
+        "derived_rebuilt": false
+      }
+    },
+    "recovery_after_lifecycle": {
+      "status": "ok",
+      "events": 4,
+      "generation": 4,
+      "sequence": 4,
+      "head_digest": "ef220b9f6f47b4926812d83216c1241affecfcba097b33799f035e0bd7f2a52d",
+      "orphan_payloads": 1,
+      "quarantined": [],
+      "index_rebuilt": false,
+      "derived_errors": [],
+      "derived_rebuilt": false
+    },
+    "measurement": {
+      "enabled_used_new_observation": true,
+      "disabled_used_new_observation": false,
+      "delayed_visibility_holds": true,
+      "removing_write_removes_improvement": true,
+      "wrong_branch_isolated": true,
+      "provisional_not_evidence": true,
+      "improvement_attributable_to_write": true
+    }
+  },
+  "formation_recovery": {
+    "crash": {
+      "before_events": 0,
+      "before_orphans": 1,
+      "after_events": 1,
+      "after_orphans": 0,
+      "duplicate_status": "duplicate",
+      "duplicate_same_receipt": true
+    },
+    "corrupt": {
+      "status": "degraded",
+      "quarantined": 1,
+      "healthy_read": "healthy",
+      "corrupt_visible_refused": true
+    }
+  },
+  "task_formation": {
+    "conditions": {
+      "enabled": {
+        "task_journal_bytes": 4096,
+        "workspace_store_bytes": 0,
+        "decisions": 2,
+        "success": false,
+        "formation_status": "committed",
+        "visible_records": 2,
+        "provisional_notes": 2,
+        "record_kinds": [
+          "observation",
+          "observation"
+        ]
+      },
+      "disabled": {
+        "task_journal_bytes": 4096,
+        "workspace_store_bytes": 0,
+        "decisions": 2,
+        "success": false,
+        "formation_status": null,
+        "visible_records": 0,
+        "provisional_notes": 0,
+        "record_kinds": []
+      }
+    },
+    "improvement_requires_write": true
+  },
+  "core_identity": {
+    "core_parameters": 14499,
+    "core_parameter_bytes_fp32": 57996,
+    "workspace_tensor_bytes": 1128,
+    "identity_slots_bytes": 1024,
+    "identity_reservation_proposed_bytes": 8388608,
+    "training_gradient_present": true,
+    "inference_detached": true,
+    "workspace_roundtrip": true,
+    "workspace_reset_clears": true,
+    "identity_disabled_exact_parity": true,
+    "identity_untrained_zero_init": true,
+    "identity_digest_bound": true
+  },
+  "identity_store": {
+    "rendered": true,
+    "null_renders_empty": true,
+    "null_is_null": true,
+    "context_summary_bounded": true,
+    "identity_cannot_verify": true
+  },
+  "interventions": {
+    "conditions": {
+      "none": {
+        "intervention": "none",
+        "order": [],
+        "identity_null": false,
+        "task_workspace_cleared": false,
+        "workspace_absent": false,
+        "goal_unchanged": true
+      },
+      "task_then_identity": {
+        "intervention": "task_then_identity",
+        "order": [
+          "task",
+          "identity"
+        ],
+        "identity_null": true,
+        "task_workspace_cleared": true,
+        "workspace_absent": true,
+        "goal_unchanged": true
+      },
+      "identity_then_task": {
+        "intervention": "identity_then_task",
+        "order": [
+          "identity",
+          "task"
+        ],
+        "identity_null": true,
+        "task_workspace_cleared": true,
+        "workspace_absent": true,
+        "goal_unchanged": true
+      },
+      "both_reset": {
+        "intervention": "both_reset",
+        "order": [
+          "task",
+          "identity"
+        ],
+        "identity_null": true,
+        "task_workspace_cleared": true,
+        "workspace_absent": true,
+        "goal_unchanged": true
+      }
+    },
+    "orders_equivalent": true
+  },
+  "chunks": {
+    "first_commit": "committed",
+    "second_commit": "committed",
+    "retry_status": "duplicate",
+    "retry_same_receipt": true,
+    "history_after_first": 1,
+    "recompute_digest_equal": true,
+    "recompute_created_commits": false,
+    "committed_watermark": 7,
+    "committed_tokens_expected": 7,
+    "conflict_rejected": true,
+    "overlap_refused": true,
+    "changed_prefix_refused": true,
+    "stale_after_correction": true,
+    "branch_b_position": 2,
+    "branch_b_revision": 0,
+    "correction_revision": 3,
+    "metrics": {
+      "format": "replica.successors.s2b.v1",
+      "commits": 2,
+      "duplicates": 1,
+      "conflicts": 1,
+      "stale_rejections": 1,
+      "prefix_refusals": 2,
+      "commit_latency_ms": {
+        "p50": 0.033625,
+        "p95": 0.203042,
+        "samples": 7
+      }
+    },
+    "recovery": {
+      "status": "ok",
+      "commits": 2,
+      "sequences": 1
+    }
+  },
+  "tiers": {
+    "hot_status": "ready",
+    "warm_status": "ready",
+    "cold_status": "ready",
+    "warm_tier": "warm",
+    "cold_tier": "cold",
+    "pending_status": "pending",
+    "resumed_status": "rejected",
+    "missing_status": "unavailable",
+    "corrupt_status": "corrupt",
+    "p_state_generation": 3,
+    "p_state_evicted_tier": "warm",
+    "p_state_readable_after_evict": true,
+    "recovery": {
+      "status": "degraded",
+      "healthy_records": 1,
+      "quarantined_staging": [
+        "interrupted-move"
+      ],
+      "damaged_records": [],
+      "revoked_p_records": [],
+      "reconciled_p_pointers": [
+        {
+          "owner": "p1",
+          "pointer": "valid"
+        }
+      ],
+      "pointer_errors": []
+    },
+    "projection_entries_cleared": 1,
+    "replay_registered": true,
+    "replay_eligible_after_invalidation": false,
+    "fallback_status": "fallback",
+    "fallback_tokens": 12,
+    "metrics": {
+      "hot_read": {
+        "format": "replica.successors.tiers.v1",
+        "reads": 1,
+        "writes": 2,
+        "cache_hits": 1,
+        "cache_misses": 0,
+        "failed_reads": 0,
+        "ineligible_reads": 0,
+        "fallback_tokens": 0,
+        "bytes_read": 68,
+        "attempted_bytes": 68,
+        "bytes_written": 954,
+        "temporary_overlap_bytes": 477,
+        "movement_bytes": 477,
+        "reads_by_tier": {
+          "hot": 1,
+          "warm": 0,
+          "cold": 0
+        },
+        "latency_ms": {
+          "warm": {
+            "p50": null,
+            "p95": null,
+            "samples": 0
+          },
+          "cold": {
+            "p50": null,
+            "p95": null,
+            "samples": 0
+          },
+          "hot": {
+            "p50": 0.006166,
+            "p95": 0.006166,
+            "samples": 1
+          }
+        },
+        "usage": {
+          "warm": {
+            "records": 1,
+            "bytes": 423
+          },
+          "cold": {
+            "records": 1,
+            "bytes": 477
+          },
+          "hot": {
+            "records": 1,
+            "bytes": 68,
+            "capacity_bytes": 256
+          },
+          "limits": {
+            "hot_bytes": 1024,
+            "warm_bytes": 4096,
+            "cold_bytes": 8192,
+            "identity_reservation_bytes": 64,
+            "replay_reservation_bytes": 64,
+            "hot_nonidentity_bytes": 960,
+            "warm_nonreplay_bytes": 4032,
+            "status": "proposed subsystem budgets, not allocations"
+          }
+        }
+      },
+      "cold_read": {
+        "format": "replica.successors.tiers.v1",
+        "reads": 2,
+        "writes": 2,
+        "cache_hits": 0,
+        "cache_misses": 2,
+        "failed_reads": 1,
+        "ineligible_reads": 0,
+        "fallback_tokens": 0,
+        "bytes_read": 68,
+        "attempted_bytes": 68,
+        "bytes_written": 895,
+        "temporary_overlap_bytes": 477,
+        "movement_bytes": 477,
+        "reads_by_tier": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 1
+        },
+        "latency_ms": {
+          "warm": {
+            "p50": null,
+            "p95": null,
+            "samples": 0
+          },
+          "cold": {
+            "p50": 2.637417,
+            "p95": 2.637417,
+            "samples": 1
+          },
+          "hot": {
+            "p50": null,
+            "p95": null,
+            "samples": 0
+          }
+        },
+        "usage": {
+          "warm": {
+            "records": 1,
+            "bytes": 423
+          },
+          "cold": {
+            "records": 1,
+            "bytes": 477
+          },
+          "hot": {
+            "records": 2,
+            "bytes": 72,
+            "capacity_bytes": 256
+          },
+          "limits": {
+            "hot_bytes": 1024,
+            "warm_bytes": 4096,
+            "cold_bytes": 8192,
+            "identity_reservation_bytes": 64,
+            "replay_reservation_bytes": 64,
+            "hot_nonidentity_bytes": 960,
+            "warm_nonreplay_bytes": 4032,
+            "status": "proposed subsystem budgets, not allocations"
+          }
+        }
+      },
+      "warm_read": {
+        "format": "replica.successors.tiers.v1",
+        "reads": 1,
+        "writes": 1,
+        "cache_hits": 0,
+        "cache_misses": 1,
+        "failed_reads": 0,
+        "ineligible_reads": 0,
+        "fallback_tokens": 0,
+        "bytes_read": 68,
+        "attempted_bytes": 68,
+        "bytes_written": 477,
+        "temporary_overlap_bytes": 477,
+        "movement_bytes": 477,
+        "reads_by_tier": {
+          "hot": 0,
+          "warm": 1,
+          "cold": 0
+        },
+        "latency_ms": {
+          "warm": {
+            "p50": 0.101625,
+            "p95": 0.101625,
+            "samples": 1
+          },
+          "cold": {
+            "p50": null,
+            "p95": null,
+            "samples": 0
+          },
+          "hot": {
+            "p50": null,
+            "p95": null,
+            "samples": 0
+          }
+        },
+        "usage": {
+          "warm": {
+            "records": 1,
+            "bytes": 423
+          },
+          "cold": {
+            "records": 1,
+            "bytes": 477
+          },
+          "hot": {
+            "records": 1,
+            "bytes": 68,
+            "capacity_bytes": 256
+          },
+          "limits": {
+            "hot_bytes": 1024,
+            "warm_bytes": 4096,
+            "cold_bytes": 8192,
+            "identity_reservation_bytes": 64,
+            "replay_reservation_bytes": 64,
+            "hot_nonidentity_bytes": 960,
+            "warm_nonreplay_bytes": 4032,
+            "status": "proposed subsystem budgets, not allocations"
+          }
+        }
+      },
+      "cold_resume_and_failure": {
+        "format": "replica.successors.tiers.v1",
+        "reads": 2,
+        "writes": 0,
+        "cache_hits": 0,
+        "cache_misses": 1,
+        "failed_reads": 2,
+        "ineligible_reads": 0,
+        "fallback_tokens": 0,
+        "bytes_read": 0,
+        "attempted_bytes": 68,
+        "bytes_written": 0,
+        "temporary_overlap_bytes": 0,
+        "movement_bytes": 0,
+        "reads_by_tier": {
+          "hot": 0,
+          "warm": 0,
+          "cold": 0
+        },
+        "latency_ms": {
+          "warm": {
+            "p50": null,
+            "p95": null,
+            "samples": 0
+          },
+          "cold": {
+            "p50": 0.02525,
+            "p95": 2.603417,
+            "samples": 2
+          },
+          "hot": {
+            "p50": null,
+            "p95": null,
+            "samples": 0
+          }
+        },
+        "usage": {
+          "warm": {
+            "records": 1,
+            "bytes": 423
+          },
+          "cold": {
+            "records": 1,
+            "bytes": 477
+          },
+          "hot": {
+            "records": 0,
+            "bytes": 0,
+            "capacity_bytes": 256
+          },
+          "limits": {
+            "hot_bytes": 1024,
+            "warm_bytes": 4096,
+            "cold_bytes": 8192,
+            "identity_reservation_bytes": 64,
+            "replay_reservation_bytes": 64,
+            "hot_nonidentity_bytes": 960,
+            "warm_nonreplay_bytes": 4032,
+            "status": "proposed subsystem budgets, not allocations"
+          }
+        }
+      }
+    }
+  },
+  "elapsed_seconds": 0.18242358323186636
+}

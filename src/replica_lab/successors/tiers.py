@@ -1033,6 +1033,37 @@ class TieredBlobStore:
         except BaseException:
             pass
 
+    def _restore_p_marker_bytes(self, owner: str, data: bytes | None) -> None:
+        target = self._p_revoked_path(owner)
+        if data is None:
+            try:
+                target.unlink()
+            except FileNotFoundError:
+                pass
+            try:
+                self._fsync_directory(target.parent)
+            except BaseException:
+                pass
+            return
+        target.parent.mkdir(exist_ok=True)
+        temporary = target.parent / f".{owner}.{time.time_ns()}.restore"
+        try:
+            with open(temporary, "wb") as handle:
+                handle.write(data)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, target)
+        finally:
+            try:
+                if temporary.exists():
+                    temporary.unlink()
+            except OSError:
+                pass
+        try:
+            self._fsync_directory(target.parent)
+        except BaseException:
+            pass
+
     def _pointer_record_id(self, owner: str) -> str | None:
         try:
             pointer = self._read_p_pointer(owner)
@@ -1181,14 +1212,22 @@ class TieredBlobStore:
                   "reason": reason, "authorized_by": authorized_by,
                   "revoked_at_ns": _now_ns()}
         target = self._p_revoked_path(owner)
+        prior = target.read_bytes() if target.is_file() else None
         temporary = target.parent / f".{owner}.{time.time_ns()}.tmp"
         try:
-            with open(temporary, "w", encoding="utf-8") as handle:
-                handle.write(_canonical(record) + "\n")
-                handle.flush()
-                os.fsync(handle.fileno())
-            os.replace(temporary, target)
-            self._fsync_directory(target.parent)
+            try:
+                with open(temporary, "w", encoding="utf-8") as handle:
+                    handle.write(_canonical(record) + "\n")
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.replace(temporary, target)
+                self._fsync_directory(target.parent)
+            except BaseException:
+                try:
+                    self._restore_p_marker_bytes(owner, prior)
+                except BaseException:
+                    pass
+                raise
         finally:
             try:
                 if temporary.exists():
@@ -1205,19 +1244,75 @@ class TieredBlobStore:
         if authorized_by != "host":
             raise PermissionError("P restoration requires host authority")
         path = self._p_revoked_path(owner)
-        if path.exists():
-            path.unlink()
-        self._fsync_directory(path.parent)
+        prior = path.read_bytes() if path.is_file() else None
+        try:
+            if path.exists():
+                path.unlink()
+            self._fsync_directory(path.parent)
+        except BaseException:
+            try:
+                self._restore_p_marker_bytes(owner, prior)
+            except BaseException:
+                pass
+            raise
         self._p_revoked.discard(owner)
         self._invalidate_p_owner(owner)
 
     # -- recovery and metrics ---------------------------------------------
+
+    def _reconcile_p_pointer(self, owner: str) -> str:
+        if self._is_p_revoked(owner):
+            return "revoked"
+        versions = self._p_versions(owner)
+        pointer_path = self._p_pointer_path(owner)
+        if not versions:
+            if pointer_path.exists():
+                self._restore_p_pointer_bytes(owner, None)
+                return "removed_orphan"
+            return "missing"
+        latest = max(versions, key=lambda item: int(item["clock"]))
+        try:
+            pointer = self._read_p_pointer(owner)
+        except TierError:
+            self._write_p_pointer(owner, clock=int(latest["clock"]),
+                                  record_id=latest["record_id"],
+                                  manifest=latest["manifest"])
+            return "repaired_invalid"
+        if pointer is None:
+            self._write_p_pointer(owner, clock=int(latest["clock"]),
+                                  record_id=latest["record_id"],
+                                  manifest=latest["manifest"])
+            return "created"
+        matches = [item for item in versions
+                   if item["record_id"] == pointer["record_id"]]
+        if matches:
+            target = matches[0]
+            if (target["manifest"]["payload_sha256"] == pointer["payload_sha256"]
+                    and _sha256_json(target["manifest"]) == pointer["manifest_sha256"]
+                    and int(target["clock"]) == int(latest["clock"])):
+                return "valid"
+        self._write_p_pointer(owner, clock=int(latest["clock"]),
+                              record_id=latest["record_id"],
+                              manifest=latest["manifest"])
+        return "repaired"
 
     def recover(self) -> dict:
         quarantined: list[str] = []
         healthy = 0
         damaged: list[str] = []
         revoked_p: list[str] = []
+        reconciled: list[dict] = []
+        pointer_errors: list[str] = []
+        owners: set[str] = set()
+        pointer_root = self.root / "p_current"
+        if pointer_root.exists():
+            owners.update(path.stem for path in pointer_root.glob("*.json"))
+        for tier in ("warm", "cold"):
+            for directory in (self.root / tier).iterdir():
+                if directory.is_dir():
+                    owner = self._p_owner(directory.name)
+                    if owner is not None:
+                        owners.add(owner)
         marker_root = self.root / "p_revoked"
         if marker_root.exists():
             for marker in marker_root.glob("*.json"):
@@ -1245,11 +1340,23 @@ class TieredBlobStore:
                     damaged.append(f"{tier}/{directory.name}")
                     target = self.root / "quarantine" / f"{tier}-{directory.name}-{_now_ns()}"
                     os.replace(directory, target)
-        status = "degraded" if quarantined or damaged else "ok"
+        for owner in sorted(owners):
+            try:
+                outcome = self._reconcile_p_pointer(owner)
+            except BaseException as error:
+                pointer_errors.append(f"{owner}: {error}")
+                continue
+            reconciled.append({"owner": owner, "pointer": outcome})
+        repaired = any(item["pointer"] not in ("valid", "missing", "revoked")
+                       for item in reconciled)
+        status = "degraded" if (quarantined or damaged or repaired
+                                or pointer_errors) else "ok"
         return {"status": status, "healthy_records": healthy,
                 "quarantined_staging": tuple(quarantined),
                 "damaged_records": tuple(damaged),
-                "revoked_p_records": tuple(revoked_p)}
+                "revoked_p_records": tuple(revoked_p),
+                "reconciled_p_pointers": tuple(reconciled),
+                "pointer_errors": tuple(pointer_errors)}
 
     def usage(self) -> dict:
         tiers = {}

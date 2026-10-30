@@ -1258,11 +1258,10 @@ class FormationStore:
             "SELECT kind, observed_at, generation FROM tombstones WHERE record_id=?",
             (record.record_id,)).fetchone()
         if tombstone is not None:
-            if tombstone["kind"] == "revoked":
-                # Privacy revocation is an immediate barrier: a pin never
-                # overrides later revocation. The host must abort/rebuild the
-                # affected interaction before resuming.
-                return "tombstoned:revoked"
+            if tombstone["kind"] in ("revoked", "quarantined_correction"):
+                # Privacy revocation and unknown quarantined correction state
+                # are immediate fail-closed barriers.
+                return f"tombstoned:{tombstone['kind']}"
             if int(tombstone["generation"]) <= pin.generation \
                     and int(tombstone["observed_at"]) <= pin.cutoff:
                 # Corrections remain immutable-snapshot semantics.
@@ -1274,7 +1273,7 @@ class FormationStore:
         self._check_pin(pin)
         start = time.perf_counter_ns()
         rows = self._connection.execute(
-            "SELECT record_id FROM record_index ri JOIN events e "
+            "SELECT ri.record_id, ri.kind FROM record_index ri JOIN events e "
             "ON e.event_key=ri.event_key WHERE e.generation<=? "
             "AND e.subject_id=? AND e.branch_id=? AND e.purpose=? AND e.mode=? "
             "ORDER BY e.sequence, ri.ordinal, ri.record_id",
@@ -1283,7 +1282,15 @@ class FormationStore:
         output: list[FormationRecord] = []
         try:
             for row in rows:
-                record = self._load_record(str(row["record_id"]))
+                try:
+                    record = self._load_record(str(row["record_id"]))
+                except CorruptAuthority:
+                    if str(row["kind"]) == "correction":
+                        # A quarantined correction payload makes its own
+                        # successor unauthenticable; skip it fail-closed while
+                        # keeping unrelated healthy records available.
+                        continue
+                    raise
                 if record.kind != "observation" and record.kind != "correction":
                     continue
                 if self._eligible(record, pin) is None:
@@ -1507,8 +1514,12 @@ class FormationStore:
             if event_key in skip_events:
                 continue
             payload, _ = self._load_payload(str(row["payload_digest"]))
-            if payload.get("kind") != row["kind"]:
-                raise CorruptAuthority("event kind differs from its payload")
+            try:
+                receipt_kind = json.loads(str(row["receipt_json"]))["kind"]
+            except (KeyError, TypeError, json.JSONDecodeError) as error:
+                raise CorruptAuthority("event receipt kind is not authenticable") from error
+            if payload.get("kind") != row["kind"] or payload.get("kind") != receipt_kind:
+                raise CorruptAuthority("event kind differs from payload/receipt authority")
             payloads[event_key] = payload
             if payload.get("format") != EVENT_FORMAT:
                 raise CorruptAuthority("event payload format is unknown")
@@ -1552,18 +1563,19 @@ class FormationStore:
             committed = int(row["committed_at_ns"])
             generation = int(row["generation"])
             if event_key in skip_events:
-                if str(row["kind"]) == "revocation":
-                    # Payload is quarantined, but the event receipt remains
-                    # committed authority. Reconstruct fail-closed revocation
-                    # rows from it rather than letting evidence resurrect.
-                    try:
-                        receipt = json.loads(row["receipt_json"])
-                        record_id = receipt["record_ids"][0]
-                        affected = tuple(receipt.get("affected_record_ids")
-                                         or (record_id,))
-                    except (KeyError, IndexError, TypeError, json.JSONDecodeError) as error:
-                        raise CorruptAuthority(
-                            "quarantined revocation receipt is not authenticable") from error
+                # Payload is quarantined, but the event receipt remains
+                # committed authority. Use the receipt kind, not the mutable
+                # events.kind column, and reconstruct every tombstone kind.
+                try:
+                    receipt = json.loads(row["receipt_json"])
+                    receipt_kind = receipt["kind"]
+                    affected = tuple(receipt.get("affected_record_ids")
+                                     or receipt["record_ids"])
+                except (KeyError, IndexError, TypeError, json.JSONDecodeError) as error:
+                    raise CorruptAuthority(
+                        "quarantined event receipt is not authenticable") from error
+                if receipt_kind == "revocation":
+                    record_id = receipt["record_ids"][0]
                     for affected_id in affected:
                         tombstones[affected_id] = (
                             "revoked", "quarantined revocation", event_key,
@@ -1571,6 +1583,18 @@ class FormationStore:
                     revocations[record_id] = (
                         event_key, str(row["payload_digest"]),
                         str(row["receipt_json"]), committed)
+                elif receipt_kind == "correction":
+                    if not affected:
+                        raise CorruptAuthority(
+                            "quarantined correction receipt has no affected records")
+                    for affected_id in affected:
+                        tombstones[affected_id] = (
+                            "quarantined_correction",
+                            "quarantined correction fail-closed", event_key,
+                            committed, committed, generation)
+                elif receipt_kind != "interaction":
+                    raise CorruptAuthority(
+                        f"quarantined event has unknown receipt kind: {receipt_kind}")
                 continue
             payload = payloads[event_key]
             if payload.get("kind") == "revocation":

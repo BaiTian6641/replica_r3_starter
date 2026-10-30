@@ -20,7 +20,7 @@ from replica_lab.successors.chunks import (ChunkError, ChunkSession, MAX_TOKENS,
                                            functional_inner_update,
                                            tensor_digest)
 from replica_lab.successors.study import answer_query
-from replica_lab.successors.tiers import (DirtyState, ReadContract,
+from replica_lab.successors.tiers import (DirtyState, ReadContract, TierError,
                                           TieredBlobStore, TierLimits)
 from replica_lab.successors.adapters import (TaskRuntimeFormationAdapter,
                                              formation_authority)
@@ -635,7 +635,7 @@ def test_combined_corruption_and_deleted_tombstone_recovery(tmp_path):
             "SELECT 1 FROM tombstones WHERE record_id=?", (revoked_id,)).fetchone()
 
 
-def test_p_marker_fsync_failure_is_durable_and_not_sticky(tmp_path, monkeypatch):
+def test_p_marker_fsync_failure_rolls_back_without_stickiness(tmp_path, monkeypatch):
     import replica_lab.successors.tiers as tiers
     first = _tier(tmp_path)
     first.publish_p("expert", weights=b"w", moments=b"m", clock=1,
@@ -647,11 +647,23 @@ def test_p_marker_fsync_failure_is_durable_and_not_sticky(tmp_path, monkeypatch)
     monkeypatch.setattr(tiers.TieredBlobStore, "_fsync_directory", staticmethod(failing))
     with pytest.raises(RuntimeError):
         first.revoke_p("expert", reason="crash", authorized_by="host")
+    # Failed revoke rolled the marker back: no sticky revocation.
+    assert second.read_p("expert")["clock"] == 1
+
+    monkeypatch.setattr(tiers.TieredBlobStore, "_fsync_directory", staticmethod(real_fsync))
+    first.revoke_p("expert", reason="revoked", authorized_by="host")
     with pytest.raises(PermissionError):
         second.read_p("expert")
+
+    monkeypatch.setattr(tiers.TieredBlobStore, "_fsync_directory", staticmethod(failing))
     with pytest.raises(RuntimeError):
         first.restore_p("expert", authorized_by="host")
-    monkeypatch.setattr(tiers.TieredBlobStore, "_fsync_directory", real_fsync)
+    # Failed restore restored the durable marker: still revoked.
+    with pytest.raises(PermissionError):
+        second.read_p("expert")
+
+    monkeypatch.setattr(tiers.TieredBlobStore, "_fsync_directory", staticmethod(real_fsync))
+    first.restore_p("expert", authorized_by="host")
     assert second.read_p("expert")["clock"] == 1
 
 
@@ -717,6 +729,44 @@ def test_minimal_authority_cannot_bypass_manifest_contract(tmp_path):
     assert expired.status == "expired"
 
 
+def test_quarantined_correction_deletion_fails_closed(tmp_path):
+    from replica_lab.successors.formation import Observation
+    with make_store(tmp_path) as store:
+        current = _pin(store)
+        verified = Observation(
+            observation_id="verified-parent", text="verified parent",
+            source_id="host", source_epoch=0, observed_at=time.time_ns(),
+            receipt_id="host-receipt", verification_state="verified",
+            verifier_receipt_id="verifier-1")
+        base = commit(store, current, [verified],
+                      interaction="interaction-parent")
+        parent_id = base.receipt.record_ids[0]
+        corrected = store.correct(parent_id, text="corrected",
+                                  reason="verified", pin=_pin(store),
+                                  verifier_receipt_id="verifier-2")
+        correction_id = corrected.receipt.record_ids[0]
+        correction_payload = corrected.receipt.payload_digest
+        healthy = commit(store, _pin(store), [_obs("healthy", "healthy fact")],
+                         interaction="interaction-healthy")
+        healthy_id = healthy.receipt.record_ids[0]
+    (tmp_path / "payloads" / f"{correction_payload}.json").write_bytes(b"{broken")
+    connection = sqlite3.connect(tmp_path / "authority.sqlite3")
+    connection.execute("DELETE FROM tombstones")
+    connection.commit()
+    connection.close()
+    with make_store(tmp_path) as store:
+        report = store.recover()
+        assert report.status == "degraded" and report.derived_rebuilt is True
+        assert store.read_record(healthy_id, _pin(store)).text == "healthy fact"
+        visible = {item.record_id for item in store.visible(_pin(store))}
+        assert healthy_id in visible
+        assert parent_id not in visible and correction_id not in visible
+        with pytest.raises(IneligibleRecord):
+            store.read_record(parent_id, _pin(store))
+        with pytest.raises(Exception):
+            store.read_record(correction_id, _pin(store))
+
+
 def test_quarantined_revocation_deletion_fails_closed(tmp_path):
     with make_store(tmp_path) as store:
         healthy = commit(store, _pin(store), [_obs("healthy", "healthy fact")],
@@ -742,6 +792,29 @@ def test_quarantined_revocation_deletion_fails_closed(tmp_path):
             store.read_record(revoked_id, _pin(store))
 
 
+def test_recover_reconciles_stale_and_missing_p_pointers(tmp_path):
+    store = _tier(tmp_path)
+    store.publish_p("expert", weights=b"w1", moments=b"m1", clock=1,
+                    encoder="encoder-v1", lineage=["r1"])
+    store.publish_p("expert", weights=b"w2", moments=b"m2", clock=2,
+                    encoder="encoder-v2", lineage=["r1"])
+    pointer_path = tmp_path / "p_current" / "expert.json"
+    pointer = json.loads(pointer_path.read_text())
+    pointer["record_id"] = "p_expert_c99"
+    pointer["clock"] = 99
+    pointer_path.write_text(json.dumps(pointer))
+    with pytest.raises(TierError):
+        store.read_p("expert")
+    report = store.recover()
+    assert report["status"] == "degraded"
+    assert any(item["pointer"] in ("repaired", "repaired_invalid")
+               for item in report["reconciled_p_pointers"])
+    assert store.read_p("expert")["clock"] == 2
+    pointer_path.unlink()
+    assert store.recover()["status"] == "degraded"
+    assert json.loads(pointer_path.read_text())["clock"] == 2
+
+
 def test_post_replace_pointer_failure_restores_prior_pointer(tmp_path, monkeypatch):
     import replica_lab.successors.tiers as tiers
     first = _tier(tmp_path)
@@ -755,7 +828,7 @@ def test_post_replace_pointer_failure_restores_prior_pointer(tmp_path, monkeypat
     with pytest.raises(RuntimeError):
         first.publish_p("expert", weights=b"w2", moments=b"m2", clock=2,
                         encoder="encoder-v2", lineage=["r1"])
-    monkeypatch.setattr(tiers.TieredBlobStore, "_fsync_directory", real_fsync)
+    monkeypatch.setattr(tiers.TieredBlobStore, "_fsync_directory", staticmethod(real_fsync))
     pointer = json.loads((tmp_path / "p_current" / "expert.json").read_text())
     assert pointer["clock"] == 1
     assert first.read_p("expert")["clock"] == 1
