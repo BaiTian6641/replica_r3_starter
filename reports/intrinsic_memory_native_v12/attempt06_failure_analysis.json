@@ -1,0 +1,24 @@
+{
+  "format": "replica.intrinsic_memory.native_attempt_failure_analysis.v12",
+  "attempt": 6,
+  "packet_sha256": "abd8b5567526df15a2637f237677275b18133a9c806ab85ea9c69ac686b61c59",
+  "status": "execution_failure_at_calibration_read",
+  "wall_seconds": 32.44,
+  "error": "replica_lab.intrinsic_memory_budget_v12.BudgetError: stage work budget exceeded before dispatch",
+  "root_cause": "The baseline calibration stage and numerical fitting stage each reserved zero artifact_read_bytes while reading their split files. Model loading, metadata accounting and teacher-objective binding all completed.",
+  "capability_evaluation": {
+    "calibration_answers": 0,
+    "fitting_updates": 0,
+    "development_opened": false,
+    "capability_claim": false
+  },
+  "resources": {
+    "artifact_read_bytes_model_load": 8224192408,
+    "minimum_observed_free_percent": 89.0,
+    "peak_swap_growth_bytes": 0,
+    "stop_reason": null
+  },
+  "attempt_consumed": true,
+  "retry_allowed_for_same_packet": false,
+  "repair": "Allocate DATA_SPLIT_READ_BYTES to baseline and numerical stages, then prepare a fresh attempt07 packet with a new output identity and authorization. Attempt06 evidence is preserved unchanged."
+}

@@ -1,0 +1,29 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 140.31it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 338, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 334, in main
+    worker(args); return 0
+    ^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 263, in worker
+    load_and_run(ROOT, protocol, packet['arm'], ledger, output,
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 648, in load_and_run
+    return run_main(root, protocol, arm, ledger, output, path, backend, spec,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 364, in run_main
+    calibration = json.loads(reserved_read(
+                             ^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 160, in reserved_read
+    with ledger.work(stage, operation, artifact_read_bytes=max(1, size)) as event:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_budget_v12.py", line 474, in work
+    token = self.reserve(stage, operation, **amounts)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_budget_v12.py", line 451, in reserve
+    raise BudgetError('stage work budget exceeded before dispatch')
+replica_lab.intrinsic_memory_budget_v12.BudgetError: stage work budget exceeded before dispatch

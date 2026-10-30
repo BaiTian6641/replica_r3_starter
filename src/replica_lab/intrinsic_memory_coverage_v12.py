@@ -602,9 +602,11 @@ def plan(arm):
         # 8 calibration worlds x 8 reserved answer tokens, extensions disabled.
         'baseline': stage(45, **span(0, 0, prompt_passes=16, backbone_forwards=64,
                                      backbone_tokens=256),
-                          generated_tokens=64, writes=8),
+                          generated_tokens=64, writes=8,
+                          artifact_read_bytes=CONTROL_READ_BYTES_BOUND),
         'numerical': stage(30, **span(1, 1, prompt_passes=2, backbone_forwards=2,
-                                      backbone_tokens=256), writes=1),
+                                      backbone_tokens=256), writes=1,
+                          artifact_read_bytes=CONTROL_READ_BYTES_BOUND),
         # 32 admissions (one declared store write each) and 32 durable reads.
         # A read reserves three descriptor writes (the exact enumerated maximum),
         # and one bounded resume (two more) is budgeted as headroom.
