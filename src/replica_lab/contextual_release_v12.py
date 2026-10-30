@@ -18,7 +18,7 @@ import torch
 
 from .contextual_feature_identity_v12 import (
     CanonicalSpan, ContextualMemoryError, CODEC, PRODUCER, REPRESENTATION)
-from .contextual_memory_v12 import atomic_json, digest, file_hash
+from .contextual_memory_v12 import atomic_json, digest
 from .tiered_memory import (
     _read_verified, pack_values, unpack_values, RetrievalBudget, MemoryScope)
 
@@ -47,6 +47,20 @@ class WorkLedgerReleaseReadAccounting:
         actual = {"artifact_read_bytes": actual_bytes} if status == "completed" else {}
         return self.ledger.finish(token, status=status, actual=actual)
 
+    def reserve_write(self, operation, byte_count, file_count=1):
+        if (not isinstance(operation, str) or not operation or type(byte_count) is not int
+                or byte_count < 0 or type(file_count) is not int or file_count < 1):
+            raise ContextualMemoryError("invalid release write reservation")
+        return self.ledger.reserve(self.stage, operation, writes=1,
+                                   artifact_bytes=byte_count)
+
+    def complete_write(self, token, *, actual_bytes, status="completed"):
+        if status not in ("completed", "failed"):
+            raise ContextualMemoryError("invalid release write status")
+        actual = ({"writes": 1, "artifact_bytes": actual_bytes}
+                  if status == "completed" else {"writes": 1})
+        return self.ledger.finish(token, status=status, actual=actual)
+
 
 class ProducerReleaseCorpus:
     def __init__(self, store, scope, *, max_records=1024, read_accounting=None):
@@ -58,14 +72,19 @@ class ProducerReleaseCorpus:
                 not callable(getattr(read_accounting, "reserve_read", None))
                 or not callable(getattr(read_accounting, "complete_read", None))):
             raise ContextualMemoryError("release read accounting must reserve/complete reads")
+        if (getattr(read_accounting, "reserve_write", None) is None) != (
+                getattr(read_accounting, "complete_write", None) is None):
+            raise ContextualMemoryError("release write accounting must be complete")
         self.store, self.scope, self.max_records = store, scope, max_records
         self.read_accounting = read_accounting
+        self._operation_counts = {}
         self.root = store.root / "artifacts" / "contextual_v12" / "releases" / scope.scope_key
         self.root.mkdir(parents=True, exist_ok=True)
         self.cost = dict(source_read_bytes=0, source_read_files=0, write_bytes=0,
                          write_ns=0, read_bytes=0, read_files=0, publications=0,
                          authority_read_bytes=0, authority_read_files=0,
-                         artifact_read_bytes=0, artifact_read_files=0)
+                         artifact_read_bytes=0, artifact_read_files=0,
+                         artifact_write_bytes=0, artifact_write_files=0)
         # Generation zero is explicit authority, so an interrupted first build
         # can resume without confusing a lost committed pointer with an empty
         # corpus. Never reconstruct authority from whichever payload survived.
@@ -83,23 +102,51 @@ class ProducerReleaseCorpus:
                 size = len(json.dumps(origin, sort_keys=True, indent=2).encode()) + 1
                 component = "release_pointer:" + scope.scope_key
                 store._charge("cold", "artifacts", size, component, "release origin")
+                token = self._reserve_write("release_origin", size)
                 try:
                     atomic_json(pointer, origin)
                 except BaseException as error:
+                    self._complete_write(token, actual_bytes=0, status="failed")
+                    authority_live = pointer.exists() and not pointer.is_symlink()
+                    if authority_live:
+                        try:
+                            pointer.unlink()
+                            try:
+                                self._fsync_directory(self.root)
+                            except BaseException as sync_error:
+                                error.add_note(f"origin unlink fsync failed: {sync_error}")
+                        except BaseException as cleanup_error:
+                            error.add_note(f"origin authority cleanup failed: {cleanup_error}")
+                            raise ContextualMemoryError(
+                                "release origin rollback failed; authority/charge retained"
+                            ) from error
                     try:
                         store._release(component)
                     except BaseException as release_error:
                         error.add_note(f"origin charge rollback failed: {release_error}")
                         raise ContextualMemoryError(
                             "release origin charge rollback failed") from error
+                    self._cleanup_pointer_temps(error)
                     raise
+                self._complete_write(token, actual_bytes=size)
                 self.cost["write_bytes"] += size
+                self.cost["artifact_write_bytes"] += size
+                self.cost["artifact_write_files"] += 1
         self._manifest_cache = None
 
     # ------------------------------------------------------------------
     # Authority reads
 
+    def accounting_multiplicity(self):
+        """Exact counted provider calls by logical operation and direction."""
+        return {name: dict(counts) for name, counts in sorted(self._operation_counts.items())}
+
+    def _count(self, direction, operation):
+        counts = self._operation_counts.setdefault(operation, {"read": 0, "write": 0})
+        counts[direction] += 1
+
     def _reserve_read(self, operation, byte_count):
+        self._count("read", operation)
         if self.read_accounting is None:
             return None
         return self.read_accounting.reserve_read(operation, byte_count, 1)
@@ -108,13 +155,26 @@ class ProducerReleaseCorpus:
         if token is not None:
             self.read_accounting.complete_read(token, actual_bytes=actual_bytes, status=status)
 
+    def _reserve_write(self, operation, byte_count):
+        self._count("write", operation)
+        if self.read_accounting is None or getattr(self.read_accounting, "reserve_write", None) is None:
+            return None
+        return self.read_accounting.reserve_write(operation, byte_count, 1)
+
+    def _complete_write(self, token, *, actual_bytes, status="completed"):
+        if token is not None:
+            self.read_accounting.complete_write(token, actual_bytes=actual_bytes, status=status)
+
     def _read_direct(self, operation, path):
         size = path.stat().st_size
         token = self._reserve_read(operation, size)
         try:
             payload = path.read_bytes()
-        except BaseException:
-            self._complete_read(token, actual_bytes=0, status="failed")
+        except BaseException as error:
+            try:
+                self._complete_read(token, actual_bytes=0, status="failed")
+            except BaseException as accounting_error:
+                error.add_note(f"release read accounting failed: {accounting_error}")
             raise
         self._complete_read(token, actual_bytes=len(payload))
         self.cost["artifact_read_bytes"] += len(payload)
@@ -141,7 +201,7 @@ class ProducerReleaseCorpus:
                 out.write(payload)
                 out.flush()
                 os.fsync(out.fileno())
-        except BaseException:
+        except BaseException as error:
             # A failed immutable write is not durable work: remove any partial
             # file and release the reservation so a retry is not double-charged.
             if created:
@@ -149,7 +209,12 @@ class ProducerReleaseCorpus:
                     path.unlink()
                 except FileNotFoundError:
                     pass
-            self.store._release(component)
+                except BaseException as cleanup_error:
+                    error.add_note(f"release write cleanup failed: {cleanup_error}")
+            try:
+                self.store._release(component)
+            except BaseException as release_error:
+                error.add_note(f"release write charge rollback failed: {release_error}")
             raise
         self.cost["write_bytes"] += len(payload)
         self.cost["write_ns"] += time.monotonic_ns() - start
@@ -206,8 +271,11 @@ class ProducerReleaseCorpus:
         try:
             text = _read_verified(row["text_path"], self.store.root, row["text_sha256"],
                                   text_bytes, accounting=None).decode()
-        except BaseException:
-            self._complete_read(token, actual_bytes=0, status="failed")
+        except BaseException as error:
+            try:
+                self._complete_read(token, actual_bytes=0, status="failed")
+            except BaseException as accounting_error:
+                error.add_note(f"release source accounting failed: {accounting_error}")
             raise
         self._complete_read(token, actual_bytes=text_bytes)
         self.cost["source_read_bytes"] += text_bytes
@@ -255,6 +323,16 @@ class ProducerReleaseCorpus:
         finally:
             os.close(fd)
 
+    def _cleanup_pointer_temps(self, error=None):
+        for candidate in self.root.glob("current.json.*"):
+            try:
+                candidate.unlink()
+            except FileNotFoundError:
+                pass
+            except Exception as cleanup_error:
+                if error is not None:
+                    error.add_note(f"pointer temp cleanup failed: {cleanup_error}")
+
     def _stage_pointer(self, pointer):
         current = self.root / "current.json"
         pending = current.with_name(current.name + ".pending." + uuid.uuid4().hex)
@@ -270,19 +348,29 @@ class ProducerReleaseCorpus:
                 pass
         else:
             temporary = current.with_name(current.name + ".restore." + uuid.uuid4().hex)
-            with temporary.open("xb") as stream:
-                stream.write(previous)
-                stream.flush()
-                os.fsync(stream.fileno())
-            os.replace(temporary, current)
+            try:
+                with temporary.open("xb") as stream:
+                    stream.write(previous)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                os.replace(temporary, current)
+            except BaseException as error:
+                try:
+                    temporary.unlink()
+                except FileNotFoundError:
+                    pass
+                except Exception as cleanup_error:
+                    error.add_note(f"pointer restore temp cleanup failed: {cleanup_error}")
+                raise
         try:
             self._fsync_directory(current.parent)
         except BaseException:
             if previous is not None:
                 try:
-                    if current.read_bytes() != previous:
-                        raise
+                    live = self._read_direct("release_pointer_restore_check", current)
                 except FileNotFoundError:
+                    raise
+                if live != previous:
                     raise
             # With the previous bytes live (or no authority) the rollback is
             # authority-safe; the original publication error remains primary.
@@ -296,6 +384,12 @@ class ProducerReleaseCorpus:
             replaced = True
             self._fsync_directory(current.parent)
         except BaseException as error:
+            try:
+                pending.unlink()
+            except FileNotFoundError:
+                pass
+            except Exception as cleanup_error:
+                error.add_note(f"pointer staging cleanup failed: {cleanup_error}")
             if replaced:
                 try:
                     self._restore_pointer(previous)
@@ -314,11 +408,14 @@ class ProducerReleaseCorpus:
                         "release pointer rollback failed; release authority removed"
                     ) from error
             raise
-        finally:
+        else:
             try:
                 pending.unlink()
             except FileNotFoundError:
                 pass
+            except Exception as cleanup_error:
+                raise ContextualMemoryError(
+                    "pointer staging cleanup failed") from cleanup_error
 
     def _revert_pointer_charge(self, previous):
         component = "release_pointer:" + self.scope.scope_key
@@ -377,7 +474,7 @@ class ProducerReleaseCorpus:
             if before_publish is not None:
                 before_publish()
             current_pointer = self.root / "current.json"
-            previous_pointer = (current_pointer.read_bytes()
+            previous_pointer = (self._read_direct("release_pointer_previous", current_pointer)
                                 if current_pointer.is_file() and not current_pointer.is_symlink()
                                 else None)
             pending = None
@@ -389,9 +486,11 @@ class ProducerReleaseCorpus:
                         raise ContextualMemoryError("producer changed before publication")
                     for record in records.values():
                         self._validate_source_pin(record["source_pin"])
+                    manifest_bytes = self._read_direct("release_manifest_digest",
+                                                       dest / "manifest.json")
                     pointer = {"format": FORMAT + ".pointer", "scope": asdict(self.scope),
                                "generation": generation,
-                               "manifest_sha256": file_hash(dest / "manifest.json"),
+                               "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
                                "e_epoch": int(self.store.epoch)}
                     pointer_bytes = len(json.dumps(pointer, sort_keys=True, indent=2).encode()) + 1
                     self.store._ensure_capacity_locked("cold", "artifacts", pointer_bytes * 2)
@@ -399,12 +498,15 @@ class ProducerReleaseCorpus:
                         "release_pointer:" + self.scope.scope_key, "cold", "artifacts",
                         pointer_bytes, "release authority")
                     pending = self._stage_pointer(pointer)
-            except BaseException:
+            except BaseException as error:
                 if pending is not None:
                     try:
                         pending.unlink()
                     except FileNotFoundError:
                         pass
+                    except Exception as cleanup_error:
+                        error.add_note(f"pointer staging cleanup failed: {cleanup_error}")
+                self._cleanup_pointer_temps(error)
                 raise
             try:
                 # Commit and accounting are complete; cache cleanup and the

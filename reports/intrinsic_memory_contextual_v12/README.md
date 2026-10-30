@@ -8,10 +8,10 @@ integration. Nothing in this directory is native evidence or a capability claim.
 Coordinator history: 61 tests passed before independent review, 69 after V1–V5,
 and 79 after cold-failure/parity repairs. After cycle 5, 88 checks passed. The
 continuation then added release rollback, direct-read accounting and handler
-coverage: **97 checks passed**. Fresh `run06` passes all 2/9/36 layouts with true
+coverage: **105 checks passed**. Fresh `run07` passes all 2/9/36 layouts with true
 live/release and two-record cold parity plus exact continuation. Measured parent
-wall was 16.461397 s and peak RSS 792,248,320 bytes; run06 has 244 files /
-102,308,246 bytes. `native_admissible` remains `false`: CPU engineering only.
+wall was 16.836106 s and peak RSS 773,554,176 bytes; run07 has 244 files /
+102,308,468 bytes. `native_admissible` remains `false`: CPU engineering only.
 
 ## Scope delivered
 
@@ -180,10 +180,15 @@ frozen Spark source (base, eval, no_grad)
   is likewise surfaced as a typed error from the original. Release-origin
   creation refunds its charge and leaves no pointer if its atomic write fails.
   `ProducerReleaseCorpus(read_accounting=...)` reserves/completes every direct
-  authority, canonical-source and direct payload read through
-  `WorkLedgerReleaseReadAccounting` (native `artifact_read_bytes`); staged cold
-  reads remain charged by the path retrieval accounting. Direct-read totals are
-  exposed as `corpus.cost['artifact_read_bytes']/['artifact_read_files']`.
+  read through `WorkLedgerReleaseReadAccounting` (native `artifact_read_bytes`):
+  `release_authority` (pointer/manifest), `release_source` (canonical text),
+  `release_payload` (direct payload), `release_pointer_previous` (rebuild
+  rollback capture), `release_manifest_digest` (pointer digest read) and
+  `release_pointer_restore_check` (post-replace restore verification). Origin
+  creation reserves `release_origin` as a write (`writes=1`,
+  `artifact_bytes=size`). `accounting_multiplicity()` exposes exact operations.
+  Staged cold reads remain charged by the path retrieval accounting; direct
+  totals are in `corpus.cost['artifact_read_bytes'|'artifact_write_bytes']`.
 - Durable slot order sorts semantically by `(source_id, source_epoch,
   source_order)`; `record_id` is only the deterministic fallback for true ties.
   Reversed caller order, post-correction, two-record live/warm/cold/release

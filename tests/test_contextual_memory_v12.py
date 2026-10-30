@@ -983,8 +983,11 @@ def test_work_ledger_release_read_accounting_maps_artifact_bytes(tmp_path):
     corpus = ProducerReleaseCorpus(
         store, sc, read_accounting=WorkLedgerReleaseReadAccounting(ledger, "mechanics"))
     corpus.rebuild(path)
-    assert ledger.reserved and all(
-        amount["artifact_read_bytes"] >= 0 for _, _, amount in ledger.reserved)
+    read_reservations = [amount for _, _, amount in ledger.reserved
+                         if "artifact_read_bytes" in amount]
+    assert read_reservations and all(
+        amount["artifact_read_bytes"] >= 0 for amount in read_reservations)
+    assert any("writes" in amount for _, _, amount in ledger.reserved)
     assert ledger.finished and all(status == "completed" for _, status, _ in ledger.finished)
     store.close()
 
@@ -1107,4 +1110,193 @@ def test_release_origin_creation_refunds_charge_on_failure(tmp_path, monkeypatch
     corpus = ProducerReleaseCorpus(store, sc)
     assert corpus._current() is None
     assert (corpus.root / "current.json").is_file()
+    store.close()
+
+
+@pytest.mark.parametrize("surface", ["temp_open", "file_fsync", "replace", "parent_fsync"])
+def test_release_origin_real_atomic_failure_surfaces(tmp_path, monkeypatch, surface):
+    import replica_lab.contextual_release_v12 as module
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    root = store.root / "artifacts" / "contextual_v12" / "releases" / sc.scope_key
+    pointer = root / "current.json"
+    component = "release_pointer:" + sc.scope_key
+    state = {"fail": True, "fsync_calls": 0}
+    if surface == "temp_open":
+        original = Path.open
+
+        def failing(self, *args, **kwargs):
+            if state["fail"] and self.name.startswith("current.json.") and self.name.endswith(".tmp"):
+                raise OSError("simulated origin temp open failure")
+            return original(self, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "open", failing)
+    elif surface in ("file_fsync", "parent_fsync"):
+        original = module.os.fsync
+        target = 1 if surface == "file_fsync" else 2
+
+        def failing(fd):
+            state["fsync_calls"] += 1
+            if state["fail"] and state["fsync_calls"] == target:
+                raise OSError(f"simulated origin fsync failure {target}")
+            return original(fd)
+
+        monkeypatch.setattr(module.os, "fsync", failing)
+    else:
+        original = module.os.replace
+
+        def failing(source, destination):
+            if state["fail"] and Path(destination).name == "current.json":
+                raise OSError("simulated origin replace failure")
+            return original(source, destination)
+
+        monkeypatch.setattr(module.os, "replace", failing)
+    with pytest.raises(OSError):
+        ProducerReleaseCorpus(store, sc)
+    assert not pointer.exists()
+    assert store.connection.execute(
+        "SELECT COUNT(*) AS c FROM tier_usage WHERE component_id=?", (component,)
+    ).fetchone()["c"] == 0
+    assert not list(root.glob("current.json.*"))
+    state["fail"] = False
+    corpus = ProducerReleaseCorpus(store, sc)
+    assert pointer.is_file()
+    assert corpus._current() is None
+    store.close()
+
+
+def test_release_write_charge_rollback_failure_preserves_original(tmp_path, monkeypatch):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    original_open = Path.open
+    original_release = store._release
+
+    def failing_open(self, *args, **kwargs):
+        if self.suffix == ".slots":
+            raise OSError("simulated immutable write failure")
+        return original_open(self, *args, **kwargs)
+
+    def failing_release(component_id):
+        raise RuntimeError("simulated release charge rollback failure")
+
+    monkeypatch.setattr(Path, "open", failing_open)
+    monkeypatch.setattr(store, "_release", failing_release)
+    with pytest.raises(OSError) as error:
+        corpus.rebuild(path)
+    assert any("charge rollback failed" in note for note in getattr(error.value, "__notes__", []))
+    store.close()
+
+
+def test_work_ledger_release_write_accounting_maps_origin(tmp_path):
+    from replica_lab.contextual_release_v12 import WorkLedgerReleaseReadAccounting
+
+    class Ledger:
+        def __init__(self):
+            self.reserved, self.finished = [], []
+
+        def reserve(self, stage, operation, **amounts):
+            self.reserved.append((stage, operation, dict(amounts)))
+            return len(self.reserved) - 1
+
+        def finish(self, token, *, status="completed", actual=None, detail=None):
+            self.finished.append((token, status, dict(actual or {})))
+
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    ledger = Ledger()
+    corpus = ProducerReleaseCorpus(
+        store, sc, read_accounting=WorkLedgerReleaseReadAccounting(ledger, "mechanics"))
+    assert any(operation == "release_origin" and amounts.get("writes") == 1
+               and amounts.get("artifact_bytes", 0) > 0
+               for _, operation, amounts in ledger.reserved)
+    assert any(status == "completed" for _, status, _ in ledger.finished)
+    store.close()
+
+
+def test_release_accounting_multiplicity_is_exposed(tmp_path):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    span = source("badge red", "a")
+    path.admit(store, span, scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    published = corpus.rebuild(path)
+    counts = corpus.accounting_multiplicity()
+    assert counts["release_origin"] == {"read": 0, "write": 1}
+    assert counts["release_pointer_previous"]["read"] == 1
+    assert counts["release_manifest_digest"]["read"] == 1
+    assert counts["release_source"]["read"] >= 1
+    before_authority = counts["release_authority"]["read"]
+    entry = corpus._current()[1]["records"]["a.span0"]
+    corpus.values(entry["source_pin"], span, version=published["producer_release"],
+                  scope=sc, source_identity=path.source_identity)
+    counts = corpus.accounting_multiplicity()
+    assert counts["release_authority"]["read"] > before_authority
+    assert counts["release_payload"]["read"] == 1
+    store.close()
+
+
+def test_release_restore_verification_read_is_accounted(tmp_path, monkeypatch):
+    class Recorder:
+        def __init__(self):
+            self.reserved = []
+
+        def reserve_read(self, operation, byte_count, file_count=1):
+            self.reserved.append(operation)
+            return len(self.reserved) - 1
+
+        def complete_read(self, token, *, actual_bytes, status="completed"):
+            return True
+
+        def reserve_write(self, operation, byte_count, file_count=1):
+            self.reserved.append(operation)
+            return len(self.reserved) - 1
+
+        def complete_write(self, token, *, actual_bytes, status="completed"):
+            return True
+
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    recorder = Recorder()
+    corpus = ProducerReleaseCorpus(store, sc, read_accounting=recorder)
+    first = corpus.rebuild(path)
+    pointer_path = corpus.root / "current.json"
+    before = pointer_path.read_bytes()
+
+    def failing(directory):
+        raise OSError("simulated post-replace fsync failure")
+
+    monkeypatch.setattr(corpus, "_fsync_directory", failing)
+    with pytest.raises(OSError):
+        corpus.rebuild(path)
+    assert pointer_path.read_bytes() == before
+    assert corpus._current()[1]["generation"] == first["generation"]
+    assert "release_pointer_restore_check" in recorder.reserved
+    store.close()
+
+
+def test_release_forward_validation_reads_scale_with_active_sites(tmp_path):
+    adapter, layout, provider, path = make(sites=(3, 7))
+    ids, mask, labels = token_inputs()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    path.admit(store, source("badge blue", "b"), scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    corpus.rebuild(path)
+    path.release_corpus = corpus
+    released = path.read(store, "badge", scope=sc, wait_seconds=1)
+    before = corpus.accounting_multiplicity()["release_authority"]["read"]
+    with torch.no_grad():
+        path.forward(ids, mask, released, scope=sc)
+    after = corpus.accounting_multiplicity()["release_authority"]["read"]
+    assert after - before >= 2 * len(layout.sites)
+    path.release_corpus = None
     store.close()
