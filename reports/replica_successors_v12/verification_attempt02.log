@@ -1,0 +1,86 @@
+Command: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -m pytest -q tests/test_successor_formation_v12.py tests/test_successor_chunks_v12.py tests/test_successor_tiers_v12.py tests/test_successor_adapters_v12.py
+Exit: 1
+Repair cycle: 2/5
+
+....................F.................                                   [100%]
+=================================== FAILURES ===================================
+__________ test_restart_preserves_receipts_and_rejects_stale_snapshot __________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1905/test_restart_preserves_receipt0')
+
+    def test_restart_preserves_receipts_and_rejects_stale_snapshot(tmp_path):
+        with make_store(tmp_path) as store:
+            session = make_session(store)
+            session.begin_chunk([20])
+            keys, values = tensors()
+            session.propose(keys, values)
+            first = session.commit()
+            stale = store.snapshot("spark", "branch-a", "seq-1")
+            session.begin_chunk([21])
+            session.propose(keys, values)
+            session.commit()
+        with make_store(tmp_path) as store:
+            assert store.recover()["status"] == "ok"
+            assert len(store.history("spark", "branch-a", "seq-1")) == 2
+>           retry = store.barrier(stale, key=ChunkKey(
+                schema=FORMAT, subject_id="subject-1", owner="spark",
+                branch_id="branch-a", sequence_id="seq-1", decision_revision=0,
+                chunk_index=0, token_start=2, token_end=3,
+                token_prefix_digest=prefix_digest(TOKENS),
+                input_state_revision=0, writer_version="writer-v1",
+                effect_kind="associate"),
+                proposal_digest=first.receipt.proposal_digest,
+                next_prefix_digest=first.receipt.prefix_digest)
+
+tests/test_successor_chunks_v12.py:242:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <replica_lab.successors.chunks.ChunkStore object at 0x115454140>
+snapshot = ChunkSnapshot(subject_id='subject-1', owner='spark', branch_id='branch-a', sequence_id='seq-1', revision=1, decision_r...ommitted_position=3, prefix_digest='77e05fc434f0e6db7af0a538c47e5c5840a94cf1256a350e386d18cabd9a1d34', status='active')
+key = ChunkKey(schema='replica.successors.s2b.v1', subject_id='subject-1', owner='spark', branch_id='branch-a', sequence_id=...8c243f4e1163e72139089c7d62505d3ba303ba1e', input_state_revision=0, writer_version='writer-v1', effect_kind='associate')
+proposal_digest = '38fc22046b4fdc4c46ca2145c1c9cb31c55f47d31edd9dff41015f15138a6e90'
+next_prefix_digest = '77e05fc434f0e6db7af0a538c47e5c5840a94cf1256a350e386d18cabd9a1d34'
+audit = None
+
+    def barrier(self, snapshot: ChunkSnapshot, *, key: ChunkKey,
+                proposal_digest: str, next_prefix_digest: str,
+                audit: AttemptAudit | None = None) -> ChunkCommit:
+        """Commit exactly one chunk effect; retries return the prior receipt."""
+        if not isinstance(snapshot, ChunkSnapshot):
+            raise TypeError("snapshot must be a ChunkSnapshot")
+        if not isinstance(key, ChunkKey):
+            raise TypeError("key must be a ChunkKey")
+        if (key.subject_id != self.subject_id or key.owner != snapshot.owner
+                or key.branch_id != snapshot.branch_id
+                or key.sequence_id != snapshot.sequence_id):
+            raise ChunkError("logical key identity differs from the snapshot")
+        _digest("proposal_digest", proposal_digest)
+        _digest("next_prefix_digest", next_prefix_digest)
+        if audit is not None and not isinstance(audit, AttemptAudit):
+            raise TypeError("audit must be an AttemptAudit or None")
+        start = time.perf_counter_ns()
+        try:
+          try:
+            with self._transaction():
+                row = self._row(key.owner, key.branch_id, key.sequence_id)
+                existing = self._existing(key.logical_key)
+                if existing is not None:
+                    if existing["proposal_digest"] == proposal_digest:
+                        self._metrics["duplicates"] += 1
+                        return ChunkCommit("duplicate", ChunkReceipt.from_document(
+                            json.loads(existing["receipt_json"])))
+                    raise ChunkConflict(
+                        "logical chunk identity reused with a different proposal")
+                # Only an uncommitted logical key needs a live snapshot binding;
+                # a retry of a committed key returns its receipt above even when
+                # the caller presents the now-later sequence snapshot.
+                if key.input_state_revision != snapshot.revision \
+                        or key.decision_revision != snapshot.decision_revision:
+                    self._metrics["stale"] += 1
+>                   raise StaleChunk("logical key was built from a different snapshot")
+E                   replica_lab.successors.chunks.StaleChunk: logical key was built from a different snapshot
+
+src/replica_lab/successors/chunks.py:478: StaleChunk
+=========================== short test summary info ============================
+FAILED tests/test_successor_chunks_v12.py::test_restart_preserves_receipts_and_rejects_stale_snapshot - replica_lab.successors.chunks.StaleChunk: logical key was built from a different snapshot
+1 failed, 37 passed in 2.46s

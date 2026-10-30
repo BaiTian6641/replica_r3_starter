@@ -1,0 +1,316 @@
+{
+  "interface_map": {
+    "format": "replica.successors.interface_map.v1",
+    "status": "implemented CPU adapters; no native conditioning claim",
+    "entries": [
+      {
+        "existing": "src/replica_lab/architecture/core.py::CognitiveCore",
+        "successor": "successors.adapters.CoreWorkspaceAdapter",
+        "boundary": "adapter builds one CoreState per decision; previous workspace is detached; no module edit",
+        "evidence": "tiny CPU tensors, gradient retained only in training mode"
+      },
+      {
+        "existing": "src/replica_lab/architecture/contracts.py::CoreState",
+        "successor": "CoreState identity_digest binds host-supplied identity slots",
+        "boundary": "no identity encoder is implemented; slots remain host-supplied",
+        "evidence": "null/disabled parity asserted in tests"
+      },
+      {
+        "existing": "src/replica_lab/runtime/loop.py::TaskRuntime",
+        "successor": "successors.adapters.TaskRuntimeFormationAdapter",
+        "boundary": "pin before decisions; commit after the exact task boundary; only host outcomes become observations",
+        "evidence": "scripted CPU fixture; verifier authority unchanged"
+      },
+      {
+        "existing": "src/replica_lab/runtime/workspace_store.py::WorkspaceStore",
+        "successor": "CoreWorkspaceAdapter.save/load/reset_task",
+        "boundary": "workspace is an optimization; exact journal remains authority",
+        "evidence": "save/load/reset behavior on CPU"
+      },
+      {
+        "existing": "src/replica_lab/replica/identity.py::IdentityArchive/IdentityStore",
+        "successor": "successors.adapters.IdentityAdapter",
+        "boundary": "approved snapshot resolution only; identity never satisfies a verifier",
+        "evidence": "null path renders empty text; fictional fixtures only"
+      },
+      {
+        "existing": "src/replica_lab/replica/reader.py::IdentityReader",
+        "successor": "CoreWorkspaceAdapter(identity_reader=...) / IdentityAdapter.reader_delta",
+        "boundary": "optional, zero-initialized final projection; inserted after core workspace",
+        "evidence": "exact zero parity when disabled; no trained source-to-slot pipeline claimed"
+      },
+      {
+        "existing": "src/replica_lab/tiered_memory.py::TieredMemoryStore",
+        "successor": "successors.tiers.TieredBlobStore",
+        "boundary": "isolated generic blob/tier validity; existing store untouched",
+        "evidence": "hot/warm/cold movement, revalidation and measured latency"
+      }
+    ]
+  },
+  "s2a": {
+    "format": "replica.successors.protocols.v1",
+    "name": "S2a completed-interaction formation",
+    "status": "CPU contract implemented; behavioral native protocol not run",
+    "preconditions": [
+      "useful native readout qualified (currently unqualified)",
+      "frozen source/encoder/reader release identity recorded",
+      "exact interaction boundary and budget packet authorized"
+    ],
+    "conditions": {
+      "write_enabled": "commit one bounded proposal after each completed interaction",
+      "write_disabled": "identical reader, evidence opportunity and sequence; omit only the commit"
+    },
+    "cases": [
+      "new observation used by a later answer",
+      "removing the write removes the improvement",
+      "delayed visibility: the pin taken before commit cannot see the write",
+      "duplicate delivery returns the existing receipt",
+      "conflicting retry fails closed and preserves the trajectory",
+      "crash before authority publication leaves no visible event",
+      "crash after publication recovers the receipt exactly once",
+      "missing/corrupt authority is detected, never repaired by invention",
+      "wrong branch/scope is refused",
+      "correction and revocation invalidate the record and descendants",
+      "unrelated healthy state remains available",
+      "generated explanation remains provisional and is not evidence"
+    ],
+    "metrics": [
+      "later-answer use of the new observation (enabled vs disabled)",
+      "false recall on an absent query",
+      "commit/read latency p50/p95",
+      "bytes written/read",
+      "duplicate and conflict counts",
+      "recovery status and quarantined payloads",
+      "tokens and canonical fallback cost when applicable"
+    ],
+    "acceptance": "CPU contract tests pass; behavior changes only when the write is present; no personal-fidelity or native recall claim",
+    "exact_command": ".venv/bin/python reports/replica_successors_v12/run_cpu_successors_v12.py --output reports/replica_successors_v12"
+  },
+  "s2b": {
+    "format": "replica.successors.protocols.v1",
+    "name": "S2b chunk-start/chunk-barrier formation",
+    "status": "CPU contract implemented; native within-reasoning memory unrun",
+    "preconditions": [
+      "S2a formation is useful",
+      "chunk length and maximum chunks frozen in a separate packet",
+      "declared unroll horizon, detach barriers and truncation policy"
+    ],
+    "conditions": [
+      "one snapshot per chunk; later chunks read only the next revision",
+      "pure tensor computation with no I/O, counters, optimizer step or context mutation",
+      "exactly one commit per logical chunk; audit retries do not create commits",
+      "growing-prefix replay writes only tokens beyond the watermark",
+      "changed or shortened prefix requires a new revision or is refused",
+      "branch isolation and causal visibility",
+      "correction during an outstanding chunk discards the uncommitted proposal"
+    ],
+    "metrics": [
+      "logical commits vs attempts",
+      "duplicate/conflict/stale counts",
+      "proposal digest equality under recomputation",
+      "committed watermark progress",
+      "barrier latency p50/p95"
+    ],
+    "acceptance": "CPU tests pass for idempotence, purity, branch isolation, causal visibility and correction; no native memory claim",
+    "exact_command": ".venv/bin/python reports/replica_successors_v12/run_cpu_successors_v12.py --output reports/replica_successors_v12 --only chunks"
+  },
+  "tiers": {
+    "format": "replica.successors.protocols.v1",
+    "name": "Tier validity, recovery and accounting",
+    "status": "CPU contract implemented; budgets are proposals, not allocations",
+    "budgets": {
+      "hot_gib": 2,
+      "warm_gib": 8,
+      "cold_gib": 64,
+      "identity_inside_hot_mib": 8,
+      "replay_inside_warm_mib": 256
+    },
+    "cases": [
+      "unchanged complete generation after hot/warm/cold movement and restart",
+      "correction/revocation before selection excludes the old generation",
+      "correction during cold I/O is rejected after revalidation",
+      "missing payload or manifest returns explicit unavailable",
+      "corrupt payload or producer mismatch refuses before consumption",
+      "dirty P is published coherently before eviction",
+      "interrupted move recovers the latest complete state or quarantines it",
+      "slow cold recall returns bounded pending/resume",
+      "canonical fallback only when eligible and separately charged",
+      "unrelated healthy state survives another owner's quarantine"
+    ],
+    "metrics": [
+      "successful/failed reads and cache misses",
+      "bytes read/written",
+      "temporary publication overlap bytes",
+      "p50/p95 recall latency by tier",
+      "canonical fallback tokens",
+      "hot/warm/cold resident bytes without double counting"
+    ],
+    "acceptance": "same validity outcomes across transitions; measured costs recorded; no learning-clock advancement from movement",
+    "exact_command": ".venv/bin/python reports/replica_successors_v12/run_cpu_successors_v12.py --output reports/replica_successors_v12 --only tiers"
+  },
+  "persistent_learning": {
+    "format": "replica.successors.protocols.v1",
+    "name": "S3 persistent learning after useful recall",
+    "status": "prepared only; P1 stays active, zero new P updates authorized",
+    "frozen_release": "qualified encoder/reader release pinned before isolating P",
+    "arms": [
+      "untouched full context",
+      "exact/procedure reference",
+      "pre-reader E access",
+      "frozen-trained-reader E access",
+      "source-free P",
+      "E+P",
+      "reset/no-update control",
+      "shuffled teaching",
+      "wrong-world teaching",
+      "inapplicable control",
+      "replay-without-update",
+      "hidden-state-conditioned P (new)",
+      "fixed-question control at matched capacity (new)"
+    ],
+    "direct_ce_reference": "direct response cross-entropy with the same frozen reader, expert width and budget",
+    "teaching_conditions": {
+      "hidden_state_conditioned": "query from a declared causal hidden state/layer/position; gradient stops at the frozen query",
+      "fixed_question_control": "public-question embedding under the same frozen phi",
+      "matched": "same reader, expert width, initial P, evidence access, updates and total cost"
+    },
+    "chronology": [
+      "initial acquisition",
+      "new-instance transfer",
+      "source removal",
+      "fresh-process restart",
+      "unrelated interfering acquisition",
+      "delayed retention",
+      "correction/revocation",
+      "authenticated rollback"
+    ],
+    "source_free_removals": [
+      "task-specific E/S/F/C",
+      "source-feature caches",
+      "teacher targets",
+      "answer-bearing identity/auxiliary state",
+      "KV and projected caches",
+      "canonical fallback access"
+    ],
+    "retained_source_free_state": [
+      "declared stable release",
+      "permitted query",
+      "learned P only"
+    ],
+    "metrics": [
+      "generated-answer quality",
+      "false recall",
+      "retention",
+      "total generated tokens",
+      "latency",
+      "teaching/retrieval/replay/verifier work",
+      "updates",
+      "physical memory",
+      "unrelated-knowledge preservation"
+    ],
+    "gates": [
+      "repeated useful acquisition on independent world/rule families",
+      "retention after interference and elapsed time",
+      "correction changes retrieval, replay and generated behavior separately",
+      "authenticated rollback preserves the previous working release",
+      "total cost reduction without accuracy degradation before reasoning-reuse claim"
+    ],
+    "explicitly_not_run": [
+      "native P update",
+      "capacity expansion",
+      "promotion",
+      "nested clocks",
+      "RSI"
+    ],
+    "exact_command": null,
+    "why_no_command": "requires useful native readout, a frozen qualified release and a separately authorized exact packet"
+  },
+  "identity_task": {
+    "format": "replica.successors.protocols.v1",
+    "name": "Identity/task dissociation and equal-information controls",
+    "status": "adapter implemented; authentic source intake absent; fictional only",
+    "interventions": [
+      "none",
+      "task_reset",
+      "identity_null",
+      "task_then_identity",
+      "identity_then_task",
+      "both_reset"
+    ],
+    "controls": [
+      "generic",
+      "approved-summary",
+      "exact-archive",
+      "neural-conditioning"
+    ],
+    "equal_information": "the same eligible evidence, query and reader opportunity in every condition",
+    "separate_outcomes": [
+      "conditional choice/ranking",
+      "clarification",
+      "factual provenance",
+      "temporal fidelity",
+      "unknown handling",
+      "technical correctness",
+      "style",
+      "attributed branch divergence"
+    ],
+    "authority_rules": [
+      "identity cannot satisfy a failed verifier or change permissions",
+      "task reward and generated claims cannot rewrite approved identity",
+      "revoked snapshots cannot resolve; branch experience never edits source history"
+    ],
+    "explicitly_not_claimed": [
+      "personal fidelity",
+      "consciousness copy",
+      "trained identity conditioning"
+    ],
+    "exact_command": null,
+    "why_no_command": "requires authentic permitted source material and human review; fictional CPU fixtures cannot qualify it"
+  },
+  "gates": {
+    "format": "replica.successors.gates.v1",
+    "items": [
+      {
+        "gate": "useful native readout",
+        "status": "unsatisfied",
+        "evidence": "v11 fitting gate failed; development unopened"
+      },
+      {
+        "gate": "native access 9/36",
+        "status": "closed",
+        "evidence": "unrun"
+      },
+      {
+        "gate": "S2a formation utility",
+        "status": "CPU engineering only",
+        "evidence": "write-enabled/disabled isolation on fictional fixtures"
+      },
+      {
+        "gate": "S2b within-reasoning memory",
+        "status": "CPU engineering only",
+        "evidence": "idempotence/purity/watermark contracts; no native run"
+      },
+      {
+        "gate": "S3 persistent learning",
+        "status": "unrun; zero new P updates",
+        "evidence": "prepared protocol only"
+      },
+      {
+        "gate": "identity fidelity",
+        "status": "unestablished",
+        "evidence": "no authentic archive or trained source-to-slot producer"
+      },
+      {
+        "gate": "capacity expansion / promotion / RSI",
+        "status": "closed",
+        "evidence": "no measured bottleneck or advancement evidence"
+      }
+    ],
+    "resource_policy": {
+      "native_driver_gib": 50,
+      "swap_growth_mib": 512,
+      "minimum_host_free_pct": 15,
+      "note": "global native limits dominate these subsystem budgets"
+    }
+  }
+}

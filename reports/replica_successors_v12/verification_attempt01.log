@@ -1,0 +1,252 @@
+Command: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -m pytest -q tests/test_successor_formation_v12.py tests/test_successor_chunks_v12.py tests/test_successor_tiers_v12.py tests/test_successor_adapters_v12.py
+Exit: 1
+Repair cycle: 1/5
+
+..........F..FF.....F............F...F                                   [100%]
+=================================== FAILURES ===================================
+___________________ test_index_rebuild_cannot_invent_events ____________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1903/test_index_rebuild_cannot_inve0')
+
+    def test_index_rebuild_cannot_invent_events(tmp_path):
+        with make_store(tmp_path) as store:
+            current = pin(store)
+            first = commit(store, current, [observation("o1", "indexed")])
+            later = pin(store)
+            before = tuple(record.record_id for record in store.visible(later))
+            authority = store._authority()
+            assert authority["sequence"] == 1
+        connection = sqlite3.connect(tmp_path / "authority.sqlite3")
+        connection.execute("DELETE FROM record_index")
+        connection.execute("DELETE FROM record_lineage")
+        connection.commit()
+        connection.close()
+        with make_store(tmp_path) as store:
+            report = store.recover()
+>           assert report.index_rebuilt is True
+E           AssertionError: assert False is True
+E            +  where False = RecoveryReport(status='ok', events=1, generation=1, sequence=1, head_digest='9a462139eb8e73c24de3e1e9acb69724786882ede87d74f9e030c65a5130f8ac', orphan_payloads=0, quarantined=(), index_rebuilt=False).index_rebuilt
+
+tests/test_successor_formation_v12.py:282: AssertionError
+______________ test_retry_returns_prior_receipt_without_advancing ______________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1903/test_retry_returns_prior_recei0')
+
+    def test_retry_returns_prior_receipt_without_advancing(tmp_path):
+        with make_store(tmp_path) as store:
+            session = make_session(store)
+            key = session.begin_chunk([20, 21])
+            keys, values = tensors()
+            session.propose(keys, values)
+            first = session.commit(audit=AttemptAudit(attempt_id="attempt-1",
+                                                      transport_retries=0))
+            snapshot = store.snapshot("spark", "branch-a", "seq-1")
+>           retry = store.barrier(snapshot, key=key,
+                                  proposal_digest=first.receipt.proposal_digest,
+                                  next_prefix_digest=first.receipt.prefix_digest,
+                                  audit=AttemptAudit(attempt_id="attempt-2",
+                                                     transport_retries=1,
+                                                     checkpoint_recomputation_id="recompute-9"))
+
+tests/test_successor_chunks_v12.py:77:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <replica_lab.successors.chunks.ChunkStore object at 0x113a21ac0>
+snapshot = ChunkSnapshot(subject_id='subject-1', owner='spark', branch_id='branch-a', sequence_id='seq-1', revision=1, decision_r...ommitted_position=4, prefix_digest='57977cab8ae46b954a1131f055278fffff48e4646aa0e956105af94ee4446cb9', status='active')
+key = ChunkKey(schema='replica.successors.s2b.v1', subject_id='subject-1', owner='spark', branch_id='branch-a', sequence_id=...4e1163e72139089c7d62505d3ba303ba1e', input_state_revision=0, writer_version='chunk-writer-v1', effect_kind='associate')
+proposal_digest = '38fc22046b4fdc4c46ca2145c1c9cb31c55f47d31edd9dff41015f15138a6e90'
+next_prefix_digest = '57977cab8ae46b954a1131f055278fffff48e4646aa0e956105af94ee4446cb9'
+audit = AttemptAudit(attempt_id='attempt-2', transport_retries=1, checkpoint_recomputation_id='recompute-9')
+
+    def barrier(self, snapshot: ChunkSnapshot, *, key: ChunkKey,
+                proposal_digest: str, next_prefix_digest: str,
+                audit: AttemptAudit | None = None) -> ChunkCommit:
+        """Commit exactly one chunk effect; retries return the prior receipt."""
+        if not isinstance(snapshot, ChunkSnapshot):
+            raise TypeError("snapshot must be a ChunkSnapshot")
+        if not isinstance(key, ChunkKey):
+            raise TypeError("key must be a ChunkKey")
+        if (key.subject_id != self.subject_id or key.owner != snapshot.owner
+                or key.branch_id != snapshot.branch_id
+                or key.sequence_id != snapshot.sequence_id):
+            raise ChunkError("logical key identity differs from the snapshot")
+        if key.input_state_revision != snapshot.revision \
+                or key.decision_revision != snapshot.decision_revision:
+>           raise StaleChunk("logical key was built from a different snapshot")
+E           replica_lab.successors.chunks.StaleChunk: logical key was built from a different snapshot
+
+src/replica_lab/successors/chunks.py:457: StaleChunk
+_______________ test_conflicting_retry_is_rejected_and_recorded ________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1903/test_conflicting_retry_is_reje0')
+
+    def test_conflicting_retry_is_rejected_and_recorded(tmp_path):
+        with make_store(tmp_path) as store:
+            session = make_session(store)
+            key = session.begin_chunk([20])
+            keys, values = tensors()
+            session.propose(keys, values)
+            first = session.commit()
+            snapshot = store.snapshot("spark", "branch-a", "seq-1")
+            with pytest.raises(ChunkConflict):
+>               store.barrier(snapshot, key=key, proposal_digest="f" * 64,
+                              next_prefix_digest=first.receipt.prefix_digest)
+
+tests/test_successor_chunks_v12.py:98:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <replica_lab.successors.chunks.ChunkStore object at 0x113a21a30>
+snapshot = ChunkSnapshot(subject_id='subject-1', owner='spark', branch_id='branch-a', sequence_id='seq-1', revision=1, decision_r...ommitted_position=3, prefix_digest='77e05fc434f0e6db7af0a538c47e5c5840a94cf1256a350e386d18cabd9a1d34', status='active')
+key = ChunkKey(schema='replica.successors.s2b.v1', subject_id='subject-1', owner='spark', branch_id='branch-a', sequence_id=...4e1163e72139089c7d62505d3ba303ba1e', input_state_revision=0, writer_version='chunk-writer-v1', effect_kind='associate')
+proposal_digest = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+next_prefix_digest = '77e05fc434f0e6db7af0a538c47e5c5840a94cf1256a350e386d18cabd9a1d34'
+audit = None
+
+    def barrier(self, snapshot: ChunkSnapshot, *, key: ChunkKey,
+                proposal_digest: str, next_prefix_digest: str,
+                audit: AttemptAudit | None = None) -> ChunkCommit:
+        """Commit exactly one chunk effect; retries return the prior receipt."""
+        if not isinstance(snapshot, ChunkSnapshot):
+            raise TypeError("snapshot must be a ChunkSnapshot")
+        if not isinstance(key, ChunkKey):
+            raise TypeError("key must be a ChunkKey")
+        if (key.subject_id != self.subject_id or key.owner != snapshot.owner
+                or key.branch_id != snapshot.branch_id
+                or key.sequence_id != snapshot.sequence_id):
+            raise ChunkError("logical key identity differs from the snapshot")
+        if key.input_state_revision != snapshot.revision \
+                or key.decision_revision != snapshot.decision_revision:
+>           raise StaleChunk("logical key was built from a different snapshot")
+E           replica_lab.successors.chunks.StaleChunk: logical key was built from a different snapshot
+
+src/replica_lab/successors/chunks.py:457: StaleChunk
+__________ test_restart_preserves_receipts_and_rejects_stale_snapshot __________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1903/test_restart_preserves_receipt0')
+
+    def test_restart_preserves_receipts_and_rejects_stale_snapshot(tmp_path):
+        with make_store(tmp_path) as store:
+            session = make_session(store)
+            session.begin_chunk([20])
+            keys, values = tensors()
+            session.propose(keys, values)
+            first = session.commit()
+            stale = store.snapshot("spark", "branch-a", "seq-1")
+            session.begin_chunk([21])
+            session.propose(keys, values)
+            session.commit()
+        with make_store(tmp_path) as store:
+            assert store.recover()["status"] == "ok"
+            assert len(store.history("spark", "branch-a", "seq-1")) == 2
+>           retry = store.barrier(stale, key=ChunkKey(
+                schema=FORMAT, subject_id="subject-1", owner="spark",
+                branch_id="branch-a", sequence_id="seq-1", decision_revision=0,
+                chunk_index=0, token_start=2, token_end=3,
+                token_prefix_digest=prefix_digest(TOKENS),
+                input_state_revision=0, writer_version="writer-v1",
+                effect_kind="associate"),
+                proposal_digest=first.receipt.proposal_digest,
+                next_prefix_digest=first.receipt.prefix_digest)
+
+tests/test_successor_chunks_v12.py:242:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <replica_lab.successors.chunks.ChunkStore object at 0x113a22ab0>
+snapshot = ChunkSnapshot(subject_id='subject-1', owner='spark', branch_id='branch-a', sequence_id='seq-1', revision=1, decision_r...ommitted_position=3, prefix_digest='77e05fc434f0e6db7af0a538c47e5c5840a94cf1256a350e386d18cabd9a1d34', status='active')
+key = ChunkKey(schema='replica.successors.s2b.v1', subject_id='subject-1', owner='spark', branch_id='branch-a', sequence_id=...8c243f4e1163e72139089c7d62505d3ba303ba1e', input_state_revision=0, writer_version='writer-v1', effect_kind='associate')
+proposal_digest = '38fc22046b4fdc4c46ca2145c1c9cb31c55f47d31edd9dff41015f15138a6e90'
+next_prefix_digest = '77e05fc434f0e6db7af0a538c47e5c5840a94cf1256a350e386d18cabd9a1d34'
+audit = None
+
+    def barrier(self, snapshot: ChunkSnapshot, *, key: ChunkKey,
+                proposal_digest: str, next_prefix_digest: str,
+                audit: AttemptAudit | None = None) -> ChunkCommit:
+        """Commit exactly one chunk effect; retries return the prior receipt."""
+        if not isinstance(snapshot, ChunkSnapshot):
+            raise TypeError("snapshot must be a ChunkSnapshot")
+        if not isinstance(key, ChunkKey):
+            raise TypeError("key must be a ChunkKey")
+        if (key.subject_id != self.subject_id or key.owner != snapshot.owner
+                or key.branch_id != snapshot.branch_id
+                or key.sequence_id != snapshot.sequence_id):
+            raise ChunkError("logical key identity differs from the snapshot")
+        if key.input_state_revision != snapshot.revision \
+                or key.decision_revision != snapshot.decision_revision:
+>           raise StaleChunk("logical key was built from a different snapshot")
+E           replica_lab.successors.chunks.StaleChunk: logical key was built from a different snapshot
+
+src/replica_lab/successors/chunks.py:457: StaleChunk
+_____ test_interventions_reset_task_and_identity_without_authority_change ______
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1903/test_interventions_reset_task_0')
+
+    def test_interventions_reset_task_and_identity_without_authority_change(tmp_path):
+        tools = make_case(tmp_path)
+        runtime = make_runtime(tools, tmp_path,
+                               workspace_store=WorkspaceStore(tmp_path / "workspace"))
+        with formation_store(tmp_path / "formation") as formation:
+            adapter = TaskRuntimeFormationAdapter(runtime, formation, branch_id="e3",
+                                                  purpose="test")
+            core = CoreState(torch.zeros(1, 2, 4), torch.ones(1, 2, dtype=torch.bool),
+                             torch.zeros(1, 24), "producer", runtime.state.digest,
+                             runtime.state.revision, 2)
+            runtime.workspace_store.save(core)
+            for name in TaskRuntimeFormationAdapter.intervention_conditions():
+                outcome = adapter.apply_intervention(name)
+                if name == "none":
+                    assert outcome["identity_null"] is False
+                    assert outcome["task_workspace_cleared"] is False
+                else:
+>                   assert outcome["task_workspace_cleared"] is True
+E                   assert False is True
+
+tests/test_successor_adapters_v12.py:136: AssertionError
+_______________ test_formation_authority_controls_tier_selection _______________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1903/test_formation_authority_contr0')
+
+    def test_formation_authority_controls_tier_selection(tmp_path):
+        limits = TierLimits(hot_bytes=2048, warm_bytes=4096, cold_bytes=8192,
+                            identity_reservation_bytes=128,
+                            replay_reservation_bytes=128)
+        tiers = TieredBlobStore(tmp_path / "tiers", limits=limits,
+                                hot_capacity_bytes=512)
+        with formation_store(tmp_path / "formation") as formation:
+            pin = formation.pin(branch_id="branch-a", purpose="test",
+                                mode="assistant_for_source",
+                                as_of=time.time_ns() + 3600 * 10 ** 9,
+                                task_id="task-1", task_revision=0,
+                                include_verification_states=("unverified",))
+            observation = Observation(
+                observation_id="o1", text="the answer is 7", source_id="host",
+                source_epoch=0, observed_at=time.time_ns(), receipt_id="receipt-1",
+                verification_state="unverified", authenticity="host_observed")
+            proposal = InteractionProposal(
+                interaction_id="i1", subject_id=pin.subject_id, branch_id=pin.branch_id,
+                purpose=pin.purpose, mode=pin.mode, task_id=pin.task_id,
+                task_revision=pin.task_revision, decision_revision=1, source_epoch=0,
+                producer_versions=pin.producer_versions,
+                representation_version=pin.representation_version,
+                codec_id=pin.codec_id, permitted_uses=pin.permitted_uses,
+                observations=(observation,))
+            commit = formation.commit_interaction(proposal, pin=pin)
+            record_id = commit.receipt.record_ids[0]
+            tiers.publish(record_id, observation.text.encode("utf-8"), generation=commit.receipt.generation,
+                          kind="evidence", producer="formation",
+                          representation=pin.representation_version,
+                          scope_digest=pin.digest)
+            authority = formation_authority(formation, pin)
+>           assert tiers.read(record_id, authority=authority).status == "ready"
+E           AssertionError: assert 'ineligible' == 'ready'
+E             - ready
+E             + ineligible
+
+tests/test_successor_adapters_v12.py:254: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_successor_formation_v12.py::test_index_rebuild_cannot_invent_events - AssertionError: assert False is True
+FAILED tests/test_successor_chunks_v12.py::test_retry_returns_prior_receipt_without_advancing - replica_lab.successors.chunks.StaleChunk: logical key was built from a different snapshot
+FAILED tests/test_successor_chunks_v12.py::test_conflicting_retry_is_rejected_and_recorded - replica_lab.successors.chunks.StaleChunk: logical key was built from a different snapshot
+FAILED tests/test_successor_chunks_v12.py::test_restart_preserves_receipts_and_rejects_stale_snapshot - replica_lab.successors.chunks.StaleChunk: logical key was built from a different snapshot
+FAILED tests/test_successor_adapters_v12.py::test_interventions_reset_task_and_identity_without_authority_change - assert False is True
+FAILED tests/test_successor_adapters_v12.py::test_formation_authority_controls_tier_selection - AssertionError: assert 'ineligible' == 'ready'
+6 failed, 32 passed in 2.49s
