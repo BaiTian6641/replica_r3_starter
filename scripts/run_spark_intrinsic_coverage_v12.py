@@ -121,11 +121,45 @@ def supervise_worker(mode, args, output, ledger, guard):
                     child.wait(timeout=5)
                 except subprocess.TimeoutExpired:
                     child.kill(); child.wait(timeout=2)
-            atomic(output/'capacity_guard.json', {
+            charged_write(ledger, output, 'capacity_guard', {
                 **guard.report(), 'artifact_bytes_observed': artifact_bytes(output),
                 'driver_sample_seconds': 0.25, 'host_sample_seconds': 2,
                 'physical_memory_note': ('MPS driver and RSS overlap; host free/swap are '
                                          'system-wide sampled observations')})
+
+
+def charged_write(ledger, output, name, payload):
+    """Charge one receipt write in an active declared stage before writing it.
+
+    Falls back to an uncharged write only when no stage can accept the
+    reservation, and records that fact in the receipt instead of hiding it.
+    """
+    snapshot = ledger.snapshot()
+    active = [stage for stage, state in snapshot['stages'].items()
+              if state['status'] == 'active']
+    if len(active) == 1:
+        with ledger.work(active[0], name+'_receipt', writes=1) as event:
+            atomic(output/(name+'.json'), payload)
+            event['actual'] = {'writes': 1}
+        return True
+    for stage in active:
+        try: ledger.leave(stage, status='failed')
+        except Exception: pass
+    for candidate in ('finalize_worker', 'finalize_parent'):
+        if candidate in ledger.snapshot()['stages']: continue
+        try:
+            ledger.enter(candidate)
+            with ledger.work(candidate, name+'_receipt', writes=1) as event:
+                atomic(output/(name+'.json'), payload)
+                event['actual'] = {'writes': 1}
+            ledger.leave(candidate, status='completed')
+            return True
+        except Exception:
+            continue
+    payload['receipt_charging'] = {'charged': False,
+                                   'reason': 'no_declared_stage_available'}
+    atomic(output/(name+'.json'), payload)
+    return False
 
 
 def supervised(args):
@@ -151,9 +185,16 @@ def supervised(args):
                      artifact_read_bytes=SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES) as cost:
         environment = environment_only(args.packet)
         _, _, receipt = validate_bindings(ROOT, args.packet, check_source=True)
-        cost['actual'] = {'artifact_read_bytes': SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES}
+        # Observed, not a constant: the source files actually hashed plus the
+        # environment-closure bytes actually verified.
+        cost['actual'] = {'artifact_read_bytes':
+                          receipt['source_bytes_hashed']
+                          + receipt['environment_closure']['bytes_verified']}
         cost['source_bytes_hashed'] = receipt['source_bytes_hashed']
-        atomic(output/'admission.json', {'environment_validation': environment, **receipt})
+        cost['environment_closure'] = receipt['environment_closure']
+        with ledger.work('admission', 'admission_receipt', writes=1) as event:
+            atomic(output/'admission.json', {'environment_validation': environment, **receipt})
+            event['actual'] = {'writes': 1}
     ledger.leave('admission', status='completed'); ledger.enter('load')
     supervise_worker('main', args, output, ledger, guard)
     main = json.loads((output/'main_result.json').read_text())
@@ -164,7 +205,7 @@ def supervised(args):
     restart = (json.loads((output/'restart_result.json').read_text())
                if (output/'restart_result.json').exists() else None)
     snapshot = ledger.snapshot()
-    atomic(output/'result.json', {
+    charged_write(ledger, output, 'result', {
         'source_kind': 'official_bf16', 'arm': packet['arm'],
         'mechanism': 'frozen_canonical_source_features_live_contextual_compression_v12',
         'packet_sha256': hash_file(args.packet),
@@ -193,7 +234,10 @@ def worker(args):
         # happen inside this reservation; nothing is hashed before it is charged.
         environment_only(args.packet)
         _, protocol, receipt = validate_bindings(ROOT, args.packet, check_source=True)
-        event['actual'] = {'artifact_read_bytes': SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES}
+        # Observed bytes, not the declared constants.
+        event['actual'] = {'artifact_read_bytes':
+                           receipt['source_bytes_hashed']
+                           + receipt['environment_closure']['bytes_verified']}
         event['source_bytes_hashed'] = receipt['source_bytes_hashed']
         event['environment_closure'] = receipt['environment_closure']
     import torch
@@ -215,7 +259,7 @@ def worker(args):
         load_and_run(ROOT, protocol, packet['arm'], ledger, output,
                      stage=stage, mode=args.worker)
     except BaseException as error:
-        atomic(output/(args.worker+'.failure.json'), {
+        charged_write(ledger, output, args.worker+'.failure', {
             'type': type(error).__name__, 'message': str(error),
             'reserved_work_not_refunded': True})
         raise

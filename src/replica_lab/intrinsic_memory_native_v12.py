@@ -278,6 +278,32 @@ def admit_rows(engine, rows, output):
     return batches, scopes, stores
 
 
+def finalize_receipt(engine, name, payload):
+    """Write a terminal receipt inside a declared stage, never outside one.
+
+    A still-active stage is closed as failed first; then the declared
+    ``finalize_worker`` stage charges the receipt. If the ledger refuses even
+    that (for example an interrupted reservation that only operator recovery may
+    close), the receipt is still written so evidence is not lost, and the receipt
+    records that it was uncharged rather than pretending otherwise.
+    """
+    try:
+        for stage, state in engine.ledger.snapshot()['stages'].items():
+            if state['status'] == 'active':
+                engine.ledger.leave(stage, status='failed')
+        if 'finalize_worker' not in engine.ledger.snapshot()['stages']:
+            begin_stage(engine, 'finalize_worker')
+            engine.write_receipt(name, payload)
+            close_stage(engine, 'finalize_worker', 'completed')
+            return True
+        reason = 'finalize_worker_already_consumed'
+    except BaseException as error:      # evidence is never lost
+        reason = type(error).__name__
+    payload['final_receipt_charging'] = {'charged': False, 'reason': reason}
+    write_receipt(engine.output, name, payload)
+    return False
+
+
 def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_hash, stage_ref):
     engine = TeacherEngineV12(path, backend, spec, ledger,
                               max_new_tokens=protocol['generation']['max_new_tokens'],
@@ -370,16 +396,21 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
                           'selection': 'fixed_final_512_all_groups_only',
                           'early_stopping': False, 'development_opened': False})
             result['fit_memory_dependence_passed'] = probes['fit_memory_dependence_passed']
+            if end == protocol['fit_probe_prefixes'][-1]:
+                # The final probe stage stays active through the freeze and the
+                # fitting-closed receipt. Writing that receipt after the stage had
+                # closed made every real launch fail at the ledger (review X14).
+                engine.freeze()
+                engine.write_receipt('fitting_closed', {
+                    'closed': True, 'updates': 512, 'objective': path.objective_identity,
+                    'feature_contract': engine.feature_identity(),
+                    'parameter_sha256': {k: logits_digest(v)
+                                         for k, v in path._tensors().items()}})
+                result['fitting_closed_within_stage'] = probe_stage
             close_stage(engine, probe_stage,
                         'passed' if result['fit_memory_dependence_passed']
                         else 'failed_memory_dependence')
         result['fit_curve'] = curve
-        engine.freeze()
-        # Freeze is recorded before any development parsing. No adaptive retry.
-        engine.write_receipt('fitting_closed', {
-            'closed': True, 'updates': 512, 'objective': path.objective_identity,
-            'feature_contract': engine.feature_identity(),
-            'parameter_sha256': {k: logits_digest(v) for k, v in path._tensors().items()}})
         begin_stage(engine, 'checkpoint')
         with torch.no_grad():
             live = engine.live(sources[0], scopes[0]); enc = engine.encoding(rows[0])
@@ -463,7 +494,7 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
         result['original_weights_unchanged'] = (
             result['final_original_parameters_sha256'] == initial_hash)
         result['persistent_P_updates'] = 0
-        write_receipt(output, 'main_result', result)
+        finalize_receipt(engine, 'main_result', result)
         for store in stores: store.close()
         path.close()
         if not result['original_weights_unchanged']:
@@ -500,9 +531,10 @@ def run_restart(root, protocol, arm, ledger, output, path, backend, spec, initia
                               fit_identity=protocol['data']['fit']['sha256'])
     engine.stage = 'restart'
     fit_rows = bound_json(root, protocol['data']['fit'])['rows']
-    engine.load_teacher_cache(output/'teacher_targets.json', request['teacher_cache'], fit_rows)
     row = fit_rows[0]; scope = world_scope(row); store = store_at(output, row['world_id'])
     try:
+        engine.load_teacher_cache(output/'teacher_targets.json', request['teacher_cache'],
+                                  fit_rows)
         path.release_corpus = ProducerReleaseCorpus(store, scope)
         source = engine.read(store, scope, row['question']); enc = engine.encoding(row)
         with torch.no_grad():
@@ -525,10 +557,24 @@ def run_restart(root, protocol, arm, ledger, output, path, backend, spec, initia
                   'feature_contract_recomputed_matches_request': True,
                   'teacher_cache_restored': True, 'teacher_parameter_updates': 0,
                   'persistent_P_updates': 0, 'objective': path.objective_identity}
-        write_receipt(output, 'restart_result', result)
+        engine.write_receipt('restart_result', result)
         engine.write_source_costs('restart')
         ledger.leave('restart', status='completed')
         return result
+    except BaseException as error:
+        # The restart stage is still declared and active here, so the failure
+        # receipt is charged before it is written.
+        payload = {'type': type(error).__name__, 'message': str(error),
+                   'reserved_work_not_refunded': True,
+                   'parent_model_pid': request['parent_model_pid'],
+                   'continuation_model_pid': os.getpid()}
+        try:
+            engine.write_receipt('restart_failure', payload)
+        except BaseException as ledger_error:   # evidence is never lost
+            payload['receipt_charging'] = {'charged': False,
+                                           'error': type(ledger_error).__name__}
+            write_receipt(output, 'restart_failure', payload)
+        raise
     finally:
         store.close(); path.close()
 

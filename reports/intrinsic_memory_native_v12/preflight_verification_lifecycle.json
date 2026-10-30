@@ -1,0 +1,66 @@
+{
+  "format": "replica.intrinsic_memory.preflight_verification.v12.lifecycle",
+  "producer_commit": "7cf57766",
+  "native_repairs": ["X14", "X0", "X3"],
+  "repair_cycles": 4,
+  "focused_tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -m pytest -q tests/test_intrinsic_budget_v12.py tests/test_intrinsic_coverage_v12.py tests/test_intrinsic_native_v12.py",
+    "exit_code": 0,
+    "passed": 83,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 2.72
+  },
+  "environment_only": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTORCH_ENABLE_MPS_FALLBACK=0 .venv-spark-bf16/bin/python scripts/run_spark_intrinsic_coverage_v12.py --packet reports/intrinsic_memory_native_v12/native_packet_two_v12.json --environment-only",
+    "exit_code": 0,
+    "status": "environment_verified",
+    "critical_files_checked": 12,
+    "model_imported": false,
+    "native_execution": false
+  },
+  "review": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTORCH_ENABLE_MPS_FALLBACK=0 .venv-spark-bf16/bin/python scripts/run_spark_intrinsic_coverage_v12.py --packet reports/intrinsic_memory_native_v12/native_packet_two_v12.json --review",
+    "exit_code": 0,
+    "packet_sha256": "48910b59ed1d3012f7b7dc993206025afa95dd27067d63362968fd75e7a796c0",
+    "protocol_sha256": "d09bb7e83bec9ce414a3f4b83d6400068703acdabdbbba9248b7365668fe43fa",
+    "implementation_sha256": "08617be2f136d8c181f659ccaa7019f6c835ce1184c418693398386eff5b972f",
+    "implementation_files": 62,
+    "source_execution_files": 2,
+    "source_bytes_hashed": 8238996247,
+    "source_hash_wall_seconds": 3.894897541962564,
+    "source_qualified_for_loading": true,
+    "code_before_model_loading": true,
+    "fresh_development": {
+      "path": "data/intrinsic_memory_coverage_v12_20261029/development.json",
+      "sha256": "f3524352953b732e2c382c20413d25e9becb54a3071ae31930dd14e84ca1b0fc"
+    },
+    "split_manifest_sha256": "a434ed40bbb517d6d0c09788b882ee177eb8a6f4830c73ae3532e32fdc2f15db",
+    "development_exposure_sha256": "0bd5af7b",
+    "development_opened": false,
+    "v11_development_retired": true,
+    "development_labels_parsed_at_admission": false,
+    "launch_authorized": false
+  },
+  "environment_closure": {
+    "files_verified": 67,
+    "bytes_verified": 450061586,
+    "closure_sha256": "1848a9a1ce3a6da3437c121e68b7a05284f7c9eaec496e18bf218294f07c2209"
+  },
+  "envelope": {
+    "declared_stages": 20,
+    "stage_wall_seconds": 6905,
+    "outer_wall_seconds": 7200,
+    "prompt_tokenizer_passes": 4029,
+    "artifact_read_bytes": 42647926441,
+    "writes": 2055,
+    "restart_prompt_tokenizer_passes": 67,
+    "restart_wall_seconds": 150
+  },
+  "combined_wall_seconds": 7.78,
+  "attempt_marker_created": false,
+  "authorization_created": false,
+  "native_attempt_consumed": false,
+  "static_gates_do_not_execute_run_main": true,
+  "independent_lifecycle_rereview_required_before_authorization": true
+}

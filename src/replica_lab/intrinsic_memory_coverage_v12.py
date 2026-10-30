@@ -76,10 +76,19 @@ COVERAGE = deepcopy(PREVIOUS_COVERAGE)
 # receipt still says unopened. Calibration and fitting keep the exposed v11 rows
 # for a matched comparison; development is new before any observation.
 #
-# The generator reuses the sealed oracle, renderer and question builder (the
-# scientific content), with new entity names, new world ids and new decision
-# roots. Row-level labels are produced deterministically from the structured
-# world oracle; preparation never inspects or selects on them.
+# Independence is structural, not cosmetic. The retired split used a fixed case
+# table (pair order 0,0,1,1,2,2,3,3), fixed unknown positions (4 and 7), one
+# fixed extra query name and fixed rotations (2, 3). Here the case order, the
+# name-to-slot assignment, the unknown sides, the extra query name and the
+# palette rotation are all derived from `DEVELOPMENT_SEED` through an explicit
+# sha256 byte stream, so the same positional case no longer carries the same
+# label. The two declared rules, both group sizes, the counterfactual pairs, the
+# two-unknown coverage per group and the scorer are preserved.
+#
+# Only the sealed oracle, renderer and question builder are reused (the
+# scientific content). Row labels are produced deterministically from the
+# structured oracle; preparation never inspects or selects on them, and the
+# public plan below contains no colour assignment, so it cannot leak a label.
 DEVELOPMENT_SEED = 2026102912
 DEVELOPMENT_ENTITIES = (
     'Thalric', 'Ulmara', 'Veskin', 'Wendral', 'Yorveth', 'Zaleth',
@@ -87,43 +96,110 @@ DEVELOPMENT_ENTITIES = (
 )
 DEVELOPMENT_ROOTS = tuple(f'v12_development_decision_{i:02d}' for i in range(8))
 DEVELOPMENT_WORLD_PREFIX = 'v12_development_'
+DEVELOPMENT_PALETTE = ('red', 'blue', 'green', 'gold')
+
+
+def _seed_stream(seed, label, count):
+    """Deterministic byte stream from a declared seed; no library RNG state."""
+    import hashlib as _hashlib
+    blocks, produced, counter = [], 0, 0
+    while produced < count:
+        block = _hashlib.sha256(f'{seed}|{label}|{counter}'.encode()).digest()
+        blocks.append(block); produced += len(block); counter += 1
+    return b''.join(blocks)[:count]
+
+
+def _permute(seed, label, values):
+    """Fisher-Yates permutation driven by the seed stream."""
+    items = list(values)
+    stream = _seed_stream(seed, label, 8*len(items)+16)
+    cursor = 0
+    for index in range(len(items)-1, 0, -1):
+        cursor = cursor % len(stream)
+        swap = stream[cursor] % (index+1); cursor += 1
+        items[index], items[swap] = items[swap], items[index]
+    return items
+
+
+def v12_development_plan():
+    """Seed-driven structural plan; contains no colour assignment.
+
+    Per group: which entity is asked in each pair slot, the order in which the
+    four pairs are presented, which side of which pair is the unknown query, the
+    two extra entities that back those unknown cases, and the palette rotation.
+    None of these fields is a label, so the plan can be published for admission.
+    """
+    plan = []
+    per_group = len(DEVELOPMENT_ENTITIES) // 2
+    for group in (0, 1):
+        pool = list(DEVELOPMENT_ENTITIES[group*per_group:(group+1)*per_group])
+        extras = _permute(DEVELOPMENT_SEED, f'extras|{group}', pool)[:2]
+        pair_names = [name for name in pool if name not in extras]
+        slots = _permute(DEVELOPMENT_SEED, f'slots|{group}', pair_names)
+        order = _permute(DEVELOPMENT_SEED, f'order|{group}', [0, 1, 2, 3])
+        unknown_slots = _permute(DEVELOPMENT_SEED, f'unknown|{group}', [0, 1, 2, 3])[:2]
+        unknown_side = {slot: _seed_stream(DEVELOPMENT_SEED, f'side|{group}|{slot}', 1)[0] % 2
+                        for slot in unknown_slots}
+        extra_for_slot = dict(zip(unknown_slots, extras))
+        rotation = _seed_stream(DEVELOPMENT_SEED, f'rotation|{group}', 1)[0] % 4
+        plan.append({'group': group, 'extras': extras, 'slots': slots, 'order': order,
+                     'unknown_side': unknown_side, 'extra_for_slot': extra_for_slot,
+                     'rotation': rotation})
+    return plan
+
+
+def v12_development_case_positions(plan):
+    """Public positional structure: slot and unknown flag per presented case."""
+    positions = []
+    for entry in plan:
+        for slot_position, slot in enumerate(entry['order']):
+            for side in (0, 1):
+                positions.append({'group': entry['group'], 'slot': slot,
+                                  'side': side,
+                                  'unknown': entry['unknown_side'].get(slot) == side})
+    return positions
 
 
 def v12_development_worlds():
     """Deterministic fresh development corpus; labels come from the sealed oracle."""
     from .intrinsic_memory_worlds_v11 import FAMILIES, oracle, question, render
-    names = DEVELOPMENT_ENTITIES
-    palette_rotation = (2, 3)
-    # The case table is the sealed v11 development structure: four decision
-    # pairs per group, two unknowns per group, both answers of a pair covered.
-    cases = [(0, 0, False), (0, 1, False), (1, 2, False), (1, 3, False),
-             (2, 1, False), (2, 0, True), (3, 3, False), (3, 2, True)]
     rows = []
-    for group in (0, 1):
+    for entry in v12_development_plan():
+        group = entry['group']
         family = FAMILIES[group]
-        rotation = palette_rotation[group]
-        palette = ('red', 'blue', 'green', 'gold')
-        palette = palette[rotation:] + palette[:rotation]
-        group_names = names[group*4:group*4+4] + (names[8+group],)
-        for offset, (pair, colour, missing) in enumerate(cases):
-            query = group_names[pair]
-            entity = group_names[4] if missing else query
-            old = palette[(pair + 2) % 4]
-            facts = ([{'entity': entity, 'color': old, 'revision': 1},
-                      {'entity': entity, 'color': palette[colour], 'revision': 2}]
-                     if family == FAMILIES[1]
-                     else [{'entity': entity, 'color': palette[colour], 'revision': 1}])
-            index = group*8 + offset
-            rows.append({
-                'world_id': f'{DEVELOPMENT_WORLD_PREFIX}{index:02d}',
-                'family': f'{DEVELOPMENT_ROOTS[group*4+pair]}',
-                'criterion_group': group, 'rule_family': family,
-                'facts': facts, 'query_entity': query,
-                'text': render(facts, family), 'question': question(query, family),
-                'answer': oracle(facts, query),
-                'chronology': max(f['revision'] for f in facts),
-                'source_kind': 'scripted_complete_world_snapshot',
-                'verification': 'structured_revision_oracle_not_generated_explanation'})
+        rotation = entry['rotation']
+        palette = (DEVELOPMENT_PALETTE[rotation:]
+                   + DEVELOPMENT_PALETTE[:rotation])
+        stream = _seed_stream(DEVELOPMENT_SEED, f'colours|{group}', 4*4+8)
+        cursor = 0
+        for slot_position, slot in enumerate(entry['order']):
+            query = entry['slots'][slot]
+            root = DEVELOPMENT_ROOTS[group*4+slot]
+            # The two sides of a pair must carry different answers, so their new
+            # colours are drawn without replacement from the rotated palette.
+            first = palette[stream[cursor] % 4]; cursor += 1
+            second = [colour for colour in palette if colour != first][stream[cursor] % 3]
+            cursor += 1
+            for side, new_colour in enumerate((first, second)):
+                missing = entry['unknown_side'].get(slot) == side
+                entity = entry['extra_for_slot'][slot] if missing else query
+                offset = (stream[cursor] % 3) + 1; cursor += 1
+                old_colour = palette[(palette.index(new_colour)+offset) % 4]
+                facts = ([{'entity': entity, 'color': old_colour, 'revision': 1},
+                          {'entity': entity, 'color': new_colour, 'revision': 2}]
+                         if family == FAMILIES[1]
+                         else [{'entity': entity, 'color': new_colour, 'revision': 1}])
+                index = group*8 + slot_position*2 + side
+                rows.append({
+                    'world_id': f'{DEVELOPMENT_WORLD_PREFIX}{index:02d}',
+                    'family': root,
+                    'criterion_group': group, 'rule_family': family,
+                    'facts': facts, 'query_entity': query,
+                    'text': render(facts, family), 'question': question(query, family),
+                    'answer': oracle(facts, query),
+                    'chronology': max(f['revision'] for f in facts),
+                    'source_kind': 'scripted_complete_world_snapshot',
+                    'verification': 'structured_revision_oracle_not_generated_explanation'})
     return rows
 
 
@@ -174,7 +250,9 @@ def v12_development_public_identity():
     return {'split': 'development', 'role': 'fresh_v12_development',
             'cases': DEVELOPMENT_CASES, 'entities': list(DEVELOPMENT_ENTITIES),
             'decision_roots': list(DEVELOPMENT_ROOTS), 'seed': DEVELOPMENT_SEED,
-            'source_text_sha256': None, 'label_content_included': False}
+            'generator': 'seeded_structural_plan_v12',
+            'plan_sha256': identity_digest(v12_development_plan()),
+            'label_content_included': False}
 
 
 def public_split_metadata(split):
@@ -372,16 +450,23 @@ def plan(arm):
         }
 
     result = {
-        # Audit, store, receipt and log envelope for the whole owned output tree,
-        # including the receipts written outside a stage (main result, capacity
-        # guard, supervision result) and the admission receipt.
+        # The admission stage charges its own receipt plus the audit/store/log
+        # envelope for the whole owned output tree. Terminal receipts are charged
+        # in their own declared stages below, never outside a stage.
         'admission': stage(30, artifact_bytes=ADMISSION_ENVELOPE_BYTES,
                            artifact_read_bytes=SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES,
-                           writes=5),
-        # One hashing pass over the source, one environment-closure pass and one
-        # weight load.
+                           writes=2),
+        # One hashing pass over the source, one environment-closure pass, one
+        # weight load and the capacity-guard receipt written after that worker.
         'load': stage(180, model_loads=1,
-                      artifact_read_bytes=(2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES)),
+                      artifact_read_bytes=(2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES),
+                      writes=1),
+        # The child writes its terminal result inside a declared stage, so no
+        # receipt is ever written with an inactive stage.
+        'finalize_worker': stage(30, writes=2),
+        # The supervising parent writes the combined result and its supervision
+        # receipt inside a declared stage as well.
+        'finalize_parent': stage(30, writes=2),
         # 8 calibration worlds x 8 reserved answer tokens, extensions disabled.
         'baseline': stage(45, **span(0, 0, prompt_passes=16, backbone_forwards=64,
                                      backbone_tokens=256),
@@ -422,7 +507,7 @@ def plan(arm):
                          backwards=1, updates=1, model_loads=1,
                          artifact_read_bytes=(2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES
                                               + checkpoint + TEACHER_CACHE_BYTES),
-                         restart_restores=2, retrievals=1, writes=3+2+1),
+                         restart_restores=2, retrievals=1, writes=3+2+1+1),
     }
     for end in PREFIXES:
         updates = 128

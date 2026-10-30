@@ -230,10 +230,10 @@ class DiagnosticEngineV12:
     def new_release_corpus(self, store, scope):
         return ProducerReleaseCorpus(store, scope)
 
-    def write_receipt(self, name, payload, *, operation='receipt_write'):
+    def write_receipt(self, name, payload, *, operation=None):
         """Charge one declared write before it happens, then record the actual."""
         path = self.output/(name+'.json')
-        with self.measured(operation, writes=1) as event:
+        with self.measured(operation or (name+'_receipt'), writes=1) as event:
             atomic(path, payload)
             event['actual'] = {'writes': 1}
             event['serialized_write_bytes'] = path.stat().st_size

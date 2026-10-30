@@ -6,29 +6,59 @@ no native attempt was consumed. This directory holds preparation and review
 material for the separately versioned v12 source-feature successor to the
 consumed v11 two-site attempt.
 
-Current preparation (post-fresh-split, after repair cycles 1–3 and the X0/X2/X3/X9
-repairs): **80 focused tests passed** in `tests/test_intrinsic_budget_v12.py`,
-`tests/test_intrinsic_coverage_v12.py` and `tests/test_intrinsic_native_v12.py`,
-run by me against these bytes. Envelope: stage wall 6845 s inside 7200 s, 4029
-prompt-tokenizer passes, 42,647,926,441 declared file-read bytes (including the
-450,061,586-byte environment closure in admission, load and restart), 2049
+Current preparation (after repair cycles 1–3, the X0/X2/X3/X9 repairs and the
+cycle-4 X14/X0/X3 follow-ups): **83 focused tests passed** in
+`tests/test_intrinsic_budget_v12.py`, `tests/test_intrinsic_coverage_v12.py`
+and `tests/test_intrinsic_native_v12.py`, run by me against these bytes.
+Envelope: stage wall **6905 s** inside 7200 s (twenty declared stages,
+including the `finalize_worker` and `finalize_parent` receipt stages), 4029
+prompt-tokenizer passes, 42,647,926,441 declared file-read bytes, **2055**
 declared writes, restart 150 s / 67 passes.
 
-**X0 — fresh development split.** The v11 development split is *retired* for
-this successor: the re-review scout read
-`data/intrinsic_memory_coverage_v11_20261029/development.json`, so it can no
-longer support a fresh utility claim. Calibration and fitting keep the exposed
-v11 rows for a matched comparison. Development is new
-(`data/intrinsic_memory_coverage_v12_20261029/development.json`, sixteen cases in
-two groups of eight, new entities `Thalric…Halvra`, world ids
+**X14 — fitting-close lifecycle.** The final `fitting_closed` receipt is now
+written while the last probe stage is still active; writing it after that stage
+closed made every real launch fail at the ledger. A real-ledger test drives the
+sequence probe receipts → freeze → fitting-closed receipt → stage close →
+checkpoint reservation → restart-request receipt, and also asserts that the old
+ordering raises `stage is not active`.
+
+**X0 — genuinely independent development split.** The retired v11 split's case
+table, rotations, case order and single extra query name are no longer reused.
+`v12_development_plan()` derives the name-to-slot assignment, the presentation
+order, the unknown sides, the two extra entities and the palette rotation from
+`DEVELOPMENT_SEED` through an explicit sha256 byte stream; `DEVELOPMENT_SEED`
+now drives every structural choice instead of being unused. A proof test
+compares the public plan with the documented retired structure and requires at
+least three independent differences (observed: pair order, unknown positions,
+rotation and case order). The two declared rules, both group sizes, the
+counterfactual pairs, the two-unknown coverage per group and the scorer are
+preserved, and the public identity publishes only a plan digest — never a
+colour, answer or text.
+
+**X3 — terminal receipts charged, observed read bytes.** `main_result` is
+written inside the declared `finalize_worker` stage (with a documented
+uncharged fallback that records itself in the receipt), `restart_result` and a
+typed `restart_failure` inside the active restart stage, and the runner charges
+`admission`, `capacity_guard` and `result` in a declared stage before each
+write. Hashing reservations now record the **observed** bytes (files actually
+hashed plus closure bytes actually verified) rather than the declared
+constants. Whole-stage tests cover the fit receipt cap, the restart reservation
+set, admission hashing and the terminal-receipt path.
+
+**X0 facts for admission.** The v11 development split is *retired* for this
+successor because the re-review scout read
+`data/intrinsic_memory_coverage_v11_20261029/development.json`; calibration and
+fitting keep the exposed v11 rows for a matched comparison. The fresh corpus is
+`data/intrinsic_memory_coverage_v12_20261029/development.json` (sixteen cases,
+two groups of eight, entities `Thalric…Halvra`, world ids
 `v12_development_00…15`, roots `v12_development_decision_00…07`), generated
 deterministically from the sealed structured oracle with no v11 entity, root or
 path overlap. Labels were generated, never inspected or used for selection, and
-the file is pinned before any observation. The current receipt
-`development_exposure_v12.json` records `development_opened: false`, the
-retired split and the reading incident; the historical v11 exposure receipt is
-byte-unchanged. Admission re-validates the role binding, the fresh identity and
-that the retired split is not reused, without parsing development labels.
+the file is pinned before any observation. `development_exposure_v12.json`
+records `development_opened: false`, the retired split and the reading
+incident; the historical v11 receipt is byte-unchanged. Admission re-validates
+the role binding, the fresh identity and non-reuse of the retired split, without
+parsing development labels.
 
 **X2 — torn ledger tail.** Every mutation (`enter`, `reserve`, `finish`,
 `leave`) and every non-operator read (`snapshot`, `deadline_state`, `audit_io`)
@@ -38,14 +68,6 @@ fragment, appends a `torn` record carrying its length and digest, closes
 interrupted reservations as failed while leaving them charged, and only then
 allows further work. Three tests cover mutation refusal, read refusal and
 operator recovery.
-
-**X3 — charged work.** Source preflight/revalidation hashing, environment
-closure hashing, model loads, per-fit receipts, probe/checkpoint/development/
-correction/restart receipts and stage source-cost receipts are each reserved
-before the operation, with the actual observation recorded and no refund. New
-whole-stage tests consume exactly the declared caps for `fit_128` (128 receipts
-+ 1 source-cost = 129), the full `restart` reservation set, and the admission
-hashing envelope (one extra byte is refused before dispatch).
 
 **X9 — attempt consumption and environment closure.** Consumption no longer
 relies on the deletable output directory: `launch` appends a durable
@@ -60,58 +82,62 @@ failure. Size is pinned at 67 files / 450,061,586 bytes and re-derived from the
 bound receipt.
 
 Current packet SHA-256 is
-`48963bdc1996526d7512cb6e753901d3562b08610cf67894906f0ec95b988c9e`; protocol
-SHA-256 `16c7b2f3ff072249e9a370be6e906ac93d8cfced6127122dfa6b6337e09203e7`;
+`48910b59ed1d3012f7b7dc993206025afa95dd27067d63362968fd75e7a796c0`; protocol
+SHA-256 `d09bb7e83bec9ce414a3f4b83d6400068703acdabdbbba9248b7365668fe43fa`;
 implementation receipt SHA-256
-`c683db4881346ff0d922fc1744557f00a1328d462550b4facea5239362185d2c`;
+`08617be2f136d8c181f659ccaa7019f6c835ce1184c418693398386eff5b972f`;
 environment closure SHA-256
-`d521db9340e3638c481ede19a7ed670949ed9440167739b426b815276d6fbc68`;
+`d521db9340e3638c481ede19a7ed670949ed9440167739b426b815276d6fbc68` (unchanged —
+the closure binds the environment, not this packet);
 development exposure receipt SHA-256
-`79e8b3abf656cd41a8c5681ed45a0ef7be9b48fc610831e905c06c16527ed5d3`.
+`0bd5af7bf51dfb24c6273fd7ce6cb11a14856cbc21155e811ed480cd82b7bbe6`.
 
-The earlier coordinator preflight (57 focused tests, environment-only, and
-`--review` over 62 implementation files, two source-execution files and
-8,238,996,247 source bytes) applies to the superseded packet
-`3a2a7af1d08118df902e1dd20f5b3ca74b1c651005a2e0bf7f9eda7868198cc2`. Its exact
-commands and results remain in `preflight_verification.json` and the initial
-18-failure run in `verification_attempt01.log`. **Environment-only and `--review`
-have not been run against the current packet**; `--environment-only`, `--review`,
-the full suite and the independent reproduction are the coordinator's next gates,
-and independent review is still required before authorization or launch. Note
-that `--review`/`--launch` now also verify the 450,061,586-byte environment
-closure and, for launch, the durable attempt marker.
+Run-status reconciliation. `preflight_verification.json` records the first
+57-test preflight (with `attempt_marker_created` absent from that revision),
+`preflight_verification_current.json` records the 6845-second envelope with
+41,297,741,683 read bytes, and `preflight_verification_fresh.json` records the
+coordinator gates on the **previous** packet `48963bdc…`: focused tests,
+environment-only, `--review` with 62 implementation files, 8,238,996,247 source
+bytes and the 67-file / 450,061,586-byte closure, with
+`attempt_marker_created: false` and `authorization_created: false`. All three are
+static gates: none of them executes `run_main`, so none of them would have
+detected X14. They are historical receipts for their own packet hashes and do
+**not** cover the current packet `48910b59…`; environment-only, `--review`, the
+focused suite and independent review for these bytes are still pending, and no
+authorization or launch exists.
 
-Five earlier unlaunched preparations are preserved verbatim, unmodified and
+Six earlier unlaunched preparations are preserved verbatim, unmodified and
 clearly non-canonical, each with a computed-hash status record:
 `preparation_draft01/` binds pre-repair bytes, `preparation_draft02/` carries the
 N1–N3 repairs made before the producer commit, and `preparation_draft03/` carries
 the retired v11-development reuse contract before the fresh split and the
 X-series repairs. `preparation_draft04/` preserves the working-tree packet made while producer
-cycle 4 was uncommitted, and `preparation_draft05/` preserves the packet made
-while the consumer repairs were uncommitted. Both drafts' config, split
-manifest, fresh development corpus, packet, implementation receipt, environment
-closure and exposure receipt are byte-identical to the current canonical ones;
-only their `preparation.json` differs (measured hashing wall time). No attempt or
-historical evidence was moved or deleted.
+cycle 4 was uncommitted, `preparation_draft05/` the packet made while the
+consumer repairs were uncommitted, and `preparation_draft06/` the packet before
+the X14 stage-lifecycle repair, the seeded development generator and the
+terminal-receipt charging (including the positionally equivalent development
+corpus this cycle replaced). Drafts 04 and 05 differ from their successors only
+in `preparation.json`; draft 06 differs in the protocol, development corpus and
+resulting hashes. No attempt or historical evidence was moved or deleted.
 
 Provenance: the v12 producer was committed at `6dede67e`, repaired for the
-independent review at `6ba07e1b`, and repaired again for the re-review at
-`826aac6b` (`fix: charge cold failures and prove release parity`; charged cold
-failure payload reads, typed failure preserved through best-effort eviction,
-with 79 coordinator checks and all-layout release parity). The matched
-density/measured-cost controls are at `3cd683c3`; the density modules are a
-separate track and are not part of this experiment's executable closure.
+independent review at `6ba07e1b`, and repaired again at `826aac6b`
+(`fix: charge cold failures and prove release parity`). Producer repair cycle 5
+(exception-safe cold staging, transaction-ordered release publication,
+pre-existing buffer authority, producer-side contract enforcement) is a
+working-tree change at preparation time, so this closure pins those producer
+bytes together with the seven uncommitted consumer files of the X14/X0/X3
+follow-ups. Commit both, then regenerate once more (same discard-and-rerun)
+before sealing; `--review` recomputes the closure statically and refuses any
+difference, so a later `src/` change fails closed.
 
-The five producer modules in this closure are **committed** blobs: every
-producer hash in `implementation_v12.json` equals its `HEAD` blob content at
-`826aac6b`. The seven consumer files of the X0/X2/X3/X9 repairs
-(`intrinsic_memory_{budget,coverage,diagnostic,execution,native}_v12.py` and
-both runner/preparation scripts) are committed at `257c722e` (`fix: close native
-recovery and fresh-split gates`). **All 62 closure entries now equal their `HEAD`
-blob content**, and the regenerated packet is byte-identical to the one the
-coordinator gates passed — only `preparation.json` differs, in its measured
-hashing wall time. `--review` recomputes the closure statically and refuses any
-difference, so a future `src/` change fails closed until re-preparation.
+At consumer commit `257c722e` all 62 closure entries equalled their `HEAD` blob
+content and the packet was byte-identical to the gated one. Since then producer
+cycle 5 and the seven consumer files of the X14/X0/X3 follow-ups are working-tree
+changes, so the current closure pins working-tree bytes; the packet hash is now
+`48910b59…`, not the gated `48963bdc…`, because the stage envelope, development
+corpus and stage plan changed. Re-run the gates against the new bytes after both
+are committed and the closure is regenerated.
 
 Bound after regeneration: the content-attestation change (the adapter contract
 includes the exact base content digest, supplied as the already-verified full
@@ -223,7 +249,8 @@ gate stay matched to v11. The hypothesis is about source representation only.
 | `reports/intrinsic_memory_native_v12/preparation_draft02/` | Preserved N1–N3 preparation made before the producer commit; its config, packet and closure matched that moment; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft03/` | Preserved packet with the retired v11-development reuse contract, before the fresh split and X-series repairs; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft04/` | Preserved working-tree packet made while producer cycle 4 was uncommitted; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
-| `reports/intrinsic_memory_native_v12/preparation_draft05/` | Preserved packet made while the consumer repairs were uncommitted; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft05/` | Preserved packet made while the consumer repairs were uncommitted; all artifacts except `preparation.json` are byte-identical to its successor; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft06/` | Preserved packet before the X14 lifecycle repair, the seeded development generator and terminal-receipt charging; includes the replaced development corpus; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/environment_closure_v12.json` | Executable dependency closure: resolved interpreter, module origins, native extensions, all `torch/lib` files, all wheel RECORDs and critical files, by actual hash |
 | `reports/intrinsic_memory_native_v12/development_exposure_v12.json` | Current exposure receipt: fresh split unopened, retired v11 split, reading incident recorded; historical receipt unedited |
 

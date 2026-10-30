@@ -83,11 +83,13 @@ def test_stage_plan_is_complete_finite_and_inside_the_outer_envelope():
             assert set(caps) == set(COUNTERS)|{'wall_seconds'}, stage
             assert all(type(caps[k]) is int and caps[k] >= 0 for k in COUNTERS)
         total = totals(stages)
-        assert total['wall_seconds'] == 6845
+        assert total['wall_seconds'] == 6905
         assert total['wall_seconds'] <= OUTER_WALL_SECONDS-11
         assert total['updates'] == 513
         assert total['model_loads'] == 2
         assert total['backwards'] == 513
+        assert 'finalize_worker' in stages and 'finalize_parent' in stages
+        assert stages['finalize_worker']['writes'] >= 2
         assert stages['restart']['prompt_tokenizer_calls'] >= 2*32 + 3
         assert stages['restart']['wall_seconds'] > stages['checkpoint']['wall_seconds']
     assert plan('two')['checkpoint']['artifact_bytes'] == 96*1024**2
@@ -221,9 +223,51 @@ def test_fresh_development_split_is_independent_deterministic_and_sealed():
     identity = v12_development_public_identity()
     assert identity['label_content_included'] is False
     assert set(identity) == {'split', 'role', 'cases', 'entities', 'decision_roots',
-                             'seed', 'source_text_sha256', 'label_content_included'}
+                             'seed', 'generator', 'plan_sha256',
+                             'label_content_included'}
     assert identity['role'] == 'fresh_v12_development'
-    assert 'rows' not in identity and 'answer' not in identity
+    assert identity['generator'] == 'seeded_structural_plan_v12'
+    assert 'rows' not in identity and 'answer' not in identity and 'colors' not in identity
+
+
+def test_seeded_plan_breaks_positional_label_equivalence():
+    """X0: the fresh split is not the retired case table under new names.
+
+    The comparison uses only public generator inputs plus the documented
+    structure of the retired split (its fixed pair order, fixed unknown
+    positions, fixed rotations and fixed case order). Neither development data
+    file is read.
+    """
+    from replica_lab.intrinsic_memory_coverage_v12 import (
+        DEVELOPMENT_ROOTS, DEVELOPMENT_SEED, v12_development_case_positions,
+        v12_development_plan)
+    plan = v12_development_plan()
+    positions = v12_development_case_positions(plan)
+    assert len(positions) == 16
+    retired = {'pair_order': [0, 0, 1, 1, 2, 2, 3, 3],
+               'unknown_positions': {4, 7},
+               'rotation': {0: 2, 1: 3},
+               'case_order': [0, 1, 2, 3]}
+    differences = []
+    if [p['slot'] for p in positions[:8]] != retired['pair_order']:
+        differences.append('pair_order')
+    if {i for i, p in enumerate(positions[:8]) if p['unknown']} \
+            != retired['unknown_positions']:
+        differences.append('unknown_positions')
+    if {entry['group']: entry['rotation'] for entry in plan} != retired['rotation']:
+        differences.append('rotation')
+    if any(entry['order'] != retired['case_order'] for entry in plan):
+        differences.append('case_order')
+    if len({entry['extra_for_slot'].get(slot) for entry in plan
+            for slot in entry['extra_for_slot']}) < 2:
+        differences.append('extra_assignment')
+    assert len(differences) >= 3, differences
+    # The declared independent seed is what drives the plan, and change it now
+    # changes the plan: it is not an unused constant.
+    assert DEVELOPMENT_SEED == 2026102912
+    assert {entry['group']: entry['order'] for entry in plan}
+    # Roots remain the declared eight, one per decision pair.
+    assert len(DEVELOPMENT_ROOTS) == 8
 
 
 @pytest.mark.parametrize('damage', ['v11_entity', 'world_prefix', 'group_order',

@@ -28,6 +28,7 @@ from replica_lab.intrinsic_memory_coverage_v12 import (
 from replica_lab.intrinsic_memory_budget_v12 import BudgetError, WorkLedger
 from replica_lab.intrinsic_memory_diagnostic_v12 import (
     DiagnosticEngineV12, SourceWorkAccounting, StageRef, right_padded_prefix)
+from replica_lab.intrinsic_memory_native_v12 import begin_stage, close_stage
 
 
 class FakeLedger:
@@ -144,6 +145,9 @@ class FakePath:
     def order(self, index):
         self.log.append('order')
         return torch.zeros(len(index), 256)
+
+    def freeze_readout(self): self.log.append('freeze_readout')
+    def resume_training(self): self.log.append('resume_training')
 
     def validate(self, batch, scope): self.log.append('validate')
 
@@ -656,6 +660,98 @@ def test_environment_closure_detects_substitution_and_added_libraries(tmp_path):
     (libdir/'added.dylib').unlink()
     with pytest.raises(ValueError, match='interpreter differs'):
         verify_environment_closure(closure, prefix=prefix, interpreter=crit)
+
+
+def test_fitting_close_and_checkpoint_are_charged_in_declared_stages(tmp_path):
+    """X14: the terminal fitting receipt must be written inside an active stage."""
+    stages = coverage_plan('two')
+    ledger = WorkLedger.create(tmp_path/'lifecycle.jsonl', identity='packet-sha',
+                               plan={'fit_probes_512': stages['fit_probes_512'],
+                                     'checkpoint': stages['checkpoint'],
+                                     'finalize_worker': stages['finalize_worker']},
+                               deadline=time.monotonic()+600)
+    path = FakePath(); ref = StageRef(); ref.name = 'fit_probes_512'
+    built = DiagnosticEngineV12(path, None, types.SimpleNamespace(), ledger,
+                                max_new_tokens=8, output=tmp_path, stage_ref=ref)
+    begin_stage(built, 'fit_probes_512')
+    # The review's reproduction: writing the receipt after the stage closes is
+    # refused by the real ledger, which is why the write now happens first.
+    built.write_receipt('probe', {'ok': True})
+    built.freeze()
+    ledger.leave('fit_probes_512', status='completed')
+    with pytest.raises(BudgetError, match='not active'):
+        built.write_receipt('fitting_closed', {'closed': True})
+    # The repaired order: freeze and the fitting-closed receipt happen while the
+    # final probe stage is still open.
+    ledger2 = WorkLedger.create(tmp_path/'lifecycle2.jsonl', identity='packet-sha',
+                                plan={'fit_probes_512': stages['fit_probes_512'],
+                                      'checkpoint': stages['checkpoint']},
+                                deadline=time.monotonic()+600)
+    ref2 = StageRef(); ref2.name = 'fit_probes_512'
+    path2 = FakePath()
+    built2 = DiagnosticEngineV12(path2, None, types.SimpleNamespace(), ledger2,
+                                 max_new_tokens=8, output=tmp_path, stage_ref=ref2)
+    begin_stage(built2, 'fit_probes_512')
+    built2.write_receipt('probe', {'ok': True})
+    built2.write_receipt('fit_curve', {'prefixes': []})
+    built2.freeze()
+    built2.write_receipt('fitting_closed', {'closed': True, 'updates': 512})
+    close_stage(built2, 'fit_probes_512', 'completed')
+    begin_stage(built2, 'checkpoint')
+    checkpoint = stages['checkpoint']
+    with ledger2.work('checkpoint', 'extension_optimizer_checkpoint',
+                      artifact_bytes=checkpoint['artifact_bytes'], writes=4) as event:
+        (tmp_path/'checkpoint').mkdir()
+        for name in ('weights', 'optimizer', 'components', 'manifest'):
+            (tmp_path/'checkpoint'/name).write_bytes(b'x')
+        event['actual'] = {'writes': 4}
+    built2.write_receipt('restart_request', {'updates_allowed': 1})
+    close_stage(built2, 'checkpoint', 'completed')
+    snapshot = ledger2.snapshot()
+    assert snapshot['stages']['fit_probes_512']['status'] == 'completed'
+    assert snapshot['stages']['checkpoint']['status'] == 'completed'
+    probe_reserved = snapshot['stages']['fit_probes_512']['reserved']
+    checkpoint_reserved = snapshot['stages']['checkpoint']['reserved']
+    assert probe_reserved['writes'] <= stages['fit_probes_512']['writes']
+    assert checkpoint_reserved['writes'] <= checkpoint['writes']
+    assert checkpoint_reserved['artifact_bytes'] == checkpoint['artifact_bytes']
+    assert 'fitting_closed_receipt' in [
+        event['operation'] for event in snapshot['events']
+        if event['stage'] == 'fit_probes_512']
+
+
+def test_finalize_receipt_charges_the_terminal_result_in_its_own_stage(tmp_path):
+    """X3: the terminal result is never written outside a declared stage."""
+    from replica_lab.intrinsic_memory_native_v12 import finalize_receipt
+    stages = coverage_plan('two')
+    ledger = WorkLedger.create(tmp_path/'finalize.jsonl', identity='packet-sha',
+                               plan={'finalize_worker': stages['finalize_worker'],
+                                     'fit_128': stages['fit_128']},
+                               deadline=time.monotonic()+600)
+    ref = StageRef(); ref.name = 'fit_128'
+    path = FakePath()
+    built = DiagnosticEngineV12(path, None, types.SimpleNamespace(), ledger,
+                                max_new_tokens=8, output=tmp_path, stage_ref=ref)
+    ledger.enter('fit_128')
+    # A failure leaves the working stage open; finalize closes it as failed and
+    # writes the result inside the declared finalize stage.
+    ledger.reserve('fit_128', 'simulated_pending_work', writes=1)
+    assert finalize_receipt(built, 'main_result', {'status': 'failed'}) is False
+    uncharged = json.loads((tmp_path/'main_result.json').read_text())
+    assert uncharged['final_receipt_charging']['charged'] is False
+    # With no uncertain reservation the result is charged in its own stage.
+    ledger2 = WorkLedger.create(tmp_path/'finalize2.jsonl', identity='packet-sha',
+                                plan={'finalize_worker': stages['finalize_worker']},
+                                deadline=time.monotonic()+600)
+    ref2 = StageRef(); ref2.name = None
+    built2 = DiagnosticEngineV12(FakePath(), None, types.SimpleNamespace(), ledger2,
+                                 max_new_tokens=8, output=tmp_path/'second', stage_ref=ref2)
+    assert finalize_receipt(built2, 'main_result', {'status': 'completed'}) is True
+    snapshot = ledger2.snapshot()
+    assert snapshot['stages']['finalize_worker']['status'] == 'completed'
+    assert snapshot['stages']['finalize_worker']['reserved']['writes'] == 2
+    receipt = json.loads((tmp_path/'second'/'main_result.json').read_text())
+    assert 'final_receipt_charging' not in receipt
 
 
 def test_context_width_and_prefix_bounds_match_the_envelope():

@@ -25,8 +25,8 @@
     "restart_prompt_tokenization": "restart reserves 67 prompt-tokenizer passes = 64 (2 encodings for each of 32 restored teacher targets: student and exact text) + 1 (canary encoding) + 2 (continuation student encoding and the exact-text encoding that the alignment binding re-derives). Nothing else in the restart path tokenizes a prompt",
     "source_file_bytes": 8238996247,
     "source_span_unit": "one cache-missing canonical span reserves tokenizer_calls=1, source_encodes=1, source_token_bytes=256 and input_tokens=256 for the tokenizer, then forwards=1, source_feature_forwards=1, cache_misses/evictions/recomputations=1 and input_tokens=256 for the frozen source forward",
-    "stage_wall": "sum of all 18 two-site stage caps: admission=30 + load=180 + baseline=45 + numerical=30 + prepare=60 + teacher=90 + checkpoint=60 + development=540 + correction=60 + restart=150 + fit_128=500 + fit_probes_128=900 + fit_256=500 + fit_probes_256=900 + fit_384=500 + fit_probes_384=900 + fit_512=500 + fit_probes_512=900 = 6845 seconds inside the 7200-second whole-process-group envelope; the remaining 355 seconds are outer headroom, never a stage allowance",
-    "stage_wall_value": 6845,
+    "stage_wall": "sum of all 20 two-site stage caps: admission=30 + load=180 + finalize_worker=30 + finalize_parent=30 + baseline=45 + numerical=30 + prepare=60 + teacher=90 + checkpoint=60 + development=540 + correction=60 + restart=150 + fit_128=500 + fit_probes_128=900 + fit_256=500 + fit_probes_256=900 + fit_384=500 + fit_probes_384=900 + fit_512=500 + fit_probes_512=900 = 6905 seconds inside the 7200-second whole-process-group envelope; the remaining 295 seconds are outer headroom, never a stage allowance",
+    "stage_wall_value": 6905,
     "teacher_forwards": "32 answers * 8 reserved tokens + 32 target forwards = 288; no source features",
     "total_backwards": "512 fitting + 1 restart = 513",
     "total_forwards": "64 + 3 + 32 + 288 + 4*256 + 4*1888 + 2 + 784 + 25 + 4 = 9778; a source forward appears twice on purpose: once as a frozen backbone forward (forwards) and once as source_feature_forwards, because v12 dispatches both",
@@ -38,17 +38,17 @@
     "total_source_forwards": "0 + 1 + 32 + 0 + 512 + 384 + 1 + 16 + 1 + 2 = 949",
     "total_tokenizer_passes": "0 + 1 + 32 + 0 + 512 + 512 + 1 + 16 + 2 + 2 = 1078",
     "total_updates": "512 fitting + 1 fresh-process continuation = 513",
-    "total_writes": "sum of all 18 two-site stage caps: admission=5 + load=0 + baseline=9 + numerical=2 + prepare=193 + teacher=34 + checkpoint=7 + development=98 + correction=14 + restart=7 + fit_128=129 + fit_probes_128=291 + fit_256=129 + fit_probes_256=291 + fit_384=129 + fit_probes_384=291 + fit_512=129 + fit_probes_512=291 = 2049 declared writes, including descriptor persists, one observed source-cost receipt per closed stage, and the receipts written outside a stage",
-    "total_writes_value": 2049
+    "total_writes": "sum of all 20 two-site stage caps: admission=5 + load=1 + finalize_worker=2 + finalize_parent=2 + baseline=9 + numerical=2 + prepare=193 + teacher=34 + checkpoint=7 + development=98 + correction=14 + restart=8 + fit_128=129 + fit_probes_128=291 + fit_256=129 + fit_probes_256=291 + fit_384=129 + fit_probes_384=291 + fit_512=129 + fit_probes_512=291 = 2055 declared writes, including descriptor persists, one observed source-cost receipt per closed stage, and the receipts written outside a stage",
+    "total_writes_value": 2055
   },
   "commits_made": false,
   "data_manifest": {
     "path": "data/intrinsic_memory_coverage_v12_20261029/split_manifest.json",
-    "sha256": "64e6775ffc68f5bbe1781536c8b4ddd9713dc912b35e76883a613b8c241e8ac8"
+    "sha256": "a434ed40bbb517d6d0c09788b882ee177eb8a6f4830c73ae3532e32fdc2f15db"
   },
   "development_exposure_receipt": {
     "path": "reports/intrinsic_memory_native_v12/development_exposure_v12.json",
-    "sha256": "79e8b3abf656cd41a8c5681ed45a0ef7be9b48fc610831e905c06c16527ed5d3"
+    "sha256": "0bd5af7bf51dfb24c6273fd7ce6cb11a14856cbc21155e811ed480cd82b7bbe6"
   },
   "development_labels_generated_from_oracle": true,
   "development_labels_parsed_by_preparation": false,
@@ -82,7 +82,7 @@
   "format": "replica.intrinsic_memory.native_preparation.v12",
   "fresh_development": {
     "path": "data/intrinsic_memory_coverage_v12_20261029/development.json",
-    "sha256": "606fecf9e39da2941c21c5126f3b6aebc4dbbc675d7888cb1e634dc599e5de3a"
+    "sha256": "f3524352953b732e2c382c20413d25e9becb54a3071ae31930dd14e84ca1b0fc"
   },
   "historical_v11_exposure_untouched": {
     "path": "reports/intrinsic_memory_coverage_v11/development_exposure.json",
@@ -91,14 +91,14 @@
   "history_written": false,
   "implementation": {
     "path": "reports/intrinsic_memory_native_v12/implementation_v12.json",
-    "sha256": "c683db4881346ff0d922fc1744557f00a1328d462550b4facea5239362185d2c"
+    "sha256": "08617be2f136d8c181f659ccaa7019f6c835ce1184c418693398386eff5b972f"
   },
   "native_authorization_created": false,
   "native_run": false,
   "next_step": "independent review of these bytes, then a truthful external authorization receipt, then exactly one guarded launch bound to the durable attempt marker",
   "packet": {
     "path": "reports/intrinsic_memory_native_v12/native_packet_two_v12.json",
-    "sha256": "48963bdc1996526d7512cb6e753901d3562b08610cf67894906f0ec95b988c9e"
+    "sha256": "48910b59ed1d3012f7b7dc993206025afa95dd27067d63362968fd75e7a796c0"
   },
   "preparation_checks": {
     "attempt_marker": "runs/intrinsic_memory_native_v12/attempts.jsonl",
@@ -196,30 +196,30 @@
     },
     "implementation_files": 62,
     "native_competence": false,
-    "packet_sha256": "48963bdc1996526d7512cb6e753901d3562b08610cf67894906f0ec95b988c9e",
+    "packet_sha256": "48910b59ed1d3012f7b7dc993206025afa95dd27067d63362968fd75e7a796c0",
     "reused_data": {
       "development_labels_parsed_at_admission": false,
       "development_opened": false,
       "fresh_development": {
         "path": "data/intrinsic_memory_coverage_v12_20261029/development.json",
-        "sha256": "606fecf9e39da2941c21c5126f3b6aebc4dbbc675d7888cb1e634dc599e5de3a"
+        "sha256": "f3524352953b732e2c382c20413d25e9becb54a3071ae31930dd14e84ca1b0fc"
       },
       "matched_calibration_and_fit": true,
       "new_manifest": {
         "path": "data/intrinsic_memory_coverage_v12_20261029/split_manifest.json",
-        "sha256": "64e6775ffc68f5bbe1781536c8b4ddd9713dc912b35e76883a613b8c241e8ac8"
+        "sha256": "a434ed40bbb517d6d0c09788b882ee177eb8a6f4830c73ae3532e32fdc2f15db"
       },
       "v11_development_retired": true
     },
     "source_bytes_hashed": 0,
     "source_execution_files": 2,
-    "source_hash_wall_seconds": 0.0003598327748477459,
+    "source_hash_wall_seconds": 0.0004875003360211849,
     "source_qualified_for_loading": false,
     "useful_memory": false
   },
   "protocol": {
     "path": "configs/spark_intrinsic_coverage_v12.json",
-    "sha256": "16c7b2f3ff072249e9a370be6e906ac93d8cfced6127122dfa6b6337e09203e7"
+    "sha256": "d09bb7e83bec9ce414a3f4b83d6400068703acdabdbbba9248b7365668fe43fa"
   },
   "retired_v11_development": {
     "path": "data/intrinsic_memory_coverage_v11_20261029/development.json",
@@ -231,6 +231,8 @@
     "checkpoint": 60,
     "correction": 60,
     "development": 540,
+    "finalize_parent": 30,
+    "finalize_worker": 30,
     "fit_128": 500,
     "fit_256": 500,
     "fit_384": 500,
@@ -264,8 +266,8 @@
     "source_token_bytes": 275968,
     "tokenizer_calls": 1078,
     "updates": 513,
-    "wall_seconds": 6845,
-    "writes": 2049
+    "wall_seconds": 6905,
+    "writes": 2055
   },
   "unchanged_from_v11": [
     "official_BF16_source_and_revision",
