@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import time
+import uuid
 
 import torch
 
@@ -24,18 +25,47 @@ from .tiered_memory import (
 FORMAT = "replica.contextual_producer_release.v12"
 
 
+class WorkLedgerReleaseReadAccounting:
+    """Map release-corpus direct reads onto a native ``artifact_read_bytes`` ledger."""
+
+    def __init__(self, ledger, stage):
+        if not callable(getattr(ledger, "reserve", None)) or not callable(getattr(ledger, "finish", None)):
+            raise ContextualMemoryError("explicit read ledger with reserve/finish required")
+        if not isinstance(stage, str) or not stage:
+            raise ContextualMemoryError("read-ledger stage required")
+        self.ledger, self.stage = ledger, stage
+
+    def reserve_read(self, operation, byte_count, file_count=1):
+        if (not isinstance(operation, str) or not operation or type(byte_count) is not int
+                or byte_count < 0 or type(file_count) is not int or file_count < 1):
+            raise ContextualMemoryError("invalid release read reservation")
+        return self.ledger.reserve(self.stage, operation, artifact_read_bytes=byte_count)
+
+    def complete_read(self, token, *, actual_bytes, status="completed"):
+        if status not in ("completed", "failed"):
+            raise ContextualMemoryError("invalid release read status")
+        actual = {"artifact_read_bytes": actual_bytes} if status == "completed" else {}
+        return self.ledger.finish(token, status=status, actual=actual)
+
+
 class ProducerReleaseCorpus:
-    def __init__(self, store, scope, *, max_records=1024):
+    def __init__(self, store, scope, *, max_records=1024, read_accounting=None):
         if not isinstance(scope, MemoryScope):
             raise ContextualMemoryError("a validated memory scope is required")
         if type(max_records) is not int or not 1 <= max_records <= 1024:
             raise ContextualMemoryError("release corpus bound must be 1..1024 records")
+        if read_accounting is not None and (
+                not callable(getattr(read_accounting, "reserve_read", None))
+                or not callable(getattr(read_accounting, "complete_read", None))):
+            raise ContextualMemoryError("release read accounting must reserve/complete reads")
         self.store, self.scope, self.max_records = store, scope, max_records
+        self.read_accounting = read_accounting
         self.root = store.root / "artifacts" / "contextual_v12" / "releases" / scope.scope_key
         self.root.mkdir(parents=True, exist_ok=True)
         self.cost = dict(source_read_bytes=0, source_read_files=0, write_bytes=0,
                          write_ns=0, read_bytes=0, read_files=0, publications=0,
-                         authority_read_bytes=0, authority_read_files=0)
+                         authority_read_bytes=0, authority_read_files=0,
+                         artifact_read_bytes=0, artifact_read_files=0)
         # Generation zero is explicit authority, so an interrupted first build
         # can resume without confusing a lost committed pointer with an empty
         # corpus. Never reconstruct authority from whichever payload survived.
@@ -60,10 +90,32 @@ class ProducerReleaseCorpus:
     # ------------------------------------------------------------------
     # Authority reads
 
+    def _reserve_read(self, operation, byte_count):
+        if self.read_accounting is None:
+            return None
+        return self.read_accounting.reserve_read(operation, byte_count, 1)
+
+    def _complete_read(self, token, *, actual_bytes, status="completed"):
+        if token is not None:
+            self.read_accounting.complete_read(token, actual_bytes=actual_bytes, status=status)
+
+    def _read_direct(self, operation, path):
+        size = path.stat().st_size
+        token = self._reserve_read(operation, size)
+        try:
+            payload = path.read_bytes()
+        except BaseException:
+            self._complete_read(token, actual_bytes=0, status="failed")
+            raise
+        self._complete_read(token, actual_bytes=len(payload))
+        self.cost["artifact_read_bytes"] += len(payload)
+        self.cost["artifact_read_files"] += 1
+        return payload
+
     def _authority(self, path):
         if path.is_symlink() or not path.is_file() or path.stat().st_size > 4 * 1024**2:
             raise ContextualMemoryError("missing/substituted/oversized release authority")
-        payload = path.read_bytes()
+        payload = self._read_direct("release_authority", path)
         self.cost["authority_read_bytes"] += len(payload)
         self.cost["authority_read_files"] += 1
         return hashlib.sha256(payload).hexdigest(), payload
@@ -140,10 +192,19 @@ class ProducerReleaseCorpus:
                 source = value
         if source is None:
             raise ContextualMemoryError("canonical provenance missing")
-        text = _read_verified(row["text_path"], self.store.root, row["text_sha256"],
-                              row["text_bytes"], accounting=None).decode()
-        self.cost["source_read_bytes"] += row["text_bytes"]
+        text_bytes = int(row["text_bytes"])
+        token = self._reserve_read("release_source", text_bytes)
+        try:
+            text = _read_verified(row["text_path"], self.store.root, row["text_sha256"],
+                                  text_bytes, accounting=None).decode()
+        except BaseException:
+            self._complete_read(token, actual_bytes=0, status="failed")
+            raise
+        self._complete_read(token, actual_bytes=text_bytes)
+        self.cost["source_read_bytes"] += text_bytes
         self.cost["source_read_files"] += 1
+        self.cost["artifact_read_bytes"] += text_bytes
+        self.cost["artifact_read_files"] += 1
         data = {**source, "source_id": row["source_id"], "text": text}
         span = CanonicalSpan(**{k: data[k] for k in CanonicalSpan.__dataclass_fields__}).validate()
         pin = {"record_id": row["record_id"], "cluster_id": row["cluster_id"],
@@ -175,7 +236,67 @@ class ProducerReleaseCorpus:
         return path
 
     # ------------------------------------------------------------------
-    # Publication
+    # Pointer publication
+
+    @staticmethod
+    def _fsync_directory(directory):
+        fd = os.open(directory, os.O_RDONLY)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+
+    def _stage_pointer(self, pointer):
+        current = self.root / "current.json"
+        pending = current.with_name(current.name + ".pending." + uuid.uuid4().hex)
+        atomic_json(pending, pointer)
+        return pending
+
+    def _restore_pointer(self, previous):
+        current = self.root / "current.json"
+        if previous is None:
+            try:
+                current.unlink()
+            except FileNotFoundError:
+                pass
+        else:
+            temporary = current.with_name(current.name + ".restore." + uuid.uuid4().hex)
+            with temporary.open("xb") as stream:
+                stream.write(previous)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, current)
+        self._fsync_directory(current.parent)
+
+    def _publish_pointer(self, pending, previous):
+        current = self.root / "current.json"
+        replaced = False
+        try:
+            os.replace(pending, current)
+            replaced = True
+            self._fsync_directory(current.parent)
+        except BaseException:
+            if replaced:
+                try:
+                    self._restore_pointer(previous)
+                except BaseException:
+                    pass
+            raise
+        finally:
+            try:
+                pending.unlink()
+            except FileNotFoundError:
+                pass
+
+    def _revert_pointer_charge(self, previous):
+        component = "release_pointer:" + self.scope.scope_key
+        old_size = 0 if previous is None else len(previous)
+        try:
+            with self.store._transaction():
+                self.store._set_component_locked(component, "cold", "artifacts", old_size,
+                                                 "release authority")
+        except Exception:
+            pass
 
     def rebuild(self, path, *, before_publish=None):
         """One explicit release transaction; hook supports portable crash testing."""
@@ -226,26 +347,50 @@ class ProducerReleaseCorpus:
                 os.close(fd)
             if before_publish is not None:
                 before_publish()
-            # E's SQLite write lock closes the authority-change race at publication.
-            with self.store._transaction():
-                if path.encoder.release() != version:
-                    raise ContextualMemoryError("producer changed before publication")
-                for record in records.values():
-                    self._validate_source_pin(record["source_pin"])
-                pointer = {"format": FORMAT + ".pointer", "scope": asdict(self.scope),
-                           "generation": generation,
-                           "manifest_sha256": file_hash(dest / "manifest.json"),
-                           "e_epoch": int(self.store.epoch)}
-                pointer_bytes = len(json.dumps(pointer, sort_keys=True, indent=2).encode()) + 1
-                self.store._ensure_capacity_locked("cold", "artifacts", pointer_bytes * 2)
-                self.store._set_component_locked(
-                    "release_pointer:" + self.scope.scope_key, "cold", "artifacts",
-                    pointer_bytes, "release authority")
-            # The store commit and accounting are complete; only now may the new
-            # generation become live. A later pointer/cache failure leaves the
-            # previous committed generation authoritative.
-            path.encoder.provider.clear()
-            atomic_json(self.root / "current.json", pointer)
+            current_pointer = self.root / "current.json"
+            previous_pointer = (current_pointer.read_bytes()
+                                if current_pointer.is_file() and not current_pointer.is_symlink()
+                                else None)
+            pending = None
+            try:
+                # E's SQLite write lock closes the authority-change race. The
+                # staged pointer is durable but not live until after commit.
+                with self.store._transaction():
+                    if path.encoder.release() != version:
+                        raise ContextualMemoryError("producer changed before publication")
+                    for record in records.values():
+                        self._validate_source_pin(record["source_pin"])
+                    pointer = {"format": FORMAT + ".pointer", "scope": asdict(self.scope),
+                               "generation": generation,
+                               "manifest_sha256": file_hash(dest / "manifest.json"),
+                               "e_epoch": int(self.store.epoch)}
+                    pointer_bytes = len(json.dumps(pointer, sort_keys=True, indent=2).encode()) + 1
+                    self.store._ensure_capacity_locked("cold", "artifacts", pointer_bytes * 2)
+                    self.store._set_component_locked(
+                        "release_pointer:" + self.scope.scope_key, "cold", "artifacts",
+                        pointer_bytes, "release authority")
+                    pending = self._stage_pointer(pointer)
+            except BaseException:
+                if pending is not None:
+                    try:
+                        pending.unlink()
+                    except FileNotFoundError:
+                        pass
+                raise
+            try:
+                # Commit and accounting are complete; cache cleanup and the
+                # atomic pointer replacement are the only remaining steps. Any
+                # failure rolls the charge back; a post-replace failure also
+                # restores the previous pointer.
+                path.encoder.provider.clear()
+                self._publish_pointer(pending, previous_pointer)
+            except BaseException:
+                try:
+                    pending.unlink()
+                except FileNotFoundError:
+                    pass
+                self._revert_pointer_charge(previous_pointer)
+                raise
             self.cost["write_bytes"] += pointer_bytes
             self.cost["publications"] += 1
             return m
@@ -269,7 +414,7 @@ class ProducerReleaseCorpus:
         self._validate_source_pin(pin)
         path = self._payload_path(m, record)
         if payload is None:
-            payload = path.read_bytes()
+            payload = self._read_direct("release_payload", path)
             self.cost["read_bytes"] += len(payload)
             self.cost["read_files"] += 1
         else:

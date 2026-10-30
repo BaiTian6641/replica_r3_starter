@@ -664,11 +664,16 @@ def test_release_pointer_write_failure_keeps_previous_generation(tmp_path, monke
     path.admit(store, source("badge red", "a"), scope=sc)
     corpus = ProducerReleaseCorpus(store, sc)
     first = corpus.rebuild(path)
+    pointer_path = corpus.root / "current.json"
+    before = pointer_path.read_bytes()
+    component = "release_pointer:" + sc.scope_key
+    old_size = store.connection.execute(
+        "SELECT bytes FROM tier_usage WHERE component_id=?", (component,)).fetchone()["bytes"]
     original = module.atomic_json
 
     def failing(path_value, value):
-        if path_value.name == "current.json":
-            raise OSError("simulated pointer publication failure")
+        if path_value.name.startswith("current.json.pending"):
+            raise OSError("simulated pointer staging failure")
         return original(path_value, value)
 
     monkeypatch.setattr(module, "atomic_json", failing)
@@ -676,6 +681,10 @@ def test_release_pointer_write_failure_keeps_previous_generation(tmp_path, monke
         corpus.rebuild(path)
     current = corpus._current()
     assert current is not None and current[1]["generation"] == first["generation"]
+    assert pointer_path.read_bytes() == before
+    assert store.connection.execute(
+        "SELECT bytes FROM tier_usage WHERE component_id=?", (component,)
+    ).fetchone()["bytes"] == old_size
     assert corpus.cost["publications"] == 1
     store.close()
 
@@ -822,22 +831,21 @@ def test_release_pointer_is_published_after_store_accounting(tmp_path, monkeypat
     corpus = ProducerReleaseCorpus(store, sc())
     calls = []
     original_component = store._set_component_locked
-    original_atomic = module.atomic_json
+    original_publish = corpus._publish_pointer
 
     def component(component_id, *args, **kwargs):
         if component_id.startswith("release_pointer:"):
             calls.append("accounting")
         return original_component(component_id, *args, **kwargs)
 
-    def pointer(path_value, value):
-        if path_value.name == "current.json":
-            calls.append("pointer")
-        return original_atomic(path_value, value)
+    def publish(pending, previous):
+        calls.append("publish")
+        return original_publish(pending, previous)
 
     monkeypatch.setattr(store, "_set_component_locked", component)
-    monkeypatch.setattr(module, "atomic_json", pointer)
+    monkeypatch.setattr(corpus, "_publish_pointer", publish)
     corpus.rebuild(path)
-    assert calls == ["accounting", "pointer"]
+    assert calls == ["accounting", "publish"]
     store.close()
 
 
@@ -854,4 +862,166 @@ def test_release_read_refuses_different_feature_contract(tmp_path):
         other.read(store, "badge", scope=sc, wait_seconds=1)
     other.close()
     path.close()
+    store.close()
+
+
+def test_release_post_replace_fsync_failure_restores_generation_and_charge(tmp_path, monkeypatch):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    first = corpus.rebuild(path)
+    pointer_path = corpus.root / "current.json"
+    before = pointer_path.read_bytes()
+    component = "release_pointer:" + sc.scope_key
+    old_size = store.connection.execute(
+        "SELECT bytes FROM tier_usage WHERE component_id=?", (component,)).fetchone()["bytes"]
+
+    def failing(directory):
+        raise OSError("simulated post-replace directory fsync failure")
+
+    monkeypatch.setattr(corpus, "_fsync_directory", failing)
+    with pytest.raises(OSError):
+        corpus.rebuild(path)
+    assert pointer_path.read_bytes() == before
+    current = corpus._current()
+    assert current is not None and current[1]["generation"] == first["generation"]
+    assert store.connection.execute(
+        "SELECT bytes FROM tier_usage WHERE component_id=?", (component,)
+    ).fetchone()["bytes"] == old_size
+    store.close()
+
+
+def test_release_pointer_replace_failure_rolls_back_charge(tmp_path, monkeypatch):
+    import replica_lab.contextual_release_v12 as module
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    first = corpus.rebuild(path)
+    pointer_path = corpus.root / "current.json"
+    before = pointer_path.read_bytes()
+    component = "release_pointer:" + sc.scope_key
+    old_size = store.connection.execute(
+        "SELECT bytes FROM tier_usage WHERE component_id=?", (component,)).fetchone()["bytes"]
+    original = module.os.replace
+
+    def failing(source, destination):
+        if Path(destination).name == "current.json":
+            raise OSError("simulated pointer replace failure")
+        return original(source, destination)
+
+    monkeypatch.setattr(module.os, "replace", failing)
+    with pytest.raises(OSError):
+        corpus.rebuild(path)
+    assert pointer_path.read_bytes() == before
+    current = corpus._current()
+    assert current is not None and current[1]["generation"] == first["generation"]
+    assert store.connection.execute(
+        "SELECT bytes FROM tier_usage WHERE component_id=?", (component,)
+    ).fetchone()["bytes"] == old_size
+    store.close()
+
+
+def test_release_direct_reads_are_accounted(tmp_path):
+    class Recorder:
+        def __init__(self):
+            self.reserved, self.completed = [], []
+
+        def reserve_read(self, operation, byte_count, file_count=1):
+            self.reserved.append((operation, byte_count, file_count))
+            return len(self.reserved) - 1
+
+        def complete_read(self, token, *, actual_bytes, status="completed"):
+            self.completed.append((token, actual_bytes, status))
+
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    span = source("badge red", "a")
+    path.admit(store, span, scope=sc)
+    recorder = Recorder()
+    corpus = ProducerReleaseCorpus(store, sc, read_accounting=recorder)
+    published = corpus.rebuild(path)
+    assert corpus.cost["artifact_read_bytes"] > 0
+    assert corpus.cost["artifact_read_files"] > 0
+    assert any(operation == "release_source" for operation, _, _ in recorder.reserved)
+    before = corpus.cost["artifact_read_bytes"]
+    manifest = corpus._current()[1]
+    entry = manifest["records"]["a.span0"]
+    values, _ = corpus.values(entry["source_pin"], span, version=manifest["producer_release"],
+                              scope=sc, source_identity=path.source_identity)
+    assert values.shape == (4, 256)
+    assert corpus.cost["artifact_read_bytes"] > before
+    assert any(operation == "release_payload" for operation, _, _ in recorder.reserved)
+    assert any(operation == "release_authority" for operation, _, _ in recorder.reserved)
+    assert all(status == "completed" for _, _, status in recorder.completed)
+    store.close()
+
+
+def test_work_ledger_release_read_accounting_maps_artifact_bytes(tmp_path):
+    from replica_lab.contextual_release_v12 import WorkLedgerReleaseReadAccounting
+
+    class Ledger:
+        def __init__(self):
+            self.reserved, self.finished = [], []
+
+        def reserve(self, stage, operation, **amounts):
+            self.reserved.append((stage, operation, dict(amounts)))
+            return len(self.reserved) - 1
+
+        def finish(self, token, *, status="completed", actual=None, detail=None):
+            self.finished.append((token, status, dict(actual or {})))
+
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    ledger = Ledger()
+    corpus = ProducerReleaseCorpus(
+        store, sc, read_accounting=WorkLedgerReleaseReadAccounting(ledger, "mechanics"))
+    corpus.rebuild(path)
+    assert ledger.reserved and all(
+        amount["artifact_read_bytes"] >= 0 for _, _, amount in ledger.reserved)
+    assert ledger.finished and all(status == "completed" for _, status, _ in ledger.finished)
+    store.close()
+
+
+def test_eviction_process_control_exception_propagates(tmp_path, monkeypatch):
+    adapter, layout, provider, path = make()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc(), placement="cold")
+    pending = path.read(store, "badge", scope=sc())
+    store.revoke_record("a.span0", reason="rereview", scope=sc())
+
+    def interrupted(store_value, doc):
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr(path, "_evict_failed_records", interrupted)
+    with pytest.raises(KeyboardInterrupt):
+        path.resume(store, pending, scope=sc(), wait_seconds=1)
+    store.close()
+
+
+def test_persist_failure_preserves_typed_failure_and_terminal_receipt(tmp_path, monkeypatch):
+    adapter, layout, provider, path = make()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc(), placement="cold")
+    pending = path.read(store, "badge", scope=sc())
+    store.revoke_record("a.span0", reason="rereview", scope=sc())
+
+    original_persist = path._persist
+
+    def failing(store_value, token, doc):
+        if doc.get("status") == "failed":
+            raise RuntimeError("simulated charged persistence failure")
+        return original_persist(store_value, token, doc)
+
+    monkeypatch.setattr(path, "_persist", failing)
+    with pytest.raises(ContextualReadFailure):
+        path.resume(store, pending, scope=sc(), wait_seconds=1)
+    descriptor = json.loads(path._ticket_path(store, pending.ticket_id).read_text())
+    assert descriptor["status"] == "failed"
     store.close()

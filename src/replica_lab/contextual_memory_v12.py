@@ -519,15 +519,19 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
             doc["failed_payload_records"] = sorted(invalid_ids)
             try:
                 self._evict_failed_records(store, doc)
-            except BaseException:
+            except Exception:
                 # Best-effort selective eviction must not mask the typed failure.
                 pass
             doc["status"] = "failed"
             doc["reason"] = str(error)
             try:
                 self._persist(store, pending.ticket_id, doc)
-            except BaseException:
-                pass
+            except Exception:
+                # Preserve the terminal receipt even if charged persistence fails.
+                try:
+                    atomic_json(self._ticket_path(store, pending.ticket_id), doc)
+                except Exception:
+                    pass
             raise ContextualReadFailure(str(error), doc["costs"]) from error
         doc["status"] = "complete"
         self._persist(store, pending.ticket_id, doc)

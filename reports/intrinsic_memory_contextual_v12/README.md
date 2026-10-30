@@ -6,12 +6,12 @@ executed by the implementer.** The coordinator runs the verification below after
 integration. Nothing in this directory is native evidence or a capability claim.
 
 Coordinator history: 61 tests passed before independent review, 69 after V1–V5,
-and 79 after cold-failure/parity repairs. After cycle 5, **88 checks passed**,
-including process-control, pre-existing-buffer and atomic-publication cases.
-Fresh `run04` passes all 2/9/36 layouts with true live/release and two-record
-cold parity plus exact fresh-process continuation. Measured parent wall was
-16.702899 s and peak RSS 777,617,408 bytes; run04 has 244 files / 102,307,925
-bytes. `native_admissible` remains `false`: synthetic CPU engineering only.
+and 79 after cold-failure/parity repairs. After cycle 5, 88 checks passed. The
+continuation then added release rollback, direct-read accounting and handler
+coverage: **94 checks passed**. Fresh `run05` passes all 2/9/36 layouts with true
+live/release and two-record cold parity plus exact continuation. Measured parent
+wall was 16.285620 s and peak RSS 789,135,360 bytes; run05 has 244 files /
+102,308,261 bytes. `native_admissible` remains `false`: CPU engineering only.
 
 ## Scope delivered
 
@@ -153,8 +153,10 @@ frozen Spark source (base, eval, no_grad)
   cache. Cold staging reads each record with accounting and returns per-record
   invalid IDs; only `Exception` is classified as payload failure, so
   `KeyboardInterrupt`/`SystemExit` propagate. Failed `resume` performs no
-  secondary uncharged payload probe and persists the typed `ContextualReadFailure`
-  even if best-effort eviction raises.
+  secondary uncharged payload probe and preserves the typed
+  `ContextualReadFailure`; eviction and charged-persist handlers catch only
+  `Exception`, and a failed charged persist falls back to a direct atomic
+  terminal descriptor write.
   `evict_record(full_span_record_id)` evicts exactly that record and returns the
   number of cache entries removed; a record-group prefix is not accepted.
 - Source authority includes named non-parameter buffers as well as parameters.
@@ -170,9 +172,14 @@ frozen Spark source (base, eval, no_grad)
   `validate_batch(batch, scope=..., source_identity=)` require the keyword.
   A failed immutable release write removes partial bytes and releases its
   artifact charge before re-raising; a retry publishes a new generation. The
-  pointer is atomically replaced only after the store transaction/accounting
-  commits and provider C is cleared; a pointer or later cache failure leaves the
-  previous generation authoritative.
+  pointer is staged durably inside the store transaction and renamed live only
+  after commit and C clear; any later stage, replace, directory-fsync or cache
+  failure restores the previous pointer and reverts the pointer charge.
+  `ProducerReleaseCorpus(read_accounting=...)` reserves/completes every direct
+  authority, canonical-source and direct payload read through
+  `WorkLedgerReleaseReadAccounting` (native `artifact_read_bytes`); staged cold
+  reads remain charged by the path retrieval accounting. Direct-read totals are
+  exposed as `corpus.cost['artifact_read_bytes']/['artifact_read_files']`.
 - Durable slot order sorts semantically by `(source_id, source_epoch,
   source_order)`; `record_id` is only the deterministic fallback for true ties.
   Reversed caller order, post-correction, two-record live/warm/cold/release
