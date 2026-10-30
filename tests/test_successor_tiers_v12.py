@@ -11,7 +11,7 @@ from replica_lab.successors.tiers import (CapacityExceeded, DirtyState,
 LIMITS = TierLimits(hot_bytes=2048, warm_bytes=4096, cold_bytes=8192,
                     identity_reservation_bytes=128,
                     replay_reservation_bytes=128)
-CONTRACT = ReadContract("producer-v1", "rep-v1", "a" * 64)
+CONTRACT = ReadContract("producer-v1", "rep-v1", "a" * 64, cutoff=10 ** 9)
 
 
 def make_store(root, *, delay=0.0, limits=LIMITS) -> TieredBlobStore:
@@ -119,14 +119,14 @@ def test_canonical_fallback_is_eligible_and_charged(tmp_path):
     publish(store, "canonical", b"exact canonical text", kind="canonical",
             producer="host", representation="text", scope_digest="d" * 64)
     result = store.read("absent", contract=CONTRACT, fallback_id="canonical",
-                        fallback_contract=ReadContract("host", "text", "d" * 64),
+                        fallback_contract=ReadContract("host", "text", "d" * 64, cutoff=10 ** 9),
                         fallback_tokens=12)
     assert result.status == "fallback" and result.record_id == "canonical"
     assert result.fallback_tokens == 12
     assert store.metrics_document()["fallback_tokens"] == 12
     store.invalidate("canonical", reason="revoked", revoked=True)
     refused = store.read("absent", contract=CONTRACT, fallback_id="canonical",
-                         fallback_contract=ReadContract("host", "text", "d" * 64),
+                         fallback_contract=ReadContract("host", "text", "d" * 64, cutoff=10 ** 9),
                          fallback_tokens=12)
     assert refused.status == "unavailable"
 

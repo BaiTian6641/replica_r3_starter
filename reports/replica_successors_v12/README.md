@@ -99,11 +99,12 @@ The final workflow again passed all four measured success fields.
 - New records become visible only to pins taken after the commit. Records inside
   one event retain proposal ordinal; outcome receipts are cutoff/source-epoch
   filtered and ordered by event sequence then ordinal.
-- Recovery recomputes every derived tombstone, note, lineage, revocation and
-  record-index row (including scope columns) from committed payload/receipt
-  authority, repairs mismatches, and reports `derived_rebuilt`/degraded rather
-  than claiming health. Deliberate deletions are restored; healthy state remains
-  readable.
+- Recovery recomputes/authenticates every derived tombstone, note, lineage,
+  revocation and record-index row (including scope columns) from committed
+  payload/receipt authority even when unrelated events are quarantined. Rows
+  owned by a quarantined event are preserved; valid-event deletions are
+  repaired. `derived_rebuilt`/degraded is reported rather than claiming health,
+  and unrelated healthy state remains readable.
 
 ### S2b chunk formation
 
@@ -132,12 +133,16 @@ The final workflow again passed all four measured success fields.
 - Explicit `ready`, `pending`, `unavailable`, `corrupt`, `rejected`,
   `ineligible`, `mismatch`, `not_yet_valid` and `expired` results; failures never
   return payload bytes.
-- Reads require a `ReadContract` (producer, representation, scope, optional
-  cutoff/generation) or a validating authority callback. A minimal
+- Reads require a `ReadContract` (producer, representation, scope, required
+  cutoff and optional generation) or a validating authority callback. A minimal
   `{"eligible": true}` authority cannot return `ready`; a `ready` result
-  requires all of producer, representation, scope_digest and cutoff (and
-  expiry is refused). The contract is enforced on cache hits and after I/O;
-  authority is rechecked before and after cold I/O and for fallback. Cold
+  requires all of producer, representation, scope_digest and a non-`None`
+  cutoff (expiry is refused); `ReadContract(cutoff=None)` also returns
+  `contract_required`. Attempted payload bytes are accounted separately from
+  successful bytes for rejected, mismatched and corrupt reads. The contract is enforced on cache hits and after I/O;
+  authority is rechecked before and after cold I/O and for fallback. Rejected,
+  mismatched, expired and corrupt attempts charge `attempted_bytes` while only
+  `ready`/successful bytes count in `bytes_read`. Cold
   tickets retain the callback and contract.
 - Payloads and manifests are digest-bound with central schema validation;
   malformed records are quarantined by `recover()` while healthy records remain.
@@ -150,8 +155,9 @@ The final workflow again passed all four measured success fields.
   requires explicit host authority and its durable marker is re-read by every
   instance and every publication/read/movement/eviction/recovery operation,
   invalidating all clocked owner hot/projection/replay entries. `restore_p` is
-  host-only, removes the durable marker, and clears owner caches so other
-  instances can read later valid P state again.
+  host-only, removes the durable marker with parent-directory fsync, and clears
+  owner caches so other instances can read later valid P state again. Revoke and
+  restore remain durable and non-sticky under marker fsync failure tests.
 - Projection cache keys include generation, producer, representation, reader
   release, site and eligibility revision. Replay eligibility is invalidated
   separately.

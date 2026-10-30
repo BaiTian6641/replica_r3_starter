@@ -260,8 +260,8 @@ class TieredBlobStore:
         self._metrics = {
             "reads": 0, "writes": 0, "cache_hits": 0, "cache_misses": 0,
             "failed_reads": 0, "ineligible": 0, "fallback_tokens": 0,
-            "bytes_read": 0, "bytes_written": 0, "overlap_bytes": 0,
-            "movement_bytes": 0,
+            "bytes_read": 0, "attempted_bytes": 0, "bytes_written": 0,
+            "overlap_bytes": 0, "movement_bytes": 0,
             "latency_ns": {"warm": [], "cold": [], "hot": []},
             "tier_reads": {"hot": 0, "warm": 0, "cold": 0},
         }
@@ -492,6 +492,17 @@ class TieredBlobStore:
         self.replay.invalidate(legacy)
 
     @staticmethod
+    def _fsync_directory(directory: Path) -> None:
+        try:
+            fd = os.open(directory, os.O_RDONLY)
+        except OSError:
+            return
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+
+    @staticmethod
     def _p_owner(record_id: str) -> str | None:
         if not record_id.startswith("p_"):
             return None
@@ -507,6 +518,8 @@ class TieredBlobStore:
                         contract: ReadContract | None) -> tuple[str, str]:
         if contract is None:
             return "ok", ""
+        if contract.cutoff is None:
+            return "contract_required", "read contract cutoff is required"
         if manifest.get("producer") != contract.producer:
             return "mismatch", "producer mismatch"
         if manifest.get("representation") != contract.representation:
@@ -590,6 +603,7 @@ class TieredBlobStore:
 
     def _finish(self, result: ReadResult, tier: str | None) -> ReadResult:
         self._metrics["reads"] += 1
+        self._metrics["attempted_bytes"] += result.bytes_read
         if result.ok:
             self._metrics["bytes_read"] += result.bytes_read
             if tier is not None:
@@ -638,13 +652,13 @@ class TieredBlobStore:
                 return self._finish(ReadResult(
                     "rejected", record_id, "hot", None, None,
                     (time.perf_counter_ns() - start) / 1e6, 0,
-                    "generation mismatch"), "hot")
+                    len(cached.payload), "generation mismatch"), "hot")
             contract_status, contract_reason = self._contract_state(
                 cached.manifest, contract)
             if contract_status != "ok":
                 return self._finish(ReadResult(
                     contract_status, record_id, "hot", None, None,
-                    (time.perf_counter_ns() - start) / 1e6, 0,
+                    (time.perf_counter_ns() - start) / 1e6, len(cached.payload),
                     contract_reason), "hot")
             if contract is None and authority is not None and not (
                     all(field in detail for field in
@@ -652,7 +666,7 @@ class TieredBlobStore:
                     and detail.get("cutoff") is not None):
                 return self._finish(ReadResult(
                     "contract_required", record_id, "hot", None, None,
-                    (time.perf_counter_ns() - start) / 1e6, 0,
+                    (time.perf_counter_ns() - start) / 1e6, len(cached.payload),
                     "authority must bind all manifest identity/validity fields"),
                     "hot")
             authority_status, authority_reason = self._authority_manifest_state(
@@ -660,14 +674,14 @@ class TieredBlobStore:
             if authority_status != "ok":
                 return self._finish(ReadResult(
                     authority_status, record_id, "hot", None, None,
-                    (time.perf_counter_ns() - start) / 1e6, 0,
+                    (time.perf_counter_ns() - start) / 1e6, len(cached.payload),
                     authority_reason), "hot")
             current_generation = detail.get("generation")
             if current_generation is not None \
                     and int(current_generation) != int(cached.manifest["generation"]):
                 return self._finish(ReadResult(
                     "rejected", record_id, "hot", None, None,
-                    (time.perf_counter_ns() - start) / 1e6, 0,
+                    (time.perf_counter_ns() - start) / 1e6, len(cached.payload),
                     "authority generation mismatch"), "hot")
             self._hot.move_to_end(record_id)
             latency = (time.perf_counter_ns() - start) / 1e6
@@ -734,12 +748,16 @@ class TieredBlobStore:
         except TierError as error:
             reason = str(error)
             corrupt = "digest" in reason or "not canonical" in reason
+            attempted = 0
+            payload_path = self._directory(tier, record_id) / "payload.bin"
+            if payload_path.is_file():
+                attempted = payload_path.stat().st_size
             if fallback_id is not None:
                 return self._fallback(fallback_id, authority, fallback_contract,
                                       start, fallback_tokens, fallback_reason)
             return self._finish(ReadResult(
                 "corrupt" if corrupt else "unavailable", record_id, tier, None, None,
-                (time.perf_counter_ns() - start) / 1e6, 0, reason), tier)
+                (time.perf_counter_ns() - start) / 1e6, attempted, reason), tier)
         elapsed = (time.perf_counter_ns() - start) / 1e6
         if expected_generation is not None \
                 and int(manifest.get("generation", -1)) != expected_generation:
@@ -803,9 +821,13 @@ class TieredBlobStore:
         try:
             payload, manifest = self._read_payload(tier, fallback_id)
         except TierError as error:
+            attempted = 0
+            payload_path = self._directory(tier, fallback_id) / "payload.bin"
+            if payload_path.is_file():
+                attempted = payload_path.stat().st_size
             return self._finish(ReadResult(
                 "corrupt", fallback_id, tier, None, None,
-                (time.perf_counter_ns() - start) / 1e6, 0, str(error)), tier)
+                (time.perf_counter_ns() - start) / 1e6, attempted, str(error)), tier)
         contract_status, contract_reason = self._contract_state(manifest, contract)
         if contract_status != "ok":
             return self._finish(ReadResult(
@@ -960,17 +982,7 @@ class TieredBlobStore:
         finally:
             if temporary.exists():
                 temporary.unlink()
-        try:
-            directory_fd = os.open(target.parent, os.O_RDONLY)
-        except OSError:
-            directory_fd = None
-        if directory_fd is not None:
-            try:
-                os.fsync(directory_fd)
-            except OSError:
-                pass
-            finally:
-                os.close(directory_fd)
+        self._fsync_directory(target.parent)
 
     def _read_p_pointer(self, owner: str) -> dict | None:
         path = self._p_pointer_path(owner)
@@ -1104,6 +1116,7 @@ class TieredBlobStore:
             handle.flush()
             os.fsync(handle.fileno())
         os.replace(temporary, target)
+        self._fsync_directory(target.parent)
         self._p_revoked.add(owner)
         self._invalidate_p_owner(owner)
         return record
@@ -1116,6 +1129,7 @@ class TieredBlobStore:
         path = self._p_revoked_path(owner)
         if path.exists():
             path.unlink()
+        self._fsync_directory(path.parent)
         self._p_revoked.discard(owner)
         self._invalidate_p_owner(owner)
 
@@ -1202,6 +1216,7 @@ class TieredBlobStore:
             "ineligible_reads": self._metrics["ineligible"],
             "fallback_tokens": self._metrics["fallback_tokens"],
             "bytes_read": self._metrics["bytes_read"],
+            "attempted_bytes": self._metrics["attempted_bytes"],
             "bytes_written": self._metrics["bytes_written"],
             "temporary_overlap_bytes": self._metrics["overlap_bytes"],
             "movement_bytes": self._metrics["movement_bytes"],

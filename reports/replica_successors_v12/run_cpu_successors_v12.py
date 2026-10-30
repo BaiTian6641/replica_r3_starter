@@ -366,7 +366,7 @@ def measure_tiers(root: Path) -> dict:
                         identity_reservation_bytes=64,
                         replay_reservation_bytes=64)
     root.mkdir(parents=True, exist_ok=True)
-    contract = ReadContract("producer-v1", "rep-v1", "b" * 64)
+    contract = ReadContract("producer-v1", "rep-v1", "b" * 64, cutoff=10 ** 9)
     store = TieredBlobStore(root, limits=limits, hot_capacity_bytes=256,
                             io_delay_seconds=0.002)
     payload = b"evidence-payload-" * 4
@@ -398,7 +398,7 @@ def measure_tiers(root: Path) -> dict:
     (root / "warm" / "rec-corrupt" / "payload.bin").write_bytes(b"corrupted")
     corrupt_store = TieredBlobStore(root, limits=limits, hot_capacity_bytes=256)
     corrupt = corrupt_store.read(
-        "rec-corrupt", contract=ReadContract("producer-v1", "rep-v1", "c" * 64))
+        "rec-corrupt", contract=ReadContract("producer-v1", "rep-v1", "c" * 64, cutoff=10 ** 9))
     # P state publication, eviction and recovery.
     p_store = TieredBlobStore(root / "p", limits=limits, hot_capacity_bytes=256)
     p_store.publish_p("p1", weights=b"w" * 32, moments=b"m" * 32, clock=3,
@@ -427,7 +427,7 @@ def measure_tiers(root: Path) -> dict:
                            scope_digest="d" * 64)
     fallback = fallback_store.read(
         "absent", contract=contract, fallback_id="canonical",
-        fallback_contract=ReadContract("host", "text", "d" * 64),
+        fallback_contract=ReadContract("host", "text", "d" * 64, cutoff=10 ** 9),
         fallback_tokens=12)
     return {
         "hot_status": hot.status, "warm_status": warm.status,

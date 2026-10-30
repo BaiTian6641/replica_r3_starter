@@ -42,7 +42,7 @@ def _pin(store, branch="branch-a", as_of=None, revision=0):
 
 
 def _contract(producer="producer-v1", representation="rep-v1", scope="a" * 64,
-              cutoff=None):
+              cutoff=10 ** 9):
     return ReadContract(producer, representation, scope, cutoff=cutoff)
 
 
@@ -459,7 +459,7 @@ def test_revoked_p_is_not_ready_through_generic_read(tmp_path):
     state = store.read_p("expert")
     manifest = state["manifest"]
     contract = ReadContract(manifest["producer"], manifest["representation"],
-                            manifest["scope_digest"])
+                            manifest["scope_digest"], cutoff=10 ** 9)
     assert store.read(state["record_id"], contract=contract).status == "ready"
     cache_key = store.projections.key(
         state["record_id"], generation=1, producer="p:expert",
@@ -577,6 +577,82 @@ def test_p_pointer_is_validated_and_failure_atomic(tmp_path):
     with pytest.raises(Exception):
         failing.read_p("expert")
     failing._write_p_pointer = real
+
+
+def test_contract_cutoff_required_and_rejected_bytes_are_charged(tmp_path):
+    store = _tier(tmp_path)
+    payload = b"payload-bytes"
+    store.publish("record", payload, generation=1, kind="e",
+                  producer="expected", representation="r1", scope_digest="scope",
+                  valid_from=0, valid_to=10)
+    before = store.metrics_document()
+    no_cutoff = ReadContract("expected", "r1", "scope")
+    result = store.read("record", contract=no_cutoff)
+    assert result.status == "contract_required"
+    after = store.metrics_document()
+    assert after["attempted_bytes"] >= len(payload)
+    assert after["bytes_read"] == before["bytes_read"]
+    wrong = store.read("record", contract=ReadContract("other", "r1", "scope",
+                                                      cutoff=5))
+    assert wrong.status == "mismatch"
+    corrupt_store = _tier(tmp_path / "corrupt")
+    corrupt_store.publish("bad", payload, generation=1, kind="e",
+                          producer="expected", representation="r1",
+                          scope_digest="scope")
+    corrupt_store.demote("bad")
+    (tmp_path / "corrupt" / "cold" / "bad" / "payload.bin").write_bytes(b"x")
+    corrupt = _tier(tmp_path / "corrupt").read(
+        "bad", contract=ReadContract("expected", "r1", "scope", cutoff=5))
+    assert corrupt.status == "corrupt"
+    assert corrupt.bytes_read >= 1
+
+
+def test_combined_corruption_and_deleted_tombstone_recovery(tmp_path):
+    with make_store(tmp_path) as store:
+        healthy = commit(store, _pin(store), [_obs("healthy", "healthy fact")],
+                         interaction="interaction-healthy")
+        revoked = commit(store, _pin(store), [_obs("revoked", "revoked fact")],
+                         interaction="interaction-revoked")
+        corrupt = commit(store, _pin(store), [_obs("corrupt", "corrupt fact")],
+                         interaction="interaction-corrupt")
+        revoked_id = revoked.receipt.record_ids[0]
+        healthy_id = healthy.receipt.record_ids[0]
+        corrupt_payload = corrupt.receipt.payload_digest
+        store.revoke(revoked_id, reason="privacy")
+    (tmp_path / "payloads" / f"{corrupt_payload}.json").write_bytes(b"{broken")
+    connection = sqlite3.connect(tmp_path / "authority.sqlite3")
+    connection.execute("DELETE FROM tombstones WHERE record_id=?", (revoked_id,))
+    connection.commit()
+    connection.close()
+    with make_store(tmp_path) as store:
+        report = store.recover()
+        assert report.status == "degraded"
+        assert report.derived_rebuilt is True
+        assert store.read_record(healthy_id, _pin(store)).text == "healthy fact"
+        with pytest.raises(IneligibleRecord):
+            store.read_record(revoked_id, _pin(store))
+        assert store._connection.execute(
+            "SELECT 1 FROM tombstones WHERE record_id=?", (revoked_id,)).fetchone()
+
+
+def test_p_marker_fsync_failure_is_durable_and_not_sticky(tmp_path, monkeypatch):
+    import replica_lab.successors.tiers as tiers
+    first = _tier(tmp_path)
+    first.publish_p("expert", weights=b"w", moments=b"m", clock=1,
+                    encoder="encoder-v1", lineage=["r1"])
+    second = _tier(tmp_path)
+    real_fsync = tiers.TieredBlobStore._fsync_directory
+    def failing(directory):
+        raise RuntimeError("directory fsync failed")
+    monkeypatch.setattr(tiers.TieredBlobStore, "_fsync_directory", staticmethod(failing))
+    with pytest.raises(RuntimeError):
+        first.revoke_p("expert", reason="crash", authorized_by="host")
+    with pytest.raises(PermissionError):
+        second.read_p("expert")
+    with pytest.raises(RuntimeError):
+        first.restore_p("expert", authorized_by="host")
+    monkeypatch.setattr(tiers.TieredBlobStore, "_fsync_directory", real_fsync)
+    assert second.read_p("expert")["clock"] == 1
 
 
 def test_p_pointer_stale_is_repaired_to_latest_valid(tmp_path):

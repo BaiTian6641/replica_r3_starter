@@ -1490,7 +1490,9 @@ class FormationStore:
 
     # -- recovery ----------------------------------------------------------
 
-    def _expected_derived(self) -> tuple[dict, set, dict, dict, dict]:
+    def _expected_derived(self, skip_events: set[str] | None = None
+                          ) -> tuple[dict, set, dict, dict, dict]:
+        skip_events = set(skip_events or ())
         events = self._connection.execute(
             "SELECT * FROM events ORDER BY sequence").fetchall()
         index: dict[str, tuple[str, str, str, int]] = {}
@@ -1502,6 +1504,8 @@ class FormationStore:
         scopes: dict[str, dict] = {}
         for row in events:
             event_key = str(row["event_key"])
+            if event_key in skip_events:
+                continue
             payload, _ = self._load_payload(str(row["payload_digest"]))
             if payload.get("kind") != row["kind"]:
                 raise CorruptAuthority("event kind differs from its payload")
@@ -1545,6 +1549,8 @@ class FormationStore:
             return found
         for row in events:
             event_key = str(row["event_key"])
+            if event_key in skip_events:
+                continue
             payload = payloads[event_key]
             committed = int(row["committed_at_ns"])
             generation = int(row["generation"])
@@ -1574,8 +1580,9 @@ class FormationStore:
                             committed, record["observed_at"], generation))
         return index, lineage, notes, tombstones, revocations
 
-    def _rebuild_derived(self) -> tuple[bool, bool]:
-        expected = self._expected_derived()
+    def _rebuild_derived(self, skip_events: set[str] | None = None) -> tuple[bool, bool]:
+        skip_events = set(skip_events or ())
+        expected = self._expected_derived(skip_events)
         current_index = {
             str(row["record_id"]): (str(row["event_key"]), str(row["record_digest"]),
                                     str(row["kind"]), int(row["ordinal"]))
@@ -1601,6 +1608,28 @@ class FormationStore:
             for row in self._connection.execute("SELECT * FROM revocations")}
         expected_index, expected_lineage, expected_notes, expected_tombstones, \
             expected_revocations = expected
+        if skip_events:
+            # Preserve every derived row owned by a quarantined event; only
+            # valid events are rebuilt/authenticated, so unrelated corruption
+            # cannot erase a valid revocation/lineage/tombstone row.
+            for record_id, values in current_index.items():
+                if values[0] in skip_events:
+                    expected_index[record_id] = values
+            for note_id, values in current_notes.items():
+                if values[0] in skip_events:
+                    expected_notes[note_id] = values
+            for record_id, values in current_tombstones.items():
+                if values[2] in skip_events:
+                    expected_tombstones[record_id] = values
+            for record_id, values in current_revocations.items():
+                if values[0] in skip_events:
+                    expected_revocations[record_id] = values
+            current_event = {record_id: values[0]
+                             for record_id, values in current_index.items()}
+            for record_id, ancestor_id in current_lineage:
+                if (current_event.get(record_id) in skip_events
+                        or current_event.get(ancestor_id) in skip_events):
+                    expected_lineage.add((record_id, ancestor_id))
         index_changed = current_index != expected_index
         changed = (index_changed or current_lineage != expected_lineage
                    or current_notes != expected_notes
@@ -1711,8 +1740,7 @@ class FormationStore:
             raise CorruptAuthority("authority head differs from the receipt chain")
         derived_rebuilt = False
         index_rebuilt = False
-        if not quarantined:
-            derived_rebuilt, index_rebuilt = self._rebuild_derived()
+        derived_rebuilt, index_rebuilt = self._rebuild_derived(set(quarantined))
         derived_errors = self._derived_errors()
         referenced = {str(row["payload_digest"]) for row in rows}
         orphans = [path for path in (self.root / "payloads").glob("*.json")
