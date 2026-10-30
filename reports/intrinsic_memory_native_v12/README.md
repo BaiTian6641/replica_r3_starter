@@ -545,3 +545,22 @@ Remaining gaps are listed honestly: useful recall, native density, persistent
 learning and RSI are separate conclusions; native uninterrupted-update
 equivalence is not measured; the source-representation hypothesis is not proven
 by a fitting failure or success.
+
+Current committed state (supersedes the commit hashes above): producer
+`9a3bd5e2` (`fix: complete release cleanup and byte accounting`) and native
+consumer `686a04c5` (`fix: reserve dual-corpus writes and full release
+artifacts`). **All 62 closure entries equal their `HEAD` blob content**, and the
+regeneration after both commits changed only `preparation.json`. Pins: packet
+`601e11f1f7b3aa3953972a017794b2f63b80fc3548b0561df9a8dfcd8306c9d2`,
+protocol `b37beae565f33e386cedf922015f17817d7bf5108637a7767f3b7645c8503c13`,
+implementation `1f81b9700a5e5f5cf86da040ce2c2fe1735b506534ce098919038657655a7147`,
+environment closure
+`d521db9340e3638c481ede19a7ed670949ed9440167739b426b815276d6fbc68`,
+development exposure
+`30032f8bf33ad99925666ec8173a43f015f5f22cacbcff528011a823a6ac5d0d`. Envelope:
+22 stages, 6925 s, 4029 prompt passes, 55,431,378,601 read bytes, 3617 writes,
+205,537,280 artifact bytes; `fit_probes_512` 580 writes / 524,288 artifact
+bytes, the other probes 579, restart 16 writes / 16,384 artifact bytes.
+`--environment-only`, `--review`, marker creation, authorization and launch
+remain unrun for this packet; `preparation_draft18/` preserves the packet made
+before the consumer commit.
