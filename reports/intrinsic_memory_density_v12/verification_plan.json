@@ -1,0 +1,78 @@
+{
+  "format": "replica.intrinsic_memory.density.verification_plan.v12",
+  "scope": "CPU_only_no_native_launch",
+  "native_execution": false,
+  "native_weights_loaded": false,
+  "downloads": false,
+  "P_updates": 0,
+  "promotion": false,
+  "commands": [
+    {
+      "purpose": "Invocation profiler on the existing v5 matched-reader 2/9/36 CPU fixture",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_density_v12_profiler.py",
+      "timeout_seconds": 600
+    },
+    {
+      "purpose": "Direct binding of the real v12 producer/store, gradients, correction/revocation and fresh-process continuation",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_density_v12_producer.py",
+      "timeout_seconds": 1200
+    },
+    {
+      "purpose": "Real v12 matched shared-reader 2/9/36 mechanics, gradients, one snapshot, authority changes and fresh continuation",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_density_v12_matched.py",
+      "timeout_seconds": 1200
+    },
+    {
+      "purpose": "Three comparison contracts, digest bindings and refusal of weakened exposure/selection",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_density_v12_protocols.py",
+      "timeout_seconds": 120
+    },
+    {
+      "purpose": "All four new v12 density test files together",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_density_v12_profiler.py tests/test_intrinsic_memory_density_v12_producer.py tests/test_intrinsic_memory_density_v12_matched.py tests/test_intrinsic_memory_density_v12_protocols.py",
+      "timeout_seconds": 1800
+    },
+    {
+      "purpose": "Existing matched-reader suite retained as the matched-mechanics regression",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_matched_reader_v1.py",
+      "timeout_seconds": 600
+    },
+    {
+      "purpose": "Regenerate the CPU engineering report (parameter/owner counts, per-invocation counts, matched counts, store delta, fresh-process continuation)",
+      "command": ".venv/bin/python scripts/profile_intrinsic_memory_density_v12.py --output reports/intrinsic_memory_density_v12/cpu_engineering_summary.json",
+      "timeout_seconds": 1800
+    },
+    {
+      "purpose": "Execute the bounded measured-total-cost CPU pilot with the frozen whole-pass selection rule",
+      "command": ".venv/bin/python scripts/run_intrinsic_memory_density_v12_cost_pilot.py --output reports/intrinsic_memory_density_v12/cost_pilot_summary.json",
+      "timeout_seconds": 1800
+    },
+    {
+      "purpose": "Validate the three checked-in comparison protocols and their digests",
+      "command": ".venv/bin/python -c \"import sys; sys.path.insert(0,'src'); from replica_lab.intrinsic_memory_density_protocols_v12 import load_protocols, summary; import json; load_protocols('configs'); print(json.dumps(summary(), indent=2))\"",
+      "timeout_seconds": 60
+    }
+  ],
+  "required_results": [
+    "exactly two hook pairs on each physical group of the matched fixture, with all 36 site dispatches attributed",
+    "one snapshot per profiled forward; zero retrieval/admission/durable-write effects",
+    "recompute identity recorded without retrieval/write/snapshot effects",
+    "all active site outputs retain nonzero response gradients after zero output projections open",
+    "unique optimizer ownership for producer, order and every active reader group",
+    "one snapshot serving all active sites; disabled/empty active masks skip physical invocation",
+    "correction and revocation invalidate the next active read without a new retrieval",
+    "fresh-process checkpoint restores exact logits, extension weights and optimizer moments, then performs an actual update",
+    "real v12 matched wrapper serves 2/9/36 from exactly two canonical groups with no alias state/optimizer duplication",
+    "matched v12 response gradients reach every active site and the producer after zero output projections open",
+    "matched v12 fresh process restores exact logits, weights and moments for every layout then performs an actual update",
+    "bounded measured-total-cost CPU pilot records fixed/marginal costs, selected whole-pass exposure, tolerance and matched/unmatched arms without scored labels",
+    "three protocols validate as separate fixed per-site, matched-parameter and measured-total-cost comparisons",
+    "no native arm, threshold, evidence gate or P update is changed"
+  ],
+  "not_tested_here": [
+    "native Spark latency, physical memory, driver/RSS/swap or cache residency",
+    "generated-answer quality, false recall, competence, useful readout or development utility",
+    "native matched-v12 parameter sharing and native total cost; this plan measures only the CPU fixture implementations",
+    "pre-MLP fusion, 23/31 site variants, persistent P learning, promotion or RSI"
+  ]
+}

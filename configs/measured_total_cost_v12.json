@@ -1,0 +1,216 @@
+{
+  "authorization": {
+    "authorization_receipt_required": true,
+    "consumed_receipts_reusable": false,
+    "inherited_from_v3_or_v11": false,
+    "native_launch_enabled": false,
+    "per_arm_bindings": [
+      "source",
+      "execution",
+      "numerical",
+      "resource",
+      "scoring",
+      "data",
+      "output",
+      "authorization"
+    ],
+    "required": true
+  },
+  "comparison": "preregistered_measured_total_cost",
+  "confounds": [
+    "The selected training exposure differs by arm; optimization exposure is not held constant.",
+    "Equal measured total engineering cost does not equalize quality, teaching semantics, latency distribution or peak memory.",
+    "Cost is environment, data and implementation specific; an operation count is not physical cost.",
+    "Pilot measurements include noise and are charged; an arm outside tolerance is unmatched evidence.",
+    "Reader parameter estimates exclude producer, order, activations, temporary buffers, optimizer scalars and the backbone; they cannot declare viability.",
+    "Retrieval and writes are outside backbone forward and are constant across density only if the caller keeps them constant; measure them rather than assuming it.",
+    "One shared snapshot does not imply equal activation memory, backward graph length or latency.",
+    "Random-fixture CPU evidence is engineering mechanics, not Spark competence or native density qualification."
+  ],
+  "cost_components": [
+    "source_feature_encoding",
+    "tokenization",
+    "retrieval",
+    "durable_writes",
+    "reader_dispatch_compute",
+    "shared_snapshot_copy",
+    "activation_forward",
+    "backward_and_optimizer",
+    "generation",
+    "audit_serialization",
+    "replay"
+  ],
+  "fixed_factors": [
+    "source producer, evidence set, selected slots and data family",
+    "writer behavior, retrieval schedule, template, scorer and generation limits",
+    "optimization algorithm, learning rate and batch construction",
+    "worlds, case order and scoring population",
+    "pilot protocol, cost components and selection rule"
+  ],
+  "format": "replica.intrinsic_memory.density.comparison.v12",
+  "gates": {
+    "P_updates": 0,
+    "driver_limit_bytes": 53687091200,
+    "matching_two_site_mechanism_must_pass": [
+      "frozen_competence",
+      "useful_readout",
+      "integrity",
+      "continuation",
+      "resource"
+    ],
+    "minimum_host_free_fraction": 0.15,
+    "native_retries": 0,
+    "no_budget_change_after_scored_labels": true,
+    "no_download": true,
+    "no_full_backbone_export": true,
+    "one_exclusive_native_worker": true,
+    "pilot_packet_separate": true,
+    "promotion": false,
+    "scored_packet_separate": true,
+    "sustained_swap_growth_limit_bytes": 536870912,
+    "useful_two_site_readout_required_before_native_density": true
+  },
+  "implementation": "replica.intrinsic_memory.density.v12",
+  "measurement_schema": {
+    "cost": {
+      "activation_backward_work": "backward_calls_and_processed_positions",
+      "activation_forward_bytes": "deterministic_tensor_payload_bytes",
+      "audit_cost": "hashed_and_serialized_bytes",
+      "durable_writes": "count_and_bytes",
+      "feature_cache_bytes": "current_and_peak_bytes",
+      "physical_group_invocations": "module_forward_calls",
+      "read_file_bytes": "bytes",
+      "reader_invocations": "site_dispatches",
+      "replay_cost": "count_and_wall_time",
+      "retrieval_calls": "count",
+      "retrieval_wall_time": "nanoseconds_monotonic",
+      "snapshot_bytes": "bytes",
+      "snapshot_copies": "count",
+      "source_encodes": "frozen_source_forward_calls",
+      "source_input_tokens": "tokens",
+      "teaching_cost": "updates_and_processed_positions",
+      "total_generated_tokens": "tokens",
+      "total_input_prompt_tokens": "tokens",
+      "wall_time": "nanoseconds_monotonic"
+    },
+    "quality": {
+      "chronological_correction": "post_correction_stale_acceptances",
+      "exact_text_gap": "cases_exact_correct_minus_contextual_correct",
+      "false_recall": "count_per_case",
+      "generated_answer_quality": "per_case_scored_no_pooling_away_failures",
+      "incomplete_evidence": "reported_incomplete_never_imputed",
+      "negative_controls": [
+        "wrong",
+        "shuffled",
+        "zero",
+        "absent"
+      ],
+      "revocation": "post_revocation_stale_acceptances"
+    },
+    "resources": {
+      "artifact_bytes": "bytes",
+      "checkpoint_bytes": "bytes",
+      "driver_memory_peak": "sampled_bytes_never_added_to_rss",
+      "minimum_host_free_fraction": "fraction",
+      "process_rss_peak": "sampled_bytes",
+      "sustained_swap_growth": "bytes_over_declared_samples"
+    },
+    "separation": {
+      "operation_counts": "not_physical_memory_or_latency",
+      "parameter_counts": "not_a_cost_or_fit_measurement",
+      "single_forward_tiny_fixture_timing": "engineering_only_not_native_performance",
+      "synchronized_native_timing": "declared_backend_synchronization"
+    }
+  },
+  "native_launch_enabled": false,
+  "objective": "Compare 2/9/36 access sites at approximately equal measured total engineering cost by varying only a preregistered whole-pass exposure variable.",
+  "pilot": {
+    "aggregate": "median_of_repeats",
+    "charge_all_pilot_cost_to_the_arm_and_comparison": true,
+    "cost_metric": "measured_synchronized_wall_nanoseconds_for_one_complete_declared_pass",
+    "cost_unit": "nanoseconds",
+    "fit": "affine_fixed_cost_plus_marginal_cost_per_update_from_measured_runs",
+    "measured_components": [
+      "source_encodes",
+      "retrieval",
+      "durable_publication",
+      "reader_invocations",
+      "activation_forward_bytes",
+      "backward_work",
+      "wall_time",
+      "driver_memory_peak",
+      "rss_peak",
+      "cache_bytes",
+      "artifact_bytes"
+    ],
+    "pilot_answers_never_select_by_quality": true,
+    "pilot_inputs": "independent_pilot_worlds_disjoint_from_scored_development_and_final",
+    "pilot_labels_scored": false,
+    "repeat": 3,
+    "restore_common_initial_weights_before_each_pilot_run": true,
+    "runs_per_arm_update_counts": [
+      0,
+      1,
+      4
+    ],
+    "separate_bounded_packet_required": true,
+    "timing_rule": "synchronize_declared_backend_before_each_timed_boundary",
+    "workload": "one_durable_admission_and_read_plus_declared_training_updates"
+  },
+  "reference_architecture": "fixed_per_site",
+  "scientific_claim_limit": "Cost-matched feasibility evidence only; not a pure density or persistent-learning result.",
+  "scientific_comparison": "Effect of access density at approximately equal measured total cost; exposure change is a declared confound and must be reported separately from equal-exposure comparisons.",
+  "selection": {
+    "declared_common_updates": "fixed_per_arm_binding_before_pilot",
+    "declared_updates_cap": "fixed_per_arm_binding_before_pilot",
+    "declared_updates_cap_fixed_before_pilot": true,
+    "outside_tolerance": "arm_is_unmatched_evidence_not_a_causal_arm",
+    "rounding": "floor_no_residual_reallocation_no_post_hoc_budget",
+    "rule": "updates_arm = clamp(floor((target - fixed_cost_arm) / marginal_cost_arm + 1e-9 binary_float_guard), 1, declared_updates_cap)",
+    "selection_before_scored_labels": true,
+    "selection_inputs": "measured_cost_only_never_development_or_final_answers",
+    "target": "measured_total_cost_of_the_two_site_arm_at_the_declared_common_exposure",
+    "target_arm": "two",
+    "target_formula": "fixed_cost_two + marginal_cost_per_update_two * declared_common_updates",
+    "tolerance": {
+      "absolute_floor": "one_measured_marginal_update_cost_of_the_arm",
+      "relative": 0.02,
+      "rule": "max(target*0.02, one_marginal_update_cost_arm)"
+    }
+  },
+  "shared_contract": {
+    "P_updates": 0,
+    "data_split": "same_evidence_and_independent_world_families_per_arm",
+    "decoder_layers": 36,
+    "excluded_followups": {
+      "persistent_P_learning": "gated; zero P updates here",
+      "pre_mlp_fusion": "separate protocol required; not a density arm",
+      "promotion_and_RSI": "gated and out of scope",
+      "sites_23_31": "diagnostic only; not a compulsory milestone and not folded into 2/9/36"
+    },
+    "external_spine": "separate_specialist_sensor_actor_responsibilities",
+    "generation_limits": "greedy_no_sampling_identical_max_new_tokens",
+    "maximum_spans": 2,
+    "native_qualification": false,
+    "optimizer": "NativeFusedAdamW_one_owner_per_intended_parameter",
+    "original_parameters": "frozen_unchanged_full_hashes_required",
+    "placement": "block_input_query_to_post_block_residual",
+    "precision": "official_BF16_identity_bound_per_arm",
+    "projection_cache": "none",
+    "promotion": false,
+    "reader_width": 256,
+    "retrieval": "outside_backbone_forward_one_shared_snapshot_per_forward",
+    "scorer": "identical_exact_and_contextual_scorer_version",
+    "selected_slots": 8,
+    "slots_per_span": 4,
+    "source_input": "canonical_span_text_only_no_question_answer_template_or_spine",
+    "source_producer": "reviewed_v12_frozen_source_features_contextual_compressor",
+    "template": "identical_prompt_template_and_thinking_mode",
+    "training_exposure": "varies_by_preregistered_measured_total_cost_rule_only_after_pilot",
+    "update_frequency": "declared_whole_pass_optimizer_updates_only",
+    "writer_behavior": "completed_observation_admission_outside_backbone_forward",
+    "writes_per_observation": "at_most_one_explicit_admission"
+  },
+  "status": "preregistered_not_run_native_unqualified",
+  "varied_factor": "training_updates_per_world_whole_pass"
+}

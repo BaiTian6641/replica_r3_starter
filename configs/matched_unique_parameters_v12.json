@@ -1,0 +1,238 @@
+{
+  "authorization": {
+    "authorization_receipt_required": true,
+    "consumed_receipts_reusable": false,
+    "inherited_from_v3_or_v11": false,
+    "native_launch_enabled": false,
+    "per_arm_bindings": [
+      "source",
+      "execution",
+      "numerical",
+      "resource",
+      "scoring",
+      "data",
+      "output",
+      "authorization"
+    ],
+    "required": true
+  },
+  "comparison": "matched_unique_parameters",
+  "confounds": [
+    "Sharing changes parameter reuse, gradient interference and optimization structure as well as parameter count; it does not isolate site count.",
+    "Equal unique parameters do not imply equal compute, activation memory, latency, teaching cost or utility.",
+    "The two-site arm is initialization-identical to the independent two-site control, but higher-density arms are not equivalent to independent-reader arms.",
+    "Reader parameter estimates exclude producer, order, activations, temporary buffers, optimizer scalars and the backbone; they cannot declare viability.",
+    "Retrieval and writes are outside backbone forward and are constant across density only if the caller keeps them constant; measure them rather than assuming it.",
+    "One shared snapshot does not imply equal activation memory, backward graph length or latency.",
+    "Random-fixture CPU evidence is engineering mechanics, not Spark competence or native density qualification."
+  ],
+  "fixed_factors": [
+    "two canonical reader groups and their unique parameters",
+    "group initialization streams anchored at sites 3 and 7",
+    "producer weights, release and initialization seed",
+    "order parameters and selected slot order",
+    "admissible evidence set, selected slots and data split",
+    "writer behavior, update frequency and training exposure",
+    "template, thinking mode, scorer and generation limits"
+  ],
+  "format": "replica.intrinsic_memory.density.comparison.v12",
+  "gates": {
+    "P_updates": 0,
+    "driver_limit_bytes": 53687091200,
+    "matching_two_site_mechanism_must_pass": [
+      "frozen_competence",
+      "useful_readout",
+      "integrity",
+      "continuation",
+      "resource"
+    ],
+    "minimum_host_free_fraction": 0.15,
+    "native_retries": 0,
+    "no_download": true,
+    "no_full_backbone_export": true,
+    "one_exclusive_native_worker": true,
+    "promotion": false,
+    "sustained_swap_growth_limit_bytes": 536870912,
+    "useful_two_site_readout_required_before_native_density": true
+  },
+  "implementation": "replica.intrinsic_memory.matched_reader.v12",
+  "implementation_scope": "The separately versioned matched v12 wrapper constructs only the two anchor groups, serves 2/9/36 sites as dispatch aliases and keeps the reviewed producer/store/checkpoint path. The existing v5 matched candidate remains a regression control, not the v12 binding.",
+  "measurement_schema": {
+    "cost": {
+      "activation_backward_work": "backward_calls_and_processed_positions",
+      "activation_forward_bytes": "deterministic_tensor_payload_bytes",
+      "audit_cost": "hashed_and_serialized_bytes",
+      "durable_writes": "count_and_bytes",
+      "feature_cache_bytes": "current_and_peak_bytes",
+      "physical_group_invocations": "module_forward_calls",
+      "read_file_bytes": "bytes",
+      "reader_invocations": "site_dispatches",
+      "replay_cost": "count_and_wall_time",
+      "retrieval_calls": "count",
+      "retrieval_wall_time": "nanoseconds_monotonic",
+      "snapshot_bytes": "bytes",
+      "snapshot_copies": "count",
+      "source_encodes": "frozen_source_forward_calls",
+      "source_input_tokens": "tokens",
+      "teaching_cost": "updates_and_processed_positions",
+      "total_generated_tokens": "tokens",
+      "total_input_prompt_tokens": "tokens",
+      "wall_time": "nanoseconds_monotonic"
+    },
+    "quality": {
+      "chronological_correction": "post_correction_stale_acceptances",
+      "exact_text_gap": "cases_exact_correct_minus_contextual_correct",
+      "false_recall": "count_per_case",
+      "generated_answer_quality": "per_case_scored_no_pooling_away_failures",
+      "incomplete_evidence": "reported_incomplete_never_imputed",
+      "negative_controls": [
+        "wrong",
+        "shuffled",
+        "zero",
+        "absent"
+      ],
+      "revocation": "post_revocation_stale_acceptances"
+    },
+    "resources": {
+      "artifact_bytes": "bytes",
+      "checkpoint_bytes": "bytes",
+      "driver_memory_peak": "sampled_bytes_never_added_to_rss",
+      "minimum_host_free_fraction": "fraction",
+      "process_rss_peak": "sampled_bytes",
+      "sustained_swap_growth": "bytes_over_declared_samples"
+    },
+    "separation": {
+      "operation_counts": "not_physical_memory_or_latency",
+      "parameter_counts": "not_a_cost_or_fit_measurement",
+      "single_forward_tiny_fixture_timing": "engineering_only_not_native_performance",
+      "synchronized_native_timing": "declared_backend_synchronization"
+    }
+  },
+  "native_launch_enabled": false,
+  "objective": "Serve 2/9/36 sites from exactly two canonical reader groups with identical unique parameters, order parameters, initialization and checkpoint ownership.",
+  "parameter_accounting": {
+    "aliases_are_not_owners": "site aliases must not create state keys, parameter copies or extra optimizer entries",
+    "checkpoint_ownership": "one_groups.0_and_groups.1_copy_no_site_alias_state_keys",
+    "excluded": [
+      "source feature compressor",
+      "order embedding",
+      "backbone",
+      "activations",
+      "temporary buffers",
+      "optimizer scalar state"
+    ],
+    "fp32_weight_bytes": 11583496,
+    "fp32_weight_gradient_two_moments_bytes": 46333984,
+    "group_parameters_each": 1447937,
+    "hidden_size": 2560,
+    "initialization": "two_canonical_groups_from_the_same_anchor_streams_across_arms",
+    "initialization_anchors": [
+      3,
+      7
+    ],
+    "initialization_seed": 17,
+    "mapping": "group=(layer//4)%2",
+    "resident_copies": "one_parameter_copy_per_canonical_group",
+    "share_of_declared_backbone_parameters": 0.0007042359221394015,
+    "site_aliases_by_arm": {
+      "all": 36,
+      "full_attention_nine": 9,
+      "two": 2
+    },
+    "site_to_group": {
+      "all": {
+        "0": 0,
+        "1": 0,
+        "10": 0,
+        "11": 0,
+        "12": 1,
+        "13": 1,
+        "14": 1,
+        "15": 1,
+        "16": 0,
+        "17": 0,
+        "18": 0,
+        "19": 0,
+        "2": 0,
+        "20": 1,
+        "21": 1,
+        "22": 1,
+        "23": 1,
+        "24": 0,
+        "25": 0,
+        "26": 0,
+        "27": 0,
+        "28": 1,
+        "29": 1,
+        "3": 0,
+        "30": 1,
+        "31": 1,
+        "32": 0,
+        "33": 0,
+        "34": 0,
+        "35": 0,
+        "4": 1,
+        "5": 1,
+        "6": 1,
+        "7": 1,
+        "8": 0,
+        "9": 0
+      },
+      "full_attention_nine": {
+        "11": 0,
+        "15": 1,
+        "19": 0,
+        "23": 1,
+        "27": 0,
+        "3": 0,
+        "31": 1,
+        "35": 0,
+        "7": 1
+      },
+      "two": {
+        "3": 0,
+        "7": 1
+      }
+    },
+    "unique_reader_groups": 2,
+    "unique_reader_parameter_tensors": 22,
+    "unique_reader_parameters": 2895874
+  },
+  "producer_binding": "reviewed_v12_direct_matched_wrapper",
+  "scientific_claim_limit": "Parameter-matched access control; no marginal effect of site count is identified without matched total cost and independent worlds.",
+  "shared_contract": {
+    "P_updates": 0,
+    "data_split": "same_evidence_and_independent_world_families_per_arm",
+    "decoder_layers": 36,
+    "excluded_followups": {
+      "persistent_P_learning": "gated; zero P updates here",
+      "pre_mlp_fusion": "separate protocol required; not a density arm",
+      "promotion_and_RSI": "gated and out of scope",
+      "sites_23_31": "diagnostic only; not a compulsory milestone and not folded into 2/9/36"
+    },
+    "external_spine": "separate_specialist_sensor_actor_responsibilities",
+    "generation_limits": "greedy_no_sampling_identical_max_new_tokens",
+    "maximum_spans": 2,
+    "native_qualification": false,
+    "optimizer": "NativeFusedAdamW_one_owner_per_intended_parameter",
+    "original_parameters": "frozen_unchanged_full_hashes_required",
+    "placement": "block_input_query_to_post_block_residual",
+    "precision": "official_BF16_identity_bound_per_arm",
+    "projection_cache": "none",
+    "promotion": false,
+    "reader_width": 256,
+    "retrieval": "outside_backbone_forward_one_shared_snapshot_per_forward",
+    "scorer": "identical_exact_and_contextual_scorer_version",
+    "selected_slots": 8,
+    "slots_per_span": 4,
+    "source_input": "canonical_span_text_only_no_question_answer_template_or_spine",
+    "source_producer": "reviewed_v12_frozen_source_features_contextual_compressor",
+    "template": "identical_prompt_template_and_thinking_mode",
+    "training_exposure": "identical_across_arms_in_this_comparison",
+    "update_frequency": "declared_whole_pass_optimizer_updates_only",
+    "writer_behavior": "completed_observation_admission_outside_backbone_forward",
+    "writes_per_observation": "at_most_one_explicit_admission"
+  },
+  "status": "preregistered_CPU_implemented_matched_v12_native_unqualified",
+  "varied_factor": "number_of_site_dispatch_aliases_for_two_canonical_groups"
+}
