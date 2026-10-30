@@ -25,7 +25,7 @@ def main():
     parser.add_argument("--cpu-summary", type=Path, required=True)
     parser.add_argument("--cost-pilot", type=Path, required=True)
     parser.add_argument("--protocols-directory", type=Path, default=ROOT / "configs")
-    parser.add_argument("--repair-cycle", default="repair03")
+    parser.add_argument("--repair-cycle", default=None)
     args = parser.parse_args()
     manifest = write_repair_receipts(
         args.directory, cpu_summary_path=args.cpu_summary,

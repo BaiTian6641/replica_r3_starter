@@ -179,6 +179,8 @@ def post_update_profile(path, expected_groups, pre_digest):
         digest = _digest_tensor(logits)
         return {
             "forward_wall_ns": elapsed,
+            "forward_wall_ns_semantics": "unsynchronized_cpu_perf_counter_dispatch",
+            "forward_wall_ns_synchronized": False,
             "single_forward_tiny_fixture_only": True,
             "logits_sha256": digest,
             "logits_changed_from_pre_update": digest != pre_digest,
@@ -239,6 +241,8 @@ def profile_arm(arm, *, include_store=False):
             "reader_invocations": summary["total_site_invocations"],
             "site_invocations": summary["site_invocations"],
             "forward_wall_ns": elapsed,
+            "forward_wall_ns_semantics": "unsynchronized_cpu_perf_counter_dispatch",
+            "forward_wall_ns_synchronized": False,
             "single_forward_tiny_fixture_only": True,
             "logits_sha256": digest,
             "parameter_audit": boundary.audit,
@@ -304,6 +308,8 @@ def profile_matched_arm(arm):
             "reader_invocations": summary["total_site_invocations"],
             "site_invocations": summary["site_invocations"],
             "forward_wall_ns": elapsed,
+            "forward_wall_ns_semantics": "unsynchronized_cpu_perf_counter_dispatch",
+            "forward_wall_ns_synchronized": False,
             "single_forward_tiny_fixture_only": True,
             "logits_sha256": digest,
             "parameter_audit": boundary.audit,

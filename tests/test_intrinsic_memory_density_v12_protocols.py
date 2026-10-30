@@ -152,6 +152,10 @@ def test_measured_cost_fit_selection_and_tolerance_are_deterministic():
     changed["selection"]["epsilon"] = 2e-9
     with pytest.raises(ValueError):
         validate_protocol(changed, comparison="preregistered_measured_total_cost")
+    changed = deepcopy(build_protocols()["preregistered_measured_total_cost"])
+    changed["pilot"]["cost_metric"] = "measured_monotonic_wall_nanoseconds"
+    with pytest.raises(ValueError):
+        validate_protocol(changed, comparison="preregistered_measured_total_cost")
     with pytest.raises(ValueError):
         fit_fixed_marginal({0: 100.0, 1: 100.0})
     with pytest.raises(ValueError):

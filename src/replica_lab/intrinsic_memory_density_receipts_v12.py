@@ -22,6 +22,7 @@ from .intrinsic_memory_density_protocols_v12 import (
 )
 
 FORMAT = "replica.intrinsic_memory.density.receipts.v12"
+REPO_ROOT = Path(__file__).resolve().parents[2]
 PROTOCOL_SUMMARY = "protocol_summary.json"
 VERIFICATION_RESULTS = "verification_results.json"
 REPORT_MANIFEST = "report_manifest.json"
@@ -31,19 +32,29 @@ _PENDING_CLEANUP = set()
 
 
 def _unlink_or_queue(path):
+    path = Path(path)
     try:
-        Path(path).unlink()
+        path.unlink()
+        try:
+            _fsync_directory(path.parent)
+        except OSError:
+            if len(_PENDING_CLEANUP) < 64:
+                _PENDING_CLEANUP.add(path)
     except FileNotFoundError:
         return
     except OSError:
         if len(_PENDING_CLEANUP) < 64:
-            _PENDING_CLEANUP.add(Path(path))
+            _PENDING_CLEANUP.add(path)
 
 
 def _cleanup_pending():
     for path in list(_PENDING_CLEANUP):
         try:
             Path(path).unlink()
+            try:
+                _fsync_directory(Path(path).parent)
+            except OSError:
+                break
             _PENDING_CLEANUP.discard(path)
         except FileNotFoundError:
             _PENDING_CLEANUP.discard(path)
@@ -55,9 +66,9 @@ def _portable(path):
     """Repository-relative POSIX identity; no absolute host path."""
     path = Path(path).resolve()
     try:
-        return path.relative_to(Path.cwd().resolve()).as_posix()
+        return path.relative_to(REPO_ROOT).as_posix()
     except ValueError:
-        return Path(os.path.relpath(path, Path.cwd())).as_posix()
+        return Path(os.path.relpath(path, REPO_ROOT)).as_posix()
 
 
 class ReceiptError(ValueError):
@@ -99,11 +110,19 @@ def _fsync_directory(directory):
         os.close(descriptor)
 
 
+def _sync_parent(path):
+    try:
+        _fsync_directory(Path(path).parent)
+        return True
+    except OSError:
+        return False
+
+
 def _remove_final(path):
     path = Path(path)
     try:
         path.unlink()
-        return True
+        return _sync_parent(path)
     except FileNotFoundError:
         return True
     except OSError:
@@ -111,7 +130,7 @@ def _remove_final(path):
         try:
             os.replace(path, quarantine)
             _unlink_or_queue(quarantine)
-            return True
+            return _sync_parent(path)
         except OSError:
             _unlink_or_queue(path)
             return False
@@ -175,7 +194,7 @@ def _load(path, label):
     return value
 
 
-def build_protocol_summary(protocols, cost_pilot, cpu_summary, *, repair_cycle="repair03"):
+def build_protocol_summary(protocols, cost_pilot, cpu_summary, *, repair_cycle):
     if cost_pilot.get("total_cost_protocol_sha256") != canonical_digest(
             protocols["preregistered_measured_total_cost"]):
         raise ReceiptError("cost pilot does not cite the checked-in total-cost protocol")
@@ -256,7 +275,7 @@ def build_protocol_summary(protocols, cost_pilot, cpu_summary, *, repair_cycle="
     }
 
 
-def build_verification_results(cpu_summary, cost_pilot, protocols, *, repair_cycle="repair03"):
+def build_verification_results(cpu_summary, cost_pilot, protocols, *, repair_cycle):
     if cost_pilot.get("total_cost_protocol_sha256") != canonical_digest(
             protocols["preregistered_measured_total_cost"]):
         raise ReceiptError("cost pilot does not cite the checked-in total-cost protocol")
@@ -480,7 +499,7 @@ def read_current_navigation(root):
         raise ReceiptError("CURRENT navigation is incomplete")
     canonical = Path(destination)
     if not canonical.is_absolute():
-        canonical = (Path.cwd() / canonical).resolve()
+        canonical = (REPO_ROOT / canonical).resolve()
     if not canonical.is_dir():
         raise ReceiptError("CURRENT canonical directory is missing")
     required = ("cpu_engineering_summary.json", "cost_pilot_summary.json",
@@ -561,15 +580,24 @@ def write_current_navigation(root, canonical_directory, *, generator,
         _transactional_replace(entries)
     except ReceiptError as error:
         if error.notes:
-            if not _remove_final(root / "CURRENT.json"):
-                error.notes.append("could not remove ambiguous CURRENT authority")
+            # An incomplete rollback must leave no mixed authority set.
+            for path, _ in entries:
+                if not _remove_final(path):
+                    error.notes.append(f"could not remove ambiguous navigation file: {path}")
         raise
     return read_current_navigation(root)
 
 
 def write_repair_receipts(directory, *, cpu_summary_path, cost_pilot_path,
-                          protocols_directory="configs", repair_cycle="repair03"):
+                          protocols_directory="configs", repair_cycle=None):
     directory = Path(directory)
+    derived_cycle = directory.resolve().name
+    if repair_cycle is None:
+        repair_cycle = derived_cycle
+    elif repair_cycle != derived_cycle:
+        raise ReceiptError(
+            "repair_cycle must match the canonical directory identity: "
+            f"{repair_cycle!r} != {derived_cycle!r}")
     cpu_path, cost_path = Path(cpu_summary_path), Path(cost_pilot_path)
     cpu_summary = _load(cpu_path, "CPU profile")
     cost_pilot = _load(cost_path, "cost pilot")

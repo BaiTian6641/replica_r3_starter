@@ -264,7 +264,7 @@ def main():
         "python": sys.version,
         "torch": torch.__version__,
         "platform": platform.platform(),
-        "cost_metric": "measured_monotonic_wall_nanoseconds",
+        "cost_metric": pilot_config["cost_metric"],
         "timing_synchronization": {
             "rule": pilot_config["timing_rule"],
             "observed": arms["two"]["component_measurement"]["timing_synchronization"],

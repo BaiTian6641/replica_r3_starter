@@ -1,0 +1,2277 @@
+{
+  "P_updates": 0,
+  "downloads": false,
+  "format": "replica.intrinsic_memory.density.verification_results.v12.coordinator11",
+  "fresh_process_continuation": {
+    "fixed_v12": {
+      "all": {
+        "actual_update_after_restore": true,
+        "arm": "all",
+        "exact_logits": true,
+        "exact_optimizer_moments": true,
+        "exact_weights": true,
+        "fresh_process": true
+      },
+      "full_attention_nine": {
+        "actual_update_after_restore": true,
+        "arm": "full_attention_nine",
+        "exact_logits": true,
+        "exact_optimizer_moments": true,
+        "exact_weights": true,
+        "fresh_process": true
+      },
+      "two": {
+        "actual_update_after_restore": true,
+        "arm": "two",
+        "exact_logits": true,
+        "exact_optimizer_moments": true,
+        "exact_weights": true,
+        "fresh_process": true
+      }
+    },
+    "matched_v12": {
+      "all": {
+        "actual_update_after_restore": true,
+        "arm": "all",
+        "exact_logits": true,
+        "exact_optimizer_moments": true,
+        "exact_weights": true,
+        "fresh_process": true
+      },
+      "full_attention_nine": {
+        "actual_update_after_restore": true,
+        "arm": "full_attention_nine",
+        "exact_logits": true,
+        "exact_optimizer_moments": true,
+        "exact_weights": true,
+        "fresh_process": true
+      },
+      "two": {
+        "actual_update_after_restore": true,
+        "arm": "two",
+        "exact_logits": true,
+        "exact_optimizer_moments": true,
+        "exact_weights": true,
+        "fresh_process": true
+      }
+    }
+  },
+  "measured_total_cost_pilot": {
+    "aggregate": "median_of_repeats",
+    "cost_metric": "measured_synchronized_wall_nanoseconds_for_one_complete_declared_pass",
+    "declared_common_updates": 2,
+    "declared_updates_cap": 8,
+    "matched_arms": [
+      "two",
+      "full_attention_nine",
+      "all"
+    ],
+    "out_of_tolerance_control": {
+      "arithmetic_control": {
+        "candidate_cost_ns": 150443055.8076923,
+        "outside_declared_tolerance": true,
+        "target_ns": 56225630.038461536,
+        "tolerance_ns": 94217424.76923077
+      },
+      "charged_to_arm": "all",
+      "control_cost_ns": 2225625126,
+      "deliberate_out_of_tolerance_observed": true,
+      "measured_high_exposure": {
+        "arm": "all",
+        "difference_ns": 681080786.9615384,
+        "measured_runs_ns": [
+          734498542,
+          737306417,
+          753820167
+        ],
+        "measured_total_cost_ns": 737306417,
+        "outside_declared_tolerance": true,
+        "target_ns": 56225630.038461536,
+        "tolerance_ns": 94217424.76923077,
+        "updates": 8
+      }
+    },
+    "repeat": 3,
+    "scored_labels_read": false,
+    "selected_updates": {
+      "all": 1,
+      "full_attention_nine": 1,
+      "two": 2
+    },
+    "target_cost_ns": 56225630.038461536,
+    "timing_synchronization": {
+      "observed": {
+        "after": "cpu_synchronous",
+        "before": "cpu_synchronous",
+        "boundary": "synchronize_before_and_after_each_timed_pass",
+        "device": "cpu",
+        "mps_fallback_setting": "0"
+      },
+      "rule": "synchronize_declared_backend_before_each_timed_boundary"
+    },
+    "total_charged_cost_ns": 5838983505,
+    "total_cost_protocol_sha256": "6fe14bc87e75dc20c5923a161339bed805e2b4768d133213267d5ada6a4ebbe7",
+    "unmatched_arms": []
+  },
+  "native_consumer_limitation": "CPU-only: no native consumer, no end-to-end native cost or physical memory measurement, and no disjoint native pilot worlds.",
+  "native_execution": false,
+  "native_weights_loaded": false,
+  "no_update_unchanged_digest_control": {
+    "arms": {
+      "all": {
+        "cost_delta": {
+          "format": "replica.intrinsic_memory.density.v12.cost_ledger",
+          "memory": {
+            "admission_calls": 0,
+            "admitted_payload_bytes": 0,
+            "authority_validation_ns": 48173913,
+            "cold_completed_bytes": 0,
+            "cold_completed_files": 0,
+            "cold_reserved_bytes": 0,
+            "cold_reserved_files": 0,
+            "cold_wait_ns": 0,
+            "correction_calls": 0,
+            "durable_artifact_growth_bytes": 0,
+            "durable_write_bytes": 0,
+            "durable_write_ns": 0,
+            "fallback_bytes": 0,
+            "fallback_calls": 0,
+            "fallback_tokens": 0,
+            "producer_bytes": 0,
+            "producer_calls": 0,
+            "producer_hash_cache_hits": 0,
+            "producer_hash_calls": 0,
+            "producer_hash_ns": 0,
+            "producer_wall_ns": 0,
+            "read_file_bytes": 0,
+            "read_file_calls": 0,
+            "retrieval_calls": 0,
+            "retrieval_wall_ns": 0,
+            "revalidations": 0,
+            "snapshot_bytes": 32768,
+            "snapshot_copies": 1,
+            "source_revalidations": 0,
+            "ticket_descriptor_read_bytes": 0,
+            "ticket_descriptor_read_calls": 0,
+            "value_slots_read": 4
+          },
+          "source": {
+            "cache_bytes": 0,
+            "cache_evictions": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "feature_bytes_produced": 0,
+            "forwards": 0,
+            "input_tokens": 0,
+            "peak_cache_bytes": 0,
+            "requests": 0,
+            "source_bytes": 0,
+            "source_traced_layers": 0,
+            "tokenizer_cache_hits": 0,
+            "tokenizer_calls": 0,
+            "wall_ns": 0
+          }
+        },
+        "logits_sha256": "569931944ff2783bf4d8e936fd83759bd8a890f60d6997253b8bff9478d96561",
+        "physical_reader_groups": 36,
+        "reader_invocations": 36,
+        "unchanged_from_pre_update": true
+      },
+      "full_attention_nine": {
+        "cost_delta": {
+          "format": "replica.intrinsic_memory.density.v12.cost_ledger",
+          "memory": {
+            "admission_calls": 0,
+            "admitted_payload_bytes": 0,
+            "authority_validation_ns": 13339957,
+            "cold_completed_bytes": 0,
+            "cold_completed_files": 0,
+            "cold_reserved_bytes": 0,
+            "cold_reserved_files": 0,
+            "cold_wait_ns": 0,
+            "correction_calls": 0,
+            "durable_artifact_growth_bytes": 0,
+            "durable_write_bytes": 0,
+            "durable_write_ns": 0,
+            "fallback_bytes": 0,
+            "fallback_calls": 0,
+            "fallback_tokens": 0,
+            "producer_bytes": 0,
+            "producer_calls": 0,
+            "producer_hash_cache_hits": 0,
+            "producer_hash_calls": 0,
+            "producer_hash_ns": 0,
+            "producer_wall_ns": 0,
+            "read_file_bytes": 0,
+            "read_file_calls": 0,
+            "retrieval_calls": 0,
+            "retrieval_wall_ns": 0,
+            "revalidations": 0,
+            "snapshot_bytes": 32768,
+            "snapshot_copies": 1,
+            "source_revalidations": 0,
+            "ticket_descriptor_read_bytes": 0,
+            "ticket_descriptor_read_calls": 0,
+            "value_slots_read": 4
+          },
+          "source": {
+            "cache_bytes": 0,
+            "cache_evictions": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "feature_bytes_produced": 0,
+            "forwards": 0,
+            "input_tokens": 0,
+            "peak_cache_bytes": 0,
+            "requests": 0,
+            "source_bytes": 0,
+            "source_traced_layers": 0,
+            "tokenizer_cache_hits": 0,
+            "tokenizer_calls": 0,
+            "wall_ns": 0
+          }
+        },
+        "logits_sha256": "569931944ff2783bf4d8e936fd83759bd8a890f60d6997253b8bff9478d96561",
+        "physical_reader_groups": 9,
+        "reader_invocations": 9,
+        "unchanged_from_pre_update": true
+      },
+      "two": {
+        "cost_delta": {
+          "format": "replica.intrinsic_memory.density.v12.cost_ledger",
+          "memory": {
+            "admission_calls": 0,
+            "admitted_payload_bytes": 0,
+            "authority_validation_ns": 3963750,
+            "cold_completed_bytes": 0,
+            "cold_completed_files": 0,
+            "cold_reserved_bytes": 0,
+            "cold_reserved_files": 0,
+            "cold_wait_ns": 0,
+            "correction_calls": 0,
+            "durable_artifact_growth_bytes": 0,
+            "durable_write_bytes": 0,
+            "durable_write_ns": 0,
+            "fallback_bytes": 0,
+            "fallback_calls": 0,
+            "fallback_tokens": 0,
+            "producer_bytes": 0,
+            "producer_calls": 0,
+            "producer_hash_cache_hits": 0,
+            "producer_hash_calls": 0,
+            "producer_hash_ns": 0,
+            "producer_wall_ns": 0,
+            "read_file_bytes": 0,
+            "read_file_calls": 0,
+            "retrieval_calls": 0,
+            "retrieval_wall_ns": 0,
+            "revalidations": 0,
+            "snapshot_bytes": 32768,
+            "snapshot_copies": 1,
+            "source_revalidations": 0,
+            "ticket_descriptor_read_bytes": 0,
+            "ticket_descriptor_read_calls": 0,
+            "value_slots_read": 4
+          },
+          "source": {
+            "cache_bytes": 0,
+            "cache_evictions": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "feature_bytes_produced": 0,
+            "forwards": 0,
+            "input_tokens": 0,
+            "peak_cache_bytes": 0,
+            "requests": 0,
+            "source_bytes": 0,
+            "source_traced_layers": 0,
+            "tokenizer_cache_hits": 0,
+            "tokenizer_calls": 0,
+            "wall_ns": 0
+          }
+        },
+        "logits_sha256": "569931944ff2783bf4d8e936fd83759bd8a890f60d6997253b8bff9478d96561",
+        "physical_reader_groups": 2,
+        "reader_invocations": 2,
+        "unchanged_from_pre_update": true
+      }
+    },
+    "matched_arms": {
+      "all": {
+        "cost_delta": {
+          "format": "replica.intrinsic_memory.density.v12.cost_ledger",
+          "memory": {
+            "admission_calls": 0,
+            "admitted_payload_bytes": 0,
+            "authority_validation_ns": 47485876,
+            "cold_completed_bytes": 0,
+            "cold_completed_files": 0,
+            "cold_reserved_bytes": 0,
+            "cold_reserved_files": 0,
+            "cold_wait_ns": 0,
+            "correction_calls": 0,
+            "durable_artifact_growth_bytes": 0,
+            "durable_write_bytes": 0,
+            "durable_write_ns": 0,
+            "fallback_bytes": 0,
+            "fallback_calls": 0,
+            "fallback_tokens": 0,
+            "producer_bytes": 0,
+            "producer_calls": 0,
+            "producer_hash_cache_hits": 0,
+            "producer_hash_calls": 0,
+            "producer_hash_ns": 0,
+            "producer_wall_ns": 0,
+            "read_file_bytes": 0,
+            "read_file_calls": 0,
+            "retrieval_calls": 0,
+            "retrieval_wall_ns": 0,
+            "revalidations": 0,
+            "snapshot_bytes": 32768,
+            "snapshot_copies": 1,
+            "source_revalidations": 0,
+            "ticket_descriptor_read_bytes": 0,
+            "ticket_descriptor_read_calls": 0,
+            "value_slots_read": 4
+          },
+          "source": {
+            "cache_bytes": 0,
+            "cache_evictions": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "feature_bytes_produced": 0,
+            "forwards": 0,
+            "input_tokens": 0,
+            "peak_cache_bytes": 0,
+            "requests": 0,
+            "source_bytes": 0,
+            "source_traced_layers": 0,
+            "tokenizer_cache_hits": 0,
+            "tokenizer_calls": 0,
+            "wall_ns": 0
+          }
+        },
+        "logits_sha256": "569931944ff2783bf4d8e936fd83759bd8a890f60d6997253b8bff9478d96561",
+        "physical_reader_groups": 2,
+        "reader_invocations": 36,
+        "unchanged_from_pre_update": true
+      },
+      "full_attention_nine": {
+        "cost_delta": {
+          "format": "replica.intrinsic_memory.density.v12.cost_ledger",
+          "memory": {
+            "admission_calls": 0,
+            "admitted_payload_bytes": 0,
+            "authority_validation_ns": 12393585,
+            "cold_completed_bytes": 0,
+            "cold_completed_files": 0,
+            "cold_reserved_bytes": 0,
+            "cold_reserved_files": 0,
+            "cold_wait_ns": 0,
+            "correction_calls": 0,
+            "durable_artifact_growth_bytes": 0,
+            "durable_write_bytes": 0,
+            "durable_write_ns": 0,
+            "fallback_bytes": 0,
+            "fallback_calls": 0,
+            "fallback_tokens": 0,
+            "producer_bytes": 0,
+            "producer_calls": 0,
+            "producer_hash_cache_hits": 0,
+            "producer_hash_calls": 0,
+            "producer_hash_ns": 0,
+            "producer_wall_ns": 0,
+            "read_file_bytes": 0,
+            "read_file_calls": 0,
+            "retrieval_calls": 0,
+            "retrieval_wall_ns": 0,
+            "revalidations": 0,
+            "snapshot_bytes": 32768,
+            "snapshot_copies": 1,
+            "source_revalidations": 0,
+            "ticket_descriptor_read_bytes": 0,
+            "ticket_descriptor_read_calls": 0,
+            "value_slots_read": 4
+          },
+          "source": {
+            "cache_bytes": 0,
+            "cache_evictions": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "feature_bytes_produced": 0,
+            "forwards": 0,
+            "input_tokens": 0,
+            "peak_cache_bytes": 0,
+            "requests": 0,
+            "source_bytes": 0,
+            "source_traced_layers": 0,
+            "tokenizer_cache_hits": 0,
+            "tokenizer_calls": 0,
+            "wall_ns": 0
+          }
+        },
+        "logits_sha256": "569931944ff2783bf4d8e936fd83759bd8a890f60d6997253b8bff9478d96561",
+        "physical_reader_groups": 2,
+        "reader_invocations": 9,
+        "unchanged_from_pre_update": true
+      },
+      "two": {
+        "cost_delta": {
+          "format": "replica.intrinsic_memory.density.v12.cost_ledger",
+          "memory": {
+            "admission_calls": 0,
+            "admitted_payload_bytes": 0,
+            "authority_validation_ns": 4006834,
+            "cold_completed_bytes": 0,
+            "cold_completed_files": 0,
+            "cold_reserved_bytes": 0,
+            "cold_reserved_files": 0,
+            "cold_wait_ns": 0,
+            "correction_calls": 0,
+            "durable_artifact_growth_bytes": 0,
+            "durable_write_bytes": 0,
+            "durable_write_ns": 0,
+            "fallback_bytes": 0,
+            "fallback_calls": 0,
+            "fallback_tokens": 0,
+            "producer_bytes": 0,
+            "producer_calls": 0,
+            "producer_hash_cache_hits": 0,
+            "producer_hash_calls": 0,
+            "producer_hash_ns": 0,
+            "producer_wall_ns": 0,
+            "read_file_bytes": 0,
+            "read_file_calls": 0,
+            "retrieval_calls": 0,
+            "retrieval_wall_ns": 0,
+            "revalidations": 0,
+            "snapshot_bytes": 32768,
+            "snapshot_copies": 1,
+            "source_revalidations": 0,
+            "ticket_descriptor_read_bytes": 0,
+            "ticket_descriptor_read_calls": 0,
+            "value_slots_read": 4
+          },
+          "source": {
+            "cache_bytes": 0,
+            "cache_evictions": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "feature_bytes_produced": 0,
+            "forwards": 0,
+            "input_tokens": 0,
+            "peak_cache_bytes": 0,
+            "requests": 0,
+            "source_bytes": 0,
+            "source_traced_layers": 0,
+            "tokenizer_cache_hits": 0,
+            "tokenizer_calls": 0,
+            "wall_ns": 0
+          }
+        },
+        "logits_sha256": "569931944ff2783bf4d8e936fd83759bd8a890f60d6997253b8bff9478d96561",
+        "physical_reader_groups": 2,
+        "reader_invocations": 2,
+        "unchanged_from_pre_update": true
+      }
+    }
+  },
+  "observed_counts": {
+    "fixed_per_site": {
+      "all": {
+        "all_intended_parameters": 5518196,
+        "optimizer_parameter_tensors": 417,
+        "physical_reader_groups": 36,
+        "reader_invocations": 36,
+        "reader_parameters": 4903524,
+        "sites": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35
+        ]
+      },
+      "full_attention_nine": {
+        "all_intended_parameters": 1840553,
+        "optimizer_parameter_tensors": 120,
+        "physical_reader_groups": 9,
+        "reader_invocations": 9,
+        "reader_parameters": 1225881,
+        "sites": [
+          3,
+          7,
+          11,
+          15,
+          19,
+          23,
+          27,
+          31,
+          35
+        ]
+      },
+      "two": {
+        "all_intended_parameters": 887090,
+        "optimizer_parameter_tensors": 43,
+        "physical_reader_groups": 2,
+        "reader_invocations": 2,
+        "reader_parameters": 272418,
+        "sites": [
+          3,
+          7
+        ]
+      }
+    },
+    "matched_v12": {
+      "all": {
+        "alias_duplicated_state_tensors": 0,
+        "feature_contract": {
+          "detach_boundary": "frozen_original_hidden_before_trainable_compressor",
+          "format": "replica.canonical_source_features.v12",
+          "hidden_size": 8,
+          "input_policy": "canonical_span_only_no_template_no_special_tokens",
+          "max_tokens": 64,
+          "original_parameters_sha256": "6b3e9ec25449342708cfb643ed010a7f97dbcaea2fe3553e0d78ee5db12237e8",
+          "original_updates": 0,
+          "output_policy": "last_decoder_hidden_after_final_norm",
+          "source_execution_sha256": "b74e75e1ca16fdb7839ce70f600316dd1d246e5fc67fbe1d3939c3b42c3b2e6f",
+          "source_position_ids": "0_to_source_token_count_minus_one",
+          "thinking_mode": "not_applicable_unframed_source",
+          "tokenizer_sha256": "b8f970ea2c23da400d0e4914e22cf4d2a86fe7bd3514c2df7e952458e2e605e1"
+        },
+        "physical_reader_groups": 2,
+        "reader_invocations": 36,
+        "reader_parameters": 272418,
+        "reader_state_tensors": 22,
+        "sites": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35
+        ]
+      },
+      "full_attention_nine": {
+        "alias_duplicated_state_tensors": 0,
+        "feature_contract": {
+          "detach_boundary": "frozen_original_hidden_before_trainable_compressor",
+          "format": "replica.canonical_source_features.v12",
+          "hidden_size": 8,
+          "input_policy": "canonical_span_only_no_template_no_special_tokens",
+          "max_tokens": 64,
+          "original_parameters_sha256": "6b3e9ec25449342708cfb643ed010a7f97dbcaea2fe3553e0d78ee5db12237e8",
+          "original_updates": 0,
+          "output_policy": "last_decoder_hidden_after_final_norm",
+          "source_execution_sha256": "b74e75e1ca16fdb7839ce70f600316dd1d246e5fc67fbe1d3939c3b42c3b2e6f",
+          "source_position_ids": "0_to_source_token_count_minus_one",
+          "thinking_mode": "not_applicable_unframed_source",
+          "tokenizer_sha256": "b8f970ea2c23da400d0e4914e22cf4d2a86fe7bd3514c2df7e952458e2e605e1"
+        },
+        "physical_reader_groups": 2,
+        "reader_invocations": 9,
+        "reader_parameters": 272418,
+        "reader_state_tensors": 22,
+        "sites": [
+          3,
+          7,
+          11,
+          15,
+          19,
+          23,
+          27,
+          31,
+          35
+        ]
+      },
+      "two": {
+        "alias_duplicated_state_tensors": 0,
+        "feature_contract": {
+          "detach_boundary": "frozen_original_hidden_before_trainable_compressor",
+          "format": "replica.canonical_source_features.v12",
+          "hidden_size": 8,
+          "input_policy": "canonical_span_only_no_template_no_special_tokens",
+          "max_tokens": 64,
+          "original_parameters_sha256": "6b3e9ec25449342708cfb643ed010a7f97dbcaea2fe3553e0d78ee5db12237e8",
+          "original_updates": 0,
+          "output_policy": "last_decoder_hidden_after_final_norm",
+          "source_execution_sha256": "b74e75e1ca16fdb7839ce70f600316dd1d246e5fc67fbe1d3939c3b42c3b2e6f",
+          "source_position_ids": "0_to_source_token_count_minus_one",
+          "thinking_mode": "not_applicable_unframed_source",
+          "tokenizer_sha256": "b8f970ea2c23da400d0e4914e22cf4d2a86fe7bd3514c2df7e952458e2e605e1"
+        },
+        "physical_reader_groups": 2,
+        "reader_invocations": 2,
+        "reader_parameters": 272418,
+        "reader_state_tensors": 22,
+        "sites": [
+          3,
+          7
+        ]
+      }
+    }
+  },
+  "post_update_arm_distinguishing_profile": {
+    "arms": {
+      "all": {
+        "cost_delta": {
+          "format": "replica.intrinsic_memory.density.v12.cost_ledger",
+          "memory": {
+            "admission_calls": 0,
+            "admitted_payload_bytes": 0,
+            "authority_validation_ns": 49211165,
+            "cold_completed_bytes": 0,
+            "cold_completed_files": 0,
+            "cold_reserved_bytes": 0,
+            "cold_reserved_files": 0,
+            "cold_wait_ns": 0,
+            "correction_calls": 0,
+            "durable_artifact_growth_bytes": 0,
+            "durable_write_bytes": 0,
+            "durable_write_ns": 0,
+            "fallback_bytes": 0,
+            "fallback_calls": 0,
+            "fallback_tokens": 0,
+            "producer_bytes": 0,
+            "producer_calls": 0,
+            "producer_hash_cache_hits": 0,
+            "producer_hash_calls": 0,
+            "producer_hash_ns": 0,
+            "producer_wall_ns": 0,
+            "read_file_bytes": 0,
+            "read_file_calls": 0,
+            "retrieval_calls": 0,
+            "retrieval_wall_ns": 0,
+            "revalidations": 0,
+            "snapshot_bytes": 32768,
+            "snapshot_copies": 1,
+            "source_revalidations": 0,
+            "ticket_descriptor_read_bytes": 0,
+            "ticket_descriptor_read_calls": 0,
+            "value_slots_read": 4
+          },
+          "source": {
+            "cache_bytes": 0,
+            "cache_evictions": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "feature_bytes_produced": 0,
+            "forwards": 0,
+            "input_tokens": 0,
+            "peak_cache_bytes": 0,
+            "requests": 0,
+            "source_bytes": 0,
+            "source_traced_layers": 0,
+            "tokenizer_cache_hits": 0,
+            "tokenizer_calls": 0,
+            "wall_ns": 0
+          }
+        },
+        "forward_wall_ns": 59905209,
+        "forward_wall_ns_semantics": "unsynchronized_cpu_perf_counter_dispatch",
+        "forward_wall_ns_synchronized": false,
+        "logits_changed_from_pre_update": true,
+        "logits_sha256": "0d568a6f96066bf79fc4c8229ca51da37a6974ac67a0fdf965f0b76a40b35bcb",
+        "physical_reader_groups": 36,
+        "profiler": {
+          "activation_bytes": {
+            "by_phase": {
+              "forward": {
+                "input": 1185408,
+                "output": 4608
+              },
+              "recompute": {
+                "input": 0,
+                "output": 0
+              }
+            },
+            "input_total": 1185408,
+            "output_total": 4608
+          },
+          "allocator": {
+            "available": false,
+            "backend": "unavailable_on_cpu",
+            "max_current_allocated_bytes": null
+          },
+          "backward_work": {
+            "caller_measured": true,
+            "calls": 0,
+            "processed_positions": 0
+          },
+          "cache_bytes": {
+            "available": true,
+            "max_observed": 512,
+            "min_observed": 512
+          },
+          "callbacks_per_physical_group": 2,
+          "duplicate_registration_refusals": 0,
+          "format": "replica.intrinsic_memory.density.v12.profiler",
+          "forward_ids": [
+            "post-update"
+          ],
+          "group_invocations": {
+            "4579794128": 1,
+            "4612342896": 1,
+            "4612343136": 1,
+            "4612344288": 1,
+            "4612344672": 1,
+            "4612345104": 1,
+            "4612345776": 1,
+            "4612350144": 1,
+            "4613768976": 1,
+            "4613997104": 1,
+            "4615259872": 1,
+            "4615260496": 1,
+            "4615261072": 1,
+            "4615261648": 1,
+            "4615262224": 1,
+            "4615262800": 1,
+            "4615263376": 1,
+            "4615263952": 1,
+            "4615264528": 1,
+            "4615265104": 1,
+            "4615265680": 1,
+            "4615266256": 1,
+            "4615266832": 1,
+            "4615267408": 1,
+            "4615267984": 1,
+            "4615268560": 1,
+            "4615269136": 1,
+            "4615269712": 1,
+            "4615270288": 1,
+            "4615270864": 1,
+            "4615271440": 1,
+            "4615272016": 1,
+            "4615272592": 1,
+            "4615273168": 1,
+            "4615273744": 1,
+            "4615274320": 1
+          },
+          "group_names": {
+            "4579794128": "ports.28",
+            "4612342896": "ports.31",
+            "4612343136": "ports.30",
+            "4612344288": "ports.32",
+            "4612344672": "ports.33",
+            "4612345104": "ports.34",
+            "4612345776": "ports.35",
+            "4612350144": "ports.27",
+            "4613768976": "ports.29",
+            "4613997104": "ports.0",
+            "4615259872": "ports.1",
+            "4615260496": "ports.2",
+            "4615261072": "ports.3",
+            "4615261648": "ports.4",
+            "4615262224": "ports.5",
+            "4615262800": "ports.6",
+            "4615263376": "ports.7",
+            "4615263952": "ports.8",
+            "4615264528": "ports.9",
+            "4615265104": "ports.10",
+            "4615265680": "ports.11",
+            "4615266256": "ports.12",
+            "4615266832": "ports.13",
+            "4615267408": "ports.14",
+            "4615267984": "ports.15",
+            "4615268560": "ports.16",
+            "4615269136": "ports.17",
+            "4615269712": "ports.18",
+            "4615270288": "ports.19",
+            "4615270864": "ports.20",
+            "4615271440": "ports.21",
+            "4615272016": "ports.22",
+            "4615272592": "ports.23",
+            "4615273168": "ports.24",
+            "4615273744": "ports.25",
+            "4615274320": "ports.26"
+          },
+          "hook_registrations": [
+            {
+              "group": "4579794128",
+              "group_name": "ports.28",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4612342896",
+              "group_name": "ports.31",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4612343136",
+              "group_name": "ports.30",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4612344288",
+              "group_name": "ports.32",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4612344672",
+              "group_name": "ports.33",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4612345104",
+              "group_name": "ports.34",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4612345776",
+              "group_name": "ports.35",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4612350144",
+              "group_name": "ports.27",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4613768976",
+              "group_name": "ports.29",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4613997104",
+              "group_name": "ports.0",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615259872",
+              "group_name": "ports.1",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615260496",
+              "group_name": "ports.2",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615261072",
+              "group_name": "ports.3",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615261648",
+              "group_name": "ports.4",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615262224",
+              "group_name": "ports.5",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615262800",
+              "group_name": "ports.6",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615263376",
+              "group_name": "ports.7",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615263952",
+              "group_name": "ports.8",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615264528",
+              "group_name": "ports.9",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615265104",
+              "group_name": "ports.10",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615265680",
+              "group_name": "ports.11",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615266256",
+              "group_name": "ports.12",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615266832",
+              "group_name": "ports.13",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615267408",
+              "group_name": "ports.14",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615267984",
+              "group_name": "ports.15",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615268560",
+              "group_name": "ports.16",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615269136",
+              "group_name": "ports.17",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615269712",
+              "group_name": "ports.18",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615270288",
+              "group_name": "ports.19",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615270864",
+              "group_name": "ports.20",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615271440",
+              "group_name": "ports.21",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615272016",
+              "group_name": "ports.22",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615272592",
+              "group_name": "ports.23",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615273168",
+              "group_name": "ports.24",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615273744",
+              "group_name": "ports.25",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4615274320",
+              "group_name": "ports.26",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            }
+          ],
+          "implementation": "replica.intrinsic_memory.density.v12",
+          "memory_side_effects_not_created_by_profiler": {
+            "admission_calls": 0,
+            "durable_write_bytes": 0,
+            "retrieval_calls": 0,
+            "snapshot_copies": 0
+          },
+          "phase_site_invocations": {
+            "forward": 36,
+            "recompute": 0
+          },
+          "physical_groups": 36,
+          "recompute_passes": {},
+          "site_invocations": {
+            "0": 1,
+            "1": 1,
+            "10": 1,
+            "11": 1,
+            "12": 1,
+            "13": 1,
+            "14": 1,
+            "15": 1,
+            "16": 1,
+            "17": 1,
+            "18": 1,
+            "19": 1,
+            "2": 1,
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1,
+            "28": 1,
+            "29": 1,
+            "3": 1,
+            "30": 1,
+            "31": 1,
+            "32": 1,
+            "33": 1,
+            "34": 1,
+            "35": 1,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1,
+            "8": 1,
+            "9": 1
+          },
+          "site_to_group": {
+            "0": 4613997104,
+            "1": 4615259872,
+            "10": 4615265104,
+            "11": 4615265680,
+            "12": 4615266256,
+            "13": 4615266832,
+            "14": 4615267408,
+            "15": 4615267984,
+            "16": 4615268560,
+            "17": 4615269136,
+            "18": 4615269712,
+            "19": 4615270288,
+            "2": 4615260496,
+            "20": 4615270864,
+            "21": 4615271440,
+            "22": 4615272016,
+            "23": 4615272592,
+            "24": 4615273168,
+            "25": 4615273744,
+            "26": 4615274320,
+            "27": 4612350144,
+            "28": 4579794128,
+            "29": 4613768976,
+            "3": 4615261072,
+            "30": 4612343136,
+            "31": 4612342896,
+            "32": 4612344288,
+            "33": 4612344672,
+            "34": 4612345104,
+            "35": 4612345776,
+            "4": 4615261648,
+            "5": 4615262224,
+            "6": 4615262800,
+            "7": 4615263376,
+            "8": 4615263952,
+            "9": 4615264528
+          },
+          "sites": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35
+          ],
+          "timing": {
+            "dispatch_wall_ns_total": 53288210,
+            "group_wall_ns_by_phase": {
+              "forward": 4955915,
+              "recompute": 0
+            },
+            "group_wall_ns_total": 4955915,
+            "single_forward_fixture_only": true,
+            "synchronization": "unsynchronized_dispatch_perf_counter",
+            "synchronized_native_measurement": false,
+            "unit": "nanoseconds_monotonic"
+          },
+          "total_site_invocations": 36
+        },
+        "reader_invocations": 36,
+        "single_forward_tiny_fixture_only": true
+      },
+      "full_attention_nine": {
+        "cost_delta": {
+          "format": "replica.intrinsic_memory.density.v12.cost_ledger",
+          "memory": {
+            "admission_calls": 0,
+            "admitted_payload_bytes": 0,
+            "authority_validation_ns": 13275084,
+            "cold_completed_bytes": 0,
+            "cold_completed_files": 0,
+            "cold_reserved_bytes": 0,
+            "cold_reserved_files": 0,
+            "cold_wait_ns": 0,
+            "correction_calls": 0,
+            "durable_artifact_growth_bytes": 0,
+            "durable_write_bytes": 0,
+            "durable_write_ns": 0,
+            "fallback_bytes": 0,
+            "fallback_calls": 0,
+            "fallback_tokens": 0,
+            "producer_bytes": 0,
+            "producer_calls": 0,
+            "producer_hash_cache_hits": 0,
+            "producer_hash_calls": 0,
+            "producer_hash_ns": 0,
+            "producer_wall_ns": 0,
+            "read_file_bytes": 0,
+            "read_file_calls": 0,
+            "retrieval_calls": 0,
+            "retrieval_wall_ns": 0,
+            "revalidations": 0,
+            "snapshot_bytes": 32768,
+            "snapshot_copies": 1,
+            "source_revalidations": 0,
+            "ticket_descriptor_read_bytes": 0,
+            "ticket_descriptor_read_calls": 0,
+            "value_slots_read": 4
+          },
+          "source": {
+            "cache_bytes": 0,
+            "cache_evictions": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "feature_bytes_produced": 0,
+            "forwards": 0,
+            "input_tokens": 0,
+            "peak_cache_bytes": 0,
+            "requests": 0,
+            "source_bytes": 0,
+            "source_traced_layers": 0,
+            "tokenizer_cache_hits": 0,
+            "tokenizer_calls": 0,
+            "wall_ns": 0
+          }
+        },
+        "forward_wall_ns": 18660875,
+        "forward_wall_ns_semantics": "unsynchronized_cpu_perf_counter_dispatch",
+        "forward_wall_ns_synchronized": false,
+        "logits_changed_from_pre_update": true,
+        "logits_sha256": "2cc93d6db23d53dc3945c8b3bda4aa9726d4071db0c3ca6143c87c1f47d9a7a1",
+        "physical_reader_groups": 9,
+        "profiler": {
+          "activation_bytes": {
+            "by_phase": {
+              "forward": {
+                "input": 296352,
+                "output": 1152
+              },
+              "recompute": {
+                "input": 0,
+                "output": 0
+              }
+            },
+            "input_total": 296352,
+            "output_total": 1152
+          },
+          "allocator": {
+            "available": false,
+            "backend": "unavailable_on_cpu",
+            "max_current_allocated_bytes": null
+          },
+          "backward_work": {
+            "caller_measured": true,
+            "calls": 0,
+            "processed_positions": 0
+          },
+          "cache_bytes": {
+            "available": true,
+            "max_observed": 512,
+            "min_observed": 512
+          },
+          "callbacks_per_physical_group": 2,
+          "duplicate_registration_refusals": 0,
+          "format": "replica.intrinsic_memory.density.v12.profiler",
+          "forward_ids": [
+            "post-update"
+          ],
+          "group_invocations": {
+            "4610677728": 1,
+            "4611875152": 1,
+            "4611875776": 1,
+            "4611876352": 1,
+            "4611876928": 1,
+            "4611877504": 1,
+            "4611878080": 1,
+            "4611878656": 1,
+            "4611879232": 1
+          },
+          "group_names": {
+            "4610677728": "ports.3",
+            "4611875152": "ports.7",
+            "4611875776": "ports.11",
+            "4611876352": "ports.15",
+            "4611876928": "ports.19",
+            "4611877504": "ports.23",
+            "4611878080": "ports.27",
+            "4611878656": "ports.31",
+            "4611879232": "ports.35"
+          },
+          "hook_registrations": [
+            {
+              "group": "4610677728",
+              "group_name": "ports.3",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4611875152",
+              "group_name": "ports.7",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4611875776",
+              "group_name": "ports.11",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4611876352",
+              "group_name": "ports.15",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4611876928",
+              "group_name": "ports.19",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4611877504",
+              "group_name": "ports.23",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4611878080",
+              "group_name": "ports.27",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4611878656",
+              "group_name": "ports.31",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4611879232",
+              "group_name": "ports.35",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            }
+          ],
+          "implementation": "replica.intrinsic_memory.density.v12",
+          "memory_side_effects_not_created_by_profiler": {
+            "admission_calls": 0,
+            "durable_write_bytes": 0,
+            "retrieval_calls": 0,
+            "snapshot_copies": 0
+          },
+          "phase_site_invocations": {
+            "forward": 9,
+            "recompute": 0
+          },
+          "physical_groups": 9,
+          "recompute_passes": {},
+          "site_invocations": {
+            "11": 1,
+            "15": 1,
+            "19": 1,
+            "23": 1,
+            "27": 1,
+            "3": 1,
+            "31": 1,
+            "35": 1,
+            "7": 1
+          },
+          "site_to_group": {
+            "11": 4611875776,
+            "15": 4611876352,
+            "19": 4611876928,
+            "23": 4611877504,
+            "27": 4611878080,
+            "3": 4610677728,
+            "31": 4611878656,
+            "35": 4611879232,
+            "7": 4611875152
+          },
+          "sites": [
+            3,
+            7,
+            11,
+            15,
+            19,
+            23,
+            27,
+            31,
+            35
+          ],
+          "timing": {
+            "dispatch_wall_ns_total": 13370750,
+            "group_wall_ns_by_phase": {
+              "forward": 1210376,
+              "recompute": 0
+            },
+            "group_wall_ns_total": 1210376,
+            "single_forward_fixture_only": true,
+            "synchronization": "unsynchronized_dispatch_perf_counter",
+            "synchronized_native_measurement": false,
+            "unit": "nanoseconds_monotonic"
+          },
+          "total_site_invocations": 9
+        },
+        "reader_invocations": 9,
+        "single_forward_tiny_fixture_only": true
+      },
+      "two": {
+        "cost_delta": {
+          "format": "replica.intrinsic_memory.density.v12.cost_ledger",
+          "memory": {
+            "admission_calls": 0,
+            "admitted_payload_bytes": 0,
+            "authority_validation_ns": 3870875,
+            "cold_completed_bytes": 0,
+            "cold_completed_files": 0,
+            "cold_reserved_bytes": 0,
+            "cold_reserved_files": 0,
+            "cold_wait_ns": 0,
+            "correction_calls": 0,
+            "durable_artifact_growth_bytes": 0,
+            "durable_write_bytes": 0,
+            "durable_write_ns": 0,
+            "fallback_bytes": 0,
+            "fallback_calls": 0,
+            "fallback_tokens": 0,
+            "producer_bytes": 0,
+            "producer_calls": 0,
+            "producer_hash_cache_hits": 0,
+            "producer_hash_calls": 0,
+            "producer_hash_ns": 0,
+            "producer_wall_ns": 0,
+            "read_file_bytes": 0,
+            "read_file_calls": 0,
+            "retrieval_calls": 0,
+            "retrieval_wall_ns": 0,
+            "revalidations": 0,
+            "snapshot_bytes": 32768,
+            "snapshot_copies": 1,
+            "source_revalidations": 0,
+            "ticket_descriptor_read_bytes": 0,
+            "ticket_descriptor_read_calls": 0,
+            "value_slots_read": 4
+          },
+          "source": {
+            "cache_bytes": 0,
+            "cache_evictions": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "feature_bytes_produced": 0,
+            "forwards": 0,
+            "input_tokens": 0,
+            "peak_cache_bytes": 0,
+            "requests": 0,
+            "source_bytes": 0,
+            "source_traced_layers": 0,
+            "tokenizer_cache_hits": 0,
+            "tokenizer_calls": 0,
+            "wall_ns": 0
+          }
+        },
+        "forward_wall_ns": 8307125,
+        "forward_wall_ns_semantics": "unsynchronized_cpu_perf_counter_dispatch",
+        "forward_wall_ns_synchronized": false,
+        "logits_changed_from_pre_update": true,
+        "logits_sha256": "429b891fbc72450cd145bc0b8ebfe992ac9db067c1a662cd4f3b524f87b9b8ad",
+        "physical_reader_groups": 2,
+        "profiler": {
+          "activation_bytes": {
+            "by_phase": {
+              "forward": {
+                "input": 65856,
+                "output": 256
+              },
+              "recompute": {
+                "input": 0,
+                "output": 0
+              }
+            },
+            "input_total": 65856,
+            "output_total": 256
+          },
+          "allocator": {
+            "available": false,
+            "backend": "unavailable_on_cpu",
+            "max_current_allocated_bytes": null
+          },
+          "backward_work": {
+            "caller_measured": true,
+            "calls": 0,
+            "processed_positions": 0
+          },
+          "cache_bytes": {
+            "available": true,
+            "max_observed": 512,
+            "min_observed": 512
+          },
+          "callbacks_per_physical_group": 2,
+          "duplicate_registration_refusals": 0,
+          "format": "replica.intrinsic_memory.density.v12.profiler",
+          "forward_ids": [
+            "post-update"
+          ],
+          "group_invocations": {
+            "4587660080": 1,
+            "4608329584": 1
+          },
+          "group_names": {
+            "4587660080": "ports.7",
+            "4608329584": "ports.3"
+          },
+          "hook_registrations": [
+            {
+              "group": "4587660080",
+              "group_name": "ports.7",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4608329584",
+              "group_name": "ports.3",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            }
+          ],
+          "implementation": "replica.intrinsic_memory.density.v12",
+          "memory_side_effects_not_created_by_profiler": {
+            "admission_calls": 0,
+            "durable_write_bytes": 0,
+            "retrieval_calls": 0,
+            "snapshot_copies": 0
+          },
+          "phase_site_invocations": {
+            "forward": 2,
+            "recompute": 0
+          },
+          "physical_groups": 2,
+          "recompute_passes": {},
+          "site_invocations": {
+            "3": 1,
+            "7": 1
+          },
+          "site_to_group": {
+            "3": 4608329584,
+            "7": 4587660080
+          },
+          "sites": [
+            3,
+            7
+          ],
+          "timing": {
+            "dispatch_wall_ns_total": 2891375,
+            "group_wall_ns_by_phase": {
+              "forward": 264999,
+              "recompute": 0
+            },
+            "group_wall_ns_total": 264999,
+            "single_forward_fixture_only": true,
+            "synchronization": "unsynchronized_dispatch_perf_counter",
+            "synchronized_native_measurement": false,
+            "unit": "nanoseconds_monotonic"
+          },
+          "total_site_invocations": 2
+        },
+        "reader_invocations": 2,
+        "single_forward_tiny_fixture_only": true
+      }
+    },
+    "matched_arms": {
+      "all": {
+        "cost_delta": {
+          "format": "replica.intrinsic_memory.density.v12.cost_ledger",
+          "memory": {
+            "admission_calls": 0,
+            "admitted_payload_bytes": 0,
+            "authority_validation_ns": 47457457,
+            "cold_completed_bytes": 0,
+            "cold_completed_files": 0,
+            "cold_reserved_bytes": 0,
+            "cold_reserved_files": 0,
+            "cold_wait_ns": 0,
+            "correction_calls": 0,
+            "durable_artifact_growth_bytes": 0,
+            "durable_write_bytes": 0,
+            "durable_write_ns": 0,
+            "fallback_bytes": 0,
+            "fallback_calls": 0,
+            "fallback_tokens": 0,
+            "producer_bytes": 0,
+            "producer_calls": 0,
+            "producer_hash_cache_hits": 0,
+            "producer_hash_calls": 0,
+            "producer_hash_ns": 0,
+            "producer_wall_ns": 0,
+            "read_file_bytes": 0,
+            "read_file_calls": 0,
+            "retrieval_calls": 0,
+            "retrieval_wall_ns": 0,
+            "revalidations": 0,
+            "snapshot_bytes": 32768,
+            "snapshot_copies": 1,
+            "source_revalidations": 0,
+            "ticket_descriptor_read_bytes": 0,
+            "ticket_descriptor_read_calls": 0,
+            "value_slots_read": 4
+          },
+          "source": {
+            "cache_bytes": 0,
+            "cache_evictions": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "feature_bytes_produced": 0,
+            "forwards": 0,
+            "input_tokens": 0,
+            "peak_cache_bytes": 0,
+            "requests": 0,
+            "source_bytes": 0,
+            "source_traced_layers": 0,
+            "tokenizer_cache_hits": 0,
+            "tokenizer_calls": 0,
+            "wall_ns": 0
+          }
+        },
+        "forward_wall_ns": 56875583,
+        "forward_wall_ns_semantics": "unsynchronized_cpu_perf_counter_dispatch",
+        "forward_wall_ns_synchronized": false,
+        "logits_changed_from_pre_update": true,
+        "logits_sha256": "bbacdac0e7d8d726a07022649f64be24f02e758cf9dd2556674617f7cc277d4e",
+        "physical_reader_groups": 2,
+        "profiler": {
+          "activation_bytes": {
+            "by_phase": {
+              "forward": {
+                "input": 1185408,
+                "output": 4608
+              },
+              "recompute": {
+                "input": 0,
+                "output": 0
+              }
+            },
+            "input_total": 1185408,
+            "output_total": 4608
+          },
+          "allocator": {
+            "available": false,
+            "backend": "unavailable_on_cpu",
+            "max_current_allocated_bytes": null
+          },
+          "backward_work": {
+            "caller_measured": true,
+            "calls": 0,
+            "processed_positions": 0
+          },
+          "cache_bytes": {
+            "available": true,
+            "max_observed": 512,
+            "min_observed": 512
+          },
+          "callbacks_per_physical_group": 2,
+          "duplicate_registration_refusals": 0,
+          "format": "replica.intrinsic_memory.density.v12.profiler",
+          "forward_ids": [
+            "post-update"
+          ],
+          "group_invocations": {
+            "4610613824": 16,
+            "4612167136": 20
+          },
+          "group_names": {
+            "4610613824": "groups.1",
+            "4612167136": "groups.0"
+          },
+          "hook_registrations": [
+            {
+              "group": "4610613824",
+              "group_name": "groups.1",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4612167136",
+              "group_name": "groups.0",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            }
+          ],
+          "implementation": "replica.intrinsic_memory.density.v12",
+          "memory_side_effects_not_created_by_profiler": {
+            "admission_calls": 0,
+            "durable_write_bytes": 0,
+            "retrieval_calls": 0,
+            "snapshot_copies": 0
+          },
+          "phase_site_invocations": {
+            "forward": 36,
+            "recompute": 0
+          },
+          "physical_groups": 2,
+          "recompute_passes": {},
+          "site_invocations": {
+            "0": 1,
+            "1": 1,
+            "10": 1,
+            "11": 1,
+            "12": 1,
+            "13": 1,
+            "14": 1,
+            "15": 1,
+            "16": 1,
+            "17": 1,
+            "18": 1,
+            "19": 1,
+            "2": 1,
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1,
+            "28": 1,
+            "29": 1,
+            "3": 1,
+            "30": 1,
+            "31": 1,
+            "32": 1,
+            "33": 1,
+            "34": 1,
+            "35": 1,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1,
+            "8": 1,
+            "9": 1
+          },
+          "site_to_group": {
+            "0": 4612167136,
+            "1": 4612167136,
+            "10": 4612167136,
+            "11": 4612167136,
+            "12": 4610613824,
+            "13": 4610613824,
+            "14": 4610613824,
+            "15": 4610613824,
+            "16": 4612167136,
+            "17": 4612167136,
+            "18": 4612167136,
+            "19": 4612167136,
+            "2": 4612167136,
+            "20": 4610613824,
+            "21": 4610613824,
+            "22": 4610613824,
+            "23": 4610613824,
+            "24": 4612167136,
+            "25": 4612167136,
+            "26": 4612167136,
+            "27": 4612167136,
+            "28": 4610613824,
+            "29": 4610613824,
+            "3": 4612167136,
+            "30": 4610613824,
+            "31": 4610613824,
+            "32": 4612167136,
+            "33": 4612167136,
+            "34": 4612167136,
+            "35": 4612167136,
+            "4": 4610613824,
+            "5": 4610613824,
+            "6": 4610613824,
+            "7": 4610613824,
+            "8": 4612167136,
+            "9": 4612167136
+          },
+          "sites": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35
+          ],
+          "timing": {
+            "dispatch_wall_ns_total": 51219542,
+            "group_wall_ns_by_phase": {
+              "forward": 3890792,
+              "recompute": 0
+            },
+            "group_wall_ns_total": 3890792,
+            "single_forward_fixture_only": true,
+            "synchronization": "unsynchronized_dispatch_perf_counter",
+            "synchronized_native_measurement": false,
+            "unit": "nanoseconds_monotonic"
+          },
+          "total_site_invocations": 36
+        },
+        "reader_invocations": 36,
+        "single_forward_tiny_fixture_only": true
+      },
+      "full_attention_nine": {
+        "cost_delta": {
+          "format": "replica.intrinsic_memory.density.v12.cost_ledger",
+          "memory": {
+            "admission_calls": 0,
+            "admitted_payload_bytes": 0,
+            "authority_validation_ns": 13292456,
+            "cold_completed_bytes": 0,
+            "cold_completed_files": 0,
+            "cold_reserved_bytes": 0,
+            "cold_reserved_files": 0,
+            "cold_wait_ns": 0,
+            "correction_calls": 0,
+            "durable_artifact_growth_bytes": 0,
+            "durable_write_bytes": 0,
+            "durable_write_ns": 0,
+            "fallback_bytes": 0,
+            "fallback_calls": 0,
+            "fallback_tokens": 0,
+            "producer_bytes": 0,
+            "producer_calls": 0,
+            "producer_hash_cache_hits": 0,
+            "producer_hash_calls": 0,
+            "producer_hash_ns": 0,
+            "producer_wall_ns": 0,
+            "read_file_bytes": 0,
+            "read_file_calls": 0,
+            "retrieval_calls": 0,
+            "retrieval_wall_ns": 0,
+            "revalidations": 0,
+            "snapshot_bytes": 32768,
+            "snapshot_copies": 1,
+            "source_revalidations": 0,
+            "ticket_descriptor_read_bytes": 0,
+            "ticket_descriptor_read_calls": 0,
+            "value_slots_read": 4
+          },
+          "source": {
+            "cache_bytes": 0,
+            "cache_evictions": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "feature_bytes_produced": 0,
+            "forwards": 0,
+            "input_tokens": 0,
+            "peak_cache_bytes": 0,
+            "requests": 0,
+            "source_bytes": 0,
+            "source_traced_layers": 0,
+            "tokenizer_cache_hits": 0,
+            "tokenizer_calls": 0,
+            "wall_ns": 0
+          }
+        },
+        "forward_wall_ns": 19003916,
+        "forward_wall_ns_semantics": "unsynchronized_cpu_perf_counter_dispatch",
+        "forward_wall_ns_synchronized": false,
+        "logits_changed_from_pre_update": true,
+        "logits_sha256": "348d98dd26542fe4e39f76cb93ef94bfab631340868f5f522d2b0ad36bb5b507",
+        "physical_reader_groups": 2,
+        "profiler": {
+          "activation_bytes": {
+            "by_phase": {
+              "forward": {
+                "input": 296352,
+                "output": 1152
+              },
+              "recompute": {
+                "input": 0,
+                "output": 0
+              }
+            },
+            "input_total": 296352,
+            "output_total": 1152
+          },
+          "allocator": {
+            "available": false,
+            "backend": "unavailable_on_cpu",
+            "max_current_allocated_bytes": null
+          },
+          "backward_work": {
+            "caller_measured": true,
+            "calls": 0,
+            "processed_positions": 0
+          },
+          "cache_bytes": {
+            "available": true,
+            "max_observed": 512,
+            "min_observed": 512
+          },
+          "callbacks_per_physical_group": 2,
+          "duplicate_registration_refusals": 0,
+          "format": "replica.intrinsic_memory.density.v12.profiler",
+          "forward_ids": [
+            "post-update"
+          ],
+          "group_invocations": {
+            "4612292384": 5,
+            "4613717072": 4
+          },
+          "group_names": {
+            "4612292384": "groups.0",
+            "4613717072": "groups.1"
+          },
+          "hook_registrations": [
+            {
+              "group": "4612292384",
+              "group_name": "groups.0",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4613717072",
+              "group_name": "groups.1",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            }
+          ],
+          "implementation": "replica.intrinsic_memory.density.v12",
+          "memory_side_effects_not_created_by_profiler": {
+            "admission_calls": 0,
+            "durable_write_bytes": 0,
+            "retrieval_calls": 0,
+            "snapshot_copies": 0
+          },
+          "phase_site_invocations": {
+            "forward": 9,
+            "recompute": 0
+          },
+          "physical_groups": 2,
+          "recompute_passes": {},
+          "site_invocations": {
+            "11": 1,
+            "15": 1,
+            "19": 1,
+            "23": 1,
+            "27": 1,
+            "3": 1,
+            "31": 1,
+            "35": 1,
+            "7": 1
+          },
+          "site_to_group": {
+            "11": 4612292384,
+            "15": 4613717072,
+            "19": 4612292384,
+            "23": 4613717072,
+            "27": 4612292384,
+            "3": 4612292384,
+            "31": 4613717072,
+            "35": 4612292384,
+            "7": 4613717072
+          },
+          "sites": [
+            3,
+            7,
+            11,
+            15,
+            19,
+            23,
+            27,
+            31,
+            35
+          ],
+          "timing": {
+            "dispatch_wall_ns_total": 13599039,
+            "group_wall_ns_by_phase": {
+              "forward": 1279127,
+              "recompute": 0
+            },
+            "group_wall_ns_total": 1279127,
+            "single_forward_fixture_only": true,
+            "synchronization": "unsynchronized_dispatch_perf_counter",
+            "synchronized_native_measurement": false,
+            "unit": "nanoseconds_monotonic"
+          },
+          "total_site_invocations": 9
+        },
+        "reader_invocations": 9,
+        "single_forward_tiny_fixture_only": true
+      },
+      "two": {
+        "cost_delta": {
+          "format": "replica.intrinsic_memory.density.v12.cost_ledger",
+          "memory": {
+            "admission_calls": 0,
+            "admitted_payload_bytes": 0,
+            "authority_validation_ns": 4193542,
+            "cold_completed_bytes": 0,
+            "cold_completed_files": 0,
+            "cold_reserved_bytes": 0,
+            "cold_reserved_files": 0,
+            "cold_wait_ns": 0,
+            "correction_calls": 0,
+            "durable_artifact_growth_bytes": 0,
+            "durable_write_bytes": 0,
+            "durable_write_ns": 0,
+            "fallback_bytes": 0,
+            "fallback_calls": 0,
+            "fallback_tokens": 0,
+            "producer_bytes": 0,
+            "producer_calls": 0,
+            "producer_hash_cache_hits": 0,
+            "producer_hash_calls": 0,
+            "producer_hash_ns": 0,
+            "producer_wall_ns": 0,
+            "read_file_bytes": 0,
+            "read_file_calls": 0,
+            "retrieval_calls": 0,
+            "retrieval_wall_ns": 0,
+            "revalidations": 0,
+            "snapshot_bytes": 32768,
+            "snapshot_copies": 1,
+            "source_revalidations": 0,
+            "ticket_descriptor_read_bytes": 0,
+            "ticket_descriptor_read_calls": 0,
+            "value_slots_read": 4
+          },
+          "source": {
+            "cache_bytes": 0,
+            "cache_evictions": 0,
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "feature_bytes_produced": 0,
+            "forwards": 0,
+            "input_tokens": 0,
+            "peak_cache_bytes": 0,
+            "requests": 0,
+            "source_bytes": 0,
+            "source_traced_layers": 0,
+            "tokenizer_cache_hits": 0,
+            "tokenizer_calls": 0,
+            "wall_ns": 0
+          }
+        },
+        "forward_wall_ns": 9250500,
+        "forward_wall_ns_semantics": "unsynchronized_cpu_perf_counter_dispatch",
+        "forward_wall_ns_synchronized": false,
+        "logits_changed_from_pre_update": true,
+        "logits_sha256": "429b891fbc72450cd145bc0b8ebfe992ac9db067c1a662cd4f3b524f87b9b8ad",
+        "physical_reader_groups": 2,
+        "profiler": {
+          "activation_bytes": {
+            "by_phase": {
+              "forward": {
+                "input": 65856,
+                "output": 256
+              },
+              "recompute": {
+                "input": 0,
+                "output": 0
+              }
+            },
+            "input_total": 65856,
+            "output_total": 256
+          },
+          "allocator": {
+            "available": false,
+            "backend": "unavailable_on_cpu",
+            "max_current_allocated_bytes": null
+          },
+          "backward_work": {
+            "caller_measured": true,
+            "calls": 0,
+            "processed_positions": 0
+          },
+          "cache_bytes": {
+            "available": true,
+            "max_observed": 512,
+            "min_observed": 512
+          },
+          "callbacks_per_physical_group": 2,
+          "duplicate_registration_refusals": 0,
+          "format": "replica.intrinsic_memory.density.v12.profiler",
+          "forward_ids": [
+            "post-update"
+          ],
+          "group_invocations": {
+            "4609038752": 1,
+            "4610350720": 1
+          },
+          "group_names": {
+            "4609038752": "groups.0",
+            "4610350720": "groups.1"
+          },
+          "hook_registrations": [
+            {
+              "group": "4609038752",
+              "group_name": "groups.0",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            },
+            {
+              "group": "4610350720",
+              "group_name": "groups.1",
+              "hooks_now": 2,
+              "post_hooks": 1,
+              "pre_hooks": 1
+            }
+          ],
+          "implementation": "replica.intrinsic_memory.density.v12",
+          "memory_side_effects_not_created_by_profiler": {
+            "admission_calls": 0,
+            "durable_write_bytes": 0,
+            "retrieval_calls": 0,
+            "snapshot_copies": 0
+          },
+          "phase_site_invocations": {
+            "forward": 2,
+            "recompute": 0
+          },
+          "physical_groups": 2,
+          "recompute_passes": {},
+          "site_invocations": {
+            "3": 1,
+            "7": 1
+          },
+          "site_to_group": {
+            "3": 4609038752,
+            "7": 4610350720
+          },
+          "sites": [
+            3,
+            7
+          ],
+          "timing": {
+            "dispatch_wall_ns_total": 3058333,
+            "group_wall_ns_by_phase": {
+              "forward": 288541,
+              "recompute": 0
+            },
+            "group_wall_ns_total": 288541,
+            "single_forward_fixture_only": true,
+            "synchronization": "unsynchronized_dispatch_perf_counter",
+            "synchronized_native_measurement": false,
+            "unit": "nanoseconds_monotonic"
+          },
+          "total_site_invocations": 2
+        },
+        "reader_invocations": 2,
+        "single_forward_tiny_fixture_only": true
+      }
+    }
+  },
+  "promotion": false,
+  "protocol_digests": {
+    "fixed_per_site": "2441bbb184afd76a35a612e79e88698b50f044be39e1fce878523e1c969977ca",
+    "matched_unique_parameters": "125407467909f7cb50267a7b60af2a14ea8af69b70271d598dec923abb46a3da",
+    "preregistered_measured_total_cost": "6fe14bc87e75dc20c5923a161339bed805e2b4768d133213267d5ada6a4ebbe7"
+  },
+  "repair_cycle": "coordinator11",
+  "scope": "CPU_random_36_block_fixture_engineering_only",
+  "test_evidence": "main-owned density/independent test run after integration"
+}

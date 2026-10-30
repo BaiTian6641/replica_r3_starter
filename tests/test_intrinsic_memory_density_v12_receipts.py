@@ -84,7 +84,7 @@ def test_receipts_reproduce_actual_pilot_target_and_refuse_overwrite(tmp_path):
         cost["out_of_tolerance_control"])
     assert manifest["outputs"][PROTOCOL_SUMMARY]
     assert json.loads((destination / REPORT_MANIFEST).read_text()) == manifest
-    second = tmp_path / "repair-again"
+    second = tmp_path / "other" / "repair"
     write_repair_receipts(second, cpu_summary_path=cpu, cost_pilot_path=cost_path)
     assert (destination / PROTOCOL_SUMMARY).read_bytes() == (
         second / PROTOCOL_SUMMARY).read_bytes()
@@ -322,6 +322,7 @@ def test_navigation_incomplete_rollback_preserves_original_with_notes(monkeypatc
     assert isinstance(error.value.__cause__, OSError)
     assert error.value.notes
     assert not (root / "CURRENT.json").exists()
+    assert not (root / "NONCANONICAL.json").exists()
 
 
 def test_darwin_durability_uses_fullfsync(monkeypatch, tmp_path):
@@ -411,8 +412,9 @@ def test_final_unlink_failure_quarantines_before_raising(monkeypatch, tmp_path):
 
     monkeypatch.setattr(receipts.Path, "unlink", failing_unlink)
     monkeypatch.setattr(receipts, "_fsync_directory", failing_fsync)
-    with pytest.raises(OSError):
+    with pytest.raises(ReceiptError) as error:
         receipts.write_new_json(destination, {"complete": True})
+    assert error.value.notes
     assert not destination.exists()
 
 
@@ -445,3 +447,20 @@ def test_current_missing_fails_closed_not_via_noncanonical(tmp_path):
     (root / "NONCANONICAL.json").write_text('{"canonical_destination": "elsewhere"}\n')
     with pytest.raises(ReceiptError, match="CURRENT navigation receipt is missing"):
         read_current_navigation(root)
+
+
+def test_repair_cycle_derives_from_canonical_directory(tmp_path):
+    cpu, cost_path, cost = inputs(tmp_path)
+    destination = tmp_path / "coordinator11"
+    manifest = write_repair_receipts(
+        destination, cpu_summary_path=cpu, cost_pilot_path=cost_path)
+    protocol = json.loads((destination / PROTOCOL_SUMMARY).read_text())
+    verification = json.loads((destination / VERIFICATION_RESULTS).read_text())
+    assert manifest["repair_cycle"] == "coordinator11"
+    assert protocol["repair_cycle"] == "coordinator11"
+    assert verification["repair_cycle"] == "coordinator11"
+    assert "repair03" not in json.dumps(verification)
+    with pytest.raises(ReceiptError, match="canonical directory identity"):
+        write_repair_receipts(
+            tmp_path / "coordinator12", cpu_summary_path=cpu,
+            cost_pilot_path=cost_path, repair_cycle="repair03")

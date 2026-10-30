@@ -604,6 +604,8 @@ class SiteInvocationProfiler:
                 "dispatch_wall_ns_total": sum(event.get("dispatch_wall_ns", 0)
                                                for event in self._events),
                 "single_forward_fixture_only": True,
+                "synchronization": "unsynchronized_dispatch_perf_counter",
+                "synchronized_native_measurement": False,
             },
             "backward_work": {**self._backward,
                               "caller_measured": True},
