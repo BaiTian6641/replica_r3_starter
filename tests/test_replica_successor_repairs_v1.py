@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import pathlib
 import sqlite3
 import time
 import types
@@ -767,6 +768,46 @@ def test_quarantined_correction_deletion_fails_closed(tmp_path):
             store.read_record(correction_id, _pin(store))
 
 
+def test_quarantined_event_derived_rows_are_not_trusted(tmp_path):
+    with make_store(tmp_path) as store:
+        healthy = commit(store, _pin(store), [_obs("healthy", "healthy fact")],
+                         interaction="interaction-healthy")
+        victim = commit(store, _pin(store), [_obs("victim", "victim fact")],
+                        interaction="interaction-victim")
+        healthy_id = healthy.receipt.record_ids[0]
+        victim_id = victim.receipt.record_ids[0]
+        victim_event = victim.receipt.event_key
+        victim_payload = victim.receipt.payload_digest
+    (tmp_path / "payloads" / f"{victim_payload}.json").write_bytes(b"{broken")
+    connection = sqlite3.connect(tmp_path / "authority.sqlite3")
+    connection.execute(
+        "INSERT INTO notes(note_id, event_key, branch_id, purpose, interaction_id, "
+        "origin, text, text_digest, committed_at_ns) VALUES "
+        "('tampered-note', ?, 'branch-a', 'formation-test', 'i', 'model_generated', "
+        "'x', ?, 0)", (victim_event, "0" * 64))
+    connection.execute(
+        "INSERT INTO record_lineage(record_id, ancestor_id) VALUES (?, ?)",
+        (healthy_id, victim_id))
+    connection.execute(
+        "INSERT INTO tombstones(record_id, kind, reason, event_key, at_ns, "
+        "observed_at, generation) VALUES (?, 'ancestor_superseded', 'tamper', ?, "
+        "0, 0, 1)", (healthy_id, victim_event))
+    connection.commit()
+    connection.close()
+    with make_store(tmp_path) as store:
+        report = store.recover()
+        assert report.status == "degraded"
+        assert store.read_record(healthy_id, _pin(store)).text == "healthy fact"
+        assert store.read_provisional(branch_id="branch-a",
+                                      purpose="formation-test") == ()
+        assert store._connection.execute(
+            "SELECT 1 FROM record_lineage WHERE record_id=?", (healthy_id,)
+        ).fetchone() is None
+        assert store._connection.execute(
+            "SELECT 1 FROM tombstones WHERE record_id=?", (healthy_id,)
+        ).fetchone() is None
+
+
 def test_quarantined_revocation_deletion_fails_closed(tmp_path):
     with make_store(tmp_path) as store:
         healthy = commit(store, _pin(store), [_obs("healthy", "healthy fact")],
@@ -888,6 +929,85 @@ def test_revoke_temp_marker_cleanup_preserves_original_error(tmp_path, monkeypat
     leftovers = [path for path in (tmp_path / "p_revoked").iterdir()
                  if path.name.endswith(".tmp")]
     assert leftovers == []
+
+
+def test_outcomes_revalidate_revocation_after_io(tmp_path):
+    with make_store(tmp_path) as store:
+        current = _pin(store)
+        outcome = OutcomeReceipt("u1", "a1", "completed", "r1",
+                                 time.time_ns(), "one")
+        report = commit(store, current, [_obs("race", "race")],
+                        outcomes=(outcome,), interaction="interaction-race")
+        record_id = report.receipt.record_ids[0]
+        real = store._load_payload
+        state = {"raced": False}
+        def racing(payload_digest):
+            data = real(payload_digest)
+            if not state["raced"]:
+                state["raced"] = True
+                store.revoke(record_id, reason="racing")
+            return data
+        store._load_payload = racing
+        assert store.outcomes(_pin(store)) == ()
+
+
+def test_p_publication_rechecks_revocation_before_pointer(tmp_path):
+    store = _tier(tmp_path)
+    store.publish_p("expert", weights=b"w1", moments=b"m1", clock=1,
+                    encoder="encoder-v1", lineage=["r1"])
+    real = store._write_p_pointer
+    def racing(owner, **kwargs):
+        store.revoke_p(owner, reason="racing", authorized_by="host")
+        return real(owner, **kwargs)
+    store._write_p_pointer = racing
+    with pytest.raises(PermissionError):
+        store.publish_p("expert", weights=b"w2", moments=b"m2", clock=2,
+                        encoder="encoder-v2", lineage=["r1"])
+    assert "p_expert_c2" not in store._p_record_ids("expert")
+    with pytest.raises(PermissionError):
+        store.read_p("expert")
+
+
+def test_pointer_cleanup_preserves_original_error(tmp_path, monkeypatch):
+    store = _tier(tmp_path)
+    store.publish_p("expert", weights=b"w1", moments=b"m1", clock=1,
+                    encoder="encoder-v1", lineage=["r1"])
+    def failing_pointer(*args, **kwargs):
+        raise RuntimeError("original pointer failure")
+    def failing_cleanup(*args, **kwargs):
+        raise RuntimeError("cleanup failure must not mask")
+    monkeypatch.setattr(store, "_write_p_pointer", failing_pointer)
+    monkeypatch.setattr(store, "_remove_p_record", failing_cleanup)
+    with pytest.raises(RuntimeError, match="original pointer failure"):
+        store.publish_p("expert", weights=b"w2", moments=b"m2", clock=2,
+                        encoder="encoder-v2", lineage=["r1"])
+
+
+def test_recover_removes_orphan_pointer(tmp_path):
+    store = _tier(tmp_path)
+    pointer_root = tmp_path / "p_current"
+    pointer_root.mkdir()
+    (pointer_root / "ghost.json").write_text(json.dumps({
+        "format": "replica.successors.p_pointer.v1", "owner": "ghost",
+        "clock": 1, "record_id": "p_ghost_c1",
+        "payload_sha256": "0" * 64, "manifest_sha256": "0" * 64,
+        "committed_at_ns": 1}))
+    report = store.recover()
+    assert report["status"] == "degraded"
+    assert not (pointer_root / "ghost.json").exists()
+
+
+def test_measurement_writer_is_no_overwrite(tmp_path):
+    import importlib.util
+    script = pathlib.Path(__file__).resolve().parents[1] / "reports" / \
+        "replica_successors_v12" / "run_cpu_successors_v12.py"
+    spec = importlib.util.spec_from_file_location("successor_runner", script)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    target = tmp_path / "measurements.json"
+    assert module._write_new_bytes(target, b"first") is True
+    assert module._write_new_bytes(target, b"second") is False
+    assert target.read_bytes() == b"first"
 
 
 def test_study_attribution_uses_actual_ids(tmp_path):

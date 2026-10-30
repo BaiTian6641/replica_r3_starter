@@ -230,7 +230,7 @@ class _HotEntry:
 def _best_effort_rmtree(path: Path) -> None:
     try:
         shutil.rmtree(path)
-    except OSError:
+    except BaseException:
         pass
 
 
@@ -441,6 +441,8 @@ class TieredBlobStore:
         shutil.rmtree(self._directory("warm", record_id))
         if owner is not None:
             self._invalidate_p_owner(owner)
+            if self._is_p_revoked(owner):
+                raise PermissionError("P owner was revoked during demotion")
         return dict(manifest)
 
     def promote(self, record_id: str, *, to: str = "warm") -> dict:
@@ -458,6 +460,8 @@ class TieredBlobStore:
         shutil.rmtree(self._directory("cold", record_id))
         if owner is not None:
             self._invalidate_p_owner(owner)
+            if self._is_p_revoked(owner):
+                raise PermissionError("P owner was revoked during promotion")
         return dict(manifest)
 
     # -- authority ---------------------------------------------------------
@@ -1067,9 +1071,24 @@ class TieredBlobStore:
     def _pointer_record_id(self, owner: str) -> str | None:
         try:
             pointer = self._read_p_pointer(owner)
-        except TierError:
+        except BaseException:
             return None
         return None if pointer is None else pointer.get("record_id")
+
+    def _rollback_p_publication(self, owner: str, record_id: str,
+                                prior_pointer: bytes | None,
+                                existed: bool) -> None:
+        """Best-effort cleanup that never masks the caller's original error."""
+        try:
+            self._restore_p_pointer_bytes(owner, prior_pointer)
+        except BaseException:
+            pass
+        if not existed:
+            try:
+                if self._pointer_record_id(owner) != record_id:
+                    self._remove_p_record(record_id)
+            except BaseException:
+                pass
 
     def _remove_p_record(self, record_id: str) -> None:
         self._hot.pop(record_id, None)
@@ -1115,6 +1134,8 @@ class TieredBlobStore:
             raise TierError("P clock must not move backwards")
         record_id = f"p_{owner}_c{clock}"
         existed = any(item["record_id"] == record_id for item in versions)
+        pointer_path = self._p_pointer_path(owner)
+        prior_pointer = pointer_path.read_bytes() if pointer_path.is_file() else None
         payload = self.pack_p_state(owner=owner, clock=clock, encoder=encoder,
                                     lineage=lineage, weights=weights, moments=moments)
         manifest = self.publish(
@@ -1123,25 +1144,18 @@ class TieredBlobStore:
             extra={"clock": clock, "encoder": encoder, "lineage": list(lineage),
                    "owner": owner},
             tier=tier, dirty=dirty)
-        pointer_path = self._p_pointer_path(owner)
-        prior_pointer = pointer_path.read_bytes() if pointer_path.is_file() else None
+        if self._is_p_revoked(owner):
+            self._rollback_p_publication(owner, record_id, prior_pointer, existed)
+            raise PermissionError("P owner was revoked during publication")
         try:
             self._write_p_pointer(owner, clock=clock, record_id=record_id,
                                   manifest=manifest)
         except BaseException:
-            # Preserve the original failure while making pointer/record state
-            # coherent. Prefer the previous pointer; if that cannot be restored,
-            # leave the new pointer+record pair intact rather than a live
-            # pointer to a deleted record.
-            try:
-                self._restore_p_pointer_bytes(owner, prior_pointer)
-            except BaseException:
-                pass
-            if not existed:
-                pointed = self._pointer_record_id(owner)
-                if pointed != record_id:
-                    self._remove_p_record(record_id)
+            self._rollback_p_publication(owner, record_id, prior_pointer, existed)
             raise
+        if self._is_p_revoked(owner):
+            self._rollback_p_publication(owner, record_id, prior_pointer, existed)
+            raise PermissionError("P owner was revoked during pointer publication")
         return manifest
 
     def evict_p(self, owner: str) -> str:
@@ -1149,6 +1163,8 @@ class TieredBlobStore:
         if self._is_p_revoked(owner):
             raise PermissionError("revoked P state cannot be evicted as healthy")
         state = self._latest_p(owner)
+        if self._is_p_revoked(owner):
+            raise PermissionError("P owner was revoked during eviction")
         key = state["record_id"]
         entry = self._hot.get(key)
         if entry is not None and entry.dirty:

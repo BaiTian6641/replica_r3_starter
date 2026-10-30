@@ -658,22 +658,51 @@ def main() -> int:
     identity = hashlib.sha256(measurement_bytes).hexdigest()
     versioned = output / f"measurements_{identity[:16]}.json"
     _write_new_bytes(versioned, measurement_bytes)
-    _write_new_bytes(output / "measurements.json", measurement_bytes)
+    protocols = all_protocols()
+    protocol_bytes = (json.dumps(protocols, indent=2) + "\n").encode("utf-8")
+    interface_bytes = (json.dumps(protocols["interface_map"], indent=2)
+                       + "\n").encode("utf-8")
+    protocol_sha = hashlib.sha256(protocol_bytes).hexdigest()
+    interface_sha = hashlib.sha256(interface_bytes).hexdigest()
+    protocol_versioned = output / f"protocols_{protocol_sha[:16]}.json"
+    interface_versioned = output / f"interface_map_{interface_sha[:16]}.json"
+    _write_new_bytes(protocol_versioned, protocol_bytes)
+    _write_new_bytes(interface_versioned, interface_bytes)
+
+    legacy = output / "legacy"
+    stale_aliases: list[str] = []
+    for alias in (output / "measurements.json", output / "protocols.json",
+                  output / "interface_map.json"):
+        if not alias.is_file():
+            continue
+        data = alias.read_bytes()
+        digest = hashlib.sha256(data).hexdigest()
+        legacy.mkdir(exist_ok=True)
+        preserved = legacy / f"{alias.name}_{digest[:16]}.json"
+        _write_new_bytes(preserved, data)
+        try:
+            alias.unlink()
+        except OSError:
+            stale_aliases.append(alias.name)
     _write_current_pointer(output / "CURRENT.json", {
         "format": "replica.successors.current.v1",
         "measurements": versioned.name,
         "measurements_sha256": identity,
+        "protocols": protocol_versioned.name,
+        "protocols_sha256": protocol_sha,
+        "interface_map": interface_versioned.name,
+        "interface_map_sha256": interface_sha,
+        "stale_aliases": stale_aliases,
         "written_at_ns": time.time_ns(),
     })
-    protocols = all_protocols()
-    (output / "protocols.json").write_text(
-        json.dumps(protocols, indent=2) + "\n", encoding="utf-8")
-    (output / "interface_map.json").write_text(
-        json.dumps(protocols["interface_map"], indent=2) + "\n", encoding="utf-8")
     print(json.dumps({
         "output": str(output),
         "measurements": versioned.name,
         "measurements_sha256": identity,
+        "protocols": protocol_versioned.name,
+        "protocols_sha256": protocol_sha,
+        "interface_map": interface_versioned.name,
+        "interface_map_sha256": interface_sha,
         "elapsed_seconds": measurements["elapsed_seconds"],
         "formation_used_new": measurements.get("formation_study", {})
         .get("measurement", {}).get("enabled_used_new_observation"),

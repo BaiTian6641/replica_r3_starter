@@ -232,7 +232,7 @@ engineering measurements, not benchmarks or native costs.
 A tiny 14k-parameter `CognitiveCore` and fictional strings were used. These are
 not Spark measurements, not memory utility and not identity fidelity evidence.
 
-## 4. Interface map (also in `interface_map.json`)
+## 4. Interface map (also in the versioned `interface_map_<sha>.json`)
 
 | Existing interface | Successor adapter | Boundary preserved |
 |---|---|---|
@@ -246,7 +246,7 @@ not Spark measurements, not memory utility and not identity fidelity evidence.
 
 ## 5. Prepared later protocols and unsatisfied gates
 
-`protocols.json` contains:
+The versioned `protocols_<sha>.json` contains:
 
 - S2a write-enabled/disabled behavioral protocol with cases, metrics and exact
   command.
@@ -272,9 +272,9 @@ Unsatisfied gates (unchanged by this work):
 
 ## 6. Exact commands
 
-Measurements (writes a no-overwrite `measurements_<sha>.json`, updates
-`CURRENT.json` with its digest, preserves prior outputs, and writes
-`protocols.json`/`interface_map.json`):
+Measurements (writes no-overwrite `measurements_<sha>.json`,
+`protocols_<sha>.json` and `interface_map_<sha>.json`, updates `CURRENT.json`
+with all content hashes, and preserves prior content under `legacy/`):
 
 ```bash
 .venv/bin/python reports/replica_successors_v12/run_cpu_successors_v12.py \

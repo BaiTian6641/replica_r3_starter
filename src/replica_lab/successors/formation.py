@@ -1335,7 +1335,7 @@ class FormationStore:
                 "SELECT DISTINCT ri.event_key FROM record_index ri "
                 "JOIN tombstones t ON t.record_id=ri.record_id "
                 "WHERE t.kind='revoked'")}
-        entries: list[tuple[int, int, dict]] = []
+        entries: list[tuple[int, int, str, dict]] = []
         for row in rows:
             if str(row["event_key"]) in revoked_events:
                 continue
@@ -1347,9 +1347,15 @@ class FormationStore:
                 if int(outcome.get("source_epoch", 0)) not in pin.source_epochs:
                     continue
                 entries.append((int(row["sequence"]), int(outcome.get("ordinal", 0)),
-                                dict(outcome)))
+                                str(row["event_key"]), dict(outcome)))
+        revoked_events = {
+            str(row["event_key"]) for row in self._connection.execute(
+                "SELECT DISTINCT ri.event_key FROM record_index ri "
+                "JOIN tombstones t ON t.record_id=ri.record_id "
+                "WHERE t.kind='revoked'")}
+        entries = [item for item in entries if item[2] not in revoked_events]
         entries.sort(key=lambda item: (item[0], item[1]))
-        return tuple(item[2] for item in entries)
+        return tuple(item[3] for item in entries)
 
     def read_provisional(self, *, branch_id: str, purpose: str) -> tuple[dict, ...]:
         """Branch-owned provisional notes; never evidence and never reader input."""
@@ -1652,27 +1658,13 @@ class FormationStore:
         expected_index, expected_lineage, expected_notes, expected_tombstones, \
             expected_revocations = expected
         if skip_events:
-            # Preserve every derived row owned by a quarantined event; only
-            # valid events are rebuilt/authenticated, so unrelated corruption
-            # cannot erase a valid revocation/lineage/tombstone row.
+            # Only receipt-reconstructed tombstone/revocation rows are
+            # authoritative for quarantined events. Notes, lineage and any
+            # other unauthenticated derived rows are not preserved; record
+            # index rows remain only so corrupt payload access fails closed.
             for record_id, values in current_index.items():
                 if values[0] in skip_events:
                     expected_index[record_id] = values
-            for note_id, values in current_notes.items():
-                if values[0] in skip_events:
-                    expected_notes[note_id] = values
-            for record_id, values in current_tombstones.items():
-                if values[2] in skip_events and record_id not in expected_tombstones:
-                    expected_tombstones[record_id] = values
-            for record_id, values in current_revocations.items():
-                if values[0] in skip_events and record_id not in expected_revocations:
-                    expected_revocations[record_id] = values
-            current_event = {record_id: values[0]
-                             for record_id, values in current_index.items()}
-            for record_id, ancestor_id in current_lineage:
-                if (current_event.get(record_id) in skip_events
-                        or current_event.get(ancestor_id) in skip_events):
-                    expected_lineage.add((record_id, ancestor_id))
         index_changed = current_index != expected_index
         changed = (index_changed or current_lineage != expected_lineage
                    or current_notes != expected_notes
