@@ -18,6 +18,7 @@
 - Counterfactual diagnosis and next mechanism: `docs/experiments/20261030_Spark_Counterfactual_Diagnosis_V13.md` plus `reports/intrinsic_memory_counterfactual_v13/attempt03_mechanism_decision.json`. Native attempt03 completed with all intermediate tensors preserved.
 - Pre-MLP terminal protocol and evidence: `docs/experiments/20261030_Spark_Pre_MLP_Fusion_V14.md` and `reports/intrinsic_memory_pre_mlp_v14/`.
 - Bounded release/archive costs: `reports/intrinsic_memory_successors_v13/release_costs_attempt10.json` — 128 rebuilds, 281.676 seconds and 8,557,737 current archive bytes; incremental migration is unmeasured.
+- Final committed-tree verification: `reports/final_verification_20261030/` — 1,024 full and 117 changed-component tests, integrated/density/Replica workflows, 1,492 migration checks, 552 final-product checks, 293 bundle inputs and 21,025 artifact checks pass on `bbcee1f3`.
 
 
 ### Evidence-gated blockers
