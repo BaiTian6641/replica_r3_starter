@@ -12,10 +12,12 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import fcntl
 import hashlib
 import json
 import os
 import platform
+import sys
 from pathlib import Path
 import sys
 import tempfile
@@ -55,6 +57,16 @@ REPAIR = '{"rate": 0.25}\n'
 ORIGINAL = '{"rate": 1.0}\n'
 
 
+def _durable_fsync(fd: int) -> None:
+    if sys.platform == "darwin":
+        try:
+            fcntl.fcntl(fd, fcntl.F_FULLFSYNC)
+            return
+        except OSError:
+            pass
+    os.fsync(fd)
+
+
 def _write_new_bytes(path: Path, data: bytes) -> bool:
     """Create a new durable file without overwriting an existing one."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -63,14 +75,14 @@ def _write_new_bytes(path: Path, data: bytes) -> bool:
         with open(temporary, "wb") as handle:
             handle.write(data)
             handle.flush()
-            os.fsync(handle.fileno())
+            _durable_fsync(handle.fileno())
         try:
             os.link(temporary, path)
         except FileExistsError:
             return False
         directory = os.open(path.parent, os.O_RDONLY)
         try:
-            os.fsync(directory)
+            _durable_fsync(directory)
         finally:
             os.close(directory)
         return True
@@ -89,11 +101,11 @@ def _write_current_pointer(path: Path, data: dict) -> None:
         with open(temporary, "w", encoding="utf-8") as handle:
             handle.write(text)
             handle.flush()
-            os.fsync(handle.fileno())
+            _durable_fsync(handle.fileno())
         os.replace(temporary, path)
         directory = os.open(path.parent, os.O_RDONLY)
         try:
-            os.fsync(directory)
+            _durable_fsync(directory)
         finally:
             os.close(directory)
     finally:

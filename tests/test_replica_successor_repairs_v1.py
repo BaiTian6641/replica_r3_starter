@@ -768,6 +768,59 @@ def test_quarantined_correction_deletion_fails_closed(tmp_path):
             store.read_record(correction_id, _pin(store))
 
 
+def test_quarantined_event_cannot_relabel_healthy_index(tmp_path):
+    with make_store(tmp_path) as store:
+        healthy = commit(store, _pin(store), [_obs("healthy", "healthy fact")],
+                         interaction="interaction-healthy")
+        victim = commit(store, _pin(store), [_obs("victim", "victim fact")],
+                        interaction="interaction-victim")
+        healthy_id = healthy.receipt.record_ids[0]
+        victim_event = victim.receipt.event_key
+        victim_payload = victim.receipt.payload_digest
+    (tmp_path / "payloads" / f"{victim_payload}.json").write_bytes(b"{broken")
+    connection = sqlite3.connect(tmp_path / "authority.sqlite3")
+    connection.execute("UPDATE record_index SET event_key=? WHERE record_id=?",
+                       (victim_event, healthy_id))
+    connection.commit()
+    connection.close()
+    with make_store(tmp_path) as store:
+        report = store.recover()
+        assert report.status == "degraded"
+        assert store.read_record(healthy_id, _pin(store)).text == "healthy fact"
+        event_key = store._connection.execute(
+            "SELECT event_key FROM record_index WHERE record_id=?",
+            (healthy_id,)).fetchone()[0]
+        assert event_key == healthy.receipt.event_key
+
+
+def test_failed_publish_rolls_back_before_pointer(tmp_path):
+    limits = TierLimits(hot_bytes=4096, warm_bytes=8192, cold_bytes=16384,
+                        identity_reservation_bytes=16, replay_reservation_bytes=16)
+    store = TieredBlobStore(tmp_path, limits=limits, hot_capacity_bytes=100)
+    store.publish_p("expert", weights=b"w1" * 20, moments=b"m1" * 20, clock=1,
+                    encoder="encoder-v1", lineage=["r1"], dirty=True)
+    with pytest.raises(DirtyState):
+        store.publish_p("expert", weights=b"w2", moments=b"m2", clock=2,
+                        encoder="encoder-v2", lineage=["r1"])
+    assert "p_expert_c2" not in store._p_record_ids("expert")
+    assert store.read_p("expert")["clock"] == 1
+
+
+def test_generic_publish_rechecks_revocation(tmp_path):
+    store = _tier(tmp_path)
+    real = store._write_record
+    def racing(tier, record_id, payload, manifest):
+        written = real(tier, record_id, payload, manifest)
+        store.revoke_p("expert", reason="racing", authorized_by="host")
+        return written
+    store._write_record = racing
+    with pytest.raises(PermissionError):
+        store.publish("p_expert_c1", b"payload", generation=1, kind="p",
+                      producer="p:expert", representation="encoder-v1",
+                      scope_digest="s")
+    assert "p_expert_c1" not in store._p_record_ids("expert")
+
+
 def test_quarantined_event_derived_rows_are_not_trusted(tmp_path):
     with make_store(tmp_path) as store:
         healthy = commit(store, _pin(store), [_obs("healthy", "healthy fact")],

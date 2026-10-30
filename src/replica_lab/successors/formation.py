@@ -1526,6 +1526,16 @@ class FormationStore:
                 raise CorruptAuthority("event receipt kind is not authenticable") from error
             if payload.get("kind") != row["kind"] or payload.get("kind") != receipt_kind:
                 raise CorruptAuthority("event kind differs from payload/receipt authority")
+            if payload.get("kind") != "revocation":
+                try:
+                    receipt_records = tuple(json.loads(str(row["receipt_json"]))["record_ids"])
+                except (KeyError, TypeError, json.JSONDecodeError) as error:
+                    raise CorruptAuthority("event receipt record IDs are invalid") from error
+                payload_records = tuple(record["record_id"]
+                                        for record in payload.get("records", ()))
+                if payload_records != receipt_records:
+                    raise CorruptAuthority(
+                        "record index ownership differs from receipt authority")
             payloads[event_key] = payload
             if payload.get("format") != EVENT_FORMAT:
                 raise CorruptAuthority("event payload format is unknown")
@@ -1663,7 +1673,9 @@ class FormationStore:
             # other unauthenticated derived rows are not preserved; record
             # index rows remain only so corrupt payload access fails closed.
             for record_id, values in current_index.items():
-                if values[0] in skip_events:
+                if values[0] in skip_events and record_id not in expected_index:
+                    # Never let a quarantined-event relabel hide a healthy
+                    # record whose ownership is authenticated by valid payloads.
                     expected_index[record_id] = values
         index_changed = current_index != expected_index
         changed = (index_changed or current_lineage != expected_lineage

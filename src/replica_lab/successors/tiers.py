@@ -17,10 +17,12 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from dataclasses import dataclass, field
+import fcntl
 import hashlib
 import json
 import math
 import os
+import sys
 from pathlib import Path
 import re
 import shutil
@@ -227,6 +229,17 @@ class _HotEntry:
     dirty: bool = False
 
 
+def _fsync_fd(fd: int) -> None:
+    """Durable file sync: F_FULLFSYNC on Darwin, plain fsync elsewhere."""
+    if sys.platform == "darwin":
+        try:
+            fcntl.fcntl(fd, fcntl.F_FULLFSYNC)
+            return
+        except OSError:
+            pass
+    os.fsync(fd)
+
+
 def _best_effort_rmtree(path: Path) -> None:
     try:
         shutil.rmtree(path)
@@ -292,12 +305,12 @@ class TieredBlobStore:
         with open(payload_path, "wb") as handle:
             handle.write(payload)
             handle.flush()
-            os.fsync(handle.fileno())
+            _fsync_fd(handle.fileno())
         manifest_path = staging / "manifest.json"
         with open(manifest_path, "w", encoding="utf-8") as handle:
             handle.write(_canonical(manifest) + "\n")
             handle.flush()
-            os.fsync(handle.fileno())
+            _fsync_fd(handle.fileno())
         target = self._directory(tier, record_id)
         if target.exists():
             existing = self._read_manifest(target)
@@ -314,7 +327,7 @@ class TieredBlobStore:
             directory = None
         if directory is not None:
             try:
-                os.fsync(directory)
+                _fsync_fd(directory)
             except OSError:
                 pass
             finally:
@@ -417,13 +430,26 @@ class TieredBlobStore:
         written = self._write_record(tier, record_id, payload, manifest)
         if written == 0:
             manifest = dict(self._read_manifest(self._directory(tier, record_id)))
-        self._metrics["writes"] += 1
-        self._metrics["bytes_written"] += written
-        self._eligibility.setdefault(record_id, 0)
-        self._hot[record_id] = _HotEntry(payload, manifest,
-                                        self._eligibility[record_id], dirty)
-        self._hot.move_to_end(record_id)
-        self._enforce_hot(protect=record_id)
+        owner = self._p_owner(record_id) if kind == "p" else None
+        if owner is not None and self._is_p_revoked(owner):
+            if written:
+                _best_effort_rmtree(self._directory(tier, record_id))
+            raise PermissionError("P owner was revoked during publication")
+        try:
+            self._metrics["writes"] += 1
+            self._metrics["bytes_written"] += written
+            self._eligibility.setdefault(record_id, 0)
+            self._hot[record_id] = _HotEntry(payload, manifest,
+                                            self._eligibility[record_id], dirty)
+            self._hot.move_to_end(record_id)
+            self._enforce_hot(protect=record_id)
+            if owner is not None and self._is_p_revoked(owner):
+                raise PermissionError("P owner was revoked during publication")
+        except BaseException:
+            self._hot.pop(record_id, None)
+            if written:
+                _best_effort_rmtree(self._directory(tier, record_id))
+            raise
         return dict(manifest)
 
     def demote(self, record_id: str, *, to: str = "cold") -> dict:
@@ -509,7 +535,7 @@ class TieredBlobStore:
         except OSError:
             return
         try:
-            os.fsync(fd)
+            _fsync_fd(fd)
         finally:
             os.close(fd)
 
@@ -936,6 +962,41 @@ class TieredBlobStore:
     def _p_revoked_path(self, owner: str) -> Path:
         return self.root / "p_revoked" / f"{owner}.json"
 
+    def _p_failed_path(self, owner: str) -> Path:
+        return self.root / "p_failed" / f"{owner}.json"
+
+    def _p_failed_records(self, owner: str) -> set[str]:
+        path = self._p_failed_path(owner)
+        if not path.is_file():
+            return set()
+        try:
+            value = json.loads(path.read_text(encoding="utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            return set()
+        records = value.get("records", [])
+        return {str(item) for item in records if isinstance(item, str)}
+
+    def _mark_p_failed(self, owner: str, record_id: str) -> None:
+        directory = self.root / "p_failed"
+        directory.mkdir(exist_ok=True)
+        records = sorted(self._p_failed_records(owner) | {record_id})
+        target = self._p_failed_path(owner)
+        temporary = directory / f".{owner}.{time.time_ns()}.tmp"
+        try:
+            with open(temporary, "w", encoding="utf-8") as handle:
+                handle.write(_canonical({"format": "replica.successors.p_failed.v1",
+                                         "owner": owner, "records": records}) + "\n")
+                handle.flush()
+                _fsync_fd(handle.fileno())
+            os.replace(temporary, target)
+            self._fsync_directory(directory)
+        finally:
+            try:
+                if temporary.exists():
+                    temporary.unlink()
+            except OSError:
+                pass
+
     def _p_record_ids(self, owner: str) -> list[str]:
         prefix = f"p_{owner}_c"
         legacy = f"p_{owner}"
@@ -950,7 +1011,10 @@ class TieredBlobStore:
 
     def _p_versions(self, owner: str) -> list[dict]:
         versions = []
+        failed = self._p_failed_records(owner)
         for record_id in self._p_record_ids(owner):
+            if record_id in failed:
+                continue
             tier = "warm" if self._directory("warm", record_id).exists() else "cold"
             try:
                 payload, manifest = self._read_payload(tier, record_id)
@@ -996,7 +1060,7 @@ class TieredBlobStore:
             with open(temporary, "w", encoding="utf-8") as handle:
                 handle.write(_canonical(pointer) + "\n")
                 handle.flush()
-                os.fsync(handle.fileno())
+                _fsync_fd(handle.fileno())
             os.replace(temporary, target)
         finally:
             try:
@@ -1024,7 +1088,7 @@ class TieredBlobStore:
             with open(temporary, "wb") as handle:
                 handle.write(data)
                 handle.flush()
-                os.fsync(handle.fileno())
+                _fsync_fd(handle.fileno())
             os.replace(temporary, target)
         finally:
             try:
@@ -1055,7 +1119,7 @@ class TieredBlobStore:
             with open(temporary, "wb") as handle:
                 handle.write(data)
                 handle.flush()
-                os.fsync(handle.fileno())
+                _fsync_fd(handle.fileno())
             os.replace(temporary, target)
         finally:
             try:
@@ -1138,12 +1202,21 @@ class TieredBlobStore:
         prior_pointer = pointer_path.read_bytes() if pointer_path.is_file() else None
         payload = self.pack_p_state(owner=owner, clock=clock, encoder=encoder,
                                     lineage=lineage, weights=weights, moments=moments)
-        manifest = self.publish(
-            record_id, payload, generation=clock, kind="p", producer=f"p:{owner}",
-            representation=encoder, scope_digest=_sha256_json({"owner": owner}),
-            extra={"clock": clock, "encoder": encoder, "lineage": list(lineage),
-                   "owner": owner},
-            tier=tier, dirty=dirty)
+        try:
+            manifest = self.publish(
+                record_id, payload, generation=clock, kind="p",
+                producer=f"p:{owner}",
+                representation=encoder, scope_digest=_sha256_json({"owner": owner}),
+                extra={"clock": clock, "encoder": encoder, "lineage": list(lineage),
+                       "owner": owner},
+                tier=tier, dirty=dirty)
+        except BaseException:
+            if not existed:
+                self._remove_p_record(record_id)
+                if self._directory("warm", record_id).exists() or \
+                        self._directory("cold", record_id).exists():
+                    self._mark_p_failed(owner, record_id)
+            raise
         if self._is_p_revoked(owner):
             self._rollback_p_publication(owner, record_id, prior_pointer, existed)
             raise PermissionError("P owner was revoked during publication")
@@ -1152,9 +1225,14 @@ class TieredBlobStore:
                                   manifest=manifest)
         except BaseException:
             self._rollback_p_publication(owner, record_id, prior_pointer, existed)
+            if not existed and (self._pointer_record_id(owner) == record_id
+                                or self._directory("warm", record_id).exists()
+                                or self._directory("cold", record_id).exists()):
+                self._mark_p_failed(owner, record_id)
             raise
         if self._is_p_revoked(owner):
             self._rollback_p_publication(owner, record_id, prior_pointer, existed)
+            self._mark_p_failed(owner, record_id)
             raise PermissionError("P owner was revoked during pointer publication")
         return manifest
 
@@ -1235,7 +1313,7 @@ class TieredBlobStore:
                 with open(temporary, "w", encoding="utf-8") as handle:
                     handle.write(_canonical(record) + "\n")
                     handle.flush()
-                    os.fsync(handle.fileno())
+                    _fsync_fd(handle.fileno())
                 os.replace(temporary, target)
                 self._fsync_directory(target.parent)
             except BaseException:
