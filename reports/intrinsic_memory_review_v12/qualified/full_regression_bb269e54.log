@@ -1,0 +1,33 @@
+........................................................................ [  7%]
+........................................................................ [ 15%]
+........................................................................ [ 22%]
+........................................................................ [ 30%]
+........................................................................ [ 37%]
+........................................................................ [ 45%]
+........................................................................ [ 53%]
+........................................................................ [ 60%]
+........................................................................ [ 68%]
+........................................................................ [ 75%]
+........................................................................ [ 83%]
+........................................................................ [ 91%]
+........................................................................ [ 98%]
+...........F                                                             [100%]
+=================================== FAILURES ===================================
+_________________ test_terminal_parent_receipts_remain_charged _________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2035/test_terminal_parent_receipts_0')
+
+    def test_terminal_parent_receipts_remain_charged(tmp_path):
+        ledger = WorkLedger.create(tmp_path / "ledger.jsonl", identity="acceptance-review",
+                                   plan=plan("two"), deadline=time.monotonic() + 10000)
+        for stage in ("finalize_worker", "finalize_parent"):
+            ledger.enter(stage)
+            ledger.leave(stage, status="completed")
+        charged = charged_write(ledger, tmp_path, "capacity_guard", {"window": "restart"})
+>       assert charged is True
+E       assert False is True
+
+qualified_policy_edges.py:52: AssertionError
+=========================== short test summary info ============================
+FAILED qualified_policy_edges.py::test_terminal_parent_receipts_remain_charged - assert False is True
+1 failed, 947 passed in 289.11s (0:04:49)

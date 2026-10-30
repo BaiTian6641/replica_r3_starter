@@ -1,0 +1,71 @@
+{
+  "format": "replica.intrinsic_memory.exact_qualification_review.v12",
+  "head": "bb269e54",
+  "verdict": "incorrect_native_budget_and_residual_findings",
+  "cpu_engineering_qualified": false,
+  "native_packet_ready": false,
+  "native_packet_sha256": "908a50a41a7ae7f3cfa570913683af2a2ed31118e51f72e677d9cca451fe20b2",
+  "protocol_sha256": "8057ce596b3643a7e10ccaaa68857a4cb4aa8290cb305ba034fd051d5a0142f0",
+  "implementation_receipt_sha256": "1ea886b52e493c068d6117cda7a04c01bc819243b6ce20956f6538c171134fd0",
+  "diagnostic_overlay_used": false,
+  "density_receipt_module_tracked": true,
+  "disposition": {
+    "fixed": ["N1", "N2", "N3", "V1", "V2", "V3", "V4", "V5", "D1", "D2", "D3", "D4", "D5", "R1", "R2", "R3", "R4", "F1", "F2", "T2", "A1", "A2", "A3", "S1", "C1", "X0", "X1", "X2", "X3", "X5", "X6", "X7", "X9", "X10", "X13", "X14"],
+    "open_or_partial": {
+      "native_final_probe_budget": "291_writes_cap_vs_292_documented",
+      "native_read_resume_budget": "11_writes_actual_vs_5_reserved",
+      "T1": "contract_without_cutoff_and_rejected_read_accounting",
+      "X4": "revocation_restore_directory_fsync",
+      "X8": "navigation_atomicity_portability_and_stale_evidence",
+      "X11": "navigation_set_atomicity_and_temp_debris",
+      "X12": "rollback_restore_failure_and_origin_charge_leak",
+      "X1": "quarantine_skips_derived_rebuild",
+      "timing": "mps_unavailable_fail_open",
+      "failure_handling": "fallback_receipt_can_mask_original"
+    }
+  },
+  "source_free": {
+    "checkout": "/private/tmp/replica-independent-v12-bb269e54-qualified",
+    "protected_module_present": false,
+    "checkpoint_tree_present": false,
+    "sparse_exclusion_before_checkout": true,
+    "production_files_edited": false,
+    "weights_downloaded_or_copied": false,
+    "policy_test_sha256": "5b48d926352f86b6e0010220c7926e8099209ae4438179b4dff19ed052bef849",
+    "budget_test_sha256": "3d3b21f05498b8b8d4e2c1e3a752518a935096ad3349f4bb3beb14b6095f160c"
+  },
+  "full_regression": {"passed": 948, "failed": 0, "skipped": 0, "pytest_seconds": 286.10, "wall_seconds": 286.71, "max_rss_bytes": 1035091968, "collection_succeeded_without_overlay": true, "all_original_updated_residual_lifecycle_tests_passed": true},
+  "budget_edges": {"passed": 0, "failed": 2, "skipped": 0, "pytest_seconds": 2.23, "wall_seconds": 2.69, "max_rss_bytes": 373932032, "intentional_failures": ["final_probe_291_vs_292", "four_resume_11_vs_5"]},
+  "integrated_cpu": {"arms": ["two", "full_attention_nine", "all"], "two_span_release_and_cold_parity": true, "actual_continuation_update_per_arm": 1, "uninterrupted_weights_and_moments_match": true, "artifact_bytes": 102308561, "workflow_wall_seconds": 16.117531707976013, "outer_wall_seconds": 18.71, "max_rss_bytes": 794214400, "native_capability": false},
+  "density": {"pilot_target_cost_ns": 60135607.615384616, "selected_updates": {"two": 2, "full_attention_nine": 1, "all": 1}, "matched_arms_under_executable_tolerance": ["two", "full_attention_nine", "all"], "profile_wall_seconds": 24.84, "profile_max_rss_bytes": 842940416, "pilot_wall_seconds": 11.57, "pilot_max_rss_bytes": 1000882176, "canonical_manifest_created": true, "initial_custom_filename_navigation_failed_then_corrected": true, "native_cost_or_capability": false},
+  "replica_workflow": {"formation_used_new": true, "task_improvement_requires_write": true, "chunk_retry_same": true, "wall_seconds": 2.62, "max_rss_bytes": 357892096},
+  "established": {
+    "migration": {"checks": 1482, "failed": 0, "wall_seconds": 10.83, "max_rss_bytes": 31817728},
+    "final_product": {"passed": 552, "failed": 0, "wall_seconds": 8.21, "max_rss_bytes": 36880384},
+    "bundle": {"inputs": 293, "bytes": 7657081, "sha256": "5be29a21022408aca555ba77284940ff42a734d3a4e9bd64909a34e09f1970d3", "wall_seconds": 8.12, "max_rss_bytes": 27656192},
+    "artifacts": {"scope": "tracked", "checked_files": 15287, "violations": 0, "wall_seconds": 0.19, "max_rss_bytes": 36356096}
+  },
+  "native_review": {
+    "implementation_files": 62,
+    "source_execution_files": 2,
+    "source_bytes_hashed": 8238996247,
+    "environment_closure_files": 67,
+    "environment_closure_bytes": 450061586,
+    "environment_closure_sha256": "1848a9a1ce3a6da3437c121e68b7a05284f7c9eaec496e18bf218294f07c2209",
+    "code_before_model_loading": true,
+    "environment_verified": true,
+    "model_imported": false,
+    "native_execution": false,
+    "development_labels_parsed_at_admission": false,
+    "review_wall_seconds": 4.44,
+    "review_max_rss_bytes": 75005952,
+    "launch_authorized": false,
+    "attempt_marker_created": false,
+    "release_blocker": "under_reserved_final_probe_and_resume_writes"
+  },
+  "exposure": {"development_data_read_or_parsed": false, "public_generator_identities_roots_hashes_receipts_only": true, "fresh_split_structurally_independent": true, "v11_development_retired": true},
+  "claims": {"native_model_loaded": false, "native_job_started": false, "downloads": false, "useful_recall": false, "persistent_learning": false, "promotion": false, "rsi": false},
+  "historical_verdicts_modified": false,
+  "exact_commands": "commands.md",
+  "detailed_findings": "README.md"
+}
