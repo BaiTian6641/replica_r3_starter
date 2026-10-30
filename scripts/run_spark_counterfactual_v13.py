@@ -128,7 +128,8 @@ def worker(args):
                 if (deadlines["outer_remaining_seconds"] <= 0
                         or any(value <= 0 for value in deadlines["stage_remaining_seconds"].values())):
                     raise RuntimeError("stage or outer diagnostic deadline")
-                if artifact_bytes(output) > snapshot["reserved"]["artifact_bytes"]:
+                if artifact_bytes(output) > sum(
+                        stage["artifact_bytes"] for stage in arm["budget"].values()):
                     raise RuntimeError("unreserved diagnostic artifact growth")
                 if guard.stop_reason:
                     raise RuntimeError(guard.stop_reason)

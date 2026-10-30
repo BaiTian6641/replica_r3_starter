@@ -1,0 +1,333 @@
+{
+  "arms": {
+    "two": {
+      "budget": {
+        "admission": {
+          "artifact_bytes": 1048576,
+          "artifact_read_bytes": 8856829993,
+          "backwards": 0,
+          "cache_evictions": 0,
+          "cache_misses": 0,
+          "cache_recomputations": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "prompt_tokenizer_calls": 0,
+          "restart_restores": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "source_feature_forwards": 0,
+          "source_token_bytes": 0,
+          "tokenizer_calls": 0,
+          "updates": 0,
+          "wall_seconds": 120,
+          "writes": 4
+        },
+        "diagnose": {
+          "artifact_bytes": 268435456,
+          "artifact_read_bytes": 16777216,
+          "backwards": 0,
+          "cache_evictions": 32,
+          "cache_misses": 32,
+          "cache_recomputations": 32,
+          "forwards": 1824,
+          "generated_tokens": 1792,
+          "input_tokens": 475136,
+          "model_loads": 0,
+          "prompt_tokenizer_calls": 448,
+          "restart_restores": 0,
+          "retrievals": 0,
+          "source_encodes": 32,
+          "source_feature_forwards": 32,
+          "source_token_bytes": 8192,
+          "tokenizer_calls": 32,
+          "updates": 0,
+          "wall_seconds": 1800,
+          "writes": 40
+        },
+        "finalize": {
+          "artifact_bytes": 1048576,
+          "artifact_read_bytes": 0,
+          "backwards": 0,
+          "cache_evictions": 0,
+          "cache_misses": 0,
+          "cache_recomputations": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "prompt_tokenizer_calls": 0,
+          "restart_restores": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "source_feature_forwards": 0,
+          "source_token_bytes": 0,
+          "tokenizer_calls": 0,
+          "updates": 0,
+          "wall_seconds": 30,
+          "writes": 4
+        },
+        "load": {
+          "artifact_bytes": 0,
+          "artifact_read_bytes": 8406768407,
+          "backwards": 0,
+          "cache_evictions": 0,
+          "cache_misses": 0,
+          "cache_recomputations": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 1,
+          "prompt_tokenizer_calls": 0,
+          "restart_restores": 1,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "source_feature_forwards": 0,
+          "source_token_bytes": 0,
+          "tokenizer_calls": 0,
+          "updates": 0,
+          "wall_seconds": 180,
+          "writes": 2
+        }
+      },
+      "output_root": "reports/intrinsic_memory_counterfactual_v13/native_bf16_pair_diagnostic_attempt02",
+      "resource_limits": {
+        "driver_bytes": 53687091200,
+        "minimum_host_free_percent": 15,
+        "sustained_host_samples": 3,
+        "swap_growth_bytes": 536870912,
+        "telemetry_timeout_seconds": 30
+      },
+      "total_reservations": {
+        "artifact_bytes": 270532608,
+        "artifact_read_bytes": 17280375616,
+        "backwards": 0,
+        "cache_evictions": 32,
+        "cache_misses": 32,
+        "cache_recomputations": 32,
+        "forwards": 1824,
+        "generated_tokens": 1792,
+        "input_tokens": 475136,
+        "model_loads": 1,
+        "prompt_tokenizer_calls": 448,
+        "restart_restores": 1,
+        "retrievals": 0,
+        "source_encodes": 32,
+        "source_feature_forwards": 32,
+        "source_token_bytes": 8192,
+        "tokenizer_calls": 32,
+        "updates": 0,
+        "wall_seconds": 2130,
+        "writes": 50
+      },
+      "wall_seconds": 2400
+    }
+  },
+  "data": {
+    "fit": {
+      "path": "data/intrinsic_memory_coverage_v11_20261029/fit.json",
+      "sha256": "106784510b4c26371c8a1f81736eea92443207d6028f63f1b491df0430dff92c"
+    }
+  },
+  "development_labels_used": false,
+  "diagnostic": {
+    "checkpoint": {
+      "execution_identity": "04475e5f09d0f6600b9ab2782f71bbb15ce516fcf777967d155ab2427360118b",
+      "manifest_sha256": "379e0402448771de2002cbca4e0c10d552ca216600eed5e6386dd30734308d15",
+      "optimizer_sha256": "56daf359d9e4cfe62cdd9666ae86d237e78ebd209059a638ce6a6f8541729e52",
+      "path": "reports/intrinsic_memory_native_v12/native_bf16_two_v12_attempt10/checkpoint",
+      "weights_sha256": "565b5cff04a34941b9f9c6913d0853f825c47d12386ec75bfad9595e6fd2ab2b"
+    },
+    "checkpoint_components": {
+      "path": "reports/intrinsic_memory_native_v12/native_bf16_two_v12_attempt10/checkpoint/components/manifest.json",
+      "sha256": "86a73ff16184b3ae45e413ac4cfa7ae332c3a449ce705b3f934cb0339505413d"
+    },
+    "controls": [
+      "contextual",
+      "row_permutation",
+      "shuffled",
+      "wrong",
+      "zero",
+      "absent",
+      "exact_text"
+    ],
+    "development": false,
+    "output_root": "reports/intrinsic_memory_counterfactual_v13/native_bf16_pair_diagnostic_attempt02",
+    "pairs": 16,
+    "parent_reconciliation": {
+      "path": "reports/intrinsic_memory_native_v12/attempt10_terminal_reconciliation.json",
+      "sha256": "751a4c45fb550661d819ed34b3df2a3b798c58099bb032951b5eb8071ba78fec"
+    },
+    "purpose": "locate_distinction_loss_before_choosing_one_successor_mechanism",
+    "rows": 32,
+    "updates": 0
+  },
+  "diagnostic_predecessor": {
+    "path": "reports/intrinsic_memory_native_v12/native_bf16_two_v12_attempt10/main_result.json",
+    "sha256": "ec2cb765754c7972584b7f71e37054fad934531d3a72bd8cc5b772ad3e22e9f8"
+  },
+  "environment": {
+    "path": "configs/spark_intrinsic_execution_environment_v1.json",
+    "sha256": "7bac9e5e963d3b9fa1cb8cc3be846dc72938a7206ddcc7fd978ba07257c67095"
+  },
+  "environment_closure": {
+    "path": "reports/intrinsic_memory_native_v12/environment_closure_v12.json",
+    "sha256": "d521db9340e3638c481ede19a7ed670949ed9440167739b426b815276d6fbc68"
+  },
+  "experiment_variant": {
+    "all_choices_fixed_before_v12_native_answers": true,
+    "changed": [
+      "value_producer: frozen canonical-source decoder hidden states followed by a live trainable compressor instead of a trainable encoder over template-framed text",
+      "source_input: canonical span text only, no chat template and no special tokens, explicit zero-based positions, extensions disabled and audited",
+      "feature_cache: bounded 32 MiB / 64 entry in-process C that is never serialized",
+      "slots: four ordered 256-wide slots per admitted span, learned order added exactly once by the v12 snapshot path",
+      "work_ledger: append-only replica.intrinsic_memory.reservations.v12 journal with source-feature, canonical-source tokenizer, prompt tokenizer, cache and restart vocabulary, and dual monotonic/wall deadlines",
+      "stage_budget: re-derived per-stage allocation (500 s per fit segment, 900 s per probe, plus two declared terminal-receipt stages and two capacity-guard stages) instead of the inherited 7080 s; the authoritative total is stage_wall_value, computed from the caps",
+      "checkpoint: v12 complete extension plus optimizer with bound feature, adapter, tokenizer and layout contracts, the complete representation release, an explicit release alias and the compressor-only release; no v11 checkpoint is migrated",
+      "teacher_cache: v12 format bound to the source-feature contract, adapter contract and tokenizer contract",
+      "slot_policy_declaration: slot_policy_v12 added next to the inherited fixed_eight_masked_padding_v5 field required by the sealed validators",
+      "release_corpus: replica.contextual_producer_release.v12 namespace, now publishing the complete representation release (producer, order, reader and feature contract), so any contextual-path update invalidates previously durable values",
+      "restart: source features are recomputed from a cleared cache; the recomputed feature contract and adapter content binding are compared with the checkpoint before mutation",
+      "adapter_contract: content-bound through the already-verified full original parameter digest, so an adapter with identical geometry but different content is refused",
+      "data_manifest: new v12 manifest with an explicit exposure contract over the same rows"
+    ],
+    "fresh_development_split": {
+      "path": "data/intrinsic_memory_coverage_v12_20261029/development.json",
+      "sha256": "36632dc3003ee40589f2f378eab244c99128e9ec52cc34b4f84bce3865e65aef"
+    },
+    "historical_results_rewritten": false,
+    "id": "frozen_source_features_contextual_compression_v12",
+    "isolated_causal_attribution": false,
+    "persistent_P_updates": 0,
+    "predecessor": {
+      "path": "configs/spark_intrinsic_coverage_v11.json",
+      "sha256": "cdd5313eebce66a7d659a017f1113ab30f54a305791d56f9d34bd325dff35877"
+    },
+    "prelaunch_resource_review": {
+      "allocated_stage_seconds": 7155,
+      "driver_bytes": 53687091200,
+      "maximum_workers": 1,
+      "minimum_host_free_percent": 15,
+      "outer_wall_seconds": 7200,
+      "source_hidden_size": 2560,
+      "swap_growth_bytes": 536870912
+    },
+    "prior_development_retired": {
+      "path": "data/intrinsic_memory_coverage_v11_20261029/development.json",
+      "sha256": "5ad4db718cadd32498de7629d6697b90529a95fb262b113c3b2d126d0d8e9a8f"
+    },
+    "prior_development_reuse_basis": {
+      "path": "reports/intrinsic_memory_coverage_v11/development_exposure.json",
+      "sha256": "b073a790021e18e3420046230b67e40f10a132822a0cb5edd91d4ebd531d78a7"
+    },
+    "prior_development_reused": false,
+    "reason": "v11 learns its fitting memories but does not transfer useful recall; test a different source representation (frozen canonical-source hidden states with a live trainable compressor) under unchanged reader, exposure and gates",
+    "scope_limit": "one mechanism substitution at matched exposure with a fresh development split; no claim that the source representation alone explains any change",
+    "teacher_updates": 0,
+    "unchanged": [
+      "official_BF16_source_and_revision",
+      "reader_sites_3_and_7_block_input_query_post_block_residual",
+      "eight_masked_ordered_slots_two_span_budget",
+      "teacher_objective_top64_kl_temperature1_no_ce_mix",
+      "NativeFusedAdamW_learning_rate_0.0001_seed_17",
+      "512_fitting_updates_plus_one_restart_update_fixed_round_robin",
+      "four_fixed_probe_prefixes_no_best_prefix_selection",
+      "per_group_fitting_and_utility_criteria_eight_world_gates",
+      "calibration_8_fitting_32_development_16_same_rows",
+      "generation_template_scorer_context_and_token_limits",
+      "persistent_P_updates_zero_and_no_promotion",
+      "physical_resource_limits_and_7200_second_outer_ceiling"
+    ]
+  },
+  "format": "replica.intrinsic_memory.counterfactual_protocol.v13",
+  "generation": {
+    "context_tokens": 256,
+    "decode": "greedy_uncached_no_sampling",
+    "eos_token_id": 1,
+    "label_alignment": "logit_i_predicts_token_i_plus_1_no_additional_shift",
+    "max_new_tokens": 8,
+    "pad_token_id": 2,
+    "padding": "right",
+    "stop_token_ids": [
+      1
+    ],
+    "thinking": "none"
+  },
+  "implementation": {
+    "path": "reports/intrinsic_memory_counterfactual_v13/implementation.json",
+    "sha256": "7e42b008fcb7e8fc27eb24c93c971d690dfafb31cc6625dbd3179cf5a80b784f"
+  },
+  "parameter_updates": 0,
+  "slot_policy_v12": "fixed_eight_masked_padding_v12",
+  "source": {
+    "path": "reports/intrinsic_memory_successor_v5/official_bf16_source.json",
+    "sha256": "bcef67c34e35fa3445e1301e4b926d37ca221f88eb05b5ed92d2eb4a8b3b882c"
+  },
+  "source_execution": {
+    "path": "reports/intrinsic_memory_successor_v5/source_execution_v5.json",
+    "sha256": "3ee1cd03edb5531b18108c8067c5839decdadf25b22e46d5317d46f32c4f8579"
+  },
+  "source_feature_binding": {
+    "original_parameters_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+    "source_files_sha256": "c309e44c93edf04187447c27990ecd0979990d7bab9e8dbf5a715afd2f82a50a",
+    "tokenizer_identity": {
+      "add_special_tokens_for_source": false,
+      "eos_token_id": 1,
+      "files": {
+        "chat_template.jinja": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929",
+        "merges.txt": "b06fc88940ae6a20f71142f06304c12547f58ab52c175e56af12a38c3dc62f36",
+        "special_tokens_map.json": "48a257e3f5f20a004e7c30482a70ae19ae7d9cf713144f2a1394ba20af8c3cb5",
+        "tokenizer.json": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+        "tokenizer_config.json": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd",
+        "vocab.json": "9f42cb7e7af5afe27cae2337d272d60b5659e10143ef4bb952f642b847916fe1"
+      },
+      "is_fast": true,
+      "local_files_only": true,
+      "pad_token_id": 2,
+      "truncation_for_source": false,
+      "vocab_size": 131072
+    },
+    "tokenizer_sha256": "f74b126e248feb33df37f78fcd28f3839f5b9184378aa4419e727736270e7b8f"
+  },
+  "source_features": {
+    "accounting": "reserve_before_tokenizer_and_before_frozen_forward",
+    "adapter_contract_policy": "runtime digest over the verified source snapshot, geometry, attention implementation, regime and the exact base content digest; the content digest is supplied as the already-verified full original parameter digest so the backbone is not rehashed, and the resulting contract is bound in the v12 checkpoint and teacher cache and recomputed on restart",
+    "cache_bytes": 33554432,
+    "cache_class": "C_in_process_not_serialized",
+    "cache_clear_boundaries": [
+      "correction",
+      "revocation",
+      "source_free_transition",
+      "release_publication",
+      "checkpoint_restore"
+    ],
+    "cache_entries": 64,
+    "codec": "contextual_source_features_fp32_slots_v12",
+    "detach_boundary": "frozen_original_hidden_before_trainable_compressor",
+    "extensions_during_source_pass": "disabled_by_arguments_and_audited",
+    "feature_contract_format": "replica.canonical_source_features.v12",
+    "feature_dtype": "float32",
+    "input_policy": "canonical_span_only_no_template_no_special_tokens",
+    "max_tokens": 256,
+    "original_updates": 0,
+    "output_policy": "last_decoder_hidden_after_final_norm",
+    "producer": "frozen_spark_features_contextual_compressor_v12",
+    "representation": "four_ordered_frozen_source_contextual_256_v12",
+    "slot_policy_v12": "fixed_eight_masked_padding_v12",
+    "source_backbone": "frozen_eval_bfloat16_no_grad",
+    "source_positions": "explicit_zero_to_token_count_minus_one"
+  },
+  "source_repo": "XHToken/Spark-X2.6-4B",
+  "source_revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+  "standing_authorization_text": "Continued as planned, no need more approval for testing, follow the goal, assume I authorize the tests.",
+  "training": {
+    "batch_size": 1,
+    "lr": 0.0001,
+    "restart_updates": 1,
+    "schedule": "fixed_round_robin_32_worlds_16_passes",
+    "seed": 17,
+    "teacher_updates": 0,
+    "updates": 512
+  }
+}

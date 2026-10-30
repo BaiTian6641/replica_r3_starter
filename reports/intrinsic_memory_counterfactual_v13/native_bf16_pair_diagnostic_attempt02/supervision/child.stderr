@@ -1,0 +1,13 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 142.24it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_counterfactual_v13.py", line 230, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_counterfactual_v13.py", line 225, in main
+    worker(args)
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_counterfactual_v13.py", line 135, in worker
+    observe()
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_counterfactual_v13.py", line 132, in observe
+    raise RuntimeError("unreserved diagnostic artifact growth")
+RuntimeError: unreserved diagnostic artifact growth

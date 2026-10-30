@@ -19,7 +19,7 @@ from replica_lab.intrinsic_memory_execution_v5 import binding, hash_file, local_
 BASE = "configs/spark_intrinsic_coverage_v12.json"
 REPORT = "reports/intrinsic_memory_counterfactual_v13"
 CONFIG = "configs/spark_counterfactual_diagnostic_v13.json"
-OUTPUT = f"{REPORT}/native_bf16_pair_diagnostic_attempt02"
+OUTPUT = f"{REPORT}/native_bf16_pair_diagnostic_attempt03"
 CHECKPOINT = "reports/intrinsic_memory_native_v12/native_bf16_two_v12_attempt10/checkpoint"
 
 
