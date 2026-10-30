@@ -2,6 +2,7 @@
 import json
 import time
 
+import pytest
 import torch
 from safetensors.torch import load_file
 
@@ -10,8 +11,8 @@ from replica_lab.contextual_teacher_objective_v1 import TeacherObjective
 from replica_lab.contextual_v12_fixture import build_v12_stack
 from replica_lab.intrinsic_memory_budget_v12 import COUNTERS
 from replica_lab.intrinsic_memory_budget_v13 import IncrementalWorkLedger
-from replica_lab.intrinsic_memory_counterfactual_v13 import CONTROLS, diagnose_pair
-from replica_lab.intrinsic_memory_counterfactual_v13 import DiagnosticEngineV13
+from replica_lab.intrinsic_memory_counterfactual_v13 import (
+    CONTROLS, DiagnosticEngineV13, diagnose_pair, restore_parent_checkpoint)
 from test_intrinsic_diagnostic_v5 import FixtureBackend
 
 
@@ -62,5 +63,30 @@ def test_pair_artifacts_preserve_every_stage_and_control(tmp_path):
                 assert "terminated" in output and "truncated" in output
         assert json.loads((tmp_path / "pairs/pair_00.json").read_text())["world_ids"] == [
             "pair_red", "pair_blue"]
+    finally:
+        path.close()
+
+
+def test_parent_checkpoint_migration_preserves_new_execution_identity(tmp_path):
+    torch.set_num_threads(1)
+    _, _, _, path = build_v12_stack(
+        seed=17, layers=8, sites=(3, 7), slots=8, vocab_size=64, lr=1e-3,
+        initialization_seed=17, cache_entries=16,
+        source_identity="counterfactual_cpu_fixture", execution_identity="parent_execution",
+        objective_identity=TeacherObjective().identity(spec()))
+    try:
+        path.save(tmp_path / "checkpoint")
+        parent = json.loads((tmp_path / "checkpoint/manifest.json").read_text())[
+            "execution_identity"]
+        assert parent == "parent_execution"
+        path.execution_identity = "new_diagnostic_execution"
+        with pytest.raises(ValueError):
+            restore_parent_checkpoint(path, tmp_path / "checkpoint", "wrong_parent")
+        assert path.execution_identity == "new_diagnostic_execution"
+        result = restore_parent_checkpoint(path, tmp_path / "checkpoint", parent)
+        assert result["explicit_validated_migration"]
+        assert result["parent_execution_identity"] == "parent_execution"
+        assert result["diagnostic_execution_identity"] == "new_diagnostic_execution"
+        assert path.execution_identity == "new_diagnostic_execution"
     finally:
         path.close()

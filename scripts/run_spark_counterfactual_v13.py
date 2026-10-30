@@ -19,7 +19,7 @@ from replica_lab.intrinsic_memory_budget_v13 import IncrementalWorkLedger
 from replica_lab.intrinsic_memory_counterfactual_protocol_v13 import (
     validate_authorization, validate_bindings)
 from replica_lab.intrinsic_memory_counterfactual_v13 import (
-    DiagnosticEngineV13, run_diagnostic)
+    DiagnosticEngineV13, restore_parent_checkpoint, run_diagnostic)
 from replica_lab.intrinsic_memory_execution_v5 import bound_json, contained, hash_file
 from replica_lab.intrinsic_memory_execution_v12 import charged_write, record_attempt
 from replica_lab.intrinsic_memory_native_v5 import base_hash
@@ -87,9 +87,11 @@ def worker(args):
         checkpoint_bytes = sum(p.stat().st_size for p in checkpoint_root.rglob("*") if p.is_file())
         with ledger.work("load", "trained_extension_optimizer_restore", restart_restores=1,
                          artifact_read_bytes=checkpoint_bytes) as event:
-            path.load(checkpoint_root)
+            migration = restore_parent_checkpoint(
+                path, checkpoint_root, checkpoint["execution_identity"])
             event["actual"] = {"artifact_read_bytes": checkpoint_bytes}
             event["checkpoint_manifest_sha256"] = checkpoint["manifest_sha256"]
+            event["parent_execution_migration"] = migration
         path.freeze_readout()
         ledger.leave("load", status="completed")
 

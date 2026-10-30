@@ -19,7 +19,7 @@ from replica_lab.intrinsic_memory_execution_v5 import binding, hash_file, local_
 BASE = "configs/spark_intrinsic_coverage_v12.json"
 REPORT = "reports/intrinsic_memory_counterfactual_v13"
 CONFIG = "configs/spark_counterfactual_diagnostic_v13.json"
-OUTPUT = f"{REPORT}/native_bf16_pair_diagnostic_attempt01"
+OUTPUT = f"{REPORT}/native_bf16_pair_diagnostic_attempt02"
 CHECKPOINT = "reports/intrinsic_memory_native_v12/native_bf16_two_v12_attempt10/checkpoint"
 
 
@@ -47,11 +47,13 @@ def prepare():
     base = json.loads((ROOT / BASE).read_text())
     components_path = ROOT / CHECKPOINT / "components/manifest.json"
     components = json.loads(components_path.read_text())
+    outer = json.loads((ROOT / CHECKPOINT / "manifest.json").read_text())
     checkpoint = {
         "path": CHECKPOINT,
         "manifest_sha256": hash_file(ROOT / CHECKPOINT / "manifest.json"),
         "weights_sha256": components["weights_sha256"],
         "optimizer_sha256": components["optimizer_sha256"],
+        "execution_identity": outer["execution_identity"],
     }
     checkpoint_components = f"{CHECKPOINT}/components/manifest.json"
     plan = diagnostic_plan()

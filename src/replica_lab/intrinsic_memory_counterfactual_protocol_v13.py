@@ -34,7 +34,7 @@ def diagnostic_plan():
     return {
         "admission": _stage(120, artifact_read_bytes=admission_reads,
                             artifact_bytes=1024**2, writes=4),
-        "load": _stage(180, model_loads=1, restart_restores=1,
+        "load": _stage(180, model_loads=1, restart_restores=1, writes=2,
                        artifact_read_bytes=load_reads),
         "diagnose": _stage(
             1800, forwards=1824, input_tokens=475136, generated_tokens=1792,

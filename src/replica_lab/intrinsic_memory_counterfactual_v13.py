@@ -71,6 +71,23 @@ def _atomic_tensors(path, tensors, ledger, stage):
                 temporary.unlink()
 
 
+def restore_parent_checkpoint(path, checkpoint_root, parent_execution_identity):
+    """Validate the parent identity, load, then restore the diagnostic identity."""
+    checkpoint_root = Path(checkpoint_root)
+    manifest = json.loads((checkpoint_root / "manifest.json").read_text())
+    if manifest.get("execution_identity") != parent_execution_identity:
+        raise ValueError("parent checkpoint execution identity differs")
+    diagnostic_identity = path.execution_identity
+    path.execution_identity = parent_execution_identity
+    try:
+        result = path.load(checkpoint_root)
+    finally:
+        path.execution_identity = diagnostic_identity
+    return {"checkpoint": result, "parent_execution_identity": parent_execution_identity,
+            "diagnostic_execution_identity": diagnostic_identity,
+            "explicit_validated_migration": True}
+
+
 class DiagnosticEngineV13(DiagnosticEngineV12):
     """Adds complete-row permutation without changing sealed v12 shuffle semantics."""
 
