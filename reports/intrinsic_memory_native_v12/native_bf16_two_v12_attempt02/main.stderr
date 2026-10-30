@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 338, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 334, in main
+    worker(args); return 0
+    ^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 263, in worker
+    load_and_run(ROOT, protocol, packet['arm'], ledger, output,
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 641, in load_and_run
+    path, backend, spec, initial_hash, stage_ref = load_native(root, protocol, arm, ledger, stage)
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 203, in load_native
+    raise ValueError('declared mechanism identity differs from the loaded implementation')
+ValueError: declared mechanism identity differs from the loaded implementation

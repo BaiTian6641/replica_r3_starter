@@ -1,0 +1,25 @@
+{
+  "format": "replica.intrinsic_memory.native_attempt_failure_analysis.v12",
+  "attempt": 2,
+  "packet_sha256": "d99d3a9b082ba48cfca50f08a0a2592ae5e2e42252c675dda732372c58e2ed7f",
+  "status": "execution_failure_during_native_load_before_calibration",
+  "wall_seconds": 12.97,
+  "error": "ValueError: declared mechanism identity differs from the loaded implementation",
+  "root_cause": "The v12 protocol constant and generated protocol named producer `contextual_source_features_v12`, but the actual producer constant is `frozen_spark_features_contextual_compressor_v12`. Worker control-read reservation accounting passed before this identity check.",
+  "capability_evaluation": {
+    "calibration_answers": 0,
+    "fitting_updates": 0,
+    "development_opened": false,
+    "capability_claim": false
+  },
+  "resources": {
+    "artifact_bytes_observed": 52306,
+    "minimum_observed_free_percent": 89.0,
+    "peak_driver_bytes": 393216,
+    "peak_swap_growth_bytes": 0,
+    "stop_reason": null
+  },
+  "attempt_consumed": true,
+  "retry_allowed_for_same_packet": false,
+  "repair": "Correct the producer constant and regenerate a fresh attempt03 packet with a new output identity and authorization. Attempt02 evidence is preserved unchanged."
+}

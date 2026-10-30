@@ -351,7 +351,7 @@ UNCHANGED_FROM_V11 = (
 )
 
 SOURCE_FEATURES = {
-    'producer': 'contextual_source_features_v12',
+    'producer': 'frozen_spark_features_contextual_compressor_v12',
     'representation': REPRESENTATION_VALUE,
     'codec': CODEC_VALUE,
     'slot_policy_v12': SLOT_POLICY_V12,
