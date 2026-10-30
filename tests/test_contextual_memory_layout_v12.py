@@ -170,6 +170,26 @@ def test_active_site_mask_disables_inactive_readers_and_keeps_early_site_live():
     assert context.spec.sites == (3,)
 
 
+def test_empty_active_site_iterables_skip_memory_and_match_base():
+    adapter, layout, provider, path = make()
+    ids, mask, labels = token_inputs()
+    sc = scope()
+    batch = path.training_values(spans_for(["the badge is red"]), scope=sc)
+    reference = base_reference(adapter, ids)
+    snapshots = path.cost["snapshot_copies"]
+    with torch.no_grad():
+        for sites in ([], (), iter(()), []):
+            actual = path.forward(ids, mask, batch, scope=sc, active_sites=sites)
+            assert torch.equal(actual, reference)
+    assert path.cost["snapshot_copies"] == snapshots
+    with torch.no_grad():
+        assert torch.equal(
+            path.forward(ids, mask, batch, scope=sc, active_sites=[3]),
+            path.forward(ids, mask, batch, scope=sc, active_sites=(3,)))
+    with pytest.raises(ContextualMemoryError):
+        path.snapshot(ids, batch, scope=sc, active_sites=[])
+
+
 def test_padded_slots_are_masked_and_do_not_change_logits():
     adapter, layout, provider, path = make()
     ids, mask, labels = token_inputs()
@@ -211,6 +231,30 @@ def test_controls_absent_zero_wrong_and_shuffled_are_distinct_after_updates():
             digests[name] = logits_digest(path.forward(ids, mask, batch, scope=sc))
     assert len(set(digests.values())) == 5, digests
     assert torch.equal(path.forward(ids, mask, None, scope=sc), base_reference(adapter, ids))
+
+
+def test_buffer_or_parameter_mutation_clears_c_and_blocks_export(tmp_path):
+    adapter, layout, provider, path = make()
+    span = canonical_span("the badge is red", record_id="record0")[0]
+    provider.features(span)
+    assert provider.cost["cache_bytes"] > 0
+    adapter.base.register_buffer("review_probe_buffer", torch.zeros(1))
+    with torch.no_grad():
+        adapter.base.review_probe_buffer.add_(1)
+    with pytest.raises(ContextualMemoryError):
+        provider.validate_original()
+    assert provider.cost["cache_bytes"] == 0
+    with pytest.raises(ContextualMemoryError):
+        path.save(tmp_path / "buffer_checkpoint")
+    assert not (tmp_path / "buffer_checkpoint").exists()
+
+    adapter2, layout2, provider2, path2 = make()
+    provider2.features(span)
+    with torch.no_grad():
+        next(adapter2.base.parameters()).add_(0.5)
+    with pytest.raises(ContextualMemoryError):
+        path2.save(tmp_path / "parameter_checkpoint")
+    assert not (tmp_path / "parameter_checkpoint").exists()
 
 
 def test_checkpoint_roundtrip_restores_logits_moments_and_no_base_or_cache(tmp_path):

@@ -217,6 +217,24 @@ def test_zero_entry_cache_is_not_retained():
     assert provider.cost["forwards"] == 2
 
 
+def test_token_and_feature_caches_bind_actual_canonical_text():
+    adapter, _, _, path = stack(cache_entries=4)
+    provider = path.feature_provider
+    first = canonical_span("badge red", record_id="same")[0]
+    second = replace(first, text="badge tan")
+    assert first.record_id == second.record_id and first.start == second.start
+    first_ids = provider.token_ids(first)
+    expected = provider.tokenizer(second.text, add_special_tokens=False,
+                                  truncation=False)["input_ids"]
+    assert provider.token_ids(second) == expected
+    assert provider.token_ids(second) != first_ids
+    first_features = provider.features(first)
+    second_features = provider.features(second)
+    assert not torch.equal(first_features, second_features)
+    assert len(provider._cache) == 2
+    assert len(provider._tokens) == 2
+
+
 def test_source_extraction_is_extension_free_and_detached():
     adapter, _, _, path = stack()
     provider = path.feature_provider

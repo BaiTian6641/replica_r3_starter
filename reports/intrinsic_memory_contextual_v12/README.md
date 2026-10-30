@@ -5,13 +5,15 @@ Status: implementation and entry points delivered by the v12 implementer.
 executed by the implementer.** The coordinator runs the verification below after
 integration. Nothing in this directory is native evidence or a capability claim.
 
-Coordinator result: **61 focused tests passed** after two repair cycles; the two
-failed runs are preserved in `verification_attempt01.log` and
-`verification_attempt02.log`. The real `run01` 2/9/36 workflow passed live
-gradients, distinct controls, correction/revocation and fresh-process
-continuation. Measured parent wall was 14.609024 s and peak RSS 696,860,672
-bytes; the run contains 217 files / 102,218,204 bytes. `native_admissible` is
-`false`: this remains synthetic CPU engineering evidence.
+Coordinator pre-review result: 61 focused tests passed after two repair cycles;
+the failed runs are preserved in `verification_attempt01.log` and
+`verification_attempt02.log`. Independent review then confirmed V1–V5. After a
+third repair cycle, **69 focused tests passed** and a fresh `run02` 2/9/36
+workflow passed live gradients, distinct controls, two-record ordering/parity,
+correction/revocation, release-write recovery and fresh-process continuation.
+Measured run02 parent wall was 15.084017 s and peak RSS 691,568,640 bytes; the
+run contains 217 files / 102,218,202 bytes. `native_admissible` remains `false`:
+this is synthetic CPU engineering evidence, pending final independent re-review.
 
 ## Scope delivered
 
@@ -149,9 +151,29 @@ frozen Spark source (base, eval, no_grad)
   `components_manifest_sha256`; load requires exact equality before mutation.
 - Failed warm/cold reads evict only the records whose own authority or payload
   is invalid (row status/scope/revision/text or verified text/value files).
-  Healthy records selected in the same batch keep their bounded C cache.
+  `ContextualRecordError` identifies a single stale-release/authority failure so
+  a healthy sibling selected in the same batch keeps its bounded C cache.
   `evict_record(full_span_record_id)` evicts exactly that record and returns the
   number of cache entries removed; a record-group prefix is not accepted.
+- Source authority includes named non-parameter buffers as well as parameters.
+  A buffer-only or parameter mutation clears C, and `save()` revalidates the
+  frozen original and ownership before creating the export directory or writing
+  any bytes.
+- Token and feature cache keys include the actual slice `text_digest`; two spans
+  with identical geometry/hash metadata but different text never share IDs or
+  features. `canonical_sha256` remains a whole-record digest (not a per-slice
+  digest), so a synthetic mismatched span is tokenized by its real text.
+- Release manifests bind `source_identity` to `path.source_identity` at `read`,
+  `values` and `validate_batch` boundaries. `values(..., source_identity=)` and
+  `validate_batch(batch, scope=..., source_identity=)` require the keyword.
+  A failed immutable release write removes partial bytes and releases its
+  artifact charge before re-raising; a retry publishes a new generation.
+- Durable slot order sorts by `(source_id, source_epoch, source_order,
+  record_id)`, so ties are deterministic. Two-record live, warm, cold and
+  release reads are tested for exact slot/logit parity.
+- `active_sites` accepts any iterable; empty tuple/list/generator skips memory
+  work and matches the base exactly, and nonempty iterables are normalized to
+  tuples before the reader sees them.
 
 Native work still outside this interface: durable read/write/retrieval bytes,
 checkpoint artifact bytes and wall time. The v12 `cost` dictionaries report

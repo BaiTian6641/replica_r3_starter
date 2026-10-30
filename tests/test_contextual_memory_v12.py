@@ -396,10 +396,11 @@ def test_release_payload_corruption_refuses_only_the_damaged_record(tmp_path):
     damaged.write_bytes(bytes(payload))
     with pytest.raises(ContextualMemoryError, match="digest"):
         corpus.values(entry["source_pin"], left, version=manifest["producer_release"],
-                      scope=sc())
+                      scope=sc(), source_identity=path.source_identity)
     beta_entry = manifest["records"]["beta.span0"]
-    values, release_pin = corpus.values(beta_entry["source_pin"], right,
-                                        version=manifest["producer_release"], scope=sc())
+    values, release_pin = corpus.values(
+        beta_entry["source_pin"], right, version=manifest["producer_release"],
+        scope=sc(), source_identity=path.source_identity)
     assert values.shape == (4, 256) and release_pin["producer_generation"] == manifest["generation"]
     store.close()
 
@@ -478,3 +479,135 @@ def test_close_and_source_free_clear_bounded_caches(tmp_path):
     provider.features(span)
     path.close()
     assert provider.cost["cache_bytes"] == 0 and path._pool is None
+
+
+def test_mixed_release_evicts_only_the_stale_record(tmp_path):
+    adapter, layout, provider, path = make()
+    ids, mask, labels = token_inputs()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    left = source("badge red", "a")
+    right = source("badge blue", "b")
+    path.admit(store, left, scope=sc)
+    step(path, adapter, (left,), ids=ids, labels=labels, sc=sc)
+    path.admit(store, right, scope=sc)
+    provider.features(left)
+    provider.features(right)
+    with pytest.raises(ContextualMemoryError):
+        path.read(store, "badge", scope=sc)
+    names = {name for name, _ in provider._cache.values()}
+    assert "a.span0" not in names
+    assert "b.span0" in names
+    assert provider.cost["cache_bytes"] > 0
+    store.close()
+
+
+def test_release_source_execution_identity_is_enforced(tmp_path):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    span = source("badge red", "a")
+    path.admit(store, span, scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    corpus.rebuild(path)
+    batch = path.read(store, "badge", scope=sc, wait_seconds=1)
+    other = make(source_identity="different_source")[3]
+    other.release_corpus = ProducerReleaseCorpus(store, sc)
+    with pytest.raises(ContextualMemoryError):
+        other.validate(batch, sc)
+    with pytest.raises(ContextualMemoryError):
+        other.release_corpus.read(other, "badge", scope=sc, wait_seconds=1)
+    manifest = corpus._current()[1]
+    entry = manifest["records"]["a.span0"]
+    with pytest.raises(ContextualMemoryError):
+        corpus.values(entry["source_pin"], span, version=manifest["producer_release"],
+                      scope=sc, source_identity="different_source")
+    other.close()
+    path.close()
+    store.close()
+
+
+def test_two_record_live_warm_cold_release_order_and_parity(tmp_path):
+    adapter, layout, provider, path = make()
+    ids, mask, labels = token_inputs()
+    sc = scope()
+    left = source("badge red", "a", available=1, epoch=1)
+    right = source("badge blue", "b", available=2, epoch=2)
+    store = open_v12_store(tmp_path)
+    path.admit(store, left, scope=sc)
+    path.admit(store, right, scope=sc)
+    live = path.training_values((left, right), scope=sc)
+    warm = path.read(store, "badge", scope=sc)
+    assert [span.record_id for span in warm.spans] == ["a.span0", "b.span0"]
+    assert torch.equal(live.slots, warm.slots)
+    with torch.no_grad():
+        assert torch.equal(path.forward(ids, mask, live, scope=sc),
+                           path.forward(ids, mask, warm, scope=sc))
+
+    cold_store = open_v12_store(tmp_path, name="cold_parity")
+    path.admit(cold_store, left, scope=sc, placement="cold")
+    path.admit(cold_store, right, scope=sc, placement="cold")
+    pending = path.read(cold_store, "badge", scope=sc)
+    cold = path.resume(cold_store, pending, scope=sc, wait_seconds=1)
+    assert [span.record_id for span in cold.spans] == ["a.span0", "b.span0"]
+    assert torch.equal(live.slots, cold.slots)
+    with torch.no_grad():
+        assert torch.equal(path.forward(ids, mask, live, scope=sc),
+                           path.forward(ids, mask, cold, scope=sc))
+
+    corpus = ProducerReleaseCorpus(store, sc)
+    corpus.rebuild(path)
+    path.release_corpus = corpus
+    released = path.read(store, "badge", scope=sc, wait_seconds=1)
+    assert [span.record_id for span in released.spans] == ["a.span0", "b.span0"]
+    assert torch.equal(live.slots, released.slots)
+    with torch.no_grad():
+        assert torch.equal(path.forward(ids, mask, live, scope=sc),
+                           path.forward(ids, mask, released, scope=sc))
+    path.release_corpus = None
+    cold_store.close()
+    store.close()
+
+
+def test_durable_slot_order_ties_are_deterministic(tmp_path):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge alpha", "z"), scope=sc)
+    path.admit(store, source("badge beta", "a"), scope=sc)
+    first = path.read(store, "badge", scope=sc)
+    second = path.read(store, "badge", scope=sc)
+    assert [span.record_id for span in first.spans] == ["a.span0", "z.span0"]
+    assert [span.record_id for span in second.spans] == ["a.span0", "z.span0"]
+    assert torch.equal(first.slots, second.slots)
+    store.close()
+
+
+def test_release_write_failure_releases_charge_and_retry_succeeds(tmp_path, monkeypatch):
+    from pathlib import Path as PathClass
+    adapter, layout, provider, path = make()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc())
+    corpus = ProducerReleaseCorpus(store, sc())
+    original = PathClass.open
+    state = {"fail": True}
+
+    def failing(self, *args, **kwargs):
+        if state["fail"] and self.suffix == ".slots":
+            raise OSError("simulated release write failure")
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(PathClass, "open", failing)
+    before = corpus.cost["write_bytes"]
+    with pytest.raises(OSError):
+        corpus.rebuild(path)
+    assert corpus.cost["write_bytes"] == before
+    charged = store.connection.execute(
+        "SELECT COUNT(*) AS c FROM tier_usage WHERE component_id LIKE 'release_v12:%'"
+    ).fetchone()["c"]
+    assert charged == 0
+    state["fail"] = False
+    published = corpus.rebuild(path)
+    assert published["generation"] == 2
+    assert corpus.cost["write_bytes"] > 0
+    store.close()

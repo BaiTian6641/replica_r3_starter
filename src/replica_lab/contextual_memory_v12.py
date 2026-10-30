@@ -33,6 +33,14 @@ SLOT_POLICY = "fixed_eight_masked_padding_v12"
 MAX_RECORDS = 2
 
 
+class ContextualRecordError(ContextualMemoryError):
+    """A single durable record failed authority/version validation."""
+
+    def __init__(self, reason, record_id=None):
+        super().__init__(reason)
+        self.record_id = record_id
+
+
 class ContextualMemoryV12(ContextualMemoryLayoutV12):
     def __init__(self, *args, objective_identity=None,
                  execution_identity="CPU_engineering_unbound", **kwargs):
@@ -122,7 +130,8 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
                 raise ContextualMemoryError(
                     "published release authority is required for durable overlay values")
             if self.release_corpus is not None:
-                self.release_corpus.validate_batch(batch, scope=scope)
+                self.release_corpus.validate_batch(
+                    batch, scope=scope, source_identity=self.source_identity)
         finally:
             self.cost["authority_validation_ns"] += time.monotonic_ns() - start
         return True
@@ -130,40 +139,44 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
     def _batch(self, records, store, scope):
         version = self.encoder.release()
         ordered = sorted(records, key=lambda r: (r["source_id"], r["source_epoch"],
-                                                r["source_provenance"].get("source_order", 0)))
+                                                r["source_provenance"].get("source_order", 0),
+                                                r["record_id"]))
         if not ordered or len(ordered) > MAX_RECORDS:
             raise ContextualMemoryError("bounded two-span/nonempty selection required")
         if len({r["record_id"] for r in ordered}) != len(ordered):
             raise ContextualMemoryError("duplicate record in one contextual selection")
         spans, values, pins = [], [], []
         for r in ordered:
+            record_id = r["record_id"]
             p = r["source_provenance"]
             if (r["scope_key"] != scope.scope_key or r["value_producer_id"] != PRODUCER
-                    or p.get("record_id") != r["record_id"] or p.get("text_sha256") != r["text_sha256"]
+                    or p.get("record_id") != record_id or p.get("text_sha256") != r["text_sha256"]
                     or p.get("supersedes") != r["supersedes"]
                     or p.get("representation_version") != REPRESENTATION
                     or p.get("codec_version") != CODEC):
-                raise ContextualMemoryError("canonical value provenance differs")
+                raise ContextualRecordError("canonical value provenance differs", record_id)
             metadata = {**p, "text": r["text"], "source_id": r["source_id"]}
             span = CanonicalSpan(**{k: metadata[k] for k in CanonicalSpan.__dataclass_fields__}).validate()
             if self.provenance(span, p.get("producer_revision")) != p:
-                raise ContextualMemoryError("slot provenance differs")
-            pin = {"record_id": r["record_id"], "cluster_id": r["cluster_id"],
+                raise ContextualRecordError("slot provenance differs", record_id)
+            pin = {"record_id": record_id, "cluster_id": r["cluster_id"],
                    "generation": r["cluster_generation"], "revision": r["revision"],
                    "text_sha256": r["text_sha256"]}
             if self.release_corpus is None:
                 if (r["value_producer_version"] != version
                         or p.get("producer_revision") != version):
-                    raise ContextualMemoryError("stale producer release")
+                    raise ContextualRecordError("stale producer release", record_id)
                 value = torch.tensor(r["values"], dtype=torch.float32,
                                      device=self.order.weight.device)
             else:
                 value, release_pin = self.release_corpus.values(
-                    pin, span, version=version, scope=scope, payload=r.get("release_payload"))
+                    pin, span, version=version, scope=scope,
+                    source_identity=self.source_identity,
+                    payload=r.get("release_payload"))
                 pin.update(release_pin)
                 value = value.to(self.order.weight.device)
             if tuple(value.shape) != (SLOTS, WIDTH) or not torch.isfinite(value).all():
-                raise ContextualMemoryError("stored slot shape or value differs")
+                raise ContextualRecordError("stored slot shape or value differs", record_id)
             pin["slots_sha256"] = tensor_digest(value)
             pins.append(pin)
             spans.append(span)
@@ -202,6 +215,10 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
                 raise ContextualReadFailure("incomplete contextual read", costs)
             try:
                 batch = self._batch([_descriptor(r) for r in result.records], store, scope)
+            except ContextualRecordError as error:
+                if error.record_id:
+                    self.feature_provider.evict_record(error.record_id)
+                raise
             except Exception:
                 self._evict_named([r.record_id for r in result.records])
                 raise
@@ -483,6 +500,8 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
     # Complete checkpoint and lifecycle
 
     def save(self, directory):
+        self.feature_provider.validate_original()
+        self.assert_optimizer_ownership()
         directory = Path(directory)
         directory.mkdir(exist_ok=False, parents=True)
         inner = super().save(directory / "components")

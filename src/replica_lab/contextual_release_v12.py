@@ -73,10 +73,23 @@ class ProducerReleaseCorpus:
         self.store._charge("cold", "artifacts", len(payload), component,
                            "immutable producer release")
         start = time.monotonic_ns()
-        with path.open("xb") as out:
-            out.write(payload)
-            out.flush()
-            os.fsync(out.fileno())
+        created = False
+        try:
+            with path.open("xb") as out:
+                created = True
+                out.write(payload)
+                out.flush()
+                os.fsync(out.fileno())
+        except BaseException:
+            # A failed immutable write is not durable work: remove any partial
+            # file and release the reservation so a retry is not double-charged.
+            if created:
+                try:
+                    path.unlink()
+                except FileNotFoundError:
+                    pass
+            self.store._release(component)
+            raise
         self.cost["write_bytes"] += len(payload)
         self.cost["write_ns"] += time.monotonic_ns() - start
 
@@ -238,13 +251,15 @@ class ProducerReleaseCorpus:
     # ------------------------------------------------------------------
     # Consumption
 
-    def values(self, pin, span, *, version, scope, payload=None):
+    def values(self, pin, span, *, version, scope, source_identity, payload=None):
         if scope != self.scope:
             raise ContextualMemoryError("release scope/time differs")
         current = self._current()
         if current is None:
             raise ContextualMemoryError("no committed producer release")
         pointer, m = current
+        if m.get("source_identity") != source_identity:
+            raise ContextualMemoryError("release source execution identity differs")
         record = m["records"].get(span.record_id)
         if (m["producer_release"] != version or record is None
                 or record["source_pin"] != pin or record["span"] != asdict(span)):
@@ -267,7 +282,7 @@ class ProducerReleaseCorpus:
         return values, {"producer_generation": m["generation"],
                         "producer_manifest": pointer["manifest_sha256"]}
 
-    def validate_batch(self, batch, *, scope):
+    def validate_batch(self, batch, *, scope, source_identity):
         # Live training sources may originate from an older release. Their E
         # authority is still checked; inference must bind the published release.
         if batch.training:
@@ -276,7 +291,8 @@ class ProducerReleaseCorpus:
         if current is None:
             raise ContextualMemoryError("producer authority unavailable")
         pointer, m = current
-        if scope != self.scope or batch.producer_version != m["producer_release"]:
+        if (scope != self.scope or m.get("source_identity") != source_identity
+                or batch.producer_version != m["producer_release"]):
             raise ContextualMemoryError("mixed producer release batch")
         if len(batch.pins) != len(batch.spans):
             raise ContextualMemoryError("complete release pins required")
@@ -303,6 +319,8 @@ class ProducerReleaseCorpus:
             pointer, m = current
             if m["producer_release"] != path.encoder.release():
                 raise ContextualMemoryError("stale producer release corpus")
+            if m.get("source_identity") != path.source_identity:
+                raise ContextualMemoryError("release source execution identity differs")
             records, payloads = [], []
             for r in result.records:
                 entry = m["records"].get(r.record_id)

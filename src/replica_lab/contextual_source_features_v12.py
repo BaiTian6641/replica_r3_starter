@@ -21,7 +21,8 @@ from typing import Mapping, Protocol, runtime_checkable
 import torch
 from torch import nn
 
-from .contextual_memory import CanonicalSpan, ContextualMemoryError, SLOTS, WIDTH, tensor_digest
+from .contextual_memory import (
+    CanonicalSpan, ContextualMemoryError, SLOTS, WIDTH, tensor_digest, text_digest)
 from .model_identity import durable_model_identity
 
 PRODUCER = "frozen_spark_features_contextual_compressor_v12"
@@ -301,8 +302,14 @@ class FrozenSourceFeatures:
         })
 
     def _original_stamp(self):
-        return tuple((name, p._version, p.data_ptr(), str(p.dtype), str(p.device), tuple(p.shape))
-                     for name, p in self.adapter.base.named_parameters())
+        parameters = tuple(
+            (name, p._version, p.data_ptr(), str(p.dtype), str(p.device), tuple(p.shape))
+            for name, p in self.adapter.base.named_parameters())
+        buffers = tuple(
+            ("buffer:" + name, b._version, b.data_ptr(), str(b.dtype), str(b.device),
+             tuple(b.shape))
+            for name, b in self.adapter.base.named_buffers())
+        return (parameters, buffers)
 
     def validate_original(self):
         if (self.adapter.base.training or any(p.requires_grad for p in self.adapter.base.parameters())):
@@ -361,12 +368,16 @@ class FrozenSourceFeatures:
         if not isinstance(span, CanonicalSpan):
             raise ContextualMemoryError("canonical span is the only source-feature input")
         span.validate()
+        text = span.text
+        if not isinstance(text, str) or len(text.encode("utf-8")) == 0:
+            raise ContextualMemoryError("nonempty canonical source text required")
+        text_identity = text_digest(text)
         key = (span.record_id, span.canonical_sha256, span.start, span.end,
-               span.source_epoch, span.source_order)
+               span.source_epoch, span.source_order, text_identity)
         if key in self._tokens:
             self.cost["tokenizer_cache_hits"] += 1
             return list(self._tokens[key])
-        raw = span.text.encode()
+        raw = text.encode()
         token = self.accounting.reserve(SourceWorkRequest(
             SOURCE_TOKENIZE, source_bytes=len(raw), max_tokens=self.spec.max_tokens))
         try:

@@ -235,7 +235,24 @@ class ContextualMemoryLayoutV12(FeatureIdentityPath):
     # ------------------------------------------------------------------
     # One shared live snapshot
 
+    @staticmethod
+    def _normalize_active_sites(active_sites):
+        if active_sites is None:
+            return None
+        if isinstance(active_sites, (str, bytes)):
+            raise ContextualMemoryError("active sites must be an iterable of integers")
+        try:
+            sites = tuple(active_sites)
+        except TypeError as error:
+            raise ContextualMemoryError("active sites must be an iterable of integers") from error
+        if any(type(site) is not int for site in sites):
+            raise ContextualMemoryError("active sites must be integers")
+        return sites
+
     def snapshot(self, ids, batch, *, scope, active_sites=None, padding_value=0.0):
+        active_sites = self._normalize_active_sites(active_sites)
+        if active_sites == ():
+            raise ContextualMemoryError("a snapshot requires at least one active site")
         self.validate(batch, scope)
         slots = batch.slots + self.order(torch.arange(len(batch.slots), device=ids.device))
         count = len(slots)
@@ -254,6 +271,7 @@ class ContextualMemoryLayoutV12(FeatureIdentityPath):
         return context
 
     def forward(self, ids, mask, batch, *, scope, enabled=True, active_sites=None):
+        active_sites = self._normalize_active_sites(active_sites)
         if not enabled or batch is None or active_sites == ():
             return self.adapter.forward_text(ids, mask, use_projector=False,
                                               use_ports=False, use_spine=False)
@@ -302,6 +320,7 @@ class ContextualMemoryLayoutV12(FeatureIdentityPath):
         return self.representation_release_from_tensors(self._tensors())
 
     def save(self, directory):
+        self.feature_provider.validate_original()
         self.assert_optimizer_ownership()
         path = Path(directory)
         path.mkdir(parents=True, exist_ok=False)

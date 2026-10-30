@@ -21,21 +21,22 @@
       "verified compact provenance and correction lineage stay under the store 1024-byte bound",
       "ran one workflow arm (two-site) end to end into a temporary directory to check the script entry point",
       "repair cycle 1: content-bound adapter substitution refused; a durable batch became stale after one real optimizer step; outer checkpoint contract/tamper refusals; cold correction/revocation/corrupt/missing evicted only the invalid record while a healthy sibling stayed cached; longest tested correction lineage 965 bytes",
-      "repair cycle 2: checkpoint cache assertion moved immediately after load (zero entries) and before any feature-bearing call; post-load training_values legitimately repopulates C; component manifest still records feature/task state as not serialized"
+      "repair cycle 2: checkpoint cache assertion moved immediately after load (zero entries) and before any feature-bearing call; post-load training_values legitimately repopulates C; component manifest still records feature/task state as not serialized",
+      "repair cycle 3: target v12 producer suite 69 passed and independent review V1/V2/V5 3 passed; buffer-only mutation clears C and refuses export before directory creation; token/feature caches bind actual text; mixed-release read evicts only the stale record; release source execution identity enforced; empty site iterables match base; two-record live/warm/cold/release slot parity and deterministic tie order; failed release write releases its charge and retry publishes generation 2"
     ]
   },
   "delivery": {
-    "src/replica_lab/contextual_source_features_v12.py": {"bytes": 26918, "sha256": "b50bb3c7e90fa0cf6e0a1cb76bf5e2bcf20b43e33efda0904246dd0338515867"},
+    "src/replica_lab/contextual_source_features_v12.py": {"bytes": 27419, "sha256": "0596540fc621b3e3e9b5352dc9f85908159d9e450ed5e8ef1286cb0e25a924bf"},
     "src/replica_lab/contextual_feature_identity_v12.py": {"bytes": 7276, "sha256": "336500eb2467f2d47cb9fa0d8c0fa91d569bf01b00057f569588682b72b9d6dd"},
-    "src/replica_lab/contextual_memory_layout_v12.py": {"bytes": 22507, "sha256": "33ac7126f5324f6fe41b014e2577d0eb7bcae579d40381812fb4961347408421"},
-    "src/replica_lab/contextual_memory_v12.py": {"bytes": 31190, "sha256": "ef0a87d4b5dc0440aed99808741e1b28fbc255ae152ec1a94fd3dc033cd54975"},
-    "src/replica_lab/contextual_release_v12.py": {"bytes": 18542, "sha256": "76bd12dbed62540bb51f8c9d9b8862ce6371cd6097867d1dc300ec60546460a1"},
+    "src/replica_lab/contextual_memory_layout_v12.py": {"bytes": 23408, "sha256": "f18eab858fa18d15c84c1bbf97a19d4e3ea2f8c198f64b044eb6a732ea90f7c9"},
+    "src/replica_lab/contextual_memory_v12.py": {"bytes": 31979, "sha256": "da3f3b1c4ac925d154c4032e7e1b1c9b1e4ac0f85979cf9e42b3aa120efd5af3"},
+    "src/replica_lab/contextual_release_v12.py": {"bytes": 19417, "sha256": "be34e646082759df1f23d39c3c02f9988b42f90ecdf086576d7a6c383897b9c1"},
     "src/replica_lab/contextual_v12_fixture.py": {"bytes": 12217, "sha256": "604debab7b76bdfbe5a9c408b3c40b06f1bb5037461f88835f241b075e73e68b"},
     "scripts/run_intrinsic_contextual_cpu_v12.py": {"bytes": 24858, "sha256": "3c986c02afa7db36c1d618b7ebbb2b460fa2ca4946ef474d64e1e9ccf6dda12a"},
     "tests/v12_fixtures.py": {"bytes": 3237, "sha256": "9b63dbbae9acb004249b13309bf21eeb7cb7eb6eb4d96445d09f02fd28189e23"},
-    "tests/test_contextual_source_features_v12.py": {"bytes": 13070, "sha256": "5fcac988bb1439d4398f516f120908ae5f55780f7666b81a0a36a908461085fe"},
-    "tests/test_contextual_memory_layout_v12.py": {"bytes": 16750, "sha256": "d2c5f3162299792cbe668dda5111adc3bef2023e1e0a08bb203c765c2c4b3c31"},
-    "tests/test_contextual_memory_v12.py": {"bytes": 20093, "sha256": "c3c982dc39f2066d293f34b80563b3c3c279dabc082bd07d29ba5056dd2afe25"},
+    "tests/test_contextual_source_features_v12.py": {"bytes": 13918, "sha256": "318a678fb51fbe0919bbb7558d084b9f9c42ae3e449d308665adec59904e5c81"},
+    "tests/test_contextual_memory_layout_v12.py": {"bytes": 18661, "sha256": "7f8b96d45f8efbcb76834789592611f497ce9e6527db2b6dbd9b32c3d5220f78"},
+    "tests/test_contextual_memory_v12.py": {"bytes": 25589, "sha256": "0142208adf643142eabb7a1cdf200a2edd0877ddac519eba4daa8a8ca3289a22"},
     "tests/test_contextual_v12_integration.py": {"bytes": 8899, "sha256": "b893db65ca8fd292968d3d282ab13aad02d75b257f1634879d7b32496cb48b3c"}
   },
   "commands": {
@@ -79,7 +80,10 @@
     "producer_release": "complete representation release over producer, order and reader state plus the feature contract; any phi update invalidates durable values",
     "producer_state_release": "compressor-only release retained for producer state identity",
     "checkpoint_outer_manifest": "strict source/base/feature/adapter/tokenizer/layout contracts, producer/representation/producer-state releases, contains_base_weights=false, original_weights_serialized=false, projection_cache=none, fitting_frozen, feature/task state flags and components_manifest_sha256; mismatch refuses before mutation",
-    "cache_invalidation": "failed reads evict only records whose row status/scope/revision/text or verified text/value files are invalid; healthy records in the same batch keep bounded C",
+    "cache_invalidation": "failed reads evict only records whose row status/scope/revision/text or verified text/value files are invalid; ContextualRecordError identifies a single stale authority failure so a healthy sibling keeps bounded C; buffer-only or parameter mutation clears C and blocks export before any directory is created",
+    "release_authority": "release manifest source_identity must equal path.source_identity at read, value and batch-validation boundaries (values/validate_batch now take a required source_identity keyword); failed release writes release their artifact charge and remove partial bytes",
+    "ordering": "durable slot order sorts by source_id, source_epoch, source_order and record_id; live, warm, cold and release two-record parity is tested",
+    "active_sites": "any empty site iterable (tuple/list/generator) skips memory and matches the base; nonempty lists/generators are normalized to tuples",
     "lineage_bound": "lineage_json refuses provenance longer than 1024 bytes under the store's default json.dumps(sort_keys=True) form; longest tested correction is 965 bytes"
   },
   "remaining_limitations": [
@@ -92,7 +96,8 @@
     "the separate native packet is prepared but unreviewed, unsealed and unlaunched; no authorization receipt exists",
     "native uninterrupted-update equivalence is not measured; only the CPU fixture comparison exists",
     "a tokenizer whose behaviour changes without changing identity() is outside the runtime guard",
-    "the v5 work ledger currently receives source work only; complete native accounting must be extended before a native claim"
+    "the v5 work ledger currently receives source work only; complete native accounting must be extended before a native claim",
+    "canonical_sha256 is a whole-record digest, not a per-slice digest; the token/feature caches bind the actual slice text digest separately, so a synthetic span with a mismatched canonical hash is tokenized by its real text rather than rejected"
   ],
   "preservation": {
     "runtime_pilot_read_imported_edited_staged": false,
@@ -100,17 +105,18 @@
     "shared_v3_v11_docs_edited": false,
     "wip_manifest_edited": false,
     "unrelated_dirty_work_preserved": true,
-    "commits_made": false
+    "commits_made": false,
+    "delivery_hashes_basis": "working-tree bytes at handoff; main must commit the five producer modules, fixture, tests, script and this report, then re-pin any closure/packet to committed blobs"
   },
   "coordinator_verification": {
-    "focused_tests": {"passed": 61, "failed": 0, "skipped": 0, "repair_cycles": 2},
+    "focused_tests": {"passed": 69, "failed": 0, "skipped": 0, "repair_cycles": 3},
     "failed_attempt_logs": ["verification_attempt01.log", "verification_attempt02.log"],
-    "workflow": "run01",
+    "independent_findings_addressed": ["V1", "V2", "V3", "V4", "V5"],
+    "workflow": "run02",
     "arms": ["two", "full_attention_nine", "all"],
-    "parent_wall_seconds": 14.609024124685675,
-    "parent_peak_rss_bytes": 696860672,
+    "parent_wall_seconds": 15.084017499815673,
+    "parent_peak_rss_bytes": 691568640,
     "artifact_files": 217,
-    "artifact_bytes": 102218204,
-    "native_admissible": false
+    "artifact_bytes": 102218202
   }
 }
