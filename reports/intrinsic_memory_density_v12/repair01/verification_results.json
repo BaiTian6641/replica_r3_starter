@@ -1,0 +1,228 @@
+{
+  "P_updates": 0,
+  "commands": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_density_v12_profiler.py tests/test_intrinsic_memory_density_v12_producer.py tests/test_intrinsic_memory_density_v12_matched.py tests/test_intrinsic_memory_density_v12_protocols.py tests/test_intrinsic_memory_density_v12_repairs.py",
+      "observed_result": "62 passed in 22.88s",
+      "zero_skips": true
+    },
+    {
+      "command": "PYTHONPATH=src:scripts PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_independent_review_v12_findings.py::test_rejected_profiler_instrument_is_atomic tests/test_independent_review_v12_findings.py::test_durable_recompute_permits_authority_revalidation tests/test_independent_review_v12_findings.py::test_cost_pilot_zeroes_gradients_for_each_declared_update",
+      "observed_result": "3 passed in 2.39s",
+      "zero_skips": true
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_matched_reader_v1.py",
+      "observed_result": "29 passed in 12.81s",
+      "zero_skips": true
+    },
+    {
+      "command": ".venv/bin/python scripts/profile_intrinsic_memory_density_v12.py --output reports/intrinsic_memory_density_v12/repair01/cpu_engineering_summary.json",
+      "observed_result": "exit 0; fixed and matched arms; post-update profile; both fresh-process continuation sets",
+      "zero_skips": true
+    },
+    {
+      "command": ".venv/bin/python scripts/run_intrinsic_memory_density_v12_cost_pilot.py --output reports/intrinsic_memory_density_v12/repair01/cost_pilot_summary.json",
+      "observed_result": "exit 0 (combined report run 31.69s); zero_grad before every update; selected updates two=2, full_attention_nine=1, all=1; all matched under declared tolerance",
+      "zero_skips": true
+    }
+  ],
+  "downloads": false,
+  "final_verification_owner": "main agent",
+  "format": "replica.intrinsic_memory.density.verification_results.v12.repair01",
+  "native_execution": false,
+  "native_weights_loaded": false,
+  "not_claimed": [
+    "native density, native latency, native physical memory or native cache residency",
+    "generated-answer quality, false recall, competence or useful readout",
+    "pre-MLP fusion, persistent P learning, promotion or RSI"
+  ],
+  "observed_engineering_results": {
+    "fixed_per_site_real_v12": {
+      "all": {
+        "all_intended_parameters": 5518196,
+        "optimizer_parameter_tensors": 417,
+        "physical_reader_groups": 36,
+        "reader_parameters": 4903524,
+        "retrieval_calls_in_forward": 0,
+        "sites": 36,
+        "snapshot_copies_per_forward": 1
+      },
+      "full_attention_nine": {
+        "all_intended_parameters": 1840553,
+        "optimizer_parameter_tensors": 120,
+        "physical_reader_groups": 9,
+        "reader_parameters": 1225881,
+        "retrieval_calls_in_forward": 0,
+        "sites": 9,
+        "snapshot_copies_per_forward": 1
+      },
+      "two": {
+        "all_intended_parameters": 887090,
+        "optimizer_parameter_tensors": 43,
+        "physical_reader_groups": 2,
+        "reader_parameters": 272418,
+        "retrieval_calls_in_forward": 0,
+        "sites": 2,
+        "snapshot_copies_per_forward": 1
+      }
+    },
+    "fresh_process_continuation": {
+      "fixed_v12": {
+        "all": {
+          "actual_update_after_restore": true,
+          "exact_logits": true,
+          "exact_optimizer_moments": true,
+          "exact_weights": true
+        },
+        "full_attention_nine": {
+          "actual_update_after_restore": true,
+          "exact_logits": true,
+          "exact_optimizer_moments": true,
+          "exact_weights": true
+        },
+        "two": {
+          "actual_update_after_restore": true,
+          "exact_logits": true,
+          "exact_optimizer_moments": true,
+          "exact_weights": true
+        }
+      },
+      "matched_v12": {
+        "all": {
+          "actual_update_after_restore": true,
+          "exact_logits": true,
+          "exact_optimizer_moments": true,
+          "exact_weights": true
+        },
+        "full_attention_nine": {
+          "actual_update_after_restore": true,
+          "exact_logits": true,
+          "exact_optimizer_moments": true,
+          "exact_weights": true
+        },
+        "two": {
+          "actual_update_after_restore": true,
+          "exact_logits": true,
+          "exact_optimizer_moments": true,
+          "exact_weights": true
+        }
+      }
+    },
+    "matched_v12": {
+      "all": {
+        "alias_duplicated_state_tensors": 0,
+        "all_intended_parameters": 887090,
+        "optimizer_parameter_tensors": 43,
+        "physical_reader_groups": 2,
+        "reader_invocations": 36,
+        "reader_parameters": 272418,
+        "reader_state_tensors": 22,
+        "sites": 36
+      },
+      "full_attention_nine": {
+        "alias_duplicated_state_tensors": 0,
+        "all_intended_parameters": 887090,
+        "optimizer_parameter_tensors": 43,
+        "physical_reader_groups": 2,
+        "reader_invocations": 9,
+        "reader_parameters": 272418,
+        "reader_state_tensors": 22,
+        "sites": 9
+      },
+      "two": {
+        "alias_duplicated_state_tensors": 0,
+        "all_intended_parameters": 887090,
+        "optimizer_parameter_tensors": 43,
+        "physical_reader_groups": 2,
+        "reader_invocations": 2,
+        "reader_parameters": 272418,
+        "reader_state_tensors": 22,
+        "sites": 2
+      }
+    },
+    "measured_total_cost_pilot": {
+      "cost_metric": "monotonic wall nanoseconds, median of three repeats",
+      "declared_common_updates": 2,
+      "declared_tolerance_matched": {
+        "all": true,
+        "full_attention_nine": true,
+        "two": true
+      },
+      "declared_updates_cap": 8,
+      "protocol_sha256": "a95180970b0b271414ecad3f17ac3f7d5f69c240d9d534b2b40437822e01eb57",
+      "scored_labels_read": false,
+      "selected_updates": {
+        "all": 1,
+        "full_attention_nine": 1,
+        "two": 2
+      },
+      "strict_relative_2_percent_matched": {
+        "all": false,
+        "full_attention_nine": false,
+        "two": false
+      },
+      "target_cost_ns": 59918921.307692304
+    },
+    "native_hidden_2560_reader_parameters": {
+      "all": 52125732,
+      "full_attention_nine": 13031433,
+      "matched_unique_two_groups": 2895874,
+      "per_site": 1447937,
+      "two": 2895874
+    },
+    "post_update_arm_distinguishing_profile": {
+      "fixed_per_site": {
+        "all": {
+          "changed_from_pre_update": true,
+          "logits_sha256": "0d568a6f96066bf79fc4c8229ca51da37a6974ac67a0fdf965f0b76a40b35bcb",
+          "reader_invocations": 36
+        },
+        "full_attention_nine": {
+          "changed_from_pre_update": true,
+          "logits_sha256": "2cc93d6db23d53dc3945c8b3bda4aa9726d4071db0c3ca6143c87c1f47d9a7a1",
+          "reader_invocations": 9
+        },
+        "two": {
+          "changed_from_pre_update": true,
+          "logits_sha256": "429b891fbc72450cd145bc0b8ebfe992ac9db067c1a662cd4f3b524f87b9b8ad",
+          "reader_invocations": 2
+        }
+      },
+      "matched_v12": {
+        "all": {
+          "changed_from_pre_update": true,
+          "logits_sha256": "bbacdac0e7d8d726a07022649f64be24f02e758cf9dd2556674617f7cc277d4e",
+          "reader_invocations": 36
+        },
+        "full_attention_nine": {
+          "changed_from_pre_update": true,
+          "logits_sha256": "348d98dd26542fe4e39f76cb93ef94bfab631340868f5f522d2b0ad36bb5b507",
+          "reader_invocations": 9
+        },
+        "two": {
+          "changed_from_pre_update": true,
+          "logits_sha256": "429b891fbc72450cd145bc0b8ebfe992ac9db067c1a662cd4f3b524f87b9b8ad",
+          "reader_invocations": 2
+        }
+      },
+      "pre_update_logits_are_identical_across_arms_because_output_projections_start_at_zero": true
+    }
+  },
+  "observed_utc": "2026-10-29T21:22:00Z",
+  "promotion": false,
+  "repair_cycle": "D1-D5",
+  "repair_findings": {
+    "D1": "zero_grad(set_to_none=True) before every declared pilot update; review regression passes",
+    "D2": "declared_common_updates=2 and declared_updates_cap=8 are numeric in config, validated exactly, and the pilot loads validated protocols and their digest",
+    "D3": "instrument validates active sites and all identities before committing maps; rejected instrument leaves no forward/recompute registration; hook registration rolls back partial groups",
+    "D4": "source_revalidations is reported under authority_validation, not treated as a retrieval/admission/snapshot/durable-write side effect",
+    "D5": "PRODUCER_API is enforced: callable provider/encoder methods, reviewed encoder class/module, NativeFusedAdamW, and non-null producer release"
+  },
+  "scientific_confounds": {
+    "fixed_per_site": "Reader parameters, optimizer tensors, activation graph length and compute grow with site count; this is not a pure access-location effect.",
+    "matched_unique_parameters": "Sharing changes reuse and gradient interference as well as parameter count; matched v12 and matched v5 are not equivalent producer implementations.",
+    "measured_total_cost": "Training exposure differs by arm by construction; equal measured cost does not equalize quality, latency distribution or peak memory. All arms are inside the declared tolerance max(target*0.02, one marginal update); strict relative 2 percent is noisy on this tiny fixture, so the declared tolerance is the preregistered matching criterion."
+  },
+  "scope": "CPU_random_36_block_fixture_engineering_only"
+}

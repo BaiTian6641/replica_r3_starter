@@ -1,0 +1,31 @@
+{
+  "format": "replica.intrinsic_memory.density.coordinator_verification.v12.repair01",
+  "repair_cycle": 1,
+  "findings": ["D1", "D2", "D3", "D4", "D5"],
+  "tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_density_v12_profiler.py tests/test_intrinsic_memory_density_v12_producer.py tests/test_intrinsic_memory_density_v12_matched.py tests/test_intrinsic_memory_density_v12_protocols.py tests/test_intrinsic_memory_density_v12_repairs.py tests/test_intrinsic_memory_matched_reader_v1.py tests/test_independent_review_v12_findings.py::test_rejected_profiler_instrument_is_atomic tests/test_independent_review_v12_findings.py::test_durable_recompute_permits_authority_revalidation tests/test_independent_review_v12_findings.py::test_cost_pilot_zeroes_gradients_for_each_declared_update",
+    "exit_code": 0,
+    "passed": 94,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 33.46,
+    "scope": "62 density + 29 matched-v5 + 3 independent reproductions"
+  },
+  "profile": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python scripts/profile_intrinsic_memory_density_v12.py --output reports/intrinsic_memory_density_v12/repair01/cpu_engineering_summary.json",
+    "exit_code": 0,
+    "fixed_and_matched_fresh_process_continuation": true,
+    "protocol_digest": "a95180970b0b271414ecad3f17ac3f7d5f69c240d9d534b2b40437822e01eb57"
+  },
+  "cost_pilot": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python scripts/run_intrinsic_memory_density_v12_cost_pilot.py --output reports/intrinsic_memory_density_v12/repair01/cost_pilot_summary.json",
+    "exit_code": 0,
+    "selected_updates": {"two": 2, "full_attention_nine": 1, "all": 1},
+    "matched_arms": ["two", "full_attention_nine", "all"],
+    "target_cost_ns": 56841349.46153846,
+    "strict_relative_2_percent_all_arms": false,
+    "scored_labels_read": false
+  },
+  "native_execution": false,
+  "P_updates": 0
+}

@@ -161,10 +161,41 @@ def _digest_tensor(value):
     return hashlib.sha256(payload).hexdigest()
 
 
+def post_update_profile(path, expected_groups, pre_digest):
+    """One profiled forward after an update, to distinguish post-update arms."""
+    step(path)
+    profiler = SiteInvocationProfiler(path, expected_groups=expected_groups)
+    try:
+        batch = training_batch(path)
+        ids, mask = ids_and_mask(4)
+        before = cost_snapshot(path)
+        wall = time.perf_counter_ns()
+        logits = profiler.forward(path, ids, mask, batch, scope=scope(),
+                                  forward_id="post-update")
+        elapsed = time.perf_counter_ns() - wall
+        after = cost_snapshot(path)
+        summary = profiler.summary()
+        digest = _digest_tensor(logits)
+        return {
+            "forward_wall_ns": elapsed,
+            "single_forward_tiny_fixture_only": True,
+            "logits_sha256": digest,
+            "logits_changed_from_pre_update": digest != pre_digest,
+            "reader_invocations": summary["total_site_invocations"],
+            "physical_reader_groups": summary["physical_groups"],
+            "cost_delta": ledger_delta(before, after),
+            "profiler": {key: value for key, value in summary.items()
+                         if key != "events"},
+        }
+    finally:
+        profiler.close()
+
+
 def profile_arm(arm, *, include_store=False):
     path = build_path(arm)
     boundary = DensityProducerBoundary(path, comparison="fixed_per_site")
     profiler = boundary.profiler(expected_groups=len(ARMS[arm]))
+    result = None
     try:
         batch = training_batch(path)
         ids, mask = ids_and_mask(4)
@@ -174,6 +205,7 @@ def profile_arm(arm, *, include_store=False):
         elapsed = time.perf_counter_ns() - wall
         after = cost_snapshot(path)
         summary = profiler.summary()
+        digest = _digest_tensor(logits)
         result = {
             "arm": arm,
             "sites": list(ARMS[arm]),
@@ -183,7 +215,7 @@ def profile_arm(arm, *, include_store=False):
             "site_invocations": summary["site_invocations"],
             "forward_wall_ns": elapsed,
             "single_forward_tiny_fixture_only": True,
-            "logits_sha256": _digest_tensor(logits),
+            "logits_sha256": digest,
             "parameter_audit": boundary.audit,
             "feature_contract": boundary.identity()["feature_contract"],
             "producer_release": boundary.identity()["producer_release"],
@@ -211,13 +243,19 @@ def profile_arm(arm, *, include_store=False):
         return result
     finally:
         profiler.close()
-        path.close()
+        try:
+            if result is not None:
+                result["post_update"] = post_update_profile(
+                    path, len(ARMS[arm]), digest)
+        finally:
+            path.close()
 
 
 def profile_matched_arm(arm):
     path = build_matched_path(arm)
     boundary = DensityProducerBoundary(path, comparison="matched_unique_parameters")
     profiler = boundary.profiler(expected_groups=2)
+    result = None
     try:
         batch = training_batch(path)
         ids, mask = ids_and_mask(4)
@@ -227,7 +265,8 @@ def profile_matched_arm(arm):
         elapsed = time.perf_counter_ns() - wall
         after = cost_snapshot(path)
         summary = profiler.summary()
-        return {
+        digest = _digest_tensor(logits)
+        result = {
             "arm": arm,
             "sites": list(ARMS[arm]),
             "physical_reader_groups": summary["physical_groups"],
@@ -236,16 +275,21 @@ def profile_matched_arm(arm):
             "site_invocations": summary["site_invocations"],
             "forward_wall_ns": elapsed,
             "single_forward_tiny_fixture_only": True,
-            "logits_sha256": _digest_tensor(logits),
+            "logits_sha256": digest,
             "parameter_audit": boundary.audit,
             "producer_release": boundary.identity()["producer_release"],
             "cost_delta": ledger_delta(before, after),
             "profiler": {key: value for key, value in summary.items()
                          if key != "events"},
         }
+        return result
     finally:
         profiler.close()
-        path.close()
+        try:
+            if result is not None:
+                result["post_update"] = post_update_profile(path, 2, digest)
+        finally:
+            path.close()
 
 
 def continuation(arm, directory, *, matched=False):
@@ -321,7 +365,7 @@ def _tree_equal(left, right):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path,
-                        default=ROOT / "reports/intrinsic_memory_density_v12/cpu_engineering_summary.json")
+                        default=ROOT / "reports/intrinsic_memory_density_v12/repair01/cpu_engineering_summary.json")
     parser.add_argument("--skip-continuation", action="store_true")
     args = parser.parse_args()
     torch.set_num_threads(1)

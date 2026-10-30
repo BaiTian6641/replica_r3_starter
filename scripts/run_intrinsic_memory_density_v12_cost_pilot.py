@@ -40,16 +40,14 @@ from replica_lab.intrinsic_memory_density_v12 import (  # noqa: E402
     SiteInvocationProfiler, cost_snapshot, ledger_delta,
 )
 from replica_lab.intrinsic_memory_density_protocols_v12 import (  # noqa: E402
-    COST_TOLERANCE_RELATIVE, DECLARED_COMMON_UPDATES, DECLARED_UPDATES_CAP,
-    PILOT_UPDATE_COUNTS, build_protocols, canonical_digest, cost_tolerance,
-    fit_fixed_marginal, measured_cost_target, select_updates,
+    canonical_digest, cost_tolerance, fit_fixed_marginal, load_protocols,
+    measured_cost_target, select_updates,
 )
 from replica_lab.tiered_memory import (  # noqa: E402
     MemoryScope, TierCeilings, TieredMemoryStore,
 )
 
 FORMAT = "replica.intrinsic_memory.density.cost_pilot.v12"
-REPEATS = 3
 
 
 def scope():
@@ -77,6 +75,7 @@ def run_pass(arm, updates, *, profile=False):
         path.admit(store, spans()[0], scope=scope())
         batch = path.read(store, "Badge", scope=scope())
         for _ in range(updates):
+            path.optimizer.zero_grad(set_to_none=True)
             live = path.training_from_stored(batch, scope=scope())
             if profiler is None:
                 logits = path.forward(ids, mask, live, scope=scope())
@@ -105,11 +104,11 @@ def run_pass(arm, updates, *, profile=False):
         store.close()
 
 
-def arm_pilot(arm):
+def arm_pilot(arm, update_counts, repeat):
     measurements = {}
     runs = {}
-    for updates in PILOT_UPDATE_COUNTS:
-        values = [run_pass(arm, updates)["elapsed_ns"] for _ in range(REPEATS)]
+    for updates in update_counts:
+        values = [run_pass(arm, updates)["elapsed_ns"] for _ in range(repeat)]
         runs[str(updates)] = values
         measurements[str(updates)] = statistics.median(values)
     fit = fit_fixed_marginal(measurements)
@@ -118,8 +117,8 @@ def arm_pilot(arm):
     return {
         "arm": arm,
         "sites": list(ARMS[arm]),
-        "update_counts": list(PILOT_UPDATE_COUNTS),
-        "repeat": REPEATS,
+        "update_counts": list(update_counts),
+        "repeat": repeat,
         "pilot_runs_ns": runs,
         "median_total_cost_ns": measurements,
         "fit": fit,
@@ -153,18 +152,28 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--output", type=Path,
-        default=ROOT / "reports/intrinsic_memory_density_v12/cost_pilot_summary.json")
+        default=ROOT / "reports/intrinsic_memory_density_v12/repair01/cost_pilot_summary.json")
     args = parser.parse_args()
     torch.set_num_threads(1)
-    arms = {arm: arm_pilot(arm) for arm in ARMS}
+    protocols = load_protocols(ROOT / "configs")
+    total_protocol = protocols["preregistered_measured_total_cost"]
+    total_sha256 = canonical_digest(total_protocol)
+    pilot_config = total_protocol["pilot"]
+    selection_config = total_protocol["selection"]
+    update_counts = tuple(pilot_config["runs_per_arm_update_counts"])
+    repeat = pilot_config["repeat"]
+    common_updates = selection_config["declared_common_updates"]
+    updates_cap = selection_config["declared_updates_cap"]
+    relative_tolerance = selection_config["tolerance"]["relative"]
+    arms = {arm: arm_pilot(arm, update_counts, repeat) for arm in ARMS}
     target_fit = arms["two"]["fit"]
-    target_ns = measured_cost_target(target_fit, DECLARED_COMMON_UPDATES)
+    target_ns = measured_cost_target(target_fit, common_updates)
     selected = {}
     for arm, result in arms.items():
         updates = select_updates(result["fit"]["fixed_cost"],
                                  result["fit"]["marginal_cost"], target_ns,
-                                 updates_cap=DECLARED_UPDATES_CAP)
-        measured = [run_pass(arm, updates)["elapsed_ns"] for _ in range(REPEATS)]
+                                 updates_cap=updates_cap)
+        measured = [run_pass(arm, updates)["elapsed_ns"] for _ in range(repeat)]
         median = statistics.median(measured)
         tolerance = cost_tolerance(target_ns, result["fit"]["marginal_cost"])
         difference = median - target_ns
@@ -176,13 +185,12 @@ def main():
             "tolerance_ns": tolerance,
             "difference_ns": difference,
             "matched_within_declared_tolerance": abs(difference) <= tolerance,
-            "matched_within_relative_2_percent": abs(difference) <= target_ns * COST_TOLERANCE_RELATIVE,
+            "matched_within_relative_2_percent": abs(difference) <= target_ns * relative_tolerance,
             "measurement_cost_ns": sum(measured),
         }
         arms[arm]["selection"] = selected[arm]
         arms[arm]["total_charged_cost_ns"] = (
             arms[arm]["pilot_cost_ns"] + selected[arm]["measurement_cost_ns"])
-    protocols = build_protocols()
     report = {
         "format": FORMAT,
         "generated_utc": datetime.now(timezone.utc).isoformat(),
@@ -197,16 +205,16 @@ def main():
         "torch": torch.__version__,
         "platform": platform.platform(),
         "cost_metric": "measured_monotonic_wall_nanoseconds",
-        "repeat": REPEATS,
-        "aggregate": "median",
-        "declared_common_updates": DECLARED_COMMON_UPDATES,
-        "declared_updates_cap": DECLARED_UPDATES_CAP,
-        "tolerance_rule": "max(target*0.02, one_measured_marginal_update_cost_arm)",
+        "repeat": repeat,
+        "aggregate": pilot_config["aggregate"],
+        "declared_common_updates": common_updates,
+        "declared_updates_cap": updates_cap,
+        "tolerance_rule": (
+            f"max(target*{relative_tolerance}, one_measured_marginal_update_cost_arm)"),
         "target_arm": "two",
         "target_cost_ns": target_ns,
-        "selection_rule": (
-            "updates_arm = clamp(floor((target - fixed_cost_arm) / "
-            "marginal_cost_arm), 1, declared_updates_cap)"),
+        "total_cost_protocol_sha256": total_sha256,
+        "selection_rule": selection_config["rule"],
         "selected_updates": {arm: row["selected_updates"] for arm, row in selected.items()},
         "matched_arms": [arm for arm, row in selected.items()
                          if row["matched_within_declared_tolerance"]],

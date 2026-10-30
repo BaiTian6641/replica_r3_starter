@@ -1,0 +1,66 @@
+{
+  "format": "replica.intrinsic_memory.density.verification_plan.v12.repair01",
+  "repair_cycle": "D1-D5",
+  "scope": "CPU_only_no_native_launch",
+  "native_execution": false,
+  "native_weights_loaded": false,
+  "downloads": false,
+  "P_updates": 0,
+  "promotion": false,
+  "preserved_prior_destinations": [
+    "reports/intrinsic_memory_density_v12/cpu_engineering_summary.json",
+    "reports/intrinsic_memory_density_v12/cost_pilot_summary.json",
+    "reports/intrinsic_memory_density_v12/protocol_summary.json",
+    "reports/intrinsic_memory_density_v12/verification_plan.json",
+    "reports/intrinsic_memory_density_v12/verification_results.json"
+  ],
+  "new_destinations": {
+    "cpu_engineering": "reports/intrinsic_memory_density_v12/repair01/cpu_engineering_summary.json",
+    "cost_pilot": "reports/intrinsic_memory_density_v12/repair01/cost_pilot_summary.json",
+    "protocol_summary": "reports/intrinsic_memory_density_v12/repair01/protocol_summary.json"
+  },
+  "commands": [
+    {
+      "purpose": "All density tests including repair regressions",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_density_v12_profiler.py tests/test_intrinsic_memory_density_v12_producer.py tests/test_intrinsic_memory_density_v12_matched.py tests/test_intrinsic_memory_density_v12_protocols.py tests/test_intrinsic_memory_density_v12_repairs.py",
+      "timeout_seconds": 1800
+    },
+    {
+      "purpose": "Independent review D1/D3/D4 reproductions",
+      "command": "PYTHONPATH=src:scripts PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_independent_review_v12_findings.py::test_rejected_profiler_instrument_is_atomic tests/test_independent_review_v12_findings.py::test_durable_recompute_permits_authority_revalidation tests/test_independent_review_v12_findings.py::test_cost_pilot_zeroes_gradients_for_each_declared_update",
+      "timeout_seconds": 600
+    },
+    {
+      "purpose": "Regenerate the fixed/matched CPU engineering report with post-update arm-distinguishing profile",
+      "command": ".venv/bin/python scripts/profile_intrinsic_memory_density_v12.py --output reports/intrinsic_memory_density_v12/repair01/cpu_engineering_summary.json",
+      "timeout_seconds": 1800
+    },
+    {
+      "purpose": "Execute the D1-corrected measured-total-cost pilot using the validated numeric protocol",
+      "command": ".venv/bin/python scripts/run_intrinsic_memory_density_v12_cost_pilot.py --output reports/intrinsic_memory_density_v12/repair01/cost_pilot_summary.json",
+      "timeout_seconds": 1800
+    },
+    {
+      "purpose": "Matched-reader v5 regression control",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_matched_reader_v1.py",
+      "timeout_seconds": 600
+    },
+    {
+      "purpose": "Validate checked-in protocol numeric exposure and digests",
+      "command": ".venv/bin/python -c \"import sys; sys.path.insert(0,'src'); from replica_lab.intrinsic_memory_density_protocols_v12 import load_protocols; p=load_protocols('configs'); print(p['preregistered_measured_total_cost']['selection'])\"",
+      "timeout_seconds": 60
+    }
+  ],
+  "required_results": [
+    "zero_grad(set_to_none=True) occurs once before every declared cost-pilot update",
+    "declared_common_updates=2 and declared_updates_cap=8 are numeric in the checked-in protocol and validated",
+    "rejected profiler instrument leaves no forward or recompute identity",
+    "durable recompute permits positive source_revalidations without treating it as a write side effect",
+    "producer boundary enforces callable/provider/encoder API, NativeFusedAdamW identity and a non-null release",
+    "post-update profiled logits differ across fixed 2/9/36 and matched 2/9/36 arms",
+    "one snapshot per active forward and no retrieval/write effects",
+    "fixed and matched fresh-process continuation remains exact for every layout",
+    "cost pilot records fixed/marginal cost, selected whole-pass exposure, declared tolerance and matched/unmatched arms",
+    "no native arm, threshold, evidence gate or P update is changed"
+  ]
+}

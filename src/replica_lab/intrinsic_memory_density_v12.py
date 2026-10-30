@@ -27,6 +27,8 @@ import time
 
 import torch
 
+from .optimizers import NativeFusedAdamW
+
 IMPLEMENTATION = "replica.intrinsic_memory.density.v12"
 PROFILER_FORMAT = IMPLEMENTATION + ".profiler"
 PRODUCER_BOUNDARY_FORMAT = IMPLEMENTATION + ".producer_boundary"
@@ -43,8 +45,11 @@ COMPARISONS = ("fixed_per_site", "matched_unique_parameters")
 READ_WRITE_KEYS = (
     "retrieval_calls", "admission_calls", "correction_calls", "snapshot_copies",
     "snapshot_bytes", "durable_write_bytes", "durable_write_ns",
-    "source_revalidations", "value_slots_read",
+    "value_slots_read",
 )
+# Durable authority revalidation is legitimate work during recomputation.  It is
+# reported separately and must not be mistaken for a read/write side effect.
+AUTHORITY_KEYS = ("source_revalidations", "revalidations")
 
 PRODUCER_METHODS = (
     "forward", "training_values", "training_from_stored", "snapshot", "validate",
@@ -58,8 +63,10 @@ PRODUCER_API = {
     "version": PRODUCER_API_VERSION,
     "required_methods": list(PRODUCER_METHODS),
     "required_attributes": list(PRODUCER_ATTRIBUTES),
-    "feature_provider": ["spec", "provenance", "release"],
-    "encoder": ["release", "provider"],
+    "feature_provider": ["provenance"],
+    "encoder": ["release", "release_from_state", "provider"],
+    "encoder_class": "SourceFeatureValueEncoder",
+    "encoder_module_suffix": "contextual_source_features_v12",
     "optimizer": "NativeFusedAdamW",
     "placement": PLACEMENT,
 }
@@ -154,8 +161,17 @@ def ledger_delta(before, after):
 
 
 def assert_no_read_write_effects(before, after, *, keys=READ_WRITE_KEYS):
-    """Raise if a declared recomputation introduced a memory side effect."""
+    """Raise if a declared recomputation introduced a memory side effect.
+
+    Positive authority revalidation counters are returned under
+    ``authority_validation``; they are expected on a durable, store-backed
+    recompute and are not retrieval/admission/snapshot/write effects.
+    """
     delta = ledger_delta(before, after)
+    authority = {key: delta["memory"].get(key, 0) for key in AUTHORITY_KEYS
+                 if delta["memory"].get(key, 0) != 0}
+    if any(value < 0 for value in authority.values()):
+        raise DensityError("authority-validation counter moved backwards")
     changed = {key: delta["memory"].get(key, 0) for key in keys
                if delta["memory"].get(key, 0) != 0}
     # Source tokenization/forward recomputation is legitimate work; it may not
@@ -169,7 +185,7 @@ def assert_no_read_write_effects(before, after, *, keys=READ_WRITE_KEYS):
     if changed:
         raise DensityError("recomputation created retrieval/write/copy effects: "
                            + ", ".join(sorted(changed)))
-    return delta
+    return {**delta, "authority_validation": authority}
 
 
 def physical_groups(reader):
@@ -314,18 +330,37 @@ class SiteInvocationProfiler:
 
     # -- hooks -----------------------------------------------------------
     def _register(self):
-        for group_id, module in self.groups.items():
-            if getattr(module, "_density_profiler_owner", None) is not None:
-                self._duplicate_refusals += 1
-                raise DensityError("reader group already has density hooks; duplicate registration refused")
-            pre = module.register_forward_pre_hook(self._pre)
-            post = module.register_forward_hook(self._post)
-            module._density_profiler_owner = self
-            self._hooks.extend((pre, post))
-            self._registration_counts[group_id] = {
-                "group_name": self.group_names.get(group_id),
-                "pre_hooks": 1, "post_hooks": 1,
-            }
+        registered = []
+        try:
+            for group_id, module in self.groups.items():
+                if getattr(module, "_density_profiler_owner", None) is not None:
+                    self._duplicate_refusals += 1
+                    raise DensityError(
+                        "reader group already has density hooks; duplicate registration refused")
+                pre = module.register_forward_pre_hook(self._pre)
+                try:
+                    post = module.register_forward_hook(self._post)
+                except BaseException:
+                    pre.remove()
+                    raise
+                module._density_profiler_owner = self
+                registered.append((module, pre, post, group_id))
+            for module, _, _, group_id in registered:
+                self._registration_counts[group_id] = {
+                    "group_name": self.group_names.get(group_id),
+                    "pre_hooks": 1, "post_hooks": 1,
+                }
+            self._hooks.extend(handle for _, pre, post, _ in registered
+                               for handle in (pre, post))
+        except BaseException:
+            # A failed later group must not leave earlier hooks or ownership on
+            # physical modules; otherwise a retry would be permanently blocked.
+            for module, pre, post, _ in registered:
+                pre.remove()
+                post.remove()
+                if getattr(module, "_density_profiler_owner", None) is self:
+                    del module._density_profiler_owner
+            raise
 
     def _check_thread(self):
         if threading.get_ident() != self._owner_thread:
@@ -413,35 +448,43 @@ class SiteInvocationProfiler:
             raise DensityError("undeclared profiling phase")
         if recompute_of is not None and phase != "recompute":
             raise DensityError("recompute_of is only valid for a recompute pass")
-        if phase == "recompute":
-            if recompute_of not in self._forward_ids:
-                raise DensityError("recompute references an unknown forward identity")
-            original = self._snapshot_by_forward[str(recompute_of)]
-            if id(snapshot) != original:
-                raise DensityError("recompute must reuse the forward's one snapshot object")
-            if forward_id is None:
-                forward_id = f"recompute-{len(self._recompute_of) + 1}"
-            if str(forward_id) in self._recompute_of:
-                raise DensityError("duplicate recompute identity")
-        else:
-            if forward_id is None:
-                forward_id = f"forward-{len(self._forward_ids) + 1}"
-            if str(forward_id) in self._forward_ids:
-                raise DensityError("duplicate forward identity")
-            self._forward_ids.add(str(forward_id))
-            self._snapshot_by_forward[str(forward_id)] = id(snapshot)
+        # Validate every input before changing identity maps.  A rejected
+        # instrument must leave no forward/snapshot/recompute registration that
+        # a later retry or recompute could attribute to nonexistent work.
         sites = snapshot.spec.sites if active_sites is None else tuple(active_sites)
         if (not isinstance(sites, tuple) or not sites
                 or tuple(sorted(set(sites))) != sites
                 or not set(sites) <= set(self.sites)):
             raise DensityError("invalid active-site mask")
         if phase == "recompute":
-            self._recompute_of[str(forward_id)] = str(recompute_of)
-        return _ProfiledSnapshot(self, snapshot, sites, forward_id=str(forward_id),
-                                 phase=phase,
-                                 recompute_of=(str(recompute_of)
-                                               if recompute_of is not None else None),
-                                 sequence_id=sequence_id, chunk_id=chunk_id)
+            recompute_of = str(recompute_of)
+            if recompute_of not in self._forward_ids:
+                raise DensityError("recompute references an unknown forward identity")
+            original = self._snapshot_by_forward[recompute_of]
+            if id(snapshot) != original:
+                raise DensityError("recompute must reuse the forward's one snapshot object")
+            if forward_id is None:
+                forward_id = f"recompute-{len(self._recompute_of) + 1}"
+            forward_id = str(forward_id)
+            if forward_id in self._recompute_of:
+                raise DensityError("duplicate recompute identity")
+        else:
+            if forward_id is None:
+                forward_id = f"forward-{len(self._forward_ids) + 1}"
+            forward_id = str(forward_id)
+            if forward_id in self._forward_ids:
+                raise DensityError("duplicate forward identity")
+        proxy = _ProfiledSnapshot(
+            self, snapshot, sites, forward_id=forward_id, phase=phase,
+            recompute_of=(recompute_of if recompute_of is not None else None),
+            sequence_id=sequence_id, chunk_id=chunk_id)
+        # Commit only after every validation and object construction succeeds.
+        if phase == "recompute":
+            self._recompute_of[forward_id] = recompute_of
+        else:
+            self._forward_ids.add(forward_id)
+            self._snapshot_by_forward[forward_id] = id(snapshot)
+        return proxy
 
     def forward(self, path, ids, mask, batch, *, scope, active_sites=None,
                 enabled=True, forward_id=None, phase="forward", recompute_of=None,
@@ -626,6 +669,25 @@ class DensityProducerBoundary:
             raise ProducerBoundaryViolation("producer cost ledger must be a mapping")
         if not isinstance(producer.source_identity, str) or not producer.source_identity:
             raise ProducerBoundaryViolation("explicit source identity is required")
+        if not isinstance(producer.optimizer, NativeFusedAdamW):
+            raise ProducerBoundaryViolation(
+                "producer optimizer is not the declared NativeFusedAdamW implementation")
+        encoder = producer.encoder
+        for name in PRODUCER_API["encoder"]:
+            if name == "provider":
+                if getattr(encoder, name, None) is None:
+                    raise ProducerBoundaryViolation("encoder provider is missing")
+            elif not callable(getattr(encoder, name, None)):
+                raise ProducerBoundaryViolation(f"encoder method is missing: {name}")
+        encoder_type = type(encoder)
+        if (encoder_type.__name__ != PRODUCER_API["encoder_class"]
+                or not encoder_type.__module__.endswith(
+                    PRODUCER_API["encoder_module_suffix"])):
+            raise ProducerBoundaryViolation(
+                "producer encoder does not match the reviewed v12 implementation")
+        release = encoder.release()
+        if not isinstance(release, str) or not release.strip():
+            raise ProducerBoundaryViolation("producer release is null or empty")
         spec = producer.spec
         if (getattr(spec, "placement", None) != PLACEMENT
                 or getattr(spec, "width", None) != WIDTH
@@ -636,6 +698,12 @@ class DensityProducerBoundary:
         identity = getattr(feature_spec, "identity", None)
         if not callable(identity):
             raise ProducerBoundaryViolation("frozen-source feature spec is missing")
+        missing_provider = [name for name in PRODUCER_API["feature_provider"]
+                            if not callable(getattr(provider, name, None))]
+        if missing_provider:
+            raise ProducerBoundaryViolation(
+                "feature provider is missing API methods: "
+                + ", ".join(sorted(missing_provider)))
         feature = identity()
         if (feature.get("input_policy") != "canonical_span_only_no_template_no_special_tokens"
                 or feature.get("output_policy") != "last_decoder_hidden_after_final_norm"
