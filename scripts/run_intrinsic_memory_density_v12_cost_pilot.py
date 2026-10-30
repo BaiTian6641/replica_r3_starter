@@ -38,7 +38,8 @@ from profile_intrinsic_memory_density_v12 import (  # noqa: E402
 from replica_lab.contextual_spark_fixture import ids_and_mask, labels_from_ids
 from replica_lab.intrinsic_memory_density_receipts_v12 import write_new_json  # noqa: E402
 from replica_lab.intrinsic_memory_density_v12 import (  # noqa: E402
-    DensityProducerBoundary, cost_snapshot, ledger_delta, synchronize_timing,
+    DensityProducerBoundary, cost_snapshot, ledger_delta,
+    require_timing_synchronization,
 )
 from replica_lab.intrinsic_memory_density_protocols_v12 import (  # noqa: E402
     canonical_digest, cost_tolerance, fit_fixed_marginal, load_protocols,
@@ -78,7 +79,7 @@ def run_pass(arm, updates, *, profile=False):
                             if profile else None)
                 ids, mask = ids_and_mask(4)
                 before = cost_snapshot(path)
-                synchronized_before = synchronize_timing(device)
+                synchronized_before = require_timing_synchronization(device)
                 started = time.perf_counter_ns()
                 path.admit(store, spans()[0], scope=scope())
                 batch = path.read(store, "Badge", scope=scope())
@@ -96,7 +97,7 @@ def run_pass(arm, updates, *, profile=False):
                         profiler.record_backward(calls=1,
                                                  processed_positions=int(ids.numel()))
                     path.optimizer.step()
-                synchronized_after = synchronize_timing(device)
+                synchronized_after = require_timing_synchronization(device)
                 elapsed = time.perf_counter_ns() - started
                 after = cost_snapshot(path)
                 result = {

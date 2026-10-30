@@ -118,17 +118,30 @@ def synchronize_timing(device=None):
     CPU engineering receipt cannot imply a native synchronized measurement.
     """
     kind = getattr(device, "type", None)
-    if kind == "cuda" and torch.cuda.is_available():
+    if kind == "cuda":
+        if not torch.cuda.is_available():
+            return "cuda_unavailable"
         torch.cuda.synchronize(device)
         return "cuda_synchronize"
     if kind == "mps":
         mps = getattr(torch, "mps", None)
-        synchronize = getattr(mps, "synchronize", None) if mps is not None else None
-        if callable(synchronize):
-            synchronize()
-            return "mps_synchronize"
-        return "mps_unavailable"
+        if mps is None or not mps.is_available():
+            return "mps_unavailable"
+        synchronize = getattr(mps, "synchronize", None)
+        if not callable(synchronize):
+            return "mps_unavailable"
+        synchronize()
+        return "mps_synchronize"
     return "cpu_synchronous"
+
+
+def require_timing_synchronization(device=None):
+    """Fail closed when the declared backend synchronization cannot execute."""
+    label = synchronize_timing(device)
+    if label not in ("cpu_synchronous", "cuda_synchronize", "mps_synchronize"):
+        raise DensityError(
+            f"declared timing synchronization did not execute: {label}")
+    return label
 
 
 def _int_cost(value):

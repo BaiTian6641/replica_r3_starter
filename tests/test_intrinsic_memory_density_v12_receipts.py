@@ -8,7 +8,7 @@ from replica_lab.intrinsic_memory_density_protocols_v12 import (
 )
 from replica_lab.intrinsic_memory_density_receipts_v12 import (
     PROTOCOL_SUMMARY, REPORT_MANIFEST, VERIFICATION_RESULTS,
-    ReceiptError, write_new_json, write_repair_receipts,
+    ReceiptError, _portable, write_new_json, write_repair_receipts,
 )
 
 
@@ -191,12 +191,10 @@ def test_navigation_generator_is_consistent_and_deterministic(tmp_path):
     current = json.loads((root / "CURRENT.json").read_text())
     noncanonical = json.loads((root / "NONCANONICAL.json").read_text())
     assert current == first
-    assert current["canonical_destination"] == (
-        "reports/intrinsic_memory_density_v12/coordinator04")
+    assert current["canonical_destination"] == _portable(canonical)
     assert noncanonical["canonical_destination"] == current["canonical_destination"]
     assert [row["path"] for row in noncanonical["noncanonical_destinations"]] == [
-        "reports/intrinsic_memory_density_v12",
-        "reports/intrinsic_memory_density_v12/repair01"]
+        _portable(root), _portable(old)]
     assert (old / "NONCANONICAL.json").is_file()
     second = write_current_navigation(
         root, "coordinator04", generator="test", x6_test="test::x6")
@@ -227,3 +225,49 @@ def test_receipt_set_failure_removes_partial_outputs_and_retries(monkeypatch, tm
     receipts.write_repair_receipts(
         destination, cpu_summary_path=cpu, cost_pilot_path=cost_path)
     assert (destination / PROTOCOL_SUMMARY).is_file()
+
+
+def test_navigation_transaction_rolls_back_on_directory_fsync_failure(monkeypatch, tmp_path):
+    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+    root = tmp_path / "reports"
+    canonical = root / "coordinator06"
+    old = root / "repair01"
+    canonical.mkdir(parents=True)
+    old.mkdir()
+    for directory in (canonical, old):
+        for name in ("cpu_engineering_summary.json", "cost_pilot_summary.json",
+                     "protocol_summary.json", "verification_results.json",
+                     "report_manifest.json"):
+            (directory / name).write_text('{"x": 1}\n')
+    (root / "CURRENT.json").write_text('{"old": true}\n')
+    (root / "NONCANONICAL.json").write_text('{"old": true}\n')
+    real_fsync = receipts._fsync_directory
+    calls = {"count": 0}
+
+    def failing(directory):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise OSError("directory fsync failed")
+        return real_fsync(directory)
+
+    monkeypatch.setattr(receipts, "_fsync_directory", failing)
+    with pytest.raises(OSError):
+        receipts.write_current_navigation(
+            root, "coordinator06", generator="test", x6_test="test::x6")
+    assert (root / "CURRENT.json").read_text() == '{"old": true}\n'
+    assert (root / "NONCANONICAL.json").read_text() == '{"old": true}\n'
+    monkeypatch.setattr(receipts, "_fsync_directory", real_fsync)
+    receipts.write_current_navigation(
+        root, "coordinator06", generator="test", x6_test="test::x6")
+    assert json.loads((root / "CURRENT.json").read_text())["canonical_destination"] == (
+        receipts._portable(canonical))
+
+
+def test_navigation_refuses_custom_filename_schema(tmp_path):
+    from replica_lab.intrinsic_memory_density_receipts_v12 import write_current_navigation
+    root = tmp_path / "reports"
+    canonical = root / "custom"
+    canonical.mkdir(parents=True)
+    (canonical / "profile.json").write_text("{}\n")
+    with pytest.raises(ReceiptError, match="schema filenames"):
+        write_current_navigation(root, "custom", generator="test", x6_test="test")

@@ -24,6 +24,39 @@ VERIFICATION_RESULTS = "verification_results.json"
 REPORT_MANIFEST = "report_manifest.json"
 
 
+_PENDING_CLEANUP = set()
+
+
+def _unlink_or_queue(path):
+    try:
+        Path(path).unlink()
+    except FileNotFoundError:
+        return
+    except OSError:
+        if len(_PENDING_CLEANUP) < 64:
+            _PENDING_CLEANUP.add(Path(path))
+
+
+def _cleanup_pending():
+    for path in list(_PENDING_CLEANUP):
+        try:
+            Path(path).unlink()
+            _PENDING_CLEANUP.discard(path)
+        except FileNotFoundError:
+            _PENDING_CLEANUP.discard(path)
+        except OSError:
+            break
+
+
+def _portable(path):
+    """Repository-relative POSIX identity; no absolute host path."""
+    path = Path(path).resolve()
+    try:
+        return path.relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return Path(os.path.relpath(path, Path.cwd())).as_posix()
+
+
 class ReceiptError(ValueError):
     """Receipt input or destination failed closed."""
 
@@ -50,6 +83,7 @@ def write_new_json(path, value):
     the final name with O_EXCL semantics.  A partial write, injected failure or
     concurrent creator leaves no final file and can be retried.
     """
+    _cleanup_pending()
     path = Path(path)
     if path.exists():
         raise FileExistsError(f"refusing to overwrite receipt: {path}")
@@ -72,20 +106,19 @@ def write_new_json(path, value):
         try:
             os.unlink(temporary)
         except OSError:
-            # The final receipt is complete; leaving a temp name must not turn a
-            # successful receipt into a raised call that leaves the final path.
-            pass
+            # The final receipt is complete; bounded cleanup removes this temp
+            # name on the next receipt operation without turning success into a
+            # raised call that leaves the final path.
+            _unlink_or_queue(temporary)
         _fsync_directory(path.parent)
+        _cleanup_pending()
     except BaseException:
         if linked:
             try:
                 path.unlink()
             except OSError:
                 pass
-        try:
-            temporary.unlink()
-        except OSError:
-            pass
+        _unlink_or_queue(temporary)
         raise
     return path
 
@@ -294,13 +327,7 @@ def build_verification_results(cpu_summary, cost_pilot, protocols, *, repair_cyc
 
 
 
-def _write_replace_json(path, value):
-    """Atomically replace a mutable navigation pointer."""
-    path = Path(path)
-    if path.is_symlink():
-        raise ReceiptError(f"navigation pointer is a symlink: {path}")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    payload = json.dumps(value, indent=2, sort_keys=True) + "\n"
+def _stage_bytes(path, payload):
     descriptor, temporary = tempfile.mkstemp(
         prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
     temporary = Path(temporary)
@@ -309,14 +336,52 @@ def _write_replace_json(path, value):
             stream.write(payload)
             stream.flush()
             os.fsync(stream.fileno())
-        os.replace(temporary, path)
-        _fsync_directory(path.parent)
     except BaseException:
-        try:
-            temporary.unlink()
-        except FileNotFoundError:
-            pass
+        _unlink_or_queue(temporary)
         raise
+    return temporary
+
+
+def _transactional_replace(entries):
+    """Replace a set of JSON files with complete rollback on any failure."""
+    entries = [(Path(path), value) for path, value in entries]
+    backups, staged = {}, []
+    try:
+        for path, value in entries:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            backups[path] = path.read_bytes() if path.exists() else None
+            payload = json.dumps(value, indent=2, sort_keys=True) + "\n"
+            staged.append((path, _stage_bytes(path, payload)))
+        for path, temporary in staged:
+            os.replace(temporary, path)
+        directories = {path.parent for path, _ in entries}
+        for directory in sorted(directories):
+            _fsync_directory(directory)
+    except BaseException:
+        # Restore every prior byte state; navigation receipts are regenerable,
+        # but no mixed canonical/noncanonical set may remain after a failure.
+        for path, backup in backups.items():
+            try:
+                if backup is None:
+                    path.unlink()
+                    continue
+                temporary = _stage_bytes(path, backup.decode("utf-8"))
+                os.replace(temporary, path)
+            except OSError:
+                pass
+        for path, temporary in staged:
+            _unlink_or_queue(temporary)
+        for directory in sorted({path.parent for path, _ in entries}):
+            try:
+                _fsync_directory(directory)
+            except OSError:
+                pass
+        raise
+
+
+def _write_replace_json(path, value):
+    """Backward-compatible single-file atomic replacement."""
+    _transactional_replace([(path, value)])
 
 
 def write_current_navigation(root, canonical_directory, *, generator,
@@ -334,6 +399,10 @@ def write_current_navigation(root, canonical_directory, *, generator,
     required = ("cpu_engineering_summary.json", "cost_pilot_summary.json",
                 "protocol_summary.json", "verification_results.json",
                 "report_manifest.json")
+    missing = [name for name in required if not (canonical / name).is_file()]
+    if missing:
+        raise ReceiptError(
+            "canonical receipt schema filenames are required: " + ", ".join(missing))
     files = {name: _sha256(canonical / name) for name in required}
     superseded = []
     for path in sorted(root.iterdir()):
@@ -342,17 +411,17 @@ def write_current_navigation(root, canonical_directory, *, generator,
         if (path / "cost_pilot_summary.json").is_file() or (
                 path / "cpu_engineering_summary.json").is_file():
             superseded.append(path)
-    relative = canonical.relative_to(root.resolve()).as_posix()
-    canonical_name = "reports/intrinsic_memory_density_v12/" + relative
+    canonical_name = _portable(canonical)
+    root_name = _portable(root)
     noncanonical = {
         "format": "replica.intrinsic_memory.density.noncanonical.v12",
         "canonical_destination": canonical_name,
         "generated_by": generator,
         "noncanonical_destinations": [
-            {"path": "reports/intrinsic_memory_density_v12",
+            {"path": root_name,
              "reason": "historical root receipts; bytes preserved; superseded by canonical receipt"},
             *[
-                {"path": "reports/intrinsic_memory_density_v12/" + path.name,
+                {"path": _portable(path),
                  "reason": "historical bytes preserved; superseded by canonical receipt"}
                 for path in superseded
             ],
@@ -360,14 +429,14 @@ def write_current_navigation(root, canonical_directory, *, generator,
         "files_unchanged": True,
         "native_execution": False,
     }
-    _write_replace_json(root / "NONCANONICAL.json", noncanonical)
+    entries = [(root / "NONCANONICAL.json", noncanonical)]
     for path in superseded:
-        _write_replace_json(path / "NONCANONICAL.json", {
+        entries.append((path / "NONCANONICAL.json", {
             "format": "replica.intrinsic_memory.density.noncanonical.v12",
             "canonical_destination": canonical_name,
             "generated_by": generator,
             "reason": "historical receipt bytes preserved; noncanonical",
-        })
+        }))
     current = {
         "format": "replica.intrinsic_memory.density.current_navigation.v12",
         "canonical_destination": canonical_name,
@@ -377,7 +446,8 @@ def write_current_navigation(root, canonical_directory, *, generator,
         "native_execution": False,
         "P_updates": 0,
     }
-    _write_replace_json(root / "CURRENT.json", current)
+    entries.append((root / "CURRENT.json", current))
+    _transactional_replace(entries)
     return current
 
 
@@ -402,9 +472,11 @@ def write_repair_receipts(directory, *, cpu_summary_path, cost_pilot_path,
             "format": FORMAT,
             "repair_cycle": repair_cycle,
             "inputs": {
-                "cpu_summary": {"path": str(cpu_path), "sha256": _sha256(cpu_path)},
-                "cost_pilot": {"path": str(cost_path), "sha256": _sha256(cost_path)},
-                "protocols_directory": str(protocols_directory),
+                "cpu_summary": {"path": _portable(cpu_path),
+                                "sha256": _sha256(cpu_path)},
+                "cost_pilot": {"path": _portable(cost_path),
+                               "sha256": _sha256(cost_path)},
+                "protocols_directory": _portable(protocols_directory),
             },
             "outputs": {
                 PROTOCOL_SUMMARY: _sha256(directory / PROTOCOL_SUMMARY),
