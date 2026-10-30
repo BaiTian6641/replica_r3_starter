@@ -45,7 +45,7 @@ from .contextual_source_features_v12 import (
 from .intrinsic_memory_budget_v12 import atomic, sha_json
 from .intrinsic_memory_coverage_v12 import (
     DEVELOPMENT_CASES, FEATURE_CACHE_BYTES, FEATURE_CACHE_ENTRIES, FIT_CASES,
-    LEDGER_METADATA_READ_BYTES, LOAD_METADATA_READ_BYTES, SOURCE_FILE_BYTES,
+    LEDGER_METADATA_READ_BYTES, SOURCE_FILE_BYTES,
     SOURCE_HIDDEN_SIZE, SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES)
 from .intrinsic_memory_diagnostic_v12 import (
     PROMPT, StageRef, SourceWorkAccounting, logits_digest, right_padded_prefix)
@@ -173,7 +173,7 @@ def load_native(root, protocol, arm, ledger, stage):
     # Configuration, template and tokenizer reads happen before the model load;
     # reserve each file, then record the bytes actually read from it.
     blobs = {name: reserved_read(ledger, stage, 'source_metadata_reads',
-                                 directory / name, bound=LOAD_METADATA_READ_BYTES)
+                                 directory / name)
              for name in METADATA_FILES if (directory / name).is_file()}
     raw = json.loads(blobs['config.json']); config = load_spark2_5_config(raw)
     template = blobs['chat_template.jinja'].decode()

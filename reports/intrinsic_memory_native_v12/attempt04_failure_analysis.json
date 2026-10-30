@@ -1,0 +1,31 @@
+{
+  "format": "replica.intrinsic_memory.native_attempt_failure_analysis.v12",
+  "attempt": 4,
+  "packet_sha256": "e7e3275c7d6770f7fac4bf067d4fe5ae1256848f88410be2bc8279d22389c01d",
+  "status": "execution_failure_during_model_load_before_calibration",
+  "wall_seconds": 12.45,
+  "error": "replica_lab.intrinsic_memory_budget_v12.BudgetError: stage work budget exceeded before dispatch",
+  "root_cause": "Every metadata file reserved the full 64 MiB per-file bound, so eleven files reserved 704 MiB. Actual metadata bytes are 43,680,980. The reservation must use each file's actual size instead of a uniform maximum.",
+  "reservation_evidence": {
+    "uniform_per_file_bound_bytes": 67108864,
+    "metadata_files": 11,
+    "uniform_reserved_total_bytes": 738197504,
+    "actual_metadata_bytes": 43680980,
+    "model_load_bytes": 8238996247
+  },
+  "capability_evaluation": {
+    "calibration_answers": 0,
+    "fitting_updates": 0,
+    "development_opened": false,
+    "capability_claim": false
+  },
+  "resources": {
+    "artifact_bytes_observed": 0,
+    "minimum_observed_free_percent": 89.0,
+    "peak_swap_growth_bytes": 0,
+    "stop_reason": null
+  },
+  "attempt_consumed": true,
+  "retry_allowed_for_same_packet": false,
+  "repair": "Reserve each metadata file by its actual size and retain the 64 MiB stage allowance. Prepare a fresh attempt05 packet with a new output identity and authorization. Attempt04 evidence is preserved unchanged."
+}
