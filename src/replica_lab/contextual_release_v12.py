@@ -79,59 +79,85 @@ class ProducerReleaseCorpus:
         self.read_accounting = read_accounting
         self._operation_counts = {}
         self.root = store.root / "artifacts" / "contextual_v12" / "releases" / scope.scope_key
-        self.root.mkdir(parents=True, exist_ok=True)
         self.cost = dict(source_read_bytes=0, source_read_files=0, write_bytes=0,
                          write_ns=0, read_bytes=0, read_files=0, publications=0,
                          authority_read_bytes=0, authority_read_files=0,
                          artifact_read_bytes=0, artifact_read_files=0,
                          artifact_write_bytes=0, artifact_write_files=0)
-        # Generation zero is explicit authority, so an interrupted first build
-        # can resume without confusing a lost committed pointer with an empty
-        # corpus. Never reconstruct authority from whichever payload survived.
-        lock = self.root / "writer.lock"
-        if lock.is_symlink():
-            raise ContextualMemoryError("substituted release lock")
-        with lock.open("a") as locked:
-            fcntl.flock(locked, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            pointer = self.root / "current.json"
-            if not pointer.exists():
-                if any(p.is_dir() and p.name.isdigit() for p in self.root.iterdir()):
-                    raise ContextualMemoryError("committed producer pointer missing; recovery required")
-                origin = {"format": FORMAT + ".pointer", "scope": asdict(scope),
-                          "generation": 0, "manifest_sha256": None}
-                size = len(json.dumps(origin, sort_keys=True, indent=2).encode()) + 1
-                component = "release_pointer:" + scope.scope_key
-                store._charge("cold", "artifacts", size, component, "release origin")
-                token = self._reserve_write("release_origin", size)
-                try:
-                    atomic_json(pointer, origin)
-                except BaseException as error:
-                    self._complete_write(token, actual_bytes=0, status="failed")
-                    authority_live = pointer.exists() and not pointer.is_symlink()
-                    if authority_live:
-                        try:
-                            pointer.unlink()
+        origin = {"format": FORMAT + ".pointer", "scope": asdict(scope),
+                  "generation": 0, "manifest_sha256": None}
+        size = len(json.dumps(origin, sort_keys=True, indent=2).encode()) + 1
+        pointer = self.root / "current.json"
+        origin_needed = not pointer.exists()
+        # Reserve root/lock and (when needed) origin before creating either, so
+        # a refusal leaves no store charge and no unaccounted directory/file.
+        token = self._reserve_write("release_origin_and_lock", size if origin_needed else 0)
+        completed = False
+        try:
+            self.root.mkdir(parents=True, exist_ok=True)
+            lock = self.root / "writer.lock"
+            if lock.is_symlink():
+                raise ContextualMemoryError("substituted release lock")
+            with lock.open("a") as locked:
+                fcntl.flock(locked, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                if not pointer.exists():
+                    if any(p.is_dir() and p.name.isdigit() for p in self.root.iterdir()):
+                        raise ContextualMemoryError(
+                            "committed producer pointer missing; recovery required")
+                    component = "release_pointer:" + scope.scope_key
+                    try:
+                        store._charge("cold", "artifacts", size, component, "release origin")
+                    except BaseException:
+                        self._complete_write(token, actual_bytes=0, status="failed")
+                        completed = True
+                        raise
+                    try:
+                        atomic_json(pointer, origin)
+                    except BaseException as error:
+                        self._complete_write(token, actual_bytes=0, status="failed")
+                        completed = True
+                        authority_live = pointer.exists() and not pointer.is_symlink()
+                        durable = not authority_live
+                        if authority_live:
                             try:
-                                self._fsync_directory(self.root)
-                            except BaseException as sync_error:
-                                error.add_note(f"origin unlink fsync failed: {sync_error}")
-                        except BaseException as cleanup_error:
-                            error.add_note(f"origin authority cleanup failed: {cleanup_error}")
+                                pointer.unlink()
+                                try:
+                                    self._fsync_directory(self.root)
+                                    durable = True
+                                except BaseException as sync_error:
+                                    error.add_note(
+                                        f"origin unlink fsync failed: {sync_error}")
+                            except BaseException as cleanup_error:
+                                error.add_note(
+                                    f"origin authority cleanup failed: {cleanup_error}")
+                        if authority_live and not durable:
                             raise ContextualMemoryError(
                                 "release origin rollback failed; authority/charge retained"
                             ) from error
-                    try:
-                        store._release(component)
-                    except BaseException as release_error:
-                        error.add_note(f"origin charge rollback failed: {release_error}")
-                        raise ContextualMemoryError(
-                            "release origin charge rollback failed") from error
-                    self._cleanup_pointer_temps(error)
-                    raise
-                self._complete_write(token, actual_bytes=size)
-                self.cost["write_bytes"] += size
-                self.cost["artifact_write_bytes"] += size
-                self.cost["artifact_write_files"] += 1
+                        try:
+                            store._release(component)
+                        except BaseException as release_error:
+                            error.add_note(
+                                f"origin charge rollback failed: {release_error}")
+                            raise ContextualMemoryError(
+                                "release origin charge rollback failed") from error
+                        self._cleanup_pointer_temps(error)
+                        raise
+                    self.cost["write_bytes"] += size
+                    self.cost["artifact_write_bytes"] += size
+                    self.cost["artifact_write_files"] += 1
+                    self._complete_write(token, actual_bytes=size)
+                    completed = True
+                else:
+                    self._complete_write(token, actual_bytes=0)
+                    completed = True
+        finally:
+            if not completed:
+                try:
+                    self._complete_write(token, actual_bytes=0, status="failed")
+                except BaseException:
+                    pass
+            self._cleanup_pointer_temps()
         self._manifest_cache = None
 
     # ------------------------------------------------------------------
@@ -189,10 +215,18 @@ class ProducerReleaseCorpus:
         self.cost["authority_read_files"] += 1
         return hashlib.sha256(payload).hexdigest(), payload
 
-    def _write(self, path, payload):
+    def _write(self, path, payload, *, operation):
         component = "release_v12:" + str(path.relative_to(self.store.root))
-        self.store._charge("cold", "artifacts", len(payload), component,
-                           "immutable producer release")
+        token = self._reserve_write(operation, len(payload))
+        try:
+            self.store._charge("cold", "artifacts", len(payload), component,
+                               "immutable producer release")
+        except BaseException:
+            try:
+                self._complete_write(token, actual_bytes=0, status="failed")
+            except BaseException:
+                pass
+            raise
         start = time.monotonic_ns()
         created = False
         try:
@@ -202,22 +236,32 @@ class ProducerReleaseCorpus:
                 out.flush()
                 os.fsync(out.fileno())
         except BaseException as error:
-            # A failed immutable write is not durable work: remove any partial
-            # file and release the reservation so a retry is not double-charged.
+            try:
+                self._complete_write(token, actual_bytes=0, status="failed")
+            except BaseException as accounting_error:
+                error.add_note(f"release write accounting failed: {accounting_error}")
+            orphan = False
             if created:
                 try:
                     path.unlink()
                 except FileNotFoundError:
                     pass
                 except BaseException as cleanup_error:
+                    orphan = True
                     error.add_note(f"release write cleanup failed: {cleanup_error}")
+            if orphan:
+                # Keep the charge for the orphaned file; refunding would hide it.
+                raise
             try:
                 self.store._release(component)
             except BaseException as release_error:
                 error.add_note(f"release write charge rollback failed: {release_error}")
             raise
+        self._complete_write(token, actual_bytes=len(payload))
         self.cost["write_bytes"] += len(payload)
         self.cost["write_ns"] += time.monotonic_ns() - start
+        self.cost["artifact_write_bytes"] += len(payload)
+        self.cost["artifact_write_files"] += 1
 
     def _current(self):
         pointer = self.root / "current.json"
@@ -336,7 +380,19 @@ class ProducerReleaseCorpus:
     def _stage_pointer(self, pointer):
         current = self.root / "current.json"
         pending = current.with_name(current.name + ".pending." + uuid.uuid4().hex)
-        atomic_json(pending, pointer)
+        size = len(json.dumps(pointer, sort_keys=True, indent=2).encode()) + 1
+        token = self._reserve_write("release_pointer", size)
+        try:
+            atomic_json(pending, pointer)
+        except BaseException as error:
+            try:
+                self._complete_write(token, actual_bytes=0, status="failed")
+            except BaseException as accounting_error:
+                error.add_note(f"pointer write accounting failed: {accounting_error}")
+            raise
+        self._complete_write(token, actual_bytes=size)
+        self.cost["artifact_write_bytes"] += size
+        self.cost["artifact_write_files"] += 1
         return pending
 
     def _restore_pointer(self, previous):
@@ -348,6 +404,7 @@ class ProducerReleaseCorpus:
                 pass
         else:
             temporary = current.with_name(current.name + ".restore." + uuid.uuid4().hex)
+            token = self._reserve_write("release_pointer_restore", len(previous))
             try:
                 with temporary.open("xb") as stream:
                     stream.write(previous)
@@ -356,12 +413,19 @@ class ProducerReleaseCorpus:
                 os.replace(temporary, current)
             except BaseException as error:
                 try:
+                    self._complete_write(token, actual_bytes=0, status="failed")
+                except BaseException as accounting_error:
+                    error.add_note(f"pointer restore accounting failed: {accounting_error}")
+                try:
                     temporary.unlink()
                 except FileNotFoundError:
                     pass
                 except Exception as cleanup_error:
                     error.add_note(f"pointer restore temp cleanup failed: {cleanup_error}")
                 raise
+            self._complete_write(token, actual_bytes=len(previous))
+            self.cost["artifact_write_bytes"] += len(previous)
+            self.cost["artifact_write_files"] += 1
         try:
             self._fsync_directory(current.parent)
         except BaseException:
@@ -454,7 +518,7 @@ class ProducerReleaseCorpus:
                     values = path._encode([span])[0].detach().cpu()
                 payload = b"".join(pack_values(values.tolist()))
                 name = hashlib.sha256(span.record_id.encode()).hexdigest() + ".slots"
-                self._write(dest / name, payload)
+                self._write(dest / name, payload, operation="release_value")
                 records[span.record_id] = {"source_pin": pin, "source_provenance": source,
                     "span": asdict(span), "producer_release": version, "value_file": name,
                     "value_bytes": len(payload), "value_sha256": hashlib.sha256(payload).hexdigest()}
@@ -465,7 +529,8 @@ class ProducerReleaseCorpus:
                  "source_identity": path.source_identity, "representation": REPRESENTATION,
                  "codec": CODEC, "records": records, "record_digest": digest(records)}
             self._write(dest / "manifest.json",
-                        (json.dumps(m, sort_keys=True, indent=2) + "\n").encode())
+                        (json.dumps(m, sort_keys=True, indent=2) + "\n").encode(),
+                        operation="release_manifest")
             fd = os.open(dest, os.O_RDONLY)
             try:
                 os.fsync(fd)
@@ -494,10 +559,10 @@ class ProducerReleaseCorpus:
                                "e_epoch": int(self.store.epoch)}
                     pointer_bytes = len(json.dumps(pointer, sort_keys=True, indent=2).encode()) + 1
                     self.store._ensure_capacity_locked("cold", "artifacts", pointer_bytes * 2)
+                    pending = self._stage_pointer(pointer)
                     self.store._set_component_locked(
                         "release_pointer:" + self.scope.scope_key, "cold", "artifacts",
                         pointer_bytes, "release authority")
-                    pending = self._stage_pointer(pointer)
             except BaseException as error:
                 if pending is not None:
                     try:

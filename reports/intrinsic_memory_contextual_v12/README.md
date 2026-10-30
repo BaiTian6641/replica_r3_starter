@@ -8,10 +8,10 @@ integration. Nothing in this directory is native evidence or a capability claim.
 Coordinator history: 61 tests passed before independent review, 69 after V1–V5,
 and 79 after cold-failure/parity repairs. After cycle 5, 88 checks passed. The
 continuation then added release rollback, direct-read accounting and handler
-coverage: **105 checks passed**. Fresh `run07` passes all 2/9/36 layouts with true
+coverage: **107 checks passed**. Fresh `run08` passes all 2/9/36 layouts with true
 live/release and two-record cold parity plus exact continuation. Measured parent
-wall was 16.836106 s and peak RSS 773,554,176 bytes; run07 has 244 files /
-102,308,468 bytes. `native_admissible` remains `false`: CPU engineering only.
+wall was 15.780237 s and peak RSS 762,888,192 bytes; run08 has 244 files /
+102,308,486 bytes. `native_admissible` remains `false`: CPU engineering only.
 
 ## Scope delivered
 
@@ -184,11 +184,18 @@ frozen Spark source (base, eval, no_grad)
   `release_authority` (pointer/manifest), `release_source` (canonical text),
   `release_payload` (direct payload), `release_pointer_previous` (rebuild
   rollback capture), `release_manifest_digest` (pointer digest read) and
-  `release_pointer_restore_check` (post-replace restore verification). Origin
-  creation reserves `release_origin` as a write (`writes=1`,
-  `artifact_bytes=size`). `accounting_multiplicity()` exposes exact operations.
+  `release_pointer_restore_check` (post-replace restore verification).
+  Writes are `release_origin_and_lock` (once before root/lock creation;
+  `writes=1`, `artifact_bytes=origin size or 0`), `release_value` (one per
+  eligible record), `release_manifest`, `release_pointer` and
+  `release_pointer_restore` (failure path). `accounting_multiplicity()` exposes
+  exact operations.
   Staged cold reads remain charged by the path retrieval accounting; direct
   totals are in `corpus.cost['artifact_read_bytes'|'artifact_write_bytes']`.
+  A release-batch forward with S active sites revalidates at every site, so it
+  performs S `_current()` calls (2S authority reads) in addition to the
+  read/values/validate calls; native direct-read bounds must scale with site
+  count (36 sites ≈72 authority reads for one forward).
 - Durable slot order sorts semantically by `(source_id, source_epoch,
   source_order)`; `record_id` is only the deterministic fallback for true ties.
   Reversed caller order, post-correction, two-record live/warm/cold/release

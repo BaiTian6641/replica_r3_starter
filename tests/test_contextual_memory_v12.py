@@ -1211,7 +1211,7 @@ def test_work_ledger_release_write_accounting_maps_origin(tmp_path):
     ledger = Ledger()
     corpus = ProducerReleaseCorpus(
         store, sc, read_accounting=WorkLedgerReleaseReadAccounting(ledger, "mechanics"))
-    assert any(operation == "release_origin" and amounts.get("writes") == 1
+    assert any(operation == "release_origin_and_lock" and amounts.get("writes") == 1
                and amounts.get("artifact_bytes", 0) > 0
                for _, operation, amounts in ledger.reserved)
     assert any(status == "completed" for _, status, _ in ledger.finished)
@@ -1227,10 +1227,13 @@ def test_release_accounting_multiplicity_is_exposed(tmp_path):
     corpus = ProducerReleaseCorpus(store, sc)
     published = corpus.rebuild(path)
     counts = corpus.accounting_multiplicity()
-    assert counts["release_origin"] == {"read": 0, "write": 1}
+    assert counts["release_origin_and_lock"] == {"read": 0, "write": 1}
     assert counts["release_pointer_previous"]["read"] == 1
     assert counts["release_manifest_digest"]["read"] == 1
     assert counts["release_source"]["read"] >= 1
+    assert counts["release_value"]["write"] >= 1
+    assert counts["release_manifest"]["write"] == 1
+    assert counts["release_pointer"]["write"] == 1
     before_authority = counts["release_authority"]["read"]
     entry = corpus._current()[1]["records"]["a.span0"]
     corpus.values(entry["source_pin"], span, version=published["producer_release"],
@@ -1299,4 +1302,29 @@ def test_release_forward_validation_reads_scale_with_active_sites(tmp_path):
     after = corpus.accounting_multiplicity()["release_authority"]["read"]
     assert after - before >= 2 * len(layout.sites)
     path.release_corpus = None
+    store.close()
+
+
+def test_release_origin_write_reservation_refusal_leaves_no_charge_or_root(tmp_path):
+    from replica_lab.contextual_release_v12 import WorkLedgerReleaseReadAccounting
+
+    class RefusingLedger:
+        def reserve(self, stage, operation, **amounts):
+            raise ContextualMemoryError("simulated reservation refusal")
+
+        def finish(self, token, *, status="completed", actual=None, detail=None):
+            return True
+
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    root = store.root / "artifacts" / "contextual_v12" / "releases" / sc.scope_key
+    with pytest.raises(ContextualMemoryError, match="reservation refusal"):
+        ProducerReleaseCorpus(
+            store, sc, read_accounting=WorkLedgerReleaseReadAccounting(
+                RefusingLedger(), "mechanics"))
+    assert not root.exists()
+    assert store.connection.execute(
+        "SELECT COUNT(*) AS c FROM tier_usage WHERE component_id=?",
+        ("release_pointer:" + sc.scope_key,)).fetchone()["c"] == 0
     store.close()

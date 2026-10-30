@@ -27,7 +27,7 @@
       "repair cycle 5: cold staging propagates KeyboardInterrupt/SystemExit instead of classifying them as payload corruption; release pointer is replaced only after the store transaction/accounting commits and provider C clear, so pointer/cache failures leave the previous generation live; pre-existing registered-buffer mutation clears C and blocks export before directory creation; control batches and release reads enforce the feature contract; workflow records control_feature_contract_refused and post-correction live/logit parity; 88 targeted producer/review tests passed",
       "repair cycle 6: pointer staged inside the transaction and published by atomic rename only after commit; pointer stage/replace/post-replace fsync/accounting failures restore the previous pointer and release the pointer charge; direct release authority/source/payload reads are reserved/completed against a read accounting hook mapping to native artifact_read_bytes; eviction/persist handlers catch Exception only, process-control propagates, and terminal receipts fall back to a direct atomic write; 94 targeted producer/review tests passed",
       "repair cycle 7: pointer restore failure removes release authority (no failed generation live) and surfaces a typed error chained to the original; charge-rollback failure surfaces a typed error chained to the original while the pointer is restored; release-origin creation refunds its charge and leaves no pointer on failure, then retries; 97 targeted producer/review tests passed",
-      "audit cycle 8: release-origin creation is charged/accounted and atomic across real temp-open/file-fsync/replace/parent-fsync failures, removing any live origin before refunding; rebuild previous-pointer, manifest-digest, restore-verification and origin-write paths use the accounting provider and expose exact read/write multiplicity; cleanup/release failures add notes without replacing originals; 105 targeted producer/review tests passed"
+      "audit cycle 8: release-origin creation is charged/accounted and atomic across real temp-open/file-fsync/replace/parent-fsync failures, removing any live origin before refunding; rebuild previous-pointer, manifest-digest, restore-verification, origin/lock, value, manifest, pointer and restore writes use the accounting provider and expose exact read/write multiplicity; cleanup/release failures add notes without replacing originals; 107 targeted producer/review tests passed"
     ]
   },
   "delivery": {
@@ -48,8 +48,8 @@
       "sha256": "b6023bb16d42762f99e26d473f9d5268c2700330d970b2a70e65fadc2559a7b2"
     },
     "src/replica_lab/contextual_release_v12.py": {
-      "bytes": 33142,
-      "sha256": "de07be98f642818c33d267429f97a252e78f058a8cb0e523ccaaf5619d066f5c"
+      "bytes": 36201,
+      "sha256": "07c5fe7ea529a0587e784d3ced25b51e97a696ca961452702df722f897e127d6"
     },
     "src/replica_lab/contextual_v12_fixture.py": {
       "bytes": 12632,
@@ -72,8 +72,8 @@
       "sha256": "a47699c1971b1e081125916f0c3ef3f3c6b09d7762ea0d240f9d17bcf7fb0138"
     },
     "tests/test_contextual_memory_v12.py": {
-      "bytes": 53025,
-      "sha256": "e66ae4f26bb8ef37bf7e66e4837c4ba6d7383625da12cba393916fa3e700f8fa"
+      "bytes": 55103,
+      "sha256": "901bd53669edaf74c6347ab90e62ecd0067452e9ab35c56649f97d2e2deedf83"
     },
     "tests/test_contextual_v12_integration.py": {
       "bytes": 8899,
@@ -149,7 +149,7 @@
     "checkpoint_outer_manifest": "strict source/base/feature/adapter/tokenizer/layout contracts, producer/representation/producer-state releases, contains_base_weights=false, original_weights_serialized=false, projection_cache=none, fitting_frozen, feature/task state flags and components_manifest_sha256; mismatch refuses before mutation",
     "cache_invalidation": "failed reads evict only records whose row status/scope/revision/text or verified text/value files are invalid; ContextualRecordError identifies a single stale authority failure so a healthy sibling keeps bounded C; buffer-only or parameter mutation clears C and blocks export before any directory is created",
     "release_authority": "release manifest source_identity must equal path.source_identity at read, value and batch-validation boundaries; the pointer is staged durably inside the store transaction, renamed live only after commit and C clear, and any later stage/replace/directory-fsync failure restores the previous pointer and reverts the pointer charge. A restore failure removes release authority (no failed generation live) and a charge-revert failure surfaces a typed error chained to the original; release-origin creation refunds its charge and leaves no pointer on failure",
-    "release_read_accounting": "ProducerReleaseCorpus(read_accounting=...) reserves/completes every direct release read via WorkLedgerReleaseReadAccounting: release_authority (pointer/manifest), release_source (canonical text), release_payload (direct payload), release_pointer_previous (rebuild rollback capture), release_manifest_digest (pointer digest read) and release_pointer_restore_check (post-replace restore verification). Origin creation reserves release_origin as a write (writes=1, artifact_bytes=size). accounting_multiplicity() exposes exact per-operation read/write call counts; staged cold/release payload reads remain on the path retrieval accounting",
+    "release_read_accounting": "ProducerReleaseCorpus(read_accounting=...) reserves/completes every direct release read and write via WorkLedgerReleaseReadAccounting. Read operations: release_authority (pointer/manifest), release_source (canonical text), release_payload (direct payload), release_pointer_previous (rebuild rollback capture), release_manifest_digest (pointer digest read), release_pointer_restore_check (post-replace restore verification). Write operations: release_origin_and_lock (once before root/lock creation; artifact_bytes origin size or 0), release_value (one per eligible E record), release_manifest (one), release_pointer (staged pointer JSON), release_pointer_restore (failure path). accounting_multiplicity() exposes exact per-operation read/write counts. A release-batch forward with S active sites performs (S+1) _current calls (2(S+1) authority reads); native direct-read bounds scale with site count; staged payload reads remain on the path retrieval accounting",
     "ordering": "durable slot order is semantic (source_id, source_epoch, source_order) with record_id only as deterministic tie fallback; reversed caller order, post-correction and two-record live/warm/cold/release parity are tested",
     "active_sites": "any empty site iterable (tuple/list/generator) skips memory and matches the base; nonempty lists/generators are normalized to tuples",
     "lineage_bound": "lineage_json refuses provenance longer than 1024 bytes under the store's default json.dumps(sort_keys=True) form; longest tested correction is 965 bytes",
@@ -183,10 +183,10 @@
   },
   "coordinator_verification": {
     "focused_tests": {
-      "passed": 105,
+      "passed": 107,
       "failed": 0,
       "skipped": 0,
-      "repair_cycles": 8,
+      "repair_cycles": 9,
       "includes_independent_and_cold_failure_reproductions": true
     },
     "failed_attempt_logs": [
@@ -204,15 +204,15 @@
       "X12-producer",
       "process-control-and-atomic-publication"
     ],
-    "workflow": "run07",
+    "workflow": "run08",
     "arms": [
       "two",
       "full_attention_nine",
       "all"
     ],
-    "parent_wall_seconds": 16.83610595902428,
-    "parent_peak_rss_bytes": 773554176,
+    "parent_wall_seconds": 15.780237041879445,
+    "parent_peak_rss_bytes": 762888192,
     "artifact_files": 244,
-    "artifact_bytes": 102308468
+    "artifact_bytes": 102308486
   }
 }
