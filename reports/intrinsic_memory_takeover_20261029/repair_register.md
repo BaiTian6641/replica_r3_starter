@@ -141,3 +141,33 @@ cleanup without error masking; one validated crash-resolved navigation pointer;
 Darwin full-sync and MPS-fallback enforcement; quarantine-safe revocation;
 P-pointer failure recovery; attempted fallback bytes; and post-I/O P revocation.
 Every fix requires focused failure/crash-path tests and updated research links.
+
+## Origin and compound blockers
+
+The `70ebb852` review passed 985 tests before independently confirming
+zero-cap origin reservation and answer-bearing `unknown` compound text. Static
+review retained metadata/fallback accounting, cleanup rollback, recovery,
+cost-metric and durability defects. The user authorized all remaining cycles.
+
+Current work: native origin/oracle/metadata repairs; producer cleanup/charge
+rollback; density metric/navigation durability; Replica cycle 9/20 recovery and
+durable evidence. No native launch or authorization has occurred.
+
+## Dual-corpus and evidence-integrity repairs
+
+The `7fd17078` release review passed origin/compound checks and 993 tests, then
+confirmed 580/579-write probe requirements, 16-write restart and value-only
+artifact-cap failures. The user authorized all remaining cycles.
+
+Current work: exact constructor/artifact accounting; metadata/fallback charging;
+cleanup without error masking; metric/navigation/crash-durability; Replica cycle
+10/20 authenticated recovery, in-flight revocation and versioned evidence.
+
+## Final coordinator gate candidates
+
+- Producer: 111 checks and run09; release cleanup and byte accounting committed.
+- Native: 95/95 and static gates; dual-corpus packet `601e11f1f7b3aa3953972a017794b2f63b80fc3548b0561df9a8dfcd8306c9d2`.
+- Density: 130 checks and coordinator13 with frozen metrics and crash-safe navigation.
+- Replica: 113 checks and workflow with content-addressed evidence; cycle 10/20.
+
+Independent final gate review is pending. No native attempt or authorization exists.
