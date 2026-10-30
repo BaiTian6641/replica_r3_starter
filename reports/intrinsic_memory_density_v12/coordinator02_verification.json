@@ -1,0 +1,36 @@
+{
+  "format": "replica.intrinsic_memory.density.coordinator_verification.v12.repair02",
+  "repair_cycle": 2,
+  "findings": ["X6", "X8", "X10", "X11", "X12-density"],
+  "tests": {
+    "exit_code": 0,
+    "passed": 101,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 33.95,
+    "scope": "67 density + 29 matched-v5 + 3 original independent + 2 residual edge reproductions"
+  },
+  "profile": {
+    "path": "coordinator02/cpu_engineering_summary.json",
+    "sha256": "a7747ed85cab0ff42e68a5c1aaed0a92d1c6053751b7ca57be9fe03fdbc2f950",
+    "fresh_process_continuation_all_layouts": true
+  },
+  "pilot": {
+    "path": "coordinator02/cost_pilot_summary.json",
+    "sha256": "efa8024c260e7a125bf801c8bb0cb6ecb96ca355eed1b89bf144c813f7bff1a7",
+    "target_cost_ns": 56410405.538461536,
+    "selected_updates": {"two": 2, "full_attention_nine": 1, "all": 1},
+    "matched_arms": ["two", "full_attention_nine", "all"],
+    "scored_labels_read": false
+  },
+  "receipt_generation": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python scripts/write_intrinsic_memory_density_v12_receipts.py --directory reports/intrinsic_memory_density_v12/coordinator02 --cpu-summary reports/intrinsic_memory_density_v12/coordinator02/cpu_engineering_summary.json --cost-pilot reports/intrinsic_memory_density_v12/coordinator02/cost_pilot_summary.json",
+    "exit_code": 0,
+    "deterministic": true,
+    "protocol_summary_target_cost_ns": 56410405.538461536,
+    "verification_results_target_cost_ns": 56410405.538461536,
+    "coherent_with_pilot": true
+  },
+  "native_execution": false,
+  "P_updates": 0
+}

@@ -490,6 +490,8 @@ class SiteInvocationProfiler:
                 enabled=True, forward_id=None, phase="forward", recompute_of=None,
                 snapshot=None, sequence_id=0, chunk_id=0):
         """Snapshot once, profile every dispatch, then run the frozen backbone."""
+        if active_sites is not None and not isinstance(active_sites, tuple):
+            active_sites = tuple(active_sites)
         if not enabled or batch is None or active_sites == ():
             return path.forward(ids, mask, batch, scope=scope,
                                 enabled=enabled, active_sites=active_sites)

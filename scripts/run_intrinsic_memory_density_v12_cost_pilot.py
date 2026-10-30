@@ -36,6 +36,7 @@ from profile_intrinsic_memory_density_v12 import (  # noqa: E402
     ARMS, build_path, spans,
 )
 from replica_lab.contextual_spark_fixture import ids_and_mask, labels_from_ids
+from replica_lab.intrinsic_memory_density_receipts_v12 import write_new_json  # noqa: E402
 from replica_lab.intrinsic_memory_density_v12 import (  # noqa: E402
     SiteInvocationProfiler, cost_snapshot, ledger_delta,
 )
@@ -57,51 +58,55 @@ def scope():
 def run_pass(arm, updates, *, profile=False):
     """Measure one admission/read plus ``updates`` training passes."""
     path = build_path(arm)
-    store = TieredMemoryStore(
-        Path(tempfile.mkdtemp(prefix="density-cost-pilot-")),
-        profile_id="P1", enforce_volume_free=False,
-        ceilings=TierCeilings(
-            hot_bytes=32 * 1024**2, warm_bytes=32 * 1024**2,
-            cold_bytes=32 * 1024**2, identity_reserved_bytes=64 * 1024,
-            replay_reserved_bytes=256 * 1024, minimum_volume_free_bytes=0,
-            workspace_quota_bytes=1 * 1024**2, artifact_budget_bytes=4 * 1024**2,
-            frequent_reserve_fraction=0.5, frequent_min_accesses=2))
-    profiler = (SiteInvocationProfiler(path, expected_groups=len(ARMS[arm]))
-                if profile else None)
-    ids, mask = ids_and_mask(4)
-    before = cost_snapshot(path)
-    started = time.perf_counter_ns()
+    profiler = None
     try:
-        path.admit(store, spans()[0], scope=scope())
-        batch = path.read(store, "Badge", scope=scope())
-        for _ in range(updates):
-            path.optimizer.zero_grad(set_to_none=True)
-            live = path.training_from_stored(batch, scope=scope())
-            if profiler is None:
-                logits = path.forward(ids, mask, live, scope=scope())
-            else:
-                logits = profiler.forward(path, ids, mask, live, scope=scope())
-            loss = F.cross_entropy(
-                logits.flatten(0, 1), labels_from_ids(ids).flatten())
-            loss.backward()
-            if profiler is not None:
-                profiler.record_backward(calls=1, processed_positions=int(ids.numel()))
-            path.optimizer.step()
-        elapsed = time.perf_counter_ns() - started
-        after = cost_snapshot(path)
-        result = {
-            "updates": updates,
-            "elapsed_ns": elapsed,
-            "cost_delta": ledger_delta(before, after),
-        }
-        if profiler is not None:
-            result["profiler"] = profiler.summary()
-        return result
+        with tempfile.TemporaryDirectory(prefix="density-cost-pilot-") as temp:
+            store = TieredMemoryStore(
+                Path(temp), profile_id="P1", enforce_volume_free=False,
+                ceilings=TierCeilings(
+                    hot_bytes=32 * 1024**2, warm_bytes=32 * 1024**2,
+                    cold_bytes=32 * 1024**2, identity_reserved_bytes=64 * 1024,
+                    replay_reserved_bytes=256 * 1024, minimum_volume_free_bytes=0,
+                    workspace_quota_bytes=1 * 1024**2, artifact_budget_bytes=4 * 1024**2,
+                    frequent_reserve_fraction=0.5, frequent_min_accesses=2))
+            try:
+                profiler = (SiteInvocationProfiler(path, expected_groups=len(ARMS[arm]))
+                            if profile else None)
+                ids, mask = ids_and_mask(4)
+                before = cost_snapshot(path)
+                started = time.perf_counter_ns()
+                path.admit(store, spans()[0], scope=scope())
+                batch = path.read(store, "Badge", scope=scope())
+                for _ in range(updates):
+                    path.optimizer.zero_grad(set_to_none=True)
+                    live = path.training_from_stored(batch, scope=scope())
+                    if profiler is None:
+                        logits = path.forward(ids, mask, live, scope=scope())
+                    else:
+                        logits = profiler.forward(path, ids, mask, live, scope=scope())
+                    loss = F.cross_entropy(
+                        logits.flatten(0, 1), labels_from_ids(ids).flatten())
+                    loss.backward()
+                    if profiler is not None:
+                        profiler.record_backward(calls=1,
+                                                 processed_positions=int(ids.numel()))
+                    path.optimizer.step()
+                elapsed = time.perf_counter_ns() - started
+                after = cost_snapshot(path)
+                result = {
+                    "updates": updates,
+                    "elapsed_ns": elapsed,
+                    "cost_delta": ledger_delta(before, after),
+                }
+                if profiler is not None:
+                    result["profiler"] = profiler.summary()
+                return result
+            finally:
+                if profiler is not None:
+                    profiler.close()
+                store.close()
     finally:
-        if profiler is not None:
-            profiler.close()
         path.close()
-        store.close()
 
 
 def arm_pilot(arm, update_counts, repeat):
@@ -175,7 +180,9 @@ def main():
                                  updates_cap=updates_cap)
         measured = [run_pass(arm, updates)["elapsed_ns"] for _ in range(repeat)]
         median = statistics.median(measured)
-        tolerance = cost_tolerance(target_ns, result["fit"]["marginal_cost"])
+        tolerance = cost_tolerance(
+            target_ns, result["fit"]["marginal_cost"],
+            relative=relative_tolerance)
         difference = median - target_ns
         selected[arm] = {
             "selected_updates": updates,
@@ -191,6 +198,37 @@ def main():
         arms[arm]["selection"] = selected[arm]
         arms[arm]["total_charged_cost_ns"] = (
             arms[arm]["pilot_cost_ns"] + selected[arm]["measurement_cost_ns"])
+    control_arm, control_updates = "all", updates_cap
+    control_runs = [run_pass(control_arm, control_updates)["elapsed_ns"]
+                    for _ in range(repeat)]
+    control_median = statistics.median(control_runs)
+    control_tolerance = cost_tolerance(
+        target_ns, arms[control_arm]["fit"]["marginal_cost"],
+        relative=relative_tolerance)
+    control_difference = control_median - target_ns
+    control_out = abs(control_difference) > control_tolerance
+    arithmetic_candidate = target_ns + control_tolerance + 1.0
+    out_of_tolerance_control = {
+        "measured_high_exposure": {
+            "arm": control_arm,
+            "updates": control_updates,
+            "measured_runs_ns": control_runs,
+            "measured_total_cost_ns": control_median,
+            "target_ns": target_ns,
+            "tolerance_ns": control_tolerance,
+            "difference_ns": control_difference,
+            "outside_declared_tolerance": control_out,
+        },
+        "arithmetic_control": {
+            "candidate_cost_ns": arithmetic_candidate,
+            "target_ns": target_ns,
+            "tolerance_ns": control_tolerance,
+            "outside_declared_tolerance": (
+                abs(arithmetic_candidate - target_ns) > control_tolerance),
+        },
+        "deliberate_out_of_tolerance_observed": control_out,
+        "control_cost_ns": sum(control_runs),
+    }
     report = {
         "format": FORMAT,
         "generated_utc": datetime.now(timezone.utc).isoformat(),
@@ -221,6 +259,7 @@ def main():
         "unmatched_arms": [arm for arm, row in selected.items()
                            if not row["matched_within_declared_tolerance"]],
         "arms": arms,
+        "out_of_tolerance_control": out_of_tolerance_control,
         "protocol_digests": {name: canonical_digest(protocol)
                              for name, protocol in protocols.items()},
         "claim_limits": [
@@ -230,8 +269,7 @@ def main():
             "Different whole-pass exposure is an explicit confound.",
         ],
     }
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    write_new_json(args.output, report)
     print(json.dumps({key: report[key] for key in (
         "format", "scope", "declared_common_updates", "declared_updates_cap",
         "target_cost_ns", "selected_updates", "matched_arms", "unmatched_arms")},

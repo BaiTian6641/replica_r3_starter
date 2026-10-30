@@ -41,6 +41,7 @@ from replica_lab.contextual_spark_fixture import (
 from replica_lab.intrinsic_memory_density_protocols_v12 import (
     build_protocols, canonical_digest, FILENAMES,
 )
+from replica_lab.intrinsic_memory_density_receipts_v12 import write_new_json
 from replica_lab.intrinsic_memory_density_v12 import (
     DensityProducerBoundary, SiteInvocationProfiler, cost_snapshot, ledger_delta,
 )
@@ -191,12 +192,36 @@ def post_update_profile(path, expected_groups, pre_digest):
         profiler.close()
 
 
+def no_update_profile(path, expected_groups, pre_digest):
+    """Control: a repeat forward without an update must reproduce its digest."""
+    profiler = SiteInvocationProfiler(path, expected_groups=expected_groups)
+    try:
+        batch = training_batch(path)
+        ids, mask = ids_and_mask(4)
+        before = cost_snapshot(path)
+        logits = profiler.forward(path, ids, mask, batch, scope=scope(),
+                                  forward_id="no-update-control")
+        after = cost_snapshot(path)
+        summary = profiler.summary()
+        digest = _digest_tensor(logits)
+        return {
+            "logits_sha256": digest,
+            "unchanged_from_pre_update": digest == pre_digest,
+            "reader_invocations": summary["total_site_invocations"],
+            "physical_reader_groups": summary["physical_groups"],
+            "cost_delta": ledger_delta(before, after),
+        }
+    finally:
+        profiler.close()
+
+
 def profile_arm(arm, *, include_store=False):
     path = build_path(arm)
-    boundary = DensityProducerBoundary(path, comparison="fixed_per_site")
-    profiler = boundary.profiler(expected_groups=len(ARMS[arm]))
+    profiler = None
     result = None
     try:
+        boundary = DensityProducerBoundary(path, comparison="fixed_per_site")
+        profiler = boundary.profiler(expected_groups=len(ARMS[arm]))
         batch = training_batch(path)
         ids, mask = ids_and_mask(4)
         before = cost_snapshot(path)
@@ -224,27 +249,31 @@ def profile_arm(arm, *, include_store=False):
                          if key != "events"},
         }
         if include_store:
-            store = open_store(tempfile.mkdtemp(prefix="density-v12-store-"))
-            try:
-                original = spans()[0]
-                admitted = path.admit(store, original, scope=scope())
-                batch = path.read(store, "Badge", scope=scope())
-                before = cost_snapshot(path)
-                profiler.forward(path, ids, mask, batch, scope=scope(),
-                                 forward_id="durable-1")
-                after = cost_snapshot(path)
-                result["store"] = {
-                    "admission_ok": bool(admitted.outcome.ok),
-                    "source_span_count": len(batch.spans),
-                    "cost_delta": ledger_delta(before, after),
-                }
-            finally:
-                store.close()
+            with tempfile.TemporaryDirectory(prefix="density-v12-store-") as temp:
+                store = open_store(temp)
+                try:
+                    original = spans()[0]
+                    admitted = path.admit(store, original, scope=scope())
+                    batch = path.read(store, "Badge", scope=scope())
+                    before = cost_snapshot(path)
+                    profiler.forward(path, ids, mask, batch, scope=scope(),
+                                     forward_id="durable-1")
+                    after = cost_snapshot(path)
+                    result["store"] = {
+                        "admission_ok": bool(admitted.outcome.ok),
+                        "source_span_count": len(batch.spans),
+                        "cost_delta": ledger_delta(before, after),
+                    }
+                finally:
+                    store.close()
         return result
     finally:
-        profiler.close()
+        if profiler is not None:
+            profiler.close()
         try:
             if result is not None:
+                result["no_update_control"] = no_update_profile(
+                    path, len(ARMS[arm]), digest)
                 result["post_update"] = post_update_profile(
                     path, len(ARMS[arm]), digest)
         finally:
@@ -253,10 +282,11 @@ def profile_arm(arm, *, include_store=False):
 
 def profile_matched_arm(arm):
     path = build_matched_path(arm)
-    boundary = DensityProducerBoundary(path, comparison="matched_unique_parameters")
-    profiler = boundary.profiler(expected_groups=2)
+    profiler = None
     result = None
     try:
+        boundary = DensityProducerBoundary(path, comparison="matched_unique_parameters")
+        profiler = boundary.profiler(expected_groups=2)
         batch = training_batch(path)
         ids, mask = ids_and_mask(4)
         before = cost_snapshot(path)
@@ -277,6 +307,7 @@ def profile_matched_arm(arm):
             "single_forward_tiny_fixture_only": True,
             "logits_sha256": digest,
             "parameter_audit": boundary.audit,
+            "feature_contract": boundary.identity()["feature_contract"],
             "producer_release": boundary.identity()["producer_release"],
             "cost_delta": ledger_delta(before, after),
             "profiler": {key: value for key, value in summary.items()
@@ -284,9 +315,11 @@ def profile_matched_arm(arm):
         }
         return result
     finally:
-        profiler.close()
+        if profiler is not None:
+            profiler.close()
         try:
             if result is not None:
+                result["no_update_control"] = no_update_profile(path, 2, digest)
                 result["post_update"] = post_update_profile(path, 2, digest)
         finally:
             path.close()
@@ -412,8 +445,7 @@ def main():
             report["matched_fresh_process_continuation"] = {
                 arm: continuation(arm, Path(temp) / ("matched-" + arm), matched=True)
                 for arm in ARMS}
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    write_new_json(args.output, report)
     print(json.dumps({key: report[key] for key in
                       ("format", "scope", "protocol_digests")
                       if key in report} | (

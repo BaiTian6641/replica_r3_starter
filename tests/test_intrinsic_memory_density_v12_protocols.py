@@ -133,6 +133,15 @@ def test_measured_cost_fit_selection_and_tolerance_are_deterministic():
     assert select_updates(-100.0, 50.0, 10**9) == DECLARED_UPDATES_CAP
     assert cost_tolerance(target, 50.0) == max(
         target * COST_TOLERANCE_RELATIVE, 50.0)
+    assert cost_tolerance(1000.0, 1.0, relative=0.5) == 500.0
+    changed = deepcopy(build_protocols()["preregistered_measured_total_cost"])
+    changed["selection"]["tolerance"]["relative"] = 0.5
+    with pytest.raises(ValueError, match="selection/tolerance/rounding"):
+        validate_protocol(changed, comparison="preregistered_measured_total_cost")
+    changed = deepcopy(build_protocols()["preregistered_measured_total_cost"])
+    changed["selection"]["rounding"] = "round_half_up"
+    with pytest.raises(ValueError):
+        validate_protocol(changed, comparison="preregistered_measured_total_cost")
     with pytest.raises(ValueError):
         fit_fixed_marginal({0: 100.0, 1: 100.0})
     with pytest.raises(ValueError):

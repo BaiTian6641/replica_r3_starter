@@ -349,17 +349,17 @@ def total_cost_protocol():
             "charge_all_pilot_cost_to_the_arm_and_comparison": True,
             "runs_per_arm_update_counts": [0, 1, 4],
             "repeat": 3,
-            "aggregate": "median_of_repeats",
-            "cost_metric": "measured_synchronized_wall_nanoseconds_for_one_complete_declared_pass",
-            "cost_unit": "nanoseconds",
+            "aggregate": PILOT_AGGREGATE,
+            "cost_metric": COST_METRIC,
+            "cost_unit": COST_UNIT,
             "workload": "one_durable_admission_and_read_plus_declared_training_updates",
-            "fit": "affine_fixed_cost_plus_marginal_cost_per_update_from_measured_runs",
+            "fit": PILOT_FIT,
             "measured_components": [
                 "source_encodes", "retrieval", "durable_publication", "reader_invocations",
                 "activation_forward_bytes", "backward_work", "wall_time",
                 "driver_memory_peak", "rss_peak", "cache_bytes", "artifact_bytes",
             ],
-            "timing_rule": "synchronize_declared_backend_before_each_timed_boundary",
+            "timing_rule": TIMING_RULE,
             "pilot_answers_never_select_by_quality": True,
         },
         "selection": {
@@ -367,13 +367,13 @@ def total_cost_protocol():
             "declared_common_updates": DECLARED_COMMON_UPDATES,
             "declared_updates_cap": DECLARED_UPDATES_CAP,
             "target": "measured_total_cost_of_the_two_site_arm_at_the_declared_common_exposure",
-            "target_formula": "fixed_cost_two + marginal_cost_per_update_two * declared_common_updates",
-            "rule": "updates_arm = clamp(floor((target - fixed_cost_arm) / marginal_cost_arm + 1e-9 binary_float_guard), 1, declared_updates_cap)",
-            "rounding": "floor_no_residual_reallocation_no_post_hoc_budget",
+            "target_formula": TARGET_FORMULA,
+            "rule": SELECTION_RULE,
+            "rounding": ROUNDING_RULE,
             "tolerance": {
-                "relative": 0.02,
-                "absolute_floor": "one_measured_marginal_update_cost_of_the_arm",
-                "rule": "max(target*0.02, one_marginal_update_cost_arm)",
+                "relative": COST_TOLERANCE_RELATIVE,
+                "absolute_floor": TOLERANCE_ABSOLUTE,
+                "rule": TOLERANCE_RULE,
             },
             "outside_tolerance": "arm_is_unmatched_evidence_not_a_causal_arm",
             "selection_before_scored_labels": True,
@@ -420,6 +420,19 @@ DECLARED_COMMON_UPDATES = 2
 DECLARED_UPDATES_CAP = 8
 COST_TOLERANCE_RELATIVE = 0.02
 SELECTION_EPSILON = 1e-9
+PILOT_AGGREGATE = "median_of_repeats"
+COST_METRIC = "measured_synchronized_wall_nanoseconds_for_one_complete_declared_pass"
+COST_UNIT = "nanoseconds"
+PILOT_FIT = "affine_fixed_cost_plus_marginal_cost_per_update_from_measured_runs"
+TIMING_RULE = "synchronize_declared_backend_before_each_timed_boundary"
+SELECTION_RULE = (
+    "updates_arm = clamp(floor((target - fixed_cost_arm) / marginal_cost_arm "
+    "+ 1e-9 binary_float_guard), 1, declared_updates_cap)")
+TARGET_FORMULA = (
+    "fixed_cost_two + marginal_cost_per_update_two * declared_common_updates")
+ROUNDING_RULE = "floor_no_residual_reallocation_no_post_hoc_budget"
+TOLERANCE_ABSOLUTE = "one_measured_marginal_update_cost_of_the_arm"
+TOLERANCE_RULE = "max(target*0.02, one_marginal_update_cost_arm)"
 
 
 def fit_fixed_marginal(measurements):
@@ -464,11 +477,12 @@ def select_updates(fixed_cost, marginal_cost, target_cost, *,
     return max(1, min(updates_cap, math.floor(whole + SELECTION_EPSILON)))
 
 
-def cost_tolerance(target_cost, marginal_cost):
+def cost_tolerance(target_cost, marginal_cost, *, relative=COST_TOLERANCE_RELATIVE):
     if (not math.isfinite(target_cost) or not math.isfinite(marginal_cost)
-            or target_cost <= 0 or marginal_cost <= 0):
+            or target_cost <= 0 or marginal_cost <= 0
+            or not math.isfinite(relative) or relative < 0):
         raise ValueError("invalid cost tolerance inputs")
-    return max(target_cost * COST_TOLERANCE_RELATIVE, marginal_cost)
+    return max(target_cost * relative, marginal_cost)
 
 
 def canonical_digest(protocol):
@@ -543,9 +557,12 @@ def validate_protocol(protocol, *, comparison=None):
             raise ValueError("pilot must restore common initial weights")
         if pilot.get("charge_all_pilot_cost_to_the_arm_and_comparison") is not True:
             raise ValueError("pilot cost must be charged")
-        if (pilot.get("cost_unit") != "nanoseconds"
-                or pilot.get("aggregate") != "median_of_repeats"
-                or type(pilot.get("repeat")) is not int or pilot["repeat"] < 1
+        if (pilot.get("cost_unit") != COST_UNIT
+                or pilot.get("aggregate") != PILOT_AGGREGATE
+                or pilot.get("cost_metric") != COST_METRIC
+                or pilot.get("fit") != PILOT_FIT
+                or pilot.get("timing_rule") != TIMING_RULE
+                or type(pilot.get("repeat")) is not int or pilot["repeat"] != 3
                 or pilot.get("runs_per_arm_update_counts") != [0, 1, 4]):
             raise ValueError("pilot measurement contract differs")
         if selection.get("selection_before_scored_labels") is not True:
@@ -561,8 +578,16 @@ def validate_protocol(protocol, *, comparison=None):
             raise ValueError("selection cannot inspect scored answers")
         if protocol.get("varied_factor") != "training_updates_per_world_whole_pass":
             raise ValueError("only whole-pass exposure may vary")
-        if not isinstance(selection.get("rule"), str) or "floor" not in selection["rule"]:
-            raise ValueError("deterministic selection rule required")
+        expected_tolerance = {
+            "relative": COST_TOLERANCE_RELATIVE,
+            "absolute_floor": TOLERANCE_ABSOLUTE,
+            "rule": TOLERANCE_RULE,
+        }
+        if (selection.get("rule") != SELECTION_RULE
+                or selection.get("rounding") != ROUNDING_RULE
+                or selection.get("target_formula") != TARGET_FORMULA
+                or selection.get("tolerance") != expected_tolerance):
+            raise ValueError("selection/tolerance/rounding values differ from the frozen contract")
         if not isinstance(selection.get("tolerance", {}).get("relative"), (int, float)):
             raise ValueError("measured-cost tolerance required")
         if (protocol.get("gates", {}).get("no_budget_change_after_scored_labels") is not True

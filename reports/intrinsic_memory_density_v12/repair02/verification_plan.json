@@ -1,0 +1,56 @@
+{
+  "format": "replica.intrinsic_memory.density.verification_plan.v12.repair02",
+  "repair_cycle": "X6-X12",
+  "scope": "CPU_only_no_native_launch",
+  "native_execution": false,
+  "native_weights_loaded": false,
+  "downloads": false,
+  "P_updates": 0,
+  "promotion": false,
+  "preserved_prior_destinations": [
+    "reports/intrinsic_memory_density_v12/cpu_engineering_summary.json",
+    "reports/intrinsic_memory_density_v12/cost_pilot_summary.json",
+    "reports/intrinsic_memory_density_v12/protocol_summary.json",
+    "reports/intrinsic_memory_density_v12/verification_plan.json",
+    "reports/intrinsic_memory_density_v12/verification_results.json",
+    "reports/intrinsic_memory_density_v12/repair01/"
+  ],
+  "commands": [
+    {
+      "purpose": "All density tests including repair regressions and receipt coherence",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_intrinsic_memory_density_v12_profiler.py tests/test_intrinsic_memory_density_v12_producer.py tests/test_intrinsic_memory_density_v12_matched.py tests/test_intrinsic_memory_density_v12_protocols.py tests/test_intrinsic_memory_density_v12_repairs.py tests/test_intrinsic_memory_density_v12_receipts.py",
+      "timeout_seconds": 1800
+    },
+    {
+      "purpose": "Profile the fixed and matched arms with no-update and post-update controls",
+      "command": ".venv/bin/python scripts/profile_intrinsic_memory_density_v12.py --output reports/intrinsic_memory_density_v12/repair02/cpu_engineering_summary.json",
+      "timeout_seconds": 1800
+    },
+    {
+      "purpose": "Run the zero-grad, protocol-bound measured-total-cost pilot with out-of-tolerance control",
+      "command": ".venv/bin/python scripts/run_intrinsic_memory_density_v12_cost_pilot.py --output reports/intrinsic_memory_density_v12/repair02/cost_pilot_summary.json",
+      "timeout_seconds": 1800
+    },
+    {
+      "purpose": "Derive coherent protocol/verification receipts and manifest from the measured JSON",
+      "command": ".venv/bin/python scripts/write_intrinsic_memory_density_v12_receipts.py --directory reports/intrinsic_memory_density_v12/repair02 --cpu-summary reports/intrinsic_memory_density_v12/repair02/cpu_engineering_summary.json --cost-pilot reports/intrinsic_memory_density_v12/repair02/cost_pilot_summary.json",
+      "timeout_seconds": 300
+    },
+    {
+      "purpose": "Independent review X6/X10 edge reproductions",
+      "command": "PYTHONPATH=src:scripts:tests PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q reports/intrinsic_memory_review_v12/rereview/test_rereview_edge_cases.py::test_density_profiler_empty_list_uses_disabled_parity reports/intrinsic_memory_review_v12/rereview/test_rereview_edge_cases.py::test_configured_tolerance_is_the_executed_tolerance",
+      "timeout_seconds": 300
+    }
+  ],
+  "required_results": [
+    "configured tolerance/selection/rounding/timing are frozen and a changed config is refused",
+    "empty-list active sites take the disabled path with base-output parity and zero reader invocations",
+    "no-update control reproduces the pre-update logits digest",
+    "post-update logits differ across fixed and matched 2/9/36 arms",
+    "matched records include the frozen feature_contract",
+    "deliberate high-exposure and arithmetic out-of-tolerance controls are refused by the matched check",
+    "scoped temporary directories are removed after profile and pilot",
+    "receipt output refuses overwrite and derived protocol/verification target equals the pilot target",
+    "no native consumer, native cost, physical-memory qualification or scored labels are claimed"
+  ]
+}
