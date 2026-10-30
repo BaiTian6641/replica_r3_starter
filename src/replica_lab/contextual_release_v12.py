@@ -81,9 +81,18 @@ class ProducerReleaseCorpus:
                 origin = {"format": FORMAT + ".pointer", "scope": asdict(scope),
                           "generation": 0, "manifest_sha256": None}
                 size = len(json.dumps(origin, sort_keys=True, indent=2).encode()) + 1
-                store._charge("cold", "artifacts", size, "release_pointer:" + scope.scope_key,
-                              "release origin")
-                atomic_json(pointer, origin)
+                component = "release_pointer:" + scope.scope_key
+                store._charge("cold", "artifacts", size, component, "release origin")
+                try:
+                    atomic_json(pointer, origin)
+                except BaseException as error:
+                    try:
+                        store._release(component)
+                    except BaseException as release_error:
+                        error.add_note(f"origin charge rollback failed: {release_error}")
+                        raise ContextualMemoryError(
+                            "release origin charge rollback failed") from error
+                    raise
                 self.cost["write_bytes"] += size
         self._manifest_cache = None
 
@@ -266,7 +275,18 @@ class ProducerReleaseCorpus:
                 stream.flush()
                 os.fsync(stream.fileno())
             os.replace(temporary, current)
-        self._fsync_directory(current.parent)
+        try:
+            self._fsync_directory(current.parent)
+        except BaseException:
+            if previous is not None:
+                try:
+                    if current.read_bytes() != previous:
+                        raise
+                except FileNotFoundError:
+                    raise
+            # With the previous bytes live (or no authority) the rollback is
+            # authority-safe; the original publication error remains primary.
+            return
 
     def _publish_pointer(self, pending, previous):
         current = self.root / "current.json"
@@ -275,12 +295,24 @@ class ProducerReleaseCorpus:
             os.replace(pending, current)
             replaced = True
             self._fsync_directory(current.parent)
-        except BaseException:
+        except BaseException as error:
             if replaced:
                 try:
                     self._restore_pointer(previous)
-                except BaseException:
-                    pass
+                except BaseException as restore_error:
+                    # Cannot restore the previous pointer: remove authority so
+                    # no failed new generation can be consumed.
+                    error.add_note(f"pointer restore failed: {restore_error}")
+                    try:
+                        current.unlink()
+                        self._fsync_directory(current.parent)
+                    except BaseException:
+                        raise ContextualMemoryError(
+                            "release pointer rollback failed; authority state uncertain"
+                        ) from error
+                    raise ContextualMemoryError(
+                        "release pointer rollback failed; release authority removed"
+                    ) from error
             raise
         finally:
             try:
@@ -291,12 +323,9 @@ class ProducerReleaseCorpus:
     def _revert_pointer_charge(self, previous):
         component = "release_pointer:" + self.scope.scope_key
         old_size = 0 if previous is None else len(previous)
-        try:
-            with self.store._transaction():
-                self.store._set_component_locked(component, "cold", "artifacts", old_size,
-                                                 "release authority")
-        except Exception:
-            pass
+        with self.store._transaction():
+            self.store._set_component_locked(component, "cold", "artifacts", old_size,
+                                             "release authority")
 
     def rebuild(self, path, *, before_publish=None):
         """One explicit release transaction; hook supports portable crash testing."""
@@ -384,12 +413,17 @@ class ProducerReleaseCorpus:
                 # restores the previous pointer.
                 path.encoder.provider.clear()
                 self._publish_pointer(pending, previous_pointer)
-            except BaseException:
+            except BaseException as error:
                 try:
                     pending.unlink()
                 except FileNotFoundError:
                     pass
-                self._revert_pointer_charge(previous_pointer)
+                try:
+                    self._revert_pointer_charge(previous_pointer)
+                except BaseException as charge_error:
+                    error.add_note(f"pointer charge rollback failed: {charge_error}")
+                    raise ContextualMemoryError(
+                        "release pointer charge rollback failed") from error
                 raise
             self.cost["write_bytes"] += pointer_bytes
             self.cost["publications"] += 1

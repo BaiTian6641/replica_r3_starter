@@ -1025,3 +1025,86 @@ def test_persist_failure_preserves_typed_failure_and_terminal_receipt(tmp_path, 
     descriptor = json.loads(path._ticket_path(store, pending.ticket_id).read_text())
     assert descriptor["status"] == "failed"
     store.close()
+
+
+def test_release_restore_pointer_failure_removes_authority(tmp_path, monkeypatch):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    first = corpus.rebuild(path)
+    original_fsync = corpus._fsync_directory
+    state = {"calls": 0}
+
+    def failing_fsync(directory):
+        state["calls"] += 1
+        if state["calls"] == 1:
+            raise OSError("simulated post-replace fsync failure")
+        return original_fsync(directory)
+
+    def failing_restore(previous):
+        raise OSError("simulated pointer restore failure")
+
+    monkeypatch.setattr(corpus, "_fsync_directory", failing_fsync)
+    monkeypatch.setattr(corpus, "_restore_pointer", failing_restore)
+    with pytest.raises(ContextualMemoryError, match="authority removed"):
+        corpus.rebuild(path)
+    assert not (corpus.root / "current.json").exists()
+    assert corpus.cost["publications"] == 1
+    store.close()
+
+
+def test_release_charge_rollback_failure_is_typed(tmp_path, monkeypatch):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    first = corpus.rebuild(path)
+    pointer_path = corpus.root / "current.json"
+    before = pointer_path.read_bytes()
+
+    def failing_fsync(directory):
+        raise OSError("simulated post-replace fsync failure")
+
+    def failing_charge(previous):
+        raise RuntimeError("simulated pointer charge rollback failure")
+
+    monkeypatch.setattr(corpus, "_fsync_directory", failing_fsync)
+    monkeypatch.setattr(corpus, "_revert_pointer_charge", failing_charge)
+    with pytest.raises(ContextualMemoryError, match="charge rollback failed") as error:
+        corpus.rebuild(path)
+    assert isinstance(error.value.__cause__, OSError)
+    assert pointer_path.read_bytes() == before
+    assert corpus._current()[1]["generation"] == first["generation"]
+    store.close()
+
+
+def test_release_origin_creation_refunds_charge_on_failure(tmp_path, monkeypatch):
+    import replica_lab.contextual_release_v12 as module
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    state = {"fail": True}
+    original = module.atomic_json
+
+    def failing(path_value, value):
+        if state["fail"] and path_value.name == "current.json":
+            raise OSError("simulated release origin failure")
+        return original(path_value, value)
+
+    monkeypatch.setattr(module, "atomic_json", failing)
+    with pytest.raises(OSError):
+        ProducerReleaseCorpus(store, sc)
+    assert not (store.root / "artifacts" / "contextual_v12" / "releases"
+                / sc.scope_key / "current.json").exists()
+    charged = store.connection.execute(
+        "SELECT COUNT(*) AS c FROM tier_usage WHERE component_id=?",
+        ("release_pointer:" + sc.scope_key,)).fetchone()["c"]
+    assert charged == 0
+    state["fail"] = False
+    corpus = ProducerReleaseCorpus(store, sc)
+    assert corpus._current() is None
+    assert (corpus.root / "current.json").is_file()
+    store.close()
