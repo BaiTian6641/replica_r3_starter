@@ -1,0 +1,58 @@
+{
+  "format": "replica.intrinsic_memory.native_attempt_failure_analysis.v12",
+  "attempt": 10,
+  "packet_sha256": "5eebe66c45b15c186ffd697b746ff9373a4061a1ea369a4df670b0cea9ecd609",
+  "status": "final_fit_failed_development_closed_restart_execution_failed",
+  "supervision": {
+    "elapsed_seconds": 4433.6467697080225,
+    "exit_code": 1,
+    "deadline_overrun_seconds": 0.0,
+    "process_group_exit_confirmed": true
+  },
+  "final_scientific_outcome": {
+    "baseline_correct": 8,
+    "baseline_cases": 8,
+    "teacher_correct": 32,
+    "teacher_cases": 32,
+    "fitting_updates": 512,
+    "correct": {
+      "absent": 8,
+      "contextual": 24,
+      "exact_text": 32,
+      "shuffled": 24,
+      "wrong": 6,
+      "zero": 5
+    },
+    "group_contextual_correct": [6, 5, 6, 7],
+    "counterfactual_pairs_both_correct": 8,
+    "counterfactual_pairs": 16,
+    "final_fit_memory_dependence_passed": false,
+    "development_opened": false,
+    "development_split_read_events": 0,
+    "useful_recall_established": false,
+    "selection": "fixed_final_512_all_groups_only_no_best_prefix"
+  },
+  "engineering_outcome": {
+    "all_final_control_responses_terminated": true,
+    "all_final_control_responses_truncated": 0,
+    "live_durable_round_trip_exact": 32,
+    "original_weights_unchanged": true,
+    "checkpoint_contains_base_weights": false,
+    "restart_extension_restore_completed": true,
+    "restart_fresh_process_logits_exact_measured": false,
+    "restart_actual_continuation_updates": 0,
+    "restart_failure_type": "NameError",
+    "restart_failure_message": "name 'bound_json' is not defined",
+    "repair_commit": "ca5144cc",
+    "repair_scope": "import bound_json in the successor tree and add a real-controller full-lifecycle fixture; attempt10 bytes and receipts remain unchanged"
+  },
+  "resources": {
+    "peak_driver_bytes": 11184570368,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 70.0,
+    "artifact_bytes_current_raw_tree": 72064675,
+    "sampled_driver_and_rss_overlap": true
+  },
+  "independent_reconciliation": "reports/intrinsic_memory_native_v12/attempt10_terminal_reconciliation.json",
+  "interpretation": "V12 did not pass its final useful-memory fitting gate. Development remains closed. The restart failure is operational and does not change the final fitting result. No promotion, persistent-learning, density, personal-fidelity or RSI claim follows. Raw source features, compressed slots and full first-token logit vectors were not preserved; a separate fitting-only diagnostic is required before selecting the next mechanism."
+}

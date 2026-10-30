@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 338, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 333, in main
+    supervised(args); return 0
+    ^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 200, in supervised
+    supervise_worker('restart', args, output, ledger, guard, 'capacity_restart')
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 117, in supervise_worker
+    raise RuntimeError(mode+' worker failed: '+str(child.returncode))
+RuntimeError: restart worker failed: 1

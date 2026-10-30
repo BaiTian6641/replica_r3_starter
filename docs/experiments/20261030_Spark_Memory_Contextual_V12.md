@@ -1,7 +1,6 @@
 # Spark contextual source features and intrinsic memory v12
 
-Status: **native attempt10 is running under one exclusive worker.** Attempts 01–09
-are preserved; attempt09 reached 384 fitting updates and failed its third probe's 900-second wall. CPU engineering is independently qualified. No final fitting, development, useful-recall, persistent-learning, promotion, density, or RSI result is inferred from partial attempts.
+Status: **attempt10 is terminal: final fitting failed, development stayed closed, and restart hit a separate execution defect.** Attempts 01–10 are preserved. No useful-recall, persistent-learning, promotion, density, or RSI claim follows. No native worker is active.
 ## Mechanism and fixed boundaries
 
 Attempt01's startup failure is preserved in
@@ -42,6 +41,16 @@ probes failed memory dependence (contextual 12/32 and 18/32); the third probe
 then exceeded 900 seconds. Attempt10 reallocates probe walls to
 500/800/1100/1400 seconds, for 7155 seconds total inside the unchanged 7200-second
 outer ceiling, with no model, data, work-count or scientific-gate change.
+
+Attempt10 completed the fixed 512 updates. Final contextual/exact/shuffled/wrong/zero/absent
+scores were 24/32/24/6/5/8 out of 32; groups scored 6, 5, 6 and 7 of 8,
+with both sides correct for 8/16 counterfactual pairs. The final fitting gate
+failed, so development was never read. Baseline passed 8/8 and teacher 32/32;
+all final responses terminated without truncation and live/durable parity was
+32/32. Restart restored the extension, then failed on missing `bound_json`
+before continuation. The successor import repair and full-lifecycle fixture are
+committed at `ca5144cc`; historical attempt10 remains unchanged. See
+`reports/intrinsic_memory_native_v12/attempt10_terminal_reconciliation.json`.
 
 V12 replaces random byte-context values with frozen canonical-source decoder hidden states followed by live trainable compression into four ordered width-256 slots per admitted span, with at most two spans/eight slots. The source pass sees canonical text only, without questions, answers, templates, external spine or intrinsic-memory extensions. Original Spark parameters remain frozen; only the compressor, order and readers train through NativeFusedAdamW.
 
@@ -112,4 +121,4 @@ These sources motivate controls, not expected accuracy or MPS cost.
 - Replica formation/chunk/tier contracts: `reports/replica_successors_v12/`.
 - Repair and research register: `reports/intrinsic_memory_takeover_20261029/`.
 
-Attempts01–09 preserve raw outputs, answers, controls, resource samples, stage receipts and failure traces. Attempt10 is running; its terminal outputs and independent reconciliation will be appended when available. Partial probes do not establish final fitting, useful recall, density or persistent learning.
+Attempts01–10 preserve raw outputs, answers, controls, resource samples, stage receipts and failure traces. Attempt10's independent reconciliation is `reports/intrinsic_memory_native_v12/attempt10_terminal_reconciliation.json`; its peak sampled driver was 11,184,570,368 bytes, swap growth zero, minimum host free 70%, supervision wall 4,433.647 seconds, and raw-tree size 72,064,675 bytes. Final fitting failed and fresh-process continuation did not complete. Raw source features, compressed slots and full first-token logit vectors were not preserved, so the next mechanism requires a separate fitting-only diagnostic.
