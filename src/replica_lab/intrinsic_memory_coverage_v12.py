@@ -469,7 +469,7 @@ def release_direct_read_bound(active_sites, records=RELEASE_SELECTED_RECORDS):
 
 
 RELEASE_DIRECT_READ_BOUND = release_direct_read_bound(2)
-LOAD_METADATA_READ_BYTES = 32 * 1024**2
+LOAD_METADATA_READ_BYTES = 64 * 1024**2  # includes duplicate tokenizer/template hashes + bindings
 # One prepared split file read before its labels may be used at a gate.
 DATA_SPLIT_READ_BYTES = 4 * 1024**2
 # restart_request.json and the checkpoint manifest read during restart identity.

@@ -1,0 +1,33 @@
+{
+  "format": "replica.intrinsic_memory.native_attempt_failure_analysis.v12",
+  "attempt": 3,
+  "packet_sha256": "7671564c76bb2d1e6ad42f2bb39bbbd28d068a8421b337bf3d9d7bed1c026a1c",
+  "status": "execution_failure_during_model_load_before_calibration",
+  "wall_seconds": 12.43,
+  "error": "replica_lab.intrinsic_memory_budget_v12.BudgetError: stage work budget exceeded before dispatch",
+  "root_cause": "The 32 MiB load-metadata reservation was too small. Actual reserved metadata reads were 43,680,980 bytes: source binding/execution, eleven metadata files, and duplicate tokenizer/template hashes. The model-load reservation therefore exceeded the stage cap by 10,126,548 bytes.",
+  "reservation_evidence": {
+    "stage_cap_artifact_read_bytes": 16969997120,
+    "revalidation_artifact_read_bytes": 8697446441,
+    "metadata_reserved_bytes": 43680980,
+    "model_load_bytes": 8238996247,
+    "combined_bytes": 16980123668,
+    "excess_bytes": 10126548
+  },
+  "capability_evaluation": {
+    "calibration_answers": 0,
+    "fitting_updates": 0,
+    "development_opened": false,
+    "capability_claim": false
+  },
+  "resources": {
+    "artifact_bytes_observed": 53293,
+    "minimum_observed_free_percent": 89.0,
+    "peak_driver_bytes": 393216,
+    "peak_swap_growth_bytes": 0,
+    "stop_reason": null
+  },
+  "attempt_consumed": true,
+  "retry_allowed_for_same_packet": false,
+  "repair": "Raise the derived metadata reservation to 64 MiB to cover actual duplicate hash/binding reads, then prepare a fresh attempt04 packet with a new output identity and authorization. Attempt03 evidence is preserved unchanged."
+}

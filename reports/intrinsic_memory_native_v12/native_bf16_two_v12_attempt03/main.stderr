@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 338, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 334, in main
+    worker(args); return 0
+    ^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 263, in worker
+    load_and_run(ROOT, protocol, packet['arm'], ledger, output,
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 641, in load_and_run
+    path, backend, spec, initial_hash, stage_ref = load_native(root, protocol, arm, ledger, stage)
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 218, in load_native
+    with ledger.work(stage, 'official_bf16_model_load', model_loads=1,
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_budget_v12.py", line 474, in work
+    token = self.reserve(stage, operation, **amounts)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_budget_v12.py", line 451, in reserve
+    raise BudgetError('stage work budget exceeded before dispatch')
+replica_lab.intrinsic_memory_budget_v12.BudgetError: stage work budget exceeded before dispatch
