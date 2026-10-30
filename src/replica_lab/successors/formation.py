@@ -154,7 +154,11 @@ def _atomic_write(path: Path, data: bytes) -> None:
 
 @dataclass(frozen=True, slots=True)
 class MemoryPin:
-    """One immutable read snapshot; created before an interaction reads memory."""
+    """One read snapshot created before an interaction reads memory.
+
+    Corrections are generation/cutoff gated for this snapshot. Privacy
+    revocation is an immediate external barrier and invalidates it.
+    """
 
     generation: int
     authority_sequence: int
@@ -1307,15 +1311,27 @@ class FormationStore:
             self._metrics["read_latency_ns"].append(time.perf_counter_ns() - start)
 
     def outcomes(self, pin: MemoryPin) -> tuple[dict, ...]:
-        """Committed outcome receipts eligible under one pin (never E records)."""
+        """Committed outcome receipts eligible under one pin (never E records).
+
+        Revocation is an immediate privacy barrier: outcomes belonging to a
+        revoked record's event are excluded even for an older pin. Correction
+        filtering remains generation/cutoff bound.
+        """
         self._check_pin(pin)
         rows = self._connection.execute(
             "SELECT * FROM events WHERE generation<=? AND subject_id=? AND branch_id=? "
             "AND purpose=? AND mode=? ORDER BY sequence",
             (pin.generation, pin.subject_id, pin.branch_id, pin.purpose, pin.mode)
         ).fetchall()
+        revoked_events = {
+            str(row["event_key"]) for row in self._connection.execute(
+                "SELECT DISTINCT ri.event_key FROM record_index ri "
+                "JOIN tombstones t ON t.record_id=ri.record_id "
+                "WHERE t.kind='revoked'")}
         entries: list[tuple[int, int, dict]] = []
         for row in rows:
+            if str(row["event_key"]) in revoked_events:
+                continue
             payload, data = self._load_payload(str(row["payload_digest"]))
             self._metrics["bytes_read"] += len(data)
             for outcome in payload.get("outcomes", ()):
@@ -1373,8 +1389,9 @@ class FormationStore:
 
         ``scope='record_scope'`` (default) cannot cross subject/branch/purpose/
         mode. ``scope='host_wide'`` is an explicit host authority operation and
-        requires ``authorized_by='host'``. A pin created after the revocation
-        event excludes the record; an earlier pin remains immutable.
+        requires ``authorized_by='host'``. Privacy revocation is an immediate
+        barrier: it invalidates every pin, including pins created earlier.
+        Correction tombstones, by contrast, remain immutable-snapshot gated.
         """
         _identifier("record_id", record_id)
         if not isinstance(reason, str) or not reason.strip():
@@ -1649,7 +1666,12 @@ class FormationStore:
         return tuple(errors)
 
     def recover(self) -> RecoveryReport:
-        """Verify the chain and payloads; rebuild only the derived record index."""
+        """Verify the authority chain and rebuild every derived table.
+
+        Corrections are generation/cutoff gated; privacy revocations apply
+        immediately. Derived mismatches are repaired and reported as degraded
+        rather than silently accepted.
+        """
         authority = self._authority()
         rows = self._connection.execute(
             "SELECT * FROM events ORDER BY sequence").fetchall()

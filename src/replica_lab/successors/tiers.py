@@ -181,7 +181,11 @@ class ProjectionCache:
         return self._entries.get(key)
 
     def invalidate(self, record_id: str) -> int:
-        stale = [key for key in self._entries if key[0] == record_id]
+        return self.invalidate_prefix(record_id, exact=True)
+
+    def invalidate_prefix(self, prefix: str, *, exact: bool = False) -> int:
+        stale = [key for key in self._entries
+                 if (key[0] == prefix if exact else key[0].startswith(prefix))]
         for key in stale:
             del self._entries[key]
         return len(stale)
@@ -204,7 +208,15 @@ class ReplayEligibility:
         return entry is not None and entry == (int(generation), producer)
 
     def invalidate(self, record_id: str) -> bool:
-        return self._entries.pop(record_id, None) is not None
+        return self.invalidate_prefix(record_id, exact=True) > 0
+
+    def invalidate_prefix(self, prefix: str, *, exact: bool = False) -> int:
+        stale = [record_id for record_id in self._entries
+                 if (record_id == prefix if exact
+                     else record_id.startswith(prefix))]
+        for record_id in stale:
+            self._entries.pop(record_id, None)
+        return len(stale)
 
 
 @dataclass(frozen=True, slots=True)
@@ -385,7 +397,7 @@ class TieredBlobStore:
             raise ValueError("valid_to must follow valid_from")
         if kind == "p":
             owner = self._p_owner(record_id)
-            if owner is not None and owner in self._p_revoked:
+            if owner is not None and self._is_p_revoked(owner):
                 raise PermissionError("revoked P state cannot be published")
         manifest = {
             "format": MANIFEST_FORMAT, "record_id": record_id, "kind": kind,
@@ -411,7 +423,7 @@ class TieredBlobStore:
         if to != "cold":
             raise ValueError("demotion target is cold")
         owner = self._p_owner(record_id)
-        if owner is not None and owner in self._p_revoked:
+        if owner is not None and self._is_p_revoked(owner):
             raise PermissionError("revoked P state cannot be moved")
         payload, manifest = self._read_payload("warm", record_id)
         self._metrics["overlap_bytes"] += len(payload) + len(_canonical(manifest)) + 1
@@ -420,13 +432,15 @@ class TieredBlobStore:
         self._metrics["bytes_written"] += written
         self._metrics["movement_bytes"] += written
         shutil.rmtree(self._directory("warm", record_id))
+        if owner is not None:
+            self._invalidate_p_owner(owner)
         return dict(manifest)
 
     def promote(self, record_id: str, *, to: str = "warm") -> dict:
         if to != "warm":
             raise ValueError("promotion target is warm")
         owner = self._p_owner(record_id)
-        if owner is not None and owner in self._p_revoked:
+        if owner is not None and self._is_p_revoked(owner):
             raise PermissionError("revoked P state cannot be moved")
         payload, manifest = self._read_payload("cold", record_id)
         self._metrics["overlap_bytes"] += len(payload) + len(_canonical(manifest)) + 1
@@ -435,6 +449,8 @@ class TieredBlobStore:
         self._metrics["bytes_written"] += written
         self._metrics["movement_bytes"] += written
         shutil.rmtree(self._directory("cold", record_id))
+        if owner is not None:
+            self._invalidate_p_owner(owner)
         return dict(manifest)
 
     # -- authority ---------------------------------------------------------
@@ -451,6 +467,26 @@ class TieredBlobStore:
         if revoked:
             self._tombstones[record_id] = reason
         return cleared
+
+    def _is_p_revoked(self, owner: str) -> bool:
+        if owner in self._p_revoked:
+            return True
+        if self._p_revoked_path(owner).exists():
+            self._p_revoked.add(owner)
+            self._invalidate_p_owner(owner)
+            return True
+        return False
+
+    def _invalidate_p_owner(self, owner: str) -> None:
+        prefix = f"p_{owner}_"
+        legacy = f"p_{owner}"
+        for key in [item for item in self._hot
+                    if item.startswith(prefix) or item == legacy]:
+            self._hot.pop(key, None)
+        self.projections.invalidate_prefix(prefix)
+        self.projections.invalidate(legacy)
+        self.replay.invalidate_prefix(prefix)
+        self.replay.invalidate(legacy)
 
     @staticmethod
     def _p_owner(record_id: str) -> str | None:
@@ -515,7 +551,7 @@ class TieredBlobStore:
                          authority: Callable[[str], Mapping[str, object] | None] | None,
                          expected_generation: int | None) -> tuple[str, int, dict]:
         owner = self._p_owner(record_id)
-        if owner is not None and owner in self._p_revoked:
+        if owner is not None and self._is_p_revoked(owner):
             return "ineligible", self._eligibility.get(record_id, 0), {
                 "reason": f"p_revoked:{owner}"}
         if record_id in self._tombstones:
@@ -532,6 +568,12 @@ class TieredBlobStore:
                                    self._eligibility.get(record_id, 0)))
         if not current.get("eligible", False):
             return "ineligible", revision, {"reason": str(current.get("reason", "authority"))}
+        identity_fields = ("producer", "representation", "scope_digest", "cutoff")
+        if authority is not None and not any(field in current
+                                             for field in identity_fields):
+            if expected_generation is None or "generation" not in current:
+                return "contract_required", revision, {
+                    "reason": "authority must bind manifest identity or an expected generation"}
         if expected_generation is not None and current.get("generation") is not None \
                 and int(current["generation"]) != expected_generation:
             return "rejected", revision, {"reason": "generation mismatch"}
@@ -601,6 +643,13 @@ class TieredBlobStore:
                     contract_status, record_id, "hot", None, None,
                     (time.perf_counter_ns() - start) / 1e6, 0,
                     contract_reason), "hot")
+            if contract is None and authority is not None and not any(
+                    field in detail for field in ("producer", "representation",
+                                                  "scope_digest", "cutoff")):
+                return self._finish(ReadResult(
+                    "contract_required", record_id, "hot", None, None,
+                    (time.perf_counter_ns() - start) / 1e6, 0,
+                    "authority does not bind manifest identity"), "hot")
             authority_status, authority_reason = self._authority_manifest_state(
                 cached.manifest, detail)
             if authority_status != "ok":
@@ -700,6 +749,12 @@ class TieredBlobStore:
         after, after_revision, detail = self._authority_state(
             record_id, authority, expected_generation)
         if after == "ok":
+            if contract is None and authority is not None and not any(
+                    field in detail for field in ("producer", "representation",
+                                                  "scope_digest", "cutoff")):
+                return self._finish(ReadResult(
+                    "contract_required", record_id, tier, None, None, elapsed,
+                    len(payload), "authority does not bind manifest identity"), tier)
             authority_status, authority_reason = self._authority_manifest_state(
                 manifest, detail)
             if authority_status != "ok":
@@ -754,6 +809,13 @@ class TieredBlobStore:
         after, after_revision, detail = self._authority_state(
             fallback_id, authority, None)
         if after == "ok":
+            if contract is None and authority is not None and not any(
+                    field in detail for field in ("producer", "representation",
+                                                  "scope_digest", "cutoff")):
+                return self._finish(ReadResult(
+                    "contract_required", fallback_id, tier, None, None,
+                    (time.perf_counter_ns() - start) / 1e6, len(payload),
+                    "authority does not bind manifest identity"), tier)
             authority_status, authority_reason = self._authority_manifest_state(
                 manifest, detail)
             if authority_status != "ok":
@@ -882,11 +944,15 @@ class TieredBlobStore:
         }
         target = self._p_pointer_path(owner)
         temporary = target.parent / f".{owner}.{time.time_ns()}.tmp"
-        with open(temporary, "w", encoding="utf-8") as handle:
-            handle.write(_canonical(pointer) + "\n")
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, target)
+        try:
+            with open(temporary, "w", encoding="utf-8") as handle:
+                handle.write(_canonical(pointer) + "\n")
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, target)
+        finally:
+            if temporary.exists():
+                temporary.unlink()
         try:
             directory_fd = os.open(target.parent, os.O_RDONLY)
         except OSError:
@@ -899,33 +965,69 @@ class TieredBlobStore:
             finally:
                 os.close(directory_fd)
 
+    def _read_p_pointer(self, owner: str) -> dict | None:
+        path = self._p_pointer_path(owner)
+        if not path.is_file():
+            return None
+        try:
+            pointer = json.loads(path.read_text(encoding="utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise TierError("P current pointer is not canonical JSON") from error
+        required = {"format", "owner", "clock", "record_id", "payload_sha256",
+                    "manifest_sha256", "committed_at_ns"}
+        if set(pointer) != required or pointer.get("format") != \
+                "replica.successors.p_pointer.v1" or pointer.get("owner") != owner:
+            raise TierError("P current pointer schema/identity mismatch")
+        if type(pointer.get("clock")) is not int or pointer["clock"] < 0:
+            raise TierError("P current pointer clock is invalid")
+        if not isinstance(pointer.get("record_id"), str) or not pointer["record_id"]:
+            raise TierError("P current pointer record id is invalid")
+        for field in ("payload_sha256", "manifest_sha256"):
+            value = pointer.get(field)
+            if not isinstance(value, str) or len(value) != 64 \
+                    or any(char not in "0123456789abcdef" for char in value):
+                raise TierError(f"P current pointer {field} is invalid")
+        if type(pointer.get("committed_at_ns")) is not int:
+            raise TierError("P current pointer timestamp is invalid")
+        return pointer
+
     def publish_p(self, owner: str, *, weights: bytes, moments: bytes, clock: int,
                   encoder: str, lineage: Sequence[str], tier: str = "warm",
                   dirty: bool = False) -> dict:
         _identifier("owner", owner)
         if type(clock) is not int or clock < 0:
             raise ValueError("P clock must be a nonnegative integer")
-        if self._p_revoked_path(owner).exists():
+        if self._is_p_revoked(owner):
             raise PermissionError("P state is revoked; explicit host restoration required")
         versions = self._p_versions(owner)
         if versions and max(int(item["clock"]) for item in versions) > clock:
             raise TierError("P clock must not move backwards")
+        record_id = f"p_{owner}_c{clock}"
+        existed = any(item["record_id"] == record_id for item in versions)
         payload = self.pack_p_state(owner=owner, clock=clock, encoder=encoder,
                                     lineage=lineage, weights=weights, moments=moments)
-        record_id = f"p_{owner}_c{clock}"
         manifest = self.publish(
             record_id, payload, generation=clock, kind="p", producer=f"p:{owner}",
             representation=encoder, scope_digest=_sha256_json({"owner": owner}),
             extra={"clock": clock, "encoder": encoder, "lineage": list(lineage),
                    "owner": owner},
             tier=tier, dirty=dirty)
-        self._write_p_pointer(owner, clock=clock, record_id=record_id,
-                              manifest=manifest)
+        try:
+            self._write_p_pointer(owner, clock=clock, record_id=record_id,
+                                  manifest=manifest)
+        except BaseException:
+            if not existed:
+                self._hot.pop(record_id, None)
+                for durable in ("warm", "cold"):
+                    target = self._directory(durable, record_id)
+                    if target.exists():
+                        shutil.rmtree(target)
+            raise
         return manifest
 
     def evict_p(self, owner: str) -> str:
         _identifier("owner", owner)
-        if owner in self._p_revoked or self._p_revoked_path(owner).exists():
+        if self._is_p_revoked(owner):
             raise PermissionError("revoked P state cannot be evicted as healthy")
         state = self._latest_p(owner)
         key = state["record_id"]
@@ -933,13 +1035,48 @@ class TieredBlobStore:
         if entry is not None and entry.dirty:
             raise DirtyState("publish dirty P state before eviction")
         self._hot.pop(key, None)
+        self._invalidate_p_owner(owner)
         return str(state["tier"])
 
     def read_p(self, owner: str) -> dict:
         _identifier("owner", owner)
-        if self._p_revoked_path(owner).exists():
+        if self._is_p_revoked(owner):
             raise PermissionError("P state is revoked")
-        return self._latest_p(owner)
+        versions = self._p_versions(owner)
+        if not versions:
+            raise TierError("P state is unavailable")
+        latest = max(versions, key=lambda item: int(item["clock"]))
+        pointer = self._read_p_pointer(owner)
+        pointer_state = "missing"
+        if pointer is not None:
+            pointer_state = "stale"
+            matches = [item for item in versions
+                       if item["record_id"] == pointer["record_id"]]
+            if matches:
+                target = matches[0]
+                if (target["manifest"]["payload_sha256"] != pointer["payload_sha256"]
+                        or _sha256_json(target["manifest"]) != pointer["manifest_sha256"]):
+                    raise TierError("P current pointer digest mismatch")
+                if int(target["clock"]) < int(latest["clock"]):
+                    target = latest
+                else:
+                    pointer_state = "valid"
+            else:
+                if int(pointer["clock"]) >= int(latest["clock"]):
+                    raise TierError("P current pointer target is unavailable")
+                target = latest
+            if pointer_state == "stale":
+                self._write_p_pointer(owner, clock=int(target["clock"]),
+                                      record_id=target["record_id"],
+                                      manifest=target["manifest"])
+                pointer_state = "repaired"
+            chosen = target
+        else:
+            chosen = latest
+        state = dict(chosen)
+        state["pointer"] = pointer
+        state["pointer_state"] = pointer_state
+        return state
 
     def revoke_p(self, owner: str, *, reason: str, authorized_by: str) -> dict:
         """Explicit P revocation; only the host may authorize it."""
@@ -961,11 +1098,7 @@ class TieredBlobStore:
             os.fsync(handle.fileno())
         os.replace(temporary, target)
         self._p_revoked.add(owner)
-        for key in [item for item in self._hot if item.startswith(f"p_{owner}_")
-                    or item == f"p_{owner}"]:
-            self._hot.pop(key, None)
-        self.projections.invalidate(f"p_{owner}")
-        self.replay.invalidate(f"p_{owner}")
+        self._invalidate_p_owner(owner)
         return record
 
     def restore_p(self, owner: str, *, authorized_by: str) -> None:
@@ -985,6 +1118,11 @@ class TieredBlobStore:
         healthy = 0
         damaged: list[str] = []
         revoked_p: list[str] = []
+        marker_root = self.root / "p_revoked"
+        if marker_root.exists():
+            for marker in marker_root.glob("*.json"):
+                self._p_revoked.add(marker.stem)
+                self._invalidate_p_owner(marker.stem)
         for directory in sorted((self.root / "staging").iterdir()):
             target = self.root / "quarantine" / directory.name
             os.replace(directory, target)
@@ -995,7 +1133,9 @@ class TieredBlobStore:
                 if not directory.is_dir():
                     continue
                 owner = self._p_owner(directory.name)
-                if owner is not None and owner in self._p_revoked:
+                if owner is not None:
+                    self._invalidate_p_owner(owner)
+                if owner is not None and self._is_p_revoked(owner):
                     revoked_p.append(f"{tier}/{directory.name}")
                     continue
                 try:

@@ -149,7 +149,9 @@ def test_authority_callback_controls_selection_before_and_after_io(tmp_path):
                        expected_generation=1).status == "rejected"
 
     def eligible(record_id):
-        return {"eligible": True, "generation": 1, "eligibility_revision": 0}
+        return {"eligible": True, "generation": 1, "eligibility_revision": 0,
+                "producer": "producer-v1", "representation": "rep-v1",
+                "scope_digest": "a" * 64, "cutoff": 10 ** 9}
 
     assert reader.read("rec-a", authority=eligible,
                        expected_generation=1).status == "ready"

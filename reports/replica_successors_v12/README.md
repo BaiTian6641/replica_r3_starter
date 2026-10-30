@@ -88,7 +88,8 @@ The final workflow again passed all four measured success fields.
 - Correction creates a successor with verification rank and permitted uses at
   least equal to its parent, tombstones the parent and known in-scope
   descendants, and refuses unverified rewrites of verified evidence; host
-  revocation is the explicit erasure path. Parents/ancestors must match
+  revocation is the explicit erasure path. Outcome receipts belonging to a
+  revoked event are excluded even for an older pin. Parents/ancestors must match
   subject/branch/purpose/mode. Revocation is idempotent; cross-scope revocation needs the
   explicit `scope="host_wide", authorized_by="host"` contract.
 - Correction tombstones are generation/observed-at gated, so a pin is immutable
@@ -132,17 +133,23 @@ The final workflow again passed all four measured success fields.
   `ineligible`, `mismatch`, `not_yet_valid` and `expired` results; failures never
   return payload bytes.
 - Reads require a `ReadContract` (producer, representation, scope, optional
-  cutoff/generation) or a validating authority callback. The contract is
-  enforced on cache hits and after I/O; authority is rechecked before and after
-  cold I/O and for fallback. Cold tickets retain the callback and contract.
+  cutoff/generation) or a validating authority callback. A minimal
+  `{"eligible": true}` authority cannot return `ready`; it must bind generation
+  or manifest identity. The contract is enforced on cache hits and after I/O;
+  authority is rechecked before and after cold I/O and for fallback. Cold
+  tickets retain the callback and contract.
 - Payloads and manifests are digest-bound with central schema validation;
   malformed records are quarantined by `recover()` while healthy records remain.
 - Movement into warm/cold charges actual write bytes and temporary overlap.
   Dirty hot state is skipped when a clean eviction candidate exists.
 - P state is clock-versioned (`p_<owner>_c<clock>`) with an atomic current
-  pointer and latest-valid selection; `revoke_p` requires explicit host
-  authority and blocks publication, generic/P reads, cache use, movement,
-  eviction and healthy recovery accounting. `restore_p` is host-only.
+  pointer consumed and validated on read. Pointer target/digest mismatch fails
+  closed; older pointers are repaired to the latest valid record; pointer
+  publication failure removes a newly published unpointed clock. `revoke_p`
+  requires explicit host authority and its durable marker is re-read by every
+  instance and every publication/read/movement/eviction/recovery operation,
+  invalidating all clocked owner hot/projection/replay entries. `restore_p` is
+  host-only.
 - Projection cache keys include generation, producer, representation, reader
   release, site and eligibility revision. Replay eligibility is invalidated
   separately.

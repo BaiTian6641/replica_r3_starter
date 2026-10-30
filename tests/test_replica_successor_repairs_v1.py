@@ -210,14 +210,23 @@ def test_cold_resume_and_fallback_revalidate_external_authority(tmp_path):
     fallback = _tier(tmp_path / "fallback")
     fallback.publish("canonical", b"canonical", generation=0, kind="canonical",
                      producer="host", representation="text", scope_digest="d" * 64)
+    minimal = fallback.read(
+        "absent", contract=_contract(), fallback_id="canonical",
+        fallback_contract=_contract("host", "text", "d" * 64),
+        authority=lambda record_id: {"eligible": True})
+    assert minimal.status == "contract_required"
+
     calls = {"canonical": 0}
 
     def changing(record_id):
+        identity = {"producer": "host", "representation": "text",
+                    "scope_digest": "d" * 64, "cutoff": 10 ** 9}
         if record_id == "canonical":
             calls["canonical"] += 1
             return {"eligible": calls["canonical"] == 1, "generation": 0,
-                    "eligibility_revision": 0}
-        return {"eligible": True, "generation": None, "eligibility_revision": 0}
+                    "eligibility_revision": 0, **identity}
+        return {"eligible": True, "generation": None,
+                "eligibility_revision": 0, **identity}
 
     result = fallback.read("absent", contract=_contract(),
                            fallback_id="canonical",
@@ -452,8 +461,19 @@ def test_revoked_p_is_not_ready_through_generic_read(tmp_path):
     contract = ReadContract(manifest["producer"], manifest["representation"],
                             manifest["scope_digest"])
     assert store.read(state["record_id"], contract=contract).status == "ready"
+    cache_key = store.projections.key(
+        state["record_id"], generation=1, producer="p:expert",
+        representation="encoder-v1", reader_release="r1", site=3,
+        eligibility_revision=0)
+    store.projections.put(cache_key, object())
+    store.replay.register(state["record_id"], generation=1, producer="p:expert")
+    second = _tier(tmp_path)
+    assert second.read(state["record_id"], contract=contract).status == "ready"
     store.revoke_p("expert", reason="revoked", authorized_by="host")
-    assert store.read(state["record_id"], contract=contract).status == "ineligible"
+    assert second.read(state["record_id"], contract=contract).status == "ineligible"
+    assert store.projections.get(cache_key) is None
+    assert not store.replay.eligible(state["record_id"], generation=1,
+                                     producer="p:expert")
     with pytest.raises(PermissionError):
         store.demote(state["record_id"])
     with pytest.raises(PermissionError):
@@ -519,6 +539,88 @@ def test_initial_prefix_at_global_bound_is_sealed(tmp_path):
                                committed_tokens=tokens)
         with pytest.raises(ChunkError):
             session.begin_chunk([1])
+
+
+def test_p_pointer_is_validated_and_failure_atomic(tmp_path):
+    store = _tier(tmp_path)
+    store.publish_p("expert", weights=b"w1", moments=b"m1", clock=1,
+                    encoder="encoder-v1", lineage=["r1"])
+    store.publish_p("expert", weights=b"w2", moments=b"m2", clock=2,
+                    encoder="encoder-v2", lineage=["r1"], tier="cold")
+    state = store.read_p("expert")
+    assert state["clock"] == 2 and state["pointer_state"] == "valid"
+    pointer_path = tmp_path / "p_current" / "expert.json"
+    pointer = json.loads(pointer_path.read_text())
+    pointer["payload_sha256"] = "0" * 64
+    pointer_path.write_text(json.dumps(pointer))
+    with pytest.raises(Exception):
+        store.read_p("expert")
+
+    failing = _tier(tmp_path / "failure")
+    real = failing._write_p_pointer
+    def interrupted(*args, **kwargs):
+        raise RuntimeError("pointer publication interrupted")
+    failing._write_p_pointer = interrupted
+    with pytest.raises(RuntimeError):
+        failing.publish_p("expert", weights=b"w", moments=b"m", clock=1,
+                          encoder="encoder-v1", lineage=["r1"])
+    with pytest.raises(Exception):
+        failing.read_p("expert")
+    failing._write_p_pointer = real
+
+
+def test_p_pointer_stale_is_repaired_to_latest_valid(tmp_path):
+    store = _tier(tmp_path)
+    store.publish_p("expert", weights=b"w1", moments=b"m1", clock=1,
+                    encoder="encoder-v1", lineage=["r1"])
+    pointer_path = tmp_path / "p_current" / "expert.json"
+    first_pointer = json.loads(pointer_path.read_text())
+    store.publish_p("expert", weights=b"w2", moments=b"m2", clock=2,
+                    encoder="encoder-v2", lineage=["r1"])
+    pointer_path.write_text(json.dumps(first_pointer))
+    state = store.read_p("expert")
+    assert state["clock"] == 2 and state["pointer_state"] == "repaired"
+    assert json.loads(pointer_path.read_text())["clock"] == 2
+
+
+def test_p_movement_invalidates_clocked_owner_caches(tmp_path):
+    store = _tier(tmp_path)
+    store.publish_p("expert", weights=b"w", moments=b"m", clock=1,
+                    encoder="encoder-v1", lineage=["r1"])
+    state = store.read_p("expert")
+    key = store.projections.key(state["record_id"], generation=1,
+                                producer="p:expert", representation="encoder-v1",
+                                reader_release="r1", site=3,
+                                eligibility_revision=0)
+    store.projections.put(key, object())
+    store.replay.register(state["record_id"], generation=1, producer="p:expert")
+    store.demote(state["record_id"])
+    assert store.projections.get(key) is None
+    assert not store.replay.eligible(state["record_id"], generation=1,
+                                     producer="p:expert")
+
+
+def test_outcomes_excluded_after_revocation(tmp_path):
+    with make_store(tmp_path) as store:
+        current = _pin(store)
+        outcome = OutcomeReceipt("u1", "a1", "completed", "r1",
+                                 time.time_ns(), "one")
+        report = commit(store, current, [_obs("rev", "revocable")],
+                        outcomes=(outcome,), interaction="interaction-rev")
+        record_id = report.receipt.record_ids[0]
+        old_pin = _pin(store)
+        store.revoke(record_id, reason="privacy")
+        assert store.outcomes(old_pin) == ()
+        assert store.outcomes(_pin(store)) == ()
+
+
+def test_minimal_authority_cannot_bypass_manifest_contract(tmp_path):
+    store = _tier(tmp_path)
+    store.publish("record", b"payload", generation=1, kind="e",
+                  producer="expected", representation="r1",
+                  scope_digest="scope", valid_to=1)
+    result = store.read("record", authority=lambda record_id: {"eligible": True})
+    assert result.status != "ready"
 
 
 def test_study_attribution_uses_actual_ids(tmp_path):
