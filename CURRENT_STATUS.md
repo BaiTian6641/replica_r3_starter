@@ -1,6 +1,6 @@
 # Current Spark intrinsic-memory status
 
-**30 October 2026 — v12 attempt10 failed final fitting; the v13 fitting-only diagnostic is complete and no native worker is active.** Full per-pair source/slot/reader/residual/logit evidence supports one pre-MLP fusion-placement experiment next. Development remains closed and useful recall is unestablished.
+**30 October 2026 — pre-MLP fusion-placement attempt01 is running under one exclusive MPS worker.** V12 attempt10 failed final fitting; the completed v13 diagnostic selected this single mechanism. Development remains closed unless final fitting passes; useful recall is unestablished.
 
 ## Authoritative current evidence
 
@@ -16,6 +16,7 @@
 - Research boundaries: `docs/research/spark_memory_20261029/Contextual_Compression_V12_Crosscheck.md` and `Research_Crosscheck.md`.
 - Successor engineering: full-lifecycle fixture and restart repair `ca5144cc`; incremental WorkLedger evidence `reports/intrinsic_memory_successors_v13/`; response/correction contracts `src/replica_lab/intrinsic_memory_acceptance_v13.py`.
 - Counterfactual diagnosis and next mechanism: `docs/experiments/20261030_Spark_Counterfactual_Diagnosis_V13.md` plus `reports/intrinsic_memory_counterfactual_v13/attempt03_mechanism_decision.json`. Native attempt03 completed with all intermediate tensors preserved.
+- Pre-MLP protocol and pending evidence: `docs/experiments/20261030_Spark_Pre_MLP_Fusion_V14.md` and `reports/intrinsic_memory_pre_mlp_v14/`.
 
 ## Learning and capability state
 
@@ -31,6 +32,6 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/inspect_spark_intrinsic_packe
   --output reports/intrinsic_memory_native_v12/current_packet_budget.json
 ```
 
-The next experiment is **pre-MLP fusion placement at the existing 3/7 sites**, with frozen source features, four slots, objective, optimizer and fitting rows fixed. It is selected because every pair retains slot and reader distinctions while residual distinctions are smaller and eight pairs still have an incorrect side. Less-compressed features are not selected; reader/query alignment is the fallback if placement fails. No held-out labels open before the corresponding gates pass.
+The running experiment is **pre-MLP fusion placement at the existing 3/7 sites**, with frozen source features, four slots, objective, optimizer and fitting rows fixed. It was selected because every diagnostic pair retained slot and reader distinctions while residual distinctions were smaller and eight pairs had an incorrect side. Less-compressed features were not selected; reader/query alignment is the fallback if placement fails. No held-out labels open before the corresponding gates pass.
 
 Historical v11 and attempt01–10 material remains evidence, not current navigation. Protected and unrelated dirty work remains untouched; `src/replica_lab/runtime_pilot.py` must never be read, imported, edited, or staged.
