@@ -194,3 +194,12 @@ def test_mps_requires_fallback_disabled(monkeypatch):
     monkeypatch.setenv("PYTORCH_ENABLE_MPS_FALLBACK", "0")
     assert require_timing_synchronization(torch.device("mps")) == "mps_synchronize"
     assert calls == [1]
+
+
+def test_device_strings_and_typeless_objects_fail_closed(monkeypatch):
+    assert synchronize_timing("cpu") == "cpu_synchronous"
+    for invalid in ("xla", "not-a-device", object()):
+        label = synchronize_timing(invalid)
+        assert label.startswith("unsupported_accelerator:")
+        with pytest.raises(DensityError, match="did not execute"):
+            require_timing_synchronization(invalid)

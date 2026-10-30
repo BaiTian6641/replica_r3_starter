@@ -118,8 +118,17 @@ def synchronize_timing(device=None):
     their declared synchronization call.  The returned label is recorded so a
     CPU engineering receipt cannot imply a native synchronized measurement.
     """
+    if device is None:
+        return "cpu_synchronous"
+    if isinstance(device, str):
+        try:
+            device = torch.device(device)
+        except (RuntimeError, ValueError, TypeError):
+            return "unsupported_accelerator:" + repr(device)
     kind = getattr(device, "type", None)
-    if kind == "cpu" or kind is None:
+    if kind is None:
+        return "unsupported_accelerator:" + type(device).__name__
+    if kind == "cpu":
         return "cpu_synchronous"
     if kind == "cuda":
         if not torch.cuda.is_available():

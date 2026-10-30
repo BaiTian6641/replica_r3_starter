@@ -416,6 +416,7 @@ def main():
         "native_execution": False,
         "native_weights_loaded": False,
         "downloads": False,
+        "scored_labels_read": False,
         "P_updates": 0,
         "promotion": False,
         "competence_claim": False,
