@@ -1,0 +1,66 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+___________ test_source_recomputation_is_not_a_forbidden_side_effect ___________
+
+    def test_source_recomputation_is_not_a_forbidden_side_effect():
+        before = {"format": "review", "memory": {}, "source": {
+            "requests": 0, "forwards": 0, "cache_misses": 0}}
+        after = {"format": "review", "memory": {}, "source": {
+            "requests": 1, "forwards": 1, "cache_misses": 1}}
+>       result = assert_no_read_write_effects(before, after)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+acceptance_policy_edges.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+before = {'format': 'review', 'memory': {}, 'source': {'requests': 0, 'forwards': 0, 'cache_misses': 0}}
+after = {'format': 'review', 'memory': {}, 'source': {'requests': 1, 'forwards': 1, 'cache_misses': 1}}
+keys = ('retrieval_calls', 'admission_calls', 'correction_calls', 'snapshot_copies', 'snapshot_bytes', 'durable_write_bytes', ...)
+
+    def assert_no_read_write_effects(before, after, *, keys=READ_WRITE_KEYS):
+        """Raise if a declared recomputation introduced a memory side effect.
+    
+        Positive authority revalidation counters are returned under
+        ``authority_validation``; they are expected on a durable, store-backed
+        recompute and are not retrieval/admission/snapshot/write effects.
+        """
+        delta = ledger_delta(before, after)
+        authority = {key: delta["memory"].get(key, 0) for key in AUTHORITY_KEYS
+                     if delta["memory"].get(key, 0) != 0}
+        if any(value < 0 for value in authority.values()):
+            raise DensityError("authority-validation counter moved backwards")
+        changed = {key: delta["memory"].get(key, 0) for key in keys
+                   if delta["memory"].get(key, 0) != 0}
+        # Source tokenization/forward recomputation is legitimate work; it may not
+        # run backwards and is reported separately from durable read/write effects.
+        for key in ("requests", "forwards", "cache_misses"):
+            value = delta["source"].get(key, 0)
+            if value < 0:
+                raise DensityError("source-feature counter moved backwards: " + key)
+            if value:
+                changed["source." + key] = value
+        if changed:
+>           raise DensityError("recomputation created retrieval/write/copy effects: "
+                               + ", ".join(sorted(changed)))
+E           replica_lab.intrinsic_memory_density_v12.DensityError: recomputation created retrieval/write/copy effects: source.cache_misses, source.forwards, source.requests
+
+src/replica_lab/intrinsic_memory_density_v12.py:207: DensityError
+_________________ test_terminal_parent_receipts_remain_charged _________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2008/test_terminal_parent_receipts_0')
+
+    def test_terminal_parent_receipts_remain_charged(tmp_path):
+        ledger = WorkLedger.create(tmp_path / "ledger.jsonl", identity="acceptance-review",
+                                   plan=plan("two"), deadline=time.monotonic() + 10000)
+        for stage in ("finalize_worker", "finalize_parent"):
+            ledger.enter(stage)
+            ledger.leave(stage, status="completed")
+        charged = charged_write(ledger, tmp_path, "capacity_guard", {"window": "restart"})
+>       assert charged is True
+E       assert False is True
+
+acceptance_policy_edges.py:52: AssertionError
+=========================== short test summary info ============================
+FAILED acceptance_policy_edges.py::test_source_recomputation_is_not_a_forbidden_side_effect - replica_lab.intrinsic_memory_density_v12.DensityError: recomputation created retrieval/write/copy effects: source.cache_misses, source.forwards, source.requests
+FAILED acceptance_policy_edges.py::test_terminal_parent_receipts_remain_charged - assert False is True
+2 failed in 0.56s

@@ -1,0 +1,66 @@
+........................................................................ [  7%]
+........................................................................ [ 15%]
+........................................................................ [ 23%]
+........................................................................ [ 31%]
+........................................................................ [ 38%]
+........................................................................ [ 46%]
+........................................................................ [ 54%]
+........................................................................ [ 62%]
+........................................................................ [ 69%]
+........................................................................ [ 77%]
+........................................................................ [ 85%]
+........................................................................ [ 93%]
+.........................................................F......         [100%]
+=================================== FAILURES ===================================
+_______________ test_fitting_closed_receipt_has_an_active_stage ________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2004/test_fitting_closed_receipt_ha0')
+
+    def test_fitting_closed_receipt_precedes_stage_close(tmp_path):
+        ledger = WorkLedger.create(tmp_path / "ledger.jsonl", identity="final-review",
+                                   plan=plan("two"), deadline=time.monotonic() + 10000)
+        ledger.enter("fit_probes_512")
+        engine = DiagnosticEngineV12.__new__(DiagnosticEngineV12)
+        engine.ledger, engine.output = ledger, tmp_path
+        engine._stage_ref = StageRef()
+        engine.stage = "fit_probes_512"
+        engine.write_receipt("fitting_closed", {"closed": True})
+>       ledger.leave("fit_probes_512", status="completed")
+
+acceptance_residual_edges.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/intrinsic_memory_diagnostic_v12.py:236: in write_receipt
+    with self.measured(operation or (name+'_receipt'), writes=1) as event:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/replica_lab/intrinsic_memory_diagnostic_v12.py:160: in measured
+    with self.ledger.work(self.stage, operation, **amounts) as event:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/replica_lab/intrinsic_memory_budget_v12.py:474: in work
+    token = self.reserve(stage, operation, **amounts)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <replica_lab.intrinsic_memory_budget_v12.WorkLedger object at 0x115bfb470>
+stage = 'fit_probes_512', operation = 'fitting_closed_receipt'
+amounts = {'writes': 1}
+
+    def reserve(self, stage, operation, **amounts):
+        if not isinstance(operation, str) or not operation:
+            raise BudgetError('invalid reservation operation')
+        amounts = _amounts(amounts, where='reserve')
+        with self._transaction() as (doc, write):
+            state = doc['stages'].get(stage)
+>           if state is None or state['status'] != 'active': raise BudgetError('stage is not active')
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           replica_lab.intrinsic_memory_budget_v12.BudgetError: stage is not active
+
+src/replica_lab/intrinsic_memory_budget_v12.py:445: BudgetError
+=========================== short test summary info ============================
+FAILED acceptance_residual_edges.py::test_fitting_closed_receipt_has_an_active_stage - replica_lab.intrinsic_memory_budget_v12.BudgetError: stage is not active
+1 failed, 927 passed in 289.11s (0:04:49)

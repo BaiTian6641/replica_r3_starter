@@ -1,0 +1,66 @@
+........................................................................ [  7%]
+........................................................................ [ 15%]
+........................................................................ [ 23%]
+........................................................................ [ 30%]
+........................................................................ [ 38%]
+........................................................................ [ 46%]
+........................................................................ [ 54%]
+........................................................................ [ 61%]
+........................................................................ [ 69%]
+........................................................................ [ 77%]
+........................................................................ [ 85%]
+........................................................................ [ 92%]
+................................................................FF       [100%]
+=================================== FAILURES ===================================
+___________ test_partial_authority_still_bypasses_manifest_identity ____________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2007/test_partial_authority_still_b0')
+
+    from replica_lab.intrinsic_memory_density_v12 import assert_no_read_write_effects
+    from replica_lab.intrinsic_memory_budget_v12 import WorkLedger
+    from replica_lab.intrinsic_memory_coverage_v12 import plan
+    from run_spark_intrinsic_coverage_v12 import charged_write
+    
+    
+>   def test_partial_authority_still_bypasses_manifest_identity(tmp_path):
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert 'ready' != 'ready'
+E    +  where 'ready' = ReadResult(status='ready', record_id='record', tier='hot', payload=b'payload', manifest={'format': 'replica.successors...s': 1793336174523227000, 'extra': {}}, latency_ms=0.005459, bytes_read=7, reason='', ticket_id=None, fallback_tokens=0).status
+
+acceptance_policy_edges.py:11: AssertionError
+__________________ test_cross_instance_restore_is_not_sticky ___________________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2007/test_cross_instance_restore_is0')
+
+                      representation="r1", scope_digest="scope", valid_to=1)
+        result = store.read("record", authority=lambda record_id: {
+            "eligible": True, "producer": "expected"})
+        assert result.status != "ready"
+    
+    
+    def test_cross_instance_restore_is_not_sticky(tmp_path):
+        first = TieredBlobStore(tmp_path)
+        first.publish_p("expert", weights=b"w", moments=b"m", clock=1,
+                        encoder="e1", lineage=["r1"])
+        second = TieredBlobStore(tmp_path)
+>       first.revoke_p("expert", reason="revoked", authorized_by="host")
+               ^^^^^^^^^^^^^^^^^^^^^^^
+
+acceptance_policy_edges.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <replica_lab.successors.tiers.TieredBlobStore object at 0x117eeeff0>
+owner = 'expert'
+
+    def read_p(self, owner: str) -> dict:
+        _identifier("owner", owner)
+        if self._is_p_revoked(owner):
+>           raise PermissionError("P state is revoked")
+E           PermissionError: P state is revoked
+
+src/replica_lab/successors/tiers.py:1044: PermissionError
+=========================== short test summary info ============================
+FAILED acceptance_policy_edges.py::test_partial_authority_still_bypasses_manifest_identity - AssertionError: assert 'ready' != 'ready'
+ +  where 'ready' = ReadResult(status='ready', record_id='record', tier='hot', payload=b'payload', manifest={'format': 'replica.successors...s': 1793336174523227000, 'extra': {}}, latency_ms=0.005459, bytes_read=7, reason='', ticket_id=None, fallback_tokens=0).status
+FAILED acceptance_policy_edges.py::test_cross_instance_restore_is_not_sticky - PermissionError: P state is revoked
+2 failed, 928 passed in 288.36s (0:04:48)
