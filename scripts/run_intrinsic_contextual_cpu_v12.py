@@ -266,13 +266,16 @@ def run_arm(arm, root):
     # Warm durable read versus live training values.
     store = open_v12_store(root, name="store")
     primary = canonical_span("the badge is red", record_id="badge")[0]
+    secondary = canonical_span("the badge is blue", record_id="badge2")[0]
     path.admit(store, primary, scope=sc)
+    path.admit(store, secondary, scope=sc)
     durable = path.read(store, "badge", scope=sc)
     with torch.no_grad():
-        live_digest = expected(path, sc, (primary,))
+        live_digest = expected(path, sc, (primary, secondary))
         durable_digest = logits_digest(path.forward(
             ids, torch.ones_like(ids), durable, scope=sc))
-    durable_parity = {"exact": live_digest == durable_digest}
+    durable_parity = {"exact": live_digest == durable_digest,
+                      "spans": len(durable.spans)}
 
     # Producer release publication and a release-bound read.
     corpus = ProducerReleaseCorpus(store, sc)
@@ -280,12 +283,20 @@ def run_arm(arm, root):
     path.release_corpus = corpus
     release_read = path.read(store, "badge", scope=sc, wait_seconds=1)
     released_batch = path.read(store, "badge", scope=sc, wait_seconds=1)
+    live_release = path.training_values(released_batch.spans, scope=sc)
+    with torch.no_grad():
+        release_logits = path.forward(ids, torch.ones_like(ids), released_batch, scope=sc)
+        live_release_logits = path.forward(ids, torch.ones_like(ids), live_release, scope=sc)
     release = {"generation": published["generation"],
                "records": len(published["records"]),
                "read_spans": len(released_batch.spans),
                "bound_generation": released_batch.pins[0]["producer_generation"],
-               "matches_live_slots": bool(torch.equal(release_read.slots,
-                                                      released_batch.slots))}
+               "release_reads_consistent": bool(torch.equal(release_read.slots,
+                                                            released_batch.slots)),
+               "live_vs_release_exact": bool(torch.equal(live_release.slots,
+                                                         released_batch.slots)),
+               "live_vs_release_logits_exact": bool(torch.equal(release_logits,
+                                                                live_release_logits))}
     path.release_corpus = None
 
     # Correction and revocation fail closed and invalidate only their source.
@@ -321,14 +332,15 @@ def run_arm(arm, root):
     # Cold pending ticket for fresh-process recovery.
     cold_scope = scope("user_cold")
     cold_store = open_v12_store(root, name="cold_store")
-    for index in range(2):
-        path.admit(cold_store, canonical_span(f"cold marker {index}",
-                                              record_id=f"cold{index}")[0],
+    cold_texts = [f"cold marker {index}" for index in range(2)]
+    for index, text in enumerate(cold_texts):
+        path.admit(cold_store, canonical_span(text, record_id=f"cold{index}")[0],
                    scope=cold_scope, placement="cold")
     pending = path.read(cold_store, "cold marker", scope=cold_scope)
     assert isinstance(pending, PendingContextualRead)
     (root / "pending.json").write_text(json.dumps(asdict(pending)))
     (root / "cold_scope.json").write_text(json.dumps(asdict(cold_scope)))
+    (root / "cold_texts.json").write_text(json.dumps(cold_texts))
     cold_store.close()
 
     # Complete checkpoint, then an uninterrupted third update for comparison.
@@ -422,6 +434,13 @@ def child(arm, root):
     cold_store = open_v12_store(root, name="cold_store")
     recovered = path.recover_pending(cold_store, pending.ticket_id, scope=cold_scope)
     cold_batch = path.resume(cold_store, recovered, scope=cold_scope, wait_seconds=1)
+    cold_texts = json.loads((root / "cold_texts.json").read_text())
+    cold_spans = tuple(canonical_span(text, record_id=f"cold{index}")[0]
+                       for index, text in enumerate(cold_texts))
+    live_cold = path.training_values(cold_spans, scope=cold_scope)
+    with torch.no_grad():
+        cold_logits = path.forward(IDS, torch.ones_like(IDS), cold_batch, scope=cold_scope)
+        live_cold_logits = path.forward(IDS, torch.ones_like(IDS), live_cold, scope=cold_scope)
     cold_store.close()
     loss = train_step(path, adapter, spans, sc)[2]
     document = {
@@ -432,6 +451,9 @@ def child(arm, root):
         "optimizer_moments_match": optimizer_digest(path.optimizer)
             == expected_document["moments"],
         "cold_pending_resumed": len(cold_batch.spans) == 2,
+        "cold_spans": len(cold_batch.spans),
+        "cold_live_parity": bool(torch.equal(cold_batch.slots, live_cold.slots)),
+        "cold_logits_parity": bool(torch.equal(cold_logits, live_cold_logits)),
         "cold_completed_files": cold_batch.read_costs["cold_completed_files"],
         "original_unchanged": adapter.base_unchanged() and parameter_digest(adapter.base) == original,
         "owner_groups": sorted(path.assert_optimizer_ownership()),

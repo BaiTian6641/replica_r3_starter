@@ -611,3 +611,124 @@ def test_release_write_failure_releases_charge_and_retry_succeeds(tmp_path, monk
     assert published["generation"] == 2
     assert corpus.cost["write_bytes"] > 0
     store.close()
+
+
+def test_semantic_order_beats_record_id_and_reversed_caller_order(tmp_path):
+    adapter, layout, provider, path = make()
+    ids, mask, labels = token_inputs()
+    sc = scope()
+    early = source("badge alpha", "z", available=1, epoch=1)
+    late = source("badge beta", "a", available=2, epoch=2)
+    store = open_v12_store(tmp_path)
+    path.admit(store, late, scope=sc)
+    path.admit(store, early, scope=sc)
+    durable = path.read(store, "badge", scope=sc)
+    assert [span.record_id for span in durable.spans] == ["z.span0", "a.span0"]
+    live = path.training_values((early, late), scope=sc)
+    assert torch.equal(live.slots, durable.slots)
+    reversed_live = path.training_values((late, early), scope=sc)
+    assert not torch.equal(reversed_live.slots, durable.slots)
+    with torch.no_grad():
+        assert torch.equal(path.forward(ids, mask, live, scope=sc),
+                           path.forward(ids, mask, durable, scope=sc))
+    store.close()
+
+
+def test_post_correction_live_and_durable_parity(tmp_path):
+    adapter, layout, provider, path = make()
+    ids, mask, labels = token_inputs()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    first = source("badge alpha", "a", available=1, epoch=1)
+    second = source("badge blue", "b", available=2, epoch=2)
+    path.admit(store, first, scope=sc)
+    path.admit(store, second, scope=sc)
+    corrected = replace(source("badge green", "new", available=3, epoch=3),
+                        supersedes="a.span0")
+    path.correct(store, "a.span0", corrected, scope=sc)
+    durable = path.read(store, "badge", scope=sc)
+    assert [span.record_id for span in durable.spans] == ["b.span0", "new.span0"]
+    live = path.training_values((second, corrected), scope=sc)
+    assert torch.equal(live.slots, durable.slots)
+    with torch.no_grad():
+        assert torch.equal(path.forward(ids, mask, live, scope=sc),
+                           path.forward(ids, mask, durable, scope=sc))
+    store.close()
+
+
+def test_release_pointer_write_failure_keeps_previous_generation(tmp_path, monkeypatch):
+    import replica_lab.contextual_release_v12 as module
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    first = corpus.rebuild(path)
+    original = module.atomic_json
+
+    def failing(path_value, value):
+        if path_value.name == "current.json":
+            raise OSError("simulated pointer publication failure")
+        return original(path_value, value)
+
+    monkeypatch.setattr(module, "atomic_json", failing)
+    with pytest.raises(OSError):
+        corpus.rebuild(path)
+    current = corpus._current()
+    assert current is not None and current[1]["generation"] == first["generation"]
+    assert corpus.cost["publications"] == 1
+    store.close()
+
+
+def test_release_manifest_write_failure_keeps_previous_generation(tmp_path, monkeypatch):
+    from pathlib import Path as PathClass
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    first = corpus.rebuild(path)
+    original = PathClass.open
+    state = {"fail": True}
+
+    def failing(self, *args, **kwargs):
+        if state["fail"] and self.name == "manifest.json" and self.parent.name.isdigit():
+            raise OSError("simulated release manifest failure")
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(PathClass, "open", failing)
+    with pytest.raises(OSError):
+        corpus.rebuild(path)
+    state["fail"] = False
+    current = corpus._current()
+    assert current is not None and current[1]["generation"] == first["generation"]
+    assert corpus.cost["publications"] == 1
+    store.close()
+
+
+def test_invalidated_release_evicts_only_its_selection(tmp_path):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    first = source("badge alpha", "a", available=1, epoch=1)
+    second = source("badge beta", "b", available=2, epoch=2)
+    path.admit(store, first, scope=sc)
+    path.admit(store, second, scope=sc)
+    unrelated = source("unrelated note", "u")
+    path.admit(store, unrelated, scope=scope("user_b"))
+    corpus = ProducerReleaseCorpus(store, sc)
+    corpus.rebuild(path)
+    path.release_corpus = corpus
+    provider.features(first)
+    provider.features(second)
+    provider.features(unrelated)
+    pending = path.read(store, "badge", scope=sc)
+    assert isinstance(pending, PendingContextualRead)
+    store.revoke_record("a.span0", reason="rereview", scope=sc)
+    with pytest.raises(ContextualReadFailure):
+        path.resume(store, pending, scope=sc, wait_seconds=1)
+    names = {name for name, _ in provider._cache.values()}
+    assert "a.span0" not in names and "b.span0" not in names
+    assert "u.span0" in names
+    path.release_corpus = None
+    store.close()

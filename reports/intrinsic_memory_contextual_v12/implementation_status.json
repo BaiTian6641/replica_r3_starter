@@ -22,22 +22,59 @@
       "ran one workflow arm (two-site) end to end into a temporary directory to check the script entry point",
       "repair cycle 1: content-bound adapter substitution refused; a durable batch became stale after one real optimizer step; outer checkpoint contract/tamper refusals; cold correction/revocation/corrupt/missing evicted only the invalid record while a healthy sibling stayed cached; longest tested correction lineage 965 bytes",
       "repair cycle 2: checkpoint cache assertion moved immediately after load (zero entries) and before any feature-bearing call; post-load training_values legitimately repopulates C; component manifest still records feature/task state as not serialized",
-      "repair cycle 3: target v12 producer suite 69 passed and independent review V1/V2/V5 3 passed; buffer-only mutation clears C and refuses export before directory creation; token/feature caches bind actual text; mixed-release read evicts only the stale record; release source execution identity enforced; empty site iterables match base; two-record live/warm/cold/release slot parity and deterministic tie order; failed release write releases its charge and retry publishes generation 2"
+      "repair cycle 3: target v12 producer suite 69 passed and independent review V1/V2/V5 3 passed; buffer-only mutation clears C and refuses export before directory creation; token/feature caches bind actual text; mixed-release read evicts only the stale record; release source execution identity enforced; empty site iterables match base; two-record live/warm/cold/release slot parity and deterministic tie order; failed release write releases its charge and retry publishes generation 2",
+      "repair cycle 4: cold staging charges every payload read and returns per-record invalid ids; failed resume persists ContextualReadFailure independently of best-effort eviction and performs no uncharged probe; pointer/manifest publication failures keep the previous generation; semantic observation order beats record_id fallback and reversed caller order/post-correction parity pass; workflow now reports release_reads_consistent, true live-vs-release and two-record cold live/logit parity (fresh evidence only)"
     ]
   },
   "delivery": {
-    "src/replica_lab/contextual_source_features_v12.py": {"bytes": 27419, "sha256": "0596540fc621b3e3e9b5352dc9f85908159d9e450ed5e8ef1286cb0e25a924bf"},
-    "src/replica_lab/contextual_feature_identity_v12.py": {"bytes": 7276, "sha256": "336500eb2467f2d47cb9fa0d8c0fa91d569bf01b00057f569588682b72b9d6dd"},
-    "src/replica_lab/contextual_memory_layout_v12.py": {"bytes": 23408, "sha256": "f18eab858fa18d15c84c1bbf97a19d4e3ea2f8c198f64b044eb6a732ea90f7c9"},
-    "src/replica_lab/contextual_memory_v12.py": {"bytes": 31979, "sha256": "da3f3b1c4ac925d154c4032e7e1b1c9b1e4ac0f85979cf9e42b3aa120efd5af3"},
-    "src/replica_lab/contextual_release_v12.py": {"bytes": 19417, "sha256": "be34e646082759df1f23d39c3c02f9988b42f90ecdf086576d7a6c383897b9c1"},
-    "src/replica_lab/contextual_v12_fixture.py": {"bytes": 12217, "sha256": "604debab7b76bdfbe5a9c408b3c40b06f1bb5037461f88835f241b075e73e68b"},
-    "scripts/run_intrinsic_contextual_cpu_v12.py": {"bytes": 24858, "sha256": "3c986c02afa7db36c1d618b7ebbb2b460fa2ca4946ef474d64e1e9ccf6dda12a"},
-    "tests/v12_fixtures.py": {"bytes": 3237, "sha256": "9b63dbbae9acb004249b13309bf21eeb7cb7eb6eb4d96445d09f02fd28189e23"},
-    "tests/test_contextual_source_features_v12.py": {"bytes": 13918, "sha256": "318a678fb51fbe0919bbb7558d084b9f9c42ae3e449d308665adec59904e5c81"},
-    "tests/test_contextual_memory_layout_v12.py": {"bytes": 18661, "sha256": "7f8b96d45f8efbcb76834789592611f497ce9e6527db2b6dbd9b32c3d5220f78"},
-    "tests/test_contextual_memory_v12.py": {"bytes": 25589, "sha256": "0142208adf643142eabb7a1cdf200a2edd0877ddac519eba4daa8a8ca3289a22"},
-    "tests/test_contextual_v12_integration.py": {"bytes": 8899, "sha256": "b893db65ca8fd292968d3d282ab13aad02d75b257f1634879d7b32496cb48b3c"}
+    "src/replica_lab/contextual_source_features_v12.py": {
+      "bytes": 27419,
+      "sha256": "0596540fc621b3e3e9b5352dc9f85908159d9e450ed5e8ef1286cb0e25a924bf"
+    },
+    "src/replica_lab/contextual_feature_identity_v12.py": {
+      "bytes": 7276,
+      "sha256": "336500eb2467f2d47cb9fa0d8c0fa91d569bf01b00057f569588682b72b9d6dd"
+    },
+    "src/replica_lab/contextual_memory_layout_v12.py": {
+      "bytes": 23408,
+      "sha256": "f18eab858fa18d15c84c1bbf97a19d4e3ea2f8c198f64b044eb6a732ea90f7c9"
+    },
+    "src/replica_lab/contextual_memory_v12.py": {
+      "bytes": 33424,
+      "sha256": "44ebece1a034b1f27bc8b142adad34b0699e1365bcef8c39c373b486969addbe"
+    },
+    "src/replica_lab/contextual_release_v12.py": {
+      "bytes": 19417,
+      "sha256": "be34e646082759df1f23d39c3c02f9988b42f90ecdf086576d7a6c383897b9c1"
+    },
+    "src/replica_lab/contextual_v12_fixture.py": {
+      "bytes": 12217,
+      "sha256": "604debab7b76bdfbe5a9c408b3c40b06f1bb5037461f88835f241b075e73e68b"
+    },
+    "scripts/run_intrinsic_contextual_cpu_v12.py": {
+      "bytes": 26436,
+      "sha256": "f9152b31c4b609cc2aadc627b9394cadbc8d7121025cfddb3be9f1c2c7be6d0e"
+    },
+    "tests/v12_fixtures.py": {
+      "bytes": 3237,
+      "sha256": "9b63dbbae9acb004249b13309bf21eeb7cb7eb6eb4d96445d09f02fd28189e23"
+    },
+    "tests/test_contextual_source_features_v12.py": {
+      "bytes": 13918,
+      "sha256": "318a678fb51fbe0919bbb7558d084b9f9c42ae3e449d308665adec59904e5c81"
+    },
+    "tests/test_contextual_memory_layout_v12.py": {
+      "bytes": 18661,
+      "sha256": "7f8b96d45f8efbcb76834789592611f497ce9e6527db2b6dbd9b32c3d5220f78"
+    },
+    "tests/test_contextual_memory_v12.py": {
+      "bytes": 30594,
+      "sha256": "de51c41654dd362b6000dea4aea61ee8001f49f869fd40fe6ad28e7d9ea65681"
+    },
+    "tests/test_contextual_v12_integration.py": {
+      "bytes": 8899,
+      "sha256": "b893db65ca8fd292968d3d282ab13aad02d75b257f1634879d7b32496cb48b3c"
+    }
   },
   "commands": {
     "pytest": ".venv/bin/python -m pytest -q tests/test_contextual_source_features_v12.py tests/test_contextual_memory_layout_v12.py tests/test_contextual_memory_v12.py tests/test_contextual_v12_integration.py",
@@ -48,18 +85,42 @@
     "class": "replica_lab.contextual_memory_v12.ContextualMemoryV12",
     "constructor": "ContextualMemoryV12(adapter, layout, *, source_identity, feature_provider, lr=1e-3, initialization_seed=17, objective_identity=None, execution_identity='CPU_engineering_unbound')",
     "methods": [
-      "modules()", "assert_optimizer_ownership()", "training_values(spans, *, scope)",
-      "training_from_stored(batch, *, scope)", "snapshot(ids, batch, *, scope, active_sites=None, padding_value=0.0)",
+      "modules()",
+      "assert_optimizer_ownership()",
+      "training_values(spans, *, scope)",
+      "training_from_stored(batch, *, scope)",
+      "snapshot(ids, batch, *, scope, active_sites=None, padding_value=0.0)",
       "forward(ids, mask, batch, *, scope, enabled=True, active_sites=None)",
       "admit(store, span, *, scope, cluster='contextual', placement='warm')",
-      "read(store, question, *, scope, wait_seconds=0.0)", "begin_release_read(...)", "resume(...)",
-      "recover_pending(...)", "correct(...)", "validate(batch, scope)", "exact_fallback(...)",
-      "freeze_readout()", "resume_training()", "save(directory)", "load(directory)",
-      "clear_source_caches()", "invalidate_source(record_id)", "close()"
+      "read(store, question, *, scope, wait_seconds=0.0)",
+      "begin_release_read(...)",
+      "resume(...)",
+      "recover_pending(...)",
+      "correct(...)",
+      "validate(batch, scope)",
+      "exact_fallback(...)",
+      "freeze_readout()",
+      "resume_training()",
+      "save(directory)",
+      "load(directory)",
+      "clear_source_caches()",
+      "invalidate_source(record_id)",
+      "close()"
     ],
-    "attributes": ["spec", "reader", "adapter", "encoder", "order", "optimizer", "cost",
-                   "source_identity", "objective_identity", "execution_identity", "release_corpus",
-                   "feature_provider"]
+    "attributes": [
+      "spec",
+      "reader",
+      "adapter",
+      "encoder",
+      "order",
+      "optimizer",
+      "cost",
+      "source_identity",
+      "objective_identity",
+      "execution_identity",
+      "release_corpus",
+      "feature_provider"
+    ]
   },
   "work_accounting": {
     "module": "replica_lab.contextual_source_features_v12",
@@ -69,7 +130,9 @@
     "amounts": "source_tokenize -> source_encodes=1, input_tokens=source_bytes (upper bound); source_forward -> forwards=1, input_tokens=exact token count",
     "no_implicit_fallback": "FrozenSourceFeatures requires an accounting provider; missing/rejecting accounting fails before tokenizer or source forward",
     "not_yet_charged_to_the_v5_ledger": [
-      "durable read/write/retrieval bytes", "checkpoint/artifact bytes", "GPU-synchronized wall time",
+      "durable read/write/retrieval bytes",
+      "checkpoint/artifact bytes",
+      "GPU-synchronized wall time",
       "physical SSD write amplification"
     ]
   },
@@ -84,7 +147,9 @@
     "release_authority": "release manifest source_identity must equal path.source_identity at read, value and batch-validation boundaries (values/validate_batch now take a required source_identity keyword); failed release writes release their artifact charge and remove partial bytes",
     "ordering": "durable slot order sorts by source_id, source_epoch, source_order and record_id; live, warm, cold and release two-record parity is tested",
     "active_sites": "any empty site iterable (tuple/list/generator) skips memory and matches the base; nonempty lists/generators are normalized to tuples",
-    "lineage_bound": "lineage_json refuses provenance longer than 1024 bytes under the store's default json.dumps(sort_keys=True) form; longest tested correction is 965 bytes"
+    "lineage_bound": "lineage_json refuses provenance longer than 1024 bytes under the store's default json.dumps(sort_keys=True) form; longest tested correction is 965 bytes",
+    "cold_failure": "cold worker charges every payload read and returns per-record invalid ids; failed resume persists the typed terminal failure even if selective eviction fails, and evicts only invalid/selected release records",
+    "evidence_fields": "workflow uses release_reads_consistent (release-to-release), live_vs_release_exact/logits and cold_live_parity/cold_logits_parity; old matches_live_slots naming removed"
   },
   "remaining_limitations": [
     "random tiny BF16 backbone and synthetic tokenizer; not Spark and not native",
@@ -109,14 +174,36 @@
     "delivery_hashes_basis": "working-tree bytes at handoff; main must commit the five producer modules, fixture, tests, script and this report, then re-pin any closure/packet to committed blobs"
   },
   "coordinator_verification": {
-    "focused_tests": {"passed": 69, "failed": 0, "skipped": 0, "repair_cycles": 3},
-    "failed_attempt_logs": ["verification_attempt01.log", "verification_attempt02.log"],
-    "independent_findings_addressed": ["V1", "V2", "V3", "V4", "V5"],
-    "workflow": "run02",
-    "arms": ["two", "full_attention_nine", "all"],
-    "parent_wall_seconds": 15.084017499815673,
-    "parent_peak_rss_bytes": 691568640,
-    "artifact_files": 217,
-    "artifact_bytes": 102218202
+    "focused_tests": {
+      "passed": 79,
+      "failed": 0,
+      "skipped": 0,
+      "repair_cycles": 4,
+      "includes_independent_and_cold_failure_reproductions": true
+    },
+    "failed_attempt_logs": [
+      "verification_attempt01.log",
+      "verification_attempt02.log"
+    ],
+    "independent_findings_addressed": [
+      "V1",
+      "V2",
+      "V3",
+      "V4",
+      "V5",
+      "X5",
+      "X8",
+      "X12-producer"
+    ],
+    "workflow": "run03",
+    "arms": [
+      "two",
+      "full_attention_nine",
+      "all"
+    ],
+    "parent_wall_seconds": 16.1357513749972,
+    "parent_peak_rss_bytes": 769294336,
+    "artifact_files": 244,
+    "artifact_bytes": 102306331
   }
 }

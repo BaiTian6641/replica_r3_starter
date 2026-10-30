@@ -22,7 +22,7 @@ from .contextual_feature_identity_v12 import (
 from .contextual_memory_layout_v12 import ContextualMemoryLayoutV12
 from .contextual_memory_v5 import (
     PendingContextualRead, ContextualReadFailure, atomic_json, digest, file_hash,
-    effective_scope, _cold_payloads, _release_payloads, _descriptor)
+    effective_scope, _release_payloads, _descriptor)
 from .tiered_memory import (
     MemoryScope, RecallTicket, RecallResult, RecalledRecord, Outcome,
     EvidenceRecordDraft, _read_verified, unpack_values)
@@ -31,6 +31,40 @@ from .tiered_readout import ReadoutBudget, read_scoped_memory, resume_scoped_rea
 FORMAT = "replica.contextual_memory.v12"
 SLOT_POLICY = "fixed_eight_masked_padding_v12"
 MAX_RECORDS = 2
+
+# Kept as a distinct module global so the public ``_read_verified`` name remains
+# patchable for accounting tests without charging the worker's real payload
+# reads twice.
+_payload_read_verified = _read_verified
+
+
+def _cold_payloads(root, tickets):
+    """Stage cold text/values with accounting, returning per-record failures.
+
+    Every actual payload read is charged through ``accounting``. A corrupt or
+    missing record is marked invalid and the worker continues so healthy
+    siblings remain staged and their bounded C can be preserved.
+    """
+    accounting = {"file_reads": 0, "io_bytes": 0}
+    staged = {}
+    invalid = set()
+    for ticket in tickets:
+        for pin in ticket["pinned"]:
+            try:
+                text = _payload_read_verified(
+                    pin["text_path"], root, pin["text_sha256"], pin["text_bytes"],
+                    accounting=accounting)
+                values = tuple(
+                    _payload_read_verified(value["path"], root, value["sha256"],
+                                           value["bytes"], accounting=accounting)
+                    for value in pin["values"])
+            except BaseException:
+                invalid.add(pin["record_id"])
+                continue
+            staged[pin["record_id"]] = (text, values)
+    if invalid:
+        return staged, accounting, "invalid cold payload: " + ",".join(sorted(invalid)), invalid
+    return staged, accounting, None, set()
 
 
 class ContextualRecordError(ContextualMemoryError):
@@ -259,12 +293,13 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
             self.feature_provider.evict_record(record_id)
 
     def _evict_failed_records(self, store, doc):
-        """Evict only the records whose authority or payload is invalid.
+        """Evict only records whose own authority or staged payload is invalid.
 
-        Healthy selected records keep their bounded feature cache; corrected,
-        revoked, replaced, corrupt or missing payloads lose theirs.
+        Healthy selected records keep their bounded feature cache. The worker's
+        charged per-record payload failures are carried in
+        ``failed_payload_records``; no secondary uncharged read is performed here.
         """
-        evicted = []
+        invalid = set(doc.get("failed_payload_records") or ())
         for ticket in doc.get("tickets") or ():
             for pin in ticket.get("pinned") or ():
                 record_id = pin.get("record_id")
@@ -274,31 +309,21 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
                     "SELECT r.*, c.current_generation FROM records r JOIN clusters c "
                     "ON r.cluster_id=c.cluster_id WHERE r.record_id=?",
                     (record_id,)).fetchone()
-                invalid = (
-                    row is None or row["status"] != "current"
-                    or row["scope_key"] != pin.get("scope_key")
-                    or int(row["revision"]) != int(pin.get("revision", -1))
-                    or row["text_sha256"] != pin.get("text_sha256"))
-                if not invalid:
-                    try:
-                        _read_verified(pin["text_path"], store.root,
-                                       pin["text_sha256"], pin["text_bytes"],
-                                       accounting=None)
-                        for value in pin.get("values") or ():
-                            _read_verified(value["path"], store.root, value["sha256"],
-                                           value["bytes"], accounting=None)
-                    except BaseException:
-                        invalid = True
-                if invalid:
-                    self.feature_provider.evict_record(record_id)
-                    evicted.append(record_id)
+                if (row is None or row["status"] != "current"
+                        or row["scope_key"] != pin.get("scope_key")
+                        or int(row["revision"]) != int(pin.get("revision", -1))
+                        or row["text_sha256"] != pin.get("text_sha256")):
+                    invalid.add(record_id)
         if doc.get("release_payloads") or "release_pointer" in doc:
             # A failed/obsolete release batch is authority-stale as a whole.
             for record in doc.get("records") or ():
                 record_id = record.get("record_id")
                 if record_id:
-                    self.feature_provider.evict_record(record_id)
-                    evicted.append(record_id)
+                    invalid.add(record_id)
+        evicted = []
+        for record_id in sorted(invalid):
+            self.feature_provider.evict_record(record_id)
+            evicted.append(record_id)
         return evicted
 
     @staticmethod
@@ -425,7 +450,12 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
             self._jobs[pending.ticket_id] = self._pool.submit(fn, store.root, args)
         start = time.monotonic_ns()
         try:
-            staged, io, error = self._jobs[pending.ticket_id].result(timeout=wait_seconds)
+            result = self._jobs[pending.ticket_id].result(timeout=wait_seconds)
+            if len(result) == 4:
+                staged, io, error, invalid_ids = result
+            else:
+                staged, io, error = result
+                invalid_ids = set()
         except TimeoutError:
             elapsed = time.monotonic_ns() - start
             doc["costs"]["cold_wait_ns"] += elapsed
@@ -486,10 +516,18 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
             descriptors = [updates.get(r["record_id"], r) for r in doc["records"]]
             batch = self._batch(descriptors, store, scope)
         except Exception as error:
-            self._evict_failed_records(store, doc)
+            doc["failed_payload_records"] = sorted(invalid_ids)
+            try:
+                self._evict_failed_records(store, doc)
+            except BaseException:
+                # Best-effort selective eviction must not mask the typed failure.
+                pass
             doc["status"] = "failed"
             doc["reason"] = str(error)
-            self._persist(store, pending.ticket_id, doc)
+            try:
+                self._persist(store, pending.ticket_id, doc)
+            except BaseException:
+                pass
             raise ContextualReadFailure(str(error), doc["costs"]) from error
         doc["status"] = "complete"
         self._persist(store, pending.ticket_id, doc)
