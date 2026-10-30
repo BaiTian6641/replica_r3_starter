@@ -176,10 +176,12 @@ class TeacherEngineV12(DiagnosticEngineV12):
                 or hash_file(path) != pin['sha256']):
             raise ValueError('teacher cache identity, size or lifecycle differs')
         feature = self.feature_identity()
-        with self.measured('detached_teacher_cache_restore', artifact_read_bytes=pin['bytes'],
+        # Hashing the file and then reading it are two full reads.
+        with self.measured('detached_teacher_cache_restore',
+                           artifact_read_bytes=2*pin['bytes'],
                            restart_restores=1) as event:
             payload = json.loads(path.read_text())
-            event['observed_artifact_read_bytes'] = path.stat().st_size
+            event['observed_artifact_read_bytes'] = 2*path.stat().st_size
             if (payload.get('format') != FORMAT
                     or payload.get('objective') != self.objective.identity(self.spec)
                     or payload.get('base_sha256') != self.base_identity
@@ -288,11 +290,19 @@ class TeacherEngineV12(DiagnosticEngineV12):
             end = start + GROUP_SIZE
             groups.append(DiagnosticEngineV12.evaluate(
                 self, rows[start:end], batches[start:end], scopes[start:end]))
+        per_rule_family = {}
+        for start, group in zip(range(0, DEVELOPMENT_CASES, GROUP_SIZE), groups):
+            family = rows[start]['rule_family']
+            per_rule_family[family] = {
+                'criterion_group': rows[start]['criterion_group'],
+                'correct': group['correct'], 'false_recall': group['false_recall'],
+                'useful_recall_passed': group['useful_recall_passed']}
         return {'rows': [row for group in groups for row in group['rows']],
                 'correct': {control: sum(g['correct'][control] for g in groups)
                             for control in CONTROLS},
                 'false_recall': {control: sum(g['false_recall'][control] for g in groups)
                                  for control in CONTROLS},
+                'per_rule_family': per_rule_family,
                 'groups': [{k: v for k, v in group.items() if k != 'rows'} for group in groups],
                 'useful_recall_passed': all(g['useful_recall_passed'] for g in groups),
                 'selection': 'both_predeclared_groups_required_no_pooling_escape',

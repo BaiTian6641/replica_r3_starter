@@ -68,27 +68,28 @@ TEACHER = {**deepcopy(PREVIOUS_TEACHER),
 COVERAGE = deepcopy(PREVIOUS_COVERAGE)
 
 # ---------------------------------------------------------------------------
-# X0: a genuinely independent v12 development split.
+# X0: an independent compound rule-family holdout, not a same-family redraw.
 #
 # The v11 development split is retired for this successor: the re-review scout
-# read `data/intrinsic_memory_coverage_v11_20261029/development.json`, so that
-# split can no longer support a fresh utility claim even though its historical
-# receipt still says unopened. Calibration and fitting keep the exposed v11 rows
-# for a matched comparison; development is new before any observation.
+# read `data/intrinsic_memory_coverage_v11_20261029/development.json`. The two
+# v11 rules are single-fact lookup and latest-revision lookup; a fresh draw of
+# those families, even with new names, order and palette, is only a new sample
+# of the same rule (Lee et al. 2022 near-duplicate splits; Keysers et al. 2020
+# hold out compounds, not atoms). This split therefore evaluates two *new*
+# compound semantics that were never trained:
 #
-# Independence is structural, not cosmetic. The retired split used a fixed case
-# table (pair order 0,0,1,1,2,2,3,3), fixed unknown positions (4 and 7), one
-# fixed extra query name and fixed rotations (2, 3). Here the case order, the
-# name-to-slot assignment, the unknown sides, the extra query name and the
-# palette rotation are all derived from `DEVELOPMENT_SEED` through an explicit
-# sha256 byte stream, so the same positional case no longer carries the same
-# label. The two declared rules, both group sizes, the counterfactual pairs, the
-# two-unknown coverage per group and the scorer are preserved.
+#   group 0, `partner_colour`: the answer needs a relation plus the partner's
+#     attribute ("A is paired with B; B's recorded colour is X").
+#   group 1, `same_colour`: the answer needs an equality relation plus the
+#     anchor's attribute ("A has the same recorded colour as B; B is X").
 #
-# Only the sealed oracle, renderer and question builder are reused (the
-# scientific content). Row labels are produced deterministically from the
-# structured oracle; preparation never inspects or selects on them, and the
-# public plan below contains no colour assignment, so it cannot leak a label.
+# The renderer, question composition and oracle for these families live here
+# because the sealed v11 module only knows its own two rules. Both remain
+# answerable by the same scorer and the same eight-case group gates, and an
+# unrecorded relation target yields `unknown`, which preserves the false-recall
+# control. Case order, pair assignment, unknown sides, rotation and the exact
+# relation/attribute ties are all driven by the declared seed, and the public
+# plan carries no colour, answer or text.
 DEVELOPMENT_SEED = 2026102912
 DEVELOPMENT_ENTITIES = (
     'Thalric', 'Ulmara', 'Veskin', 'Wendral', 'Yorveth', 'Zaleth',
@@ -97,14 +98,15 @@ DEVELOPMENT_ENTITIES = (
 DEVELOPMENT_ROOTS = tuple(f'v12_development_decision_{i:02d}' for i in range(8))
 DEVELOPMENT_WORLD_PREFIX = 'v12_development_'
 DEVELOPMENT_PALETTE = ('red', 'blue', 'green', 'gold')
+COMPOUND_FAMILIES = ('partner_colour', 'same_colour')
+RETIRED_V11_FAMILIES = ('explicit_entity_color_lookup', 'latest_recorded_color')
 
 
 def _seed_stream(seed, label, count):
     """Deterministic byte stream from a declared seed; no library RNG state."""
-    import hashlib as _hashlib
     blocks, produced, counter = [], 0, 0
     while produced < count:
-        block = _hashlib.sha256(f'{seed}|{label}|{counter}'.encode()).digest()
+        block = hashlib.sha256(f'{seed}|{label}|{counter}'.encode()).digest()
         blocks.append(block); produced += len(block); counter += 1
     return b''.join(blocks)[:count]
 
@@ -121,90 +123,107 @@ def _permute(seed, label, values):
     return items
 
 
-def v12_development_plan():
-    """Seed-driven structural plan; contains no colour assignment.
+def _render_compound(case, family):
+    if family == COMPOUND_FAMILIES[0]:
+        return (f"The recorded color of {case['anchor']} is {case['anchor_colour']}. "
+                f"{case['anchor']} is paired with {case['target']}. "
+                f"The recorded color of {case['target']} is {case['answer']}. "
+                f"No color is recorded for any other entity.")
+    return (f"{case['anchor']} has the same recorded color as {case['target']}. "
+            f"The recorded color of {case['target']} is {case['answer']}. "
+            f"No color is recorded for any other entity.")
 
-    Per group: which entity is asked in each pair slot, the order in which the
-    four pairs are presented, which side of which pair is the unknown query, the
-    two extra entities that back those unknown cases, and the palette rotation.
-    None of these fields is a label, so the plan can be published for admission.
-    """
+
+def _question_compound(case, family):
+    if family == COMPOUND_FAMILIES[0]:
+        return f"What is the recorded color of the partner of {case['anchor']}?"
+    return f"What is the recorded color of {case['anchor']}?"
+
+
+def _compound_answer(case, family, query):
+    if query != case['anchor']:
+        return 'unknown'
+    if case.get('unrecorded_target'):
+        return 'unknown'
+    return case['answer']
+
+
+def v12_development_plan():
+    """Seed-driven public plan; it carries names and structure, never a label."""
     plan = []
-    per_group = len(DEVELOPMENT_ENTITIES) // 2
+    per_group = len(DEVELOPMENT_ENTITIES)//2
     for group in (0, 1):
         pool = list(DEVELOPMENT_ENTITIES[group*per_group:(group+1)*per_group])
-        extras = _permute(DEVELOPMENT_SEED, f'extras|{group}', pool)[:2]
-        pair_names = [name for name in pool if name not in extras]
-        slots = _permute(DEVELOPMENT_SEED, f'slots|{group}', pair_names)
+        reshuffled = _permute(DEVELOPMENT_SEED, f'entities|{group}', pool)
+        anchors = reshuffled[:4]
+        targets = reshuffled[1:5]
+        unrecorded = reshuffled[5]
         order = _permute(DEVELOPMENT_SEED, f'order|{group}', [0, 1, 2, 3])
-        unknown_slots = _permute(DEVELOPMENT_SEED, f'unknown|{group}', [0, 1, 2, 3])[:2]
-        unknown_side = {slot: _seed_stream(DEVELOPMENT_SEED, f'side|{group}|{slot}', 1)[0] % 2
-                        for slot in unknown_slots}
-        extra_for_slot = dict(zip(unknown_slots, extras))
+        unknown_pairs = set(_permute(DEVELOPMENT_SEED, f'unknown|{group}', [0, 1, 2, 3])[:2])
         rotation = _seed_stream(DEVELOPMENT_SEED, f'rotation|{group}', 1)[0] % 4
-        plan.append({'group': group, 'extras': extras, 'slots': slots, 'order': order,
-                     'unknown_side': unknown_side, 'extra_for_slot': extra_for_slot,
+        plan.append({'group': group, 'family': COMPOUND_FAMILIES[group],
+                     'anchors': anchors, 'targets': targets, 'unrecorded': unrecorded,
+                     'order': order, 'unknown_pairs': sorted(unknown_pairs),
                      'rotation': rotation})
     return plan
 
 
 def v12_development_case_positions(plan):
-    """Public positional structure: slot and unknown flag per presented case."""
+    """Label-free positional structure: pair index and unknown flag per case."""
     positions = []
     for entry in plan:
-        for slot_position, slot in enumerate(entry['order']):
+        for slot_position, pair in enumerate(entry['order']):
             for side in (0, 1):
-                positions.append({'group': entry['group'], 'slot': slot,
-                                  'side': side,
-                                  'unknown': entry['unknown_side'].get(slot) == side})
+                positions.append({'group': entry['group'], 'pair': pair, 'side': side,
+                                  'unknown': pair in entry['unknown_pairs'] and side == 1})
     return positions
 
 
 def v12_development_worlds():
-    """Deterministic fresh development corpus; labels come from the sealed oracle."""
-    from .intrinsic_memory_worlds_v11 import FAMILIES, oracle, question, render
+    """Deterministic compound-rule corpus; answers come from the local oracle."""
     rows = []
     for entry in v12_development_plan():
         group = entry['group']
-        family = FAMILIES[group]
-        rotation = entry['rotation']
-        palette = (DEVELOPMENT_PALETTE[rotation:]
-                   + DEVELOPMENT_PALETTE[:rotation])
-        stream = _seed_stream(DEVELOPMENT_SEED, f'colours|{group}', 4*4+8)
+        family = entry['family']
+        palette = DEVELOPMENT_PALETTE[entry['rotation']:] + DEVELOPMENT_PALETTE[:entry['rotation']]
+        stream = _seed_stream(DEVELOPMENT_SEED, f'colours|{group}', 64)
         cursor = 0
-        for slot_position, slot in enumerate(entry['order']):
-            query = entry['slots'][slot]
-            root = DEVELOPMENT_ROOTS[group*4+slot]
-            # The two sides of a pair must carry different answers, so their new
-            # colours are drawn without replacement from the rotated palette.
+        for slot_position, pair in enumerate(entry['order']):
+            anchor = entry['anchors'][pair]
+            known_target = entry['targets'][pair]
             first = palette[stream[cursor] % 4]; cursor += 1
             second = [colour for colour in palette if colour != first][stream[cursor] % 3]
             cursor += 1
-            for side, new_colour in enumerate((first, second)):
-                missing = entry['unknown_side'].get(slot) == side
-                entity = entry['extra_for_slot'][slot] if missing else query
-                offset = (stream[cursor] % 3) + 1; cursor += 1
-                old_colour = palette[(palette.index(new_colour)+offset) % 4]
-                facts = ([{'entity': entity, 'color': old_colour, 'revision': 1},
-                          {'entity': entity, 'color': new_colour, 'revision': 2}]
-                         if family == FAMILIES[1]
-                         else [{'entity': entity, 'color': new_colour, 'revision': 1}])
+            answers = (first, second)
+            for side in (0, 1):
+                unknown = pair in entry['unknown_pairs'] and side == 1
+                target = entry['unrecorded'] if unknown else known_target
+                answer = answers[side]
+                anchor_colour = palette[(palette.index(answer) + 1 + stream[cursor] % 3) % 4]
+                cursor += 1
+                case = {'anchor': anchor, 'target': target, 'answer': answer,
+                        'anchor_colour': anchor_colour,
+                        'unrecorded_target': unknown}
                 index = group*8 + slot_position*2 + side
                 rows.append({
                     'world_id': f'{DEVELOPMENT_WORLD_PREFIX}{index:02d}',
-                    'family': root,
+                    'family': DEVELOPMENT_ROOTS[group*4+pair],
                     'criterion_group': group, 'rule_family': family,
-                    'facts': facts, 'query_entity': query,
-                    'text': render(facts, family), 'question': question(query, family),
-                    'answer': oracle(facts, query),
-                    'chronology': max(f['revision'] for f in facts),
+                    'composition': ('relation_plus_partner_attribute' if group == 0
+                                    else 'equality_relation_plus_anchor_attribute'),
+                    'facts': case, 'query_entity': anchor,
+                    'text': _render_compound(case, family),
+                    'question': _question_compound(case, family),
+                    'answer': _compound_answer(case, family, anchor),
+                    'chronology': 1,
                     'source_kind': 'scripted_complete_world_snapshot',
-                    'verification': 'structured_revision_oracle_not_generated_explanation'})
+                    'verification': 'structured_compound_oracle_not_generated_explanation'})
+            # the second side of a pair always asks the same entity and question
     return rows
 
 
 def validate_v12_development(rows):
-    """Structural validation of the fresh split; it never re-reads the answers."""
+    """Structural validation of the compound holdout; never re-reads answers."""
     if not isinstance(rows, list) or len(rows) != DEVELOPMENT_CASES:
         raise ValueError('fresh development split has the wrong case count')
     if len({r['world_id'] for r in rows}) != DEVELOPMENT_CASES:
@@ -218,14 +237,15 @@ def validate_v12_development(rows):
             raise ValueError('fresh development span is empty or unbounded')
         if row['family'] not in DEVELOPMENT_ROOTS:
             raise ValueError('fresh development decision root differs')
-        if not row['text'].startswith(('The recorded color', 'Earlier, the recorded color')):
-            raise ValueError('fresh development source text differs')
-        if row['answer'] not in ('red', 'blue', 'green', 'gold', 'unknown'):
+        if row['rule_family'] not in COMPOUND_FAMILIES:
+            raise ValueError('fresh development uses a retired rule family')
+        if row['answer'] not in DEVELOPMENT_PALETTE + ('unknown',):
             raise ValueError('fresh development answer is outside the declared palette')
-        if index and row['criterion_group'] == rows[index-1]['criterion_group']:
-            if (index - 1) % 2 == 0:
-                if row['question'] != rows[index-1]['question'] or row['answer'] == rows[index-1]['answer']:
-                    raise ValueError('fresh development counterfactual pair differs')
+        if index % 2 == 0:
+            sibling = rows[index+1]
+            if (sibling['question'] != row['question'] or sibling['answer'] == row['answer']
+                    or sibling['family'] != row['family']):
+                raise ValueError('fresh development counterfactual pair differs')
     for start in range(0, DEVELOPMENT_CASES, GROUP_SIZE):
         group = rows[start:start+GROUP_SIZE]
         if sum(r['answer'] == 'unknown' for r in group) != 2:
@@ -233,14 +253,17 @@ def validate_v12_development(rows):
         if len({r['family'] for r in group}) != 4:
             raise ValueError('fresh development group must contain four decision roots')
         if len({r['rule_family'] for r in group}) != 1:
-            raise ValueError('fresh development group must use one rule family')
-    # Independence: no entity, root, world id or source text from any v11 split.
+            raise ValueError('fresh development group must use one compound family')
+        if len({r['composition'] for r in group}) != 1:
+            raise ValueError('fresh development composition differs inside one group')
     from .intrinsic_memory_worlds_v11 import ENTITIES as V11_ENTITIES
     v11_entities = {name for names in V11_ENTITIES.values() for name in names}
     if set(DEVELOPMENT_ENTITIES) & v11_entities:
         raise ValueError('fresh development reuses a v11 entity')
     if {r['query_entity'] for r in rows} & v11_entities:
         raise ValueError('fresh development query reuses a v11 entity')
+    if {r['rule_family'] for r in rows} & set(RETIRED_V11_FAMILIES):
+        raise ValueError('fresh development reuses a v11 rule family')
     return True
 
 
@@ -250,7 +273,8 @@ def v12_development_public_identity():
     return {'split': 'development', 'role': 'fresh_v12_development',
             'cases': DEVELOPMENT_CASES, 'entities': list(DEVELOPMENT_ENTITIES),
             'decision_roots': list(DEVELOPMENT_ROOTS), 'seed': DEVELOPMENT_SEED,
-            'generator': 'seeded_structural_plan_v12',
+            'generator': 'seeded_compound_rule_holdout_v12',
+            'rule_families': list(COMPOUND_FAMILIES),
             'plan_sha256': identity_digest(v12_development_plan()),
             'label_content_included': False}
 
@@ -392,7 +416,40 @@ RELEASE_READ_BYTES_BOUND = 4 * 1024**2 + 64 * 1024
 # canonical source text, payload values, and the pointer re-read on each batch
 # validation). Two authority reads of up to 4 MiB plus payload/text headroom per
 # published world; the corpus reserves each of them before reading.
-RELEASE_DIRECT_READ_BOUND = 9 * 1024**2
+# Release direct reads scale with active sites. One committed `_current()` is two
+# authority reads (pointer plus the <=4 MiB manifest). Per published world:
+#   rebuild       : 1 `_current()` + release_pointer_previous + release_manifest_digest
+#                   = 2 `_current()` equivalents (4 authority reads)
+#   release read  : read + R x values + final validate = (2 + R) `_current()`
+#                   (R selected records, MAX_RECORDS = 2)
+#   stored forward: one snapshot validation plus one per active site = (S+1)
+# so the bound is (2 + (2 + R) + (S + 1)) * 2 authority reads * 4 MiB plus 16 MiB
+# of payload/source/restore headroom = (R + S + 5) * 8 MiB + 16 MiB. Budgeting the
+# declared two-record selection (R=2): S=2 -> 88 MiB, S=9 -> 144 MiB, S=36 -> 360 MiB.
+# Provider reserved, so this sizes the stage cap and is not re-reserved per event.
+RELEASE_AUTHORITY_READ_BYTES = 4 * 1024**2
+RELEASE_DIRECT_READ_HEADROOM = 16 * 1024**2
+
+
+RELEASE_SELECTED_RECORDS = 2      # MAX_RECORDS of the v12 selection budget
+
+
+def release_direct_read_bound(active_sites, records=RELEASE_SELECTED_RECORDS):
+    """Stage-level direct-read allowance for one world at ``active_sites`` ports."""
+    if type(active_sites) is not int or active_sites < 1:
+        raise ValueError('active site count required')
+    if type(records) is not int or not 1 <= records <= RELEASE_SELECTED_RECORDS:
+        raise ValueError('selected record count must be 1..2')
+    current_calls = (2) + (2 + records) + (active_sites + 1)
+    return current_calls * 2 * RELEASE_AUTHORITY_READ_BYTES + RELEASE_DIRECT_READ_HEADROOM
+
+
+RELEASE_DIRECT_READ_BOUND = release_direct_read_bound(2)
+LOAD_METADATA_READ_BYTES = 32 * 1024**2
+# One prepared split file read before its labels may be used at a gate.
+DATA_SPLIT_READ_BYTES = 4 * 1024**2
+# restart_request.json and the checkpoint manifest read during restart identity.
+LEDGER_METADATA_READ_BYTES = 64 * 1024
 
 # A durable read persists three descriptors (pending, dispatch reservation,
 # terminal). Up to four explicit caller resumes may follow, each persisting at
@@ -458,6 +515,8 @@ def plan(arm):
     """
     if arm not in ARMS: raise ValueError('undeclared density arm')
     checkpoint = CHECKPOINT_BYTES[arm]
+    sites = len(ARMS[arm])
+    direct_reads = release_direct_read_bound(sites)
 
     def span(tokenizer_passes, source_forwards, prompt_passes=0,
              backbone_forwards=0, backbone_tokens=0, extra_input_tokens=0):
@@ -486,17 +545,18 @@ def plan(arm):
         # One hashing pass over the source, one environment-closure pass, one
         # weight load and the capacity-guard receipt written after that worker.
         'load': stage(180, model_loads=1,
-                      artifact_read_bytes=(2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES),
+                      artifact_read_bytes=(2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES
+                                           + LOAD_METADATA_READ_BYTES),
                       writes=1),
         # The supervising parent owns distinct per-window stages so each capacity
         # guard has its own path and its own pre-reserved write, and the terminal
         # result never depends on a stage another receipt already consumed.
         'capacity_main': stage(15, writes=1),
         'capacity_restart': stage(15, writes=1),
-        'finalize_parent': stage(20, writes=2),
+        'finalize_parent': stage(20, writes=3),
         # The child writes its terminal result inside a declared stage, so no
         # receipt is ever written with an inactive stage.
-        'finalize_worker': stage(30, writes=2),
+        'finalize_worker': stage(30, writes=3),
         # 8 calibration worlds x 8 reserved answer tokens, extensions disabled.
         'baseline': stage(45, **span(0, 0, prompt_passes=16, backbone_forwards=64,
                                      backbone_tokens=256),
@@ -543,8 +603,8 @@ def plan(arm):
                          backwards=1, updates=1, model_loads=1,
                          artifact_read_bytes=(2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES
                                               + checkpoint + TEACHER_CACHE_BYTES
-                                              + RELEASE_READ_BYTES_BOUND
-                                              + RELEASE_DIRECT_READ_BOUND),
+                                              + RELEASE_READ_BYTES_BOUND + direct_reads
+                                              + LEDGER_METADATA_READ_BYTES),
                          restart_restores=2, retrievals=1,
                          writes=READ_WRITE_BOUND + 1),
     }
@@ -565,8 +625,7 @@ def plan(arm):
         result[f'fit_probes_{end:03d}'] = stage(
             900, **span(worlds*4, worlds*3, prompt_passes=20*worlds,
                         backbone_forwards=backbone, backbone_tokens=256),
-            artifact_read_bytes=worlds*(RELEASE_READ_BYTES_BOUND
-                                        + RELEASE_DIRECT_READ_BOUND),
+            artifact_read_bytes=worlds*(RELEASE_READ_BYTES_BOUND + direct_reads),
             generated_tokens=worlds*controls*tokens, retrievals=worlds,
             writes=worlds*(4 + READ_WRITE_BOUND) + PROBE_RECEIPTS
                    + (1 if end == PREFIXES[-1] else 0))

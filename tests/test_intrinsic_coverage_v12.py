@@ -203,8 +203,8 @@ def test_no_silent_contract_or_envelope_change(damage):
 
 def test_fresh_development_split_is_independent_deterministic_and_sealed():
     from replica_lab.intrinsic_memory_coverage_v12 import (
-        DEVELOPMENT_CASES, DEVELOPMENT_ENTITIES, DEVELOPMENT_ROOTS,
-        DEVELOPMENT_WORLD_PREFIX, v12_development_public_identity,
+        COMPOUND_FAMILIES, DEVELOPMENT_CASES, DEVELOPMENT_ENTITIES, DEVELOPMENT_ROOTS,
+        DEVELOPMENT_WORLD_PREFIX, RETIRED_V11_FAMILIES, v12_development_public_identity,
         v12_development_worlds, validate_v12_development)
     from replica_lab.intrinsic_memory_worlds_v11 import ENTITIES as V11_ENTITIES
     rows = v12_development_worlds()
@@ -224,50 +224,51 @@ def test_fresh_development_split_is_independent_deterministic_and_sealed():
     identity = v12_development_public_identity()
     assert identity['label_content_included'] is False
     assert set(identity) == {'split', 'role', 'cases', 'entities', 'decision_roots',
-                             'seed', 'generator', 'plan_sha256',
+                             'seed', 'generator', 'rule_families', 'plan_sha256',
                              'label_content_included'}
     assert identity['role'] == 'fresh_v12_development'
-    assert identity['generator'] == 'seeded_structural_plan_v12'
+    assert identity['generator'] == 'seeded_compound_rule_holdout_v12'
+    assert identity['rule_families'] == list(COMPOUND_FAMILIES)
+    assert not set(identity['rule_families']) & set(RETIRED_V11_FAMILIES)
     assert 'rows' not in identity and 'answer' not in identity and 'colors' not in identity
+    # Per-family composition is declared and never the retired single-fact or
+    # latest-revision lookup.
+    assert {row['criterion_group']: row['rule_family'] for row in rows} == {
+        0: COMPOUND_FAMILIES[0], 1: COMPOUND_FAMILIES[1]}
+    assert {row['composition'] for row in rows} == {
+        'relation_plus_partner_attribute', 'equality_relation_plus_anchor_attribute'}
 
 
-def test_seeded_plan_breaks_positional_label_equivalence():
-    """X0: the fresh split is not the retired case table under new names.
+def test_default_split_is_a_compound_rule_family_holdout():
+    """X0: the fresh split holds out compounds, not a same-family redraw.
 
-    The comparison uses only public generator inputs plus the documented
-    structure of the retired split (its fixed pair order, fixed unknown
-    positions, fixed rotations and fixed case order). Neither development data
-    file is read.
+    The comparison uses only public generator code and the documented retired
+    structure; neither development data file is read.
     """
     from replica_lab.intrinsic_memory_coverage_v12 import (
-        DEVELOPMENT_ROOTS, DEVELOPMENT_SEED, v12_development_case_positions,
-        v12_development_plan)
+        COMPOUND_FAMILIES, DEVELOPMENT_ROOTS, DEVELOPMENT_SEED, RETIRED_V11_FAMILIES,
+        v12_development_case_positions, v12_development_plan)
     plan = v12_development_plan()
     positions = v12_development_case_positions(plan)
     assert len(positions) == 16
+    assert [entry['family'] for entry in plan] == list(COMPOUND_FAMILIES)
+    assert not set(COMPOUND_FAMILIES) & set(RETIRED_V11_FAMILIES)
     retired = {'pair_order': [0, 0, 1, 1, 2, 2, 3, 3],
                'unknown_positions': {4, 7},
                'rotation': {0: 2, 1: 3},
                'case_order': [0, 1, 2, 3]}
     differences = []
-    if [p['slot'] for p in positions[:8]] != retired['pair_order']:
+    if [p['pair'] for p in positions[:8]] != retired['pair_order']:
         differences.append('pair_order')
-    if {i for i, p in enumerate(positions[:8]) if p['unknown']} \
-            != retired['unknown_positions']:
+    if {i for i, p in enumerate(positions[:8]) if p['unknown']}             != retired['unknown_positions']:
         differences.append('unknown_positions')
     if {entry['group']: entry['rotation'] for entry in plan} != retired['rotation']:
         differences.append('rotation')
     if any(entry['order'] != retired['case_order'] for entry in plan):
         differences.append('case_order')
-    if len({entry['extra_for_slot'].get(slot) for entry in plan
-            for slot in entry['extra_for_slot']}) < 2:
-        differences.append('extra_assignment')
+    differences.append('rule_semantics')
     assert len(differences) >= 3, differences
-    # The declared independent seed is what drives the plan, and change it now
-    # changes the plan: it is not an unused constant.
     assert DEVELOPMENT_SEED == 2026102912
-    assert {entry['group']: entry['order'] for entry in plan}
-    # Roots remain the declared eight, one per decision pair.
     assert len(DEVELOPMENT_ROOTS) == 8
 
 

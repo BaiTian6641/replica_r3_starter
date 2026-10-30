@@ -13,7 +13,7 @@ lifecycle X14/X0/X3 follow-ups and the final X3/X5-adjacent repairs):
 run by me against these bytes. Envelope: stage wall **6925 s** inside 7200 s
 (twenty-two declared stages, including the per-window capacity stages and the
 two terminal-receipt stages), 4029 prompt-tokenizer passes,
-**44,627,834,537** declared file-read bytes, **3128** declared writes, restart
+**55,347,492,521** declared file-read bytes, **3130** declared writes, restart
 150 s / 67 passes.
 
 **Final X3 — per-window capacity and terminal receipts.** Each supervision
@@ -111,15 +111,15 @@ failure. Size is pinned at 67 files / 450,061,586 bytes and re-derived from the
 bound receipt.
 
 Current packet SHA-256 is
-`24beaa07aa0544b4544c4cfb07b794e97a8411c153421663f89412140fe11ac1`; protocol
-SHA-256 `65f84ff5f43ec51fc42458189a722e87c7cef090bad525f685f5546693908619`;
+`3e11f0f5beb4c8dadd7f9d73f0ae14833271926d21e91cc6a001dad5d647878c`; protocol
+SHA-256 `68238c7819f3d8466c16c6a03584a998504410385890f0e6789a943811bb651c`;
 implementation receipt SHA-256
-`19b6696abeb5f49788e0ff6f27f775c60635bf9d6ad07a5d7a719aa859bdd6ae`;
+`44db25c47f944e603b4e04352f1669f31a08cd3802c9acffc66e46ddd4e7ab5a`;
 environment closure SHA-256
 `d521db9340e3638c481ede19a7ed670949ed9440167739b426b815276d6fbc68` (unchanged —
 it binds the environment, not this packet);
 development exposure receipt SHA-256
-`0bd5af7bf51dfb24c6273fd7ce6cb11a14856cbc21155e811ed480cd82b7bbe6`.
+`c2647133aa269a49513790c253d0a0b97d8233cbd326a0a44396931932ed2dba`.
 
 Run-status reconciliation. `preflight_verification.json` records the first
 57-test preflight (with `attempt_marker_created` absent from that revision),
@@ -135,7 +135,7 @@ detected X14. They are historical receipts for their own packet hashes and do
 focused suite and independent review for these bytes are still pending, and no
 authorization or launch exists.
 
-Ten earlier unlaunched preparations are preserved verbatim, unmodified and
+Thirteen earlier unlaunched preparations are preserved verbatim, unmodified and
 clearly non-canonical, each with a computed-hash status record:
 `preparation_draft01/` binds pre-repair bytes, `preparation_draft02/` carries the
 N1–N3 repairs made before the producer commit, and `preparation_draft03/` carries
@@ -181,7 +181,7 @@ authorization.
 
 The earlier packets remain as history: `48963bdc…` (pre-lifecycle plan, 6845 s,
 2049 writes) and `48910b59…` (lifecycle plan, 20 stages, 6905 s, 2055 writes).
-The current packet `24beaa07…` changes the plan again (22 stages, 6925 s, 3128
+The current packet `3e11f0f5…` changes the plan again (22 stages, 6925 s, 3128
 writes) and adds release-read charging, so it carries no coordinator gate result
 yet. Independent review and the seal remain outstanding, and no authorization
 receipt exists.
@@ -303,6 +303,7 @@ gate stay matched to v11. The hypothesis is about source representation only.
 | `reports/intrinsic_memory_native_v12/preparation_draft09/` | Preserved packet before the release-corpus direct-read accounting provider was wired and budgeted; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft10/` | Preserved packet made while producer cycle 6 and the consumer edits were uncommitted; all artifacts except `preparation.json` were byte-identical to its successor; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft11/` | Preserved packet before the structural stage write caps and the bounded read-resume reservation; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft13/` | Preserved stale-envelope packet (3128 writes / 44,627,834,537 read bytes) before the compound-rule and site-scaled accounting regeneration; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft12/` | Preserved structural-budget packet made before the confirmation regeneration; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/environment_closure_v12.json` | Executable dependency closure: resolved interpreter, module origins, native extensions, all `torch/lib` files, all wheel RECORDs and critical files, by actual hash |
 | `reports/intrinsic_memory_native_v12/development_exposure_v12.json` | Current exposure receipt: fresh split unopened, retired v11 split, reading incident recorded; historical receipt unedited |
@@ -388,8 +389,8 @@ including `capacity_main`, `capacity_restart`, `finalize_worker` and
 `finalize_parent`; 9778 forwards; 949 source
 feature forwards; 1078 canonical-source tokenizer passes; 4029 prompt tokenizer
 passes; 513 backwards; 513 updates (512 fitting + 1 fresh-process
-continuation); 7256 generated tokens; 179 retrievals; 3128 declared writes;
-**44,627,834,537** declared file-read bytes (one bounded staged-read
+continuation); 7256 generated tokens; 179 retrievals; 3130 declared writes;
+**55,347,492,521** declared file-read bytes (one bounded staged-read
 reservation per durable read plus the corpus' direct authority/source/payload
 reservations); 194 MiB artifacts (96 MiB envelope
 + 2 MiB teacher cache + 96 MiB checkpoint); 2 model loads.

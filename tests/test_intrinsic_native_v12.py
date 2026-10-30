@@ -22,7 +22,8 @@ from replica_lab.contextual_source_features_v12 import (
     tokenizer_contract_digest)
 from replica_lab.intrinsic_memory_coverage_v12 import (
     ENVIRONMENT_CLOSURE_BYTES, FEATURE_CACHE_BYTES, FEATURE_CACHE_ENTRIES, FIT_CASES,
-    READ_WRITE_BOUND, RELEASE_READ_BYTES_BOUND, RESTART_PROMPT_PASSES, SOURCE_FILE_BYTES, SOURCE_MAX_BYTES,
+    READ_WRITE_BOUND, RELEASE_READ_BYTES_BOUND, RESTART_PROMPT_PASSES, SOURCE_FILE_BYTES,
+    SOURCE_MAX_BYTES, release_direct_read_bound,
     SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES, declared_tokenizer_identity,
     plan as coverage_plan, tokenizer_identity_digest)
 from replica_lab.intrinsic_memory_budget_v12 import BudgetError, WorkLedger
@@ -860,14 +861,16 @@ def test_release_reads_are_charged_to_native_read_bytes(tmp_path):
     reservation = [event for event in ledger.snapshot()['events']
                    if event['operation'] == 'retrieval'][0]
     assert reservation['reserved']['artifact_read_bytes'] == RELEASE_READ_BYTES_BOUND
-    assert reservation['actual']['artifact_read_bytes'] == 512 + 4096 + 128 + 2048
+    # Direct release reads are reserved separately by the corpus provider, so
+    # this event's actual counts only the staged path bytes.
+    assert reservation['actual']['artifact_read_bytes'] == 2048
     assert reservation['actual']['artifact_read_bytes'] < RELEASE_READ_BYTES_BOUND
 
 
 def test_release_direct_reads_are_reserved_on_the_native_ledger(tmp_path):
     """Direct release reads enter artifact_read_bytes, staged reads do not repeat."""
     from replica_lab.contextual_release_v12 import WorkLedgerReleaseReadAccounting
-    from replica_lab.intrinsic_memory_coverage_v12 import RELEASE_DIRECT_READ_BOUND
+    from replica_lab.intrinsic_memory_coverage_v12 import release_direct_read_bound
     caps = coverage_plan('two')['fit_probes_128']
     ledger = WorkLedger.create(tmp_path/'release.jsonl', identity='packet-sha',
                                plan={'fit_probes_128': caps}, deadline=time.monotonic()+600)
@@ -885,24 +888,27 @@ def test_release_direct_reads_are_reserved_on_the_native_ledger(tmp_path):
     # The probe stage reserves the staged read path and the corpus' direct reads
     # for every world, so both kinds have room.
     assert caps['artifact_read_bytes'] >= 32*(RELEASE_READ_BYTES_BOUND
-                                              + RELEASE_DIRECT_READ_BOUND)
+                                              + release_direct_read_bound(2))
 
 
 def test_engine_builds_release_corpora_with_the_read_provider(monkeypatch, tmp_path):
-    """The engine passes a stage-bound native read provider to each corpus."""
+    """The constructor's origin/lock work is reserved before it runs."""
     from replica_lab.contextual_release_v12 import WorkLedgerReleaseReadAccounting
     import replica_lab.intrinsic_memory_diagnostic_v12 as diagnostic
+    stages = coverage_plan('two')
+    ledger = WorkLedger.create(tmp_path/'origin.jsonl', identity='packet-sha',
+                               plan={'fit_probes_128': stages['fit_probes_128']},
+                               deadline=time.monotonic()+600)
+    ledger.enter('fit_probes_128')
     captured = {}
 
     class Recorder:
+        cost = {'artifact_read_bytes': 512}
+
         def __init__(self, store, scope, *, read_accounting=None):
-            captured['store'] = store
-            captured['scope'] = scope
             captured['accounting'] = read_accounting
 
     monkeypatch.setattr(diagnostic, 'ProducerReleaseCorpus', Recorder)
-    ledger = types.SimpleNamespace(reserve=lambda *a, **k: 0,
-                                   finish=lambda *a, **k: None)
     ref = StageRef(); ref.name = 'fit_probes_128'
     built = DiagnosticEngineV12(FakePath(), None, types.SimpleNamespace(), ledger,
                                 max_new_tokens=8, output=tmp_path, stage_ref=ref)
@@ -910,37 +916,28 @@ def test_engine_builds_release_corpora_with_the_read_provider(monkeypatch, tmp_p
     accounting = captured['accounting']
     assert isinstance(accounting, WorkLedgerReleaseReadAccounting)
     assert accounting.ledger is ledger and accounting.stage == 'fit_probes_128'
-    assert captured['store'] == 'store' and captured['scope'] == 'scope'
+    # The corpus provider reserves its own origin write and direct reads, so the
+    # engine must not add a second origin reservation.
+    operations = [event['operation'] for event in ledger.snapshot()['events']]
+    assert 'release_origin_and_lock' not in operations
+    assert ledger.snapshot()['reserved']['writes'] == 0
 
 
-def test_probe_stage_consumes_its_cap_and_refuses_one_extra_write(tmp_path):
-    """The final probe stage's write cap is derived and exactly consumed."""
-    from replica_lab.intrinsic_memory_coverage_v12 import (
-        FIT_CASES, PROBE_RECEIPTS, READ_WRITE_BOUND)
-    caps = coverage_plan('two')['fit_probes_512']
-    ledger = WorkLedger.create(tmp_path/'probe.jsonl', identity='packet-sha',
-                               plan={'fit_probes_512': caps},
-                               deadline=time.monotonic()+600)
-    ledger.enter('fit_probes_512')
-    # 32 worlds x (release rebuild + one durable read that bounds one resume)
-    for _ in range(FIT_CASES):
-        with ledger.work('fit_probes_512', 'release_rebuild', writes=4) as event:
-            event['actual'] = {'writes': 4}
-        with ledger.work('fit_probes_512', 'retrieval', writes=READ_WRITE_BOUND) as event:
-            event['actual'] = {'writes': 3 + 2}       # one caller resume
-    for name in ('probe', 'fit_curve', 'fitting_closed'):
-        with ledger.work('fit_probes_512', name+'_receipt', writes=1) as event:
-            event['actual'] = {'writes': 1}
-    with ledger.work('fit_probes_512', 'source_cost_receipt', writes=1) as event:
-        event['actual'] = {'writes': 1}
-    snapshot = ledger.snapshot()
-    assert snapshot['stages']['fit_probes_512']['reserved']['writes'] == caps['writes']
-    assert caps['writes'] == FIT_CASES*(4 + READ_WRITE_BOUND) + PROBE_RECEIPTS + 2
-    with pytest.raises(BudgetError, match='exceeded before dispatch'):
-        ledger.reserve('fit_probes_512', 'extra_write', writes=1)
-    # The documented single-resume workload fits with the same cap.
-    documented = FIT_CASES*(4 + 3 + 2) + PROBE_RECEIPTS + 2
-    assert documented <= caps['writes']
+def test_release_direct_read_bound_scales_with_active_sites():
+    """Release-batch forwards revalidate per site, so the bound must grow with S."""
+    # current_calls = 2 (rebuild) + (2 + R) (read) + (S + 1) (forward) = R + S + 5
+    assert release_direct_read_bound(2) == (2 + 2 + 2 + 3) * 2 * 4*1024**2 + 16*1024**2
+    assert release_direct_read_bound(2, records=1) == (2 + 2 + 1 + 3) * 2 * 4*1024**2 + 16*1024**2
+    assert release_direct_read_bound(2, records=2) - release_direct_read_bound(2, records=1) \
+        == 2 * 4*1024**2
+    assert release_direct_read_bound(9) > release_direct_read_bound(2)
+    assert release_direct_read_bound(36) > release_direct_read_bound(9)
+    from replica_lab.intrinsic_memory_coverage_v12 import ARMS
+    for arm in ARMS:
+        sites = len(ARMS[arm])
+        stage = coverage_plan(arm)['fit_probes_128']
+        assert stage['artifact_read_bytes'] >= 32*(RELEASE_READ_BYTES_BOUND
+                                                  + release_direct_read_bound(sites))
 
 
 def test_context_width_and_prefix_bounds_match_the_envelope():

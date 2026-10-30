@@ -34,7 +34,8 @@ from .contextual_source_features_v12 import (
     SOURCE_FORWARD, SOURCE_TOKENIZE, SourceWorkRequest)
 from .intrinsic_memory_budget_v12 import atomic
 from .intrinsic_memory_coverage_v12 import (
-    READ_WRITE_BOUND, RELEASE_READ_BYTES_BOUND, SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS)
+    READ_WRITE_BOUND, RELEASE_DIRECT_READ_BOUND, RELEASE_READ_BYTES_BOUND,
+    SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS)
 
 FORMAT = 'replica.intrinsic_memory.diagnostic.v12'
 CONTROLS = ('contextual', 'exact_text', 'wrong', 'shuffled', 'zero', 'absent')
@@ -247,16 +248,14 @@ class DiagnosticEngineV12:
             return batch
 
     def observed_read_bytes(self):
-        """Read bytes the path and any release corpus have actually charged."""
+        """Staged read bytes charged by the path; direct release reads are separate.
+
+        Direct release authority/source/payload reads are reserved and completed
+        by the corpus provider, so counting them here as well would double-count
+        them against this event's own bound.
+        """
         cost = self.path.cost
-        total = cost.get('read_file_bytes', 0) + cost.get('ticket_descriptor_read_bytes', 0)
-        corpus = getattr(self.path, 'release_corpus', None)
-        if corpus is not None:
-            source = corpus.cost
-            total += (source.get('source_read_bytes', 0)
-                      + source.get('authority_read_bytes', 0)
-                      + source.get('read_bytes', 0))
-        return total
+        return cost.get('read_file_bytes', 0) + cost.get('ticket_descriptor_read_bytes', 0)
 
     def new_release_corpus(self, store, scope):
         """Corpus bound to the native read ledger, charged before each direct read.
@@ -266,6 +265,9 @@ class DiagnosticEngineV12:
         happen and completed with the observed bytes. Staged cold/release payload
         reads stay on the path retrieval accounting and are not double-reserved.
         """
+        # The provider reserves every direct read and the origin write itself
+        # (before the I/O), so no pre-reservation is made here; doing both would
+        # double-count the origin. The current stage must therefore be active.
         return ProducerReleaseCorpus(
             store, scope,
             read_accounting=WorkLedgerReleaseReadAccounting(self.ledger, self.stage))
@@ -454,7 +456,7 @@ class DiagnosticEngineV12:
         durable = []
         for row, scope, store in zip(rows, scopes, stores):
             corpus = self.new_release_corpus(store, scope)
-            with self.measured('producer_release_rebuild', writes=4) as event:
+            with self.measured('producer_release_rebuild', writes=3) as event:
                 corpus.rebuild(self.path); event['corpus_cost'] = dict(corpus.cost)
             self.path.release_corpus = corpus
             durable.append(self.read(store, scope, row['question']))
