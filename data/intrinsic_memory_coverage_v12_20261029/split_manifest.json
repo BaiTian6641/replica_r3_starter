@@ -3,30 +3,34 @@
     "calibration": {
       "labels": "already_exposed_in_v11",
       "reuse": "matched_comparison_only",
+      "role": "reused_v11_calibration",
       "status": "already_exposed_in_v11"
     },
     "development": {
-      "development_file_sha256": "5ad4db718cadd32498de7629d6697b90529a95fb262b113c3b2d126d0d8e9a8f",
+      "development_file_sha256": "606fecf9e39da2941c21c5126f3b6aebc4dbbc675d7888cb1e634dc599e5de3a",
       "exposure_receipt": {
-        "path": "reports/intrinsic_memory_coverage_v11/development_exposure.json",
-        "sha256": "b073a790021e18e3420046230b67e40f10a132822a0cb5edd91d4ebd531d78a7"
+        "path": "reports/intrinsic_memory_native_v12/development_exposure_v12.json",
+        "sha256": "79e8b3abf656cd41a8c5681ed45a0ef7be9b48fc610831e905c06c16527ed5d3"
       },
+      "fresh_split": true,
       "labels": "unopened_at_preparation",
-      "opened_in_v11": false,
-      "preparation_parses_development_labels": false,
-      "reuse": "matched_comparison_only",
-      "status": "open_only_after_frozen_final_fit_gate"
+      "preparation_generated_labels_from_oracle": true,
+      "preparation_parsed_development_labels": false,
+      "retired_v11_development": true,
+      "role": "fresh_v12_development",
+      "status": "sealed_until_final_fit_gate"
     },
     "fit": {
       "group_selection": "fixed_predeclared_groups_only",
       "labels": "already_exposed_in_v11",
       "reuse": "matched_comparison_only",
+      "role": "reused_v11_fit",
       "status": "already_exposed_in_v11_no_tuning_escape"
     }
   },
   "format": "replica.intrinsic_memory.coverage_split_manifest.v12",
   "generator_policy": "predeclared_source_order_revision_oracle_no_generated_explanations",
-  "reuse_policy": "matched_v11_rows_via_new_v12_manifest_development_labels_unread",
+  "reuse_policy": "exposed_v11_calibration_and_fit_matched_fresh_v12_development",
   "splits": {
     "calibration": {
       "file": {
@@ -56,47 +60,49 @@
         ],
         "seed": 2026102911,
         "split": "calibration"
-      }
+      },
+      "role": "reused_v11_calibration"
     },
     "development": {
       "file": {
-        "path": "data/intrinsic_memory_coverage_v11_20261029/development.json",
-        "sha256": "5ad4db718cadd32498de7629d6697b90529a95fb262b113c3b2d126d0d8e9a8f"
+        "path": "data/intrinsic_memory_coverage_v12_20261029/development.json",
+        "sha256": "606fecf9e39da2941c21c5126f3b6aebc4dbbc675d7888cb1e634dc599e5de3a"
       },
+      "generated_by": "intrinsic_memory_coverage_v12.v12_development_worlds",
       "label_exposure": "unopened_at_preparation",
       "public_identity": {
         "cases": 16,
         "decision_roots": [
-          "v11_development_decision_00",
-          "v11_development_decision_01",
-          "v11_development_decision_02",
-          "v11_development_decision_03",
-          "v11_development_decision_04",
-          "v11_development_decision_05",
-          "v11_development_decision_06",
-          "v11_development_decision_07"
+          "v12_development_decision_00",
+          "v12_development_decision_01",
+          "v12_development_decision_02",
+          "v12_development_decision_03",
+          "v12_development_decision_04",
+          "v12_development_decision_05",
+          "v12_development_decision_06",
+          "v12_development_decision_07"
         ],
         "entities": [
-          "Amrel",
-          "Bovin",
-          "Ceril",
-          "Dovra",
-          "Emret",
-          "Ferin",
-          "Govel",
-          "Hirra",
-          "Imrel",
-          "Jovin",
-          "Keril",
-          "Lovra"
+          "Thalric",
+          "Ulmara",
+          "Veskin",
+          "Wendral",
+          "Yorveth",
+          "Zaleth",
+          "Brannoc",
+          "Celdra",
+          "Draveth",
+          "Feldric",
+          "Gorveth",
+          "Halvra"
         ],
-        "rule_families": [
-          "explicit_entity_color_lookup",
-          "latest_recorded_color"
-        ],
-        "seed": 2026102911,
+        "label_content_included": false,
+        "role": "fresh_v12_development",
+        "seed": 2026102912,
+        "source_text_sha256": null,
         "split": "development"
-      }
+      },
+      "role": "fresh_v12_development"
     },
     "fit": {
       "file": {
@@ -152,7 +158,8 @@
         ],
         "seed": 2026102911,
         "split": "fit"
-      }
+      },
+      "role": "reused_v11_fit"
     }
   }
 }

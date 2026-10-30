@@ -3,6 +3,7 @@
 These tests use synthetic plans only. They do not load weights, start the
 native engine or touch any sealed v11 receipt.
 """
+import hashlib
 import json
 import time
 
@@ -104,7 +105,8 @@ def test_stage_with_uncertain_work_cannot_be_closed_without_recovery(tmp_path):
     log.reserve('a', 'source_forward', forwards=1)
     with pytest.raises(BudgetError, match='uncertain work'): log.leave('a', status='failed')
     recovered = log.recover_interrupted()
-    assert recovered == {'charged_events': [0], 'interrupted_stages': ['a'], 'refunded': False}
+    assert recovered == {'charged_events': [0], 'interrupted_stages': ['a'],
+                         'refunded': False, 'torn_tail': None}
     snapshot = log.snapshot()
     assert snapshot['events'][0]['status'] == 'failed'
     assert snapshot['stages']['a']['status'] == 'interrupted'
@@ -172,17 +174,68 @@ def test_tampered_journal_is_refused(tmp_path):
         WorkLedger(log2.path, identity='packet-sha').snapshot()
 
 
-def test_torn_tail_is_fail_closed(tmp_path):
+def _torn_ledger(tmp_path):
+    """A journal whose last append was interrupted mid-line."""
     log = ledger(tmp_path)
     log.enter('a')
     log.reserve('a', 'source_tokenize', source_encodes=1)
     payload = log.path.read_bytes()
-    log.path.write_bytes(payload + b'{"t":"reserve","id":1,')
-    reopened = WorkLedger(log.path, identity='packet-sha')
-    snapshot = reopened.snapshot()
-    assert snapshot['journal']['torn_tail'] is True
+    fragment = b'{"t":"reserve","id":1,'
+    log.path.write_bytes(payload + fragment)
+    return WorkLedger(log.path, identity='packet-sha'), payload, fragment
+
+
+def test_mutations_are_refused_after_a_torn_tail(tmp_path):
+    reopened, _, _ = _torn_ledger(tmp_path)
+    with pytest.raises(BudgetError, match='torn journal tail'):
+        reopened.enter('b')
+    with pytest.raises(BudgetError, match='torn journal tail'):
+        reopened.reserve('a', 'source_forward', forwards=1)
+    with pytest.raises(BudgetError, match='torn journal tail'):
+        reopened.finish(0)
+    with pytest.raises(BudgetError, match='torn journal tail'):
+        reopened.leave('a')
+    # The journal is byte-for-byte unchanged: nothing was fused onto the tail.
+    assert reopened.path.read_bytes().endswith(b'{"t":"reserve","id":1,')
+
+
+def test_non_operator_reads_are_refused_after_a_torn_tail(tmp_path):
+    reopened, _, _ = _torn_ledger(tmp_path)
+    with pytest.raises(BudgetError, match='torn journal tail'):
+        reopened.snapshot()
+    with pytest.raises(BudgetError, match='torn journal tail'):
+        reopened.snapshot(cached=True)
+    with pytest.raises(BudgetError, match='torn journal tail'):
+        reopened.deadline_state()
+    with pytest.raises(BudgetError, match='torn journal tail'):
+        audit_io(reopened)
+
+
+def test_operator_recovery_truncates_and_records_the_torn_tail(tmp_path):
+    reopened, complete, fragment = _torn_ledger(tmp_path)
     with pytest.raises(BudgetError, match='torn journal tail'):
         reopened.recover_interrupted()
+    recovered = reopened.recover_interrupted(accept_torn_tail=True)
+    assert recovered['refunded'] is False
+    assert recovered['torn_tail'] == {'bytes': len(fragment),
+                                       'sha256': hashlib.sha256(fragment).hexdigest()}
+    payload = reopened.path.read_bytes()
+    # The partial line is gone, the complete prefix is untouched and one torn
+    # record plus one recovery record were appended.
+    assert not payload.endswith(b'{"t":"reserve","id":1,')
+    assert payload.startswith(complete)
+    snapshot = reopened.snapshot()
+    assert snapshot['journal']['torn_tail'] is False
+    assert snapshot['torn_records'] == [recovered['torn_tail']]
+    assert snapshot['reserved']['source_encodes'] == 1        # still charged
+    assert snapshot['events'][0]['status'] == 'failed'
+    assert snapshot['stages']['a']['status'] == 'interrupted'
+    assert audit_io(reopened)['torn_tail_records'] == 1
+    # The journal is healthy: mutations work again and a second stage can run.
+    reopened.enter('b')
+    token = reopened.reserve('b', 'source_forward', forwards=1)
+    reopened.finish(token, actual={'forwards': 1})
+    assert reopened.snapshot()['reserved']['forwards'] == 1
 
 
 def test_cached_state_cannot_hide_another_process_append(tmp_path):

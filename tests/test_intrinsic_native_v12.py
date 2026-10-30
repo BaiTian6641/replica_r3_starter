@@ -8,6 +8,7 @@ declaration and the producer's own contract.
 import hashlib
 import json
 import threading
+import time
 import types
 from contextlib import contextmanager
 
@@ -20,9 +21,10 @@ from replica_lab.contextual_source_features_v12 import (
     SourceWorkAccounting as SourceWorkAccountingProtocol, SourceWorkRequest,
     tokenizer_contract_digest)
 from replica_lab.intrinsic_memory_coverage_v12 import (
-    FEATURE_CACHE_BYTES, FEATURE_CACHE_ENTRIES, FIT_CASES, RESTART_PROMPT_PASSES,
-    SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES,
-    declared_tokenizer_identity, plan as coverage_plan, tokenizer_identity_digest)
+    ENVIRONMENT_CLOSURE_BYTES, FEATURE_CACHE_BYTES, FEATURE_CACHE_ENTRIES, FIT_CASES,
+    RESTART_PROMPT_PASSES, SOURCE_FILE_BYTES, SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS,
+    TOKENIZER_IDENTITY_FILES, declared_tokenizer_identity, plan as coverage_plan,
+    tokenizer_identity_digest)
 from replica_lab.intrinsic_memory_budget_v12 import BudgetError, WorkLedger
 from replica_lab.intrinsic_memory_diagnostic_v12 import (
     DiagnosticEngineV12, SourceWorkAccounting, StageRef, right_padded_prefix)
@@ -133,6 +135,8 @@ class FakePath:
         self.reader = FakeReader(self.log)
         self.cost = {'snapshot_copies': 0, 'snapshot_bytes': 0}
         self.release_corpus = None
+        self.feature_provider = types.SimpleNamespace(cost={'requests': 0, 'forwards': 0,
+                                                            'cache_hits': 0})
         self.adapter = types.SimpleNamespace(
             forward_text=self._forward_text,
             base=types.SimpleNamespace(parameters=lambda: iter([torch.zeros(1)])))
@@ -492,6 +496,166 @@ def test_snapshot_reads_under_a_shared_lock(tmp_path):
     assert finished.wait(5)
     thread.join(timeout=5)
     assert not thread.is_alive()
+
+
+def test_fit_stage_receipts_and_source_cost_consume_exactly_the_write_cap(tmp_path):
+    """X3: every receipt write is reserved first, and the cap is exactly consumed."""
+    caps = coverage_plan('two')['fit_128']
+    ledger = WorkLedger.create(tmp_path/'fit.jsonl', identity='packet-sha',
+                               plan={'fit_128': caps}, deadline=time.monotonic()+600)
+    ledger.enter('fit_128')
+    path = FakePath(); ref = StageRef(); ref.name = 'fit_128'
+    built = DiagnosticEngineV12(path, None, types.SimpleNamespace(), ledger,
+                                max_new_tokens=8, output=tmp_path, stage_ref=ref)
+    for index in range(128):
+        built.write_receipt('fit', {'updates': index, 'planned_updates': 512})
+    built.write_source_costs('fit_128')
+    reserved = ledger.snapshot()['stages']['fit_128']['reserved']
+    assert reserved['writes'] == 129 == caps['writes']      # 128 receipts + 1 source cost
+    with pytest.raises(BudgetError, match='exceeded before dispatch'):
+        built.write_receipt('fit', {'updates': 129})
+
+
+def test_restart_stage_reservations_fit_the_declared_caps(tmp_path):
+    """X3 whole-stage consumption for the stage the review found under-reserved."""
+    caps = coverage_plan('two')['restart']
+    ledger = WorkLedger.create(tmp_path/'restart.jsonl', identity='packet-sha',
+                               plan={'restart': caps}, deadline=time.monotonic()+600)
+    ledger.enter('restart')
+    batch = types.SimpleNamespace(read_costs={'cold_wait_ns': 0})
+    path = ReadPath([batch]); ref = StageRef(); ref.name = 'restart'
+    backend = types.SimpleNamespace(encode=lambda content: [1, 2, 3],
+                                    answer_ids=lambda text: [1], decode=lambda ids: 'x')
+    built = DiagnosticEngineV12(path, backend, types.SimpleNamespace(), ledger,
+                                max_new_tokens=8, output=tmp_path, stage_ref=ref)
+    checkpoint = caps['artifact_bytes']
+    teacher = coverage_plan('two')['teacher']['artifact_bytes']
+    with ledger.work('restart', 'official_bf16_model_load', model_loads=1,
+                     artifact_read_bytes=SOURCE_FILE_BYTES) as event:
+        event['actual'] = {'model_loads': 1, 'artifact_read_bytes': SOURCE_FILE_BYTES}
+    with ledger.work('restart', 'child_source_revalidation',
+                     artifact_read_bytes=SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES) as event:
+        event['actual'] = {'artifact_read_bytes':
+                           SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES}
+    for operation, restore_bytes in (('extension_optimizer_restore', checkpoint),
+                                     ('teacher_cache_restore', teacher)):
+        with ledger.work('restart', operation, restart_restores=1,
+                         artifact_read_bytes=restore_bytes) as event:
+            event['actual'] = {'artifact_read_bytes': restore_bytes}
+    row = {'text': 'badge red', 'question': 'color', 'answer': 'red'}
+    for _ in range(RESTART_PROMPT_PASSES):
+        built.tokens(row)
+    built.read(None, 'scope', 'question')
+    built.write_receipt('restart_result', {'ok': True})
+    built.write_source_costs('restart')
+    reserved = ledger.snapshot()['stages']['restart']['reserved']
+    assert all(reserved[key] <= caps[key] for key in reserved)
+    assert reserved['model_loads'] == 1 == caps['model_loads']
+    assert reserved['restart_restores'] == 2 == caps['restart_restores']
+    assert reserved['prompt_tokenizer_calls'] == 67
+    assert reserved['writes'] == 5          # read 3 + result + source cost
+    assert reserved['artifact_read_bytes'] <= caps['artifact_read_bytes']
+
+
+def test_admission_reserves_source_and_closure_hashing(tmp_path):
+    """X3: the preflight hash passes are charged before they happen."""
+    caps = coverage_plan('two')['admission']
+    ledger = WorkLedger.create(tmp_path/'admission.jsonl', identity='packet-sha',
+                               plan={'admission': caps}, deadline=time.monotonic()+600)
+    ledger.enter('admission')
+    with ledger.work('admission', 'bounded_audit_and_store_envelope',
+                     artifact_bytes=caps['artifact_bytes'], writes=1):
+        pass
+    amount = SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES
+    with ledger.work('admission', 'environment_source_code_data_preflight',
+                     artifact_read_bytes=amount) as event:
+        event['actual'] = {'artifact_read_bytes': amount}
+    reserved = ledger.snapshot()['stages']['admission']['reserved']
+    assert reserved['artifact_read_bytes'] == amount <= caps['artifact_read_bytes']
+    assert reserved['artifact_bytes'] == caps['artifact_bytes']
+    assert reserved['writes'] == 1
+    # One more byte of hashing would exceed the declared envelope before dispatch.
+    with pytest.raises(BudgetError, match='exceeded before dispatch'):
+        ledger.reserve('admission', 'extra_hash', artifact_read_bytes=1)
+
+
+def test_attempt_marker_is_durable_append_only_and_survives_output_deletion(tmp_path):
+    """X9: attempt consumption no longer depends on a deletable output directory."""
+    from replica_lab.intrinsic_memory_execution_v12 import (
+        attempt_consumed, read_attempt_marker, record_attempt)
+    marker = tmp_path/'runs'/'attempts.jsonl'
+    output = tmp_path/'reports'/'attempt01'
+    output.mkdir(parents=True)
+    record = record_attempt(marker, packet_sha256='a'*64, protocol_sha256='b'*64,
+                           arm='two', output_root='reports/attempt01',
+                           authorization_sha256='c'*64)
+    assert read_attempt_marker(marker) == [record]
+    with pytest.raises(ValueError, match='already consumed for this packet'):
+        record_attempt(marker, packet_sha256='a'*64, protocol_sha256='b'*64, arm='two',
+                       output_root='reports/other', authorization_sha256='c'*64)
+    with pytest.raises(ValueError, match='already consumed for this output root'):
+        record_attempt(marker, packet_sha256='d'*64, protocol_sha256='b'*64, arm='two',
+                       output_root='reports/attempt01', authorization_sha256='c'*64)
+    output.rmdir()                       # deleting the output tree restores nothing
+    assert attempt_consumed(marker, packet_sha256='a'*64) is True
+    assert attempt_consumed(marker, output_root='reports/attempt01') is True
+    assert marker.read_bytes().count(b'\n') == 1     # append-only, one record
+    marker.write_bytes(marker.read_bytes() + b'{"format":"replica')
+    with pytest.raises(ValueError, match='torn attempt marker'):
+        read_attempt_marker(marker)
+
+
+def test_environment_closure_detects_substitution_and_added_libraries(tmp_path):
+    """X9: shared libraries, wheels and the interpreter are bound by actual hashes."""
+    from replica_lab.intrinsic_memory_execution_v12 import (
+        ENVIRONMENT_CLOSURE_FORMAT, verify_environment_closure)
+    prefix = tmp_path/'env'
+    (prefix/'bin').mkdir(parents=True)
+    site = prefix/'lib/python3.12/site-packages'
+    libdir = site/'torch'/'lib'
+    libdir.mkdir(parents=True)
+    interp = prefix/'bin/python3.12'; interp.write_bytes(b'interpreter')
+    origin = site/'torch/__init__.py'; origin.write_bytes(b'init')
+    ext = site/'torch/_C.so'; ext.write_bytes(b'ext')
+    lib = libdir/'libtorch.dylib'; lib.write_bytes(b'lib')
+    record = site/'x-1.dist-info/RECORD'
+    record.parent.mkdir(); record.write_bytes(b'record')
+    crit = prefix/'crit.py'; crit.write_bytes(b'crit')
+    digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+    def entry(path, relative):
+        return {'path_relative': relative, 'sha256': digest(path),
+                'bytes': path.stat().st_size}
+    closure = {
+        'format': ENVIRONMENT_CLOSURE_FORMAT, 'prefix': str(prefix.resolve()),
+        'interpreter': {'path': str(interp), 'path_relative': 'bin/python3.12',
+                        'resolved_path': str(interp),
+                        'sha256': digest(interp), 'bytes': interp.stat().st_size},
+        'module_origins': {'torch': entry(origin,
+            'lib/python3.12/site-packages/torch/__init__.py')},
+        'native_extensions': {'torch._C': entry(
+            ext, 'lib/python3.12/site-packages/torch/_C.so')},
+        'shared_library_root': 'lib/python3.12/site-packages/torch/lib',
+        'shared_libraries': {'lib/python3.12/site-packages/torch/lib/libtorch.dylib':
+                             {'sha256': digest(lib), 'bytes': lib.stat().st_size}},
+        'site_packages': 'lib/python3.12/site-packages',
+        'wheel_records': {'lib/python3.12/site-packages/x-1.dist-info/RECORD':
+                          {'sha256': digest(record), 'bytes': record.stat().st_size}},
+        'critical_files': {'crit.py': digest(crit)},
+    }
+    receipt = verify_environment_closure(closure, prefix=prefix, interpreter=interp)
+    assert receipt['files_verified'] == 6
+    assert receipt['bytes_verified'] == sum(
+        (interp, origin, ext, lib, record, crit)[i].stat().st_size for i in range(6))
+    lib.write_bytes(b'tampered')
+    with pytest.raises(ValueError, match='content differs'):
+        verify_environment_closure(closure, prefix=prefix, interpreter=interp)
+    lib.write_bytes(b'lib')
+    (libdir/'added.dylib').write_bytes(b'added')
+    with pytest.raises(ValueError, match='shared library set differs'):
+        verify_environment_closure(closure, prefix=prefix, interpreter=interp)
+    (libdir/'added.dylib').unlink()
+    with pytest.raises(ValueError, match='interpreter differs'):
+        verify_environment_closure(closure, prefix=prefix, interpreter=crit)
 
 
 def test_context_width_and_prefix_bounds_match_the_envelope():

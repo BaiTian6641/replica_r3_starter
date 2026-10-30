@@ -16,23 +16,33 @@ Three independent things are checked before a model may be loaded:
    parameter digest) and the complete local import closure.
 """
 from copy import deepcopy
+import fcntl
 import json
+import os
 from pathlib import Path
+import sys
 import time
 
 from .execution_manifest import build_execution_manifest
 from .intrinsic_memory_budget_v12 import sha_json, validate_plan
 from .intrinsic_memory_coverage_v11 import validate_protocol as validate_previous_protocol
 from .intrinsic_memory_coverage_v12 import (
-    ARMS, AUTHORIZATION, DIFFERENCES_FROM_V11, GATED_ARMS, OUTER_WALL_SECONDS,
+    ARMS, AUTHORIZATION, DIFFERENCES_FROM_V11, ENVIRONMENT_CLOSURE_BYTES,
+    ENVIRONMENT_CLOSURE_FILES, GATED_ARMS, OUTER_WALL_SECONDS,
     PACKET, SOURCE_FEATURE_BINDING_KEYS, SOURCE_FILE_BYTES, TEACHER, UNCHANGED_FROM_V11,
-    declared_tokenizer_identity, plan, tokenizer_identity_digest, totals,
+    declared_tokenizer_identity, plan, public_split_metadata,
+    tokenizer_identity_digest, totals, v12_development_public_identity,
     validate_protocol)
 from .intrinsic_memory_execution_v5 import (
     contained, hash_file, bound_json, local_closure)
 
 MANIFEST_FORMAT = 'replica.intrinsic_memory.coverage_split_manifest.v12'
 EXPOSURE_FORMAT = 'replica.intrinsic_memory.development_exposure.v12'
+ENVIRONMENT_CLOSURE_FORMAT = 'replica.intrinsic_memory.native_environment_closure.v12'
+ATTEMPT_MARKER_FORMAT = 'replica.intrinsic_memory.native_attempt_marker.v12'
+REUSE_POLICY = 'exposed_v11_calibration_and_fit_matched_fresh_v12_development'
+SPLIT_ROLES = {'calibration': 'reused_v11_calibration', 'fit': 'reused_v11_fit',
+               'development': 'fresh_v12_development'}
 # Fields that must remain identical to the completed v11 comparison. A silent
 # change to any of them would make the two-site comparison uninterpretable.
 SHARED_FIELDS = (
@@ -102,7 +112,14 @@ def validate_predecessor(root, protocol):
 
 
 def validate_reused_data(root, protocol):
-    """Same rows, new manifest, explicit exposure contract, no label parsing."""
+    """Matched v11 rows for calibration/fit, a fresh role-bound development split.
+
+    Calibration and fitting keep the exposed v11 bytes so the comparison stays
+    matched. Development is new for this successor: the v11 development split is
+    retired because the re-review scout read it, and that fact is recorded in the
+    current exposure receipt without editing the historical one. Only hashes are
+    computed here; no development label is parsed at admission.
+    """
     previous = bound_json(root, protocol['experiment_variant']['predecessor'])
     manifest = bound_json(root, protocol['data_manifest'])
     exposure = bound_json(root, protocol['prior_development_exposure'])
@@ -110,45 +127,62 @@ def validate_reused_data(root, protocol):
             or set(manifest.get('splits', {})) != {'calibration', 'fit', 'development'}
             or manifest.get('generator_policy')
             != 'predeclared_source_order_revision_oracle_no_generated_explanations'
-            or manifest.get('reuse_policy')
-            != 'matched_v11_rows_via_new_v12_manifest_development_labels_unread'
+            or manifest.get('reuse_policy') != REUSE_POLICY
             or manifest.get('exposure_contract') != protocol['exposure_contract']):
         raise ValueError('prepared v12 split manifest differs')
-    for split in ('calibration', 'fit', 'development'):
+    for split in ('calibration', 'fit'):
         item = manifest['splits'][split]
         pin = protocol['data'][split]
         if item.get('file') != pin or previous['data'][split] != pin:
-            raise ValueError('reused split identity differs from the v11 comparison rows')
-        if item.get('public_identity') != previous_data_identity(previous, split):
-            raise ValueError('split role, roots or prepared digest differs')
-        if item.get('label_exposure') != protocol['exposure_contract'][split]['labels']:
+            raise ValueError('reused v11 row identity differs from the comparison rows')
+        if item.get('role') != SPLIT_ROLES[split]:
+            raise ValueError('split role binding differs')
+        if item.get('public_identity') != public_split_metadata(split):
+            raise ValueError('split roots or prepared digest differ')
+        if item.get('label_exposure') != 'already_exposed_in_v11':
             raise ValueError('split exposure declaration differs')
-    if (protocol['exposure_contract']['calibration'].get('status') != 'already_exposed_in_v11'
-            or protocol['exposure_contract']['fit'].get('status')
-            != 'already_exposed_in_v11_no_tuning_escape'
-            or protocol['exposure_contract']['development'].get('status')
-            != 'open_only_after_frozen_final_fit_gate'):
-        raise ValueError('exposure contract status differs')
-    # The v11 development exposure receipt is the sole authority for reuse. It is
-    # re-read here; no development label file is parsed at admission.
-    if (exposure.get('format') != 'replica.intrinsic_memory.development_exposure.v11'
+    development = manifest['splits']['development']
+    dev_pin = protocol['data']['development']
+    if development.get('file') != dev_pin:
+        raise ValueError('fresh development identity differs from the protocol')
+    if development.get('role') != SPLIT_ROLES['development']:
+        raise ValueError('development role binding differs')
+    if development.get('public_identity') != v12_development_public_identity():
+        raise ValueError('fresh development public identity differs')
+    if development.get('label_exposure') != 'unopened_at_preparation':
+        raise ValueError('fresh development exposure declaration differs')
+    # Fresh means it cannot be any v11 split, including the retired development.
+    if dev_pin['sha256'] in {pin['sha256'] for pin in previous['data'].values()}:
+        raise ValueError('fresh v12 development reuses a v11 split')
+    if dev_pin['path'] == previous['data']['development']['path']:
+        raise ValueError('fresh v12 development reuses the retired path')
+    calibration = manifest['splits']['calibration']['public_identity']
+    fit = manifest['splits']['fit']['public_identity']
+    dev_identity = development['public_identity']
+    if (set(dev_identity['entities'])
+            & (set(calibration['entities']) | set(fit['entities']))):
+        raise ValueError('fresh development entity overlaps a reused split')
+    if (set(dev_identity['decision_roots'])
+            & (set(calibration['decision_roots']) | set(fit['decision_roots']))):
+        raise ValueError('fresh development decision root overlaps a reused split')
+    # The current v12 exposure receipt is the only reuse authority for this split.
+    if (exposure.get('format') != EXPOSURE_FORMAT
             or exposure.get('development_opened') is not False
             or exposure.get('fresh_for_successor') is not True
-            or exposure.get('opened_split', {}).get('sha256')
-            != protocol['data']['development']['sha256']
-            or exposure.get('opened_split', {}).get('path')
-            != protocol['data']['development']['path']
-            or exposure.get('source_attempt') != protocol['diagnostic_predecessor']):
-        raise ValueError('v11 development exposure no longer permits lawful reuse')
-    return {'same_rows_as_v11': True, 'new_manifest': protocol['data_manifest'],
+            or exposure.get('opened_split', {}).get('sha256') != dev_pin['sha256']
+            or exposure.get('opened_split', {}).get('path') != dev_pin['path']
+            or exposure.get('retired_for_this_successor') != [previous['data']['development']]
+            or exposure.get('historical_exposure_receipt')
+            != protocol.get('historical_v11_exposure')
+            or exposure.get('source_attempt') is not None
+            or exposure.get('exposure_incident', {}).get('labels_read') is not True
+            or exposure.get('preparation_parsed_development_labels') is not False):
+        raise ValueError('current v12 development exposure receipt differs')
+    return {'matched_calibration_and_fit': True, 'fresh_development': dev_pin,
+            'new_manifest': protocol['data_manifest'],
             'development_opened': exposure['development_opened'],
+            'v11_development_retired': True,
             'development_labels_parsed_at_admission': False}
-
-
-def previous_data_identity(previous, split):
-    """Public split metadata is deterministic in the sealed v11 worlds module."""
-    from .intrinsic_memory_worlds_v11 import public_split_metadata
-    return public_split_metadata(split)
 
 
 def validate_source_feature_binding(root, protocol):
@@ -179,7 +213,163 @@ def validate_source_feature_binding(root, protocol):
     return declared
 
 
-def validate_bindings(root, packet_path, *, check_source=True):
+def validate_environment_closure(root, protocol, *, check=True, interpreter=None):
+    """Verify actual hashes/origins of the interpreter, native libraries and wheels.
+
+    The sealed environment receipt binds package versions, selected module origins
+    and twelve critical runtime files. This closure adds the executable dependency
+    set the receipt itself declares it does not cover: the interpreter binary, the
+    loaded native extensions, every file in `torch/lib`, and every wheel `RECORD`.
+    Declared sets are compared exactly, so an added or removed library is a
+    failure rather than an untested difference.
+
+    ``interpreter`` is only for a preparation-time self-check running under a
+    different interpreter; admission and launch always use the running one.
+    """
+    closure = bound_json(root, protocol['environment_closure'])
+    if closure.get('format') != ENVIRONMENT_CLOSURE_FORMAT:
+        raise ValueError('environment closure format differs')
+    if not check:
+        return closure
+    environment = bound_json(root, protocol['environment'])
+    prefix = Path(environment['environment_directory'])
+    if not prefix.resolve().is_relative_to(Path(root).resolve()):
+        raise ValueError('environment prefix escapes the repository root')
+    receipt = verify_environment_closure(closure, prefix=prefix, interpreter=interpreter)
+    if (receipt['bytes_verified'] != ENVIRONMENT_CLOSURE_BYTES
+            or receipt['files_verified'] != ENVIRONMENT_CLOSURE_FILES):
+        raise ValueError('verified environment closure size differs from the declared envelope')
+    return receipt
+
+
+def verify_environment_closure(closure, *, prefix=None, interpreter=None):
+    """Recompute every declared hash and refuse missing, added or substituted files."""
+    if closure.get('format') != ENVIRONMENT_CLOSURE_FORMAT:
+        raise ValueError('environment closure format differs')
+    declared_prefix = Path(closure['prefix']).resolve()
+    if prefix is not None and Path(prefix).resolve() != declared_prefix:
+        raise ValueError('environment prefix differs from the qualified environment')
+    prefix = declared_prefix
+    interpreter = Path(sys.executable) if interpreter is None else Path(interpreter)
+    declared_interpreter = closure['interpreter']
+    if Path(declared_interpreter['path']).resolve() != interpreter.resolve():
+        raise ValueError('running interpreter differs from the closure')
+    target = Path(declared_interpreter['resolved_path'])
+    if target.is_symlink() or not target.is_file():
+        raise ValueError('closure interpreter target missing or substituted')
+    if (target.stat().st_size != declared_interpreter['bytes']
+            or hash_file(target) != declared_interpreter['sha256']):
+        raise ValueError('closure interpreter content differs')
+    files, total = 1, target.stat().st_size
+
+    def check_file(relative, expected_sha, expected_bytes):
+        nonlocal files, total
+        path = prefix/relative
+        if path.is_symlink() or not path.is_file():
+            raise ValueError('closure file missing or substituted: '+relative)
+        size = path.stat().st_size
+        if size != expected_bytes or hash_file(path) != expected_sha:
+            raise ValueError('closure file content differs: '+relative)
+        files += 1; total += size
+    for name, item in closure['module_origins'].items():
+        check_file(item['path_relative'], item['sha256'], item['bytes'])
+    for name, item in closure['native_extensions'].items():
+        check_file(item['path_relative'], item['sha256'], item['bytes'])
+    library_root = prefix/closure['shared_library_root']
+    present = {p.relative_to(prefix).as_posix() for p in library_root.rglob('*') if p.is_file()}
+    declared = set(closure['shared_libraries'])
+    if present != declared:
+        raise ValueError('shared library set differs: added or removed files')
+    for relative, item in closure['shared_libraries'].items():
+        check_file(relative, item['sha256'], item['bytes'])
+    site = prefix/closure['site_packages']
+    present_records = {p.relative_to(prefix).as_posix() for p in site.glob('*.dist-info/RECORD')}
+    if present_records != set(closure['wheel_records']):
+        raise ValueError('wheel RECORD set differs: added or removed distributions')
+    for relative, item in closure['wheel_records'].items():
+        check_file(relative, item['sha256'], item['bytes'])
+    for relative, expected in closure['critical_files'].items():
+        path = prefix/relative
+        if path.is_symlink() or not path.is_file():
+            raise ValueError('closure file missing or substituted: '+relative)
+        if hash_file(path) != expected:
+            raise ValueError('closure file content differs: '+relative)
+        files += 1; total += path.stat().st_size
+    return {'files_verified': files, 'bytes_verified': total,
+            'interpreter': str(interpreter), 'prefix': str(prefix),
+            'closure_sha256': sha_json(closure),
+            'coverage': ('interpreter, native extensions, torch/lib shared libraries, '
+                         'wheel RECORD files and the sealed receipt critical files')}
+
+
+def read_attempt_marker(path):
+    """Append-only external attempt registry; a torn line blocks the attempt."""
+    path = Path(path)
+    if not path.exists(): return []
+    if path.is_symlink() or not path.is_file():
+        raise ValueError('substituted attempt marker')
+    payload = path.read_bytes()
+    if payload and not payload.endswith(b'\n'):
+        raise ValueError('torn attempt marker: operator review required')
+    records = []
+    for index, line in enumerate(payload.decode('utf-8').splitlines()):
+        if not line.strip(): continue
+        try: record = json.loads(line)
+        except ValueError as error:
+            raise ValueError(f'corrupt attempt marker line {index}') from error
+        if record.get('format') != ATTEMPT_MARKER_FORMAT:
+            raise ValueError('attempt marker format differs')
+        records.append(record)
+    return records
+
+
+def record_attempt(path, *, packet_sha256, protocol_sha256, arm, output_root,
+                   authorization_sha256):
+    """Consume exactly one attempt, durably, outside the deletable output tree."""
+    path = Path(path)
+    if path.is_symlink(): raise ValueError('substituted attempt marker')
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock = path.with_suffix('.lock')
+    record = {'format': ATTEMPT_MARKER_FORMAT, 'packet_sha256': packet_sha256,
+              'protocol_sha256': protocol_sha256, 'arm': arm, 'attempt': 1, 'retries': 0,
+              'output_root': output_root, 'authorization_sha256': authorization_sha256,
+              'started_unix': time.time()}
+    with lock.open('a') as stream:
+        fcntl.flock(stream, fcntl.LOCK_EX)
+        try:
+            existing = read_attempt_marker(path)
+            if any(item.get('packet_sha256') == packet_sha256 for item in existing):
+                raise ValueError('attempt already consumed for this packet')
+            if any(item.get('output_root') == output_root for item in existing):
+                raise ValueError('attempt already consumed for this output root')
+            line = (json.dumps(record, sort_keys=True, separators=(',', ':'))+'\n').encode()
+            fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND | os.O_NOFOLLOW, 0o600)
+            try:
+                written = 0
+                while written < len(line):
+                    written += os.write(fd, line[written:])
+                os.fsync(fd)
+            finally:
+                os.close(fd)
+            directory = os.open(path.parent, os.O_RDONLY)
+            try: os.fsync(directory)
+            finally: os.close(directory)
+        finally:
+            fcntl.flock(stream, fcntl.LOCK_UN)
+    return record
+
+
+def attempt_consumed(path, *, packet_sha256=None, output_root=None):
+    """True when the exact packet or output root already has a durable marker."""
+    records = read_attempt_marker(path)
+    if packet_sha256 is not None and any(r['packet_sha256'] == packet_sha256 for r in records):
+        return True
+    if output_root is not None and any(r['output_root'] == output_root for r in records):
+        return True
+    return False
+
+
+def validate_bindings(root, packet_path, *, check_source=True, closure_interpreter=None):
     root = Path(root); packet_path = Path(packet_path)
     packet = json.loads(packet_path.read_text()); protocol = bound_json(root, packet['protocol'])
     if (packet.get('format') != PACKET or packet.get('arm') not in ARMS
@@ -198,6 +388,8 @@ def validate_bindings(root, packet_path, *, check_source=True):
     if local_closure(root, implementation['entries']) != implementation['files']:
         raise ValueError('executable implementation closure differs')
     environment = bound_json(root, protocol['environment'])
+    environment_closure = validate_environment_closure(root, protocol,
+                                                       interpreter=closure_interpreter)
     source = bound_json(root, protocol['source'])
     source_root = contained(root, source['source_root'])
     if (source.get('source_identity') != 'official_bf16'
@@ -231,6 +423,8 @@ def validate_bindings(root, packet_path, *, check_source=True):
                                 feature_binding['original_parameters_sha256'],
                             'source_files_sha256': feature_binding['source_files_sha256']},
         'comparison': predecessor, 'reused_data': data_receipt,
+        'environment_closure': environment_closure,
+        'attempt_marker': packet['attempt_marker'],
         'native_competence': False, 'useful_memory': False}
 
 
@@ -247,6 +441,7 @@ def validate_authorization(root, packet_path, receipt_path, *, allow_existing=Fa
                 'environment_sha256': protocol['environment']['sha256'],
                 'feature_binding_sha256': sha_json(protocol['source_feature_binding']),
                 'slot_policy_v12': protocol['slot_policy_v12'],
+                'environment_closure_sha256': protocol['environment_closure']['sha256'],
                 'outer_wall_seconds': arm['wall_seconds']}
     if any(receipt.get(k) != v for k, v in expected.items()):
         raise ValueError('missing or different exact external authorization')
@@ -271,8 +466,21 @@ def validate_authorization(root, packet_path, receipt_path, *, allow_existing=Fa
                 or not prerequisite.get('restart', {}).get('fresh_process_logits_exact')
                 or prerequisite.get('restart', {}).get('actual_continuation_updates') != 1):
             raise ValueError('unqualified two-site predecessor; density does not repair a failed gate')
-    if not allow_existing and contained(root, packet['output_root']).exists():
-        raise ValueError('attempt already consumed; zero retries')
+    marker = contained(root, packet['attempt_marker'])
+    output_root = contained(root, packet['output_root'])
+    if marker.resolve().is_relative_to(output_root.resolve()):
+        raise ValueError('attempt marker must live outside the deletable output tree')
+    packet_sha256 = hash_file(Path(packet_path))
+    if allow_existing:
+        # A supervised worker may only run for an attempt that was durably marked.
+        if not attempt_consumed(marker, packet_sha256=packet_sha256):
+            raise ValueError('no durable attempt marker for this supervised run')
+    else:
+        if attempt_consumed(marker, packet_sha256=packet_sha256,
+                            output_root=packet['output_root']):
+            raise ValueError('attempt already consumed; zero retries')
+        if output_root.exists():
+            raise ValueError('attempt already consumed; zero retries')
     return receipt
 
 

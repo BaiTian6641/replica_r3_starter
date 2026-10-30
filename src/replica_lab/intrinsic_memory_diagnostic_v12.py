@@ -230,9 +230,19 @@ class DiagnosticEngineV12:
     def new_release_corpus(self, store, scope):
         return ProducerReleaseCorpus(store, scope)
 
+    def write_receipt(self, name, payload, *, operation='receipt_write'):
+        """Charge one declared write before it happens, then record the actual."""
+        path = self.output/(name+'.json')
+        with self.measured(operation, writes=1) as event:
+            atomic(path, payload)
+            event['actual'] = {'writes': 1}
+            event['serialized_write_bytes'] = path.stat().st_size
+        return payload
+
     def write_source_costs(self, name):
         """Observed provider work next to, never inside, the ledger reservations."""
-        atomic(self.output/('source_cost_'+name+'.json'), {
+        path = self.output/('source_cost_'+name+'.json')
+        payload = {
             'format': FORMAT+'.source_cost',
             'stage': name,
             'provider_observed': self.provider_cost(),
@@ -240,7 +250,11 @@ class DiagnosticEngineV12:
             'reservation_source': 'durable_work_ledger_v12',
             'note': ('observations are measured after dispatch; reservations are the charged '
                      'upper bounds and are never reduced by an observation'),
-        })
+        }
+        with self.measured('source_cost_receipt', writes=1) as event:
+            atomic(path, payload)
+            event['actual'] = {'writes': 1}
+            event['serialized_write_bytes'] = path.stat().st_size
 
     # ------------------------------------------------------------------
     # Forward paths

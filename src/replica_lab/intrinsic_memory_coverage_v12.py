@@ -67,6 +67,121 @@ TEACHER = {**deepcopy(PREVIOUS_TEACHER),
            'feature_contract_bound_in_cache': True}
 COVERAGE = deepcopy(PREVIOUS_COVERAGE)
 
+# ---------------------------------------------------------------------------
+# X0: a genuinely independent v12 development split.
+#
+# The v11 development split is retired for this successor: the re-review scout
+# read `data/intrinsic_memory_coverage_v11_20261029/development.json`, so that
+# split can no longer support a fresh utility claim even though its historical
+# receipt still says unopened. Calibration and fitting keep the exposed v11 rows
+# for a matched comparison; development is new before any observation.
+#
+# The generator reuses the sealed oracle, renderer and question builder (the
+# scientific content), with new entity names, new world ids and new decision
+# roots. Row-level labels are produced deterministically from the structured
+# world oracle; preparation never inspects or selects on them.
+DEVELOPMENT_SEED = 2026102912
+DEVELOPMENT_ENTITIES = (
+    'Thalric', 'Ulmara', 'Veskin', 'Wendral', 'Yorveth', 'Zaleth',
+    'Brannoc', 'Celdra', 'Draveth', 'Feldric', 'Gorveth', 'Halvra',
+)
+DEVELOPMENT_ROOTS = tuple(f'v12_development_decision_{i:02d}' for i in range(8))
+DEVELOPMENT_WORLD_PREFIX = 'v12_development_'
+
+
+def v12_development_worlds():
+    """Deterministic fresh development corpus; labels come from the sealed oracle."""
+    from .intrinsic_memory_worlds_v11 import FAMILIES, oracle, question, render
+    names = DEVELOPMENT_ENTITIES
+    palette_rotation = (2, 3)
+    # The case table is the sealed v11 development structure: four decision
+    # pairs per group, two unknowns per group, both answers of a pair covered.
+    cases = [(0, 0, False), (0, 1, False), (1, 2, False), (1, 3, False),
+             (2, 1, False), (2, 0, True), (3, 3, False), (3, 2, True)]
+    rows = []
+    for group in (0, 1):
+        family = FAMILIES[group]
+        rotation = palette_rotation[group]
+        palette = ('red', 'blue', 'green', 'gold')
+        palette = palette[rotation:] + palette[:rotation]
+        group_names = names[group*4:group*4+4] + (names[8+group],)
+        for offset, (pair, colour, missing) in enumerate(cases):
+            query = group_names[pair]
+            entity = group_names[4] if missing else query
+            old = palette[(pair + 2) % 4]
+            facts = ([{'entity': entity, 'color': old, 'revision': 1},
+                      {'entity': entity, 'color': palette[colour], 'revision': 2}]
+                     if family == FAMILIES[1]
+                     else [{'entity': entity, 'color': palette[colour], 'revision': 1}])
+            index = group*8 + offset
+            rows.append({
+                'world_id': f'{DEVELOPMENT_WORLD_PREFIX}{index:02d}',
+                'family': f'{DEVELOPMENT_ROOTS[group*4+pair]}',
+                'criterion_group': group, 'rule_family': family,
+                'facts': facts, 'query_entity': query,
+                'text': render(facts, family), 'question': question(query, family),
+                'answer': oracle(facts, query),
+                'chronology': max(f['revision'] for f in facts),
+                'source_kind': 'scripted_complete_world_snapshot',
+                'verification': 'structured_revision_oracle_not_generated_explanation'})
+    return rows
+
+
+def validate_v12_development(rows):
+    """Structural validation of the fresh split; it never re-reads the answers."""
+    if not isinstance(rows, list) or len(rows) != DEVELOPMENT_CASES:
+        raise ValueError('fresh development split has the wrong case count')
+    if len({r['world_id'] for r in rows}) != DEVELOPMENT_CASES:
+        raise ValueError('fresh development world ids are not unique')
+    if any(not r['world_id'].startswith(DEVELOPMENT_WORLD_PREFIX) for r in rows):
+        raise ValueError('fresh development world id prefix differs')
+    if [r['criterion_group'] for r in rows] != [i // GROUP_SIZE for i in range(DEVELOPMENT_CASES)]:
+        raise ValueError('fresh development group order differs')
+    for index, row in enumerate(rows):
+        if not row['text'] or len(row['text'].encode()) > 256:
+            raise ValueError('fresh development span is empty or unbounded')
+        if row['family'] not in DEVELOPMENT_ROOTS:
+            raise ValueError('fresh development decision root differs')
+        if not row['text'].startswith(('The recorded color', 'Earlier, the recorded color')):
+            raise ValueError('fresh development source text differs')
+        if row['answer'] not in ('red', 'blue', 'green', 'gold', 'unknown'):
+            raise ValueError('fresh development answer is outside the declared palette')
+        if index and row['criterion_group'] == rows[index-1]['criterion_group']:
+            if (index - 1) % 2 == 0:
+                if row['question'] != rows[index-1]['question'] or row['answer'] == rows[index-1]['answer']:
+                    raise ValueError('fresh development counterfactual pair differs')
+    for start in range(0, DEVELOPMENT_CASES, GROUP_SIZE):
+        group = rows[start:start+GROUP_SIZE]
+        if sum(r['answer'] == 'unknown' for r in group) != 2:
+            raise ValueError('fresh development group must contain exactly two unknowns')
+        if len({r['family'] for r in group}) != 4:
+            raise ValueError('fresh development group must contain four decision roots')
+        if len({r['rule_family'] for r in group}) != 1:
+            raise ValueError('fresh development group must use one rule family')
+    # Independence: no entity, root, world id or source text from any v11 split.
+    from .intrinsic_memory_worlds_v11 import ENTITIES as V11_ENTITIES
+    v11_entities = {name for names in V11_ENTITIES.values() for name in names}
+    if set(DEVELOPMENT_ENTITIES) & v11_entities:
+        raise ValueError('fresh development reuses a v11 entity')
+    if {r['query_entity'] for r in rows} & v11_entities:
+        raise ValueError('fresh development query reuses a v11 entity')
+    return True
+
+
+def v12_development_public_identity():
+    """Role-bound public metadata for admission; it contains no label or text."""
+    validate_v12_development(v12_development_worlds())
+    return {'split': 'development', 'role': 'fresh_v12_development',
+            'cases': DEVELOPMENT_CASES, 'entities': list(DEVELOPMENT_ENTITIES),
+            'decision_roots': list(DEVELOPMENT_ROOTS), 'seed': DEVELOPMENT_SEED,
+            'source_text_sha256': None, 'label_content_included': False}
+
+
+def public_split_metadata(split):
+    """Public metadata of the reused sealed v11 splits; never their labels."""
+    from .intrinsic_memory_worlds_v11 import public_split_metadata as sealed
+    return sealed(split)
+
 # Every difference from the sealed v11 comparison, declared once. The admission
 # validator requires the prepared protocol to carry exactly these lists, so a
 # silent change cannot be introduced by editing only the configuration.
@@ -179,6 +294,14 @@ RESTART_PROMPT_PASSES = (RESTART_TARGET_REVALIDATION_ENCODINGS
                          + RESTART_CANARY_ENCODINGS + RESTART_UPDATE_ENCODINGS)
 RESTART_WALL_SECONDS = 150
 
+# Executable dependency closure of the qualified environment: interpreter, the
+# declared module origins, the loaded native extensions, every file in torch/lib,
+# every wheel RECORD and the sealed receipt's critical files. The preparation
+# script rebuilds the manifest and refuses if this total differs, so the read
+# reservation below is tied to the actual closure rather than to an estimate.
+ENVIRONMENT_CLOSURE_FILES = 67
+ENVIRONMENT_CLOSURE_BYTES = 450061586
+
 
 def identity_digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True,
@@ -253,9 +376,12 @@ def plan(arm):
         # including the receipts written outside a stage (main result, capacity
         # guard, supervision result) and the admission receipt.
         'admission': stage(30, artifact_bytes=ADMISSION_ENVELOPE_BYTES,
-                           artifact_read_bytes=SOURCE_FILE_BYTES, writes=5),
-        # One hashing pass over the source plus one weight load.
-        'load': stage(180, model_loads=1, artifact_read_bytes=2*SOURCE_FILE_BYTES),
+                           artifact_read_bytes=SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES,
+                           writes=5),
+        # One hashing pass over the source, one environment-closure pass and one
+        # weight load.
+        'load': stage(180, model_loads=1,
+                      artifact_read_bytes=(2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES)),
         # 8 calibration worlds x 8 reserved answer tokens, extensions disabled.
         'baseline': stage(45, **span(0, 0, prompt_passes=16, backbone_forwards=64,
                                      backbone_tokens=256),
@@ -294,8 +420,8 @@ def plan(arm):
                          **span(2, 2, prompt_passes=RESTART_PROMPT_PASSES,
                                 backbone_forwards=2, backbone_tokens=256),
                          backwards=1, updates=1, model_loads=1,
-                         artifact_read_bytes=(2*SOURCE_FILE_BYTES + checkpoint
-                                              + TEACHER_CACHE_BYTES),
+                         artifact_read_bytes=(2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES
+                                              + checkpoint + TEACHER_CACHE_BYTES),
                          restart_restores=2, retrievals=1, writes=3+2+1),
     }
     for end in PREFIXES:
@@ -417,12 +543,15 @@ BUDGET_DERIVATION = {
                             'this is a bound, not a fit measurement'),
     'artifact_read_accounting': (
         f'{_TWO_SITE_TOTALS["artifact_read_bytes"]} declared file-read bytes: '
-        f'{SOURCE_FILE_BYTES} for the admission source-hashing pass, the same again for the '
-        'pre-load hashing in each worker plus the weight load itself (2x in load and 2x in '
-        'restart), and the checkpoint plus teacher cache at restart. Physical page-cache '
+        f'{SOURCE_FILE_BYTES} of source hashing per process admission/worker and the same '
+        'again for each weight load (2x in load and 2x in restart), '
+        f'{ENVIRONMENT_CLOSURE_BYTES} of environment-closure hashing in admission, load and '
+        'restart, and the checkpoint plus teacher cache at restart. Physical page-cache '
         'reuse is not measured and is not subtracted'),
     'artifact_read_bytes_value': _TWO_SITE_TOTALS['artifact_read_bytes'],
     'source_file_bytes': SOURCE_FILE_BYTES,
+    'environment_closure_files': ENVIRONMENT_CLOSURE_FILES,
+    'environment_closure_bytes': ENVIRONMENT_CLOSURE_BYTES,
     'audit_io': ('append-only journal: logical appended bytes equal appended bytes; physical SSD '
                  'amplification and flush cost are not measured and are not claimed to be lower '
                  'than v11. Lower audit cost is not better learning'),
@@ -487,6 +616,9 @@ def validate_protocol(protocol):
         raise ValueError('declared stage wall differs from the stage caps')
     if derivation.get('artifact_read_bytes_value') != totals(plan('two'))['artifact_read_bytes']:
         raise ValueError('declared read-byte envelope differs from the stage caps')
+    if (derivation.get('environment_closure_bytes') != ENVIRONMENT_CLOSURE_BYTES
+            or derivation.get('environment_closure_files') != ENVIRONMENT_CLOSURE_FILES):
+        raise ValueError('declared environment closure size differs from the qualified closure')
     # Restart must reserve every prompt tokenization its own call sites perform.
     restart = protocol['arms']['two']['budget']['restart']
     required = (2*FIT_CASES + 3)

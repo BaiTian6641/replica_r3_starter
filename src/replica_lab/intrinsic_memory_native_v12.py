@@ -44,7 +44,7 @@ from .contextual_source_features_v12 import (
 from .intrinsic_memory_budget_v12 import atomic, sha_json
 from .intrinsic_memory_coverage_v12 import (
     DEVELOPMENT_CASES, FEATURE_CACHE_BYTES, FEATURE_CACHE_ENTRIES, FIT_CASES,
-    SOURCE_HIDDEN_SIZE, SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES)
+    SOURCE_FILE_BYTES, SOURCE_HIDDEN_SIZE, SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES)
 from .intrinsic_memory_diagnostic_v12 import (
     PROMPT, StageRef, SourceWorkAccounting, logits_digest, right_padded_prefix)
 from .intrinsic_memory_execution_v5 import bound_json, hash_file
@@ -178,7 +178,10 @@ def load_native(root, protocol, arm, ledger, stage):
                   'thinking_mode': resolve_thinking_mode(tokenizer_identity, 'none'),
                   'add_generation_prompt': True}), 'none')
     stage_ref = StageRef()
-    with ledger.work(stage, 'official_bf16_model_load', model_loads=1) as event:
+    weight_bytes = sum(item['bytes'] for item in source['files']
+                       if item['path'].endswith('.safetensors'))
+    with ledger.work(stage, 'official_bf16_model_load', model_loads=1,
+                     artifact_read_bytes=SOURCE_FILE_BYTES) as event:
         base = classes['AutoModelForCausalLM'].from_pretrained(directory,
             config=classes['AutoConfig'].from_pretrained(directory, local_files_only=True),
             local_files_only=True, torch_dtype=torch.bfloat16, attn_implementation='eager',
@@ -227,6 +230,8 @@ def load_native(root, protocol, arm, ledger, stage):
                      adapter_content_sha256=adapter_content_identity(adapter),
                      tokenizer_contract=provider.tokenizer_contract,
                      feature_contract_sha256=sha_json(provider.spec.identity()))
+        # Actual, not refunded: one load and the weight bytes actually read.
+        event['actual'] = {'model_loads': 1, 'artifact_read_bytes': weight_bytes}
     backend = NativeBackend(bound_tokenizer, template,
                             resolve_thinking_mode(tokenizer_identity, 'none'))
     return path, backend, spec, initial_hash, stage_ref
@@ -296,7 +301,8 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
             answer = engine.generate(row, None, world_scope(row), control='exact_text')
             answer.pop('first_logits')
             answers.append({'world_id': row['world_id'], **answer})
-            write_receipt(output, 'baseline', {'rows': answers, 'complete': len(answers) == 8})
+            engine.write_receipt('baseline', {'rows': answers,
+                                              'complete': len(answers) == 8})
         passed = len(answers) == 8 and all(
             r['correct'] and not r['false_recall'] and r['terminated'] and not r['truncated']
             for r in answers)
@@ -321,7 +327,7 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
         if not torch.equal(disabled, enabled):
             raise ValueError('zero-init disabled-extension parity failed')
         del disabled, enabled, b
-        write_receipt(output, 'numerical', {
+        engine.write_receipt('numerical', {
             'disabled_zero_init_exact': True,
             'single_optimizer_owner': path.assert_optimizer_ownership(),
             'feature_contract': path.feature_provider.spec.identity()})
@@ -347,7 +353,7 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
             for index in range(end-128, end):
                 i = index % FIT_CASES
                 updates.append(engine.update(rows[i], sources[i], scopes[i]))
-                write_receipt(output, 'fit', {'updates': updates, 'planned_updates': 512})
+                engine.write_receipt('fit', {'updates': updates, 'planned_updates': 512})
                 if index == 1 and (updates[-1]['gradients']['producer']['norm'] <= 0
                         or any(v['output_norm'] <= 0
                                for v in updates[-1]['gradients']['sites'].values())):
@@ -355,12 +361,12 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
             close_stage(engine, fit_stage, 'completed'); result['fit_updates'] = end
             begin_stage(engine, probe_stage)
             probes = engine.fitting_probes(rows, sources, scopes, stores)
-            write_receipt(output, probe_stage, probes)
+            engine.write_receipt(probe_stage, probes)
             curve.append({'updates': end, 'correct': probes['correct'],
                           'memory_dependence_passed': probes['fit_memory_dependence_passed'],
                           'counterfactual_pairs_both_correct': probes['counterfactual_pairs_both_correct'],
                           'groups': probes['groups']})
-            write_receipt(output, 'fit_curve', {'prefixes': curve,
+            engine.write_receipt('fit_curve', {'prefixes': curve,
                           'selection': 'fixed_final_512_all_groups_only',
                           'early_stopping': False, 'development_opened': False})
             result['fit_memory_dependence_passed'] = probes['fit_memory_dependence_passed']
@@ -370,7 +376,7 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
         result['fit_curve'] = curve
         engine.freeze()
         # Freeze is recorded before any development parsing. No adaptive retry.
-        write_receipt(output, 'fitting_closed', {
+        engine.write_receipt('fitting_closed', {
             'closed': True, 'updates': 512, 'objective': path.objective_identity,
             'feature_contract': engine.feature_identity(),
             'parameter_sha256': {k: logits_digest(v) for k, v in path._tensors().items()}})
@@ -387,7 +393,7 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
             event['actual'] = {'artifact_bytes': actual}
             event['contains_original_weights'] = False
             event['feature_contract_bound'] = True
-        write_receipt(output, 'restart_request', {
+        engine.write_receipt('restart_request', {
             'canary_logits_sha256': expected, 'world_id': rows[0]['world_id'],
             'parent_model_pid': os.getpid(), 'objective': path.objective_identity,
             'checkpoint_manifest_sha256': hash_file(output/'checkpoint/manifest.json'),
@@ -405,7 +411,7 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
             batches, dscopes, dstores = admit_rows(engine, development, output)
             stores.extend(dstores)
             evaluation = engine.evaluate(development, batches, dscopes)
-            write_receipt(output, 'development', evaluation)
+            engine.write_receipt('development', evaluation)
             result['useful_recall_passed'] = evaluation['useful_recall_passed']
             close_stage(engine, 'development',
                         'passed' if result['useful_recall_passed'] else 'failed_utility')
@@ -440,7 +446,7 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
             revoked = engine.generate({**row, 'text': '', 'answer': 'unknown'}, None, scope,
                                       control='absent')
             revoked.pop('first_logits')
-            write_receipt(output, 'correction', {
+            engine.write_receipt('correction', {
                 'stale_snapshot_rejected': stale_rejected,
                 'revoked_retrieval_rejected': revoked_read_rejected,
                 'corrected_contextual': corrected, 'corrected_exact': exact,

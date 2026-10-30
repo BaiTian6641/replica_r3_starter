@@ -34,8 +34,10 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'src'))
 from replica_lab.intrinsic_memory_budget_v12 import WorkLedger, atomic, audit_io
+from replica_lab.intrinsic_memory_coverage_v12 import (
+    ENVIRONMENT_CLOSURE_BYTES, SOURCE_FILE_BYTES)
 from replica_lab.intrinsic_memory_execution_v12 import (
-    validate_authorization, validate_bindings)
+    record_attempt, validate_authorization, validate_bindings)
 from replica_lab.intrinsic_memory_execution_v5 import bound_json, contained, hash_file
 from replica_lab.capacity_guard import CapacityGuard, CapacityPolicy, parse_host_readings
 from replica_lab.wall_deadline_v1 import run_wall_bounded, WallPolicy
@@ -145,10 +147,12 @@ def supervised(args):
         pass
     guard = CapacityGuard(CapacityPolicy(), host_reading())
     if guard.stop_reason: raise RuntimeError(guard.stop_reason)
-    with ledger.work('admission', 'environment_source_code_data_preflight') as cost:
+    with ledger.work('admission', 'environment_source_code_data_preflight',
+                     artifact_read_bytes=SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES) as cost:
         environment = environment_only(args.packet)
         _, _, receipt = validate_bindings(ROOT, args.packet, check_source=True)
-        cost.update(source_bytes_hashed=receipt['source_bytes_hashed'])
+        cost['actual'] = {'artifact_read_bytes': SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES}
+        cost['source_bytes_hashed'] = receipt['source_bytes_hashed']
         atomic(output/'admission.json', {'environment_validation': environment, **receipt})
     ledger.leave('admission', status='completed'); ledger.enter('load')
     supervise_worker('main', args, output, ledger, guard)
@@ -178,15 +182,20 @@ def worker(args):
     packet = json.loads(args.packet.read_text()); output = contained(ROOT, packet['output_root'])
     if os.environ.get(ENV_PACKET) != hash_file(args.packet):
         raise ValueError('supervision missing')
+    # Exact authorization plus the durable attempt marker that launch recorded.
     validate_authorization(ROOT, args.packet, args.authorization, allow_existing=True)
-    environment_only(args.packet)
-    # Recheck after process creation and before importing torch, trusted remote
-    # model/configuration code or constructing original weights.
-    _, protocol, receipt = validate_bindings(ROOT, args.packet, check_source=True)
     ledger = WorkLedger(output/'work_ledger.jsonl', identity=hash_file(args.packet))
     stage = 'load' if args.worker == 'main' else 'restart'
-    with ledger.work(stage, 'child_source_revalidation') as event:
+    with ledger.work(stage, 'child_source_revalidation',
+                     artifact_read_bytes=(SOURCE_FILE_BYTES
+                                          + ENVIRONMENT_CLOSURE_BYTES)) as event:
+        # Environment and closure checks, source hashing and the data digests all
+        # happen inside this reservation; nothing is hashed before it is charged.
+        environment_only(args.packet)
+        _, protocol, receipt = validate_bindings(ROOT, args.packet, check_source=True)
+        event['actual'] = {'artifact_read_bytes': SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES}
         event['source_bytes_hashed'] = receipt['source_bytes_hashed']
+        event['environment_closure'] = receipt['environment_closure']
     import torch
     import psutil
     stop = threading.Event()
@@ -219,9 +228,18 @@ def launch(args):
     protocol = bound_json(ROOT, packet['protocol'])
     validate_authorization(ROOT, args.packet, args.authorization)
     arm = protocol['arms'][packet['arm']]; output = contained(ROOT, packet['output_root'])
+    marker = contained(ROOT, packet['attempt_marker'])
+    if marker.resolve().is_relative_to(output.resolve()):
+        raise ValueError('attempt marker must live outside the deletable output tree')
     with exclusive_worker():
-        # Consumption is a fresh directory under a bound identity, never a
-        # resettable receipt flag. Failure in preflight still consumes the attempt.
+        # The durable, append-only marker is written first: deleting the output
+        # directory later cannot restore a consumed attempt, and the packet hash is
+        # bound into it so a different authorization cannot reuse the slot.
+        record_attempt(marker, packet_sha256=hash_file(args.packet),
+                       protocol_sha256=packet['protocol']['sha256'], arm=packet['arm'],
+                       output_root=packet['output_root'],
+                       authorization_sha256=hash_file(args.authorization))
+        # Failure in preflight still consumes the attempt; there are no retries.
         output.mkdir(parents=True, exist_ok=False)
         env = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1', 'PYTHONPATH': str(ROOT/'src'),
                'HF_HUB_OFFLINE': '1', 'TRANSFORMERS_OFFLINE': '1', 'HF_DATASETS_OFFLINE': '1',

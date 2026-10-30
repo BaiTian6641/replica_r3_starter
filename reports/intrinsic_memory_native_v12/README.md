@@ -6,20 +6,68 @@ no native attempt was consumed. This directory holds preparation and review
 material for the separately versioned v12 source-feature successor to the
 consumed v11 two-site attempt.
 
-Current preparation (post-commit, after repair cycles 1–3 and the N1–N3
-native repairs): **64 focused tests passed** in
-`tests/test_intrinsic_budget_v12.py`, `tests/test_intrinsic_coverage_v12.py`
-and `tests/test_intrinsic_native_v12.py`, run by me against these bytes. The
-independent review's own N1/N2 reproductions pass against this packet as well.
-Envelope: stage wall 6845 s inside 7200 s, 4029 prompt-tokenizer passes,
-41,297,741,683 declared file-read bytes, 2049 declared writes, restart 150 s /
-67 passes.
+Current preparation (post-fresh-split, after repair cycles 1–3 and the X0/X2/X3/X9
+repairs): **80 focused tests passed** in `tests/test_intrinsic_budget_v12.py`,
+`tests/test_intrinsic_coverage_v12.py` and `tests/test_intrinsic_native_v12.py`,
+run by me against these bytes. Envelope: stage wall 6845 s inside 7200 s, 4029
+prompt-tokenizer passes, 42,647,926,441 declared file-read bytes (including the
+450,061,586-byte environment closure in admission, load and restart), 2049
+declared writes, restart 150 s / 67 passes.
+
+**X0 — fresh development split.** The v11 development split is *retired* for
+this successor: the re-review scout read
+`data/intrinsic_memory_coverage_v11_20261029/development.json`, so it can no
+longer support a fresh utility claim. Calibration and fitting keep the exposed
+v11 rows for a matched comparison. Development is new
+(`data/intrinsic_memory_coverage_v12_20261029/development.json`, sixteen cases in
+two groups of eight, new entities `Thalric…Halvra`, world ids
+`v12_development_00…15`, roots `v12_development_decision_00…07`), generated
+deterministically from the sealed structured oracle with no v11 entity, root or
+path overlap. Labels were generated, never inspected or used for selection, and
+the file is pinned before any observation. The current receipt
+`development_exposure_v12.json` records `development_opened: false`, the
+retired split and the reading incident; the historical v11 exposure receipt is
+byte-unchanged. Admission re-validates the role binding, the fresh identity and
+that the retired split is not reused, without parsing development labels.
+
+**X2 — torn ledger tail.** Every mutation (`enter`, `reserve`, `finish`,
+`leave`) and every non-operator read (`snapshot`, `deadline_state`, `audit_io`)
+now refuses on a torn tail instead of fusing a new record onto the partial line.
+Recovery is explicit: `recover_interrupted(accept_torn_tail=True)` truncates the
+fragment, appends a `torn` record carrying its length and digest, closes
+interrupted reservations as failed while leaving them charged, and only then
+allows further work. Three tests cover mutation refusal, read refusal and
+operator recovery.
+
+**X3 — charged work.** Source preflight/revalidation hashing, environment
+closure hashing, model loads, per-fit receipts, probe/checkpoint/development/
+correction/restart receipts and stage source-cost receipts are each reserved
+before the operation, with the actual observation recorded and no refund. New
+whole-stage tests consume exactly the declared caps for `fit_128` (128 receipts
++ 1 source-cost = 129), the full `restart` reservation set, and the admission
+hashing envelope (one extra byte is refused before dispatch).
+
+**X9 — attempt consumption and environment closure.** Consumption no longer
+relies on the deletable output directory: `launch` appends a durable
+append-only marker (`runs/intrinsic_memory_native_v12/attempts.jsonl`) bound to
+its packet hash and output root *before* creating the output tree; supervised
+workers require that marker; a torn marker blocks the attempt. The environment
+closure now binds the executable dependency set by actual hashes — the resolved
+interpreter, the declared module origins, the loaded native extensions, all
+twelve `torch/lib` files, all 32 wheel `RECORD` files and the sealed receipt's
+critical files — with exact set comparison so an added or removed library is a
+failure. Size is pinned at 67 files / 450,061,586 bytes and re-derived from the
+bound receipt.
 
 Current packet SHA-256 is
-`98c3f47abfa12d29222ae6b90e4c2b944396f4fb00bb29ba63ec20236773012d`; protocol
-SHA-256 `b6247f6c0bf46097f864f4c558b90b683d21200c7d89dfb3233c949835cf3f0a`;
+`48963bdc1996526d7512cb6e753901d3562b08610cf67894906f0ec95b988c9e`; protocol
+SHA-256 `16c7b2f3ff072249e9a370be6e906ac93d8cfced6127122dfa6b6337e09203e7`;
 implementation receipt SHA-256
-`e4e7df7fcbac7bf5347bc2d8dbce4bbb0e89cc885d06557b3b5e97e761db806c`.
+`c683db4881346ff0d922fc1744557f00a1328d462550b4facea5239362185d2c`;
+environment closure SHA-256
+`d521db9340e3638c481ede19a7ed670949ed9440167739b426b815276d6fbc68`;
+development exposure receipt SHA-256
+`79e8b3abf656cd41a8c5681ed45a0ef7be9b48fc610831e905c06c16527ed5d3`.
 
 The earlier coordinator preflight (57 focused tests, environment-only, and
 `--review` over 62 implementation files, two source-execution files and
@@ -29,31 +77,38 @@ commands and results remain in `preflight_verification.json` and the initial
 18-failure run in `verification_attempt01.log`. **Environment-only and `--review`
 have not been run against the current packet**; `--environment-only`, `--review`,
 the full suite and the independent reproduction are the coordinator's next gates,
-and independent review is still required before authorization or launch.
+and independent review is still required before authorization or launch. Note
+that `--review`/`--launch` now also verify the 450,061,586-byte environment
+closure and, for launch, the durable attempt marker.
 
-`preparation_draft02/` is retained even though the producer commit reproduced the
-working-tree bytes exactly: its config, packet and implementation receipt are
-byte-identical to the current canonical ones, while its `preparation.json`
-differs only in the measured hashing wall time.
+Three earlier unlaunched preparations are preserved verbatim, unmodified and
+clearly non-canonical, each with a computed-hash status record:
+`preparation_draft01/` binds pre-repair bytes, `preparation_draft02/` carries the
+N1–N3 repairs made before the producer commit, and `preparation_draft03/` carries
+the retired v11-development reuse contract before the fresh split and the
+X-series repairs. `preparation_draft04/` preserves the working-tree packet made
+while producer cycle 4 was uncommitted; its config, split manifest, fresh
+development corpus, packet, implementation receipt, environment closure and
+exposure receipt are byte-identical to the current canonical ones, and only its
+`preparation.json` differs (measured hashing wall time). No attempt or historical
+evidence was moved or deleted.
 
 Provenance: the v12 producer was committed at `6dede67e`, repaired for the
-independent review at `6ba07e1b` (`fix: close independent v12 authority
-findings`; named-buffer authority and pre-export revalidation, slice-text cache
-keys, release `source_identity` binding, deterministic durable order, failed
-release cleanup, iterable `active_sites`, and a single-record stale error), and
-the matched density/measured-cost controls at `3cd683c3` — the density modules
-are a separate track and are not part of this experiment's executable closure.
-The canonical files here bind **committed** producer blobs; every producer hash
-in `implementation_v12.json` equals the `HEAD` blob content, and `--review`
-recomputes the closure statically and refuses any difference, so a future `src/`
-change fails closed until re-preparation.
+independent review at `6ba07e1b`, and repaired again for the re-review at
+`826aac6b` (`fix: charge cold failures and prove release parity`; charged cold
+failure payload reads, typed failure preserved through best-effort eviction,
+with 79 coordinator checks and all-layout release parity). The matched
+density/measured-cost controls are at `3cd683c3`; the density modules are a
+separate track and are not part of this experiment's executable closure.
 
-Two earlier unlaunched preparations are preserved verbatim, unmodified and
-clearly non-canonical: `preparation_draft01/` binds pre-repair bytes, and
-`preparation_draft02/` carries the N1–N3 repairs generated while cycle 3 was
-still uncommitted. Neither was launched or carries an authorization, and each
-has a computed-hash status record. No attempt or historical evidence was moved
-or deleted.
+The five producer modules in this closure are **committed** blobs: every
+producer hash in `implementation_v12.json` equals its `HEAD` blob content at
+`826aac6b`. The seven consumer files of the X0/X2/X3/X9 repairs
+(`intrinsic_memory_{budget,coverage,diagnostic,execution,native}_v12.py` and
+both runner/preparation scripts) are still working-tree changes, so those closure
+entries pin working-tree bytes: commit them and regenerate once more before
+sealing. `--review` recomputes the closure statically and refuses any difference,
+so a future `src/` change fails closed until re-preparation.
 
 Bound after regeneration: the content-attestation change (the adapter contract
 includes the exact base content digest, supplied as the already-verified full
@@ -97,26 +152,34 @@ writes unchanged at 2049.
 
 Remaining risks recorded, not claimed as passes:
 
-* **Attempt consumption is the output directory.** A crash after `mkdir` but
-  before any receipt leaves an empty directory that consumes the attempt with
-  zero retries; recovery is operator action against a fresh output root and a
-  new authorization receipt. Not behaviourally exercised here.
-* **Torn-tail append.** A partial final line blocks recovery until an operator
-  reviews it; the run is charged and cannot silently resume.
-* **Ledger read/write window.** Readers now take the same lock shared and
-  writers hold it exclusively across the append, so a snapshot cannot observe a
-  partial line; the size-keyed cache is only consulted under that lock.
-* **Uncharged work.** Source hashing, weight loads and restart restores are now
-  declared read bytes; receipt writes are declared per stage; model-weight read
-  bandwidth and page-cache reuse are not measured.
-* **Restart wall headroom.** 150 s covers model load, 8.2 GB hashing, restore,
-  67 encodings, two forwards, one update and two parameter digests with roughly
-  a third of the allocation unused; it is an allocation, not a measurement.
-* **False-recall coverage** is limited to the declared eight-world groups, and
-  **shared-library/wheel origins** are bound by the environment receipt, not by
-  this closure.
-* Producer-side findings V1/V2 (buffer mutation, tokenizer-cache text binding)
-  belong to the producer track and are outside this packet's files.
+* **Attempt consumption is durable now, but recovery is operator work.** A
+  marker record is appended before the output tree exists, so deleting the
+  directory cannot restore an attempt; a crash between the marker and the first
+  receipt still consumes the attempt with zero retries and requires a new
+  preparation revision and receipt. Not behaviourally exercised natively.
+* **Torn tails block rather than repair themselves.** Mutations and reads refuse
+  until `recover_interrupted(accept_torn_tail=True)`; the fragment's length and
+  digest are recorded but its content is discarded, so work it might have
+  described is unknown and stays uncharged by construction.
+* **Ledger read/write window.** Readers take the same lock shared and writers
+  hold it exclusively across the append, so a snapshot cannot observe a partial
+  line; the size-keyed cache is only consulted under that lock.
+* **Read-byte accounting is declared, not measured.** Source hashing, closure
+  hashing, weight loads, restores and receipt writes are reserved and their
+  actuals recorded; physical bandwidth and page-cache reuse are not measured.
+* **Environment closure breadth.** The closure binds the resolved interpreter,
+  module origins, native extensions, every `torch/lib` file, every wheel RECORD
+  and the sealed receipt's critical files, with exact set comparison. It does
+  not hash every file of every wheel, and it cannot see a library loaded from
+  outside that set; `--environment-only` still runs first.
+* **Restart wall headroom.** 150 s covers model load, 8.2 GB hashing, the
+  closure pass, restore, 67 encodings, two forwards, one update and two
+  parameter digests; it is an allocation, not a measurement.
+* **Fresh-split breadth.** Sixteen cases in two groups of eight from two rule
+  families are a feasibility test, not broad generalization; false-recall
+  coverage is limited to those groups.
+* Producer-side findings (V1–V5, X5, X8, X12) belong to the producer track and
+  are outside this packet's files.
 
 Re-preparation after any further `src/` change (remove only the preparation
 outputs, never an attempt directory, then rerun):
@@ -125,10 +188,16 @@ outputs, never an attempt directory, then rerun):
 rm -f configs/spark_intrinsic_coverage_v12.json \
       reports/intrinsic_memory_native_v12/implementation_v12.json \
       reports/intrinsic_memory_native_v12/native_packet_two_v12.json \
-      reports/intrinsic_memory_native_v12/preparation.json
+      reports/intrinsic_memory_native_v12/preparation.json \
+      reports/intrinsic_memory_native_v12/environment_closure_v12.json \
+      reports/intrinsic_memory_native_v12/development_exposure_v12.json
 rm -rf data/intrinsic_memory_coverage_v12_20261029
 .venv/bin/python scripts/prepare_spark_intrinsic_coverage_v12.py
 ```
+
+`runs/intrinsic_memory_native_v12/attempts.jsonl` must never be deleted to make a
+re-preparation succeed: it is the durable record that an attempt was consumed,
+and preparation refuses while it exists.
 
 This packet makes no readiness claim.
 
@@ -148,7 +217,11 @@ gate stay matched to v11. The hypothesis is about source representation only.
 | `reports/intrinsic_memory_native_v12/native_packet_two_v12.json` | The single two-site packet; dense arms stay gated and unpacketized |
 | `reports/intrinsic_memory_native_v12/preparation.json` | What was and was not done, the derivation, the intended commands |
 | `reports/intrinsic_memory_native_v12/preparation_draft01/` | Preserved pre-repair preparation (README, config, manifest, closure, packet, receipt) with its own status record; non-canonical, never launched |
-| `reports/intrinsic_memory_native_v12/preparation_draft02/` | Preserved N1–N3 preparation made before the producer commit; config, packet and closure are byte-identical to the current ones; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft02/` | Preserved N1–N3 preparation made before the producer commit; its config, packet and closure matched that moment; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft03/` | Preserved packet with the retired v11-development reuse contract, before the fresh split and X-series repairs; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft04/` | Preserved working-tree packet made while producer cycle 4 was uncommitted; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/environment_closure_v12.json` | Executable dependency closure: resolved interpreter, module origins, native extensions, all `torch/lib` files, all wheel RECORDs and critical files, by actual hash |
+| `reports/intrinsic_memory_native_v12/development_exposure_v12.json` | Current exposure receipt: fresh split unopened, retired v11 split, reading incident recorded; historical receipt unedited |
 
 Produced by:
 
@@ -230,17 +303,18 @@ Totals: stage wall **6845 s** inside the unchanged **7200 s** outer envelope
 feature forwards; 1078 canonical-source tokenizer passes; 4029 prompt tokenizer
 passes; 513 backwards; 513 updates (512 fitting + 1 fresh-process
 continuation); 7256 generated tokens; 179 retrievals; 2049 declared writes;
-41,297,741,683 declared file-read bytes; 194 MiB artifacts (96 MiB envelope +
-2 MiB teacher cache + 96 MiB checkpoint); 2 model loads.
+**42,647,926,441** declared file-read bytes; 194 MiB artifacts (96 MiB envelope
++ 2 MiB teacher cache + 96 MiB checkpoint); 2 model loads.
 
 Restart alone reserves 150 s, 67 prompt-tokenizer passes (64 teacher-target
-revalidations + canary + two update encodings), 16,580,752,942 read bytes (one
-hashing pass plus the weight load plus the two restores), and 2 source spans
-recomputed from a cleared cache.
+revalidations + canary + two update encodings), 17,030,814,528 read bytes (one
+source-hashing pass plus the weight load plus one environment-closure pass plus
+the two restores), and 2 source spans recomputed from a cleared cache.
 
-Read-byte accounting: 8,238,996,247 bytes for the admission source-hashing pass;
-twice that in load and twice that in restart (a per-worker pre-load hashing pass
-plus the weight load itself); plus the checkpoint and teacher cache at restart.
+Read-byte accounting: 8,238,996,247 bytes of source hashing per process
+(admission and each worker) and the same again for each weight load (2x in load
+and 2x in restart); 450,061,586 bytes of environment-closure hashing in
+admission, load and restart; plus the checkpoint and teacher cache at restart.
 Physical page-cache reuse is not measured and is not subtracted.
 
 Write accounting: a successful wait-based read persists three pending

@@ -4,7 +4,7 @@
       "budget": {
         "admission": {
           "artifact_bytes": 100663296,
-          "artifact_read_bytes": 8238996247,
+          "artifact_read_bytes": 8689057833,
           "backwards": 0,
           "cache_evictions": 0,
           "cache_misses": 0,
@@ -290,7 +290,7 @@
         },
         "load": {
           "artifact_bytes": 0,
-          "artifact_read_bytes": 16477992494,
+          "artifact_read_bytes": 16928054080,
           "backwards": 0,
           "cache_evictions": 0,
           "cache_misses": 0,
@@ -356,7 +356,7 @@
         },
         "restart": {
           "artifact_bytes": 0,
-          "artifact_read_bytes": 17553831470,
+          "artifact_read_bytes": 18003893056,
           "backwards": 1,
           "cache_evictions": 2,
           "cache_misses": 2,
@@ -447,7 +447,7 @@
       ],
       "total_reservations": {
         "artifact_bytes": 1176502272,
-        "artifact_read_bytes": 42270820211,
+        "artifact_read_bytes": 43621004969,
         "backwards": 513,
         "cache_evictions": 949,
         "cache_misses": 949,
@@ -473,7 +473,7 @@
       "budget": {
         "admission": {
           "artifact_bytes": 100663296,
-          "artifact_read_bytes": 8238996247,
+          "artifact_read_bytes": 8689057833,
           "backwards": 0,
           "cache_evictions": 0,
           "cache_misses": 0,
@@ -759,7 +759,7 @@
         },
         "load": {
           "artifact_bytes": 0,
-          "artifact_read_bytes": 16477992494,
+          "artifact_read_bytes": 16928054080,
           "backwards": 0,
           "cache_evictions": 0,
           "cache_misses": 0,
@@ -825,7 +825,7 @@
         },
         "restart": {
           "artifact_bytes": 0,
-          "artifact_read_bytes": 16882742830,
+          "artifact_read_bytes": 17332804416,
           "backwards": 1,
           "cache_evictions": 2,
           "cache_misses": 2,
@@ -889,7 +889,7 @@
       ],
       "total_reservations": {
         "artifact_bytes": 505413632,
-        "artifact_read_bytes": 41599731571,
+        "artifact_read_bytes": 42949916329,
         "backwards": 513,
         "cache_evictions": 949,
         "cache_misses": 949,
@@ -915,7 +915,7 @@
       "budget": {
         "admission": {
           "artifact_bytes": 100663296,
-          "artifact_read_bytes": 8238996247,
+          "artifact_read_bytes": 8689057833,
           "backwards": 0,
           "cache_evictions": 0,
           "cache_misses": 0,
@@ -1201,7 +1201,7 @@
         },
         "load": {
           "artifact_bytes": 0,
-          "artifact_read_bytes": 16477992494,
+          "artifact_read_bytes": 16928054080,
           "backwards": 0,
           "cache_evictions": 0,
           "cache_misses": 0,
@@ -1267,7 +1267,7 @@
         },
         "restart": {
           "artifact_bytes": 0,
-          "artifact_read_bytes": 16580752942,
+          "artifact_read_bytes": 17030814528,
           "backwards": 1,
           "cache_evictions": 2,
           "cache_misses": 2,
@@ -1324,7 +1324,7 @@
       ],
       "total_reservations": {
         "artifact_bytes": 203423744,
-        "artifact_read_bytes": 41297741683,
+        "artifact_read_bytes": 42647926441,
         "backwards": 513,
         "cache_evictions": 949,
         "cache_misses": 949,
@@ -1352,8 +1352,8 @@
   "budget_derivation": {
     "I/O_costs": "logical/serialized bytes, synchronized wall and dispatch wall are recorded separately; physical I/O is unmeasured",
     "artifact_accounting": "194 MiB reserved = 96 MiB audit/store/receipt/log envelope + 2 MiB teacher cache + 96 MiB two-site extension/optimizer checkpoint. Checkpoint arithmetic: 4.22M trainable float32 parameters (2.90M reader + 1.32M compressor) plus two AdamW moment buffers; this is a bound, not a fit measurement",
-    "artifact_read_accounting": "41297741683 declared file-read bytes: 8238996247 for the admission source-hashing pass, the same again for the pre-load hashing in each worker plus the weight load itself (2x in load and 2x in restart), and the checkpoint plus teacher cache at restart. Physical page-cache reuse is not measured and is not subtracted",
-    "artifact_read_bytes_value": 41297741683,
+    "artifact_read_accounting": "42647926441 declared file-read bytes: 8238996247 of source hashing per process admission/worker and the same again for each weight load (2x in load and 2x in restart), 450061586 of environment-closure hashing in admission, load and restart, and the checkpoint plus teacher cache at restart. Physical page-cache reuse is not measured and is not subtracted",
+    "artifact_read_bytes_value": 42647926441,
     "audit_io": "append-only journal: logical appended bytes equal appended bytes; physical SSD amplification and flush cost are not measured and are not claimed to be lower than v11. Lower audit cost is not better learning",
     "backbone_token_unit": "each decode/parity forward reserves forwards=1 and input_tokens=256 (fixed right-padded context width)",
     "baseline_forwards": "8 worlds * 8 reserved tokens = 64; no source features",
@@ -1361,6 +1361,8 @@
     "correction_forwards": "24 generated + 1 source forward; 2 tokenizer passes because the correction evicts the corrected record before the re-read",
     "deadline": "monotonic and wall-clock outer deadline both persisted; the stricter remaining time wins, so a monotonic-clock restart cannot extend the budget",
     "development_forwards": "16 worlds * 6 controls * 8 reserved tokens = 768 + 16 admissions",
+    "environment_closure_bytes": 450061586,
+    "environment_closure_files": 67,
     "failed_or_interrupted_work": "reserved_before_dispatch_no_refunds",
     "fit_probe_forwards": "per prefix, 32 worlds * (2 parity + 6 control + 6*8 generated) = 1792 backbone forwards, plus 96 source forwards; per world 4 tokenizer passes (release rebuild, provenance re-check after publication cleared C, live, wrong-world), 4 release writes, 3 descriptor writes and 2 of resume headroom; plus 2 stage receipts",
     "fitting_updates": "32 worlds * 16 passes = 512; each update reserves 1 backbone forward, 1 canonical span, 1 backward, 1 update and 1 receipt write",
@@ -1420,8 +1422,8 @@
       "sha256": "f51a078f261d395bfa5ac8a5ee9fa2e8eeb8aa88b221608acd9e8759574c68f5"
     },
     "development": {
-      "path": "data/intrinsic_memory_coverage_v11_20261029/development.json",
-      "sha256": "5ad4db718cadd32498de7629d6697b90529a95fb262b113c3b2d126d0d8e9a8f"
+      "path": "data/intrinsic_memory_coverage_v12_20261029/development.json",
+      "sha256": "606fecf9e39da2941c21c5126f3b6aebc4dbbc675d7888cb1e634dc599e5de3a"
     },
     "fit": {
       "path": "data/intrinsic_memory_coverage_v11_20261029/fit.json",
@@ -1430,7 +1432,7 @@
   },
   "data_manifest": {
     "path": "data/intrinsic_memory_coverage_v12_20261029/split_manifest.json",
-    "sha256": "394bf5e959942976b294368cd29ab7d1108d31a5161c0b3e39f706d9db46b99b"
+    "sha256": "64e6775ffc68f5bbe1781536c8b4ddd9713dc912b35e76883a613b8c241e8ac8"
   },
   "density_controls": {
     "execution_prerequisite_for_nine_and_all": "qualified_current_two_site_result_bound_in_exact_authorization",
@@ -1452,6 +1454,10 @@
     "path": "configs/spark_intrinsic_execution_environment_v1.json",
     "sha256": "7bac9e5e963d3b9fa1cb8cc3be846dc72938a7206ddcc7fd978ba07257c67095"
   },
+  "environment_closure": {
+    "path": "reports/intrinsic_memory_native_v12/environment_closure_v12.json",
+    "sha256": "d521db9340e3638c481ede19a7ed670949ed9440167739b426b815276d6fbc68"
+  },
   "experiment_variant": {
     "all_choices_fixed_before_v12_native_answers": true,
     "changed": [
@@ -1469,6 +1475,10 @@
       "adapter_contract: content-bound through the already-verified full original parameter digest, so an adapter with identical geometry but different content is refused",
       "data_manifest: new v12 manifest with an explicit exposure contract over the same rows"
     ],
+    "fresh_development_split": {
+      "path": "data/intrinsic_memory_coverage_v12_20261029/development.json",
+      "sha256": "606fecf9e39da2941c21c5126f3b6aebc4dbbc675d7888cb1e634dc599e5de3a"
+    },
     "historical_results_rewritten": false,
     "id": "frozen_source_features_contextual_compression_v12",
     "isolated_causal_attribution": false,
@@ -1486,13 +1496,17 @@
       "source_hidden_size": 2560,
       "swap_growth_bytes": 536870912
     },
+    "prior_development_retired": {
+      "path": "data/intrinsic_memory_coverage_v11_20261029/development.json",
+      "sha256": "5ad4db718cadd32498de7629d6697b90529a95fb262b113c3b2d126d0d8e9a8f"
+    },
     "prior_development_reuse_basis": {
       "path": "reports/intrinsic_memory_coverage_v11/development_exposure.json",
       "sha256": "b073a790021e18e3420046230b67e40f10a132822a0cb5edd91d4ebd531d78a7"
     },
-    "prior_development_reused": true,
+    "prior_development_reused": false,
     "reason": "v11 learns its fitting memories but does not transfer useful recall; test a different source representation (frozen canonical-source hidden states with a live trainable compressor) under unchanged reader, exposure and gates",
-    "scope_limit": "one mechanism substitution at matched exposure; no claim that the source representation alone explains any change",
+    "scope_limit": "one mechanism substitution at matched exposure with a fresh development split; no claim that the source representation alone explains any change",
     "teacher_updates": 0,
     "unchanged": [
       "official_BF16_source_and_revision",
@@ -1513,24 +1527,28 @@
     "calibration": {
       "labels": "already_exposed_in_v11",
       "reuse": "matched_comparison_only",
+      "role": "reused_v11_calibration",
       "status": "already_exposed_in_v11"
     },
     "development": {
-      "development_file_sha256": "5ad4db718cadd32498de7629d6697b90529a95fb262b113c3b2d126d0d8e9a8f",
+      "development_file_sha256": "606fecf9e39da2941c21c5126f3b6aebc4dbbc675d7888cb1e634dc599e5de3a",
       "exposure_receipt": {
-        "path": "reports/intrinsic_memory_coverage_v11/development_exposure.json",
-        "sha256": "b073a790021e18e3420046230b67e40f10a132822a0cb5edd91d4ebd531d78a7"
+        "path": "reports/intrinsic_memory_native_v12/development_exposure_v12.json",
+        "sha256": "79e8b3abf656cd41a8c5681ed45a0ef7be9b48fc610831e905c06c16527ed5d3"
       },
+      "fresh_split": true,
       "labels": "unopened_at_preparation",
-      "opened_in_v11": false,
-      "preparation_parses_development_labels": false,
-      "reuse": "matched_comparison_only",
-      "status": "open_only_after_frozen_final_fit_gate"
+      "preparation_generated_labels_from_oracle": true,
+      "preparation_parsed_development_labels": false,
+      "retired_v11_development": true,
+      "role": "fresh_v12_development",
+      "status": "sealed_until_final_fit_gate"
     },
     "fit": {
       "group_selection": "fixed_predeclared_groups_only",
       "labels": "already_exposed_in_v11",
       "reuse": "matched_comparison_only",
+      "role": "reused_v11_fit",
       "status": "already_exposed_in_v11_no_tuning_escape"
     }
   },
@@ -1568,9 +1586,13 @@
     ],
     "thinking": "none"
   },
+  "historical_v11_exposure": {
+    "path": "reports/intrinsic_memory_coverage_v11/development_exposure.json",
+    "sha256": "b073a790021e18e3420046230b67e40f10a132822a0cb5edd91d4ebd531d78a7"
+  },
   "implementation": {
     "path": "reports/intrinsic_memory_native_v12/implementation_v12.json",
-    "sha256": "e4e7df7fcbac7bf5347bc2d8dbce4bbb0e89cc885d06557b3b5e97e761db806c"
+    "sha256": "c683db4881346ff0d922fc1744557f00a1328d462550b4facea5239362185d2c"
   },
   "numerical_restart_on_failed_fit": "allowed diagnostic, one update already budgeted; no generalization claim",
   "optimizer": "NativeFusedAdamW",
@@ -1578,8 +1600,8 @@
   "persistent_capacity": "existing_P1_no_expansion",
   "placement": "block_input_query_to_post_block_residual",
   "prior_development_exposure": {
-    "path": "reports/intrinsic_memory_coverage_v11/development_exposure.json",
-    "sha256": "b073a790021e18e3420046230b67e40f10a132822a0cb5edd91d4ebd531d78a7"
+    "path": "reports/intrinsic_memory_native_v12/development_exposure_v12.json",
+    "sha256": "79e8b3abf656cd41a8c5681ed45a0ef7be9b48fc610831e905c06c16527ed5d3"
   },
   "slot_policy": "fixed_eight_masked_padding_v5",
   "slot_policy_v12": "fixed_eight_masked_padding_v12",

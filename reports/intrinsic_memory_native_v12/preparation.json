@@ -1,10 +1,11 @@
 {
+  "attempt_marker": "runs/intrinsic_memory_native_v12/attempts.jsonl",
   "authorization_path_reserved_not_created": "reports/intrinsic_memory_native_v12/authorization_two_v12.json",
   "budget_derivation": {
     "I/O_costs": "logical/serialized bytes, synchronized wall and dispatch wall are recorded separately; physical I/O is unmeasured",
     "artifact_accounting": "194 MiB reserved = 96 MiB audit/store/receipt/log envelope + 2 MiB teacher cache + 96 MiB two-site extension/optimizer checkpoint. Checkpoint arithmetic: 4.22M trainable float32 parameters (2.90M reader + 1.32M compressor) plus two AdamW moment buffers; this is a bound, not a fit measurement",
-    "artifact_read_accounting": "41297741683 declared file-read bytes: 8238996247 for the admission source-hashing pass, the same again for the pre-load hashing in each worker plus the weight load itself (2x in load and 2x in restart), and the checkpoint plus teacher cache at restart. Physical page-cache reuse is not measured and is not subtracted",
-    "artifact_read_bytes_value": 41297741683,
+    "artifact_read_accounting": "42647926441 declared file-read bytes: 8238996247 of source hashing per process admission/worker and the same again for each weight load (2x in load and 2x in restart), 450061586 of environment-closure hashing in admission, load and restart, and the checkpoint plus teacher cache at restart. Physical page-cache reuse is not measured and is not subtracted",
+    "artifact_read_bytes_value": 42647926441,
     "audit_io": "append-only journal: logical appended bytes equal appended bytes; physical SSD amplification and flush cost are not measured and are not claimed to be lower than v11. Lower audit cost is not better learning",
     "backbone_token_unit": "each decode/parity forward reserves forwards=1 and input_tokens=256 (fixed right-padded context width)",
     "baseline_forwards": "8 worlds * 8 reserved tokens = 64; no source features",
@@ -12,6 +13,8 @@
     "correction_forwards": "24 generated + 1 source forward; 2 tokenizer passes because the correction evicts the corrected record before the re-read",
     "deadline": "monotonic and wall-clock outer deadline both persisted; the stricter remaining time wins, so a monotonic-clock restart cannot extend the budget",
     "development_forwards": "16 worlds * 6 controls * 8 reserved tokens = 768 + 16 admissions",
+    "environment_closure_bytes": 450061586,
+    "environment_closure_files": 67,
     "failed_or_interrupted_work": "reserved_before_dispatch_no_refunds",
     "fit_probe_forwards": "per prefix, 32 worlds * (2 parity + 6 control + 6*8 generated) = 1792 backbone forwards, plus 96 source forwards; per world 4 tokenizer passes (release rebuild, provenance re-check after publication cleared C, live, wrong-world), 4 release writes, 3 descriptor writes and 2 of resume headroom; plus 2 stage receipts",
     "fitting_updates": "32 worlds * 16 passes = 512; each update reserves 1 backbone forward, 1 canonical span, 1 backward, 1 update and 1 receipt write",
@@ -38,11 +41,17 @@
     "total_writes": "sum of all 18 two-site stage caps: admission=5 + load=0 + baseline=9 + numerical=2 + prepare=193 + teacher=34 + checkpoint=7 + development=98 + correction=14 + restart=7 + fit_128=129 + fit_probes_128=291 + fit_256=129 + fit_probes_256=291 + fit_384=129 + fit_probes_384=291 + fit_512=129 + fit_probes_512=291 = 2049 declared writes, including descriptor persists, one observed source-cost receipt per closed stage, and the receipts written outside a stage",
     "total_writes_value": 2049
   },
+  "commits_made": false,
   "data_manifest": {
     "path": "data/intrinsic_memory_coverage_v12_20261029/split_manifest.json",
-    "sha256": "394bf5e959942976b294368cd29ab7d1108d31a5161c0b3e39f706d9db46b99b"
+    "sha256": "64e6775ffc68f5bbe1781536c8b4ddd9713dc912b35e76883a613b8c241e8ac8"
   },
-  "development_labels_parsed": false,
+  "development_exposure_receipt": {
+    "path": "reports/intrinsic_memory_native_v12/development_exposure_v12.json",
+    "sha256": "79e8b3abf656cd41a8c5681ed45a0ef7be9b48fc610831e905c06c16527ed5d3"
+  },
+  "development_labels_generated_from_oracle": true,
+  "development_labels_parsed_by_preparation": false,
   "differences_from_v11": [
     "value_producer: frozen canonical-source decoder hidden states followed by a live trainable compressor instead of a trainable encoder over template-framed text",
     "source_input: canonical span text only, no chat template and no special tokens, explicit zero-based positions, extensions disabled and audited",
@@ -58,20 +67,41 @@
     "adapter_contract: content-bound through the already-verified full original parameter digest, so an adapter with identical geometry but different content is refused",
     "data_manifest: new v12 manifest with an explicit exposure contract over the same rows"
   ],
+  "environment_closure": {
+    "path": "reports/intrinsic_memory_native_v12/environment_closure_v12.json",
+    "sha256": "d521db9340e3638c481ede19a7ed670949ed9440167739b426b815276d6fbc68"
+  },
+  "environment_closure_receipt": {
+    "bytes_verified": 450061586,
+    "closure_sha256": "1848a9a1ce3a6da3437c121e68b7a05284f7c9eaec496e18bf218294f07c2209",
+    "coverage": "interpreter, native extensions, torch/lib shared libraries, wheel RECORD files and the sealed receipt critical files",
+    "files_verified": 67,
+    "interpreter": "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/bin/python3.12",
+    "prefix": "/Users/flare/replica_r3_starter/.venv-spark-bf16"
+  },
   "format": "replica.intrinsic_memory.native_preparation.v12",
+  "fresh_development": {
+    "path": "data/intrinsic_memory_coverage_v12_20261029/development.json",
+    "sha256": "606fecf9e39da2941c21c5126f3b6aebc4dbbc675d7888cb1e634dc599e5de3a"
+  },
+  "historical_v11_exposure_untouched": {
+    "path": "reports/intrinsic_memory_coverage_v11/development_exposure.json",
+    "sha256": "b073a790021e18e3420046230b67e40f10a132822a0cb5edd91d4ebd531d78a7"
+  },
   "history_written": false,
   "implementation": {
     "path": "reports/intrinsic_memory_native_v12/implementation_v12.json",
-    "sha256": "e4e7df7fcbac7bf5347bc2d8dbce4bbb0e89cc885d06557b3b5e97e761db806c"
+    "sha256": "c683db4881346ff0d922fc1744557f00a1328d462550b4facea5239362185d2c"
   },
   "native_authorization_created": false,
   "native_run": false,
-  "next_step": "independent review of these bytes, then a truthful external authorization receipt, then exactly one guarded launch",
+  "next_step": "independent review of these bytes, then a truthful external authorization receipt, then exactly one guarded launch bound to the durable attempt marker",
   "packet": {
     "path": "reports/intrinsic_memory_native_v12/native_packet_two_v12.json",
-    "sha256": "98c3f47abfa12d29222ae6b90e4c2b944396f4fb00bb29ba63ec20236773012d"
+    "sha256": "48963bdc1996526d7512cb6e753901d3562b08610cf67894906f0ec95b988c9e"
   },
   "preparation_checks": {
+    "attempt_marker": "runs/intrinsic_memory_native_v12/attempts.jsonl",
     "code_before_model_loading": true,
     "comparison": {
       "shared_contracts_identical": true,
@@ -151,6 +181,14 @@
       "python": "3.12.14",
       "scope": "exact_installed_package_versions_module_origins_and_selected_executable_files_not_full_wheel_integrity"
     },
+    "environment_closure": {
+      "bytes_verified": 450061586,
+      "closure_sha256": "1848a9a1ce3a6da3437c121e68b7a05284f7c9eaec496e18bf218294f07c2209",
+      "coverage": "interpreter, native extensions, torch/lib shared libraries, wheel RECORD files and the sealed receipt critical files",
+      "files_verified": 67,
+      "interpreter": "/Users/flare/replica_r3_starter/.venv/bin/python",
+      "prefix": "/Users/flare/replica_r3_starter/.venv-spark-bf16"
+    },
     "feature_binding": {
       "original_parameters_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
       "source_files_sha256": "c309e44c93edf04187447c27990ecd0979990d7bab9e8dbf5a715afd2f82a50a",
@@ -158,25 +196,34 @@
     },
     "implementation_files": 62,
     "native_competence": false,
-    "packet_sha256": "98c3f47abfa12d29222ae6b90e4c2b944396f4fb00bb29ba63ec20236773012d",
+    "packet_sha256": "48963bdc1996526d7512cb6e753901d3562b08610cf67894906f0ec95b988c9e",
     "reused_data": {
       "development_labels_parsed_at_admission": false,
       "development_opened": false,
+      "fresh_development": {
+        "path": "data/intrinsic_memory_coverage_v12_20261029/development.json",
+        "sha256": "606fecf9e39da2941c21c5126f3b6aebc4dbbc675d7888cb1e634dc599e5de3a"
+      },
+      "matched_calibration_and_fit": true,
       "new_manifest": {
         "path": "data/intrinsic_memory_coverage_v12_20261029/split_manifest.json",
-        "sha256": "394bf5e959942976b294368cd29ab7d1108d31a5161c0b3e39f706d9db46b99b"
+        "sha256": "64e6775ffc68f5bbe1781536c8b4ddd9713dc912b35e76883a613b8c241e8ac8"
       },
-      "same_rows_as_v11": true
+      "v11_development_retired": true
     },
     "source_bytes_hashed": 0,
     "source_execution_files": 2,
-    "source_hash_wall_seconds": 0.0004015830345451832,
+    "source_hash_wall_seconds": 0.0003508753143250942,
     "source_qualified_for_loading": false,
     "useful_memory": false
   },
   "protocol": {
     "path": "configs/spark_intrinsic_coverage_v12.json",
-    "sha256": "b6247f6c0bf46097f864f4c558b90b683d21200c7d89dfb3233c949835cf3f0a"
+    "sha256": "16c7b2f3ff072249e9a370be6e906ac93d8cfced6127122dfa6b6337e09203e7"
+  },
+  "retired_v11_development": {
+    "path": "data/intrinsic_memory_coverage_v11_20261029/development.json",
+    "sha256": "5ad4db718cadd32498de7629d6697b90529a95fb262b113c3b2d126d0d8e9a8f"
   },
   "two_site_stage_walls": {
     "admission": 30,
@@ -200,7 +247,7 @@
   },
   "two_site_total_reservations": {
     "artifact_bytes": 203423744,
-    "artifact_read_bytes": 41297741683,
+    "artifact_read_bytes": 42647926441,
     "backwards": 513,
     "cache_evictions": 949,
     "cache_misses": 949,

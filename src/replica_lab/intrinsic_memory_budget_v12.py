@@ -127,6 +127,7 @@ def _replay(lines, *, identity):
             or any(isinstance(v, bool) or not math.isfinite(v) for v in clock.values())):
         raise BudgetError('ledger deadline state missing')
     stages, events = {}, []
+    torn_records = []
     reserved = {k: 0 for k in COUNTERS}
     reserved_wall = 0
     for record in lines[1:]:
@@ -180,13 +181,15 @@ def _replay(lines, *, identity):
                                      'message': 'process terminated before terminal record; charged'},
                              elapsed_seconds=None)
         elif kind == 'torn':
-            if type(record.get('bytes')) is not int or record['bytes'] <= 0:
+            if (type(record.get('bytes')) is not int or record['bytes'] <= 0
+                    or not isinstance(record.get('sha256'), str)):
                 raise BudgetError('invalid torn-tail record')
+            torn_records.append({'bytes': record['bytes'], 'sha256': record['sha256']})
         else:
             raise BudgetError('unknown journal record')
     return {'format': FORMAT, 'identity': identity, 'plan': plan, 'plan_sha256': sha_json(plan),
             'clock': clock, 'stages': stages, 'events': events, 'reserved': reserved,
-            'reserved_wall_seconds': reserved_wall}
+            'reserved_wall_seconds': reserved_wall, 'torn_records': torn_records}
 
 
 class WorkLedger:
@@ -222,11 +225,17 @@ class WorkLedger:
         if not lines: raise BudgetError('reservation journal has no complete record')
         return lines, torn
 
-    def _read(self):
+    def _read(self, *, allow_torn=False):
         if self.path.is_symlink() or not self.path.is_file():
             raise BudgetError('missing or substituted reservation journal')
         payload = self.path.read_bytes()
         lines, torn = self._lines(payload)
+        if torn and not allow_torn:
+            # A torn tail means the last append did not complete. Every mutation
+            # would fuse with the partial line, and every read would report a
+            # state that cannot be reproduced. Both are refused until an operator
+            # runs explicit recovery.
+            raise BudgetError('torn journal tail: operator recovery required')
         doc = _replay(lines, identity=self.identity)
         doc['journal'] = {'appended_bytes': len(payload), 'append_calls': len(lines),
                           'torn_tail': torn, 'path': str(self.path)}
@@ -362,22 +371,53 @@ class WorkLedger:
                 'clock_skew_seconds': skew,
                 'clock_reanchored': abs(skew) > CLOCK_TOLERANCE_SECONDS}
 
-    def recover_interrupted(self):
-        """Record terminated work without refunding it. Refuses a torn tail.
+    def recover_interrupted(self, *, accept_torn_tail=False):
+        """Operator-only recovery: truncate a torn tail, then close interrupted work.
 
-        Operator-only: the planned main->restart hand-off leaves no outstanding
-        reservation, so a healthy continuation never needs this call.
+        Refuses by default. With ``accept_torn_tail`` the incomplete final line is
+        removed from the journal (its length and digest are appended as a ``torn``
+        record, because the work it might have described cannot be reconstructed),
+        and every reservation without a terminal record is closed as failed while
+        remaining charged. The planned main->restart hand-off leaves no
+        outstanding reservation, so a healthy continuation never calls this.
         """
-        with self._transaction() as (doc, write):
-            if doc['journal']['torn_tail']:
-                raise BudgetError('torn journal tail: unknown reservation requires explicit operator review')
-            ids = [e['id'] for e in doc['events'] if e['status'] == 'reserved']
-            active = [name for name, state in doc['stages'].items() if state['status'] == 'active']
-            if ids: write({'t': 'recover', 'ids': ids, 'at': time.monotonic()})
-            for name in active:
-                write({'t': 'leave', 'stage': name, 'status': 'interrupted',
-                       'elapsed_seconds': None})
-        return {'charged_events': ids, 'interrupted_stages': active, 'refunded': False}
+        lock = self.path.with_suffix('.lock')
+        if lock.is_symlink() or self.path.is_symlink(): raise BudgetError('substituted ledger')
+        with lock.open('a') as stream:
+            fcntl.flock(stream, fcntl.LOCK_EX)
+            try:
+                payload = self.path.read_bytes()
+                lines, torn = self._lines(payload)
+                if torn and not accept_torn_tail:
+                    raise BudgetError('torn journal tail: operator recovery required')
+                _replay(lines, identity=self.identity)
+                torn_record = None
+                if torn:
+                    cut = payload.rfind(b'\n')+1
+                    if cut <= 0:
+                        raise BudgetError('journal has no complete record to recover from')
+                    fragment = payload[cut:]
+                    os.truncate(self.path, cut)
+                    fd = os.open(self.path, os.O_RDONLY)
+                    try: os.fsync(fd)
+                    finally: os.close(fd)
+                    torn_record = {'bytes': len(fragment),
+                                   'sha256': hashlib.sha256(fragment).hexdigest()}
+                    self._write({'t': 'torn', **torn_record})
+                    lines, _ = self._lines(self.path.read_bytes())
+                doc = _replay(lines, identity=self.identity)
+                ids = [e['id'] for e in doc['events'] if e['status'] == 'reserved']
+                active = [name for name, state in doc['stages'].items()
+                          if state['status'] == 'active']
+                if ids: self._write({'t': 'recover', 'ids': ids, 'at': time.monotonic()})
+                for name in active:
+                    self._write({'t': 'leave', 'stage': name, 'status': 'interrupted',
+                                 'elapsed_seconds': None})
+            finally:
+                self._cache = None
+                fcntl.flock(stream, fcntl.LOCK_UN)
+        return {'charged_events': ids, 'interrupted_stages': active, 'refunded': False,
+                'torn_tail': torn_record}
 
     # ------------------------------------------------------------------
     # Reservations
@@ -464,5 +504,6 @@ def audit_io(ledger):
             'physical_io_note': ('append-only journal: requested bytes equal appended bytes; '
                                  'SSD write amplification, page cache and flush cost are not measured'),
             'reservations_charged': dict(doc['reserved']),
+            'torn_tail_records': len(doc.get('torn_records', [])),
             'failed_or_interrupted_events': sum(1 for e in doc['events']
                                                 if e['status'] in ('failed', 'interrupted'))}

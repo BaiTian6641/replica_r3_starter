@@ -12,7 +12,7 @@ import pytest
 from replica_lab.intrinsic_memory_budget_v12 import COUNTERS, validate_plan
 from replica_lab.intrinsic_memory_coverage_v12 import (
     ARMS, BUDGET_DERIVATION, COVERAGE, DIFFERENCES_FROM_V11, FEATURE_CACHE_ENTRIES,
-    FORMAT, OUTER_WALL_SECONDS, PREFIXES, REPRESENTATION_VALUE, SLOT_POLICY_V12,
+    FORMAT, GROUP_SIZE, OUTER_WALL_SECONDS, PREFIXES, REPRESENTATION_VALUE, SLOT_POLICY_V12,
     SOURCE_FEATURES, SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS, TEACHER, TRAINING,
     UNCHANGED_FROM_V11, declared_tokenizer_identity, plan, tokenizer_identity_digest,
     totals, validate_protocol, validate_source_feature_binding)
@@ -196,6 +196,68 @@ def test_no_silent_contract_or_envelope_change(damage):
     elif damage == 'read_bytes_value':
         protocol['budget_derivation']['artifact_read_bytes_value'] = 0
     with pytest.raises(ValueError): validate_protocol(protocol)
+
+
+def test_fresh_development_split_is_independent_deterministic_and_sealed():
+    from replica_lab.intrinsic_memory_coverage_v12 import (
+        DEVELOPMENT_CASES, DEVELOPMENT_ENTITIES, DEVELOPMENT_ROOTS,
+        DEVELOPMENT_WORLD_PREFIX, v12_development_public_identity,
+        v12_development_worlds, validate_v12_development)
+    from replica_lab.intrinsic_memory_worlds_v11 import ENTITIES as V11_ENTITIES
+    rows = v12_development_worlds()
+    assert validate_v12_development(v12_development_worlds()) is True
+    assert rows == v12_development_worlds()          # deterministic
+    assert len(rows) == DEVELOPMENT_CASES == 16
+    assert all(r['world_id'].startswith(DEVELOPMENT_WORLD_PREFIX) for r in rows)
+    assert {r['family'] for r in rows} == set(DEVELOPMENT_ROOTS)
+    v11_entities = {name for names in V11_ENTITIES.values() for name in names}
+    assert not set(DEVELOPMENT_ENTITIES) & v11_entities
+    assert not {r['query_entity'] for r in rows} & v11_entities
+    for start in range(0, DEVELOPMENT_CASES, GROUP_SIZE):
+        group = rows[start:start+GROUP_SIZE]
+        assert sum(r['answer'] == 'unknown' for r in group) == 2
+        assert len({r['family'] for r in group}) == 4
+        assert len({r['rule_family'] for r in group}) == 1
+    identity = v12_development_public_identity()
+    assert identity['label_content_included'] is False
+    assert set(identity) == {'split', 'role', 'cases', 'entities', 'decision_roots',
+                             'seed', 'source_text_sha256', 'label_content_included'}
+    assert identity['role'] == 'fresh_v12_development'
+    assert 'rows' not in identity and 'answer' not in identity
+
+
+@pytest.mark.parametrize('damage', ['v11_entity', 'world_prefix', 'group_order',
+                                    'root', 'answer', 'duplicate_id', 'length'])
+def test_fresh_development_validation_rejects_damage(damage):
+    from replica_lab.intrinsic_memory_coverage_v12 import (
+        v12_development_worlds, validate_v12_development)
+    rows = v12_development_worlds()
+    if damage == 'v11_entity':
+        rows[0]['query_entity'] = 'Arven'          # a v11 calibration entity
+    elif damage == 'world_prefix':
+        rows[0]['world_id'] = 'v11_development_00'
+    elif damage == 'group_order':
+        rows[0]['criterion_group'] = 1
+    elif damage == 'root':
+        rows[0]['family'] = 'v11_development_decision_00'
+    elif damage == 'answer':
+        rows[0]['answer'] = 'orange'
+    elif damage == 'duplicate_id':
+        rows[1]['world_id'] = rows[0]['world_id']
+    elif damage == 'length':
+        rows[0]['text'] = 'The recorded color of x is red. ' * 20
+    with pytest.raises(ValueError):
+        validate_v12_development(rows)
+
+
+def test_fresh_development_never_reuses_the_retired_v11_split():
+    """The current exposure contract must retire v11 development, not extend it."""
+    from replica_lab.intrinsic_memory_coverage_v12 import v12_development_worlds
+    v11_paths = {pin['path'] for pin in V11['data'].values()}
+    assert not ({'data/intrinsic_memory_coverage_v12_20261029/development.json'} & v11_paths)
+    rows = v12_development_worlds()
+    assert all('v11_' not in row['world_id'] for row in rows)
+    assert all('v11_' not in row['family'] for row in rows)
 
 
 def test_dense_arms_and_group_criteria_stay_declared_but_gated():
