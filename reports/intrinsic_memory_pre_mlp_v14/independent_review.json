@@ -1,0 +1,28 @@
+{
+  "format": "replica.intrinsic_memory.pre_mlp_independent_review.v14",
+  "verdict": "no_findings",
+  "reviewer": "PreMLPReview independent reviewer agent",
+  "placement_implementation_commit": "7ab7f1b0",
+  "packet_authorization_commit": "788ef2f7",
+  "diagnostic_decision_commit": "111aa097",
+  "checks": {
+    "single_primary_mechanism": true,
+    "block_input_query_pre_mlp_injection_no_double_injection": true,
+    "native_and_fixture_abi_equivalence": true,
+    "gradient_paths_and_disabled_parity": true,
+    "placement_checkpoint_identity": true,
+    "no_teacher_or_future_answer_leakage": true,
+    "development_final_fit_gate_preserved": true,
+    "protocol_packet_authorization_hashes_recomputed": true,
+    "external_tensor_lineage": true
+  },
+  "native_execution_by_reviewer": false,
+  "tests_run_by_reviewer": false,
+  "limitations": [
+    "Native attempt01 remains unfinished; no learning result is established.",
+    "CPU tests establish mechanics only, not native learning.",
+    "V13 has 32 exposed fitting rows and does not prove pre-MLP benefit.",
+    "Pairs 11, 14 and 15 lack direct source-feature distance comparisons because shapes differ; raw features remain preserved.",
+    "Raw V13 safetensors depend on filesystem preservation and the external manifest rather than Git retention."
+  ]
+}
