@@ -1,0 +1,48 @@
+{
+  "format": "replica.successors.interface_map.v1",
+  "status": "implemented CPU adapters; no native conditioning claim",
+  "entries": [
+    {
+      "existing": "src/replica_lab/architecture/core.py::CognitiveCore",
+      "successor": "successors.adapters.CoreWorkspaceAdapter",
+      "boundary": "adapter builds one CoreState per decision; previous workspace is detached; no module edit",
+      "evidence": "tiny CPU tensors, gradient retained only in training mode"
+    },
+    {
+      "existing": "src/replica_lab/architecture/contracts.py::CoreState",
+      "successor": "CoreState identity_digest binds host-supplied identity slots",
+      "boundary": "no identity encoder is implemented; slots remain host-supplied",
+      "evidence": "null/disabled parity asserted in tests"
+    },
+    {
+      "existing": "src/replica_lab/runtime/loop.py::TaskRuntime",
+      "successor": "successors.adapters.TaskRuntimeFormationAdapter",
+      "boundary": "pin before decisions; commit after the exact task boundary; only host outcomes become observations",
+      "evidence": "scripted CPU fixture; verifier authority unchanged"
+    },
+    {
+      "existing": "src/replica_lab/runtime/workspace_store.py::WorkspaceStore",
+      "successor": "CoreWorkspaceAdapter.save/load/reset_task",
+      "boundary": "workspace is an optimization; exact journal remains authority",
+      "evidence": "save/load/reset behavior on CPU"
+    },
+    {
+      "existing": "src/replica_lab/replica/identity.py::IdentityArchive/IdentityStore",
+      "successor": "successors.adapters.IdentityAdapter",
+      "boundary": "approved snapshot resolution only; identity never satisfies a verifier",
+      "evidence": "null path renders empty text; fictional fixtures only"
+    },
+    {
+      "existing": "src/replica_lab/replica/reader.py::IdentityReader",
+      "successor": "CoreWorkspaceAdapter(identity_reader=...) / IdentityAdapter.reader_delta",
+      "boundary": "optional, zero-initialized final projection; inserted after core workspace",
+      "evidence": "exact zero parity when disabled; no trained source-to-slot pipeline claimed"
+    },
+    {
+      "existing": "src/replica_lab/tiered_memory.py::TieredMemoryStore",
+      "successor": "successors.tiers.TieredBlobStore",
+      "boundary": "isolated generic blob/tier validity; existing store untouched",
+      "evidence": "hot/warm/cold movement, revalidation and measured latency"
+    }
+  ]
+}
