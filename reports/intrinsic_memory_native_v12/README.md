@@ -106,7 +106,7 @@ detected X14. They are historical receipts for their own packet hashes and do
 focused suite and independent review for these bytes are still pending, and no
 authorization or launch exists.
 
-Six earlier unlaunched preparations are preserved verbatim, unmodified and
+Seven earlier unlaunched preparations are preserved verbatim, unmodified and
 clearly non-canonical, each with a computed-hash status record:
 `preparation_draft01/` binds pre-repair bytes, `preparation_draft02/` carries the
 N1–N3 repairs made before the producer commit, and `preparation_draft03/` carries
@@ -116,28 +116,38 @@ cycle 4 was uncommitted, `preparation_draft05/` the packet made while the
 consumer repairs were uncommitted, and `preparation_draft06/` the packet before
 the X14 stage-lifecycle repair, the seeded development generator and the
 terminal-receipt charging (including the positionally equivalent development
-corpus this cycle replaced). Drafts 04 and 05 differ from their successors only
-in `preparation.json`; draft 06 differs in the protocol, development corpus and
-resulting hashes. No attempt or historical evidence was moved or deleted.
+corpus this cycle replaced), and `preparation_draft07/` the lifecycle packet made
+while producer cycle 5 and the consumer repairs were working-tree changes; every
+draft-07 artifact except `preparation.json` is byte-identical to the current
+canonical ones. No attempt or historical evidence was moved or deleted.
 
-Provenance: the v12 producer was committed at `6dede67e`, repaired for the
-independent review at `6ba07e1b`, and repaired again at `826aac6b`
-(`fix: charge cold failures and prove release parity`). Producer repair cycle 5
-(exception-safe cold staging, transaction-ordered release publication,
-pre-existing buffer authority, producer-side contract enforcement) is a
-working-tree change at preparation time, so this closure pins those producer
-bytes together with the seven uncommitted consumer files of the X14/X0/X3
-follow-ups. Commit both, then regenerate once more (same discard-and-rerun)
-before sealing; `--review` recomputes the closure statically and refuses any
-difference, so a later `src/` change fails closed.
+Provenance: the v12 producer was committed at `6dede67e`, repaired at
+`6ba07e1b`, repaired again at `826aac6b`, and closed at `7cf57766`
+(`fix: make v12 publication and process exits safe`); the consumer repairs are
+committed at `2ddb6287` (`fix: close native lifecycle and split freshness
+gates`). **All 62 closure entries equal their `HEAD` blob content**, and
+regenerating after both commits changed only `preparation.json` (its measured
+hashing wall time) — the packet hash is unchanged at `48910b59…`.
 
-At consumer commit `257c722e` all 62 closure entries equalled their `HEAD` blob
-content and the packet was byte-identical to the gated one. Since then producer
-cycle 5 and the seven consumer files of the X14/X0/X3 follow-ups are working-tree
-changes, so the current closure pins working-tree bytes; the packet hash is now
-`48910b59…`, not the gated `48963bdc…`, because the stage envelope, development
-corpus and stage plan changed. Re-run the gates against the new bytes after both
-are committed and the closure is regenerated.
+The coordinator lifecycle preflight
+(`preflight_verification_lifecycle.json`, format
+`replica.intrinsic_memory.preflight_verification.v12.lifecycle`) records the
+gates for exactly this packet: focused tests 83/83, `environment-only`
+`environment_verified`, and `--review` bound to packet `48910b59…`, with
+`attempt_marker_created: false`, `authorization_created: false`,
+`native_attempt_consumed: false`, producer commit `7cf57766`, envelope 20 stages
+/ 6905 s / 2055 writes / 4029 prompt passes, and the 67-file / 450,061,586-byte
+closure verified. It also records that those static gates do **not** execute
+`run_main`, and that independent lifecycle re-review is still required before
+authorization.
+
+The earlier packet `48963bdc…` covered the pre-lifecycle stage plan (6845 s,
+2049 writes) and its receipts remain as history. The lifecycle packet
+`48910b59…` changed the stage plan (20 stages, 6905 s, 2055 writes), the
+development corpus (seeded generator) and therefore the protocol and
+implementation hashes; it is bound to committed bytes and carries the
+coordinator gates above. Independent lifecycle re-review and the seal remain
+outstanding, and no authorization receipt exists.
 
 Bound after regeneration: the content-attestation change (the adapter contract
 includes the exact base content digest, supplied as the already-verified full
@@ -251,6 +261,7 @@ gate stay matched to v11. The hypothesis is about source representation only.
 | `reports/intrinsic_memory_native_v12/preparation_draft04/` | Preserved working-tree packet made while producer cycle 4 was uncommitted; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft05/` | Preserved packet made while the consumer repairs were uncommitted; all artifacts except `preparation.json` are byte-identical to its successor; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft06/` | Preserved packet before the X14 lifecycle repair, the seeded development generator and terminal-receipt charging; includes the replaced development corpus; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft07/` | Preserved lifecycle packet made while producer cycle 5 and the consumer repairs were uncommitted; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/environment_closure_v12.json` | Executable dependency closure: resolved interpreter, module origins, native extensions, all `torch/lib` files, all wheel RECORDs and critical files, by actual hash |
 | `reports/intrinsic_memory_native_v12/development_exposure_v12.json` | Current exposure receipt: fresh split unopened, retired v11 split, reading incident recorded; historical receipt unedited |
 
