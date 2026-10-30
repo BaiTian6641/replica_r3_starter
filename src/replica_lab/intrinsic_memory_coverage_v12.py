@@ -668,7 +668,7 @@ def plan(arm):
         worlds, controls, tokens = FIT_CASES, 6, 8
         backbone = worlds*(2 + controls + controls*tokens)
         result[f'fit_probes_{end:03d}'] = stage(
-            900, **span(worlds*4, worlds*3, prompt_passes=20*worlds,
+            900, **span(worlds*4, worlds*3, prompt_passes=25*worlds,
                         backbone_forwards=backbone, backbone_tokens=256),
             artifact_read_bytes=CONTROL_READ_BYTES_BOUND + worlds*(RELEASE_READ_BYTES_BOUND + direct_reads),
             artifact_bytes=worlds*RELEASE_STAGE_ARTIFACT_BYTES_PER_WORLD,

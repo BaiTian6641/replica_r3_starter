@@ -1,0 +1,25 @@
+{
+  "format": "replica.intrinsic_memory.native_attempt_failure_analysis.v12",
+  "attempt": 8,
+  "packet_sha256": "597e51c308b1d6365e911221f7dafb722640a409a150d7ac9d887f2b2eaac847",
+  "status": "execution_failure_during_first_fitting_probe",
+  "wall_seconds": 503.27,
+  "error": "replica_lab.intrinsic_memory_budget_v12.BudgetError: stage work budget exceeded before dispatch",
+  "root_cause": "The fitting probe reserves 20 prompt passes per world, but the actual call graph needs 25: one initial encoding plus four for each of six controls (control encoding, generation, final-position encoding, and logit-delta encoding). The stage therefore exceeded its prompt-tokenization cap during its first probe.",
+  "capability_evaluation": {
+    "frozen_complete_context_calibration": "8/8 passed",
+    "fitting_teacher_qualification": "32/32 passed",
+    "fitting_updates_completed_before_failure": 128,
+    "development_opened": false,
+    "capability_claim": false
+  },
+  "resources": {
+    "artifact_read_bytes_model_load": 8224192408,
+    "minimum_observed_free_percent": 89.0,
+    "peak_swap_growth_bytes": 0,
+    "stop_reason": null
+  },
+  "attempt_consumed": true,
+  "retry_allowed_for_same_packet": false,
+  "repair": "Reserve 25 prompt passes per probe world (800 per 32-world stage) and prepare a fresh attempt09 packet with a new output identity and authorization. Attempt08 evidence, including calibration and teacher qualification, is preserved unchanged."
+}
