@@ -1,0 +1,163 @@
+{
+  "artifact_bytes_observed": 136894288,
+  "audit_io": {
+    "append_calls": 2996,
+    "failed_or_interrupted_events": 0,
+    "fsync_calls": 2996,
+    "logical_appended_bytes": 596221,
+    "physical_io_note": "append-only journal: requested bytes equal appended bytes; SSD write amplification, page cache and flush cost are not measured",
+    "physical_write_bytes_measured": false,
+    "reservations_charged": {
+      "artifact_bytes": 268435456,
+      "artifact_read_bytes": 17171424185,
+      "backwards": 0,
+      "cache_evictions": 32,
+      "cache_misses": 32,
+      "cache_recomputations": 32,
+      "forwards": 480,
+      "generated_tokens": 448,
+      "input_tokens": 119178,
+      "model_loads": 1,
+      "prompt_tokenizer_calls": 448,
+      "restart_restores": 1,
+      "retrievals": 0,
+      "source_encodes": 32,
+      "source_feature_forwards": 32,
+      "source_token_bytes": 3640,
+      "tokenizer_calls": 32,
+      "updates": 0,
+      "writes": 35
+    },
+    "torn_tail_records": 0
+  },
+  "capacity": {
+    "baseline": {
+      "memory_free_percent": 90.0,
+      "swap_used_bytes": 3387949056
+    },
+    "driver_samples": 225,
+    "host_samples": 59,
+    "minimum_observed_free_percent": 74.0,
+    "peak_driver_bytes": 9351856128,
+    "peak_swap_growth_bytes": 0,
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3,
+      "swap_growth_limit_bytes": 536870912
+    },
+    "stop_reason": null
+  },
+  "checkpoint_manifest_sha256": "379e0402448771de2002cbca4e0c10d552ca216600eed5e6386dd30734308d15",
+  "deadline_state": {
+    "clock_reanchored": false,
+    "clock_skew_seconds": -0.0006450312212109566,
+    "outer_remaining_seconds": 2218.321595082991,
+    "stage_remaining_seconds": {
+      "finalize": 25.463446292094886
+    }
+  },
+  "development_labels_used": false,
+  "format": "replica.intrinsic_memory.counterfactual_result.v13",
+  "native_capability_or_generalization_claim": false,
+  "original_weights_unchanged": true,
+  "packet_sha256": "1f8fa0100c4243ff3bcf11ce05ed5e9cc95c9d9f4be74dfd2cb05a1a85a78b07",
+  "parameter_updates": 0,
+  "protocol_sha256": "f4740bc3327161007c326311427fa94250ebe6c4ee2babc552ef9257f254bbc6",
+  "reservations": {
+    "artifact_bytes": 268435456,
+    "artifact_read_bytes": 17171424185,
+    "backwards": 0,
+    "cache_evictions": 32,
+    "cache_misses": 32,
+    "cache_recomputations": 32,
+    "forwards": 480,
+    "generated_tokens": 448,
+    "input_tokens": 119178,
+    "model_loads": 1,
+    "prompt_tokenizer_calls": 448,
+    "restart_restores": 1,
+    "retrievals": 0,
+    "source_encodes": 32,
+    "source_feature_forwards": 32,
+    "source_token_bytes": 3640,
+    "tokenizer_calls": 32,
+    "updates": 0,
+    "writes": 35
+  },
+  "summary": {
+    "complete_responses": {
+      "absent": {
+        "terminated": 32,
+        "truncated": 0
+      },
+      "contextual": {
+        "terminated": 32,
+        "truncated": 0
+      },
+      "exact_text": {
+        "terminated": 32,
+        "truncated": 0
+      },
+      "row_permutation": {
+        "terminated": 32,
+        "truncated": 0
+      },
+      "shuffled": {
+        "terminated": 32,
+        "truncated": 0
+      },
+      "wrong": {
+        "terminated": 32,
+        "truncated": 0
+      },
+      "zero": {
+        "terminated": 32,
+        "truncated": 0
+      }
+    },
+    "controls": [
+      "contextual",
+      "row_permutation",
+      "shuffled",
+      "wrong",
+      "zero",
+      "absent",
+      "exact_text"
+    ],
+    "correct": {
+      "absent": 8,
+      "contextual": 24,
+      "exact_text": 32,
+      "row_permutation": 24,
+      "shuffled": 24,
+      "wrong": 6,
+      "zero": 5
+    },
+    "counterfactual_pairs_both_correct": 8,
+    "development_labels_used": false,
+    "format": "replica.intrinsic_memory.counterfactual_diagnostic.v13",
+    "native_capability_or_generalization_claim": false,
+    "pair_receipts": [
+      "pairs/pair_00.json",
+      "pairs/pair_01.json",
+      "pairs/pair_02.json",
+      "pairs/pair_03.json",
+      "pairs/pair_04.json",
+      "pairs/pair_05.json",
+      "pairs/pair_06.json",
+      "pairs/pair_07.json",
+      "pairs/pair_08.json",
+      "pairs/pair_09.json",
+      "pairs/pair_10.json",
+      "pairs/pair_11.json",
+      "pairs/pair_12.json",
+      "pairs/pair_13.json",
+      "pairs/pair_14.json",
+      "pairs/pair_15.json"
+    ],
+    "pairs": 16,
+    "parameter_updates": 0,
+    "rows": 32
+  }
+}
