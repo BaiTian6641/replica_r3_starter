@@ -364,6 +364,7 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
         calibration = json.loads(reserved_read(
             ledger, 'baseline', 'calibration_split_read',
             root / protocol['data']['calibration']['path']))['rows']
+        answers = []
         if len(calibration) != 8: raise ValueError('incomplete calibration')
         for row in calibration:
             answer = engine.generate(row, None, world_scope(row), control='exact_text')

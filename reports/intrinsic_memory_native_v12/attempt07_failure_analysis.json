@@ -1,0 +1,24 @@
+{
+  "format": "replica.intrinsic_memory.native_attempt_failure_analysis.v12",
+  "attempt": 7,
+  "packet_sha256": "a3089714f067d9ca93d9899eae95d84a59ff76fe29372baf5a605e29cefdf3bf",
+  "status": "execution_failure_during_calibration_generation",
+  "wall_seconds": 33.37,
+  "error": "NameError: name 'answers' is not defined",
+  "root_cause": "The calibration split-read edit omitted `answers = []` before generation. Model loading, metadata accounting and teacher-objective binding completed, and the calibration split read was correctly charged.",
+  "capability_evaluation": {
+    "calibration_answers": 0,
+    "fitting_updates": 0,
+    "development_opened": false,
+    "capability_claim": false
+  },
+  "resources": {
+    "artifact_read_bytes_model_load": 8224192408,
+    "minimum_observed_free_percent": 89.0,
+    "peak_swap_growth_bytes": 0,
+    "stop_reason": null
+  },
+  "attempt_consumed": true,
+  "retry_allowed_for_same_packet": false,
+  "repair": "Restore answers initialization after the charged calibration read, then prepare a fresh attempt08 packet with a new output identity and authorization. Attempt07 evidence is preserved unchanged."
+}

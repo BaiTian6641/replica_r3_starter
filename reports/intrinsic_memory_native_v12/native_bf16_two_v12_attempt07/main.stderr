@@ -1,0 +1,18 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 140.85it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 338, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 334, in main
+    worker(args); return 0
+    ^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_intrinsic_coverage_v12.py", line 263, in worker
+    load_and_run(ROOT, protocol, packet['arm'], ledger, output,
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 648, in load_and_run
+    return run_main(root, protocol, arm, ledger, output, path, backend, spec,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 371, in run_main
+    answers.append({'world_id': row['world_id'], **answer})
+    ^^^^^^^
+NameError: name 'answers' is not defined. Did you mean: 'answer'?
