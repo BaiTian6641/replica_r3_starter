@@ -1,0 +1,24 @@
+{
+  "format": "replica.intrinsic_memory.native_attempt_failure_analysis.v12",
+  "attempt": 5,
+  "packet_sha256": "24bc3ddec62000235787ebcc3695727e1a75f8469b7298fc918f03f4ad0894c1",
+  "status": "execution_failure_after_model_load_before_calibration",
+  "wall_seconds": 27.53,
+  "error": "ValueError: extension checkpoint objective is not teacher-aligned",
+  "root_cause": "The v12 loader constructed ContextualMemoryV12 without assigning path.objective_identity. TeacherEngineV12 requires the declared TeacherObjective identity. Model loading and per-file metadata accounting completed successfully.",
+  "capability_evaluation": {
+    "calibration_answers": 0,
+    "fitting_updates": 0,
+    "development_opened": false,
+    "capability_claim": false
+  },
+  "resources": {
+    "artifact_read_bytes_model_load": 8224192408,
+    "minimum_observed_free_percent": 89.0,
+    "peak_swap_growth_bytes": 0,
+    "stop_reason": null
+  },
+  "attempt_consumed": true,
+  "retry_allowed_for_same_packet": false,
+  "repair": "Assign path.objective_identity = TeacherObjective().identity(spec) in the v12 loader, then prepare a fresh attempt06 packet with a new output identity and authorization. Attempt05 evidence is preserved unchanged."
+}

@@ -34,6 +34,7 @@ from .architecture.spark2_5 import (
 from .architecture.spark_adapter import Spark2_5Adapter
 from .architecture.intrinsic_memory_layout_v4 import spark_layout
 from .contextual_completion_objective_v1 import CompletionObjectiveSpec, stop_policy_identity
+from .contextual_teacher_objective_v1 import TeacherObjective
 from .contextual_memory import canonical_spans
 from .contextual_memory_v12 import SLOT_POLICY as SLOT_POLICY_RUNTIME, ContextualMemoryV12
 from .contextual_release_v12 import (ProducerReleaseCorpus,
@@ -256,6 +257,7 @@ def load_native(root, protocol, arm, ledger, stage):
             feature_provider=provider, lr=protocol['training']['lr'], initialization_seed=17,
             objective_identity=spec.identity(),
             execution_identity=sha_json({'protocol': protocol, 'arm': arm}))
+        path.objective_identity = TeacherObjective().identity(spec)
         adapter.extension.spine = None
         event.update(placement=placement, precision=adapter.base_snapshot(),
                      frozen_parameter_sha256=initial_hash, original_dtype='bfloat16',
