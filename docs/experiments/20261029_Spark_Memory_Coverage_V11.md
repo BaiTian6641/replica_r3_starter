@@ -126,3 +126,76 @@ development allocations. Total stage reservation remains 7,080 seconds, outer
 wall 7,200 seconds; all scientific choices, work counts and physical caps remain
 unchanged. Exact implementation, protocol, packet and standing-authorization
 bindings were refreshed. No consumed attempt or historical result was changed.
+
+## Recorded native attempt01
+
+The attempt completed. Frozen calibration: 8/8; fitting-teacher qualification:
+32/32. Both false-recall counts are zero; inspect the raw receipt for all
+termination/truncation details. Recorded fitting updates: 512.
+
+| Updates | Contextual | Exact | Wrong | Shuffled | Zero | Absent | Fit gate |
+|---:|---:|---:|---:|---:|---:|---:|---|
+| 128 | 22/32 | 32/32 | 6/32 | 20/32 | 8/32 | 8/32 | false |
+| 256 | 25/32 | 32/32 | 4/32 | 25/32 | 8/32 | 8/32 | false |
+| 384 | 26/32 | 32/32 | 3/32 | 25/32 | 8/32 | 8/32 | false |
+| 512 | 26/32 | 32/32 | 2/32 | 26/32 | 8/32 | 8/32 | false |
+
+Development remains unopened because the final fitting gate did not pass. Useful intrinsic recall remains unqualified.
+
+A fresh process restored exact logits and the teacher cache, then performed one actual continuation update. Original weights remained unchanged in both processes. This is numerical continuation; uninterrupted-update equivalence was not measured.
+
+Outer wall 3656.043 s; peak driver 10.488 GiB;
+peak RSS 8610463744 bytes; swap growth 0 bytes;
+minimum host free 69.0%; artifacts 61785311 bytes.
+See [terminal summary](../../reports/intrinsic_memory_coverage_v11/native_attempt01_summary.json) for exact
+work reservations, stage costs and separately charged audit I/O. Source encoding,
+teacher targets, retrieval, publication, probes and continuation are included.
+Raw answers and all failed controls remain preserved. Native 9/36 remains closed. Review final fitting groups and distinguish source representation from reader alignment before a new two-site mechanism experiment. Keep fixed gates; no best-prefix selection or retry of this output.
+
+New final clean verification is 562/562, zero skips, at `71f7ab4d` in
+239.645 s. The clean tiny 2/9/36 workflow at `607ba7a8` took
+18.968 s. No nine/all-layer native run, P update or promotion is
+claimed by this receipt. The [requirement audit](../../reports/intrinsic_memory_coverage_v11/requirement_audit_terminal.json)
+keeps earlier implementation, new engineering checks and unqualified successors separate.
+
+The four final fitting groups score 5/8, 6/8, 7/8 and 8/8; only the last passes.
+Contextual false recall is zero. Direct entity lookup totals 11/16 and ordered
+revision lookup 15/16. The final prefix is still the only admissible selection;
+the earlier group that reached 8/8 does not substitute for the final result.
+This is fitting performance, not held-out utility. Native correction generation
+was not reached in v11; the older failed correction result remains historical.
+
+Recorded work is 3,189 forwards, 513 backward/update operations, 1,616 generated
+tokens, 816,384 padded input tokens, two sequential model loads, 932 source
+encodes, 161 retrievals and 356 declared writes. The audit additionally serialized
+37,101,387,705 bytes. Source validation hashed 24,716,988,741 bytes inside this
+attempt. These byte counters are not measurements of physical SSD traffic.
+The [budget receipt](../../reports/intrinsic_memory_coverage_v11/budget_compliance.json)
+checks all recorded stage/count limits and sampled resources. The final probe
+took 887.769 of its 900 seconds; its budget was not enlarged after observations.
+
+The [post-run CPU producer probe](../../reports/intrinsic_memory_coverage_v11/frozen_producer_diagnosis.json)
+uses only the verified extension and already-opened fitting text. It finds
+nonzero differences between paired counterfactual sources; mean relative RMS is
+0.295 for v11 versus 0.218 for v10 on these same texts. Mean within-span slot
+cosine is 0.631 versus 0.583. It took 0.104 seconds, loaded no native backbone and
+performed no update. Different exposure prevents a causal comparison, and these
+statistics do not demonstrate recoverable answers or explain the recall failure.
+The separate [byte-coverage diagnostic](../../reports/intrinsic_memory_coverage_v11/source_byte_coverage.json)
+finds five public development-name bytes absent from fitting text. Development
+labels remain unopened; that observation cannot explain the observed fitting
+failure. Do not alter this experiment or its criteria using either diagnostic.
+
+The next mechanism study should distinguish a source encoder initialized without
+pretrained language features from reader alignment. A frozen native source-feature
+producer is a candidate, with live trainable compression and unchanged two-site
+readout. It requires its own implemented producer/representation identities,
+source-feature costs, gradient/durable tests and exact packet before launch.
+That successor is not yet native-launchable. Native density remains closed.
+
+Separately, the [fixed-parameter reader control](20261029_Spark_Memory_Matched_Readers_V1.md)
+is implemented and passes 29 clean CPU tests. This prepares a later density
+control; it does not change v11's reader, scientific result or authorization.
+The [prelaunch audit erratum](../../reports/intrinsic_memory_coverage_v11/prelaunch_audit_navigation_errata.json)
+resolves three descriptive references to the unused first packet revision. The
+actual launch bindings were correct; the historical audit is preserved unchanged.

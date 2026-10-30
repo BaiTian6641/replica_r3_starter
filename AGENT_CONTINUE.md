@@ -1,69 +1,76 @@
 # Coding-agent continuation instruction
 
-**Active order — 29 October 2026, broader-teaching v11 prepared.**
-Read the [broader-teaching experiment](docs/experiments/20261029_Spark_Memory_Coverage_V11.md)
-and [v11 runbook](reports/intrinsic_memory_coverage_v11/README.md).
-Implementation `607ba7a8` and prelaunch resource revision `71f7ab4d` introduce
-32 fitting worlds across direct lookup and ordered revisions, 16 fresh development
-worlds and unchanged eight-world criteria required for every fixed group.
-The original producer, reader, top-64 teacher objective, learning rate and
-block-input-query/post-block-residual placement remain unchanged. Only the fixed
-final 512-update prefix may open development, after fitting freezes. No earlier
-checkpoint selection or pooled-score escape is allowed.
+**Active order — 29 October 2026, recorded broader-teaching v11 outcome.**
+Read the [v11 experiment](docs/experiments/20261029_Spark_Memory_Coverage_V11.md),
+[current evidence summary](reports/intrinsic_memory_coverage_v11/verification_summary.json) and
+[consumed runbook](reports/intrinsic_memory_coverage_v11/README.md). Implementations `607ba7a8` and
+`71f7ab4d` bind broader teaching, complete group gates and measured audit-overhead
+budgets. The original byte-context producer, four ordered width-256 slots,
+reader, top-64 teacher objective, learning rate and block-input-query/post-block
+residual placement remain unchanged from v10. No original parameter is trained.
 
-The final clean suite passes 562/562, zero skips, at `71f7ab4d` in 239.645 seconds.
-The earlier `607ba7a8` clean result is preserved separately. Clean 2/9/36 CPU integration passes live
-producer/early-reader gradients, one optimizer owner, one shared snapshot,
-exact live/durable logits and fresh-process logits plus an actual update.
-It uses a tiny random BF16 backbone and synthetic teacher qualification: no
-native semantic success is implied. Historical 502/444/3,371-test receipts retain
-their exact original scope and identity.
+The attempt completed under official BF16. Frozen calibration is
+8/8, false recall 0, truncation 0; fitting-teacher qualification is
+32/32, false recall 0, truncation 0.
+There are 512 recorded fitting updates and 1 recorded continuation updates.
+Latest completed fitting probe at 512 updates: contextual 26/32, exact_text 32/32, wrong 2/32, shuffled 26/32, zero 8/32, absent 8/32.
+All four final fitting groups must pass independently. Development remains unopened because the final fitting gate did not pass.
+Useful intrinsic recall remains unqualified. A fresh process restored exact logits and the teacher cache, then performed one actual continuation update. Original weights remained unchanged in both processes. This is numerical continuation; uninterrupted-update equivalence was not measured.
 
-The exact official-BF16 two-site v11 packet is prepared under the user's standing
-instruction to continue bounded tests without repeated approval questions.
-Environment and full source/code/data bindings pass before loading. Its first
-prepared revision was never launched; CPU audit-write measurements justified a
-new stage-time allocation within the same 7,080 reserved/7,200 outer seconds.
-The unused revision and exact receipt are archived. Each consumed output still
-has zero retries. Native v11 is not yet run at this checkpoint.
+Clean `71f7ab4d` passes 562/562 affected tests, zero skips, in 239.645 s.
+The combined 2/9/36 CPU workflow at `607ba7a8` passes real producer/early-reader
+gradients, one shared snapshot, one optimizer owner, live/durable parity and
+complete extension reload with exact fresh logits and one actual update. It took
+18.968 s with parent peak RSS 591249408 bytes.
+It uses a tiny random BF16 backbone and synthetic teacher qualification;
+engineering success is not native competence or useful memory. Earlier broader
+3,371-test receipts retain their historical scope; that full suite was not rerun.
 
-Require 8/8 frozen calibration, then 32/32 complete-context teacher qualification.
-Train exactly 512 updates plus one separately charged restart update. All four
-fixed fitting groups must independently pass. Only then may both fresh eight-world
-development groups be evaluated under unchanged usefulness criteria, including
-strict superiority to shuffled values. Maximums per two-site attempt: 8,829
-forwards, 7,256 generated tokens, two sequential loads, 256 MiB artifacts.
-Keep one exclusive native worker, 50 GiB sampled driver, 512 MiB sustained swap
-growth and at least 15% host free. No original weight is trained or exported.
+The separate [matched-reader CPU control](docs/experiments/20261029_Spark_Memory_Matched_Readers_V1.md)
+at `db405c87` adds 29/29 clean tests, zero skips. It uses exactly two canonical
+reader parameter sets across 2/9/36 access sites, one snapshot and one optimizer.
+Every site retains a live gradient; complete fresh-process continuation matches
+uninterrupted weights and optimizer moments on the CPU fixture. Native launch
+and per-invocation profiling integration are still gated. Equal parameters do
+not match compute or measured cost; a separate total-cost design is recorded.
 
-V10 remains a completed historical failure of useful recall: calibration and
-teacher 8/8, fitting 8/8, development contextual 5/8 versus exact 8/8 and shuffled
-5/8, zero contextual false recall. Its correction answer also failed. Fresh
-logits/one continuation update and unchanged originals establish numerical
-continuation only. Its development split is exposed and cannot be fresh v11 data.
-Preserve all raw answers, logs, receipts, failed trajectories and sealed v3–v10
-execution bytes. Official BF16, FP8-derived BF16 and official FP8 remain distinct;
-use qualified `.venv-spark-bf16` and the existing official source revision
-`66e3ae7bee54e0a523d692cb8ef841f35409807b`. No downloads or dependency substitution.
+Native wall was 3656.043 s; peak sampled driver
+10.488 GiB, swap growth 0 bytes,
+minimum host free 69.0%, artifact size 61785311 bytes.
+Driver and RSS overlap; samples are not hard real-time maxima. Audit serialized
+write cost is 37101387705 bytes, not measured SSD amplification.
+Keep one exclusive native worker, 50 GiB driver, 512 MiB sustained swap growth
+and at least 15% host free. Each packet separately binds stage/outer time,
+tokens, model loads, updates and artifact caps. The unused first preparation
+revision is archived; its resource reallocation preceded all v11 native answers.
 
-Native 9/36 arms remain gated on useful matching v11 two-site evidence. Keep P1,
-zero P updates and no promotion in readout. Coverage and total exposure change
-together, so this is a two-rule, one-seed feasibility study, not a broad transfer
-or isolated coverage claim. Density needs later matched-parameter and total-cost
-controls. A parameter estimate is not measured physical fit.
+The user authorizes bounded testing without repeated approval questions. Record
+that direct instruction in every new exact packet receipt. This output is
+consumed and has zero retries. Keep qualified `.venv-spark-bf16`, official
+`XHToken/Spark-X2.6-4B` revision `66e3ae7bee54e0a523d692cb8ef841f35409807b`,
+and distinct official BF16, FP8-derived BF16 and official FP8 identities.
+Preserve sealed v3–v11 execution bytes, raw answers, failures and historical
+receipts. No downloads, duplicate base checkpoints or full-backbone exports.
+V10 remains a historical useful-recall failure at 5/8 versus 8/8 exact and 5/8
+shuffled; its development split is exposed. V11 development opening is recorded
+in its separate exposure receipt. Native 9/36 remains closed. Review final fitting groups and distinguish source representation from reader alignment before a new two-site mechanism experiment. Keep fixed gates; no best-prefix selection or retry of this output.
 
-Intrinsic memory owns recall/learning within Spark; the external spine connects
-specialists, sensors and actors. The existing semi-cognitive reference is eight
-width-256 workspace slots and two tied iterations, with task-journal authority
-separate from approximate state. Approved I, authentic human source records and
-Replica branch experience remain distinct; task reward cannot rewrite identity.
-Bound active core/task state by measured memory, with explicit archival recall.
-Storage hot/warm/cold placement is independent of learning clocks. After useful
-recall follow completed-interaction formation, separately declared exactly-once
-chunk commits, source-free future-query P learning, correction, retention and
-rollback before nested adaptation or RSI. These successor capabilities are not
-established. Preserve E/S/P/phi/C/I/K and the Replica contracts. Native multimodal
-work remains deferred. Preserve unrelated dirty work.
+Keep P1 and zero P updates; capacity expansion, promotion and RSI remain closed.
+Coverage and total exposure changed together, so v11 cannot isolate their
+causal effects. Density still needs independent families/seeds and later
+native matched-parameter/total-cost controls. The fixed-parameter CPU candidate
+does not alter this native run. Parameter estimates do not prove fit.
+Intrinsic memory owns backbone recall/learning; the external spine connects
+specialists, sensors and actors. Preserve E/S/P/phi/C/I/K, the exact task journal,
+approved identity outside task reward, and the separate authentic-source and
+Replica-branch histories. The bounded cognitive reference has eight width-256
+workspace slots and two tied iterations; its utility/personal fidelity are not
+established by these tests. Measure active core/task memory and use explicit
+archival recall. Hot/warm/cold residency is independent of learning clocks.
+After useful recall follow attributable completed-interaction formation,
+separate exactly-once chunk commits, source-free future-query P learning,
+correction, retention and rollback before nested adaptation or RSI. Native
+multimodal work remains deferred. Preserve unrelated dirty work.
 Never read, import, edit or stage src/replica_lab/runtime_pilot.py.
 
 **Preserved attempt03 handoff — 29 October 2026; superseded by the active order above.**

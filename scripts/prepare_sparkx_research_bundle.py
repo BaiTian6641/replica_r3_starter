@@ -1061,6 +1061,64 @@ for _file in (
 ):
     FINAL_PRODUCT_INPUT_ROLES.append((_file, 'versioned teacher implementation or reproducible CPU/posthoc verification'))
 
+
+# Broader teaching is separately versioned; preserve all prior protocols/results.
+FINAL_PRODUCT_INPUT_ROLES.extend([
+    ('docs/experiments/20261029_Spark_Memory_Coverage_V11.md', 'fixed broader-teaching experiment and bounded native outcome'),
+    ('configs/spark_intrinsic_coverage_v11.json', 'fresh splits, complete group gates and separate 2/9/36 budgets'),
+    ('reports/intrinsic_memory_coverage_v11/README.md', 'current consumed-run instructions and separated evidence claims'),
+    ('reports/intrinsic_memory_coverage_v11/implementation_v11.json', '56-file actual executable closure'),
+    ('reports/intrinsic_memory_coverage_v11/prelaunch_verification.json', 'exact source admission and final 562-test clean verification'),
+    ('reports/intrinsic_memory_coverage_v11/verification_summary.json', 'CPU and native outcomes without promotion claims'),
+    ('reports/intrinsic_memory_coverage_v11/native_attempt01_summary.json', 'terminal generated-answer results, work and physical resources'),
+    ('reports/intrinsic_memory_coverage_v11/native_attempt01_evidence.json', 'hashes of terminal raw evidence, preserving failed controls'),
+    ('reports/intrinsic_memory_coverage_v11/fitting_group_analysis.json', 'already-opened fitting-only group and cost analysis'),
+    ('reports/intrinsic_memory_coverage_v11/development_exposure.json', 'actual label-opening status for future split admission'),
+    ('reports/intrinsic_memory_coverage_v11/authorization_two_v11.json', 'exact receipt of the standing human bounded-testing instruction'),
+    ('reports/intrinsic_memory_coverage_v11/native_bf16_two_v11_attempt01/result.json', 'official-BF16 terminal result, distinct from other precisions'),
+    ('reports/intrinsic_memory_coverage_v11/native_bf16_two_v11_attempt01/teacher_qualification.json', 'complete 32-world full-context teacher evidence'),
+    ('reports/intrinsic_memory_coverage_v11/clean_final_regression_summary.json', '562 tests, zero skips, no source weights or protected module'),
+    ('reports/intrinsic_memory_coverage_v11/clean_cpu_integrated/result.json', '32 teacher targets and real 2/9/36 CPU gradient/restart path'),
+    ('reports/intrinsic_memory_coverage_v11/requirement_audit_terminal.json', 'requirement audit with useful recall, P learning and RSI separate'),
+    ('reports/intrinsic_memory_coverage_v11/audit_scaling_cpu_probe.json', 'measured audit overhead supporting prelaunch time reallocation'),
+    ('reports/intrinsic_memory_coverage_v11/source_byte_coverage.json', 'posthoc fitting/public-metadata coverage limitation; no development labels or causal claim'),
+    ('reports/intrinsic_memory_coverage_v11/budget_compliance.json', 'all recorded stage work and sampled resource limits checked after the run'),
+    ('reports/intrinsic_memory_coverage_v11/frozen_producer_diagnosis.json', 'post-run CPU fitting-only slot geometry; no native causal or utility claim'),
+    ('reports/intrinsic_memory_coverage_v11/probe_frozen_producer.py', 'verified extension-only CPU diagnostic without fitting or label opening'),
+    ('reports/intrinsic_memory_coverage_v11/prelaunch_audit_navigation_errata.json', 'preserved historical audit with three stale descriptive packet references resolved'),
+    ('reports/intrinsic_memory_coverage_v11/probe_source_byte_coverage.py', 'reproducible read-only coverage diagnostic with no native model load'),
+    ('reports/intrinsic_memory_coverage_v11/preparation_revision1/supersession.json', 'unused initial packet preserved before native launch'),
+    ('data/intrinsic_memory_coverage_v11_20261029/split_manifest.json', 'public split identities and prepared data digests without label parsing'),
+])
+for _arm in ('two', 'full_attention_nine', 'all'):
+    FINAL_PRODUCT_INPUT_ROLES.append((f'reports/intrinsic_memory_coverage_v11/native_packet_{_arm}_v11.json',
+                                     f'v11 {_arm} independent launch and resource binding; density requires useful control'))
+for _file in (
+    'src/replica_lab/intrinsic_memory_coverage_v11.py',
+    'src/replica_lab/intrinsic_memory_worlds_v11.py',
+    'src/replica_lab/intrinsic_memory_teacher_v11.py',
+    'src/replica_lab/intrinsic_memory_native_v11.py',
+    'src/replica_lab/intrinsic_memory_execution_v11.py',
+    'scripts/run_spark_intrinsic_coverage_v11.py',
+    'scripts/prepare_spark_intrinsic_coverage_v11.py',
+    'scripts/run_intrinsic_coverage_cpu_v11.py',
+    'tests/test_intrinsic_coverage_v11.py',
+    'tests/test_intrinsic_teacher_v11.py',
+    'reports/intrinsic_memory_coverage_v11/summarize_attempt01.py',
+):
+    FINAL_PRODUCT_INPUT_ROLES.append((_file, 'separate broader-teaching implementation or reproducible CPU/terminal verification'))
+
+# Fixed-parameter density control is a separate CPU candidate, not a native arm.
+FINAL_PRODUCT_INPUT_ROLES.extend([
+    ('src/replica_lab/intrinsic_memory_matched_reader_v1.py', 'two canonical groups with complete contextual producer/store ownership'),
+    ('tests/test_intrinsic_memory_matched_reader_v1.py', 'per-invocation gradients, authority validity and exact fresh continuation'),
+    ('configs/intrinsic_memory_matched_reader_v1.json', 'CPU sharing control and gated later measured-total-cost design'),
+    ('docs/experiments/20261029_Spark_Memory_Matched_Readers_V1.md', 'separate parameter sharing evidence and native integration limits'),
+    ('reports/intrinsic_memory_matched_reader_v1/README.md', 'portable CPU verification instructions'),
+    ('reports/intrinsic_memory_matched_reader_v1/verify_cpu.py', 'reproducible clean tests and measured shared snapshot costs'),
+    ('reports/intrinsic_memory_matched_reader_v1/clean/summary.json', '29 clean tests with source-free 2/9/36 parameter and continuation evidence'),
+])
+
 PROFILES = {
     "historical": {
         "manifest": DEFAULT_MANIFEST,

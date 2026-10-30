@@ -156,7 +156,7 @@
       "path": "reports/sparkx_v5_1_review_20261027/migration_manifest.json",
       "role": "v5.1 reviewed old/new identity and arithmetic migration manifest",
       "status": "current",
-      "sha256": "c3b405a9533742c27fbc127ffcb1976c995c45866b1d249b13b4631f95983f3f",
+      "sha256": "7fce69eb5088cec96c321c92ed779e9bc3a842462634db587f4d070c88d95973",
       "format": "replica.sparkx_v5_1_review.migration.v1",
       "previous_sha256": "6611af82870ba97eee0bae4ad7d05d3c046d9a6b7df896f042180317f45fd47e",
       "reviewed_in": "docs/experiments/20261029_Spark_Memory_Native_Readout03.md",
@@ -215,7 +215,7 @@
       "path": "reports/sparkx_v5_1_review_20261027/deliverables.json",
       "role": "v5.1 authored-output hash pins",
       "status": "current",
-      "sha256": "3a7e7f44f34121711ce002fb0e764bf10ad42109ab98664609fb2366679a1de2",
+      "sha256": "ac92bf1c8f65262d9f98c18b37f37e831eae69da529be2e09c23a85eb3ec996b",
       "previous_sha256": "14d0ac349749f1cf20643a45e0940b0aab37f3f9eaeacdb4f9a3b479f63bbcdb",
       "reviewed_in": "docs/experiments/20261029_Spark_Memory_Native_Readout03.md",
       "review_chain": [
@@ -333,6 +333,18 @@
       "role": "official BF16 teacher diagnostic or current clean engineering summary; no useful recall implied",
       "status": "current",
       "sha256": "37a35c387ac8e4b51b832832879a3711d7f92e9ca79d4516ef151f1559855c25"
+    },
+    {
+      "path": "reports/intrinsic_memory_coverage_v11/verification_summary.json",
+      "role": "official BF16 broader-teaching diagnostic or current clean engineering summary; no useful recall implied",
+      "status": "current",
+      "sha256": "07a6c702c9be398c586800a9023d1fef352c7423a1d8d8707f73b6fb28c7ecca"
+    },
+    {
+      "path": "reports/intrinsic_memory_coverage_v11/native_attempt01_summary.json",
+      "role": "official BF16 broader-teaching diagnostic or current clean engineering summary; no useful recall implied",
+      "status": "current",
+      "sha256": "c74f37e8a0c71435aa06f5533d92d8a56a6c2a3b936c1e0cc3c26db8086bee58"
     }
   ],
   "required_configs": [
@@ -405,6 +417,11 @@
       "path": "configs/spark_intrinsic_alignment_v10.json",
       "role": "separately bound BF16 diagnostic with preserved gates and per-arm budget",
       "sha256": "c48e8937b7e11fc6fc6fb43dab932ad01dd42d2d2a0cc746bf36310da863e97d"
+    },
+    {
+      "path": "configs/spark_intrinsic_coverage_v11.json",
+      "role": "separately bound BF16 diagnostic with preserved gates and per-arm budget",
+      "sha256": "cdd5313eebce66a7d659a017f1113ab30f54a305791d56f9d34bd325dff35877"
     }
   ],
   "historical_manifest": {
@@ -513,7 +530,13 @@
       "reports/intrinsic_memory_alignment_v10/native_attempt01_summary.json",
       "configs/spark_intrinsic_alignment_v10.json",
       "reports/intrinsic_memory_alignment_v10/README.md",
-      "reports/intrinsic_memory_alignment_v10/native_packet_two_v10.json"
+      "reports/intrinsic_memory_alignment_v10/native_packet_two_v10.json",
+      "docs/experiments/20261029_Spark_Memory_Coverage_V11.md",
+      "reports/intrinsic_memory_coverage_v11/verification_summary.json",
+      "reports/intrinsic_memory_coverage_v11/native_attempt01_summary.json",
+      "configs/spark_intrinsic_coverage_v11.json",
+      "reports/intrinsic_memory_coverage_v11/README.md",
+      "reports/intrinsic_memory_coverage_v11/native_packet_two_v11.json"
     ],
     "clean_export_links": [
       "reports/final_verification_20261027/summary.json",

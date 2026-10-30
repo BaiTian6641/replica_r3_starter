@@ -1,0 +1,453 @@
+{
+  "broader_3371_test_suite_rerun": false,
+  "budget_compliance": {
+    "path": "reports/intrinsic_memory_coverage_v11/budget_compliance.json",
+    "sha256": "e46290ca4eea7cf79a85c3223255500c1d5e37b51879bfaa3023847fc74a2f02"
+  },
+  "clean_CPU_integration": {
+    "all_2_9_36_live_gradients_and_fresh_continuation_passed": true,
+    "arm_artifact_bytes": 106222828,
+    "fitting_targets_per_arm": 32,
+    "native_capability_claim": false,
+    "not_repeated_for_time_budget_only_revision": "No producer/reader/engine/CPU workflow code changed; only native stage-time allocations and their bindings changed.",
+    "parent_peak_rss_bytes": 591249408,
+    "receipt": {
+      "path": "reports/intrinsic_memory_coverage_v11/clean_cpu_integrated/result.json",
+      "sha256": "916ee77d6a7a368b455a48fe9cc292db58f775f8503100e598fa6872466c24d0"
+    },
+    "snapshot": "607ba7a8d5b3a6e4cdf4ddc0fd864bb5e545daf5",
+    "synthetic_teacher_qualification": true,
+    "wall_seconds": 18.967672334052622
+  },
+  "clean_regression": {
+    "checkpoint_weights_present": false,
+    "child_peak_rss_bytes": 784957440,
+    "command": [
+      "/Users/flare/replica_r3_starter/.venv/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_spark_device_placement_v2.py",
+      "tests/test_spark_execution_environment.py",
+      "tests/test_spark_derivative_bf16_protocol.py",
+      "tests/test_spark_persistent_learner_protocol.py",
+      "tests/test_baseline_competence.py",
+      "tests/test_contextual_memory.py",
+      "tests/test_contextual_readout_training.py",
+      "tests/test_intrinsic_memory_layout_v4.py",
+      "tests/test_contextual_memory_layout_v4.py",
+      "tests/test_intrinsic_memory_density_protocol.py",
+      "tests/test_tiered_memory.py",
+      "tests/test_tiered_recovery.py",
+      "tests/test_tiered_reset.py",
+      "tests/test_tiered_readout.py",
+      "tests/test_tiered_profiles.py",
+      "tests/test_tiered_selection_metadata.py",
+      "tests/test_persistent_learner_controls.py",
+      "tests/test_spark2_5_adapter.py",
+      "tests/test_contextual_memory_v5.py",
+      "tests/test_intrinsic_diagnostic_v5.py",
+      "tests/test_intrinsic_execution_v5.py",
+      "tests/test_wall_deadline_v1.py",
+      "tests/test_contextual_completion_objective_v1.py",
+      "tests/test_intrinsic_explicit_evidence_v6.py",
+      "tests/test_intrinsic_exposure_v7.py",
+      "tests/test_intrinsic_supported_values_v8.py",
+      "tests/test_intrinsic_smaller_step_v9.py",
+      "tests/test_contextual_teacher_objective_v1.py",
+      "tests/test_intrinsic_teacher_v10.py",
+      "tests/test_intrinsic_alignment_v10.py",
+      "tests/test_intrinsic_coverage_v11.py",
+      "tests/test_intrinsic_teacher_v11.py",
+      "-q",
+      "--junitxml=/Users/flare/replica_r3_starter/reports/intrinsic_memory_coverage_v11/clean_final_regression.xml"
+    ],
+    "cwd": "/private/tmp/replica-intrinsic-v5-clean-20261029",
+    "exit_code": 0,
+    "failed": 0,
+    "format": "replica.intrinsic_memory.current_clean_regression.v1",
+    "git_status": "",
+    "log": {
+      "path": "reports/intrinsic_memory_coverage_v11/clean_final_regression.log",
+      "sha256": "d2edc21025322f1b78478e72a074876cbfc90588e5113cb1f60a0271e47bed8b"
+    },
+    "passed": 562,
+    "protected_module_present": false,
+    "pytest_seconds": 239.645,
+    "receipt": {
+      "path": "reports/intrinsic_memory_coverage_v11/clean_final_regression_summary.json",
+      "sha256": "9afc65cf1845af883b12b6bebeb2249d07dfcd481f3105075162eccf95f56ab7"
+    },
+    "skipped": 0,
+    "snapshot": "71f7ab4d8a7a500a330684703fd28b5d1c7801f8",
+    "tests": 562,
+    "wall_seconds": 240.36012200033292,
+    "xml": {
+      "path": "reports/intrinsic_memory_coverage_v11/clean_final_regression.xml",
+      "sha256": "0d5067d01a5c003a891aac280ce6ed674af4acf4706c22319c818907ac9c6c3a"
+    }
+  },
+  "development_exposure": {
+    "path": "reports/intrinsic_memory_coverage_v11/development_exposure.json",
+    "sha256": "b073a790021e18e3420046230b67e40f10a132822a0cb5edd91d4ebd531d78a7"
+  },
+  "format": "replica.intrinsic_memory.coverage_verification.v11",
+  "goal_complete": false,
+  "historical_results_rewritten": false,
+  "historical_v10": {
+    "path": "reports/intrinsic_memory_alignment_v10/native_attempt01_summary.json",
+    "sha256": "37a35c387ac8e4b51b832832879a3711d7f92e9ca79d4516ef151f1559855c25"
+  },
+  "implementation_commits": [
+    "607ba7a8",
+    "71f7ab4d"
+  ],
+  "native_result": {
+    "path": "reports/intrinsic_memory_coverage_v11/native_attempt01_summary.json",
+    "sha256": "c74f37e8a0c71435aa06f5533d92d8a56a6c2a3b936c1e0cc3c26db8086bee58"
+  },
+  "original_checkpoints_downloaded_or_exported": false,
+  "outcomes": {
+    "RSI": "closed",
+    "capacity": "P1_unchanged_no_measured_expansion_bottleneck",
+    "development": "closed_by_gate",
+    "fitting_teacher_competence": "passed",
+    "formation": "specified_not_implemented",
+    "fresh_numerical_continuation": "passed",
+    "frozen_baseline_competence": "passed",
+    "memory_dependent_fitting": "failed_complete_final_probe",
+    "native_density_comparison": "prepared_unrun_gated",
+    "numerical_qualification": "passed_finite_gradients_actual_update_exact_fresh_logits_unchanged_originals",
+    "persistent_P_learning": "not_established_zero_updates",
+    "promotion": "closed",
+    "resource_qualification": "passed_all_recorded_stage_and_sampled_resource_limits",
+    "source_qualification": "passed_official_BF16_full_hash_and_executable_bindings",
+    "useful_native_recall": "not_established"
+  },
+  "posthoc_fitting_representation_probe": {
+    "path": "reports/intrinsic_memory_coverage_v11/frozen_producer_diagnosis.json",
+    "sha256": "636e94984aae1497dfe3430714c925610659c619a65915fe4b1cf9149021b890"
+  },
+  "prelaunch": {
+    "path": "reports/intrinsic_memory_coverage_v11/prelaunch_verification.json",
+    "sha256": "b7bd30bbd5c35d9385246ac88bd730d339d466efd12026c981de4af08b3551a3"
+  },
+  "prelaunch_evidence_commit": "7e3b4c72",
+  "prelaunch_navigation_errata": {
+    "path": "reports/intrinsic_memory_coverage_v11/prelaunch_audit_navigation_errata.json",
+    "sha256": "b6501c76c81b437a123a0338f486e5cf48b169c701eb4840af5293c65b94c9d8"
+  },
+  "protected_module_read_import_edit_stage": false,
+  "raw_evidence": {
+    "path": "reports/intrinsic_memory_coverage_v11/native_attempt01_evidence.json",
+    "sha256": "932e55c9d281d5aa20aba63844466c40a4f7413b53dc2168f58f56c0c7c0e5b7"
+  },
+  "remaining": [
+    "Native nine/all-layer feasibility comparison still unrun.",
+    "Independent seeds/world families and matched-parameter/total-cost controls.",
+    "Useful chronological correction and repeated acquisition/retention/rollback.",
+    "Attributable formation, source-free persistent learning, approved identity and cognitive-core utility."
+  ],
+  "resources": {
+    "I/O_note": "Serialized/file byte accounting, not measured physical SSD write amplification.",
+    "artifact_bytes": 61785311,
+    "audit_serialized_write_bytes": 37101387705,
+    "minimum_host_free_percent": 69.0,
+    "outer_wall_seconds": 3656.0434334157035,
+    "peak_driver_bytes": 11261542400,
+    "peak_rss_bytes": 8610463744,
+    "peak_swap_growth_bytes": 0,
+    "physical_memory_note": "MPS driver and RSS overlap; sampled maxima and host-wide free/swap are not exclusive allocations.",
+    "reserved_work": {
+      "artifact_bytes": 268435456,
+      "backwards": 513,
+      "forwards": 3189,
+      "generated_tokens": 1616,
+      "input_tokens": 816384,
+      "model_loads": 2,
+      "retrievals": 161,
+      "source_encodes": 932,
+      "updates": 513,
+      "writes": 356
+    },
+    "source_bytes_hashed_inside_attempt": 24716988741,
+    "stages": {
+      "admission": {
+        "elapsed_seconds": 4.078491833992302,
+        "reserved": {
+          "artifact_bytes": 132120576,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "baseline": {
+        "elapsed_seconds": 5.090787209104747,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 16,
+          "generated_tokens": 16,
+          "input_tokens": 4096,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "passed"
+      },
+      "checkpoint": {
+        "elapsed_seconds": 2.736097333021462,
+        "reserved": {
+          "artifact_bytes": 134217728,
+          "backwards": 0,
+          "forwards": 1,
+          "generated_tokens": 0,
+          "input_tokens": 256,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "fit_128": {
+        "elapsed_seconds": 146.80630062473938,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 128,
+          "forwards": 128,
+          "generated_tokens": 0,
+          "input_tokens": 32768,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 128,
+          "updates": 128,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_256": {
+        "elapsed_seconds": 226.36693050013855,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 128,
+          "forwards": 128,
+          "generated_tokens": 0,
+          "input_tokens": 32768,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 128,
+          "updates": 128,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_384": {
+        "elapsed_seconds": 307.5541389170103,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 128,
+          "forwards": 128,
+          "generated_tokens": 0,
+          "input_tokens": 32768,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 128,
+          "updates": 128,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_512": {
+        "elapsed_seconds": 382.5676290411502,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 128,
+          "forwards": 128,
+          "generated_tokens": 0,
+          "input_tokens": 32768,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 128,
+          "updates": 128,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_probes_128": {
+        "elapsed_seconds": 358.34297524997965,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 640,
+          "generated_tokens": 384,
+          "input_tokens": 163840,
+          "model_loads": 0,
+          "retrievals": 32,
+          "source_encodes": 96,
+          "updates": 0,
+          "writes": 64
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_256": {
+        "elapsed_seconds": 529.3465316249058,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 640,
+          "generated_tokens": 384,
+          "input_tokens": 163840,
+          "model_loads": 0,
+          "retrievals": 32,
+          "source_encodes": 96,
+          "updates": 0,
+          "writes": 64
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_384": {
+        "elapsed_seconds": 702.2797961249016,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 640,
+          "generated_tokens": 384,
+          "input_tokens": 163840,
+          "model_loads": 0,
+          "retrievals": 32,
+          "source_encodes": 96,
+          "updates": 0,
+          "writes": 64
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_512": {
+        "elapsed_seconds": 887.7687556659803,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 640,
+          "generated_tokens": 384,
+          "input_tokens": 163840,
+          "model_loads": 0,
+          "retrievals": 32,
+          "source_encodes": 96,
+          "updates": 0,
+          "writes": 64
+        },
+        "status": "failed_memory_dependence"
+      },
+      "load": {
+        "elapsed_seconds": 22.36709670908749,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 1,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "numerical": {
+        "elapsed_seconds": 0.6552185830660164,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 2,
+          "generated_tokens": 0,
+          "input_tokens": 512,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "passed"
+      },
+      "prepare": {
+        "elapsed_seconds": 1.3054362079128623,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "retrievals": 32,
+          "source_encodes": 32,
+          "updates": 0,
+          "writes": 64
+        },
+        "status": "completed"
+      },
+      "restart": {
+        "elapsed_seconds": 36.56502416729927,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 1,
+          "forwards": 2,
+          "generated_tokens": 0,
+          "input_tokens": 512,
+          "model_loads": 1,
+          "retrievals": 1,
+          "source_encodes": 2,
+          "updates": 1,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "teacher": {
+        "elapsed_seconds": 34.47042458411306,
+        "reserved": {
+          "artifact_bytes": 2097152,
+          "backwards": 0,
+          "forwards": 96,
+          "generated_tokens": 64,
+          "input_tokens": 24576,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 33
+        },
+        "status": "passed"
+      }
+    }
+  },
+  "separate_matched_parameter_CPU_candidate": {
+    "active_sites": [
+      2,
+      9,
+      36
+    ],
+    "clean_evidence": {
+      "path": "reports/intrinsic_memory_matched_reader_v1/clean/summary.json",
+      "sha256": "3ce2e946afb7cd299fc5599908f312aafd2d726e098063586439ebfcc8027402"
+    },
+    "implementation_commit": "db405c87",
+    "native_launch_enabled": false,
+    "passed": 29,
+    "relation_to_v11": "New independent CPU control, absent from the sealed running/consumed v11 implementation.",
+    "skipped": 0,
+    "unique_reader_groups": 2
+  },
+  "source_byte_coverage_diagnostic": {
+    "path": "reports/intrinsic_memory_coverage_v11/source_byte_coverage.json",
+    "sha256": "b74217ff1c06f96832890222927d0e5a2a56d4e1df6515d64a451083d34d521a"
+  }
+}

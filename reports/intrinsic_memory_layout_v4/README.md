@@ -1,12 +1,10 @@
 # Configurable intrinsic readers v4
 
-**Current successor:** [v11 broader teaching](../../docs/experiments/20261029_Spark_Memory_Coverage_V11.md) is implemented with
-fresh data and unchanged per-group gates; the exact official-BF16 control is
-prepared. V10 learned fitting but failed useful development at 5/8 contextual
-versus 8/8 exact text. CPU 2/9/36 integration passes; native density and persistent
-learning remain gated. Standing testing authorization applies to bounded new
-packets, with zero retries on consumed outputs. The material below preserves its
-historical scope and is not the current launch instruction.
+**Current successor:** [v11 broader-teaching results](../../docs/experiments/20261029_Spark_Memory_Coverage_V11.md) record the
+separate official-BF16 experiment, 562 clean tests and 2/9/36 CPU continuation.
+Useful intrinsic recall remains unqualified. Native density and persistent learning retain their separate gates.
+Standing testing authorization applies to bounded new packets; consumed outputs
+have zero retries. The earlier material below retains its historical scope.
 
 Current successor: the [combined v4 training integration](../../docs/experiments/20261029_Spark_Memory_Integrated_Access.md)
 connects this reader to the contextual producer and tiered store and adds a complete

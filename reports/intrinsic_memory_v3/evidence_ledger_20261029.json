@@ -18,8 +18,8 @@
   },
   "authorized_cpu_implementation": "implemented",
   "completed_latest_packet": {
-    "path": "reports/intrinsic_memory_alignment_v10/native_packet_two_v10.json",
-    "sha256": "1369228284d68d91354f05833ad4dffb71deee99fb14ef24b977acf386bb48d9"
+    "path": "reports/intrinsic_memory_coverage_v11/native_packet_two_v11.json",
+    "sha256": "1b413f0072b1e81e7b0f80d1bc5dd8734eb2b1c6a8477ee806e90238d9af9ada"
   },
   "completed_native_experiment": {
     "authorization_consumed": true,
@@ -63,25 +63,30 @@
   "current_successor": {
     "implementation_commit": "71f7ab4d",
     "source": "official_BF16_user_selected",
-    "native_execution": false,
-    "native_status": "prepared_authorized_preflight_passed",
-    "authorization": "standing_direct_user_instruction_recorded_in_exact_packet_receipt",
+    "native_execution": true,
+    "native_status": "completed",
+    "authorization": "standing_direct_user_instruction_with_exact_packet_receipts",
     "report": "docs/experiments/20261029_Spark_Memory_Coverage_V11.md",
-    "outcomes": {
-      "source_admission": "passed_full_hash_environment_code_data_and_predecessor_checks",
-      "CPU_engineering": "562_final_clean_and_2_9_36_continuation_passed",
-      "native_competence": "v11_unrun",
-      "teacher_competence": "v11_unrun",
-      "useful_native_recall": "not_established",
-      "native_density_comparison": "prepared_unrun_gated",
-      "persistent_P_learning": "not_established",
-      "formation": "prepared_not_implemented",
-      "promotion": "closed",
-      "RSI": "closed"
+    "summary": {
+      "path": "reports/intrinsic_memory_coverage_v11/verification_summary.json",
+      "sha256": "07a6c702c9be398c586800a9023d1fef352c7423a1d8d8707f73b6fb28c7ecca"
     },
-    "prelaunch": {
-      "path": "reports/intrinsic_memory_coverage_v11/prelaunch_verification.json",
-      "sha256": "b7bd30bbd5c35d9385246ac88bd730d339d466efd12026c981de4af08b3551a3"
+    "outcomes": {
+      "RSI": "closed",
+      "capacity": "P1_unchanged_no_measured_expansion_bottleneck",
+      "development": "closed_by_gate",
+      "fitting_teacher_competence": "passed",
+      "formation": "specified_not_implemented",
+      "fresh_numerical_continuation": "passed",
+      "frozen_baseline_competence": "passed",
+      "memory_dependent_fitting": "failed_complete_final_probe",
+      "native_density_comparison": "prepared_unrun_gated",
+      "persistent_P_learning": "not_established_zero_updates",
+      "promotion": "closed",
+      "source_qualification": "passed_official_BF16_full_hash_and_executable_bindings",
+      "useful_native_recall": "not_established",
+      "numerical_qualification": "passed_finite_gradients_actual_update_exact_fresh_logits_unchanged_originals",
+      "resource_qualification": "passed_all_recorded_stage_and_sampled_resource_limits"
     }
   },
   "date": "2026-10-29",
@@ -274,21 +279,18 @@
     "v9": {
       "path": "reports/intrinsic_memory_step_v9/native_attempt01_summary.json",
       "sha256": "e6a2678e72dd91890ed26228213a3923e76ab8680f1a2b3d43c07e5611df14fb"
+    },
+    "v11": {
+      "path": "reports/intrinsic_memory_coverage_v11/native_attempt01_summary.json",
+      "sha256": "c74f37e8a0c71435aa06f5533d92d8a56a6c2a3b936c1e0cc3c26db8086bee58"
     }
   },
   "next_executable_experiment": {
-    "stage": "official_BF16_v11_two_site_broader_teaching",
-    "status": "authorized_prepared_final_clean_checks_passed",
-    "packet": {
-      "path": "reports/intrinsic_memory_coverage_v11/native_packet_two_v11.json",
-      "sha256": "1b413f0072b1e81e7b0f80d1bc5dd8734eb2b1c6a8477ee806e90238d9af9ada"
-    },
-    "authorization": {
-      "path": "reports/intrinsic_memory_coverage_v11/authorization_two_v11.json",
-      "sha256": "f39214a1ca7b47481248744ca50300ff632bcc139354880638f28ff222427e0c"
-    },
-    "launch_allowed_after_final_clean_checks": true,
-    "limits": "one worker; 50 GiB driver; 512 MiB sustained swap; 15 percent host free; 7200 seconds; 256 MiB artifacts; 512+1 updates; zero P updates; zero retries"
+    "stage": "source_representation_vs_reader_alignment_diagnostic",
+    "status": "useful_readout_gate_unresolved_next_mechanism_packet_not_yet_prepared",
+    "launch_allowed": false,
+    "authorization": "standing_user_instruction_applies_to_new_bounded_tests_with_exact_receipts",
+    "rationale": "Native 9/36 remains closed. Review final fitting groups and distinguish source representation from reader alignment before a new two-site mechanism experiment. Keep fixed gates; no best-prefix selection or retry of this output."
   },
   "outcomes": {
     "baseline_competence": {
@@ -521,5 +523,22 @@
       "path": "reports/intrinsic_memory_alignment_v10/verification_summary.json",
       "sha256": "42908fc7cda00de739662d15b8efb8efb6c8351e85579ff1bb9e97f0290d7677"
     }
+  },
+  "separate_matched_parameter_CPU_candidate": {
+    "active_sites": [
+      2,
+      9,
+      36
+    ],
+    "clean_evidence": {
+      "path": "reports/intrinsic_memory_matched_reader_v1/clean/summary.json",
+      "sha256": "3ce2e946afb7cd299fc5599908f312aafd2d726e098063586439ebfcc8027402"
+    },
+    "implementation_commit": "db405c87",
+    "native_launch_enabled": false,
+    "passed": 29,
+    "relation_to_v11": "New independent CPU control, absent from the sealed running/consumed v11 implementation.",
+    "skipped": 0,
+    "unique_reader_groups": 2
   }
 }

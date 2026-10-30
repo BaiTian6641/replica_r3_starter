@@ -1,0 +1,654 @@
+{
+  "P_updates": 0,
+  "RSI": false,
+  "approval_consumed": true,
+  "claim_limits": [
+    "Two fixed scripted rules and one seed; no heldout-rule or broad generalization claim.",
+    "Coverage and total exposure change together; no matched-cost causal attribution.",
+    "Frozen-base/extension continuation is not persistent P learning, identity fidelity or RSI."
+  ],
+  "competence": {
+    "cases": 8,
+    "correct": 8,
+    "false_recall": 0,
+    "passed": true,
+    "terminated": 8,
+    "truncated": 0
+  },
+  "correction": null,
+  "density_launched": false,
+  "density_scientific_gate_passed": false,
+  "development": null,
+  "development_opened": false,
+  "execution_completed": true,
+  "expected_refusals": [],
+  "fit": {
+    "all_controls_fit_generation_prefix_exact": true,
+    "all_recorded_losses_finite": true,
+    "contextual_first_token_correct": 26,
+    "contextual_terminated": 32,
+    "correct": {
+      "absent": 8,
+      "contextual": 26,
+      "exact_text": 32,
+      "shuffled": 26,
+      "wrong": 2,
+      "zero": 8
+    },
+    "curve": [
+      {
+        "correct": {
+          "absent": 8,
+          "contextual": 22,
+          "exact_text": 32,
+          "shuffled": 20,
+          "wrong": 6,
+          "zero": 8
+        },
+        "counterfactual_pairs_both_correct": 7,
+        "memory_dependence_passed": false,
+        "updates": 128
+      },
+      {
+        "correct": {
+          "absent": 8,
+          "contextual": 25,
+          "exact_text": 32,
+          "shuffled": 25,
+          "wrong": 4,
+          "zero": 8
+        },
+        "counterfactual_pairs_both_correct": 9,
+        "memory_dependence_passed": false,
+        "updates": 256
+      },
+      {
+        "correct": {
+          "absent": 8,
+          "contextual": 26,
+          "exact_text": 32,
+          "shuffled": 25,
+          "wrong": 3,
+          "zero": 8
+        },
+        "counterfactual_pairs_both_correct": 10,
+        "memory_dependence_passed": false,
+        "updates": 384
+      },
+      {
+        "correct": {
+          "absent": 8,
+          "contextual": 26,
+          "exact_text": 32,
+          "shuffled": 26,
+          "wrong": 2,
+          "zero": 8
+        },
+        "counterfactual_pairs_both_correct": 10,
+        "memory_dependence_passed": false,
+        "updates": 512
+      }
+    ],
+    "fixed_final_prefix": 512,
+    "gradients_after_zero_init": {
+      "order": {
+        "finite": true,
+        "missing": [],
+        "norm": 0.01504214026181277
+      },
+      "producer": {
+        "finite": true,
+        "missing": [],
+        "norm": 0.4100402416346368
+      },
+      "reader": {
+        "finite": true,
+        "missing": [],
+        "norm": 213.81786250293462
+      },
+      "sites": {
+        "3": {
+          "norm": 201.52011787307072,
+          "output_norm": 201.5196533203125
+        },
+        "7": {
+          "norm": 71.46831758022242,
+          "output_norm": 71.46818542480469
+        }
+      }
+    },
+    "groups": [
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 5,
+          "exact_text": 8,
+          "shuffled": 5,
+          "wrong": 2,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 1,
+        "fit_memory_dependence_passed": false,
+        "format": "replica.intrinsic_memory.diagnostic.v5.fit_probes",
+        "generalization_measured": false,
+        "same_question_counterfactual_pairs": [
+          [
+            "v11_fit_00",
+            "v11_fit_01"
+          ],
+          [
+            "v11_fit_02",
+            "v11_fit_03"
+          ],
+          [
+            "v11_fit_04",
+            "v11_fit_05"
+          ],
+          [
+            "v11_fit_06",
+            "v11_fit_07"
+          ]
+        ]
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 6,
+          "exact_text": 8,
+          "shuffled": 6,
+          "wrong": 0,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 2,
+        "fit_memory_dependence_passed": false,
+        "format": "replica.intrinsic_memory.diagnostic.v5.fit_probes",
+        "generalization_measured": false,
+        "same_question_counterfactual_pairs": [
+          [
+            "v11_fit_08",
+            "v11_fit_09"
+          ],
+          [
+            "v11_fit_10",
+            "v11_fit_11"
+          ],
+          [
+            "v11_fit_12",
+            "v11_fit_13"
+          ],
+          [
+            "v11_fit_14",
+            "v11_fit_15"
+          ]
+        ]
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 7,
+          "exact_text": 8,
+          "shuffled": 7,
+          "wrong": 0,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 3,
+        "fit_memory_dependence_passed": false,
+        "format": "replica.intrinsic_memory.diagnostic.v5.fit_probes",
+        "generalization_measured": false,
+        "same_question_counterfactual_pairs": [
+          [
+            "v11_fit_16",
+            "v11_fit_17"
+          ],
+          [
+            "v11_fit_18",
+            "v11_fit_19"
+          ],
+          [
+            "v11_fit_20",
+            "v11_fit_21"
+          ],
+          [
+            "v11_fit_22",
+            "v11_fit_23"
+          ]
+        ]
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 8,
+          "exact_text": 8,
+          "shuffled": 8,
+          "wrong": 0,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 4,
+        "fit_memory_dependence_passed": true,
+        "format": "replica.intrinsic_memory.diagnostic.v5.fit_probes",
+        "generalization_measured": false,
+        "same_question_counterfactual_pairs": [
+          [
+            "v11_fit_24",
+            "v11_fit_25"
+          ],
+          [
+            "v11_fit_26",
+            "v11_fit_27"
+          ],
+          [
+            "v11_fit_28",
+            "v11_fit_29"
+          ],
+          [
+            "v11_fit_30",
+            "v11_fit_31"
+          ]
+        ]
+      }
+    ],
+    "live_durable_exact": true,
+    "loss_prefixes": [
+      {
+        "ce_loss": 3.7191293239593506,
+        "eos_loss": 0.0026554344221949577,
+        "kl_loss": 3.609515428543091,
+        "loss": 3.609515428543091,
+        "teacher_retained_mass_mean": 0.9999901056289673,
+        "update": 1,
+        "word_loss": 7.435603141784668
+      },
+      {
+        "ce_loss": 1.7862496376037598,
+        "eos_loss": 0.0030096732079982758,
+        "kl_loss": 1.7291802167892456,
+        "loss": 1.7291802167892456,
+        "teacher_retained_mass_mean": 0.9999900460243225,
+        "update": 2,
+        "word_loss": 3.5694897174835205
+      },
+      {
+        "ce_loss": 1.4735733270645142,
+        "eos_loss": 0.012920119799673557,
+        "kl_loss": 1.425636887550354,
+        "loss": 1.425636887550354,
+        "teacher_retained_mass_mean": 0.999956488609314,
+        "update": 32,
+        "word_loss": 2.9342265129089355
+      },
+      {
+        "ce_loss": 0.8889193534851074,
+        "eos_loss": 0.0021069487556815147,
+        "kl_loss": 0.8512725830078125,
+        "loss": 0.8512725830078125,
+        "teacher_retained_mass_mean": 0.999956488609314,
+        "update": 64,
+        "word_loss": 1.7757318019866943
+      },
+      {
+        "ce_loss": 0.8114553093910217,
+        "eos_loss": 0.0015307862777262926,
+        "kl_loss": 0.7853320837020874,
+        "loss": 0.7853320837020874,
+        "teacher_retained_mass_mean": 0.999956488609314,
+        "update": 128,
+        "word_loss": 1.6213798522949219
+      },
+      {
+        "ce_loss": 0.08993737399578094,
+        "eos_loss": 0.0009507188224233687,
+        "kl_loss": 0.05700288340449333,
+        "loss": 0.05700288340449333,
+        "teacher_retained_mass_mean": 0.999956488609314,
+        "update": 256,
+        "word_loss": 0.17892402410507202
+      },
+      {
+        "ce_loss": 0.42823320627212524,
+        "eos_loss": 0.0003943857445847243,
+        "kl_loss": 0.4087055027484894,
+        "loss": 0.4087055027484894,
+        "teacher_retained_mass_mean": 0.999956488609314,
+        "update": 384,
+        "word_loss": 0.8560720086097717
+      },
+      {
+        "ce_loss": 0.14518968760967255,
+        "eos_loss": 0.0014755562879145145,
+        "kl_loss": 0.12700143456459045,
+        "loss": 0.12700143456459045,
+        "teacher_retained_mass_mean": 0.999956488609314,
+        "update": 512,
+        "word_loss": 0.2889038324356079
+      }
+    ],
+    "memory_dependence_passed": false,
+    "no_early_stop_or_best_prefix_selection": true,
+    "updates_recorded": 512,
+    "updates_reserved": 512
+  },
+  "format": "replica.intrinsic_memory.native_attempt_summary.v11",
+  "original_weights_unchanged": true,
+  "packet": {
+    "path": "reports/intrinsic_memory_coverage_v11/native_packet_two_v11.json",
+    "sha256": "1b413f0072b1e81e7b0f80d1bc5dd8734eb2b1c6a8477ee806e90238d9af9ada"
+  },
+  "promotion": false,
+  "resources": {
+    "I/O_note": "Serialized/file byte accounting, not measured physical SSD write amplification.",
+    "artifact_bytes": 61785311,
+    "audit_serialized_write_bytes": 37101387705,
+    "minimum_host_free_percent": 69.0,
+    "outer_wall_seconds": 3656.0434334157035,
+    "peak_driver_bytes": 11261542400,
+    "peak_rss_bytes": 8610463744,
+    "peak_swap_growth_bytes": 0,
+    "physical_memory_note": "MPS driver and RSS overlap; sampled maxima and host-wide free/swap are not exclusive allocations.",
+    "reserved_work": {
+      "artifact_bytes": 268435456,
+      "backwards": 513,
+      "forwards": 3189,
+      "generated_tokens": 1616,
+      "input_tokens": 816384,
+      "model_loads": 2,
+      "retrievals": 161,
+      "source_encodes": 932,
+      "updates": 513,
+      "writes": 356
+    },
+    "source_bytes_hashed_inside_attempt": 24716988741,
+    "stages": {
+      "admission": {
+        "elapsed_seconds": 4.078491833992302,
+        "reserved": {
+          "artifact_bytes": 132120576,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "baseline": {
+        "elapsed_seconds": 5.090787209104747,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 16,
+          "generated_tokens": 16,
+          "input_tokens": 4096,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "passed"
+      },
+      "checkpoint": {
+        "elapsed_seconds": 2.736097333021462,
+        "reserved": {
+          "artifact_bytes": 134217728,
+          "backwards": 0,
+          "forwards": 1,
+          "generated_tokens": 0,
+          "input_tokens": 256,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "fit_128": {
+        "elapsed_seconds": 146.80630062473938,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 128,
+          "forwards": 128,
+          "generated_tokens": 0,
+          "input_tokens": 32768,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 128,
+          "updates": 128,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_256": {
+        "elapsed_seconds": 226.36693050013855,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 128,
+          "forwards": 128,
+          "generated_tokens": 0,
+          "input_tokens": 32768,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 128,
+          "updates": 128,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_384": {
+        "elapsed_seconds": 307.5541389170103,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 128,
+          "forwards": 128,
+          "generated_tokens": 0,
+          "input_tokens": 32768,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 128,
+          "updates": 128,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_512": {
+        "elapsed_seconds": 382.5676290411502,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 128,
+          "forwards": 128,
+          "generated_tokens": 0,
+          "input_tokens": 32768,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 128,
+          "updates": 128,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "fit_probes_128": {
+        "elapsed_seconds": 358.34297524997965,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 640,
+          "generated_tokens": 384,
+          "input_tokens": 163840,
+          "model_loads": 0,
+          "retrievals": 32,
+          "source_encodes": 96,
+          "updates": 0,
+          "writes": 64
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_256": {
+        "elapsed_seconds": 529.3465316249058,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 640,
+          "generated_tokens": 384,
+          "input_tokens": 163840,
+          "model_loads": 0,
+          "retrievals": 32,
+          "source_encodes": 96,
+          "updates": 0,
+          "writes": 64
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_384": {
+        "elapsed_seconds": 702.2797961249016,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 640,
+          "generated_tokens": 384,
+          "input_tokens": 163840,
+          "model_loads": 0,
+          "retrievals": 32,
+          "source_encodes": 96,
+          "updates": 0,
+          "writes": 64
+        },
+        "status": "failed_memory_dependence"
+      },
+      "fit_probes_512": {
+        "elapsed_seconds": 887.7687556659803,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 640,
+          "generated_tokens": 384,
+          "input_tokens": 163840,
+          "model_loads": 0,
+          "retrievals": 32,
+          "source_encodes": 96,
+          "updates": 0,
+          "writes": 64
+        },
+        "status": "failed_memory_dependence"
+      },
+      "load": {
+        "elapsed_seconds": 22.36709670908749,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 1,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "completed"
+      },
+      "numerical": {
+        "elapsed_seconds": 0.6552185830660164,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 2,
+          "generated_tokens": 0,
+          "input_tokens": 512,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 1,
+          "updates": 0,
+          "writes": 0
+        },
+        "status": "passed"
+      },
+      "prepare": {
+        "elapsed_seconds": 1.3054362079128623,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "retrievals": 32,
+          "source_encodes": 32,
+          "updates": 0,
+          "writes": 64
+        },
+        "status": "completed"
+      },
+      "restart": {
+        "elapsed_seconds": 36.56502416729927,
+        "reserved": {
+          "artifact_bytes": 0,
+          "backwards": 1,
+          "forwards": 2,
+          "generated_tokens": 0,
+          "input_tokens": 512,
+          "model_loads": 1,
+          "retrievals": 1,
+          "source_encodes": 2,
+          "updates": 1,
+          "writes": 1
+        },
+        "status": "completed"
+      },
+      "teacher": {
+        "elapsed_seconds": 34.47042458411306,
+        "reserved": {
+          "artifact_bytes": 2097152,
+          "backwards": 0,
+          "forwards": 96,
+          "generated_tokens": 64,
+          "input_tokens": 24576,
+          "model_loads": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "updates": 0,
+          "writes": 33
+        },
+        "status": "passed"
+      }
+    }
+  },
+  "restart": {
+    "actual_continuation_updates": 1,
+    "fresh_logits_exact": true,
+    "original_weights_unchanged": true,
+    "teacher_cache_restored": true,
+    "teacher_forward_in_update": false,
+    "uninterrupted_equivalence_measured": false
+  },
+  "result": {
+    "path": "reports/intrinsic_memory_coverage_v11/native_bf16_two_v11_attempt01/result.json",
+    "sha256": "6f56eb9fc20ddd92b96f7872158174ca3c481a01a276786da57fe42959f8f6a4"
+  },
+  "source_kind": "official_bf16",
+  "standing_testing_authorization_remains_applicable_to_new_bounded_packets": true,
+  "teacher_competence": {
+    "cases": 32,
+    "correct": 32,
+    "false_recall": 0,
+    "passed": true,
+    "terminated": 32,
+    "truncated": 0
+  },
+  "teacher_targets": {
+    "bytes": 284450,
+    "cache": {
+      "path": "reports/intrinsic_memory_coverage_v11/native_bf16_two_v11_attempt01/teacher_targets.json",
+      "sha256": "282652220968689e19895d2a6058ea1ba6c6f20981b617efebc3f7b8ff4ff7ab"
+    },
+    "cache_reused_for_student_updates": 513,
+    "evicted_before_development": true,
+    "immutable_detached": true,
+    "original_teacher_updates": 0
+  },
+  "unexpected_or_uncertain_events": [],
+  "useful_recall": false
+}

@@ -1,0 +1,88 @@
+{
+  "base": {
+    "artifact_sha256": "c309e44c93edf04187447c27990ecd0979990d7bab9e8dbf5a715afd2f82a50a",
+    "config_digest": "540bfbe3a23312c34e359e3907550c0783a0e3bccb3ef2524bbe22d495977019",
+    "derivative_of": null,
+    "geometry_fingerprint": "4af04881df74db63705ecf779e4c5e9c388f0bfcc622c7ad96064a9aa7bbcd86",
+    "precision_digest": "7eeaf968b5e7601d684c0c9b596c33e0883098f4f1946e1f113bc9be632f317e",
+    "precision_kind": "official_bf16",
+    "quantization_fingerprint": null,
+    "storage": "bf16",
+    "weight_dtype": "BF16"
+  },
+  "codec": "contextual_fp32_slots_v2",
+  "contains_base_weights": false,
+  "external_spine_required": false,
+  "fitting_frozen": true,
+  "format": "replica.intrinsic_memory.contextual_training_checkpoint.v4",
+  "implementation": "replica.intrinsic_memory.contextual_training.v4",
+  "initialization_seed": 17,
+  "layout": {
+    "decoder_layers": 36,
+    "hidden_size": 2560,
+    "placement": "block_input_query_to_post_block_residual",
+    "sites": [
+      3,
+      7
+    ],
+    "slots": 8,
+    "width": 256
+  },
+  "optimizer_sha256": "46e3a2e5a82e588de4009543ddabda4cef5fbef2557000ec4de10750e292b246",
+  "owner": "intrinsic_memory",
+  "parameter_names": {
+    "order": [
+      "order.weight"
+    ],
+    "producer": [
+      "producer.slot_queries",
+      "producer.embedding.weight",
+      "producer.position.weight",
+      "producer.transformer.layers.0.self_attn.in_proj_weight",
+      "producer.transformer.layers.0.self_attn.in_proj_bias",
+      "producer.transformer.layers.0.self_attn.out_proj.weight",
+      "producer.transformer.layers.0.self_attn.out_proj.bias",
+      "producer.transformer.layers.0.linear1.weight",
+      "producer.transformer.layers.0.linear1.bias",
+      "producer.transformer.layers.0.linear2.weight",
+      "producer.transformer.layers.0.linear2.bias",
+      "producer.transformer.layers.0.norm1.weight",
+      "producer.transformer.layers.0.norm1.bias",
+      "producer.transformer.layers.0.norm2.weight",
+      "producer.transformer.layers.0.norm2.bias",
+      "producer.output.0.weight",
+      "producer.output.0.bias",
+      "producer.output.1.weight"
+    ],
+    "reader": [
+      "reader.ports.3.gate_logit",
+      "reader.ports.3.query_norm.weight",
+      "reader.ports.3.query_norm.bias",
+      "reader.ports.3.query_projection.weight",
+      "reader.ports.3.slot_norm.weight",
+      "reader.ports.3.slot_norm.bias",
+      "reader.ports.3.key_projection.weight",
+      "reader.ports.3.value_projection.weight",
+      "reader.ports.3.output_norm.weight",
+      "reader.ports.3.output_norm.bias",
+      "reader.ports.3.output_projection.weight",
+      "reader.ports.7.gate_logit",
+      "reader.ports.7.query_norm.weight",
+      "reader.ports.7.query_norm.bias",
+      "reader.ports.7.query_projection.weight",
+      "reader.ports.7.slot_norm.weight",
+      "reader.ports.7.slot_norm.bias",
+      "reader.ports.7.key_projection.weight",
+      "reader.ports.7.value_projection.weight",
+      "reader.ports.7.output_norm.weight",
+      "reader.ports.7.output_norm.bias",
+      "reader.ports.7.output_projection.weight"
+    ]
+  },
+  "producer": "contextual_byte_transformer_v2",
+  "producer_release": "v2-d309fe3e713b3669e96a67c2377009248acdce5a86211f699627da67972426c1",
+  "projection_cache": "none",
+  "representation": "four_ordered_contextual_256_v2",
+  "source_identity": "c309e44c93edf04187447c27990ecd0979990d7bab9e8dbf5a715afd2f82a50a",
+  "weights_sha256": "2e390612fcd11447405e4749c46fcaa52863c0943049909ba8c51298ac3d4740"
+}

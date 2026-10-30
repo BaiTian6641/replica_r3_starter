@@ -48,6 +48,13 @@ def main():
         assert main['fit_memory_dependence_passed'] and read('fitting_closed.json')['updates']==512
         assert len(dev['rows'])==16 and len(dev['groups'])==2
     curve=read('fit_curve.json',{'prefixes':[]})['prefixes']
+    # A later process interruption must not erase an already completed gate.
+    # Fallback requires both its durable passed stage and complete raw evidence.
+    def recorded_gate(name, rows, count, flag):
+        if flag in main:
+            return main[flag]
+        return (ledger['stages'].get(name,{}).get('status')=='passed' and len(rows)==count
+                and all(r['correct'] and not r['false_recall'] and not r['truncated'] for r in rows))
     fit_summary={'updates_recorded':len(fit),'updates_reserved':sum(v['reserved']['updates'] for k,v in ledger['stages'].items() if k.startswith('fit_')),
                  'curve':curve,'fixed_final_prefix':512,'no_early_stop_or_best_prefix_selection':True,
                  'memory_dependence_passed':main.get('fit_memory_dependence_passed',False)}
@@ -65,8 +72,8 @@ def main():
         'packet':pin(REPORT/'native_packet_two_v11.json'),'result':pin(OUTPUT/'result.json') if result else None,
         'execution_completed':bool(result and supervision['child_exit_code']==0),'approval_consumed':True,
         'standing_testing_authorization_remains_applicable_to_new_bounded_packets':True,
-        'competence':answer_counts(baseline,main.get('competence_passed',False)),
-        'teacher_competence':answer_counts(teacher,main.get('teacher_competence_passed',False)),
+        'competence':answer_counts(baseline,recorded_gate('baseline',baseline,8,'competence_passed')),
+        'teacher_competence':answer_counts(teacher,recorded_gate('teacher',teacher,32,'teacher_competence_passed')),
         'fit':fit_summary,'development_opened':dev is not None,
         'development':None if dev is None else {k:v for k,v in dev.items() if k!='rows'},
         'correction':correction,'useful_recall':result.get('useful_recall',False),
