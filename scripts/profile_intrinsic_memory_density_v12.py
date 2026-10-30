@@ -398,7 +398,7 @@ def _tree_equal(left, right):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path,
-                        default=ROOT / "reports/intrinsic_memory_density_v12/repair01/cpu_engineering_summary.json")
+                        default=ROOT / "reports/intrinsic_memory_density_v12/measurements/cpu_engineering_summary.json")
     parser.add_argument("--skip-continuation", action="store_true")
     args = parser.parse_args()
     torch.set_num_threads(1)

@@ -35,6 +35,14 @@ def _sha256(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _fsync_directory(directory):
+    descriptor = os.open(directory, os.O_RDONLY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
 def write_new_json(path, value):
     """Atomically create a JSON file; never overwrite prior evidence.
 
@@ -50,6 +58,7 @@ def write_new_json(path, value):
     descriptor, temporary = tempfile.mkstemp(
         prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
     temporary = Path(temporary)
+    linked = False
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
             stream.write(payload)
@@ -59,11 +68,23 @@ def write_new_json(path, value):
             os.link(temporary, path)
         except FileExistsError:
             raise FileExistsError(f"refusing to overwrite receipt: {path}")
-        os.unlink(temporary)
+        linked = True
+        try:
+            os.unlink(temporary)
+        except OSError:
+            # The final receipt is complete; leaving a temp name must not turn a
+            # successful receipt into a raised call that leaves the final path.
+            pass
+        _fsync_directory(path.parent)
     except BaseException:
+        if linked:
+            try:
+                path.unlink()
+            except OSError:
+                pass
         try:
             temporary.unlink()
-        except FileNotFoundError:
+        except OSError:
             pass
         raise
     return path
@@ -271,6 +292,95 @@ def build_verification_results(cpu_summary, cost_pilot, protocols, *, repair_cyc
     }
 
 
+
+
+def _write_replace_json(path, value):
+    """Atomically replace a mutable navigation pointer."""
+    path = Path(path)
+    if path.is_symlink():
+        raise ReceiptError(f"navigation pointer is a symlink: {path}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(value, indent=2, sort_keys=True) + "\n"
+    descriptor, temporary = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    temporary = Path(temporary)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+        _fsync_directory(path.parent)
+    except BaseException:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def write_current_navigation(root, canonical_directory, *, generator,
+                             x6_test):
+    """Generate CURRENT/NONCANONICAL consistently from measured canonical files."""
+    root = Path(root)
+    canonical = Path(canonical_directory)
+    if not canonical.is_absolute():
+        canonical = (canonical.resolve() if canonical.is_dir()
+                     else (root / canonical).resolve())
+    else:
+        canonical = canonical.resolve()
+    if not canonical.is_dir():
+        raise ReceiptError(f"canonical directory is missing: {canonical}")
+    required = ("cpu_engineering_summary.json", "cost_pilot_summary.json",
+                "protocol_summary.json", "verification_results.json",
+                "report_manifest.json")
+    files = {name: _sha256(canonical / name) for name in required}
+    superseded = []
+    for path in sorted(root.iterdir()):
+        if not path.is_dir() or path.resolve() == canonical:
+            continue
+        if (path / "cost_pilot_summary.json").is_file() or (
+                path / "cpu_engineering_summary.json").is_file():
+            superseded.append(path)
+    relative = canonical.relative_to(root.resolve()).as_posix()
+    canonical_name = "reports/intrinsic_memory_density_v12/" + relative
+    noncanonical = {
+        "format": "replica.intrinsic_memory.density.noncanonical.v12",
+        "canonical_destination": canonical_name,
+        "generated_by": generator,
+        "noncanonical_destinations": [
+            {"path": "reports/intrinsic_memory_density_v12",
+             "reason": "historical root receipts; bytes preserved; superseded by canonical receipt"},
+            *[
+                {"path": "reports/intrinsic_memory_density_v12/" + path.name,
+                 "reason": "historical bytes preserved; superseded by canonical receipt"}
+                for path in superseded
+            ],
+        ],
+        "files_unchanged": True,
+        "native_execution": False,
+    }
+    _write_replace_json(root / "NONCANONICAL.json", noncanonical)
+    for path in superseded:
+        _write_replace_json(path / "NONCANONICAL.json", {
+            "format": "replica.intrinsic_memory.density.noncanonical.v12",
+            "canonical_destination": canonical_name,
+            "generated_by": generator,
+            "reason": "historical receipt bytes preserved; noncanonical",
+        })
+    current = {
+        "format": "replica.intrinsic_memory.density.current_navigation.v12",
+        "canonical_destination": canonical_name,
+        "files": files,
+        "generator": generator,
+        "x6_test": x6_test,
+        "native_execution": False,
+        "P_updates": 0,
+    }
+    _write_replace_json(root / "CURRENT.json", current)
+    return current
+
+
 def write_repair_receipts(directory, *, cpu_summary_path, cost_pilot_path,
                           protocols_directory="configs", repair_cycle="repair03"):
     directory = Path(directory)
@@ -311,6 +421,6 @@ def write_repair_receipts(directory, *, cpu_summary_path, cost_pilot_path,
         for path in created:
             try:
                 path.unlink()
-            except FileNotFoundError:
+            except OSError:
                 pass
         raise

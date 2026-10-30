@@ -170,7 +170,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--output", type=Path,
-        default=ROOT / "reports/intrinsic_memory_density_v12/repair01/cost_pilot_summary.json")
+        default=ROOT / "reports/intrinsic_memory_density_v12/measurements/cost_pilot_summary.json")
     args = parser.parse_args()
     torch.set_num_threads(1)
     protocols = load_protocols(ROOT / "configs")

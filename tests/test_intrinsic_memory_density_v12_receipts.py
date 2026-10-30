@@ -142,3 +142,88 @@ def test_receipts_enforce_controls_and_feature_contract(tmp_path, damage):
     with pytest.raises(ReceiptError):
         write_repair_receipts(tmp_path / ("repair-" + damage),
                               cpu_summary_path=cpu, cost_pilot_path=cost_path)
+
+
+def test_directory_fsync_failure_removes_final_and_retry_succeeds(monkeypatch, tmp_path):
+    from replica_lab.intrinsic_memory_density_receipts_v12 import write_new_json
+    destination = tmp_path / "receipt.json"
+    def interrupted(directory):
+        raise RuntimeError("directory fsync interrupted")
+    monkeypatch.setattr("replica_lab.intrinsic_memory_density_receipts_v12._fsync_directory", interrupted)
+    with pytest.raises(RuntimeError):
+        write_new_json(destination, {"complete": True})
+    assert not destination.exists()
+    monkeypatch.undo()
+    write_new_json(destination, {"complete": True})
+    assert json.loads(destination.read_text()) == {"complete": True}
+
+
+def test_post_link_temp_unlink_failure_keeps_successful_final(monkeypatch, tmp_path):
+    from replica_lab.intrinsic_memory_density_receipts_v12 import write_new_json
+    import os
+    destination = tmp_path / "receipt.json"
+    real_unlink = os.unlink
+
+    def fail_temporary(path):
+        if str(path).endswith(".tmp"):
+            raise OSError("temp unlink interrupted")
+        return real_unlink(path)
+
+    monkeypatch.setattr(os, "unlink", fail_temporary)
+    write_new_json(destination, {"complete": True})
+    assert json.loads(destination.read_text()) == {"complete": True}
+
+
+def test_navigation_generator_is_consistent_and_deterministic(tmp_path):
+    from replica_lab.intrinsic_memory_density_receipts_v12 import write_current_navigation
+    root = tmp_path / "reports"
+    canonical = root / "coordinator04"
+    old = root / "repair01"
+    canonical.mkdir(parents=True)
+    old.mkdir()
+    for directory in (canonical, old):
+        for name in ("cpu_engineering_summary.json", "cost_pilot_summary.json",
+                     "protocol_summary.json", "verification_results.json",
+                     "report_manifest.json"):
+            (directory / name).write_text('{"x": 1}\n')
+    first = write_current_navigation(
+        root, "coordinator04", generator="test", x6_test="test::x6")
+    current = json.loads((root / "CURRENT.json").read_text())
+    noncanonical = json.loads((root / "NONCANONICAL.json").read_text())
+    assert current == first
+    assert current["canonical_destination"] == (
+        "reports/intrinsic_memory_density_v12/coordinator04")
+    assert noncanonical["canonical_destination"] == current["canonical_destination"]
+    assert [row["path"] for row in noncanonical["noncanonical_destinations"]] == [
+        "reports/intrinsic_memory_density_v12",
+        "reports/intrinsic_memory_density_v12/repair01"]
+    assert (old / "NONCANONICAL.json").is_file()
+    second = write_current_navigation(
+        root, "coordinator04", generator="test", x6_test="test::x6")
+    assert second == first
+    assert (root / "CURRENT.json").read_text() == json.dumps(
+        first, indent=2, sort_keys=True) + "\n"
+
+
+def test_receipt_set_failure_removes_partial_outputs_and_retries(monkeypatch, tmp_path):
+    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+    cpu, cost_path, cost = inputs(tmp_path)
+    destination = tmp_path / "repair-set"
+    real_write = receipts.write_new_json
+    calls = {"count": 0}
+
+    def failing_write(path, value):
+        calls["count"] += 1
+        if calls["count"] == 2:
+            raise RuntimeError("second receipt interrupted")
+        return real_write(path, value)
+
+    monkeypatch.setattr(receipts, "write_new_json", failing_write)
+    with pytest.raises(RuntimeError):
+        receipts.write_repair_receipts(
+            destination, cpu_summary_path=cpu, cost_pilot_path=cost_path)
+    assert not (destination / PROTOCOL_SUMMARY).exists()
+    monkeypatch.setattr(receipts, "write_new_json", real_write)
+    receipts.write_repair_receipts(
+        destination, cpu_summary_path=cpu, cost_pilot_path=cost_path)
+    assert (destination / PROTOCOL_SUMMARY).is_file()

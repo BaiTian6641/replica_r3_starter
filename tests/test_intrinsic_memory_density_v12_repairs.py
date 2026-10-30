@@ -86,10 +86,15 @@ def test_authority_revalidation_is_reported_separately_from_side_effects():
     after = {"format": "test", "memory": {
         "retrieval_calls": 4, "admission_calls": 2, "snapshot_copies": 1,
         "source_revalidations": 13}, "source": {}}
+    before["source"] = {"requests": 1, "forwards": 1, "cache_misses": 1}
+    after["source"] = {"requests": 2, "forwards": 2, "cache_misses": 2}
     delta = assert_no_read_write_effects(before, after)
     assert delta["authority_validation"] == {"source_revalidations": 3}
+    assert delta["permitted_source_recomputation"] == {
+        "source.requests": 1, "source.forwards": 1, "source.cache_misses": 1}
     bad = {"format": "test", "memory": {
-        "retrieval_calls": 5, "source_revalidations": 13}, "source": {}}
+        "retrieval_calls": 5, "source_revalidations": 13},
+        "source": {"requests": 2, "forwards": 2, "cache_misses": 2}}
     with pytest.raises(DensityError, match="retrieval/write/copy"):
         assert_no_read_write_effects(before, bad)
 

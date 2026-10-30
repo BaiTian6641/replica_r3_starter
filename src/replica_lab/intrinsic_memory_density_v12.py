@@ -195,18 +195,20 @@ def assert_no_read_write_effects(before, after, *, keys=READ_WRITE_KEYS):
         raise DensityError("authority-validation counter moved backwards")
     changed = {key: delta["memory"].get(key, 0) for key in keys
                if delta["memory"].get(key, 0) != 0}
-    # Source tokenization/forward recomputation is legitimate work; it may not
-    # run backwards and is reported separately from durable read/write effects.
-    for key in ("requests", "forwards", "cache_misses"):
-        value = delta["source"].get(key, 0)
+    # Source tokenization/forward recomputation is explicitly permitted work;
+    # only backwards counters are invalid.  It is reported separately from the
+    # prohibited retrieval/admission/snapshot/durable-write effects.
+    source_recomputation = {}
+    for key, value in delta["source"].items():
         if value < 0:
             raise DensityError("source-feature counter moved backwards: " + key)
         if value:
-            changed["source." + key] = value
+            source_recomputation["source." + key] = value
     if changed:
         raise DensityError("recomputation created retrieval/write/copy effects: "
                            + ", ".join(sorted(changed)))
-    return {**delta, "authority_validation": authority}
+    return {**delta, "authority_validation": authority,
+            "permitted_source_recomputation": source_recomputation}
 
 
 def physical_groups(reader):
