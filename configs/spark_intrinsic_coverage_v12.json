@@ -307,7 +307,7 @@
           "source_token_bytes": 32768,
           "tokenizer_calls": 128,
           "updates": 0,
-          "wall_seconds": 900,
+          "wall_seconds": 500,
           "writes": 579
         },
         "fit_probes_256": {
@@ -329,7 +329,7 @@
           "source_token_bytes": 32768,
           "tokenizer_calls": 128,
           "updates": 0,
-          "wall_seconds": 900,
+          "wall_seconds": 800,
           "writes": 579
         },
         "fit_probes_384": {
@@ -351,7 +351,7 @@
           "source_token_bytes": 32768,
           "tokenizer_calls": 128,
           "updates": 0,
-          "wall_seconds": 900,
+          "wall_seconds": 1100,
           "writes": 579
         },
         "fit_probes_512": {
@@ -373,7 +373,7 @@
           "source_token_bytes": 32768,
           "tokenizer_calls": 128,
           "updates": 0,
-          "wall_seconds": 900,
+          "wall_seconds": 1400,
           "writes": 580
         },
         "load": {
@@ -509,7 +509,7 @@
           "writes": 34
         }
       },
-      "output_root": "reports/intrinsic_memory_native_v12/native_bf16_all_v12_attempt09",
+      "output_root": "reports/intrinsic_memory_native_v12/native_bf16_all_v12_attempt10",
       "resource_limits": {
         "driver_bytes": 53687091200,
         "minimum_host_free_percent": 15,
@@ -574,7 +574,7 @@
         "source_token_bytes": 275968,
         "tokenizer_calls": 1078,
         "updates": 513,
-        "wall_seconds": 6955,
+        "wall_seconds": 7155,
         "writes": 3618
       },
       "wall_seconds": 7200
@@ -886,7 +886,7 @@
           "source_token_bytes": 32768,
           "tokenizer_calls": 128,
           "updates": 0,
-          "wall_seconds": 900,
+          "wall_seconds": 500,
           "writes": 579
         },
         "fit_probes_256": {
@@ -908,7 +908,7 @@
           "source_token_bytes": 32768,
           "tokenizer_calls": 128,
           "updates": 0,
-          "wall_seconds": 900,
+          "wall_seconds": 800,
           "writes": 579
         },
         "fit_probes_384": {
@@ -930,7 +930,7 @@
           "source_token_bytes": 32768,
           "tokenizer_calls": 128,
           "updates": 0,
-          "wall_seconds": 900,
+          "wall_seconds": 1100,
           "writes": 579
         },
         "fit_probes_512": {
@@ -952,7 +952,7 @@
           "source_token_bytes": 32768,
           "tokenizer_calls": 128,
           "updates": 0,
-          "wall_seconds": 900,
+          "wall_seconds": 1400,
           "writes": 580
         },
         "load": {
@@ -1088,7 +1088,7 @@
           "writes": 34
         }
       },
-      "output_root": "reports/intrinsic_memory_native_v12/native_bf16_full_attention_nine_v12_attempt09",
+      "output_root": "reports/intrinsic_memory_native_v12/native_bf16_full_attention_nine_v12_attempt10",
       "resource_limits": {
         "driver_bytes": 53687091200,
         "minimum_host_free_percent": 15,
@@ -1126,7 +1126,7 @@
         "source_token_bytes": 275968,
         "tokenizer_calls": 1078,
         "updates": 513,
-        "wall_seconds": 6955,
+        "wall_seconds": 7155,
         "writes": 3618
       },
       "wall_seconds": 7200
@@ -1438,7 +1438,7 @@
           "source_token_bytes": 32768,
           "tokenizer_calls": 128,
           "updates": 0,
-          "wall_seconds": 900,
+          "wall_seconds": 500,
           "writes": 579
         },
         "fit_probes_256": {
@@ -1460,7 +1460,7 @@
           "source_token_bytes": 32768,
           "tokenizer_calls": 128,
           "updates": 0,
-          "wall_seconds": 900,
+          "wall_seconds": 800,
           "writes": 579
         },
         "fit_probes_384": {
@@ -1482,7 +1482,7 @@
           "source_token_bytes": 32768,
           "tokenizer_calls": 128,
           "updates": 0,
-          "wall_seconds": 900,
+          "wall_seconds": 1100,
           "writes": 579
         },
         "fit_probes_512": {
@@ -1504,7 +1504,7 @@
           "source_token_bytes": 32768,
           "tokenizer_calls": 128,
           "updates": 0,
-          "wall_seconds": 900,
+          "wall_seconds": 1400,
           "writes": 580
         },
         "load": {
@@ -1640,7 +1640,7 @@
           "writes": 34
         }
       },
-      "output_root": "reports/intrinsic_memory_native_v12/native_bf16_two_v12_attempt09",
+      "output_root": "reports/intrinsic_memory_native_v12/native_bf16_two_v12_attempt10",
       "resource_limits": {
         "driver_bytes": 53687091200,
         "minimum_host_free_percent": 15,
@@ -1671,7 +1671,7 @@
         "source_token_bytes": 275968,
         "tokenizer_calls": 1078,
         "updates": 513,
-        "wall_seconds": 6955,
+        "wall_seconds": 7155,
         "writes": 3618
       },
       "wall_seconds": 7200
@@ -1703,8 +1703,8 @@
     "restart_prompt_tokenization": "restart reserves 67 prompt-tokenizer passes = 64 (2 encodings for each of 32 restored teacher targets: student and exact text) + 1 (canary encoding) + 2 (continuation student encoding and the exact-text encoding that the alignment binding re-derives). Nothing else in the restart path tokenizes a prompt",
     "source_file_bytes": 8238996247,
     "source_span_unit": "one cache-missing canonical span reserves tokenizer_calls=1, source_encodes=1, source_token_bytes=256 and input_tokens=256 for the tokenizer, then forwards=1, source_feature_forwards=1, cache_misses/evictions/recomputations=1 and input_tokens=256 for the frozen source forward",
-    "stage_wall": "sum of all 23 two-site stage caps: admission=30 + preflight=30 + load=180 + capacity_main=15 + capacity_restart=15 + finalize_parent=20 + finalize_worker=30 + baseline=45 + numerical=30 + prepare=60 + teacher=90 + checkpoint=60 + development=540 + correction=60 + restart=150 + fit_128=500 + fit_probes_128=900 + fit_256=500 + fit_probes_256=900 + fit_384=500 + fit_probes_384=900 + fit_512=500 + fit_probes_512=900 = 6955 seconds inside the 7200-second whole-process-group envelope; the remaining 245 seconds are outer headroom, never a stage allowance",
-    "stage_wall_value": 6955,
+    "stage_wall": "sum of all 23 two-site stage caps: admission=30 + preflight=30 + load=180 + capacity_main=15 + capacity_restart=15 + finalize_parent=20 + finalize_worker=30 + baseline=45 + numerical=30 + prepare=60 + teacher=90 + checkpoint=60 + development=540 + correction=60 + restart=150 + fit_128=500 + fit_probes_128=500 + fit_256=500 + fit_probes_256=800 + fit_384=500 + fit_probes_384=1100 + fit_512=500 + fit_probes_512=1400 = 7155 seconds inside the 7200-second whole-process-group envelope; the remaining 45 seconds are outer headroom, never a stage allowance",
+    "stage_wall_value": 7155,
     "teacher_forwards": "32 answers * 8 reserved tokens + 32 target forwards = 288; no source features",
     "total_backwards": "512 fitting + 1 restart = 513",
     "total_forwards": "64 + 3 + 32 + 288 + 4*256 + 4*1888 + 2 + 784 + 25 + 4 = 9778; a source forward appears twice on purpose: once as a frozen backbone forward (forwards) and once as source_feature_forwards, because v12 dispatches both",
@@ -1818,7 +1818,7 @@
       "sha256": "cdd5313eebce66a7d659a017f1113ab30f54a305791d56f9d34bd325dff35877"
     },
     "prelaunch_resource_review": {
-      "allocated_stage_seconds": 6955,
+      "allocated_stage_seconds": 7155,
       "driver_bytes": 53687091200,
       "maximum_workers": 1,
       "minimum_host_free_percent": 15,
@@ -1922,7 +1922,7 @@
   },
   "implementation": {
     "path": "reports/intrinsic_memory_native_v12/implementation_v12.json",
-    "sha256": "c9105f470f8796e0ac2f7adb53ee20a1975b7668e256fe9bd3ccb0e5cc50553e"
+    "sha256": "d9e71238b095d38422f3e08346b6953e27128907a63f9c7ec029a6df7b2d9d3c"
   },
   "numerical_restart_on_failed_fit": "allowed diagnostic, one update already budgeted; no generalization claim",
   "optimizer": "NativeFusedAdamW",
