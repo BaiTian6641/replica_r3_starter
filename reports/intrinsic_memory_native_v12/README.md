@@ -135,7 +135,7 @@ detected X14. They are historical receipts for their own packet hashes and do
 focused suite and independent review for these bytes are still pending, and no
 authorization or launch exists.
 
-Nine earlier unlaunched preparations are preserved verbatim, unmodified and
+Ten earlier unlaunched preparations are preserved verbatim, unmodified and
 clearly non-canonical, each with a computed-hash status record:
 `preparation_draft01/` binds pre-repair bytes, `preparation_draft02/` carries the
 N1–N3 repairs made before the producer commit, and `preparation_draft03/` carries
@@ -150,18 +150,19 @@ while producer cycle 5 and the consumer repairs were working-tree changes; every
 draft-07 artifact except `preparation.json` is byte-identical to the current
 canonical ones, and `preparation_draft08/` the lifecycle packet before the per-window capacity
 stages, terminal-receipt paths, release-read charging and failure-path masking
-fixes, and `preparation_draft09/` the packet before the release-corpus
-direct-read accounting provider was wired and budgeted. No attempt or historical evidence was moved or deleted.
+fixes, `preparation_draft09/` the packet before the release-corpus
+direct-read accounting provider was wired and budgeted, and
+`preparation_draft10/` the same packet made while producer cycle 6 and the
+consumer edits were working-tree changes (every artifact except
+`preparation.json` is byte-identical to the current canonical ones). No attempt or historical evidence was moved or deleted.
 
 Provenance: the v12 producer was committed at `6dede67e`, repaired at
-`6ba07e1b` and `826aac6b`, closed at `7cf57766`, and has further working-tree
-changes from the acceptance-review fixes (`contextual_memory_v12.py`,
-`contextual_release_v12.py`) at preparation time; the consumer repairs are
-committed at `2ddb6287` and this cycle's consumer changes are working-tree
-edits. The closure therefore pins those uncommitted bytes: commit both, then
-regenerate once more (same discard-and-rerun) before sealing. Regenerating after
-`2ddb6287` changed only `preparation.json`; this cycle changes the stage plan, so
-the packet hash moved to `cc4fd0d2…`.
+`6ba07e1b`, `826aac6b` and `7cf57766`, and closed at **`fb8c1425`**
+(`fix: complete release rollback and read accounting`); the native consumer is
+committed at **`7516bfeb`** (`fix: complete native terminal and release
+accounting`). **All 62 closure entries equal their `HEAD` blob content**, and
+regenerating after both commits changed only `preparation.json` (its measured
+hashing wall time) — the packet hash is unchanged at `908a50a4…`.
 
 The coordinator lifecycle preflight
 (`preflight_verification_lifecycle.json`, format
@@ -297,6 +298,7 @@ gate stay matched to v11. The hypothesis is about source representation only.
 | `reports/intrinsic_memory_native_v12/preparation_draft07/` | Preserved lifecycle packet made while producer cycle 5 and the consumer repairs were uncommitted; all artifacts except `preparation.json` were byte-identical to its successor; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft08/` | Preserved packet before the per-window capacity stages, terminal-receipt paths, release-read charging and X5-adjacent masking fixes; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft09/` | Preserved packet before the release-corpus direct-read accounting provider was wired and budgeted; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft10/` | Preserved packet made while producer cycle 6 and the consumer edits were uncommitted; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/environment_closure_v12.json` | Executable dependency closure: resolved interpreter, module origins, native extensions, all `torch/lib` files, all wheel RECORDs and critical files, by actual hash |
 | `reports/intrinsic_memory_native_v12/development_exposure_v12.json` | Current exposure receipt: fresh split unopened, retired v11 split, reading incident recorded; historical receipt unedited |
 
