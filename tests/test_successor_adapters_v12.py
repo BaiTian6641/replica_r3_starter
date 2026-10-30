@@ -263,7 +263,7 @@ def test_formation_authority_controls_tier_selection(tmp_path):
                               as_of=time.time_ns() + 3600 * 10 ** 9,
                               task_id="task-1", task_revision=0,
                               include_verification_states=("unverified",))
-        authority = formation_authority(formation, later)
+        authority = formation_authority(formation, later, scope_digest=pin.digest)
         assert tiers.read(record_id, authority=authority).status == "ready"
         formation.revoke(record_id, reason="source revoked")
         current = formation.pin(branch_id="branch-a", purpose="test",
@@ -273,5 +273,5 @@ def test_formation_authority_controls_tier_selection(tmp_path):
                                 include_verification_states=("unverified",))
         current_authority = formation_authority(formation, current)
         assert tiers.read(record_id, authority=current_authority).status == "ineligible"
-        # The pre-revocation pin remains an immutable snapshot.
-        assert tiers.read(record_id, authority=authority).status == "ready"
+        # Privacy revocation is immediate and also invalidates the older pin.
+        assert tiers.read(record_id, authority=authority).status == "ineligible"

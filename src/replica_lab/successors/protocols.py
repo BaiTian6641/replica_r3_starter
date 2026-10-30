@@ -92,6 +92,9 @@ def s2a_protocol() -> dict:
             "a pin remains immutable under later correction/revocation; a later pin excludes it",
             "observation/outcome source epochs match the admitted runtime epoch",
             "records retain proposal ordinal; outcomes are cutoff/epoch filtered",
+            "correction tombstones are immutable-pin gated; privacy revocation is an immediate barrier",
+            "unverified successors cannot erase verified evidence; host revocation is the erasure path",
+            "recovery recomputes all derived tables and reports repair, not false health",
         ],
         "metrics": [
             "later-answer use of the new observation (enabled vs disabled)",
@@ -123,6 +126,8 @@ def s2b_protocol() -> dict:
             "changed or shortened prefix requires a new revision or is refused",
             "branch isolation and causal visibility",
             "correction during an outstanding chunk discards the uncommitted proposal",
+            "recompute after begin/before first proposal uses the new chunk pre-state",
+            "an 8192-token prefix is a sealed sequence with no later chunk",
         ],
         "metrics": [
             "logical commits vs attempts", "duplicate/conflict/stale counts",
@@ -154,7 +159,7 @@ def tier_protocol() -> dict:
             "unrelated healthy state survives another owner's quarantine",
             "expected producer/representation/scope/cutoff contract checked before and after I/O",
             "P clock advances via clock-versioned records and latest-valid selection",
-            "P revocation requires explicit host authority",
+            "P revocation requires explicit host authority and blocks generic/P reads, movement, eviction and healthy recovery accounting",
         ],
         "metrics": [
             "successful/failed reads and cache misses", "bytes read/written",

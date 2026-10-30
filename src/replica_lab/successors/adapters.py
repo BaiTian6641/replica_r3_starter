@@ -393,15 +393,33 @@ class TaskRuntimeFormationAdapter:
                 "task_workspace_cleared": "task" in operations}
 
 
-def formation_authority(formation: FormationStore, pin: MemoryPin):
-    """Authority callback for tier reads: eligibility and generation under a pin."""
+def formation_authority(formation: FormationStore, pin: MemoryPin, *,
+                        producer: str = "formation",
+                        representation: str | None = None,
+                        scope_digest: str | None = None,
+                        cutoff: int | None = None):
+    """Authority callback that also pins tier manifest identity and cutoff.
+
+    The returned mapping carries expected producer/representation/scope/cutoff;
+    tier reads validate them against the actual manifest after I/O and on cache
+    hits, so authority-only reads cannot silently accept a different record
+    identity or expired payload.
+    """
+    expected_representation = (representation
+                               if representation is not None
+                               else pin.representation_version)
+    expected_scope = scope_digest if scope_digest is not None else pin.digest
+    expected_cutoff = pin.cutoff if cutoff is None else cutoff
+
     def authority(record_id: str) -> Mapping[str, object] | None:
         try:
             record = formation.read_record(record_id, pin)
         except IneligibleRecord as error:
             return {"eligible": False, "reason": str(error)}
         return {"eligible": True, "generation": record.generation,
-                "eligibility_revision": 0}
+                "eligibility_revision": 0, "producer": producer,
+                "representation": expected_representation,
+                "scope_digest": expected_scope, "cutoff": expected_cutoff}
     return authority
 
 

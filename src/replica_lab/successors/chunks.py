@@ -427,9 +427,10 @@ class ChunkStore:
                 self._connection.execute(
                     "INSERT INTO sequences(subject_id, owner, branch_id, sequence_id, "
                     "revision, decision_revision, committed_position, prefix_digest, "
-                    "status, updated_ns) VALUES (?, ?, ?, ?, 0, ?, ?, ?, 'active', ?)",
+                    "status, updated_ns) VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?, ?)",
                     (self.subject_id, owner, branch_id, sequence_id,
-                     decision_revision, len(prefix_tokens), digest, now))
+                     decision_revision, len(prefix_tokens), digest,
+                     "sealed" if len(prefix_tokens) == MAX_TOKENS else "active", now))
             else:
                 if int(row["decision_revision"]) != decision_revision:
                     raise StaleChunk("sequence already exists at another decision revision")
@@ -489,6 +490,9 @@ class ChunkStore:
                     self._metrics["stale"] += 1
                     raise StaleChunk("authority advanced during the outstanding chunk")
                 committed = int(row["committed_position"])
+                if committed >= MAX_TOKENS:
+                    raise ChunkError(
+                        "sequence is sealed at the global token bound; no later chunk")
                 if key.token_start < committed:
                     self._metrics["prefix_refusals"] += 1
                     raise PrefixOverlap(
@@ -700,6 +704,9 @@ class ChunkSession:
             raise ValueError("token values must be nonnegative integers")
         start = self.snapshot.committed_position
         end = start + len(positions)
+        if start >= MAX_TOKENS:
+            raise ChunkError(
+                "sequence is sealed at the global token bound; no later chunk")
         if end > MAX_TOKENS:
             raise ValueError("chunk token range exceeds the bounded maximum")
         key = ChunkKey(
@@ -767,6 +774,10 @@ class ChunkSession:
         """
         if self._operations:
             base, operations = self._chunk_start_state, tuple(self._operations)
+        elif self._pending_key is not None:
+            # A chunk has begun but has no proposal yet: use its pre-chunk
+            # state, never replay the previous committed chunk.
+            base, operations = self._chunk_start_state, ()
         elif self._last_operations:
             base, operations = self._last_chunk_start_state, self._last_operations
         else:

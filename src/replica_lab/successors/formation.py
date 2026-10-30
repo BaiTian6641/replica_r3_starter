@@ -658,6 +658,7 @@ class RecoveryReport:
     quarantined: tuple[str, ...]
     index_rebuilt: bool
     derived_errors: tuple[str, ...] = ()
+    derived_rebuilt: bool = False
 
     def document(self) -> dict:
         return {"status": self.status, "events": self.events,
@@ -666,7 +667,8 @@ class RecoveryReport:
                 "orphan_payloads": self.orphan_payloads,
                 "quarantined": list(self.quarantined),
                 "index_rebuilt": self.index_rebuilt,
-                "derived_errors": list(self.derived_errors)}
+                "derived_errors": list(self.derived_errors),
+                "derived_rebuilt": self.derived_rebuilt}
 
 
 class FormationStore:
@@ -728,7 +730,10 @@ class FormationStore:
             "bytes_written": 0, "bytes_read": 0, "failed_reads": 0,
             "commit_latency_ns": [], "read_latency_ns": [],
         }
+        self._pending_recovery: tuple[bool, bool] = (False, False)
         self.recovery_report = self.recover()
+        self._pending_recovery = (self.recovery_report.derived_rebuilt,
+                                  self.recovery_report.index_rebuilt)
 
     # -- lifecycle ---------------------------------------------------------
 
@@ -1022,6 +1027,13 @@ class FormationStore:
             parent_payload = self._load_record(parent)
             if not self._scope_matches(parent_payload, scope):
                 raise ScopeViolation("correction parent is outside the proposal scope")
+            rank = {"unverified": 0, "verified": 1}
+            if rank[record["verification_state"]] < rank[parent_payload.verification_state]:
+                raise ScopeViolation(
+                    "an unverified successor cannot supersede verified evidence")
+            if not set(parent_payload.permitted_uses) <= set(record["permitted_uses"]):
+                raise ScopeViolation(
+                    "correction successor has narrower permitted uses than its parent")
             if parent_payload.observed_at >= record["observed_at"]:
                 raise ScopeViolation("correction must be observed after its parent")
             affected.append(parent)
@@ -1241,13 +1253,15 @@ class FormationStore:
         tombstone = self._connection.execute(
             "SELECT kind, observed_at, generation FROM tombstones WHERE record_id=?",
             (record.record_id,)).fetchone()
-        if tombstone is not None and int(tombstone["generation"]) <= pin.generation:
-            # Immutable read snapshot: a tombstone committed after the pin is
-            # invisible to that pin. A correction observed after the historical
-            # cutoff also does not leak backward.
+        if tombstone is not None:
             if tombstone["kind"] == "revoked":
+                # Privacy revocation is an immediate barrier: a pin never
+                # overrides later revocation. The host must abort/rebuild the
+                # affected interaction before resuming.
                 return "tombstoned:revoked"
-            if int(tombstone["observed_at"]) <= pin.cutoff:
+            if int(tombstone["generation"]) <= pin.generation \
+                    and int(tombstone["observed_at"]) <= pin.cutoff:
+                # Corrections remain immutable-snapshot semantics.
                 return f"tombstoned:{tombstone['kind']}"
         return None
 
@@ -1459,38 +1473,155 @@ class FormationStore:
 
     # -- recovery ----------------------------------------------------------
 
-    def _rebuild_index(self) -> bool:
-        rows = self._connection.execute(
+    def _expected_derived(self) -> tuple[dict, set, dict, dict, dict]:
+        events = self._connection.execute(
             "SELECT * FROM events ORDER BY sequence").fetchall()
-        expected: dict[str, tuple[str, str, str, int]] = {}
-        for row in rows:
+        index: dict[str, tuple[str, str, str, int]] = {}
+        lineage: set[tuple[str, str]] = set()
+        notes: dict[str, tuple] = {}
+        tombstones: dict[str, tuple] = {}
+        revocations: dict[str, tuple] = {}
+        payloads: dict[str, dict] = {}
+        scopes: dict[str, dict] = {}
+        for row in events:
+            event_key = str(row["event_key"])
             payload, _ = self._load_payload(str(row["payload_digest"]))
+            if payload.get("kind") != row["kind"]:
+                raise CorruptAuthority("event kind differs from its payload")
+            payloads[event_key] = payload
+            if payload.get("format") != EVENT_FORMAT:
+                raise CorruptAuthority("event payload format is unknown")
+            if payload.get("kind") == "revocation":
+                if str(row["subject_id"]) != self.subject_id:
+                    raise CorruptAuthority("revocation event subject mismatch")
+                scopes[event_key] = {"subject_id": self.subject_id}
+            else:
+                scope = payload.get("scope", {})
+                expected = (self.subject_id, scope.get("branch_id"),
+                            scope.get("purpose"), scope.get("mode"),
+                            scope.get("source_epoch"))
+                actual = (str(row["subject_id"]), str(row["branch_id"]),
+                          str(row["purpose"]), str(row["mode"]),
+                          int(row["source_epoch"]))
+                if actual != expected:
+                    raise CorruptAuthority("event scope columns differ from the payload")
+                scopes[event_key] = scope
+            for note in payload.get("notes", ()):
+                notes[note["note_id"]] = (
+                    event_key, scopes[event_key]["branch_id"],
+                    scopes[event_key]["purpose"], note["interaction_id"],
+                    note["origin"], note["text"], note["text_sha256"],
+                    int(row["committed_at_ns"]))
             for ordinal, record in enumerate(payload.get("records", ())):
-                expected[record["record_id"]] = (
-                    str(row["event_key"]), record["record_digest"], record["kind"],
-                    ordinal)
-        current = {
+                index[record["record_id"]] = (
+                    event_key, record["record_digest"], record["kind"], ordinal)
+                for ancestor in record["source_lineage"]:
+                    lineage.add((record["record_id"], ancestor))
+        def descendants(parent: str) -> set[str]:
+            found: set[str] = set()
+            frontier = {parent}
+            while frontier:
+                next_frontier = {child for child, ancestor in lineage
+                                 if ancestor in frontier and child not in found}
+                found |= next_frontier
+                frontier = next_frontier
+            return found
+        for row in events:
+            event_key = str(row["event_key"])
+            payload = payloads[event_key]
+            committed = int(row["committed_at_ns"])
+            generation = int(row["generation"])
+            if payload.get("kind") == "revocation":
+                record_id = payload["record_id"]
+                tombstones[record_id] = (
+                    "revoked", payload["reason"], event_key, committed,
+                    committed, generation)
+                for descendant_id in payload.get("descendants", ()):
+                    tombstones[descendant_id] = (
+                        "revoked", "ancestor revoked", event_key, committed,
+                        committed, generation)
+                revocations[record_id] = (
+                    event_key, str(row["payload_digest"]), str(row["receipt_json"]),
+                    committed)
+            else:
+                for record in payload.get("records", ()):
+                    parent = record.get("supersedes")
+                    if parent is None:
+                        continue
+                    tombstones[parent] = (
+                        "superseded", "correction successor", event_key, committed,
+                        record["observed_at"], generation)
+                    for descendant_id in descendants(parent):
+                        tombstones.setdefault(descendant_id, (
+                            "ancestor_superseded", "ancestor correction", event_key,
+                            committed, record["observed_at"], generation))
+        return index, lineage, notes, tombstones, revocations
+
+    def _rebuild_derived(self) -> tuple[bool, bool]:
+        expected = self._expected_derived()
+        current_index = {
             str(row["record_id"]): (str(row["event_key"]), str(row["record_digest"]),
                                     str(row["kind"]), int(row["ordinal"]))
             for row in self._connection.execute("SELECT * FROM record_index")}
-        if current == expected:
-            return False
+        current_lineage = {(str(row["record_id"]), str(row["ancestor_id"]))
+                           for row in self._connection.execute(
+                               "SELECT * FROM record_lineage")}
+        current_notes = {
+            str(row["note_id"]): (str(row["event_key"]), str(row["branch_id"]),
+                                  str(row["purpose"]), str(row["interaction_id"]),
+                                  str(row["origin"]), str(row["text"]),
+                                  str(row["text_digest"]), int(row["committed_at_ns"]))
+            for row in self._connection.execute("SELECT * FROM notes")}
+        current_tombstones = {
+            str(row["record_id"]): (str(row["kind"]), str(row["reason"]),
+                                    str(row["event_key"]), int(row["at_ns"]),
+                                    int(row["observed_at"]), int(row["generation"]))
+            for row in self._connection.execute("SELECT * FROM tombstones")}
+        current_revocations = {
+            str(row["record_id"]): (str(row["event_key"]),
+                                    str(row["payload_digest"]),
+                                    str(row["receipt_json"]), int(row["at_ns"]))
+            for row in self._connection.execute("SELECT * FROM revocations")}
+        expected_index, expected_lineage, expected_notes, expected_tombstones, \
+            expected_revocations = expected
+        index_changed = current_index != expected_index
+        changed = (index_changed or current_lineage != expected_lineage
+                   or current_notes != expected_notes
+                   or current_tombstones != expected_tombstones
+                   or current_revocations != expected_revocations)
+        if not changed:
+            return False, False
         with self._transaction():
             self._connection.execute("DELETE FROM record_index")
             self._connection.execute("DELETE FROM record_lineage")
-            for record_id, (event_key, digest, kind, ordinal) in expected.items():
+            self._connection.execute("DELETE FROM notes")
+            self._connection.execute("DELETE FROM tombstones")
+            self._connection.execute("DELETE FROM revocations")
+            for record_id, (event_key, digest, kind, ordinal) in expected_index.items():
                 self._connection.execute(
                     "INSERT INTO record_index(record_id, event_key, record_digest, "
                     "kind, ordinal) VALUES (?, ?, ?, ?, ?)",
                     (record_id, event_key, digest, kind, ordinal))
-                payload, _ = self._load_payload(
-                    str(self._existing_receipt(event_key)["payload_digest"]))
-                record = self._record_payloads(payload)[record_id]
-                for ancestor in record["source_lineage"]:
-                    self._connection.execute(
-                        "INSERT OR IGNORE INTO record_lineage(record_id, ancestor_id) "
-                        "VALUES (?, ?)", (record_id, ancestor))
-        return True
+            for record_id, ancestor_id in expected_lineage:
+                self._connection.execute(
+                    "INSERT INTO record_lineage(record_id, ancestor_id) VALUES (?, ?)",
+                    (record_id, ancestor_id))
+            for note_id, values in expected_notes.items():
+                self._connection.execute(
+                    "INSERT INTO notes(note_id, event_key, branch_id, purpose, "
+                    "interaction_id, origin, text, text_digest, committed_at_ns) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (note_id, *values))
+            for record_id, values in expected_tombstones.items():
+                self._connection.execute(
+                    "INSERT INTO tombstones(record_id, kind, reason, event_key, at_ns, "
+                    "observed_at, generation) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (record_id, *values))
+            for record_id, values in expected_revocations.items():
+                self._connection.execute(
+                    "INSERT INTO revocations(record_id, event_key, payload_digest, "
+                    "receipt_json, at_ns) VALUES (?, ?, ?, ?, ?)",
+                    (record_id, *values))
+        return True, index_changed
 
     def _derived_errors(self) -> tuple[str, ...]:
         """Authenticate derived tombstone/note/lineage/revocation references."""
@@ -1556,17 +1687,32 @@ class FormationStore:
             raise CorruptAuthority("authority generation differs from committed events")
         if str(authority["head_digest"]) != previous:
             raise CorruptAuthority("authority head differs from the receipt chain")
-        index_rebuilt = False if quarantined else self._rebuild_index()
+        derived_rebuilt = False
+        index_rebuilt = False
+        if not quarantined:
+            derived_rebuilt, index_rebuilt = self._rebuild_derived()
         derived_errors = self._derived_errors()
         referenced = {str(row["payload_digest"]) for row in rows}
         orphans = [path for path in (self.root / "payloads").glob("*.json")
                    if path.stem not in referenced]
+        pending_derived, pending_index = self._pending_recovery
+        self._pending_recovery = (False, False)
+        if not derived_rebuilt and not index_rebuilt and (pending_derived or pending_index):
+            # Surface a repair performed by construction recovery exactly once
+            # on the caller's next explicit recovery call.
+            return RecoveryReport(
+                status="degraded" if pending_derived else "ok",
+                events=sequence, generation=sequence, sequence=sequence,
+                head_digest=previous, orphan_payloads=len(orphans),
+                quarantined=tuple(quarantined), index_rebuilt=pending_index,
+                derived_errors=derived_errors, derived_rebuilt=pending_derived)
         return RecoveryReport(
-            status="degraded" if (quarantined or derived_errors) else "ok",
+            status="degraded" if (quarantined or derived_rebuilt
+                                   or derived_errors) else "ok",
             events=sequence, generation=sequence, sequence=sequence,
             head_digest=previous, orphan_payloads=len(orphans),
             quarantined=tuple(quarantined), index_rebuilt=index_rebuilt,
-            derived_errors=derived_errors)
+            derived_errors=derived_errors, derived_rebuilt=derived_rebuilt)
 
     # -- metrics -----------------------------------------------------------
 

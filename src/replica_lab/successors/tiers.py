@@ -239,6 +239,9 @@ class TieredBlobStore:
         self._hot: OrderedDict[str, _HotEntry] = OrderedDict()
         self._eligibility: dict[str, int] = {}
         self._tombstones: dict[str, str] = {}
+        self._p_revoked: set[str] = {
+            path.stem for path in (self.root / "p_revoked").glob("*.json")
+        } if (self.root / "p_revoked").exists() else set()
         self._tickets: dict[str, dict] = {}
         self.projections = ProjectionCache()
         self.replay = ReplayEligibility()
@@ -380,6 +383,10 @@ class TieredBlobStore:
             raise ValueError("generation must be a nonnegative integer")
         if valid_to is not None and valid_to <= valid_from:
             raise ValueError("valid_to must follow valid_from")
+        if kind == "p":
+            owner = self._p_owner(record_id)
+            if owner is not None and owner in self._p_revoked:
+                raise PermissionError("revoked P state cannot be published")
         manifest = {
             "format": MANIFEST_FORMAT, "record_id": record_id, "kind": kind,
             "generation": generation, "producer": producer,
@@ -403,6 +410,9 @@ class TieredBlobStore:
     def demote(self, record_id: str, *, to: str = "cold") -> dict:
         if to != "cold":
             raise ValueError("demotion target is cold")
+        owner = self._p_owner(record_id)
+        if owner is not None and owner in self._p_revoked:
+            raise PermissionError("revoked P state cannot be moved")
         payload, manifest = self._read_payload("warm", record_id)
         self._metrics["overlap_bytes"] += len(payload) + len(_canonical(manifest)) + 1
         written = self._write_record("cold", record_id, payload, manifest)
@@ -415,6 +425,9 @@ class TieredBlobStore:
     def promote(self, record_id: str, *, to: str = "warm") -> dict:
         if to != "warm":
             raise ValueError("promotion target is warm")
+        owner = self._p_owner(record_id)
+        if owner is not None and owner in self._p_revoked:
+            raise PermissionError("revoked P state cannot be moved")
         payload, manifest = self._read_payload("cold", record_id)
         self._metrics["overlap_bytes"] += len(payload) + len(_canonical(manifest)) + 1
         written = self._write_record("warm", record_id, payload, manifest)
@@ -440,6 +453,17 @@ class TieredBlobStore:
         return cleared
 
     @staticmethod
+    def _p_owner(record_id: str) -> str | None:
+        if not record_id.startswith("p_"):
+            return None
+        rest = record_id[2:]
+        if "_c" in rest:
+            owner, _, clock = rest.rpartition("_c")
+            if owner and clock.isdigit():
+                return owner
+        return rest or None
+
+    @staticmethod
     def _contract_state(manifest: Mapping[str, object],
                         contract: ReadContract | None) -> tuple[str, str]:
         if contract is None:
@@ -463,9 +487,37 @@ class TieredBlobStore:
                 return "expired", "record has expired at the cutoff"
         return "ok", ""
 
+    @staticmethod
+    def _authority_manifest_state(manifest: Mapping[str, object],
+                                  detail: Mapping[str, object]) -> tuple[str, str]:
+        for field in ("producer", "representation", "scope_digest"):
+            expected = detail.get(field)
+            if expected is not None and manifest.get(field) != expected:
+                return "mismatch", f"authority {field} mismatch"
+        cutoff = detail.get("cutoff")
+        if cutoff is not None:
+            valid_from = manifest.get("valid_from")
+            valid_to = manifest.get("valid_to")
+            if type(cutoff) is not int:
+                return "mismatch", "authority cutoff is invalid"
+            if type(valid_from) is not int or valid_from > cutoff:
+                return "not_yet_valid", "authority cutoff precedes validity"
+            if valid_to is not None and (type(valid_to) is not int
+                                         or cutoff >= valid_to):
+                return "expired", "authority cutoff is past validity"
+        expected_generation = detail.get("generation")
+        if expected_generation is not None \
+                and manifest.get("generation") != expected_generation:
+            return "mismatch", "authority generation mismatch"
+        return "ok", ""
+
     def _authority_state(self, record_id: str,
                          authority: Callable[[str], Mapping[str, object] | None] | None,
                          expected_generation: int | None) -> tuple[str, int, dict]:
+        owner = self._p_owner(record_id)
+        if owner is not None and owner in self._p_revoked:
+            return "ineligible", self._eligibility.get(record_id, 0), {
+                "reason": f"p_revoked:{owner}"}
         if record_id in self._tombstones:
             return "ineligible", self._eligibility.get(record_id, 0), {
                 "reason": f"revoked:{self._tombstones[record_id]}"}
@@ -485,7 +537,9 @@ class TieredBlobStore:
             return "rejected", revision, {"reason": "generation mismatch"}
         if revision != self._eligibility.get(record_id, 0):
             return "rejected", revision, {"reason": "eligibility revision changed"}
-        return "ok", revision, {"generation": current.get("generation")}
+        detail = dict(current)
+        detail["generation"] = current.get("generation")
+        return "ok", revision, detail
 
     # -- reads -------------------------------------------------------------
 
@@ -547,6 +601,13 @@ class TieredBlobStore:
                     contract_status, record_id, "hot", None, None,
                     (time.perf_counter_ns() - start) / 1e6, 0,
                     contract_reason), "hot")
+            authority_status, authority_reason = self._authority_manifest_state(
+                cached.manifest, detail)
+            if authority_status != "ok":
+                return self._finish(ReadResult(
+                    authority_status, record_id, "hot", None, None,
+                    (time.perf_counter_ns() - start) / 1e6, 0,
+                    authority_reason), "hot")
             current_generation = detail.get("generation")
             if current_generation is not None \
                     and int(current_generation) != int(cached.manifest["generation"]):
@@ -638,6 +699,13 @@ class TieredBlobStore:
                 len(payload), contract_reason), tier)
         after, after_revision, detail = self._authority_state(
             record_id, authority, expected_generation)
+        if after == "ok":
+            authority_status, authority_reason = self._authority_manifest_state(
+                manifest, detail)
+            if authority_status != "ok":
+                return self._finish(ReadResult(
+                    authority_status, record_id, tier, None, None, elapsed,
+                    len(payload), authority_reason), tier)
         if after != "ok" or after_revision != revision:
             self._hot.pop(record_id, None)
             self.projections.invalidate(record_id)
@@ -683,8 +751,16 @@ class TieredBlobStore:
                 contract_status, fallback_id, tier, None, None,
                 (time.perf_counter_ns() - start) / 1e6, len(payload),
                 contract_reason), tier)
-        after, after_revision, _ = self._authority_state(
+        after, after_revision, detail = self._authority_state(
             fallback_id, authority, None)
+        if after == "ok":
+            authority_status, authority_reason = self._authority_manifest_state(
+                manifest, detail)
+            if authority_status != "ok":
+                return self._finish(ReadResult(
+                    authority_status, fallback_id, tier, None, None,
+                    (time.perf_counter_ns() - start) / 1e6, len(payload),
+                    authority_reason), tier)
         if after != "ok" or after_revision != revision:
             self._hot.pop(fallback_id, None)
             self.projections.invalidate(fallback_id)
@@ -849,6 +925,8 @@ class TieredBlobStore:
 
     def evict_p(self, owner: str) -> str:
         _identifier("owner", owner)
+        if owner in self._p_revoked or self._p_revoked_path(owner).exists():
+            raise PermissionError("revoked P state cannot be evicted as healthy")
         state = self._latest_p(owner)
         key = state["record_id"]
         entry = self._hot.get(key)
@@ -882,6 +960,7 @@ class TieredBlobStore:
             handle.flush()
             os.fsync(handle.fileno())
         os.replace(temporary, target)
+        self._p_revoked.add(owner)
         for key in [item for item in self._hot if item.startswith(f"p_{owner}_")
                     or item == f"p_{owner}"]:
             self._hot.pop(key, None)
@@ -889,12 +968,23 @@ class TieredBlobStore:
         self.replay.invalidate(f"p_{owner}")
         return record
 
+    def restore_p(self, owner: str, *, authorized_by: str) -> None:
+        """Explicit host restoration; removes the revocation marker only."""
+        _identifier("owner", owner)
+        if authorized_by != "host":
+            raise PermissionError("P restoration requires host authority")
+        path = self._p_revoked_path(owner)
+        if path.exists():
+            path.unlink()
+        self._p_revoked.discard(owner)
+
     # -- recovery and metrics ---------------------------------------------
 
     def recover(self) -> dict:
         quarantined: list[str] = []
         healthy = 0
         damaged: list[str] = []
+        revoked_p: list[str] = []
         for directory in sorted((self.root / "staging").iterdir()):
             target = self.root / "quarantine" / directory.name
             os.replace(directory, target)
@@ -903,6 +993,10 @@ class TieredBlobStore:
             tier_root = self.root / tier
             for directory in sorted(tier_root.iterdir()):
                 if not directory.is_dir():
+                    continue
+                owner = self._p_owner(directory.name)
+                if owner is not None and owner in self._p_revoked:
+                    revoked_p.append(f"{tier}/{directory.name}")
                     continue
                 try:
                     self._read_payload(tier, directory.name)
@@ -914,7 +1008,8 @@ class TieredBlobStore:
         status = "degraded" if quarantined or damaged else "ok"
         return {"status": status, "healthy_records": healthy,
                 "quarantined_staging": tuple(quarantined),
-                "damaged_records": tuple(damaged)}
+                "damaged_records": tuple(damaged),
+                "revoked_p_records": tuple(revoked_p)}
 
     def usage(self) -> dict:
         tiers = {}

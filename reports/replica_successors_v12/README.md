@@ -56,6 +56,13 @@ attribution and token bounds. The final measurement workflow completed with
 `formation_used_new=true`, `task_improvement_requires_write=true`,
 `chunk_retry_same=true` and cold `ready`; see `review_repair_verification.json`.
 
+Final-cycle recovery, generic-P revocation, correction/privacy policy,
+authority-manifest and chunk-edge repairs added six more passing checks plus the
+16 original reproductions. One reviewer-owned X6 density test retains an
+intentionally obsolete premise: altered frozen tolerance is now refused. The
+reviewer will invert that premise for final review; see `final_verification.json`.
+The final workflow again passed all four measured success fields.
+
 ## 2. Contract behavior that is actually implemented
 
 ### S2a completed-interaction formation
@@ -78,18 +85,24 @@ attribution and token bounds. The final measurement workflow completed with
   every payload digest; the record index is derived and can only be rebuilt from
   committed events. A corrupt payload is quarantined by report while unrelated
   healthy records remain readable.
-- Correction creates a verified successor and tombstones the parent and all
-  known in-scope descendants; parents/ancestors must match subject/branch/
-  purpose/mode. Revocation is idempotent; cross-scope revocation needs the
+- Correction creates a successor with verification rank and permitted uses at
+  least equal to its parent, tombstones the parent and known in-scope
+  descendants, and refuses unverified rewrites of verified evidence; host
+  revocation is the explicit erasure path. Parents/ancestors must match
+  subject/branch/purpose/mode. Revocation is idempotent; cross-scope revocation needs the
   explicit `scope="host_wide", authorized_by="host"` contract.
-- Tombstones carry their event generation and are applied only when visible to
-  the pin. A pin is therefore immutable under a later correction/revocation; a
-  later pin excludes the tombstoned record.
+- Correction tombstones are generation/observed-at gated, so a pin is immutable
+  under a later correction. Privacy revocation is an immediate barrier and
+  invalidates even an older pin. Evidence invalidated by revocation may not be
+  served as ready.
 - New records become visible only to pins taken after the commit. Records inside
   one event retain proposal ordinal; outcome receipts are cutoff/source-epoch
   filtered and ordered by event sequence then ordinal.
-- Recovery authenticates derived tombstone, note, lineage and revocation tables
-  and reports `derived_errors` rather than claiming health.
+- Recovery recomputes every derived tombstone, note, lineage, revocation and
+  record-index row (including scope columns) from committed payload/receipt
+  authority, repairs mismatches, and reports `derived_rebuilt`/degraded rather
+  than claiming health. Deliberate deletions are restored; healthy state remains
+  readable.
 
 ### S2b chunk formation
 
@@ -97,8 +110,11 @@ attribution and token bounds. The final measurement workflow completed with
   transport retries and recomputation IDs are audit-only.
 - `open_sequence` enforces the global token bound and integer token types.
 - Recomputation replays the pre-chunk committed state and recorded operations,
-  and reproduces the actual committed receipt digest. A second `begin_chunk`
-  while pending is refused; `invalidate` restores the last committed state.
+  and reproduces the actual committed receipt digest. Recompute after `begin`
+  but before the first proposal uses that chunk's pre-state, never the previous
+  commit. A second `begin_chunk` while pending is refused; `invalidate` restores
+  the last committed state. Exactly 8,192 committed tokens creates an explicitly
+  sealed sequence that cannot start another chunk.
 - A chunk starts at the committed absolute-position watermark; the prefix digest
   must match. Overlap, gaps and changed prefixes are refused.
 - `functional_inner_update` is a pure tensor delta rule. `recompute()` has no
@@ -125,7 +141,8 @@ attribution and token bounds. The final measurement workflow completed with
   Dirty hot state is skipped when a clean eviction candidate exists.
 - P state is clock-versioned (`p_<owner>_c<clock>`) with an atomic current
   pointer and latest-valid selection; `revoke_p` requires explicit host
-  authority and blocks later publication/reads.
+  authority and blocks publication, generic/P reads, cache use, movement,
+  eviction and healthy recovery accounting. `restore_p` is host-only.
 - Projection cache keys include generation, producer, representation, reader
   release, site and eligibility revision. Replay eligibility is invalidated
   separately.
@@ -151,7 +168,9 @@ attribution and token bounds. The final measurement workflow completed with
   without a `WorkspaceStore`.
 - Interventions implement task-reset, identity-null, both orders and both-reset
   on fresh worlds. Approved identity cannot satisfy a verifier or change scope.
-- `formation_authority(...)` maps formation eligibility into tier reads.
+- `formation_authority(...)` validates formation eligibility and returns expected
+  producer/representation/scope/cutoff/generation, which tier reads enforce on
+  cache hits and after I/O.
 
 ## 3. Actual measurements (this machine, CPU only)
 

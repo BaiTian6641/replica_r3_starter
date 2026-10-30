@@ -16,11 +16,14 @@ from replica_lab.successors.formation import (FormationStore, InteractionProposa
                                               MemoryPin, Observation,
                                               OutcomeReceipt, ScopeViolation,
                                               IneligibleRecord)
-from replica_lab.successors.chunks import ChunkError, MAX_TOKENS
+from replica_lab.successors.chunks import (ChunkError, ChunkSession, MAX_TOKENS,
+                                           functional_inner_update,
+                                           tensor_digest)
 from replica_lab.successors.study import answer_query
 from replica_lab.successors.tiers import (DirtyState, ReadContract,
                                           TieredBlobStore, TierLimits)
-from replica_lab.successors.adapters import TaskRuntimeFormationAdapter
+from replica_lab.successors.adapters import (TaskRuntimeFormationAdapter,
+                                             formation_authority)
 from e3_runtime_helpers import make_case, make_runtime
 from replica_lab.runtime.workspace_store import WorkspaceStore
 from replica_lab.architecture.contracts import CoreState
@@ -80,14 +83,23 @@ def test_revocation_scope_and_host_wide_authority(tmp_path):
         assert a_id not in {item.record_id for item in store.visible(_pin(store))}
 
 
-def test_pin_is_immutable_under_later_revocation(tmp_path):
+def test_correction_is_immutable_but_privacy_revocation_is_immediate(tmp_path):
     with make_store(tmp_path) as store:
-        base = commit(store, _pin(store), [_obs("base", "dated fact")])
+        base = commit(store, _pin(store), [_obs("base", "dated fact")],
+                      interaction="interaction-base")
         record_id = base.receipt.record_ids[0]
-        snapshot = _pin(store)
-        store.revoke(record_id, reason="later revocation")
-        assert record_id in {item.record_id for item in store.visible(snapshot)}
-        assert record_id not in {item.record_id for item in store.visible(_pin(store))}
+        pinned = _pin(store)
+        store.correct(record_id, text="corrected later", reason="late evidence",
+                      pin=_pin(store))
+        assert record_id in {item.record_id for item in store.visible(pinned)}
+        other = commit(store, _pin(store), [_obs("other", "revocable fact")],
+                       interaction="interaction-other")
+        other_id = other.receipt.record_ids[0]
+        revocation_pin = _pin(store)
+        store.revoke(other_id, reason="privacy revocation")
+        assert other_id not in {
+            item.record_id for item in store.visible(revocation_pin)}
+        assert other_id not in {item.record_id for item in store.visible(_pin(store))}
 
 
 def test_outcomes_respect_cutoff_and_order(tmp_path):
@@ -115,8 +127,8 @@ def test_record_order_follows_proposal_ordinal(tmp_path):
     with make_store(tmp_path) as store:
         current = _pin(store)
         report = commit(store, current, [
-            _obs("first", "vault code alpha"),
-            _obs("second", "vault code beta"),
+            _obs("zeta", "vault code alpha"),
+            _obs("alpha", "vault code beta"),
         ])
         visible = store.visible(_pin(store))
         assert [item.record_id for item in visible] == list(report.receipt.record_ids)
@@ -138,7 +150,47 @@ def test_derived_tables_are_authenticated(tmp_path):
     with make_store(tmp_path) as store:
         report = store.recover()
         assert report.status == "degraded"
-        assert any("absent event" in item for item in report.derived_errors)
+        assert report.derived_rebuilt is True
+        assert record_id in {item.record_id for item in store.visible(_pin(store))}
+        assert not store._connection.execute(
+            "SELECT 1 FROM tombstones WHERE event_key='absent'").fetchone()
+
+
+def test_recovery_restores_deleted_notes_and_lineage(tmp_path):
+    from replica_lab.successors.formation import ProvisionalNote
+    with make_store(tmp_path) as store:
+        parent = commit(store, _pin(store), [_obs("parent", "parent fact")])
+        parent_id = parent.receipt.record_ids[0]
+        child = commit(store, _pin(store),
+                       [_obs("child", "child fact", lineage=(parent_id,))],
+                       notes=(ProvisionalNote("note-1", "provisional",
+                                              interaction_id="interaction-2"),),
+                       interaction="interaction-2")
+        child_id = child.receipt.record_ids[0]
+    connection = sqlite3.connect(tmp_path / "authority.sqlite3")
+    connection.execute("DELETE FROM notes")
+    connection.execute("DELETE FROM record_lineage")
+    connection.commit()
+    connection.close()
+    with make_store(tmp_path) as store:
+        report = store.recover()
+        assert report.status == "degraded" and report.derived_rebuilt is True
+        assert store._connection.execute(
+            "SELECT 1 FROM record_lineage WHERE record_id=? AND ancestor_id=?",
+            (child_id, parent_id)).fetchone() is not None
+        assert len(store.read_provisional(branch_id="branch-a",
+                                          purpose="formation-test")) == 1
+
+
+def test_event_scope_tamper_fails_closed(tmp_path):
+    with make_store(tmp_path) as store:
+        commit(store, _pin(store), [_obs("a", "scoped")])
+    connection = sqlite3.connect(tmp_path / "authority.sqlite3")
+    connection.execute("UPDATE events SET branch_id='other-branch'")
+    connection.commit()
+    connection.close()
+    with pytest.raises(Exception):
+        make_store(tmp_path)
 
 
 def test_cold_resume_and_fallback_revalidate_external_authority(tmp_path):
@@ -371,6 +423,102 @@ def test_intervention_order_and_pin_cleanup(tmp_path):
         assert adapter._pin is None
         adapter.begin_interaction()
         assert adapter._pin is not None
+
+
+def test_unverified_successor_cannot_erase_verified_parent(tmp_path):
+    with make_store(tmp_path) as store:
+        current = _pin(store)
+        verified = Observation(
+            observation_id="verified", text="verified fact", source_id="host",
+            source_epoch=0, observed_at=time.time_ns(), receipt_id="host-receipt",
+            verification_state="verified", verifier_receipt_id="verifier-1")
+        base = commit(store, current, [verified])
+        record_id = base.receipt.record_ids[0]
+        with pytest.raises(ScopeViolation):
+            store.correct(record_id, text="unverified rewrite", reason="review",
+                          pin=_pin(store))
+        corrected = store.correct(record_id, text="verified rewrite",
+                                  reason="verified review", pin=_pin(store),
+                                  verifier_receipt_id="verifier-2")
+        assert corrected.status == "committed"
+
+
+def test_revoked_p_is_not_ready_through_generic_read(tmp_path):
+    store = _tier(tmp_path)
+    store.publish_p("expert", weights=b"w", moments=b"m", clock=1,
+                    encoder="encoder-v1", lineage=["r1"])
+    state = store.read_p("expert")
+    manifest = state["manifest"]
+    contract = ReadContract(manifest["producer"], manifest["representation"],
+                            manifest["scope_digest"])
+    assert store.read(state["record_id"], contract=contract).status == "ready"
+    store.revoke_p("expert", reason="revoked", authorized_by="host")
+    assert store.read(state["record_id"], contract=contract).status == "ineligible"
+    with pytest.raises(PermissionError):
+        store.demote(state["record_id"])
+    with pytest.raises(PermissionError):
+        store.promote(state["record_id"])
+    with pytest.raises(PermissionError):
+        store.evict_p("expert")
+    recovery = store.recover()
+    assert any(item.endswith(state["record_id"])
+               for item in recovery["revoked_p_records"])
+    store.restore_p("expert", authorized_by="host")
+    assert store.read_p("expert")["clock"] == 1
+
+
+def test_formation_authority_binds_manifest_identity_and_cutoff(tmp_path):
+    with make_store(tmp_path) as store:
+        current = _pin(store)
+        observation = Observation(
+            observation_id="o1", text="tier fact", source_id="host",
+            source_epoch=0, observed_at=time.time_ns(), receipt_id="r1",
+            verification_state="unverified")
+        report = commit(store, current, observation and [observation])
+        record_id = report.receipt.record_ids[0]
+        current = _pin(store)
+        tiers = _tier(tmp_path / "tiers")
+        manifest = tiers.publish(
+            record_id, b"fact", generation=report.receipt.generation,
+            kind="evidence", producer="formation",
+            representation=current.representation_version,
+            scope_digest=current.digest, valid_from=100)
+        good = formation_authority(store, current)
+        assert tiers.read(record_id, authority=good).status == "ready"
+        wrong = formation_authority(store, current, representation="other")
+        assert tiers.read(record_id, authority=wrong).status == "mismatch"
+        expired = formation_authority(store, current,
+                                      cutoff=manifest["valid_from"] - 1)
+        assert tiers.read(record_id, authority=expired).status == "not_yet_valid"
+
+
+def test_chunk_recompute_before_first_proposal_uses_chunk_start(tmp_path):
+    with ChunkStore(tmp_path, subject_id="subject-1") as store:
+        session = make_session(store)
+        keys, values = tensors()
+        session.begin_chunk([20])
+        session.propose(keys, values)
+        committed = session.commit().receipt
+        committed_state = session.state.detach().clone()
+        session.begin_chunk([21])
+        expected = tensor_digest(functional_inner_update(
+            keys, values, committed_state)[0].detach())
+        digest = session.recompute(keys, values)[1]
+        assert digest == expected
+        assert digest != committed.proposal_digest
+
+
+def test_initial_prefix_at_global_bound_is_sealed(tmp_path):
+    with ChunkStore(tmp_path, subject_id="subject-1") as store:
+        tokens = tuple(range(MAX_TOKENS))
+        snapshot = store.open_sequence("spark", "branch-a", "sealed",
+                                       initial_prefix=tokens)
+        assert snapshot.committed_position == MAX_TOKENS
+        assert snapshot.status == "sealed"
+        session = ChunkSession(store, snapshot, torch.zeros(1, 4, 4),
+                               committed_tokens=tokens)
+        with pytest.raises(ChunkError):
+            session.begin_chunk([1])
 
 
 def test_study_attribution_uses_actual_ids(tmp_path):
