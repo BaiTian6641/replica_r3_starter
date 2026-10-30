@@ -50,7 +50,7 @@ from .intrinsic_memory_coverage_v12 import (
     SOURCE_HIDDEN_SIZE, SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES)
 from .intrinsic_memory_diagnostic_v12 import (
     PROMPT, StageRef, SourceWorkAccounting, logits_digest, right_padded_prefix)
-from .intrinsic_memory_execution_v5 import hash_file
+from .intrinsic_memory_execution_v5 import bound_json, hash_file
 from .intrinsic_memory_native_v5 import (
     base_hash, store_at, world_scope, verified_source_classes)
 from .intrinsic_memory_teacher_v12 import TeacherEngineV12
