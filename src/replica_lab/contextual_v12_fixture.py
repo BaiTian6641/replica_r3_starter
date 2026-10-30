@@ -181,7 +181,7 @@ def source_feature_spec(adapter, tokenizer, *, original_parameters_sha256=None,
 def build_v12_stack(*, seed=17, layers=36, sites=(3, 7), slots=8, vocab_size=DEFAULT_VOCAB,
                     lr=1e-3, initialization_seed=17, max_tokens=DEFAULT_MAX_TOKENS,
                     cache_bytes=4 * 1024**2, cache_entries=16, accounting=None,
-                    tokenizer=None, tokenizer_mode="alnum",
+                    tokenizer=None, tokenizer_mode="alnum", pre_buffers=(),
                     source_identity="cpu_v12_tiny_bf16_fixture",
                     execution_identity="CPU_v12_fixture",
                     objective_identity=None):
@@ -194,6 +194,12 @@ def build_v12_stack(*, seed=17, layers=36, sites=(3, 7), slots=8, vocab_size=DEF
     adapter.eval()
     for parameter in adapter.base.parameters():
         parameter.requires_grad_(False)
+    existing_buffers = {name for name, _ in adapter.base.named_buffers()}
+    for name, value in pre_buffers:
+        if not isinstance(name, str) or not name or name in existing_buffers:
+            raise ContextualMemoryError("invalid or duplicate pre-existing fixture buffer")
+        adapter.base.register_buffer(name, torch.as_tensor(value).detach().clone())
+        existing_buffers.add(name)
     tokenizer = tokenizer or SyntheticTokenizer(config.geometry.vocab_size,
                                                 mode=tokenizer_mode)
     if getattr(tokenizer, "vocab_size", None) is not None \

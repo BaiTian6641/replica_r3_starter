@@ -5,14 +5,13 @@ Status: implementation and entry points delivered by the v12 implementer.
 executed by the implementer.** The coordinator runs the verification below after
 integration. Nothing in this directory is native evidence or a capability claim.
 
-Coordinator history: 61 tests passed before independent review and 69 after the
-V1–V5 repairs. After cycle 4, **79 checks passed**, including the two cold-failure
-reproductions. Fresh `run03` passes all 2/9/36 layouts with live gradients,
-distinct controls, true live-versus-release and two-record cold value/logit
-parity, publication failure recovery and exact fresh-process continuation.
-Measured parent wall was 16.135751 s and peak RSS 769,294,336 bytes; run03 has
-244 files / 102,306,331 bytes. `native_admissible` remains `false`: this is
-synthetic CPU engineering evidence, pending final independent re-review.
+Coordinator history: 61 tests passed before independent review, 69 after V1–V5,
+and 79 after cold-failure/parity repairs. After cycle 5, **88 checks passed**,
+including process-control, pre-existing-buffer and atomic-publication cases.
+Fresh `run04` passes all 2/9/36 layouts with true live/release and two-record
+cold parity plus exact fresh-process continuation. Measured parent wall was
+16.702899 s and peak RSS 777,617,408 bytes; run04 has 244 files / 102,307,925
+bytes. `native_admissible` remains `false`: synthetic CPU engineering only.
 
 ## Scope delivered
 
@@ -152,8 +151,10 @@ frozen Spark source (base, eval, no_grad)
   is invalid. `ContextualRecordError` identifies a single stale-release/authority
   failure so a healthy sibling selected in the same batch keeps its bounded C
   cache. Cold staging reads each record with accounting and returns per-record
-  invalid IDs; failed `resume` performs no secondary uncharged payload probe and
-  persists the typed `ContextualReadFailure` even if best-effort eviction raises.
+  invalid IDs; only `Exception` is classified as payload failure, so
+  `KeyboardInterrupt`/`SystemExit` propagate. Failed `resume` performs no
+  secondary uncharged payload probe and persists the typed `ContextualReadFailure`
+  even if best-effort eviction raises.
   `evict_record(full_span_record_id)` evicts exactly that record and returns the
   number of cache entries removed; a record-group prefix is not accepted.
 - Source authority includes named non-parameter buffers as well as parameters.
@@ -168,12 +169,17 @@ frozen Spark source (base, eval, no_grad)
   `values` and `validate_batch` boundaries. `values(..., source_identity=)` and
   `validate_batch(batch, scope=..., source_identity=)` require the keyword.
   A failed immutable release write removes partial bytes and releases its
-  artifact charge before re-raising; a retry publishes a new generation.
+  artifact charge before re-raising; a retry publishes a new generation. The
+  pointer is atomically replaced only after the store transaction/accounting
+  commits and provider C is cleared; a pointer or later cache failure leaves the
+  previous generation authoritative.
 - Durable slot order sorts semantically by `(source_id, source_epoch,
   source_order)`; `record_id` is only the deterministic fallback for true ties.
   Reversed caller order, post-correction, two-record live/warm/cold/release
   parity, pointer/manifest publication failure and whole-release eviction are
-  tested.
+  tested. Pre-existing registered-buffer mutation is covered in addition to
+  newly added buffers; control batches and release reads enforce the feature
+  contract rather than trusting copied booleans.
 - `active_sites` accepts any iterable; empty tuple/list/generator skips memory
   work and matches the base exactly, and nonempty iterables are normalized to
   tuples before the reader sees them.
@@ -181,8 +187,9 @@ frozen Spark source (base, eval, no_grad)
   `release_reads_consistent` is release-to-release; `live_vs_release_exact` and
   `live_vs_release_logits_exact` compare true live re-encoding to a release read
   (two records); the fresh child reports `cold_spans`, `cold_live_parity` and
-  `cold_logits_parity` for two-record cold resume. Fresh output directories only;
-  old runs are not overwritten.
+  `cold_logits_parity` for two-record cold resume, and
+  `control_feature_contract_refused` plus corrected live/logit parity. Fresh
+  output directories only; old runs are not overwritten.
 
 Native work still outside this interface: durable read/write/retrieval bytes,
 checkpoint artifact bytes and wall time. The v12 `cost` dictionaries report

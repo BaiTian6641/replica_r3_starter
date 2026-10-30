@@ -238,14 +238,16 @@ class ProducerReleaseCorpus:
                            "e_epoch": int(self.store.epoch)}
                 pointer_bytes = len(json.dumps(pointer, sort_keys=True, indent=2).encode()) + 1
                 self.store._ensure_capacity_locked("cold", "artifacts", pointer_bytes * 2)
-                atomic_json(self.root / "current.json", pointer)
                 self.store._set_component_locked(
                     "release_pointer:" + self.scope.scope_key, "cold", "artifacts",
                     pointer_bytes, "release authority")
+            # The store commit and accounting are complete; only now may the new
+            # generation become live. A later pointer/cache failure leaves the
+            # previous committed generation authoritative.
+            path.encoder.provider.clear()
+            atomic_json(self.root / "current.json", pointer)
             self.cost["write_bytes"] += pointer_bytes
             self.cost["publications"] += 1
-            # A new published source contract never reuses pre-publication cache C.
-            path.encoder.provider.clear()
             return m
 
     # ------------------------------------------------------------------

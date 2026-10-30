@@ -23,7 +23,8 @@
       "repair cycle 1: content-bound adapter substitution refused; a durable batch became stale after one real optimizer step; outer checkpoint contract/tamper refusals; cold correction/revocation/corrupt/missing evicted only the invalid record while a healthy sibling stayed cached; longest tested correction lineage 965 bytes",
       "repair cycle 2: checkpoint cache assertion moved immediately after load (zero entries) and before any feature-bearing call; post-load training_values legitimately repopulates C; component manifest still records feature/task state as not serialized",
       "repair cycle 3: target v12 producer suite 69 passed and independent review V1/V2/V5 3 passed; buffer-only mutation clears C and refuses export before directory creation; token/feature caches bind actual text; mixed-release read evicts only the stale record; release source execution identity enforced; empty site iterables match base; two-record live/warm/cold/release slot parity and deterministic tie order; failed release write releases its charge and retry publishes generation 2",
-      "repair cycle 4: cold staging charges every payload read and returns per-record invalid ids; failed resume persists ContextualReadFailure independently of best-effort eviction and performs no uncharged probe; pointer/manifest publication failures keep the previous generation; semantic observation order beats record_id fallback and reversed caller order/post-correction parity pass; workflow now reports release_reads_consistent, true live-vs-release and two-record cold live/logit parity (fresh evidence only)"
+      "repair cycle 4: cold staging charges every payload read and returns per-record invalid ids; failed resume persists ContextualReadFailure independently of best-effort eviction and performs no uncharged probe; pointer/manifest publication failures keep the previous generation; semantic observation order beats record_id fallback and reversed caller order/post-correction parity pass; workflow now reports release_reads_consistent, true live-vs-release and two-record cold live/logit parity (fresh evidence only)",
+      "repair cycle 5: cold staging propagates KeyboardInterrupt/SystemExit instead of classifying them as payload corruption; release pointer is replaced only after the store transaction/accounting commits and provider C clear, so pointer/cache failures leave the previous generation live; pre-existing registered-buffer mutation clears C and blocks export before directory creation; control batches and release reads enforce the feature contract; workflow records control_feature_contract_refused and post-correction live/logit parity; 88 targeted producer/review tests passed"
     ]
   },
   "delivery": {
@@ -40,20 +41,20 @@
       "sha256": "f18eab858fa18d15c84c1bbf97a19d4e3ea2f8c198f64b044eb6a732ea90f7c9"
     },
     "src/replica_lab/contextual_memory_v12.py": {
-      "bytes": 33424,
-      "sha256": "44ebece1a034b1f27bc8b142adad34b0699e1365bcef8c39c373b486969addbe"
+      "bytes": 33420,
+      "sha256": "387c616db8ffbddbd012e45ac81f45dc5d1c22366a8472f61f502b0a3d540613"
     },
     "src/replica_lab/contextual_release_v12.py": {
-      "bytes": 19417,
-      "sha256": "be34e646082759df1f23d39c3c02f9988b42f90ecdf086576d7a6c383897b9c1"
+      "bytes": 19548,
+      "sha256": "502556bd92ff8e5212471dc1aad6bdc3dc3c877e468d0b4d8d2fa0df9e9dd5f4"
     },
     "src/replica_lab/contextual_v12_fixture.py": {
-      "bytes": 12217,
-      "sha256": "604debab7b76bdfbe5a9c408b3c40b06f1bb5037461f88835f241b075e73e68b"
+      "bytes": 12632,
+      "sha256": "8a7886c50f46fb6b222e76e3533edcc43a41054ba89cc4ce2bc5ed303f389c98"
     },
     "scripts/run_intrinsic_contextual_cpu_v12.py": {
-      "bytes": 26436,
-      "sha256": "f9152b31c4b609cc2aadc627b9394cadbc8d7121025cfddb3be9f1c2c7be6d0e"
+      "bytes": 27497,
+      "sha256": "e211e08a53847cda545f9cae3bea9435d1dd8ff00b1479a0f4f14f45e1185d39"
     },
     "tests/v12_fixtures.py": {
       "bytes": 3237,
@@ -64,12 +65,12 @@
       "sha256": "318a678fb51fbe0919bbb7558d084b9f9c42ae3e449d308665adec59904e5c81"
     },
     "tests/test_contextual_memory_layout_v12.py": {
-      "bytes": 18661,
-      "sha256": "7f8b96d45f8efbcb76834789592611f497ce9e6527db2b6dbd9b32c3d5220f78"
+      "bytes": 20111,
+      "sha256": "a47699c1971b1e081125916f0c3ef3f3c6b09d7762ea0d240f9d17bcf7fb0138"
     },
     "tests/test_contextual_memory_v12.py": {
-      "bytes": 30594,
-      "sha256": "de51c41654dd362b6000dea4aea61ee8001f49f869fd40fe6ad28e7d9ea65681"
+      "bytes": 35569,
+      "sha256": "e7f27a1713b8d6571efeda6ce8b9d2b7fc5118b25e28710da315ee6fd6f5dc42"
     },
     "tests/test_contextual_v12_integration.py": {
       "bytes": 8899,
@@ -144,12 +145,12 @@
     "producer_state_release": "compressor-only release retained for producer state identity",
     "checkpoint_outer_manifest": "strict source/base/feature/adapter/tokenizer/layout contracts, producer/representation/producer-state releases, contains_base_weights=false, original_weights_serialized=false, projection_cache=none, fitting_frozen, feature/task state flags and components_manifest_sha256; mismatch refuses before mutation",
     "cache_invalidation": "failed reads evict only records whose row status/scope/revision/text or verified text/value files are invalid; ContextualRecordError identifies a single stale authority failure so a healthy sibling keeps bounded C; buffer-only or parameter mutation clears C and blocks export before any directory is created",
-    "release_authority": "release manifest source_identity must equal path.source_identity at read, value and batch-validation boundaries (values/validate_batch now take a required source_identity keyword); failed release writes release their artifact charge and remove partial bytes",
-    "ordering": "durable slot order sorts by source_id, source_epoch, source_order and record_id; live, warm, cold and release two-record parity is tested",
+    "release_authority": "release manifest source_identity must equal path.source_identity at read, value and batch-validation boundaries (values/validate_batch now take a required source_identity keyword); the pointer is atomically replaced only after the store transaction/accounting commits and provider C is cleared, so a pointer/cache failure leaves the previous generation authoritative; failed release writes release their artifact charge and remove partial bytes",
+    "ordering": "durable slot order is semantic (source_id, source_epoch, source_order) with record_id only as deterministic tie fallback; reversed caller order, post-correction and two-record live/warm/cold/release parity are tested",
     "active_sites": "any empty site iterable (tuple/list/generator) skips memory and matches the base; nonempty lists/generators are normalized to tuples",
     "lineage_bound": "lineage_json refuses provenance longer than 1024 bytes under the store's default json.dumps(sort_keys=True) form; longest tested correction is 965 bytes",
-    "cold_failure": "cold worker charges every payload read and returns per-record invalid ids; failed resume persists the typed terminal failure even if selective eviction fails, and evicts only invalid/selected release records",
-    "evidence_fields": "workflow uses release_reads_consistent (release-to-release), live_vs_release_exact/logits and cold_live_parity/cold_logits_parity; old matches_live_slots naming removed"
+    "cold_failure": "cold staging catches Exception only (KeyboardInterrupt/SystemExit propagate), charges every payload read, returns per-record invalid ids, and persists the typed terminal failure independently of best-effort selective eviction",
+    "evidence_fields": "workflow uses release_reads_consistent (release-to-release), live_vs_release_exact/logits, control_feature_contract_refused, post-correction live/logit parity and cold_live_parity/cold_logits_parity; old matches_live_slots naming removed"
   },
   "remaining_limitations": [
     "random tiny BF16 backbone and synthetic tokenizer; not Spark and not native",
@@ -162,6 +163,7 @@
     "native uninterrupted-update equivalence is not measured; only the CPU fixture comparison exists",
     "a tokenizer whose behaviour changes without changing identity() is outside the runtime guard",
     "the v5 work ledger currently receives source work only; complete native accounting must be extended before a native claim",
+    "producer-side X12 coverage closes control/feature-contract enforcement, pre-existing buffer mutation, publication pointer/manifest failure, whole-release eviction and post-correction parity; high-exposure control-cost charging and P pointer authority/failure handling remain with the density/successor owners",
     "canonical_sha256 is a whole-record digest, not a per-slice digest; the token/feature caches bind the actual slice text digest separately, so a synthetic span with a mismatched canonical hash is tokenized by its real text rather than rejected"
   ],
   "preservation": {
@@ -175,10 +177,10 @@
   },
   "coordinator_verification": {
     "focused_tests": {
-      "passed": 79,
+      "passed": 88,
       "failed": 0,
       "skipped": 0,
-      "repair_cycles": 4,
+      "repair_cycles": 5,
       "includes_independent_and_cold_failure_reproductions": true
     },
     "failed_attempt_logs": [
@@ -193,17 +195,18 @@
       "V5",
       "X5",
       "X8",
-      "X12-producer"
+      "X12-producer",
+      "process-control-and-atomic-publication"
     ],
-    "workflow": "run03",
+    "workflow": "run04",
     "arms": [
       "two",
       "full_attention_nine",
       "all"
     ],
-    "parent_wall_seconds": 16.1357513749972,
-    "parent_peak_rss_bytes": 769294336,
+    "parent_wall_seconds": 16.7028990839608,
+    "parent_peak_rss_bytes": 777617408,
     "artifact_files": 244,
-    "artifact_bytes": 102306331
+    "artifact_bytes": 102307925
   }
 }

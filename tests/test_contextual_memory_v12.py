@@ -732,3 +732,126 @@ def test_invalidated_release_evicts_only_its_selection(tmp_path):
     assert "u.span0" in names
     path.release_corpus = None
     store.close()
+
+
+def test_cold_staging_propagates_process_control_exceptions(tmp_path, monkeypatch):
+    import replica_lab.contextual_memory_v12 as module
+
+    def interrupted(*args, **kwargs):
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr(module, "_payload_read_verified", interrupted)
+    ticket = {"pinned": [{"record_id": "r", "text_path": "missing",
+                          "text_sha256": "0" * 64, "text_bytes": 1, "values": []}]}
+    with pytest.raises(KeyboardInterrupt):
+        module._cold_payloads(tmp_path, [ticket])
+
+
+def test_cold_failure_is_typed_and_charged(tmp_path):
+    adapter, layout, provider, path = make()
+    store = open_v12_store(tmp_path)
+    for index in range(2):
+        path.admit(store, source(f"badge marker {index}", f"r{index}"),
+                   scope=sc(), placement="cold")
+    pending = path.read(store, "badge", scope=sc())
+    row = store.connection.execute(
+        "SELECT text_path FROM records WHERE record_id=?", ("r0.span0",)).fetchone()
+    (store.root / row["text_path"]).write_text("damaged")
+    with pytest.raises(ContextualReadFailure) as error:
+        path.resume(store, pending, scope=sc(), wait_seconds=1)
+    assert error.value.costs["cold_completed_files"] >= 5
+    descriptor = json.loads(path._ticket_path(store, pending.ticket_id).read_text())
+    assert descriptor["status"] == "failed"
+    assert "r0.span0" in descriptor["failed_payload_records"]
+    names = {name for name, _ in provider._cache.values()}
+    assert "r0.span0" not in names and "r1.span0" in names
+    store.close()
+
+
+def test_release_accounting_failure_does_not_publish(tmp_path, monkeypatch):
+    adapter, layout, provider, path = make()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc())
+    corpus = ProducerReleaseCorpus(store, sc())
+    first = corpus.rebuild(path)
+    pointer_path = corpus.root / "current.json"
+    before = pointer_path.read_bytes()
+    original = store._set_component_locked
+
+    def failing(component_id, *args, **kwargs):
+        if component_id.startswith("release_pointer:"):
+            raise OSError("simulated release accounting failure")
+        return original(component_id, *args, **kwargs)
+
+    monkeypatch.setattr(store, "_set_component_locked", failing)
+    with pytest.raises(OSError):
+        corpus.rebuild(path)
+    assert pointer_path.read_bytes() == before
+    current = corpus._current()
+    assert current is not None and current[1]["generation"] == first["generation"]
+    assert corpus.cost["publications"] == 1
+    store.close()
+
+
+def test_release_post_commit_failure_does_not_publish(tmp_path, monkeypatch):
+    adapter, layout, provider, path = make()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc())
+    corpus = ProducerReleaseCorpus(store, sc())
+    first = corpus.rebuild(path)
+    pointer_path = corpus.root / "current.json"
+    before = pointer_path.read_bytes()
+
+    def failing():
+        raise RuntimeError("simulated post-commit cache failure")
+
+    monkeypatch.setattr(provider, "clear", failing)
+    with pytest.raises(RuntimeError):
+        corpus.rebuild(path)
+    assert pointer_path.read_bytes() == before
+    current = corpus._current()
+    assert current is not None and current[1]["generation"] == first["generation"]
+    store.close()
+
+
+def test_release_pointer_is_published_after_store_accounting(tmp_path, monkeypatch):
+    import replica_lab.contextual_release_v12 as module
+    adapter, layout, provider, path = make()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc())
+    corpus = ProducerReleaseCorpus(store, sc())
+    calls = []
+    original_component = store._set_component_locked
+    original_atomic = module.atomic_json
+
+    def component(component_id, *args, **kwargs):
+        if component_id.startswith("release_pointer:"):
+            calls.append("accounting")
+        return original_component(component_id, *args, **kwargs)
+
+    def pointer(path_value, value):
+        if path_value.name == "current.json":
+            calls.append("pointer")
+        return original_atomic(path_value, value)
+
+    monkeypatch.setattr(store, "_set_component_locked", component)
+    monkeypatch.setattr(module, "atomic_json", pointer)
+    corpus.rebuild(path)
+    assert calls == ["accounting", "pointer"]
+    store.close()
+
+
+def test_release_read_refuses_different_feature_contract(tmp_path):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    corpus.rebuild(path)
+    other = make(tokenizer_mode="words", source_identity=path.source_identity)[3]
+    other.release_corpus = ProducerReleaseCorpus(store, sc)
+    with pytest.raises(ContextualMemoryError):
+        other.read(store, "badge", scope=sc, wait_seconds=1)
+    other.close()
+    path.close()
+    store.close()

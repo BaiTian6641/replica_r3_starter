@@ -398,3 +398,35 @@ def test_frozen_readout_saves_and_resumes_moments_without_a_base_export(tmp_path
     resumed.resume_training()
     assert all(p.requires_grad for module in resumed.modules().values()
                for p in module.parameters())
+
+
+def test_pre_existing_buffer_mutation_clears_c_and_blocks_export(tmp_path):
+    adapter, layout, provider, path = make(
+        pre_buffers=(("existing_review_buffer", torch.ones(1)),))
+    span = canonical_span("the badge is red", record_id="record0")[0]
+    provider.features(span)
+    assert provider.cost["cache_bytes"] > 0
+    with torch.no_grad():
+        adapter.base.existing_review_buffer.add_(1)
+    with pytest.raises(ContextualMemoryError):
+        provider.validate_original()
+    assert provider.cost["cache_bytes"] == 0
+    with pytest.raises(ContextualMemoryError):
+        path.save(tmp_path / "pre_existing_buffer_checkpoint")
+    assert not (tmp_path / "pre_existing_buffer_checkpoint").exists()
+
+
+def test_control_batches_cannot_bypass_feature_contract():
+    adapter, layout, provider, path = make()
+    ids, mask, labels = token_inputs()
+    sc = scope()
+    spans = spans_for(["the badge is red", "the badge is blue"])
+    zero = ValueBatch(torch.zeros(2 * SLOTS, WIDTH), spans, sc.scope_key,
+                      "training-current", training=True)
+    assert path.validate(zero, sc)
+    with pytest.raises(ContextualMemoryError):
+        path.validate(replace(zero, representation="not_v12"), sc)
+    with pytest.raises(ContextualMemoryError):
+        path.validate(replace(zero, codec="not_v12"), sc)
+    with pytest.raises(ContextualMemoryError):
+        path.validate(replace(zero, slots=torch.zeros(SLOTS, WIDTH)), sc)

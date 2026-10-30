@@ -253,6 +253,13 @@ def run_arm(arm, root):
     from replica_lab.contextual_feature_identity_v12 import ValueBatch
     zero = ValueBatch(torch.zeros_like(correct.slots), correct.spans, correct.scope_key,
                       correct.producer_version, training=True)
+    control_feature_contract_refused = False
+    try:
+        path.validate(ValueBatch(torch.zeros_like(correct.slots), correct.spans,
+                                 correct.scope_key, correct.producer_version,
+                                 representation="not_v12", training=True), sc)
+    except ContextualMemoryError:
+        control_feature_contract_refused = True
     with torch.no_grad():
         controls = {name: logits_digest(path.forward(ids, torch.ones_like(ids), batch, scope=sc))
                     for name, batch in (("correct", correct), ("wrong", wrong),
@@ -312,9 +319,17 @@ def run_arm(arm, root):
            "supersedes": "corrected.span0"})
     path.correct(correction_store, "corrected.span0", correction_span, scope=correction_scope)
     corrected_read = path.read(correction_store, "badge", scope=correction_scope)
+    live_corrected = path.training_values(corrected_read.spans, scope=correction_scope)
+    with torch.no_grad():
+        corrected_logits = path.forward(ids, torch.ones_like(ids), corrected_read,
+                                        scope=correction_scope)
+        live_corrected_logits = path.forward(ids, torch.ones_like(ids), live_corrected,
+                                             scope=correction_scope)
     correction = {"read_after_correction": len(corrected_read.spans),
                   "corrected_record_evicted": all(
-                      name != "corrected.span0" for name, _ in provider._cache.values())}
+                      name != "corrected.span0" for name, _ in provider._cache.values()),
+                  "live_parity": bool(torch.equal(corrected_read.slots, live_corrected.slots)),
+                  "logits_parity": bool(torch.equal(corrected_logits, live_corrected_logits))}
     revocation_scope = scope(SCOPES["revocation"])
     revocation_store = open_v12_store(root, name="revocation_store")
     path.admit(revocation_store, canonical_span("revoked record", record_id="revoked")[0],
@@ -398,6 +413,7 @@ def run_arm(arm, root):
         },
         "disabled": parity, "one_snapshot": one_snapshot, "masks": masks, "controls": controls,
         "controls_distinct": controls_distinct, "shuffled_slots_differ": shuffled_slots_differ,
+        "control_feature_contract_refused": control_feature_contract_refused,
         "durable_parity": durable_parity, "release": release,
         "correction": correction, "revocation": revocation,
         "contract_refusal": contract_refusal,

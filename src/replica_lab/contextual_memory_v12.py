@@ -58,7 +58,7 @@ def _cold_payloads(root, tickets):
                     _payload_read_verified(value["path"], root, value["sha256"],
                                            value["bytes"], accounting=accounting)
                     for value in pin["values"])
-            except BaseException:
+            except Exception:
                 invalid.add(pin["record_id"])
                 continue
             staged[pin["record_id"]] = (text, values)
