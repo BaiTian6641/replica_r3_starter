@@ -469,11 +469,20 @@ def test_revoked_p_is_not_ready_through_generic_read(tmp_path):
     store.replay.register(state["record_id"], generation=1, producer="p:expert")
     second = _tier(tmp_path)
     assert second.read(state["record_id"], contract=contract).status == "ready"
+    second_key = second.projections.key(
+        state["record_id"], generation=1, producer="p:expert",
+        representation="encoder-v1", reader_release="r1", site=3,
+        eligibility_revision=0)
+    second.projections.put(second_key, object())
+    second.replay.register(state["record_id"], generation=1, producer="p:expert")
     store.revoke_p("expert", reason="revoked", authorized_by="host")
     assert second.read(state["record_id"], contract=contract).status == "ineligible"
     assert store.projections.get(cache_key) is None
     assert not store.replay.eligible(state["record_id"], generation=1,
                                      producer="p:expert")
+    assert second.projections.get(second_key) is None
+    assert not second.replay.eligible(state["record_id"], generation=1,
+                                      producer="p:expert")
     with pytest.raises(PermissionError):
         store.demote(state["record_id"])
     with pytest.raises(PermissionError):
@@ -485,6 +494,7 @@ def test_revoked_p_is_not_ready_through_generic_read(tmp_path):
                for item in recovery["revoked_p_records"])
     store.restore_p("expert", authorized_by="host")
     assert store.read_p("expert")["clock"] == 1
+    assert second.read_p("expert")["clock"] == 1
 
 
 def test_formation_authority_binds_manifest_identity_and_cutoff(tmp_path):
@@ -618,9 +628,17 @@ def test_minimal_authority_cannot_bypass_manifest_contract(tmp_path):
     store = _tier(tmp_path)
     store.publish("record", b"payload", generation=1, kind="e",
                   producer="expected", representation="r1",
-                  scope_digest="scope", valid_to=1)
-    result = store.read("record", authority=lambda record_id: {"eligible": True})
-    assert result.status != "ready"
+                  scope_digest="scope", valid_to=10)
+    minimal = store.read("record", authority=lambda record_id: {"eligible": True})
+    assert minimal.status == "contract_required"
+    partial = store.read("record", authority=lambda record_id: {
+        "eligible": True, "producer": "expected"})
+    assert partial.status == "contract_required"
+    complete = {"eligible": True, "producer": "expected", "representation": "r1",
+                "scope_digest": "scope", "cutoff": 20, "generation": 1,
+                "eligibility_revision": 0}
+    expired = store.read("record", authority=lambda record_id: dict(complete))
+    assert expired.status == "expired"
 
 
 def test_study_attribution_uses_actual_ids(tmp_path):

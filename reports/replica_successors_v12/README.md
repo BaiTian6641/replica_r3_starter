@@ -134,8 +134,9 @@ The final workflow again passed all four measured success fields.
   return payload bytes.
 - Reads require a `ReadContract` (producer, representation, scope, optional
   cutoff/generation) or a validating authority callback. A minimal
-  `{"eligible": true}` authority cannot return `ready`; it must bind generation
-  or manifest identity. The contract is enforced on cache hits and after I/O;
+  `{"eligible": true}` authority cannot return `ready`; a `ready` result
+  requires all of producer, representation, scope_digest and cutoff (and
+  expiry is refused). The contract is enforced on cache hits and after I/O;
   authority is rechecked before and after cold I/O and for fallback. Cold
   tickets retain the callback and contract.
 - Payloads and manifests are digest-bound with central schema validation;
@@ -149,7 +150,8 @@ The final workflow again passed all four measured success fields.
   requires explicit host authority and its durable marker is re-read by every
   instance and every publication/read/movement/eviction/recovery operation,
   invalidating all clocked owner hot/projection/replay entries. `restore_p` is
-  host-only.
+  host-only, removes the durable marker, and clears owner caches so other
+  instances can read later valid P state again.
 - Projection cache keys include generation, producer, representation, reader
   release, site and eligibility revision. Replay eligibility is invalidated
   separately.

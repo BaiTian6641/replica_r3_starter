@@ -469,12 +469,15 @@ class TieredBlobStore:
         return cleared
 
     def _is_p_revoked(self, owner: str) -> bool:
-        if owner in self._p_revoked:
-            return True
+        # Re-read durable state on every operation: another instance may have
+        # revoked or host-restored the owner since the last check.
         if self._p_revoked_path(owner).exists():
-            self._p_revoked.add(owner)
-            self._invalidate_p_owner(owner)
+            if owner not in self._p_revoked:
+                self._p_revoked.add(owner)
+                self._invalidate_p_owner(owner)
             return True
+        if owner in self._p_revoked:
+            self._p_revoked.discard(owner)
         return False
 
     def _invalidate_p_owner(self, owner: str) -> None:
@@ -643,13 +646,15 @@ class TieredBlobStore:
                     contract_status, record_id, "hot", None, None,
                     (time.perf_counter_ns() - start) / 1e6, 0,
                     contract_reason), "hot")
-            if contract is None and authority is not None and not any(
-                    field in detail for field in ("producer", "representation",
-                                                  "scope_digest", "cutoff")):
+            if contract is None and authority is not None and not (
+                    all(field in detail for field in
+                        ("producer", "representation", "scope_digest", "cutoff"))
+                    and detail.get("cutoff") is not None):
                 return self._finish(ReadResult(
                     "contract_required", record_id, "hot", None, None,
                     (time.perf_counter_ns() - start) / 1e6, 0,
-                    "authority does not bind manifest identity"), "hot")
+                    "authority must bind all manifest identity/validity fields"),
+                    "hot")
             authority_status, authority_reason = self._authority_manifest_state(
                 cached.manifest, detail)
             if authority_status != "ok":
@@ -749,12 +754,13 @@ class TieredBlobStore:
         after, after_revision, detail = self._authority_state(
             record_id, authority, expected_generation)
         if after == "ok":
-            if contract is None and authority is not None and not any(
-                    field in detail for field in ("producer", "representation",
-                                                  "scope_digest", "cutoff")):
+            if contract is None and authority is not None and not (
+                    all(field in detail for field in
+                        ("producer", "representation", "scope_digest", "cutoff"))
+                    and detail.get("cutoff") is not None):
                 return self._finish(ReadResult(
                     "contract_required", record_id, tier, None, None, elapsed,
-                    len(payload), "authority does not bind manifest identity"), tier)
+                    len(payload), "authority must bind all manifest identity/validity fields"), tier)
             authority_status, authority_reason = self._authority_manifest_state(
                 manifest, detail)
             if authority_status != "ok":
@@ -809,13 +815,14 @@ class TieredBlobStore:
         after, after_revision, detail = self._authority_state(
             fallback_id, authority, None)
         if after == "ok":
-            if contract is None and authority is not None and not any(
-                    field in detail for field in ("producer", "representation",
-                                                  "scope_digest", "cutoff")):
+            if contract is None and authority is not None and not (
+                    all(field in detail for field in
+                        ("producer", "representation", "scope_digest", "cutoff"))
+                    and detail.get("cutoff") is not None):
                 return self._finish(ReadResult(
                     "contract_required", fallback_id, tier, None, None,
                     (time.perf_counter_ns() - start) / 1e6, len(payload),
-                    "authority does not bind manifest identity"), tier)
+                    "authority must bind all manifest identity/validity fields"), tier)
             authority_status, authority_reason = self._authority_manifest_state(
                 manifest, detail)
             if authority_status != "ok":
@@ -1110,6 +1117,7 @@ class TieredBlobStore:
         if path.exists():
             path.unlink()
         self._p_revoked.discard(owner)
+        self._invalidate_p_owner(owner)
 
     # -- recovery and metrics ---------------------------------------------
 
