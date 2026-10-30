@@ -22,9 +22,9 @@ from replica_lab.contextual_source_features_v12 import (
     tokenizer_contract_digest)
 from replica_lab.intrinsic_memory_coverage_v12 import (
     ENVIRONMENT_CLOSURE_BYTES, FEATURE_CACHE_BYTES, FEATURE_CACHE_ENTRIES, FIT_CASES,
-    RESTART_PROMPT_PASSES, SOURCE_FILE_BYTES, SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS,
-    TOKENIZER_IDENTITY_FILES, declared_tokenizer_identity, plan as coverage_plan,
-    tokenizer_identity_digest)
+    RELEASE_READ_BYTES_BOUND, RESTART_PROMPT_PASSES, SOURCE_FILE_BYTES, SOURCE_MAX_BYTES,
+    SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES, declared_tokenizer_identity,
+    plan as coverage_plan, tokenizer_identity_digest)
 from replica_lab.intrinsic_memory_budget_v12 import BudgetError, WorkLedger
 from replica_lab.intrinsic_memory_diagnostic_v12 import (
     DiagnosticEngineV12, SourceWorkAccounting, StageRef, right_padded_prefix)
@@ -324,7 +324,8 @@ def test_successful_read_reserves_the_exact_descriptor_bound(tmp_path):
     assert len(retrieval) == 1
     # Three persists is the exact enumerated maximum for one selection (success 3,
     # timeout 2, failed dispatch 3); one selection, no resume.
-    assert retrieval[0]['reserved'] == {'retrievals': 1, 'writes': 3}
+    assert retrieval[0]['reserved'] == {'retrievals': 1, 'writes': 3,
+                                        'artifact_read_bytes': RELEASE_READ_BYTES_BOUND}
     assert [r for r in ledger.reserved if r['operation'] == 'contextual_resume'] == []
     assert path.resumes == 0
 
@@ -752,6 +753,162 @@ def test_finalize_receipt_charges_the_terminal_result_in_its_own_stage(tmp_path)
     assert snapshot['stages']['finalize_worker']['reserved']['writes'] == 2
     receipt = json.loads((tmp_path/'second'/'main_result.json').read_text())
     assert 'final_receipt_charging' not in receipt
+
+
+def test_terminal_receipts_use_distinct_stages_and_paths(tmp_path):
+    """X3: capacity/terminal receipts never share a path or a consumed stage."""
+    from replica_lab.intrinsic_memory_execution_v12 import charged_write
+    stages = coverage_plan('two')
+    plan = {name: stages[name] for name in
+            ('capacity_main', 'capacity_restart', 'finalize_parent')}
+    ledger = WorkLedger.create(tmp_path/'parent.jsonl', identity='packet-sha',
+                               plan=plan, deadline=time.monotonic()+600)
+    for stage, receipt, window in (('capacity_main', 'capacity_guard_main', 'main'),
+                                   ('capacity_restart', 'capacity_guard_restart', 'restart')):
+        ledger.enter(stage)
+        assert charged_write(ledger, tmp_path, receipt,
+                             {'supervision_window': window}, stage=stage) is True
+        ledger.leave(stage, status='completed')
+    ledger.enter('finalize_parent')
+    assert charged_write(ledger, tmp_path, 'result', {'ok': True},
+                         stage='finalize_parent') is True
+    ledger.leave('finalize_parent', status='completed')
+    snapshot = ledger.snapshot()
+    for stage in plan:
+        assert snapshot['stages'][stage]['status'] == 'completed'
+        assert snapshot['stages'][stage]['reserved']['writes'] == 1
+    main = json.loads((tmp_path/'capacity_guard_main.json').read_text())
+    restart = json.loads((tmp_path/'capacity_guard_restart.json').read_text())
+    assert main['supervision_window'] == 'main'
+    assert restart['supervision_window'] == 'restart'
+    assert 'receipt_charging' not in main and 'receipt_charging' not in restart
+    result = json.loads((tmp_path/'result.json').read_text())
+    assert result['ok'] is True and 'receipt_charging' not in result
+
+
+def test_charged_write_never_consumes_a_terminal_stage(tmp_path):
+    from replica_lab.intrinsic_memory_execution_v12 import charged_write
+    stages = coverage_plan('two')
+    ledger = WorkLedger.create(tmp_path/'no-stage.jsonl', identity='packet-sha',
+                               plan={name: stages[name] for name in
+                                     ('finalize_worker', 'finalize_parent')},
+                               deadline=time.monotonic()+600)
+    for name in ('capacity_guard_main', 'capacity_guard_restart', 'result'):
+        assert charged_write(ledger, tmp_path, name, {'ok': True}) is False
+        payload = json.loads((tmp_path/(name+'.json')).read_text())
+        assert payload['receipt_charging']['charged'] is False
+    snapshot = ledger.snapshot()
+    assert 'finalize_worker' not in snapshot['stages']
+    assert 'finalize_parent' not in snapshot['stages']
+    assert snapshot['reserved']['writes'] == 0
+
+
+def test_charged_write_does_not_mask_the_original_error(tmp_path):
+    from replica_lab.intrinsic_memory_execution_v12 import charged_write
+
+    class BrokenLedger:
+        def snapshot(self):
+            raise RuntimeError('ledger unavailable')
+
+        def work(self, *args, **kwargs):
+            raise RuntimeError('ledger unavailable')
+
+    def failing():
+        raise ValueError('original failure')
+
+    with pytest.raises(ValueError, match='original failure'):
+        try:
+            failing()
+        except ValueError:
+            charged_write(BrokenLedger(), tmp_path, 'failure', {'ok': False})
+            raise
+    payload = json.loads((tmp_path/'failure.json').read_text())
+    assert payload['receipt_charging']['reason'] == 'RuntimeError'
+
+
+def test_release_reads_are_charged_to_native_read_bytes(tmp_path):
+    """X3: release authority/manifest/payload reads enter artifact_read_bytes."""
+    from replica_lab.intrinsic_memory_coverage_v12 import RELEASE_READ_BYTES_BOUND
+    caps = coverage_plan('two')['prepare']
+    ledger = WorkLedger.create(tmp_path/'reads.jsonl', identity='packet-sha',
+                               plan={'prepare': caps}, deadline=time.monotonic()+600)
+    ledger.enter('prepare')
+    path = ReadPath([types.SimpleNamespace(read_costs={})])
+    path.feature_provider = types.SimpleNamespace(cost={})
+    path.cost = {'read_file_bytes': 0, 'ticket_descriptor_read_bytes': 0}
+    path.release_corpus = types.SimpleNamespace(
+        cost={'source_read_bytes': 0, 'authority_read_bytes': 0, 'read_bytes': 0})
+    ref = StageRef(); ref.name = 'prepare'
+    built = DiagnosticEngineV12(path, None, types.SimpleNamespace(), ledger,
+                                max_new_tokens=8, output=tmp_path, stage_ref=ref)
+    original_read = path.read
+
+    def read(store, question, *, scope, wait_seconds=0.0):
+        # A release read touches the authority, the manifest and a payload.
+        path.release_corpus.cost['authority_read_bytes'] += 512
+        path.release_corpus.cost['read_bytes'] += 4096
+        path.release_corpus.cost['source_read_bytes'] += 128
+        path.cost['read_file_bytes'] += 2048
+        return original_read(store, question, scope=scope, wait_seconds=wait_seconds)
+
+    path.read = read
+    built.read(None, 'scope', 'question')
+    reserved = ledger.snapshot()['stages']['prepare']['reserved']
+    assert reserved['artifact_read_bytes'] == RELEASE_READ_BYTES_BOUND
+    reservation = [event for event in ledger.snapshot()['events']
+                   if event['operation'] == 'retrieval'][0]
+    assert reservation['reserved']['artifact_read_bytes'] == RELEASE_READ_BYTES_BOUND
+    assert reservation['actual']['artifact_read_bytes'] == 512 + 4096 + 128 + 2048
+    assert reservation['actual']['artifact_read_bytes'] < RELEASE_READ_BYTES_BOUND
+
+
+def test_release_direct_reads_are_reserved_on_the_native_ledger(tmp_path):
+    """Direct release reads enter artifact_read_bytes, staged reads do not repeat."""
+    from replica_lab.contextual_release_v12 import WorkLedgerReleaseReadAccounting
+    from replica_lab.intrinsic_memory_coverage_v12 import RELEASE_DIRECT_READ_BOUND
+    caps = coverage_plan('two')['fit_probes_128']
+    ledger = WorkLedger.create(tmp_path/'release.jsonl', identity='packet-sha',
+                               plan={'fit_probes_128': caps}, deadline=time.monotonic()+600)
+    ledger.enter('fit_probes_128')
+    accounting = WorkLedgerReleaseReadAccounting(ledger, 'fit_probes_128')
+    token = accounting.reserve_read('release_authority_read', 4096)
+    accounting.complete_read(token, actual_bytes=3000)
+    token = accounting.reserve_read('release_source_read', 256)
+    accounting.complete_read(token, actual_bytes=256)
+    reserved = ledger.snapshot()['stages']['fit_probes_128']['reserved']
+    assert reserved['artifact_read_bytes'] == 4096 + 256
+    events = [event for event in ledger.snapshot()['events']
+              if event['operation'].startswith('release_')]
+    assert [event['actual']['artifact_read_bytes'] for event in events] == [3000, 256]
+    # The probe stage reserves the staged read path and the corpus' direct reads
+    # for every world, so both kinds have room.
+    assert caps['artifact_read_bytes'] >= 32*(RELEASE_READ_BYTES_BOUND
+                                              + RELEASE_DIRECT_READ_BOUND)
+
+
+def test_engine_builds_release_corpora_with_the_read_provider(monkeypatch, tmp_path):
+    """The engine passes a stage-bound native read provider to each corpus."""
+    from replica_lab.contextual_release_v12 import WorkLedgerReleaseReadAccounting
+    import replica_lab.intrinsic_memory_diagnostic_v12 as diagnostic
+    captured = {}
+
+    class Recorder:
+        def __init__(self, store, scope, *, read_accounting=None):
+            captured['store'] = store
+            captured['scope'] = scope
+            captured['accounting'] = read_accounting
+
+    monkeypatch.setattr(diagnostic, 'ProducerReleaseCorpus', Recorder)
+    ledger = types.SimpleNamespace(reserve=lambda *a, **k: 0,
+                                   finish=lambda *a, **k: None)
+    ref = StageRef(); ref.name = 'fit_probes_128'
+    built = DiagnosticEngineV12(FakePath(), None, types.SimpleNamespace(), ledger,
+                                max_new_tokens=8, output=tmp_path, stage_ref=ref)
+    built.new_release_corpus('store', 'scope')
+    accounting = captured['accounting']
+    assert isinstance(accounting, WorkLedgerReleaseReadAccounting)
+    assert accounting.ledger is ledger and accounting.stage == 'fit_probes_128'
+    assert captured['store'] == 'store' and captured['scope'] == 'scope'
 
 
 def test_context_width_and_prefix_bounds_match_the_envelope():

@@ -6,14 +6,43 @@ no native attempt was consumed. This directory holds preparation and review
 material for the separately versioned v12 source-feature successor to the
 consumed v11 two-site attempt.
 
-Current preparation (after repair cycles 1–3, the X0/X2/X3/X9 repairs and the
-cycle-4 X14/X0/X3 follow-ups): **83 focused tests passed** in
-`tests/test_intrinsic_budget_v12.py`, `tests/test_intrinsic_coverage_v12.py`
-and `tests/test_intrinsic_native_v12.py`, run by me against these bytes.
-Envelope: stage wall **6905 s** inside 7200 s (twenty declared stages,
-including the `finalize_worker` and `finalize_parent` receipt stages), 4029
-prompt-tokenizer passes, 42,647,926,441 declared file-read bytes, **2055**
-declared writes, restart 150 s / 67 passes.
+Current preparation (after repair cycles 1–3, the X0/X2/X3/X9 repairs, the
+lifecycle X14/X0/X3 follow-ups and the final X3/X5-adjacent repairs):
+**89 focused tests passed** in `tests/test_intrinsic_budget_v12.py`,
+`tests/test_intrinsic_coverage_v12.py` and `tests/test_intrinsic_native_v12.py`,
+run by me against these bytes. Envelope: stage wall **6925 s** inside 7200 s
+(twenty-two declared stages, including the per-window capacity stages and the
+two terminal-receipt stages), 4029 prompt-tokenizer passes,
+**44,627,834,537** declared file-read bytes, **2057** declared writes, restart
+150 s / 67 passes.
+
+**Final X3 — per-window capacity and terminal receipts.** Each supervision
+window now has its own declared stage and its own receipt path
+(`capacity_guard_main.json`, `capacity_guard_restart.json`), so a restart window
+can no longer overwrite main-window evidence and no receipt depends on a stage
+another receipt already consumed; the parent's combined result is written inside
+`finalize_parent`. `charged_write` never consumes a terminal stage, never uses
+more than the single active stage, and never raises, so a failure-path receipt
+cannot mask an exception already in flight. Tests cover the consumed-stage case
+(three receipts with no active stage stay uncharged and consume nothing), the
+distinct-path/window case, and original-error preservation.
+
+**Release reads charged.** Every durable read reserves
+`RELEASE_READ_BYTES_BOUND` (4 MiB manifest plus 64 KiB pointer/payload/text
+headroom) before dispatch and records the **observed** release
+source/authority/payload bytes afterwards, so those reads land on native
+`artifact_read_bytes` instead of only on local cost fields. A test drives a
+release read and asserts the reservation, the observed actual and the stage
+total.
+
+**X5 adjacent.** `finalize_receipt` and the restart failure receipt catch
+`Exception`, not `BaseException`, so `KeyboardInterrupt`/`SystemExit` always
+propagate; `charged_write` is exception-safe so it cannot replace the original
+error.
+
+**Evidence.** The protocol no longer contains any fixed stage total: the
+difference list describes the allocation and the authoritative value is the
+computed `stage_wall_value` (6925 s), re-checked against the summed caps.
 
 **X14 — fitting-close lifecycle.** The final `fitting_closed` receipt is now
 written while the last probe stage is still active; writing it after that stage
@@ -82,13 +111,13 @@ failure. Size is pinned at 67 files / 450,061,586 bytes and re-derived from the
 bound receipt.
 
 Current packet SHA-256 is
-`48910b59ed1d3012f7b7dc993206025afa95dd27067d63362968fd75e7a796c0`; protocol
-SHA-256 `d09bb7e83bec9ce414a3f4b83d6400068703acdabdbbba9248b7365668fe43fa`;
+`908a50a41a7ae7f3cfa570913683af2a2ed31118e51f72e677d9cca451fe20b2`; protocol
+SHA-256 `8057ce596b3643a7e10ccaaa68857a4cb4aa8290cb305ba034fd051d5a0142f0`;
 implementation receipt SHA-256
-`08617be2f136d8c181f659ccaa7019f6c835ce1184c418693398386eff5b972f`;
+`1ea886b52e493c068d6117cda7a04c01bc819243b6ce20956f6538c171134fd0`;
 environment closure SHA-256
 `d521db9340e3638c481ede19a7ed670949ed9440167739b426b815276d6fbc68` (unchanged —
-the closure binds the environment, not this packet);
+it binds the environment, not this packet);
 development exposure receipt SHA-256
 `0bd5af7bf51dfb24c6273fd7ce6cb11a14856cbc21155e811ed480cd82b7bbe6`.
 
@@ -106,7 +135,7 @@ detected X14. They are historical receipts for their own packet hashes and do
 focused suite and independent review for these bytes are still pending, and no
 authorization or launch exists.
 
-Seven earlier unlaunched preparations are preserved verbatim, unmodified and
+Nine earlier unlaunched preparations are preserved verbatim, unmodified and
 clearly non-canonical, each with a computed-hash status record:
 `preparation_draft01/` binds pre-repair bytes, `preparation_draft02/` carries the
 N1–N3 repairs made before the producer commit, and `preparation_draft03/` carries
@@ -119,15 +148,20 @@ terminal-receipt charging (including the positionally equivalent development
 corpus this cycle replaced), and `preparation_draft07/` the lifecycle packet made
 while producer cycle 5 and the consumer repairs were working-tree changes; every
 draft-07 artifact except `preparation.json` is byte-identical to the current
-canonical ones. No attempt or historical evidence was moved or deleted.
+canonical ones, and `preparation_draft08/` the lifecycle packet before the per-window capacity
+stages, terminal-receipt paths, release-read charging and failure-path masking
+fixes, and `preparation_draft09/` the packet before the release-corpus
+direct-read accounting provider was wired and budgeted. No attempt or historical evidence was moved or deleted.
 
 Provenance: the v12 producer was committed at `6dede67e`, repaired at
-`6ba07e1b`, repaired again at `826aac6b`, and closed at `7cf57766`
-(`fix: make v12 publication and process exits safe`); the consumer repairs are
-committed at `2ddb6287` (`fix: close native lifecycle and split freshness
-gates`). **All 62 closure entries equal their `HEAD` blob content**, and
-regenerating after both commits changed only `preparation.json` (its measured
-hashing wall time) — the packet hash is unchanged at `48910b59…`.
+`6ba07e1b` and `826aac6b`, closed at `7cf57766`, and has further working-tree
+changes from the acceptance-review fixes (`contextual_memory_v12.py`,
+`contextual_release_v12.py`) at preparation time; the consumer repairs are
+committed at `2ddb6287` and this cycle's consumer changes are working-tree
+edits. The closure therefore pins those uncommitted bytes: commit both, then
+regenerate once more (same discard-and-rerun) before sealing. Regenerating after
+`2ddb6287` changed only `preparation.json`; this cycle changes the stage plan, so
+the packet hash moved to `cc4fd0d2…`.
 
 The coordinator lifecycle preflight
 (`preflight_verification_lifecycle.json`, format
@@ -141,13 +175,12 @@ closure verified. It also records that those static gates do **not** execute
 `run_main`, and that independent lifecycle re-review is still required before
 authorization.
 
-The earlier packet `48963bdc…` covered the pre-lifecycle stage plan (6845 s,
-2049 writes) and its receipts remain as history. The lifecycle packet
-`48910b59…` changed the stage plan (20 stages, 6905 s, 2055 writes), the
-development corpus (seeded generator) and therefore the protocol and
-implementation hashes; it is bound to committed bytes and carries the
-coordinator gates above. Independent lifecycle re-review and the seal remain
-outstanding, and no authorization receipt exists.
+The earlier packets remain as history: `48963bdc…` (pre-lifecycle plan, 6845 s,
+2049 writes) and `48910b59…` (lifecycle plan, 20 stages, 6905 s, 2055 writes).
+The current packet `908a50a4…` changes the plan again (22 stages, 6925 s, 2057
+writes) and adds release-read charging, so it carries no coordinator gate result
+yet. Independent review and the seal remain outstanding, and no authorization
+receipt exists.
 
 Bound after regeneration: the content-attestation change (the adapter contract
 includes the exact base content digest, supplied as the already-verified full
@@ -261,7 +294,9 @@ gate stay matched to v11. The hypothesis is about source representation only.
 | `reports/intrinsic_memory_native_v12/preparation_draft04/` | Preserved working-tree packet made while producer cycle 4 was uncommitted; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft05/` | Preserved packet made while the consumer repairs were uncommitted; all artifacts except `preparation.json` are byte-identical to its successor; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft06/` | Preserved packet before the X14 lifecycle repair, the seeded development generator and terminal-receipt charging; includes the replaced development corpus; non-canonical, never launched |
-| `reports/intrinsic_memory_native_v12/preparation_draft07/` | Preserved lifecycle packet made while producer cycle 5 and the consumer repairs were uncommitted; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft07/` | Preserved lifecycle packet made while producer cycle 5 and the consumer repairs were uncommitted; all artifacts except `preparation.json` were byte-identical to its successor; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft08/` | Preserved packet before the per-window capacity stages, terminal-receipt paths, release-read charging and X5-adjacent masking fixes; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft09/` | Preserved packet before the release-corpus direct-read accounting provider was wired and budgeted; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/environment_closure_v12.json` | Executable dependency closure: resolved interpreter, module origins, native extensions, all `torch/lib` files, all wheel RECORDs and critical files, by actual hash |
 | `reports/intrinsic_memory_native_v12/development_exposure_v12.json` | Current exposure receipt: fresh split unopened, retired v11 split, reading incident recorded; historical receipt unedited |
 
@@ -340,12 +375,16 @@ reserves `forwards=1`, `input_tokens=256` (fixed right-padded width).
 | correction | 60 | 25 | 2 / 1 | 0 | 24 | 2 | 14 |
 | restart | 150 | 4 | 2 / 2 | 1 | 0 | 1 | 7 |
 
-Totals: stage wall **6845 s** inside the unchanged **7200 s** outer envelope
-(355 s outer headroom, never a stage allowance); 9778 forwards; 949 source
+Totals: stage wall **6925 s** inside the unchanged **7200 s** outer envelope
+(275 s outer headroom, never a stage allowance); twenty-two declared stages
+including `capacity_main`, `capacity_restart`, `finalize_worker` and
+`finalize_parent`; 9778 forwards; 949 source
 feature forwards; 1078 canonical-source tokenizer passes; 4029 prompt tokenizer
 passes; 513 backwards; 513 updates (512 fitting + 1 fresh-process
-continuation); 7256 generated tokens; 179 retrievals; 2049 declared writes;
-**42,647,926,441** declared file-read bytes; 194 MiB artifacts (96 MiB envelope
+continuation); 7256 generated tokens; 179 retrievals; 2057 declared writes;
+**44,627,834,537** declared file-read bytes (one bounded staged-read
+reservation per durable read plus the corpus' direct authority/source/payload
+reservations); 194 MiB artifacts (96 MiB envelope
 + 2 MiB teacher cache + 96 MiB checkpoint); 2 model loads.
 
 Restart alone reserves 150 s, 67 prompt-tokenizer passes (64 teacher-target

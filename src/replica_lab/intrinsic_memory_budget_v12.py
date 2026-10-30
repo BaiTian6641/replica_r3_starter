@@ -476,6 +476,8 @@ class WorkLedger:
         try:
             yield observation
         except BaseException as error:
+            # Record the terminal failure for *any* exit, then always re-raise;
+            # process-control exceptions are never swallowed here.
             self.finish(token, status='failed',
                         detail={'error': type(error).__name__, 'message': str(error)})
             raise

@@ -83,12 +83,13 @@ def test_stage_plan_is_complete_finite_and_inside_the_outer_envelope():
             assert set(caps) == set(COUNTERS)|{'wall_seconds'}, stage
             assert all(type(caps[k]) is int and caps[k] >= 0 for k in COUNTERS)
         total = totals(stages)
-        assert total['wall_seconds'] == 6905
+        assert total['wall_seconds'] == 6925
         assert total['wall_seconds'] <= OUTER_WALL_SECONDS-11
         assert total['updates'] == 513
         assert total['model_loads'] == 2
         assert total['backwards'] == 513
         assert 'finalize_worker' in stages and 'finalize_parent' in stages
+        assert 'capacity_main' in stages and 'capacity_restart' in stages
         assert stages['finalize_worker']['writes'] >= 2
         assert stages['restart']['prompt_tokenizer_calls'] >= 2*32 + 3
         assert stages['restart']['wall_seconds'] > stages['checkpoint']['wall_seconds']

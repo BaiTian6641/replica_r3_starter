@@ -274,8 +274,9 @@ DIFFERENCES_FROM_V11 = (
     'work_ledger: append-only replica.intrinsic_memory.reservations.v12 journal with '
     'source-feature, canonical-source tokenizer, prompt tokenizer, cache and restart '
     'vocabulary, and dual monotonic/wall deadlines',
-    'stage_budget: re-derived 6835 second allocation (500 per fit segment, 900 per probe) '
-    'instead of 7080 seconds',
+    'stage_budget: re-derived per-stage allocation (500 s per fit segment, 900 s per probe, '
+    'plus two declared terminal-receipt stages and two capacity-guard stages) instead of the '
+    'inherited 7080 s; the authoritative total is stage_wall_value, computed from the caps',
     'checkpoint: v12 complete extension plus optimizer with bound feature, adapter, '
     'tokenizer and layout contracts, the complete representation release, an explicit '
     'release alias and the compressor-only release; no v11 checkpoint is migrated',
@@ -380,6 +381,19 @@ RESTART_WALL_SECONDS = 150
 ENVIRONMENT_CLOSURE_FILES = 67
 ENVIRONMENT_CLOSURE_BYTES = 450061586
 
+# Every durable read may touch the release manifest (bounded to 4 MiB by the
+# producer), a 4 KiB slot payload per record, a bounded canonical text span and
+# the pointer record. The engine reserves this bound before the read and records
+# the observed bytes afterwards, so release source/authority/payload reads are
+# charged to native artifact_read_bytes instead of only to local cost fields.
+RELEASE_READ_BYTES_BOUND = 4 * 1024**2 + 64 * 1024
+
+# Direct reads the release corpus performs itself (pointer, manifest authority,
+# canonical source text, payload values, and the pointer re-read on each batch
+# validation). Two authority reads of up to 4 MiB plus payload/text headroom per
+# published world; the corpus reserves each of them before reading.
+RELEASE_DIRECT_READ_BOUND = 9 * 1024**2
+
 
 def identity_digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True,
@@ -461,12 +475,15 @@ def plan(arm):
         'load': stage(180, model_loads=1,
                       artifact_read_bytes=(2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES),
                       writes=1),
+        # The supervising parent owns distinct per-window stages so each capacity
+        # guard has its own path and its own pre-reserved write, and the terminal
+        # result never depends on a stage another receipt already consumed.
+        'capacity_main': stage(15, writes=1),
+        'capacity_restart': stage(15, writes=1),
+        'finalize_parent': stage(20, writes=2),
         # The child writes its terminal result inside a declared stage, so no
         # receipt is ever written with an inactive stage.
         'finalize_worker': stage(30, writes=2),
-        # The supervising parent writes the combined result and its supervision
-        # receipt inside a declared stage as well.
-        'finalize_parent': stage(30, writes=2),
         # 8 calibration worlds x 8 reserved answer tokens, extensions disabled.
         'baseline': stage(45, **span(0, 0, prompt_passes=16, backbone_forwards=64,
                                      backbone_tokens=256),
@@ -476,7 +493,9 @@ def plan(arm):
         # 32 admissions (one declared store write each) and 32 durable reads.
         # A read reserves three descriptor writes (the exact enumerated maximum),
         # and one bounded resume (two more) is budgeted as headroom.
-        'prepare': stage(60, **span(32, 32), retrievals=32, writes=32*(1+3+2)),
+        'prepare': stage(60, **span(32, 32), retrievals=32,
+                         artifact_read_bytes=32*RELEASE_READ_BYTES_BOUND,
+                         writes=32*(1+3+2)),
         # 32 complete frozen teacher answers (8 tokens each) + 32 target forwards.
         'teacher': stage(90, **span(0, 0, prompt_passes=128, backbone_forwards=288,
                                     backbone_tokens=256),
@@ -489,6 +508,7 @@ def plan(arm):
         # plus the development receipt.
         'development': stage(540, **span(16, 16, prompt_passes=14*16, backbone_forwards=768,
                                         backbone_tokens=256),
+                             artifact_read_bytes=16*RELEASE_READ_BYTES_BOUND,
                              generated_tokens=768, retrievals=16, writes=16*(1+3+2)+1),
         # Two tokenizer passes: the corrected span, then its re-read after the
         # correction evicts that record's cached tokens. One source forward.
@@ -496,6 +516,7 @@ def plan(arm):
         # refused post-revocation read (3 + 2 headroom), and the receipt.
         'correction': stage(60, **span(2, 1, prompt_passes=6, backbone_forwards=24,
                                        backbone_tokens=256),
+                            artifact_read_bytes=2*RELEASE_READ_BYTES_BOUND,
                             generated_tokens=24, retrievals=2, writes=1+3+2+1+3+2+1),
         # A fresh process reloads (one hashing pass + one weight load), restores
         # the extension and the teacher cache, recomputes every source span and
@@ -506,7 +527,9 @@ def plan(arm):
                                 backbone_forwards=2, backbone_tokens=256),
                          backwards=1, updates=1, model_loads=1,
                          artifact_read_bytes=(2*SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES
-                                              + checkpoint + TEACHER_CACHE_BYTES),
+                                              + checkpoint + TEACHER_CACHE_BYTES
+                                              + RELEASE_READ_BYTES_BOUND
+                                              + RELEASE_DIRECT_READ_BOUND),
                          restart_restores=2, retrievals=1, writes=3+2+1+1),
     }
     for end in PREFIXES:
@@ -526,6 +549,8 @@ def plan(arm):
         result[f'fit_probes_{end:03d}'] = stage(
             900, **span(worlds*4, worlds*3, prompt_passes=20*worlds,
                         backbone_forwards=backbone, backbone_tokens=256),
+            artifact_read_bytes=worlds*(RELEASE_READ_BYTES_BOUND
+                                        + RELEASE_DIRECT_READ_BOUND),
             generated_tokens=worlds*controls*tokens, retrievals=worlds,
             writes=worlds*(4+3+2)+2)
     # The supervised parent writes the admission, capacity-guard and result

@@ -37,7 +37,7 @@ from replica_lab.intrinsic_memory_budget_v12 import WorkLedger, atomic, audit_io
 from replica_lab.intrinsic_memory_coverage_v12 import (
     ENVIRONMENT_CLOSURE_BYTES, SOURCE_FILE_BYTES)
 from replica_lab.intrinsic_memory_execution_v12 import (
-    record_attempt, validate_authorization, validate_bindings)
+    charged_write, record_attempt, validate_authorization, validate_bindings)
 from replica_lab.intrinsic_memory_execution_v5 import bound_json, contained, hash_file
 from replica_lab.capacity_guard import CapacityGuard, CapacityPolicy, parse_host_readings
 from replica_lab.wall_deadline_v1 import run_wall_bounded, WallPolicy
@@ -77,7 +77,7 @@ def artifact_bytes(output):
     return sum(p.stat().st_size for p in output.rglob('*') if p.is_file())
 
 
-def supervise_worker(mode, args, output, ledger, guard):
+def supervise_worker(mode, args, output, ledger, guard, capacity_stage):
     command = [sys.executable, str(Path(__file__).resolve()), '--packet', str(args.packet),
                '--authorization', str(args.authorization), '--worker', mode]
     heartbeat = output/(mode+'.telemetry.jsonl'); samples = output/'host_samples.jsonl'
@@ -121,45 +121,30 @@ def supervise_worker(mode, args, output, ledger, guard):
                     child.wait(timeout=5)
                 except subprocess.TimeoutExpired:
                     child.kill(); child.wait(timeout=2)
-            charged_write(ledger, output, 'capacity_guard', {
+            # Each supervision window has its own declared stage and its own
+            # receipt path, so a later window never overwrites earlier evidence
+            # and no window depends on a stage another receipt consumed.
+            entered = False
+            try:
+                ledger.enter(capacity_stage); entered = True
+            except Exception:
+                entered = False
+            charged_write(ledger, output, 'capacity_guard_'+mode, {
                 **guard.report(), 'artifact_bytes_observed': artifact_bytes(output),
                 'driver_sample_seconds': 0.25, 'host_sample_seconds': 2,
+                'supervision_window': mode,
                 'physical_memory_note': ('MPS driver and RSS overlap; host free/swap are '
-                                         'system-wide sampled observations')})
+                                         'system-wide sampled observations')},
+                stage=capacity_stage if entered else None)
+            if entered:
+                try: ledger.leave(capacity_stage, status='completed')
+                except Exception: pass
 
 
-def charged_write(ledger, output, name, payload):
-    """Charge one receipt write in an active declared stage before writing it.
-
-    Falls back to an uncharged write only when no stage can accept the
-    reservation, and records that fact in the receipt instead of hiding it.
-    """
-    snapshot = ledger.snapshot()
-    active = [stage for stage, state in snapshot['stages'].items()
-              if state['status'] == 'active']
-    if len(active) == 1:
-        with ledger.work(active[0], name+'_receipt', writes=1) as event:
-            atomic(output/(name+'.json'), payload)
-            event['actual'] = {'writes': 1}
-        return True
-    for stage in active:
-        try: ledger.leave(stage, status='failed')
-        except Exception: pass
-    for candidate in ('finalize_worker', 'finalize_parent'):
-        if candidate in ledger.snapshot()['stages']: continue
-        try:
-            ledger.enter(candidate)
-            with ledger.work(candidate, name+'_receipt', writes=1) as event:
-                atomic(output/(name+'.json'), payload)
-                event['actual'] = {'writes': 1}
-            ledger.leave(candidate, status='completed')
-            return True
-        except Exception:
-            continue
-    payload['receipt_charging'] = {'charged': False,
-                                   'reason': 'no_declared_stage_available'}
-    atomic(output/(name+'.json'), payload)
-    return False
+def enter_stage(ledger, stage):
+    """Enter a declared parent stage, refusing when another one is active."""
+    ledger.enter(stage)
+    return stage
 
 
 def supervised(args):
@@ -196,15 +181,17 @@ def supervised(args):
             atomic(output/'admission.json', {'environment_validation': environment, **receipt})
             event['actual'] = {'writes': 1}
     ledger.leave('admission', status='completed'); ledger.enter('load')
-    supervise_worker('main', args, output, ledger, guard)
+    supervise_worker('main', args, output, ledger, guard, 'capacity_main')
     main = json.loads((output/'main_result.json').read_text())
     if not main.get('original_weights_unchanged'):
         raise RuntimeError('original integrity not established')
     if main.get('restart_requested'):
-        ledger.enter('restart'); supervise_worker('restart', args, output, ledger, guard)
+        ledger.enter('restart')
+        supervise_worker('restart', args, output, ledger, guard, 'capacity_restart')
     restart = (json.loads((output/'restart_result.json').read_text())
                if (output/'restart_result.json').exists() else None)
     snapshot = ledger.snapshot()
+    ledger.enter('finalize_parent')
     charged_write(ledger, output, 'result', {
         'source_kind': 'official_bf16', 'arm': packet['arm'],
         'mechanism': 'frozen_canonical_source_features_live_contextual_compression_v12',
@@ -216,7 +203,13 @@ def supervised(args):
         'native_competence': main['competence_passed'],
         'useful_recall': bool(main['useful_recall_passed'] and restart
                               and restart['fresh_process_logits_exact']),
-        'persistent_learning': False, 'RSI': False, 'promotion': False})
+        'persistent_learning': False, 'RSI': False, 'promotion': False},
+        stage='finalize_parent')
+    try:
+        ledger.leave('finalize_parent', status='completed')
+    except Exception as error:
+        (output/'finalize_parent_leave_failure.json').write_text(
+            json.dumps({'type': type(error).__name__, 'message': str(error)})+'\n')
 
 
 def worker(args):
@@ -259,6 +252,8 @@ def worker(args):
         load_and_run(ROOT, protocol, packet['arm'], ledger, output,
                      stage=stage, mode=args.worker)
     except BaseException as error:
+        # charged_write cannot raise, so this records the failure and re-raises
+        # the original exception unchanged, including process-control exits.
         charged_write(ledger, output, args.worker+'.failure', {
             'type': type(error).__name__, 'message': str(error),
             'reserved_work_not_refunded': True})

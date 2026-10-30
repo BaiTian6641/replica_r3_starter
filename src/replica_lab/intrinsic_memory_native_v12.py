@@ -36,7 +36,8 @@ from .architecture.intrinsic_memory_layout_v4 import spark_layout
 from .contextual_completion_objective_v1 import CompletionObjectiveSpec, stop_policy_identity
 from .contextual_memory import canonical_spans
 from .contextual_memory_v12 import SLOT_POLICY as SLOT_POLICY_RUNTIME, ContextualMemoryV12
-from .contextual_release_v12 import ProducerReleaseCorpus
+from .contextual_release_v12 import (ProducerReleaseCorpus,
+    WorkLedgerReleaseReadAccounting)
 from .contextual_source_features_v12 import (
     CODEC, FEATURE_FORMAT, FrozenSourceFeatures, PRODUCER, REPRESENTATION,
     SourceFeatureSpec, adapter_content_identity, adapter_contract_digest,
@@ -297,7 +298,7 @@ def finalize_receipt(engine, name, payload):
             close_stage(engine, 'finalize_worker', 'completed')
             return True
         reason = 'finalize_worker_already_consumed'
-    except BaseException as error:      # evidence is never lost
+    except Exception as error:      # never swallow KeyboardInterrupt/SystemExit
         reason = type(error).__name__
     payload['final_receipt_charging'] = {'charged': False, 'reason': reason}
     write_receipt(engine.output, name, payload)
@@ -535,7 +536,9 @@ def run_restart(root, protocol, arm, ledger, output, path, backend, spec, initia
     try:
         engine.load_teacher_cache(output/'teacher_targets.json', request['teacher_cache'],
                                   fit_rows)
-        path.release_corpus = ProducerReleaseCorpus(store, scope)
+        path.release_corpus = ProducerReleaseCorpus(
+            store, scope,
+            read_accounting=WorkLedgerReleaseReadAccounting(ledger, 'restart'))
         source = engine.read(store, scope, row['question']); enc = engine.encoding(row)
         with torch.no_grad():
             canary = engine.forward(enc.input_ids, enc.attention_mask,
@@ -562,6 +565,8 @@ def run_restart(root, protocol, arm, ledger, output, path, backend, spec, initia
         ledger.leave('restart', status='completed')
         return result
     except BaseException as error:
+        # Any exit records a typed terminal receipt and then re-raises, so
+        # KeyboardInterrupt/SystemExit propagate and the original error wins.
         # The restart stage is still declared and active here, so the failure
         # receipt is charged before it is written.
         payload = {'type': type(error).__name__, 'message': str(error),
@@ -570,7 +575,7 @@ def run_restart(root, protocol, arm, ledger, output, path, backend, spec, initia
                    'continuation_model_pid': os.getpid()}
         try:
             engine.write_receipt('restart_failure', payload)
-        except BaseException as ledger_error:   # evidence is never lost
+        except Exception as ledger_error:   # evidence is never lost, original wins
             payload['receipt_charging'] = {'charged': False,
                                            'error': type(ledger_error).__name__}
             write_receipt(output, 'restart_failure', payload)

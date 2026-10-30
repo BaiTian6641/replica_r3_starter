@@ -28,11 +28,13 @@ from .baseline_competence import score
 from .contextual_completion_objective_v1 import encode_complete_response, complete_response_loss
 from .contextual_memory import ContextualMemoryError, WIDTH, tensor_digest
 from .contextual_memory_v5 import PendingContextualRead
-from .contextual_release_v12 import ProducerReleaseCorpus
+from .contextual_release_v12 import (ProducerReleaseCorpus,
+    WorkLedgerReleaseReadAccounting)
 from .contextual_source_features_v12 import (
     SOURCE_FORWARD, SOURCE_TOKENIZE, SourceWorkRequest)
 from .intrinsic_memory_budget_v12 import atomic
-from .intrinsic_memory_coverage_v12 import SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS
+from .intrinsic_memory_coverage_v12 import (
+    RELEASE_READ_BYTES_BOUND, SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS)
 
 FORMAT = 'replica.intrinsic_memory.diagnostic.v12'
 CONTROLS = ('contextual', 'exact_text', 'wrong', 'shuffled', 'zero', 'absent')
@@ -202,7 +204,8 @@ class DiagnosticEngineV12:
         self.source_observations.append({'stage': self.stage, **delta})
         return values
 
-    def read(self, store, scope, question, *, writes=3, resume_writes=2):
+    def read(self, store, scope, question, *, writes=3, resume_writes=2,
+             read_bytes=RELEASE_READ_BYTES_BOUND):
         # Descriptor writes, per the producer owner's final enumeration: a
         # successful wait-based read persists three (initial pending, dispatch
         # reservation, terminal), a waiting read that times out persists two, and
@@ -211,7 +214,13 @@ class DiagnosticEngineV12:
         # two (one when it attaches to an in-flight ticket, none when refused
         # before dispatch). There is no automatic retry: one selection, at most
         # four caller waits, then a typed refusal.
-        with self.measured('retrieval', retrievals=1, writes=writes) as event:
+        #
+        # The durable read also touches release authority, manifest, pointer and
+        # payload files; that work is reserved here and the observed bytes are
+        # recorded afterwards so it lands on native artifact_read_bytes.
+        with self.measured('retrieval', retrievals=1, writes=writes,
+                           artifact_read_bytes=read_bytes) as event:
+            before = self.observed_read_bytes()
             batch = self.path.read(store, question, scope=scope, wait_seconds=1)
             waits = 0
             while isinstance(batch, PendingContextualRead) and waits < 4:
@@ -221,14 +230,38 @@ class DiagnosticEngineV12:
             if isinstance(batch, PendingContextualRead):
                 event['pending'] = batch.__dict__
                 raise ContextualMemoryError('cold recall incomplete after five bounded waits')
+            observed = self.observed_read_bytes() - before
             event['costs'] = getattr(batch, 'read_costs', {})
+            event['observed_read_bytes'] = observed
             event['bounded_resumes'] = waits
+            event['actual'] = {'writes': writes, 'artifact_read_bytes': observed}
             if self.path.release_corpus is not None:
                 event['release_authority_costs'] = dict(self.path.release_corpus.cost)
             return batch
 
+    def observed_read_bytes(self):
+        """Read bytes the path and any release corpus have actually charged."""
+        cost = self.path.cost
+        total = cost.get('read_file_bytes', 0) + cost.get('ticket_descriptor_read_bytes', 0)
+        corpus = getattr(self.path, 'release_corpus', None)
+        if corpus is not None:
+            source = corpus.cost
+            total += (source.get('source_read_bytes', 0)
+                      + source.get('authority_read_bytes', 0)
+                      + source.get('read_bytes', 0))
+        return total
+
     def new_release_corpus(self, store, scope):
-        return ProducerReleaseCorpus(store, scope)
+        """Corpus bound to the native read ledger, charged before each direct read.
+
+        Direct release reads (pointer, manifest authority, canonical source and
+        payload values) are reserved as ``artifact_read_bytes`` before they
+        happen and completed with the observed bytes. Staged cold/release payload
+        reads stay on the path retrieval accounting and are not double-reserved.
+        """
+        return ProducerReleaseCorpus(
+            store, scope,
+            read_accounting=WorkLedgerReleaseReadAccounting(self.ledger, self.stage))
 
     def write_receipt(self, name, payload, *, operation=None):
         """Charge one declared write before it happens, then record the actual."""

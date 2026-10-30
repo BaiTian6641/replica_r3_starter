@@ -24,7 +24,7 @@ import sys
 import time
 
 from .execution_manifest import build_execution_manifest
-from .intrinsic_memory_budget_v12 import sha_json, validate_plan
+from .intrinsic_memory_budget_v12 import atomic, sha_json, validate_plan
 from .intrinsic_memory_coverage_v11 import validate_protocol as validate_previous_protocol
 from .intrinsic_memory_coverage_v12 import (
     ARMS, AUTHORIZATION, DIFFERENCES_FROM_V11, ENVIRONMENT_CLOSURE_BYTES,
@@ -367,6 +367,37 @@ def attempt_consumed(path, *, packet_sha256=None, output_root=None):
     if output_root is not None and any(r['output_root'] == output_root for r in records):
         return True
     return False
+
+
+def charged_write(ledger, output, name, payload, *, stage=None):
+    """Charge one receipt write in a declared stage before writing it.
+
+    Never raises and never consumes a terminal stage: it uses the caller's stage
+    or the single active stage, and when neither exists it writes the receipt
+    with an explicit ``receipt_charging`` note. Because it cannot raise, a
+    failure-path receipt can never mask the exception already in flight.
+    ``KeyboardInterrupt``/``SystemExit`` are deliberately not caught.
+    """
+    try:
+        write_stage = stage
+        if write_stage is None:
+            active = [candidate for candidate, state in ledger.snapshot()['stages'].items()
+                      if state['status'] == 'active']
+            write_stage = active[0] if len(active) == 1 else None
+        if write_stage is None:
+            raise RuntimeError('no single active declared stage')
+        with ledger.work(write_stage, name+'_receipt', writes=1) as event:
+            atomic(Path(output)/(name+'.json'), payload)
+            event['actual'] = {'writes': 1}
+        return True
+    except Exception as error:
+        try:
+            payload['receipt_charging'] = {'charged': False,
+                                           'reason': type(error).__name__}
+            atomic(Path(output)/(name+'.json'), payload)
+        except Exception:
+            pass            # a broken filesystem must not mask the original error
+        return False
 
 
 def validate_bindings(root, packet_path, *, check_source=True, closure_interpreter=None):
