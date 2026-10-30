@@ -657,7 +657,6 @@ def test_post_correction_live_and_durable_parity(tmp_path):
 
 
 def test_release_pointer_write_failure_keeps_previous_generation(tmp_path, monkeypatch):
-    import replica_lab.contextual_release_v12 as module
     adapter, layout, provider, path = make()
     sc = scope()
     store = open_v12_store(tmp_path)
@@ -669,14 +668,14 @@ def test_release_pointer_write_failure_keeps_previous_generation(tmp_path, monke
     component = "release_pointer:" + sc.scope_key
     old_size = store.connection.execute(
         "SELECT bytes FROM tier_usage WHERE component_id=?", (component,)).fetchone()["bytes"]
-    original = module.atomic_json
+    original = corpus._atomic_json_owned
 
-    def failing(path_value, value):
-        if path_value.name.startswith("current.json.pending"):
+    def failing(path_value, value, operation):
+        if operation == "pointer":
             raise OSError("simulated pointer staging failure")
-        return original(path_value, value)
+        return original(path_value, value, operation)
 
-    monkeypatch.setattr(module, "atomic_json", failing)
+    monkeypatch.setattr(corpus, "_atomic_json_owned", failing)
     with pytest.raises(OSError):
         corpus.rebuild(path)
     current = corpus._current()
@@ -1042,7 +1041,7 @@ def test_release_restore_pointer_failure_removes_authority(tmp_path, monkeypatch
 
     def failing_fsync(directory):
         state["calls"] += 1
-        if state["calls"] == 1:
+        if state["calls"] == 2:
             raise OSError("simulated post-replace fsync failure")
         return original_fsync(directory)
 
@@ -1068,8 +1067,14 @@ def test_release_charge_rollback_failure_is_typed(tmp_path, monkeypatch):
     pointer_path = corpus.root / "current.json"
     before = pointer_path.read_bytes()
 
+    original_fsync = corpus._fsync_directory
+    state = {"calls": 0}
+
     def failing_fsync(directory):
-        raise OSError("simulated post-replace fsync failure")
+        state["calls"] += 1
+        if state["calls"] == 2:
+            raise OSError("simulated post-replace fsync failure")
+        return original_fsync(directory)
 
     def failing_charge(previous):
         raise RuntimeError("simulated pointer charge rollback failure")
@@ -1090,14 +1095,14 @@ def test_release_origin_creation_refunds_charge_on_failure(tmp_path, monkeypatch
     sc = scope()
     store = open_v12_store(tmp_path)
     state = {"fail": True}
-    original = module.atomic_json
+    original = module.ProducerReleaseCorpus._atomic_json_owned
 
-    def failing(path_value, value):
-        if state["fail"] and path_value.name == "current.json":
+    def failing(self, path_value, value, operation):
+        if state["fail"] and operation == "origin":
             raise OSError("simulated release origin failure")
-        return original(path_value, value)
+        return original(self, path_value, value, operation)
 
-    monkeypatch.setattr(module, "atomic_json", failing)
+    monkeypatch.setattr(module.ProducerReleaseCorpus, "_atomic_json_owned", failing)
     with pytest.raises(OSError):
         ProducerReleaseCorpus(store, sc)
     assert not (store.root / "artifacts" / "contextual_v12" / "releases"
@@ -1133,16 +1138,16 @@ def test_release_origin_real_atomic_failure_surfaces(tmp_path, monkeypatch, surf
 
         monkeypatch.setattr(Path, "open", failing)
     elif surface in ("file_fsync", "parent_fsync"):
-        original = module.os.fsync
+        original = module.fcntl.fcntl
         target = 1 if surface == "file_fsync" else 2
 
-        def failing(fd):
+        def failing(fd, command, *args):
             state["fsync_calls"] += 1
             if state["fail"] and state["fsync_calls"] == target:
                 raise OSError(f"simulated origin fsync failure {target}")
-            return original(fd)
+            return original(fd, command, *args)
 
-        monkeypatch.setattr(module.os, "fsync", failing)
+        monkeypatch.setattr(module.fcntl, "fcntl", failing)
     else:
         original = module.os.replace
 
@@ -1273,8 +1278,14 @@ def test_release_restore_verification_read_is_accounted(tmp_path, monkeypatch):
     pointer_path = corpus.root / "current.json"
     before = pointer_path.read_bytes()
 
+    original_fsync = corpus._fsync_directory
+    state = {"calls": 0}
+
     def failing(directory):
-        raise OSError("simulated post-replace fsync failure")
+        state["calls"] += 1
+        if state["calls"] in (2, 3):
+            raise OSError("simulated post-replace fsync failure")
+        return original_fsync(directory)
 
     monkeypatch.setattr(corpus, "_fsync_directory", failing)
     with pytest.raises(OSError):
@@ -1377,8 +1388,14 @@ def test_pointer_charge_rollback_survives_pending_cleanup_failure(tmp_path, monk
             raise OSError("simulated pending cleanup failure")
         return original_unlink(self, *args, **kwargs)
 
+    original_fsync = corpus._fsync_directory
+    state = {"calls": 0}
+
     def failing_fsync(directory):
-        raise OSError("simulated post-replace fsync failure")
+        state["calls"] += 1
+        if state["calls"] == 2:
+            raise OSError("simulated post-replace fsync failure")
+        return original_fsync(directory)
 
     monkeypatch.setattr(Path, "unlink", failing_unlink)
     monkeypatch.setattr(corpus, "_fsync_directory", failing_fsync)
@@ -1406,14 +1423,14 @@ def test_origin_completion_failure_does_not_mask_atomic_error(tmp_path, monkeypa
     adapter, layout, provider, path = make()
     sc = scope()
     store = open_v12_store(tmp_path)
-    original = module.atomic_json
+    original = module.ProducerReleaseCorpus._atomic_json_owned
 
-    def failing(path_value, value):
-        if path_value.name == "current.json":
+    def failing(self, path_value, value, operation):
+        if operation == "origin":
             raise OSError("simulated origin atomic failure")
-        return original(path_value, value)
+        return original(self, path_value, value, operation)
 
-    monkeypatch.setattr(module, "atomic_json", failing)
+    monkeypatch.setattr(module.ProducerReleaseCorpus, "_atomic_json_owned", failing)
     with pytest.raises(OSError) as error:
         ProducerReleaseCorpus(store, sc, read_accounting=WorkLedgerReleaseReadAccounting(
             Ledger(), "mechanics"))
@@ -1439,4 +1456,70 @@ def test_release_origin_and_pointer_byte_accounting_are_exposed(tmp_path):
     assert manifest["write_reserved"] == manifest["write_actual"] > 0
     second = ProducerReleaseCorpus(store, sc)
     assert second.accounting_bytes()["release_origin_and_lock"]["write_reserved"] == 0
+    store.close()
+
+
+def test_temp_cleanup_is_owner_scoped_and_locked(tmp_path):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    corpus = ProducerReleaseCorpus(store, sc)
+    own = corpus.root / f"current.json.pending.{corpus._owner}.dead"
+    other = corpus.root / "current.json.pending.otherwriter.dead"
+    own.write_text("{}")
+    other.write_text("{}")
+    corpus._cleanup_owned_temps_locked()
+    assert not own.exists()
+    assert other.exists()
+    store.close()
+
+
+def test_release_write_unlink_fsync_failure_keeps_charge(tmp_path, monkeypatch):
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    path.admit(store, source("badge red", "a"), scope=sc)
+    corpus = ProducerReleaseCorpus(store, sc)
+    original_open = Path.open
+
+    def failing_open(self, *args, **kwargs):
+        if self.suffix == ".slots":
+            raise OSError("simulated immutable write failure")
+        return original_open(self, *args, **kwargs)
+
+    def failing_fsync(directory):
+        raise OSError("simulated unlink fsync failure")
+
+    monkeypatch.setattr(Path, "open", failing_open)
+    monkeypatch.setattr(corpus, "_fsync_directory", failing_fsync)
+    with pytest.raises(OSError):
+        corpus.rebuild(path)
+    charged = store.connection.execute(
+        "SELECT COUNT(*) AS c FROM tier_usage WHERE component_id LIKE 'release_v12:%'"
+    ).fetchone()["c"]
+    assert charged >= 1
+    store.close()
+
+
+def test_origin_failure_cleanup_preserves_other_writer_state(tmp_path, monkeypatch):
+    import replica_lab.contextual_release_v12 as module
+    adapter, layout, provider, path = make()
+    sc = scope()
+    store = open_v12_store(tmp_path)
+    root = store.root / "artifacts" / "contextual_v12" / "releases" / sc.scope_key
+    root.mkdir(parents=True, exist_ok=True)
+    other = root / "current.json.pending.otherwriter.dead"
+    other.write_text("{}")
+    original = module.ProducerReleaseCorpus._atomic_json_owned
+
+    def failing(self, path_value, value, operation):
+        if operation == "origin":
+            raise OSError("simulated origin failure")
+        return original(self, path_value, value, operation)
+
+    monkeypatch.setattr(module.ProducerReleaseCorpus, "_atomic_json_owned", failing)
+    with pytest.raises(OSError):
+        ProducerReleaseCorpus(store, sc)
+    assert other.exists()
+    assert [path.name for path in root.glob("current.json.*")] == [other.name]
     store.close()

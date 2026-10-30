@@ -6,10 +6,12 @@ Interrupted preparation leaves the previous committed generation usable. Readers
 refuse a different/mixed release and revalidate original E authority at each site.
 """
 from dataclasses import asdict
+import errno
 import fcntl
 import hashlib
 import json
 import os
+import sys
 from pathlib import Path
 import time
 import uuid
@@ -18,7 +20,7 @@ import torch
 
 from .contextual_feature_identity_v12 import (
     CanonicalSpan, ContextualMemoryError, CODEC, PRODUCER, REPRESENTATION)
-from .contextual_memory_v12 import atomic_json, digest
+from .contextual_memory_v12 import digest
 from .tiered_memory import (
     _read_verified, pack_values, unpack_values, RetrievalBudget, MemoryScope)
 
@@ -77,6 +79,7 @@ class ProducerReleaseCorpus:
             raise ContextualMemoryError("release write accounting must be complete")
         self.store, self.scope, self.max_records = store, scope, max_records
         self.read_accounting = read_accounting
+        self._owner = uuid.uuid4().hex
         self._operation_counts = {}
         self.root = store.root / "artifacts" / "contextual_v12" / "releases" / scope.scope_key
         self.cost = dict(source_read_bytes=0, source_read_files=0, write_bytes=0,
@@ -117,7 +120,7 @@ class ProducerReleaseCorpus:
                         completed = True
                         raise
                     try:
-                        atomic_json(pointer, origin)
+                        self._atomic_json_owned(pointer, origin, "origin")
                     except BaseException as error:
                         self._complete_write_best(token, actual_bytes=0, status="failed",
                                                   error=error)
@@ -164,7 +167,7 @@ class ProducerReleaseCorpus:
         finally:
             if not completed:
                 self._complete_write_best(token, actual_bytes=0, status="failed")
-            self._cleanup_pointer_temps()
+            self._cleanup_owned_temps_locked()
         self._manifest_cache = None
 
     # ------------------------------------------------------------------
@@ -272,7 +275,7 @@ class ProducerReleaseCorpus:
                 created = True
                 out.write(payload)
                 out.flush()
-                os.fsync(out.fileno())
+                self._durable_fsync(out.fileno())
         except BaseException as error:
             self._complete_write_best(token, actual_bytes=0, status="failed", error=error)
             orphan = False
@@ -284,6 +287,12 @@ class ProducerReleaseCorpus:
                 except BaseException as cleanup_error:
                     orphan = True
                     error.add_note(f"release write cleanup failed: {cleanup_error}")
+            if not orphan:
+                try:
+                    self._fsync_directory(path.parent)
+                except BaseException as sync_error:
+                    orphan = True
+                    error.add_note(f"release write unlink fsync failed: {sync_error}")
             if orphan:
                 # Keep the charge for the orphaned file; refunding would hide it.
                 raise
@@ -395,16 +404,48 @@ class ProducerReleaseCorpus:
     # Pointer publication
 
     @staticmethod
+    def _durable_fsync(descriptor):
+        if sys.platform == 'darwin':
+            try:
+                fcntl.fcntl(descriptor, getattr(fcntl, 'F_FULLFSYNC', 51))
+                return
+            except OSError as error:
+                if error.errno not in (errno.EINVAL, getattr(errno, 'ENOTSUP', errno.EINVAL)):
+                    raise
+        os.fsync(descriptor)
+
+    @staticmethod
     def _fsync_directory(directory):
         fd = os.open(directory, os.O_RDONLY)
         try:
-            os.fsync(fd)
+            ProducerReleaseCorpus._durable_fsync(fd)
         finally:
             os.close(fd)
 
+    def _atomic_json_owned(self, path, value, operation):
+        temporary = path.with_name(
+            f"{path.name}.{operation}.{self._owner}.{uuid.uuid4().hex}.tmp")
+        try:
+            with temporary.open("x") as stream:
+                json.dump(value, stream, sort_keys=True, indent=2)
+                stream.write("\n")
+                stream.flush()
+                self._durable_fsync(stream.fileno())
+            os.replace(temporary, path)
+            self._fsync_directory(path.parent)
+        except BaseException as error:
+            try:
+                temporary.unlink()
+            except FileNotFoundError:
+                pass
+            except Exception as cleanup_error:
+                error.add_note(f"owned temp cleanup failed: {cleanup_error}")
+            raise
+
     def _cleanup_pointer_temps(self, error=None):
+        """Remove only this corpus instance's temps; caller holds writer.lock."""
         failures = []
-        for candidate in self.root.glob("current.json.*"):
+        for candidate in self.root.glob(f"current.json.*{self._owner}*"):
             try:
                 candidate.unlink()
             except FileNotFoundError:
@@ -419,13 +460,31 @@ class ProducerReleaseCorpus:
                         f"pointer temp cleanup failed: {cleanup_error}")
         return failures
 
+    def _cleanup_owned_temps_locked(self, error=None):
+        if not self.root.exists():
+            return []
+        lock = self.root / "writer.lock"
+        if lock.is_symlink():
+            return ["substituted release lock"]
+        try:
+            with lock.open("a") as locked:
+                fcntl.flock(locked, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                return self._cleanup_pointer_temps(error)
+        except Exception as cleanup_error:
+            if error is not None:
+                error.add_note(f"locked temp cleanup failed: {cleanup_error}")
+            else:
+                self._cleanup_notes.append(f"locked temp cleanup failed: {cleanup_error}")
+            return [str(cleanup_error)]
+
     def _stage_pointer(self, pointer):
         current = self.root / "current.json"
-        pending = current.with_name(current.name + ".pending." + uuid.uuid4().hex)
+        pending = current.with_name(
+            current.name + ".pending." + self._owner + "." + uuid.uuid4().hex)
         size = len(json.dumps(pointer, sort_keys=True, indent=2).encode()) + 1
         token = self._reserve_write("release_pointer", size)
         try:
-            atomic_json(pending, pointer)
+            self._atomic_json_owned(pending, pointer, "pointer")
         except BaseException as error:
             self._complete_write_best(token, actual_bytes=0, status="failed", error=error)
             raise
@@ -442,13 +501,14 @@ class ProducerReleaseCorpus:
             except FileNotFoundError:
                 pass
         else:
-            temporary = current.with_name(current.name + ".restore." + uuid.uuid4().hex)
+            temporary = current.with_name(
+                current.name + ".restore." + self._owner + "." + uuid.uuid4().hex)
             token = self._reserve_write("release_pointer_restore", len(previous))
             try:
                 with temporary.open("xb") as stream:
                     stream.write(previous)
                     stream.flush()
-                    os.fsync(stream.fileno())
+                    self._durable_fsync(stream.fileno())
                 os.replace(temporary, current)
             except BaseException as error:
                 self._complete_write_best(token, actual_bytes=0, status="failed", error=error)
@@ -572,7 +632,7 @@ class ProducerReleaseCorpus:
                         operation="release_manifest")
             fd = os.open(dest, os.O_RDONLY)
             try:
-                os.fsync(fd)
+                self._durable_fsync(fd)
             finally:
                 os.close(fd)
             if before_publish is not None:
