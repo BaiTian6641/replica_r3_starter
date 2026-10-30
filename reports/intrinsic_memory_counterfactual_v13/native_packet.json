@@ -1,0 +1,34 @@
+{
+  "arm": "two",
+  "attempt_marker": "runs/intrinsic_memory_counterfactual_v13/attempts.jsonl",
+  "attempts": 1,
+  "authorization_required": "reports/intrinsic_memory_counterfactual_v13/authorization.json",
+  "authorization_status": "external_receipt_required_not_created",
+  "commands": {
+    "launch": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_counterfactual_v13.py",
+      "--packet",
+      "reports/intrinsic_memory_counterfactual_v13/native_packet.json",
+      "--authorization",
+      "reports/intrinsic_memory_counterfactual_v13/authorization.json",
+      "--launch"
+    ],
+    "review": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_counterfactual_v13.py",
+      "--packet",
+      "reports/intrinsic_memory_counterfactual_v13/native_packet.json",
+      "--review"
+    ]
+  },
+  "experiment_version": 13,
+  "format": "replica.intrinsic_memory.counterfactual_launch_packet.v13",
+  "native_engine_version": 13,
+  "output_root": "reports/intrinsic_memory_counterfactual_v13/native_bf16_pair_diagnostic_attempt01",
+  "protocol": {
+    "path": "configs/spark_counterfactual_diagnostic_v13.json",
+    "sha256": "38e3dcd62834f0ae7b3df3ef670c91cc110e9b33200557a842ef63a95600bde7"
+  },
+  "retries": 0
+}
