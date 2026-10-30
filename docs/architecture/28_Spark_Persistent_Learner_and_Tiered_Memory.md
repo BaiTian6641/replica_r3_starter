@@ -1,6 +1,8 @@
 # Spark persistent learner, tiered memory and Replica integration
 
-## Current implementation — broader-teaching outcome and evidence gates
+**Current navigation: [CURRENT_STATUS.md](../../CURRENT_STATUS.md).** The broader-teaching v11 section below is historical; current native status and budgets come from the exact packet.
+
+## Historical implementation — broader-teaching outcome and evidence gates
 Read the [v11 experiment](../../docs/experiments/20261029_Spark_Memory_Coverage_V11.md),
 [current evidence summary](../../reports/intrinsic_memory_coverage_v11/verification_summary.json) and
 [consumed runbook](../../reports/intrinsic_memory_coverage_v11/README.md). Implementations `607ba7a8` and

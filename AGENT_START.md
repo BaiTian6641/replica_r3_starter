@@ -1,6 +1,8 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Active order — 29 October 2026, recorded broader-teaching v11 outcome.**
+**Current navigation: [CURRENT_STATUS.md](CURRENT_STATUS.md).** The v11 handoff below is historical, not the active experiment.
+
+**Historical v11 handoff — 29 October 2026; superseded by the current pointer above.**
 Read the [v11 experiment](docs/experiments/20261029_Spark_Memory_Coverage_V11.md),
 [current evidence summary](reports/intrinsic_memory_coverage_v11/verification_summary.json) and
 [consumed runbook](reports/intrinsic_memory_coverage_v11/README.md). Implementations `607ba7a8` and

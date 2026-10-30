@@ -1,14 +1,53 @@
 # Spark contextual source features and intrinsic memory v12
 
-Status: **native attempt01 is running under one exclusive worker.** CPU engineering is independently qualified. No fitting, development, useful-recall, persistent-learning, promotion, density, or RSI result is inferred from that qualification.
-
+Status: **native attempt10 is running under one exclusive worker.** Attempts 01–09
+are preserved; attempt09 reached 384 fitting updates and failed its third probe's 900-second wall. CPU engineering is independently qualified. No final fitting, development, useful-recall, persistent-learning, promotion, density, or RSI result is inferred from partial attempts.
 ## Mechanism and fixed boundaries
+
+Attempt01's startup failure is preserved in
+`reports/intrinsic_memory_native_v12/attempt01_failure_analysis.json`: observed
+control JSON reads exceeded the worker reservation before any calibration answer.
+Attempt02 adds the control-read allowance and has a fresh packet, output identity
+and authorization; it is not a retry of the consumed attempt01 packet.
+
+Attempt02 advanced past the corrected reservation and failed only on a stale
+producer constant. Attempt03 binds the actual
+`frozen_spark_features_contextual_compressor_v12` identity and has a fresh packet,
+output identity and authorization.
+
+Attempt03 exposed a 10,126,548-byte metadata reservation shortfall. Attempt04
+raises the derived allowance to 64 MiB to cover duplicate tokenizer/template
+hash and binding reads, with a fresh packet, output identity and authorization.
+
+Attempt04 showed that a uniform per-file bound inflated eleven metadata
+reservations to 704 MiB. Attempt05 reserves each file by its actual size and
+retains the 64 MiB stage allowance, with a fresh packet and authorization.
+
+Attempt05 loaded the model and failed on a missing `path.objective_identity`.
+Attempt06 binds `TeacherObjective().identity(spec)` in the loader and has a fresh
+packet, output identity and authorization.
+
+Attempt06 showed that baseline and numerical had zero split-read reservations.
+Attempt07 assigns the full control-read allowance to both stages and has a fresh
+packet, output identity and authorization.
+
+Attempt07 reached calibration generation but missed its `answers` initialization.
+Attempt08 restores it and has a fresh packet, output identity and authorization.
+
+Attempt08 passed calibration 8/8 and teacher qualification 32/32, completed 128
+fitting updates, then exhausted its 20-pass prompt envelope. Attempt09 reserved
+the actual 25 passes per world (800 per probe stage), passed calibration and
+teacher qualification again, and completed 384 updates. Its 128/256-update
+probes failed memory dependence (contextual 12/32 and 18/32); the third probe
+then exceeded 900 seconds. Attempt10 reallocates probe walls to
+500/800/1100/1400 seconds, for 7155 seconds total inside the unchanged 7200-second
+outer ceiling, with no model, data, work-count or scientific-gate change.
 
 V12 replaces random byte-context values with frozen canonical-source decoder hidden states followed by live trainable compression into four ordered width-256 slots per admitted span, with at most two spans/eight slots. The source pass sees canonical text only, without questions, answers, templates, external spine or intrinsic-memory extensions. Original Spark parameters remain frozen; only the compressor, order and readers train through NativeFusedAdamW.
 
 Reader sites remain 3/7 with block-input queries and post-block residuals. The frozen source forward is the only intended source-side detach. Durable admission/read/checkpoint serialization detaches separately; live response loss reaches the compressor, order and every active reader after zero-initialized reader outputs begin updating. No base weights, task state or source-feature cache is serialized.
 
-The experiment protocol and exact packet are `configs/spark_intrinsic_coverage_v12.json` and `reports/intrinsic_memory_native_v12/native_packet_two_v12.json` (SHA-256 `6dc96d507bee85d807657cf81187146ab226d7d0146c6abf3d4f56f9377bb6e1`). The one-attempt receipt is `authorization_two_v12.json`; attempt marker and output are unique. No v11 output or receipt is reused.
+The experiment protocol and exact packet are `configs/spark_intrinsic_coverage_v12.json` and `reports/intrinsic_memory_native_v12/native_packet_two_v12.json` (SHA-256 `5eebe66c45b15c186ffd697b746ff9373a4061a1ea369a4df670b0cea9ecd609`). The one-attempt receipt is `authorization_two_v12.json`; attempt marker and output are unique. No v11 output or receipt is reused.
 
 ## Exposure and evaluation roles
 
@@ -30,7 +69,7 @@ Historical v11 results remain unchanged: fitting failed at 26/32 with groups 5/8
 5. Correction and revoked-read behavior are evaluated separately from cache invalidation.
 6. Only extension plus optimizer state is saved. A fresh process must restore exact logits and perform one actual continuation update with original parameter hashes unchanged.
 
-The current envelope has 23 charged stages, 6,955 seconds inside the 7,200-second outer ceiling, 9,778 forwards, 949 frozen source-feature forwards, 513 backward/updates, 7,256 generated tokens, 3,618 writes, 55,439,767,209 reserved read bytes, and 205,537,280 artifact bytes. Final probes reserve 580 writes (579 for earlier probes); restart reserves 16 writes. One durable read reserves 13 descriptor writes including failure fallbacks. Native uses one exclusive MPS worker, 50 GiB sampled driver, 512 MiB sustained swap growth and 15% minimum host free, with CPU fallback disabled.
+The exact packet-derived envelope is recorded in `reports/intrinsic_memory_native_v12/current_packet_budget.json`: 23 charged stages, 7,155 seconds inside the 7,200-second outer ceiling, 9,778 forwards, 949 frozen source-feature forwards, 513 backward/updates, 7,256 generated tokens, 4,669 prompt tokenizations, 3,618 writes, 55,490,098,857 reserved read bytes, and 205,537,280 artifact bytes. Final probes reserve 580 writes (579 for earlier probes); restart reserves 16 writes. One durable read reserves 13 descriptor writes including failure fallbacks. Native uses one exclusive MPS worker, 50 GiB sampled driver, 512 MiB sustained swap growth and 15% minimum host free, with CPU fallback disabled.
 
 ## Independent CPU qualification
 
@@ -73,4 +112,4 @@ These sources motivate controls, not expected accuracy or MPS cost.
 - Replica formation/chunk/tier contracts: `reports/replica_successors_v12/`.
 - Repair and research register: `reports/intrinsic_memory_takeover_20261029/`.
 
-Native raw outputs, answers, controls, resource samples, stage receipts and failure traces will be appended after attempt01 completes. Until then, native competence, fitting, useful recall, density and persistent learning remain unmeasured.
+Attempts01–09 preserve raw outputs, answers, controls, resource samples, stage receipts and failure traces. Attempt10 is running; its terminal outputs and independent reconciliation will be appended when available. Partial probes do not establish final fitting, useful recall, density or persistent learning.

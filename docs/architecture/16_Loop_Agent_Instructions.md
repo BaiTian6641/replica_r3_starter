@@ -1,5 +1,7 @@
 # Loop-agent execution instructions
 
+**Current navigation: [CURRENT_STATUS.md](../../CURRENT_STATUS.md).** The broader-teaching v11 section below is historical; use it for preserved evidence and gates, not current run status.
+
 **Revised 29 October 2026 after the recorded official BF16 broader-teaching diagnostic.** This is the active worker
 prompt. Earlier MiniCPM-first and native multimodal orders are historical.
 Reading or editing this file does not launch a job, download data, create a chat
@@ -39,7 +41,7 @@ before acting; do not repeat already completed repairs.
 - Report measured behavior separately from engineering tests and design
   arithmetic. Check primary research sources before changing a mechanism claim.
 
-## Current implementation — broader-teaching outcome and evidence gates
+## Historical implementation — broader-teaching outcome and evidence gates
 Read the [v11 experiment](../../docs/experiments/20261029_Spark_Memory_Coverage_V11.md),
 [current evidence summary](../../reports/intrinsic_memory_coverage_v11/verification_summary.json) and
 [consumed runbook](../../reports/intrinsic_memory_coverage_v11/README.md). Implementations `607ba7a8` and
