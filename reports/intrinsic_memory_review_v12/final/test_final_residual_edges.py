@@ -1,6 +1,6 @@
 """Final independent residual reproductions; no development data or weights."""
 import time
-from pathlib import Path
+import json
 
 import pytest
 
@@ -13,16 +13,22 @@ from replica_lab.successors.tiers import ProjectionCache, ReadContract, TieredBl
 import profile_intrinsic_memory_density_v12 as profile
 
 
-def test_fitting_closed_receipt_has_an_active_stage(tmp_path):
+def test_fitting_closed_receipt_precedes_stage_close(tmp_path):
     ledger = WorkLedger.create(tmp_path / "ledger.jsonl", identity="final-review",
                                plan=plan("two"), deadline=time.monotonic() + 10000)
     ledger.enter("fit_probes_512")
-    ledger.leave("fit_probes_512", status="completed")
     engine = DiagnosticEngineV12.__new__(DiagnosticEngineV12)
     engine.ledger, engine.output = ledger, tmp_path
     engine._stage_ref = StageRef()
     engine.stage = "fit_probes_512"
+    import types
+    import torch
+    engine.path = types.SimpleNamespace(adapter=types.SimpleNamespace(
+        base=types.SimpleNamespace(parameters=lambda: iter([torch.zeros(1)]))))
     engine.write_receipt("fitting_closed", {"closed": True})
+    ledger.leave("fit_probes_512", status="completed")
+    assert (tmp_path / "fitting_closed.json").is_file()
+    assert ledger.snapshot()["stages"]["fit_probes_512"]["status"] == "completed"
 
 
 def test_external_p_revocation_blocks_second_instance_generic_read(tmp_path):
@@ -69,29 +75,22 @@ def test_noninteger_exposure_is_refused_during_validation():
 
 
 def test_receipt_creation_does_not_leave_partial_final_file(monkeypatch, tmp_path):
-    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+    import fcntl
+    from replica_lab.intrinsic_memory_density_receipts_v12 import write_new_json
     destination = tmp_path / "receipt.json"
-    real_open = Path.open
-    class PartialWriter:
-        def __init__(self, stream):
-            self.stream = stream
-        def __enter__(self):
-            return self
-        def __exit__(self, *args):
-            self.stream.close()
-        def write(self, payload):
-            self.stream.write(payload[:5])
-            raise RuntimeError("interrupted")
-        def flush(self):
-            pass
-    def failing_open(self, *args, **kwargs):
-        if self == destination:
-            return PartialWriter(real_open(self, "x", encoding="utf-8"))
-        return real_open(self, *args, **kwargs)
-    monkeypatch.setattr(receipts.Path, "open", failing_open)
-    with pytest.raises(RuntimeError):
-        receipts.write_new_json(destination, {"complete": True})
+    real_fcntl = fcntl.fcntl
+    def interrupted(descriptor, request):
+        if request == getattr(fcntl, "F_FULLFSYNC", 51):
+            raise RuntimeError("interrupted F_FULLFSYNC")
+        return real_fcntl(descriptor, request)
+    monkeypatch.setattr(fcntl, "fcntl", interrupted)
+    with pytest.raises(RuntimeError, match="interrupted F_FULLFSYNC"):
+        write_new_json(destination, {"complete": True})
     assert not destination.exists()
+    assert list(tmp_path.glob(".receipt.json.*.tmp")) == []
+    monkeypatch.setattr(fcntl, "fcntl", real_fcntl)
+    write_new_json(destination, {"complete": True})
+    assert json.loads(destination.read_text()) == {"complete": True}
 
 
 def test_cold_staging_propagates_process_control_exceptions(monkeypatch):

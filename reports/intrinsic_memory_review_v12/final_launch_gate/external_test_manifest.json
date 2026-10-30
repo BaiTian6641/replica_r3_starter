@@ -1,0 +1,66 @@
+{
+  "format": "replica.intrinsic_memory.external_reproduction_manifest.v1",
+  "review_head": "f29d34e1",
+  "review_directory": "reports/intrinsic_memory_review_v12/final_launch_gate",
+  "clean_checkout": "/private/tmp/replica-independent-v12-f29d34e1-final-launch-gate",
+  "clean_checkout_sparse_exclusions": [
+    "src/replica_lab/runtime_pilot.py",
+    "checkpoints/"
+  ],
+  "overlay_used": false,
+  "production_regression_scope": "Committed tests listed under tests/ in commands.md; externally supplied cases below were copied to separate final_launch_*.py files at the clean-checkout root.",
+  "command_file": {
+    "path": "reports/intrinsic_memory_review_v12/final_launch_gate/commands.md",
+    "sha256": "b22a694bfcf62482bc7e7f9c2987a5e81ab438ce25855c83ae83deec8f1c70aa",
+    "section": "Exact committed regression, run from CLEAN"
+  },
+  "result": {
+    "passed": 1024,
+    "failed": 0,
+    "skipped": 0,
+    "junit_path": "reports/intrinsic_memory_review_v12/final_launch_gate/full_regression_f29d34e1.xml",
+    "junit_sha256": "330f2c967aea7a0a78fa327789326e7bd5bf90a7d78acfda11eab301c8d45f46",
+    "time_path": "reports/intrinsic_memory_review_v12/final_launch_gate/full_regression_f29d34e1.time",
+    "time_sha256": "fe07148874175a02ab3037f4ef21f9eb875aed0c7cbefb6b7e284dca981243ba"
+  },
+  "external_tests": [
+    {
+      "checkout_name": "final_launch_edge_cases.py",
+      "source_path": "reports/intrinsic_memory_review_v12/rereview/test_rereview_edge_cases.py",
+      "sha256": "dab31abd0fcbe78b9be3ebd4fb05ec34aab7b09fe2e7f48a8dec85df308b7858"
+    },
+    {
+      "checkout_name": "final_launch_residual_edges.py",
+      "source_path": "reports/intrinsic_memory_review_v12/final/test_final_residual_edges.py",
+      "sha256": "1bdca80be1430bff7a0b5e78b82d6d63ff089d5164d69e8076116cbdd41d3f7f"
+    },
+    {
+      "checkout_name": "final_launch_policy_edges.py",
+      "source_path": "reports/intrinsic_memory_review_v12/acceptance/test_acceptance_policy_edges.py",
+      "sha256": "5b48d926352f86b6e0010220c7926e8099209ae4438179b4dff19ed052bef849"
+    },
+    {
+      "checkout_name": "final_launch_budget_edges.py",
+      "source_path": "reports/intrinsic_memory_review_v12/qualified/test_qualified_budget_edges.py",
+      "sha256": "c019534a80b781b6022194ae8e1ddf81bd71d51a118496ee13d28c9796e3de66"
+    },
+    {
+      "checkout_name": "final_launch_origin_budget.py",
+      "source_path": "reports/intrinsic_memory_review_v12/final_acceptance/test_final_acceptance_origin_budget.py",
+      "sha256": "1bc39e1a1251853c4882a5ea76154e90c7666c5c99e1733efcf3f79fcc0859d1"
+    },
+    {
+      "checkout_name": "final_launch_compound_public.py",
+      "source_path": "reports/intrinsic_memory_review_v12/final_acceptance/test_final_acceptance_compound_public.py",
+      "sha256": "9261c64bbf97ed3bc0938316517b72286abd721458cfff213711a894fbc4d536"
+    },
+    {
+      "checkout_name": "final_launch_fallback.py",
+      "source_path": "reports/intrinsic_memory_review_v12/final_launch_gate/test_final_launch_fallback.py",
+      "sha256": "d9b6bcc8350b1a9b34b41c02d1c703bd89a8d64534c1b74bf5d6733dff1adeea"
+    }
+  ],
+  "current_working_bytes_match_clean_checkout": true,
+  "historical_receipts_rewritten": false,
+  "native_capability_claim": false
+}

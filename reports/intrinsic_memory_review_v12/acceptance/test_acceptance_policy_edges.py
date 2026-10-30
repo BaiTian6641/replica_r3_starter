@@ -45,10 +45,11 @@ def test_source_recomputation_is_not_a_forbidden_side_effect():
 def test_terminal_parent_receipts_remain_charged(tmp_path):
     ledger = WorkLedger.create(tmp_path / "ledger.jsonl", identity="acceptance-review",
                                plan=plan("two"), deadline=time.monotonic() + 10000)
-    for stage in ("finalize_worker", "finalize_parent"):
-        ledger.enter(stage)
-        ledger.leave(stage, status="completed")
-    charged = charged_write(ledger, tmp_path, "capacity_guard", {"window": "restart"})
+    ledger.enter("capacity_restart")
+    charged = charged_write(ledger, tmp_path, "capacity_guard_restart",
+                            {"window": "restart"}, stage="capacity_restart")
+    ledger.leave("capacity_restart", status="completed")
     assert charged is True
-    document = json.loads((tmp_path / "capacity_guard.json").read_text())
-    assert document["receipt_charging"]["charged"] is True
+    document = json.loads((tmp_path / "capacity_guard_restart.json").read_text())
+    assert document["window"] == "restart"
+    assert ledger.snapshot()["reserved"]["writes"] == 1

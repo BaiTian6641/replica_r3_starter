@@ -9,7 +9,7 @@ from replica_lab.contextual_memory_v5 import PendingContextualRead
 
 
 def test_final_probe_cap_covers_fitting_close_and_source_receipt():
-    required = FIT_CASES * (4 + 3 + 2) + 4
+    required = FIT_CASES * (5 + 13) + 4
     assert plan("two")["fit_probes_512"]["writes"] >= required
 
 
@@ -41,4 +41,10 @@ def test_read_resume_write_reservation_covers_four_waits(tmp_path):
     engine.path = Path()
     engine.read(None, "scope", "question")
     reserved = ledger.snapshot()["reserved"]["writes"]
-    assert reserved <= 5
+    assert reserved == 13
+
+
+
+def test_restart_cap_covers_corpus_result_and_source_receipt():
+    required = 1 + 13 + 1 + 1
+    assert plan("two")["restart"]["writes"] >= required

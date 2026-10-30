@@ -114,8 +114,10 @@ def test_density_profiler_empty_list_uses_disabled_parity():
         path.close()
 
 
-def test_configured_tolerance_is_the_executed_tolerance():
+def test_configured_tolerance_is_refused_and_execution_is_bound():
     protocol = total_cost_protocol()
     protocol["selection"]["tolerance"]["relative"] = 0.5
-    validate_protocol(protocol)
-    assert cost_tolerance(1000.0, 1.0) == 500.0
+    with pytest.raises(ValueError, match="selection/tolerance/rounding"):
+        validate_protocol(protocol, comparison="preregistered_measured_total_cost")
+    assert cost_tolerance(1000.0, 1.0, relative=0.5) == 500.0
+    assert cost_tolerance(1000.0, 1.0, relative=0.02) == 20.0
