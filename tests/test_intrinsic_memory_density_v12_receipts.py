@@ -23,7 +23,10 @@ def inputs(tmp_path):
         "format": "test.pilot", "total_cost_protocol_sha256": digest,
         "target_cost_ns": 123.5, "selected_updates": {"two": 2, "all": 1},
         "matched_arms": ["two", "all"], "unmatched_arms": [],
-        "scored_labels_read": False, "cost_metric": "measured_synchronized_wall_nanoseconds_for_one_complete_declared_pass",
+        "scored_labels_read": False,
+        "native_execution": False, "native_weights_loaded": False,
+        "downloads": False, "P_updates": 0, "promotion": False,
+        "cost_metric": "measured_synchronized_wall_nanoseconds_for_one_complete_declared_pass",
         "repeat": 3, "aggregate": "median_of_repeats",
         "declared_common_updates": 2, "declared_updates_cap": 8,
         "out_of_tolerance_control": {
@@ -54,6 +57,9 @@ def inputs(tmp_path):
         }
     cpu = {
         "format": "test.profile",
+        "scored_labels_read": False, "native_execution": False,
+        "native_weights_loaded": False, "downloads": False,
+        "P_updates": 0, "promotion": False,
         "protocol_digests": {name: canonical_digest(protocol)
                              for name, protocol in protocols.items()},
         "arms": {"two": row([3, 7], 2, 272418, "a"),
@@ -412,9 +418,8 @@ def test_final_unlink_failure_quarantines_before_raising(monkeypatch, tmp_path):
 
     monkeypatch.setattr(receipts.Path, "unlink", failing_unlink)
     monkeypatch.setattr(receipts, "_fsync_directory", failing_fsync)
-    with pytest.raises(ReceiptError) as error:
+    with pytest.raises(OSError):
         receipts.write_new_json(destination, {"complete": True})
-    assert error.value.notes
     assert not destination.exists()
 
 
@@ -475,3 +480,49 @@ def test_receipts_refuse_arbitrary_cost_metric(tmp_path):
         write_repair_receipts(
             tmp_path / "coordinator12", cpu_summary_path=cpu,
             cost_pilot_path=tmp_path / "wrong-metric.json")
+
+
+def test_new_directory_creation_fsyncs_each_parent(monkeypatch, tmp_path):
+    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+    calls = []
+    real = receipts._fsync_directory
+
+    def record(directory):
+        calls.append(Path(directory).resolve())
+        return real(directory)
+
+    monkeypatch.setattr(receipts, "_fsync_directory", record)
+    destination = tmp_path / "a" / "b" / "receipt.json"
+    receipts.write_new_json(destination, {"complete": True})
+    assert (tmp_path / "a").resolve() in calls
+    assert (tmp_path / "a" / "b").resolve() in calls
+
+
+def test_removal_fsync_retry_is_queued_and_completes(monkeypatch, tmp_path):
+    import replica_lab.intrinsic_memory_density_receipts_v12 as receipts
+    path = tmp_path / "receipt.json"
+    path.write_text("{}\n")
+    real = receipts._fsync_directory
+
+    def failing(directory):
+        raise OSError("directory fsync failed")
+
+    monkeypatch.setattr(receipts, "_fsync_directory", failing)
+    assert receipts._remove_final(path) is False
+    assert not path.exists()
+    assert (tmp_path.resolve()) in receipts._PENDING_DIR_SYNC
+    monkeypatch.setattr(receipts, "_fsync_directory", real)
+    receipts._cleanup_pending()
+    assert not receipts._PENDING_DIR_SYNC
+
+
+@pytest.mark.parametrize("field", ("scored_labels_read", "native_execution", "P_updates"))
+def test_receipts_refuse_contradictory_flags(tmp_path, field):
+    cpu, cost_path, cost = inputs(tmp_path)
+    changed = dict(cost)
+    changed[field] = True if field != "P_updates" else 1
+    write_new_json(tmp_path / ("bad-" + field + ".json"), changed)
+    with pytest.raises(ReceiptError, match="contradicts"):
+        write_repair_receipts(
+            tmp_path / ("coordinator-bad-" + field), cpu_summary_path=cpu,
+            cost_pilot_path=tmp_path / ("bad-" + field + ".json"))

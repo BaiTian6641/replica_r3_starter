@@ -29,6 +29,7 @@ REPORT_MANIFEST = "report_manifest.json"
 
 
 _PENDING_CLEANUP = set()
+_PENDING_DIR_SYNC = set()
 _DURABILITY_MODES = set()
 
 
@@ -40,11 +41,7 @@ def _unlink_or_queue(path):
     path = Path(path)
     try:
         path.unlink()
-        try:
-            _fsync_directory(path.parent)
-        except OSError:
-            if len(_PENDING_CLEANUP) < 64:
-                _PENDING_CLEANUP.add(path)
+        _retry_dir_sync(path.parent)
     except FileNotFoundError:
         return
     except OSError:
@@ -56,15 +53,16 @@ def _cleanup_pending():
     for path in list(_PENDING_CLEANUP):
         try:
             Path(path).unlink()
-            try:
-                _fsync_directory(Path(path).parent)
-            except OSError:
-                break
+            if not _retry_dir_sync(Path(path).parent):
+                continue
             _PENDING_CLEANUP.discard(path)
         except FileNotFoundError:
             _PENDING_CLEANUP.discard(path)
         except OSError:
-            break
+            continue
+    for directory in list(_PENDING_DIR_SYNC):
+        if _retry_dir_sync(directory):
+            _PENDING_DIR_SYNC.discard(directory)
 
 
 def _portable(path):
@@ -119,19 +117,42 @@ def _fsync_directory(directory):
         os.close(descriptor)
 
 
+def _retry_dir_sync(directory, attempts=2):
+    directory = Path(directory)
+    for _ in range(attempts):
+        try:
+            _fsync_directory(directory)
+            _PENDING_DIR_SYNC.discard(directory)
+            return True
+        except OSError:
+            continue
+    if len(_PENDING_DIR_SYNC) < 64:
+        _PENDING_DIR_SYNC.add(directory)
+    return False
+
+
 def _sync_parent(path):
-    try:
-        _fsync_directory(Path(path).parent)
-        return True
-    except OSError:
-        return False
+    return _retry_dir_sync(Path(path).parent)
+
+
+def _mkdir_durable(directory):
+    directory = Path(directory)
+    missing = []
+    current = directory
+    while not current.exists():
+        missing.append(current)
+        current = current.parent
+    for path in reversed(missing):
+        path.mkdir(exist_ok=True)
+        _retry_dir_sync(path)
+        _retry_dir_sync(path.parent)
 
 
 def _remove_final(path):
     path = Path(path)
     try:
         path.unlink()
-        return _sync_parent(path)
+        return _retry_dir_sync(path.parent) and not path.exists()
     except FileNotFoundError:
         return True
     except OSError:
@@ -139,10 +160,10 @@ def _remove_final(path):
         try:
             os.replace(path, quarantine)
             _unlink_or_queue(quarantine)
-            return _sync_parent(path)
+            return _retry_dir_sync(path.parent) and not path.exists()
         except OSError:
             _unlink_or_queue(path)
-            return False
+            return not path.exists() and _retry_dir_sync(path.parent)
 
 
 def write_new_json(path, value):
@@ -156,7 +177,7 @@ def write_new_json(path, value):
     path = Path(path)
     if path.exists():
         raise FileExistsError(f"refusing to overwrite receipt: {path}")
-    path.parent.mkdir(parents=True, exist_ok=True)
+    _mkdir_durable(path.parent)
     payload = json.dumps(value, indent=2, sort_keys=True) + "\n"
     descriptor, temporary = tempfile.mkstemp(
         prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
@@ -187,9 +208,8 @@ def write_new_json(path, value):
             notes.append(f"final receipt could not be removed: {path}")
         _unlink_or_queue(temporary)
         if notes:
-            raise ReceiptError("receipt failure cleanup incomplete", notes=notes) from error
+            error.add_note("; ".join(notes))
         raise
-    return path
 
 
 def _load(path, label):
@@ -203,7 +223,18 @@ def _load(path, label):
     return value
 
 
+def _require_false_flags(summary, label):
+    for key in ("scored_labels_read", "native_execution",
+                "native_weights_loaded", "downloads"):
+        if summary.get(key) is not False:
+            raise ReceiptError(f"{label} contradicts required false flag: {key}")
+    if summary.get("P_updates", 0) != 0 or summary.get("promotion", False) is not False:
+        raise ReceiptError(f"{label} contradicts no-P-update/no-promotion contract")
+
+
 def build_protocol_summary(protocols, cost_pilot, cpu_summary, *, repair_cycle):
+    _require_false_flags(cost_pilot, "cost pilot")
+    _require_false_flags(cpu_summary, "CPU profile")
     if cost_pilot.get("total_cost_protocol_sha256") != canonical_digest(
             protocols["preregistered_measured_total_cost"]):
         raise ReceiptError("cost pilot does not cite the checked-in total-cost protocol")
@@ -288,6 +319,8 @@ def build_protocol_summary(protocols, cost_pilot, cpu_summary, *, repair_cycle):
 
 
 def build_verification_results(cpu_summary, cost_pilot, protocols, *, repair_cycle):
+    _require_false_flags(cost_pilot, "cost pilot")
+    _require_false_flags(cpu_summary, "CPU profile")
     if cost_pilot.get("total_cost_protocol_sha256") != canonical_digest(
             protocols["preregistered_measured_total_cost"]):
         raise ReceiptError("cost pilot does not cite the checked-in total-cost protocol")
@@ -460,7 +493,7 @@ def _transactional_replace(entries):
     backups, staged = {}, []
     try:
         for path, value in entries:
-            path.parent.mkdir(parents=True, exist_ok=True)
+            _mkdir_durable(path.parent)
             backups[path] = _read_backup(path)
             payload = json.dumps(value, indent=2, sort_keys=True) + "\n"
             staged.append((path, _stage_bytes(path, payload)))
