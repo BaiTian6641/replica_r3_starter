@@ -13,6 +13,11 @@ parameter counts, snapshot costs and measured CPU resources. The earlier
 26-test run is retained as an intermediate scope. Native usefulness, density,
 formation, persistent P learning and RSI remain unqualified by these checks.
 
+The [clean receipt](clean/summary.json) at `db405c87` independently passes 29/29,
+zero skips, in 15.175 seconds of test-command wall time. It records no pretrained
+checkpoint weights or protected module. This adds a separate test scope; the
+earlier 562-test native-protocol regression was not rerun for this candidate.
+
 Reproduce from a clean sparse checkout with the protected module and pretrained
 checkpoint weights excluded:
 

@@ -60,3 +60,17 @@ The random 36-block BF16 CPU fixture establishes mechanics only. Native launch
 is disabled in this candidate protocol. It does not add P updates, enlarge P1,
 perform formation, qualify identity fidelity or advance RSI. The external spine
 continues to connect specialists, sensors and actors independently.
+
+Clean snapshot `db405c87` passes 29/29 tests, zero skips, in 15.175 seconds of
+test-command wall time. Parent peak RSS was 387,547,136 bytes; child peak RSS was
+601,948,160 bytes. The [clean receipt](../../reports/intrinsic_memory_matched_reader_v1/clean/summary.json)
+records exact code hashes and each measured CPU snapshot cost. The checkout had
+no pretrained source weights and excluded the protected module. This is an
+additional scope to the 562-test v11 regression, not a rerun of that suite.
+
+Before a native launch, provide a separate runner/packet and an invocation-based
+layer profiler. A site-keyed module-hook profiler from the independent-reader
+runner would register duplicate hooks on shared groups and cannot be reused
+unchanged. The tests here retain each actual invocation's output gradient and
+register hooks once per physical group. Native resource and scoring bindings
+remain unprepared for this candidate; its protocol is not executable authority.
