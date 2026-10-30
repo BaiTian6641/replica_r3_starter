@@ -1,0 +1,49 @@
+Command: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -m pytest -q tests/test_contextual_source_features_v12.py tests/test_contextual_memory_layout_v12.py tests/test_contextual_memory_v12.py tests/test_contextual_v12_integration.py
+Exit: 1
+Repair cycle: 2/5
+
+.........................F...................................            [100%]
+=================================== FAILURES ===================================
+____ test_checkpoint_roundtrip_restores_logits_moments_and_no_base_or_cache ____
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1918/test_checkpoint_roundtrip_rest0')
+
+    def test_checkpoint_roundtrip_restores_logits_moments_and_no_base_or_cache(tmp_path):
+        adapter, layout, provider, path = make()
+        ids, mask, labels = token_inputs()
+        sc = scope()
+        spans = spans_for(["the badge is red", "the badge is blue"])
+        step(path, adapter, spans, ids=ids, labels=labels, sc=sc)
+        step(path, adapter, spans, ids=ids, labels=labels, sc=sc)
+        provider.features(spans[0])
+        manifest = path.save(tmp_path / "checkpoint")
+        assert manifest["contains_base_weights"] is False
+        assert manifest["feature_cache_serialized"] is False
+        assert manifest["task_state_serialized"] is False
+        assert manifest["original_weights_serialized"] is False
+        assert manifest["projection_cache"] == "none"
+        files = {p.name for p in (tmp_path / "checkpoint").iterdir() if p.is_file()}
+        assert files == {"manifest.json"}
+        assert (tmp_path / "checkpoint" / "components").is_dir()
+        components = {p.name for p in (tmp_path / "checkpoint" / "components").iterdir() if p.is_file()}
+        assert components == {"extension.safetensors", "optimizer.pt", "manifest.json"}
+        tensors = load_file(str(tmp_path / "checkpoint" / "components" / "extension.safetensors"))
+        assert set(tensors) == set(path._tensors())
+        assert all(name.startswith(("producer.", "order.", "reader.")) for name in tensors)
+        assert not any("embedding" in name or name.startswith("base.") for name in tensors)
+        adapter2, layout2, provider2, path2 = make()
+        with torch.no_grad():
+            expected = path.forward(ids, mask, path.training_values(spans, scope=sc), scope=sc)
+        path2.load(tmp_path / "checkpoint")
+        with torch.no_grad():
+            restored = path2.forward(ids, mask, path2.training_values(spans, scope=sc), scope=sc)
+        assert torch.equal(expected, restored)
+        assert model_state_digest(path) == model_state_digest(path2)
+        assert optimizer_digest(path.optimizer) == optimizer_digest(path2.optimizer)
+>       assert provider2.cost["cache_bytes"] == 0
+E       assert 256 == 0
+
+tests/test_contextual_memory_layout_v12.py:250: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_contextual_memory_layout_v12.py::test_checkpoint_roundtrip_restores_logits_moments_and_no_base_or_cache - assert 256 == 0
+1 failed, 60 passed in 17.13s

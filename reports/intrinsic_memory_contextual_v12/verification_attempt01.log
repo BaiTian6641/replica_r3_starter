@@ -1,0 +1,268 @@
+Command: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -m pytest -q tests/test_contextual_source_features_v12.py tests/test_contextual_memory_layout_v12.py tests/test_contextual_memory_v12.py tests/test_contextual_v12_integration.py
+Exit: 1
+Repair cycle: 1/5
+
+F........F..F............FF..F..F..FFF.......................            [100%]
+=================================== FAILURES ===================================
+_ test_spec_and_provider_refuse_adapter_tokenizer_and_accounting_substitution __
+
+    def test_spec_and_provider_refuse_adapter_tokenizer_and_accounting_substitution():
+        adapter, _, _, path = stack()
+        provider = path.feature_provider
+        spec, tokenizer = provider.spec, provider.tokenizer
+        with pytest.raises(ContextualMemoryError):
+            FrozenSourceFeatures(adapter, tokenizer, spec, accounting=None)
+        other_tokenizer = SyntheticTokenizer(adapter.config.geometry.vocab_size, mode="words")
+        with pytest.raises(ContextualMemoryError, match="tokenizer contract"):
+            FrozenSourceFeatures(adapter, other_tokenizer, spec,
+                                 accounting=SyntheticWorkAccounting())
+        with pytest.raises(ContextualMemoryError, match="source execution contract"):
+            FrozenSourceFeatures(adapter, tokenizer, replace(spec, source_execution_sha256="0" * 64),
+                                 accounting=SyntheticWorkAccounting())
+        with pytest.raises(ContextualMemoryError, match="source-feature geometry"):
+            FrozenSourceFeatures(adapter, tokenizer, replace(spec, hidden_size=spec.hidden_size + 1),
+                                 accounting=SyntheticWorkAccounting())
+        adapter2, _, _, _ = build_contextual_adapter(
+            seed=18, layers=36, spine_sites=(3, 7), spine_slots=8, memory_size=256,
+            vocab_size=adapter.config.geometry.vocab_size)
+        adapter2.eval()
+>       with pytest.raises(ContextualMemoryError, match="source execution contract"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ContextualMemoryError
+
+tests/test_contextual_source_features_v12.py:82: Failed
+___ test_bounded_feature_cache_hits_clone_and_evict_without_source_authority ___
+
+    def test_bounded_feature_cache_hits_clone_and_evict_without_source_authority():
+        adapter, _, _, path = stack(cache_entries=1)
+        provider = path.feature_provider
+        left = canonical_span("the badge is red", record_id="left")[0]
+        right = canonical_span("the badge is blue", record_id="right")[0]
+        first = provider.features(left)
+        first.add_(1000.0)
+        forwards = provider.cost["forwards"]
+        second = provider.features(left)
+        assert provider.cost["forwards"] == forwards
+        assert provider.cost["cache_hits"] == 1
+        assert torch.allclose(second, provider.features(left))
+        provider.features(right)
+        assert provider.cost["cache_evictions"] >= 1
+        assert len(provider._cache) <= 1
+        assert provider.cost["cache_bytes"] <= provider.spec.cache_bytes
+        provider.evict_record("right")
+>       assert provider.cost["cache_bytes"] == 0
+E       assert 128 == 0
+
+tests/test_contextual_source_features_v12.py:204: AssertionError
+___ test_provenance_binds_source_positions_contracts_and_fits_lineage_bound ____
+
+    def test_provenance_binds_source_positions_contracts_and_fits_lineage_bound():
+        adapter, _, _, path = stack()
+        provider = path.feature_provider
+        span = canonical_span("the badge is red and blue", record_id="record0",
+                              source_epoch=3, available_at=2, valid_until=50)[0]
+        provenance = provider.provenance(span)
+        assert provenance["feature_contract_sha256"] == identity_digest(provider.spec.identity())
+>       assert provenance["original_parameters_sha256"] == provider.spec.original_parameters_sha256
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'original_parameters_sha256'
+
+tests/test_contextual_source_features_v12.py:240: KeyError
+____ test_checkpoint_roundtrip_restores_logits_moments_and_no_base_or_cache ____
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1908/test_checkpoint_roundtrip_rest0')
+
+    def test_checkpoint_roundtrip_restores_logits_moments_and_no_base_or_cache(tmp_path):
+        adapter, layout, provider, path = make()
+        ids, mask, labels = token_inputs()
+        sc = scope()
+        spans = spans_for(["the badge is red", "the badge is blue"])
+        step(path, adapter, spans, ids=ids, labels=labels, sc=sc)
+        step(path, adapter, spans, ids=ids, labels=labels, sc=sc)
+        provider.features(spans[0])
+        manifest = path.save(tmp_path / "checkpoint")
+>       assert manifest["contains_base_weights"] is False
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'contains_base_weights'
+
+tests/test_contextual_memory_layout_v12.py:225: KeyError
+____ test_checkpoint_refuses_other_contracts_and_tampering_before_mutation _____
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1908/test_checkpoint_refuses_other_0')
+
+    def test_checkpoint_refuses_other_contracts_and_tampering_before_mutation(tmp_path):
+        adapter, layout, provider, path = make()
+        ids, mask, labels = token_inputs()
+        sc = scope()
+        spans = spans_for(["the badge is red"])
+        step(path, adapter, spans, ids=ids, labels=labels, sc=sc)
+        path.save(tmp_path / "checkpoint")
+        _, _, _, other = make(tokenizer=SyntheticTokenizer(adapter.config.geometry.vocab_size,
+                                                           mode="words"))
+        before = {name: value.clone() for name, value in other._tensors().items()}
+        with pytest.raises(ContextualMemoryError):
+            other.load(tmp_path / "checkpoint")
+        assert all(torch.equal(value, other._tensors()[name]) for name, value in before.items())
+        _, _, _, different_origin = make(seed=18)
+        with pytest.raises(ContextualMemoryError):
+            different_origin.load(tmp_path / "checkpoint")
+        manifest_path = tmp_path / "checkpoint" / "manifest.json"
+        manifest = json.loads(manifest_path.read_text())
+        manifest["feature_contract"] = {"format": "different"}
+        manifest_path.write_text(json.dumps(manifest))
+        _, _, _, tampered = make()
+>       with pytest.raises(ContextualMemoryError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ContextualMemoryError
+
+tests/test_contextual_memory_layout_v12.py:273: Failed
+_____ test_frozen_readout_saves_and_resumes_moments_without_a_base_export ______
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1908/test_frozen_readout_saves_and_0')
+
+    def test_frozen_readout_saves_and_resumes_moments_without_a_base_export(tmp_path):
+        adapter, layout, provider, path = make()
+        ids, mask, labels = token_inputs()
+        sc = scope()
+        spans = spans_for(["the badge is red"])
+        step(path, adapter, spans, ids=ids, labels=labels, sc=sc)
+        moments = optimizer_digest(path.optimizer)
+        path.freeze_readout()
+        assert not any(p.requires_grad for module in path.modules().values()
+                       for p in module.parameters())
+        manifest = path.save(tmp_path / "frozen")
+>       assert manifest["fitting_frozen"] is True
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'fitting_frozen'
+
+tests/test_contextual_memory_layout_v12.py:340: KeyError
+_____ test_warm_read_matches_live_training_values_and_stales_after_update ______
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1908/test_warm_read_matches_live_tr0')
+
+    def test_warm_read_matches_live_training_values_and_stales_after_update(tmp_path):
+        adapter, layout, provider, path = make()
+        ids, mask, labels = token_inputs()
+        sc = scope()
+        spans = spans_for(["the badge is red"])
+        store = open_v12_store(tmp_path)
+        path.admit(store, source(), scope=sc())
+        durable = path.read(store, "badge", scope=sc())
+        fresh = path.training_values(durable.spans, scope=sc())
+        with torch.no_grad():
+            assert torch.equal(path.forward(ids, mask, fresh, scope=sc()),
+                               path.forward(ids, mask, durable, scope=sc()))
+        step(path, adapter, durable.spans, ids=ids, labels=labels, sc=sc())
+>       with pytest.raises(ContextualMemoryError, match="stale producer release"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ContextualMemoryError
+
+tests/test_contextual_memory_v12.py:100: Failed
+_ test_invalidated_or_unavailable_cold_payload_never_becomes_partial[revocation] _
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1908/test_invalidated_or_unavailabl1')
+mutation = 'revocation'
+
+    @pytest.mark.parametrize("mutation", ["correction", "revocation", "corrupt", "missing"])
+    def test_invalidated_or_unavailable_cold_payload_never_becomes_partial(tmp_path, mutation):
+        adapter, layout, provider, path = make()
+        store = open_v12_store(tmp_path)
+        cold_pair(path, store)
+        pending = path.read(store, "badge", scope=sc())
+        if mutation == "correction":
+            path.correct(store, "record0.span0",
+                         replace(source("Badge changed", "new", available=2), source_epoch=2,
+                                 supersedes="record0.span0"), scope=sc())
+        elif mutation == "revocation":
+            store.revoke_record("record0.span0", reason="withdrawn", scope=sc())
+        else:
+            row = store.connection.execute(
+                "SELECT text_path FROM records WHERE record_id=?", ("record0.span0",)).fetchone()
+            path_file = store.root / row["text_path"]
+            if mutation == "corrupt":
+                path_file.write_text("damaged")
+            else:
+                path_file.unlink()
+        with pytest.raises(ContextualReadFailure) as error:
+            path.resume(store, pending, scope=sc(), wait_seconds=1)
+        assert error.value.costs["cold_reserved_bytes"] > 0
+>       assert all(name != "record0.span0" for name, _ in provider._cache.values())
+E       assert False
+
+tests/test_contextual_memory_v12.py:148: AssertionError
+_ test_invalidated_or_unavailable_cold_payload_never_becomes_partial[corrupt] __
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1908/test_invalidated_or_unavailabl2')
+mutation = 'corrupt'
+
+    @pytest.mark.parametrize("mutation", ["correction", "revocation", "corrupt", "missing"])
+    def test_invalidated_or_unavailable_cold_payload_never_becomes_partial(tmp_path, mutation):
+        adapter, layout, provider, path = make()
+        store = open_v12_store(tmp_path)
+        cold_pair(path, store)
+        pending = path.read(store, "badge", scope=sc())
+        if mutation == "correction":
+            path.correct(store, "record0.span0",
+                         replace(source("Badge changed", "new", available=2), source_epoch=2,
+                                 supersedes="record0.span0"), scope=sc())
+        elif mutation == "revocation":
+            store.revoke_record("record0.span0", reason="withdrawn", scope=sc())
+        else:
+            row = store.connection.execute(
+                "SELECT text_path FROM records WHERE record_id=?", ("record0.span0",)).fetchone()
+            path_file = store.root / row["text_path"]
+            if mutation == "corrupt":
+                path_file.write_text("damaged")
+            else:
+                path_file.unlink()
+        with pytest.raises(ContextualReadFailure) as error:
+            path.resume(store, pending, scope=sc(), wait_seconds=1)
+        assert error.value.costs["cold_reserved_bytes"] > 0
+>       assert all(name != "record0.span0" for name, _ in provider._cache.values())
+E       assert False
+
+tests/test_contextual_memory_v12.py:148: AssertionError
+_ test_invalidated_or_unavailable_cold_payload_never_becomes_partial[missing] __
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1908/test_invalidated_or_unavailabl3')
+mutation = 'missing'
+
+    @pytest.mark.parametrize("mutation", ["correction", "revocation", "corrupt", "missing"])
+    def test_invalidated_or_unavailable_cold_payload_never_becomes_partial(tmp_path, mutation):
+        adapter, layout, provider, path = make()
+        store = open_v12_store(tmp_path)
+        cold_pair(path, store)
+        pending = path.read(store, "badge", scope=sc())
+        if mutation == "correction":
+            path.correct(store, "record0.span0",
+                         replace(source("Badge changed", "new", available=2), source_epoch=2,
+                                 supersedes="record0.span0"), scope=sc())
+        elif mutation == "revocation":
+            store.revoke_record("record0.span0", reason="withdrawn", scope=sc())
+        else:
+            row = store.connection.execute(
+                "SELECT text_path FROM records WHERE record_id=?", ("record0.span0",)).fetchone()
+            path_file = store.root / row["text_path"]
+            if mutation == "corrupt":
+                path_file.write_text("damaged")
+            else:
+                path_file.unlink()
+        with pytest.raises(ContextualReadFailure) as error:
+            path.resume(store, pending, scope=sc(), wait_seconds=1)
+        assert error.value.costs["cold_reserved_bytes"] > 0
+>       assert all(name != "record0.span0" for name, _ in provider._cache.values())
+E       assert False
+
+tests/test_contextual_memory_v12.py:148: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_contextual_source_features_v12.py::test_spec_and_provider_refuse_adapter_tokenizer_and_accounting_substitution - Failed: DID NOT RAISE ContextualMemoryError
+FAILED tests/test_contextual_source_features_v12.py::test_bounded_feature_cache_hits_clone_and_evict_without_source_authority - assert 128 == 0
+FAILED tests/test_contextual_source_features_v12.py::test_provenance_binds_source_positions_contracts_and_fits_lineage_bound - KeyError: 'original_parameters_sha256'
+FAILED tests/test_contextual_memory_layout_v12.py::test_checkpoint_roundtrip_restores_logits_moments_and_no_base_or_cache - KeyError: 'contains_base_weights'
+FAILED tests/test_contextual_memory_layout_v12.py::test_checkpoint_refuses_other_contracts_and_tampering_before_mutation - Failed: DID NOT RAISE ContextualMemoryError
+FAILED tests/test_contextual_memory_layout_v12.py::test_frozen_readout_saves_and_resumes_moments_without_a_base_export - KeyError: 'fitting_frozen'
+FAILED tests/test_contextual_memory_v12.py::test_warm_read_matches_live_training_values_and_stales_after_update - Failed: DID NOT RAISE ContextualMemoryError
+FAILED tests/test_contextual_memory_v12.py::test_invalidated_or_unavailable_cold_payload_never_becomes_partial[revocation] - assert False
+FAILED tests/test_contextual_memory_v12.py::test_invalidated_or_unavailable_cold_payload_never_becomes_partial[corrupt] - assert False
+FAILED tests/test_contextual_memory_v12.py::test_invalidated_or_unavailable_cold_payload_never_becomes_partial[missing] - assert False
+10 failed, 51 passed in 16.39s
