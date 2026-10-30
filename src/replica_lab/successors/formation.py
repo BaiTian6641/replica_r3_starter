@@ -1549,11 +1549,30 @@ class FormationStore:
             return found
         for row in events:
             event_key = str(row["event_key"])
-            if event_key in skip_events:
-                continue
-            payload = payloads[event_key]
             committed = int(row["committed_at_ns"])
             generation = int(row["generation"])
+            if event_key in skip_events:
+                if str(row["kind"]) == "revocation":
+                    # Payload is quarantined, but the event receipt remains
+                    # committed authority. Reconstruct fail-closed revocation
+                    # rows from it rather than letting evidence resurrect.
+                    try:
+                        receipt = json.loads(row["receipt_json"])
+                        record_id = receipt["record_ids"][0]
+                        affected = tuple(receipt.get("affected_record_ids")
+                                         or (record_id,))
+                    except (KeyError, IndexError, TypeError, json.JSONDecodeError) as error:
+                        raise CorruptAuthority(
+                            "quarantined revocation receipt is not authenticable") from error
+                    for affected_id in affected:
+                        tombstones[affected_id] = (
+                            "revoked", "quarantined revocation", event_key,
+                            committed, committed, generation)
+                    revocations[record_id] = (
+                        event_key, str(row["payload_digest"]),
+                        str(row["receipt_json"]), committed)
+                continue
+            payload = payloads[event_key]
             if payload.get("kind") == "revocation":
                 record_id = payload["record_id"]
                 tombstones[record_id] = (
@@ -1619,10 +1638,10 @@ class FormationStore:
                 if values[0] in skip_events:
                     expected_notes[note_id] = values
             for record_id, values in current_tombstones.items():
-                if values[2] in skip_events:
+                if values[2] in skip_events and record_id not in expected_tombstones:
                     expected_tombstones[record_id] = values
             for record_id, values in current_revocations.items():
-                if values[0] in skip_events:
+                if values[0] in skip_events and record_id not in expected_revocations:
                     expected_revocations[record_id] = values
             current_event = {record_id: values[0]
                              for record_id, values in current_index.items()}

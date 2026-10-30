@@ -227,6 +227,13 @@ class _HotEntry:
     dirty: bool = False
 
 
+def _best_effort_rmtree(path: Path) -> None:
+    try:
+        shutil.rmtree(path)
+    except OSError:
+        pass
+
+
 class TieredBlobStore:
     """Directory-backed warm/cold tiers plus a bounded in-process hot cache."""
 
@@ -295,9 +302,9 @@ class TieredBlobStore:
         if target.exists():
             existing = self._read_manifest(target)
             if existing["payload_sha256"] != manifest["payload_sha256"]:
-                shutil.rmtree(staging)
+                _best_effort_rmtree(staging)
                 raise TierError("record already exists with different payload bytes")
-            shutil.rmtree(staging)
+            _best_effort_rmtree(staging)
             return 0
         target.parent.mkdir(parents=True, exist_ok=True)
         os.replace(staging, target)
@@ -695,7 +702,8 @@ class TieredBlobStore:
         if tier is None:
             if fallback_id is not None:
                 return self._fallback(fallback_id, authority, fallback_contract,
-                                      start, fallback_tokens, "primary unavailable")
+                                      start, fallback_tokens, "primary unavailable",
+                                      primary_attempted=0)
             return self._finish(ReadResult(
                 "unavailable", record_id, None, None, None,
                 (time.perf_counter_ns() - start) / 1e6, 0,
@@ -754,7 +762,8 @@ class TieredBlobStore:
                 attempted = payload_path.stat().st_size
             if fallback_id is not None:
                 return self._fallback(fallback_id, authority, fallback_contract,
-                                      start, fallback_tokens, fallback_reason)
+                                      start, fallback_tokens, fallback_reason,
+                                      primary_attempted=attempted)
             return self._finish(ReadResult(
                 "corrupt" if corrupt else "unavailable", record_id, tier, None, None,
                 (time.perf_counter_ns() - start) / 1e6, attempted, reason), tier)
@@ -791,7 +800,8 @@ class TieredBlobStore:
             if fallback_id is not None:
                 return self._fallback(fallback_id, authority, fallback_contract,
                                       start, fallback_tokens,
-                                      "authority changed during I/O")
+                                      "authority changed during I/O",
+                                      primary_attempted=len(payload))
             return self._finish(ReadResult(
                 "rejected", record_id, tier, None, None, elapsed,
                 len(payload), "authority changed during I/O"), tier)
@@ -804,7 +814,12 @@ class TieredBlobStore:
 
     def _fallback(self, fallback_id: str, authority,
                   contract: ReadContract | None, start: int,
-                  tokens: int, reason: str) -> ReadResult:
+                  tokens: int, reason: str, *,
+                  primary_attempted: int = 0,
+                  primary_failed: bool = True) -> ReadResult:
+        if primary_failed:
+            self._metrics["failed_reads"] += 1
+        self._metrics["attempted_bytes"] += int(primary_attempted)
         state, revision, detail = self._authority_state(fallback_id, authority, None)
         if state != "ok":
             return self._finish(ReadResult(
@@ -980,9 +995,55 @@ class TieredBlobStore:
                 os.fsync(handle.fileno())
             os.replace(temporary, target)
         finally:
-            if temporary.exists():
-                temporary.unlink()
+            try:
+                if temporary.exists():
+                    temporary.unlink()
+            except OSError:
+                pass
         self._fsync_directory(target.parent)
+
+    def _restore_p_pointer_bytes(self, owner: str, data: bytes | None) -> None:
+        target = self._p_pointer_path(owner)
+        if data is None:
+            try:
+                target.unlink()
+            except FileNotFoundError:
+                pass
+            try:
+                self._fsync_directory(target.parent)
+            except BaseException:
+                pass
+            return
+        target.parent.mkdir(exist_ok=True)
+        temporary = target.parent / f".{owner}.{time.time_ns()}.restore"
+        try:
+            with open(temporary, "wb") as handle:
+                handle.write(data)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, target)
+        finally:
+            try:
+                if temporary.exists():
+                    temporary.unlink()
+            except OSError:
+                pass
+        try:
+            self._fsync_directory(target.parent)
+        except BaseException:
+            pass
+
+    def _pointer_record_id(self, owner: str) -> str | None:
+        try:
+            pointer = self._read_p_pointer(owner)
+        except TierError:
+            return None
+        return None if pointer is None else pointer.get("record_id")
+
+    def _remove_p_record(self, record_id: str) -> None:
+        self._hot.pop(record_id, None)
+        for durable in ("warm", "cold"):
+            _best_effort_rmtree(self._directory(durable, record_id))
 
     def _read_p_pointer(self, owner: str) -> dict | None:
         path = self._p_pointer_path(owner)
@@ -1031,16 +1092,24 @@ class TieredBlobStore:
             extra={"clock": clock, "encoder": encoder, "lineage": list(lineage),
                    "owner": owner},
             tier=tier, dirty=dirty)
+        pointer_path = self._p_pointer_path(owner)
+        prior_pointer = pointer_path.read_bytes() if pointer_path.is_file() else None
         try:
             self._write_p_pointer(owner, clock=clock, record_id=record_id,
                                   manifest=manifest)
         except BaseException:
+            # Preserve the original failure while making pointer/record state
+            # coherent. Prefer the previous pointer; if that cannot be restored,
+            # leave the new pointer+record pair intact rather than a live
+            # pointer to a deleted record.
+            try:
+                self._restore_p_pointer_bytes(owner, prior_pointer)
+            except BaseException:
+                pass
             if not existed:
-                self._hot.pop(record_id, None)
-                for durable in ("warm", "cold"):
-                    target = self._directory(durable, record_id)
-                    if target.exists():
-                        shutil.rmtree(target)
+                pointed = self._pointer_record_id(owner)
+                if pointed != record_id:
+                    self._remove_p_record(record_id)
             raise
         return manifest
 
@@ -1092,6 +1161,8 @@ class TieredBlobStore:
             chosen = target
         else:
             chosen = latest
+        if self._is_p_revoked(owner):
+            raise PermissionError("P state was revoked during P read")
         state = dict(chosen)
         state["pointer"] = pointer
         state["pointer_state"] = pointer_state
@@ -1111,12 +1182,19 @@ class TieredBlobStore:
                   "revoked_at_ns": _now_ns()}
         target = self._p_revoked_path(owner)
         temporary = target.parent / f".{owner}.{time.time_ns()}.tmp"
-        with open(temporary, "w", encoding="utf-8") as handle:
-            handle.write(_canonical(record) + "\n")
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, target)
-        self._fsync_directory(target.parent)
+        try:
+            with open(temporary, "w", encoding="utf-8") as handle:
+                handle.write(_canonical(record) + "\n")
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, target)
+            self._fsync_directory(target.parent)
+        finally:
+            try:
+                if temporary.exists():
+                    temporary.unlink()
+            except OSError:
+                pass
         self._p_revoked.add(owner)
         self._invalidate_p_owner(owner)
         return record

@@ -103,7 +103,9 @@ The final workflow again passed all four measured success fields.
   revocation and record-index row (including scope columns) from committed
   payload/receipt authority even when unrelated events are quarantined. Rows
   owned by a quarantined event are preserved; valid-event deletions are
-  repaired. `derived_rebuilt`/degraded is reported rather than claiming health,
+  repaired. A quarantined revocation event is reconstructed fail-closed from its
+  committed receipt (record/affected IDs and receipt digest), so deleting its
+  derived tombstone/revocation rows cannot resurrect evidence. `derived_rebuilt`/degraded is reported rather than claiming health,
   and unrelated healthy state remains readable.
 
 ### S2b chunk formation
@@ -142,7 +144,8 @@ The final workflow again passed all four measured success fields.
   successful bytes for rejected, mismatched and corrupt reads. The contract is enforced on cache hits and after I/O;
   authority is rechecked before and after cold I/O and for fallback. Rejected,
   mismatched, expired and corrupt attempts charge `attempted_bytes` while only
-  `ready`/successful bytes count in `bytes_read`. Cold
+  `ready`/successful bytes count in `bytes_read`; a fallback read also adds the
+  failed primary attempt and its bytes. Cold
   tickets retain the callback and contract.
 - Payloads and manifests are digest-bound with central schema validation;
   malformed records are quarantined by `recover()` while healthy records remain.
@@ -151,7 +154,9 @@ The final workflow again passed all four measured success fields.
 - P state is clock-versioned (`p_<owner>_c<clock>`) with an atomic current
   pointer consumed and validated on read. Pointer target/digest mismatch fails
   closed; older pointers are repaired to the latest valid record; pointer
-  publication failure removes a newly published unpointed clock. `revoke_p`
+  publication failure restores the prior pointer or removes pointer/record
+  coherently, preserving the original error and never leaving a live pointer to
+  a deleted record. `revoke_p`
   requires explicit host authority and its durable marker is re-read by every
   instance and every publication/read/movement/eviction/recovery operation,
   invalidating all clocked owner hot/projection/replay entries. `restore_p` is

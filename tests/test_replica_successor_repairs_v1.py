@@ -717,6 +717,106 @@ def test_minimal_authority_cannot_bypass_manifest_contract(tmp_path):
     assert expired.status == "expired"
 
 
+def test_quarantined_revocation_deletion_fails_closed(tmp_path):
+    with make_store(tmp_path) as store:
+        healthy = commit(store, _pin(store), [_obs("healthy", "healthy fact")],
+                         interaction="interaction-healthy")
+        revoked = commit(store, _pin(store), [_obs("revoked", "revoked fact")],
+                         interaction="interaction-revoked")
+        healthy_id = healthy.receipt.record_ids[0]
+        revoked_id = revoked.receipt.record_ids[0]
+        store.revoke(revoked_id, reason="privacy")
+        revocation_payload = store._connection.execute(
+            "SELECT payload_digest FROM events WHERE kind='revocation'").fetchone()[0]
+    (tmp_path / "payloads" / f"{revocation_payload}.json").write_bytes(b"{broken")
+    connection = sqlite3.connect(tmp_path / "authority.sqlite3")
+    connection.execute("DELETE FROM tombstones")
+    connection.execute("DELETE FROM revocations")
+    connection.commit()
+    connection.close()
+    with make_store(tmp_path) as store:
+        report = store.recover()
+        assert report.status == "degraded" and report.derived_rebuilt is True
+        assert store.read_record(healthy_id, _pin(store)).text == "healthy fact"
+        with pytest.raises(IneligibleRecord):
+            store.read_record(revoked_id, _pin(store))
+
+
+def test_post_replace_pointer_failure_restores_prior_pointer(tmp_path, monkeypatch):
+    import replica_lab.successors.tiers as tiers
+    first = _tier(tmp_path)
+    first.publish_p("expert", weights=b"w1", moments=b"m1", clock=1,
+                    encoder="encoder-v1", lineage=["r1"])
+    second = _tier(tmp_path)
+    real_fsync = tiers.TieredBlobStore._fsync_directory
+    def failing(directory):
+        raise RuntimeError("pointer directory fsync failed")
+    monkeypatch.setattr(tiers.TieredBlobStore, "_fsync_directory", staticmethod(failing))
+    with pytest.raises(RuntimeError):
+        first.publish_p("expert", weights=b"w2", moments=b"m2", clock=2,
+                        encoder="encoder-v2", lineage=["r1"])
+    monkeypatch.setattr(tiers.TieredBlobStore, "_fsync_directory", real_fsync)
+    pointer = json.loads((tmp_path / "p_current" / "expert.json").read_text())
+    assert pointer["clock"] == 1
+    assert first.read_p("expert")["clock"] == 1
+    assert second.read_p("expert")["clock"] == 1
+
+
+def test_fallback_accounts_primary_attempt_and_changes(tmp_path):
+    primary = _tier(tmp_path / "primary")
+    primary.publish("canonical", b"canonical", generation=0, kind="canonical",
+                    producer="host", representation="text", scope_digest="d" * 64)
+    primary.publish("bad", b"primary-bytes", generation=1, kind="e",
+                    producer="producer-v1", representation="rep-v1",
+                    scope_digest="a" * 64)
+    primary.demote("bad")
+    (tmp_path / "primary" / "cold" / "bad" / "payload.bin").write_bytes(b"corrupt")
+    reader = _tier(tmp_path / "primary")
+    before = reader.metrics_document()
+    result = reader.read(
+        "bad", contract=_contract("producer-v1", "rep-v1", "a" * 64),
+        fallback_id="canonical",
+        fallback_contract=_contract("host", "text", "d" * 64),
+        fallback_tokens=3)
+    assert result.status == "fallback"
+    after = reader.metrics_document()
+    assert after["attempted_bytes"] > before["attempted_bytes"]
+    assert after["failed_reads"] >= 1
+    assert after["fallback_tokens"] == 3
+
+
+def test_p_read_revalidates_revocation_after_io(tmp_path, monkeypatch):
+    store = _tier(tmp_path)
+    store.publish_p("expert", weights=b"w", moments=b"m", clock=1,
+                    encoder="encoder-v1", lineage=["r1"])
+    real = store._p_versions
+    def racing(owner):
+        versions = real(owner)
+        store.revoke_p(owner, reason="racing", authorized_by="host")
+        return versions
+    monkeypatch.setattr(store, "_p_versions", racing)
+    with pytest.raises(PermissionError):
+        store.read_p("expert")
+
+
+def test_revoke_temp_marker_cleanup_preserves_original_error(tmp_path, monkeypatch):
+    import replica_lab.successors.tiers as tiers
+    store = _tier(tmp_path)
+    store.publish_p("expert", weights=b"w", moments=b"m", clock=1,
+                    encoder="encoder-v1", lineage=["r1"])
+    real_replace = tiers.os.replace
+    def failing_replace(source, target):
+        if str(target).endswith("expert.json") and "p_revoked" in str(target):
+            raise RuntimeError("marker replace failed")
+        return real_replace(source, target)
+    monkeypatch.setattr(tiers.os, "replace", failing_replace)
+    with pytest.raises(RuntimeError):
+        store.revoke_p("expert", reason="cleanup", authorized_by="host")
+    leftovers = [path for path in (tmp_path / "p_revoked").iterdir()
+                 if path.name.endswith(".tmp")]
+    assert leftovers == []
+
+
 def test_study_attribution_uses_actual_ids(tmp_path):
     from replica_lab.successors import study
     report = study.run_later_answer_comparison(tmp_path / "study")
