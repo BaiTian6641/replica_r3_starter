@@ -34,7 +34,7 @@ from .contextual_source_features_v12 import (
     SOURCE_FORWARD, SOURCE_TOKENIZE, SourceWorkRequest)
 from .intrinsic_memory_budget_v12 import atomic
 from .intrinsic_memory_coverage_v12 import (
-    RELEASE_READ_BYTES_BOUND, SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS)
+    READ_WRITE_BOUND, RELEASE_READ_BYTES_BOUND, SOURCE_MAX_BYTES, SOURCE_MAX_TOKENS)
 
 FORMAT = 'replica.intrinsic_memory.diagnostic.v12'
 CONTROLS = ('contextual', 'exact_text', 'wrong', 'shuffled', 'zero', 'absent')
@@ -204,7 +204,7 @@ class DiagnosticEngineV12:
         self.source_observations.append({'stage': self.stage, **delta})
         return values
 
-    def read(self, store, scope, question, *, writes=3, resume_writes=2,
+    def read(self, store, scope, question, *, writes=READ_WRITE_BOUND, resume_writes=0,
              read_bytes=RELEASE_READ_BYTES_BOUND):
         # Descriptor writes, per the producer owner's final enumeration: a
         # successful wait-based read persists three (initial pending, dispatch
@@ -225,6 +225,9 @@ class DiagnosticEngineV12:
             waits = 0
             while isinstance(batch, PendingContextualRead) and waits < 4:
                 waits += 1
+                # The retrieval reservation already bounds base + four resumes
+                # (3 + 2*4 = 11) descriptor writes; resume events carry timing
+                # only so no descriptor is charged twice.
                 with self.measured('contextual_resume', writes=resume_writes):
                     batch = self.path.resume(store, batch, scope=scope, wait_seconds=1)
             if isinstance(batch, PendingContextualRead):
@@ -234,7 +237,11 @@ class DiagnosticEngineV12:
             event['costs'] = getattr(batch, 'read_costs', {})
             event['observed_read_bytes'] = observed
             event['bounded_resumes'] = waits
-            event['actual'] = {'writes': writes, 'artifact_read_bytes': observed}
+            descriptors = 3 + 2*waits
+            if descriptors > writes:
+                raise ContextualMemoryError('observed descriptor writes exceed the read bound')
+            event['actual'] = {'writes': descriptors, 'artifact_read_bytes': observed}
+            event['descriptor_writes_observed'] = descriptors
             if self.path.release_corpus is not None:
                 event['release_authority_costs'] = dict(self.path.release_corpus.cost)
             return batch

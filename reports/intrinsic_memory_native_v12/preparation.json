@@ -38,8 +38,8 @@
     "total_source_forwards": "0 + 1 + 32 + 0 + 512 + 384 + 1 + 16 + 1 + 2 = 949",
     "total_tokenizer_passes": "0 + 1 + 32 + 0 + 512 + 512 + 1 + 16 + 2 + 2 = 1078",
     "total_updates": "512 fitting + 1 fresh-process continuation = 513",
-    "total_writes": "sum of all 22 two-site stage caps: admission=5 + load=1 + capacity_main=1 + capacity_restart=1 + finalize_parent=2 + finalize_worker=2 + baseline=9 + numerical=2 + prepare=193 + teacher=34 + checkpoint=7 + development=98 + correction=14 + restart=8 + fit_128=129 + fit_probes_128=291 + fit_256=129 + fit_probes_256=291 + fit_384=129 + fit_probes_384=291 + fit_512=129 + fit_probes_512=291 = 2057 declared writes, including descriptor persists, one observed source-cost receipt per closed stage, and the receipts written outside a stage",
-    "total_writes_value": 2057
+    "total_writes": "sum of all 22 two-site stage caps: admission=2 + load=1 + capacity_main=1 + capacity_restart=1 + finalize_parent=2 + finalize_worker=2 + baseline=9 + numerical=2 + prepare=385 + teacher=34 + checkpoint=7 + development=194 + correction=26 + restart=13 + fit_128=129 + fit_probes_128=483 + fit_256=129 + fit_probes_256=483 + fit_384=129 + fit_probes_384=483 + fit_512=129 + fit_probes_512=484 = 3128 declared writes, including descriptor persists, one observed source-cost receipt per closed stage, and the receipts written outside a stage",
+    "total_writes_value": 3128
   },
   "commits_made": false,
   "data_manifest": {
@@ -91,14 +91,14 @@
   "history_written": false,
   "implementation": {
     "path": "reports/intrinsic_memory_native_v12/implementation_v12.json",
-    "sha256": "1ea886b52e493c068d6117cda7a04c01bc819243b6ce20956f6538c171134fd0"
+    "sha256": "19b6696abeb5f49788e0ff6f27f775c60635bf9d6ad07a5d7a719aa859bdd6ae"
   },
   "native_authorization_created": false,
   "native_run": false,
   "next_step": "independent review of these bytes, then a truthful external authorization receipt, then exactly one guarded launch bound to the durable attempt marker",
   "packet": {
     "path": "reports/intrinsic_memory_native_v12/native_packet_two_v12.json",
-    "sha256": "908a50a41a7ae7f3cfa570913683af2a2ed31118e51f72e677d9cca451fe20b2"
+    "sha256": "24beaa07aa0544b4544c4cfb07b794e97a8411c153421663f89412140fe11ac1"
   },
   "preparation_checks": {
     "attempt_marker": "runs/intrinsic_memory_native_v12/attempts.jsonl",
@@ -196,7 +196,7 @@
     },
     "implementation_files": 62,
     "native_competence": false,
-    "packet_sha256": "908a50a41a7ae7f3cfa570913683af2a2ed31118e51f72e677d9cca451fe20b2",
+    "packet_sha256": "24beaa07aa0544b4544c4cfb07b794e97a8411c153421663f89412140fe11ac1",
     "reused_data": {
       "development_labels_parsed_at_admission": false,
       "development_opened": false,
@@ -213,13 +213,13 @@
     },
     "source_bytes_hashed": 0,
     "source_execution_files": 2,
-    "source_hash_wall_seconds": 0.00036574993282556534,
+    "source_hash_wall_seconds": 0.0004923329688608646,
     "source_qualified_for_loading": false,
     "useful_memory": false
   },
   "protocol": {
     "path": "configs/spark_intrinsic_coverage_v12.json",
-    "sha256": "8057ce596b3643a7e10ccaaa68857a4cb4aa8290cb305ba034fd051d5a0142f0"
+    "sha256": "65f84ff5f43ec51fc42458189a722e87c7cef090bad525f685f5546693908619"
   },
   "retired_v11_development": {
     "path": "data/intrinsic_memory_coverage_v11_20261029/development.json",
@@ -269,7 +269,7 @@
     "tokenizer_calls": 1078,
     "updates": 513,
     "wall_seconds": 6925,
-    "writes": 2057
+    "writes": 3128
   },
   "unchanged_from_v11": [
     "official_BF16_source_and_revision",

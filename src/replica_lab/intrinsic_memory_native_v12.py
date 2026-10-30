@@ -301,7 +301,10 @@ def finalize_receipt(engine, name, payload):
     except Exception as error:      # never swallow KeyboardInterrupt/SystemExit
         reason = type(error).__name__
     payload['final_receipt_charging'] = {'charged': False, 'reason': reason}
-    write_receipt(engine.output, name, payload)
+    try:
+        write_receipt(engine.output, name, payload)
+    except Exception:
+        pass        # a broken fallback must not mask the error in flight
     return False
 
 

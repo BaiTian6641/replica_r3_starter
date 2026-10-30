@@ -22,7 +22,7 @@ from replica_lab.contextual_source_features_v12 import (
     tokenizer_contract_digest)
 from replica_lab.intrinsic_memory_coverage_v12 import (
     ENVIRONMENT_CLOSURE_BYTES, FEATURE_CACHE_BYTES, FEATURE_CACHE_ENTRIES, FIT_CASES,
-    RELEASE_READ_BYTES_BOUND, RESTART_PROMPT_PASSES, SOURCE_FILE_BYTES, SOURCE_MAX_BYTES,
+    READ_WRITE_BOUND, RELEASE_READ_BYTES_BOUND, RESTART_PROMPT_PASSES, SOURCE_FILE_BYTES, SOURCE_MAX_BYTES,
     SOURCE_MAX_TOKENS, TOKENIZER_IDENTITY_FILES, declared_tokenizer_identity,
     plan as coverage_plan, tokenizer_identity_digest)
 from replica_lab.intrinsic_memory_budget_v12 import BudgetError, WorkLedger
@@ -324,8 +324,9 @@ def test_successful_read_reserves_the_exact_descriptor_bound(tmp_path):
     assert len(retrieval) == 1
     # Three persists is the exact enumerated maximum for one selection (success 3,
     # timeout 2, failed dispatch 3); one selection, no resume.
-    assert retrieval[0]['reserved'] == {'retrievals': 1, 'writes': 3,
+    assert retrieval[0]['reserved'] == {'retrievals': 1, 'writes': READ_WRITE_BOUND,
                                         'artifact_read_bytes': RELEASE_READ_BYTES_BOUND}
+    assert retrieval[0]['detail']['actual']['writes'] == 3   # one read, no resume
     assert [r for r in ledger.reserved if r['operation'] == 'contextual_resume'] == []
     assert path.resumes == 0
 
@@ -338,7 +339,7 @@ def test_each_explicit_resume_is_charged_before_it_dispatches(tmp_path):
     assert built.read(None, 'scope', 'question') is batch
     operations = [r['operation'] for r in ledger.reserved]
     assert operations == ['retrieval', 'contextual_resume']
-    assert ledger.reserved[1]['reserved'] == {'writes': 2}
+    assert ledger.reserved[1]['reserved'] == {'writes': 0}   # timing only; bound in the read
     assert path.resumes == 1
 
 
@@ -351,6 +352,7 @@ def test_unresolved_pending_read_refuses_after_five_waits(tmp_path):
     # One selection and four bounded resumes, each charged before dispatch.
     assert path.reads == 1 and path.resumes == 4
     assert [r['operation'] for r in ledger.reserved].count('contextual_resume') == 4
+    assert ledger.reserved[0]['reserved']['writes'] == READ_WRITE_BOUND
 
 
 def test_tokenizer_identity_is_derived_from_the_loaded_tokenizer(tmp_path):
@@ -558,7 +560,7 @@ def test_restart_stage_reservations_fit_the_declared_caps(tmp_path):
     assert reserved['model_loads'] == 1 == caps['model_loads']
     assert reserved['restart_restores'] == 2 == caps['restart_restores']
     assert reserved['prompt_tokenizer_calls'] == 67
-    assert reserved['writes'] == 5          # read 3 + result + source cost
+    assert reserved['writes'] == READ_WRITE_BOUND + 2   # bounded read + result + source cost
     assert reserved['artifact_read_bytes'] <= caps['artifact_read_bytes']
 
 
@@ -909,6 +911,36 @@ def test_engine_builds_release_corpora_with_the_read_provider(monkeypatch, tmp_p
     assert isinstance(accounting, WorkLedgerReleaseReadAccounting)
     assert accounting.ledger is ledger and accounting.stage == 'fit_probes_128'
     assert captured['store'] == 'store' and captured['scope'] == 'scope'
+
+
+def test_probe_stage_consumes_its_cap_and_refuses_one_extra_write(tmp_path):
+    """The final probe stage's write cap is derived and exactly consumed."""
+    from replica_lab.intrinsic_memory_coverage_v12 import (
+        FIT_CASES, PROBE_RECEIPTS, READ_WRITE_BOUND)
+    caps = coverage_plan('two')['fit_probes_512']
+    ledger = WorkLedger.create(tmp_path/'probe.jsonl', identity='packet-sha',
+                               plan={'fit_probes_512': caps},
+                               deadline=time.monotonic()+600)
+    ledger.enter('fit_probes_512')
+    # 32 worlds x (release rebuild + one durable read that bounds one resume)
+    for _ in range(FIT_CASES):
+        with ledger.work('fit_probes_512', 'release_rebuild', writes=4) as event:
+            event['actual'] = {'writes': 4}
+        with ledger.work('fit_probes_512', 'retrieval', writes=READ_WRITE_BOUND) as event:
+            event['actual'] = {'writes': 3 + 2}       # one caller resume
+    for name in ('probe', 'fit_curve', 'fitting_closed'):
+        with ledger.work('fit_probes_512', name+'_receipt', writes=1) as event:
+            event['actual'] = {'writes': 1}
+    with ledger.work('fit_probes_512', 'source_cost_receipt', writes=1) as event:
+        event['actual'] = {'writes': 1}
+    snapshot = ledger.snapshot()
+    assert snapshot['stages']['fit_probes_512']['reserved']['writes'] == caps['writes']
+    assert caps['writes'] == FIT_CASES*(4 + READ_WRITE_BOUND) + PROBE_RECEIPTS + 2
+    with pytest.raises(BudgetError, match='exceeded before dispatch'):
+        ledger.reserve('fit_probes_512', 'extra_write', writes=1)
+    # The documented single-resume workload fits with the same cap.
+    documented = FIT_CASES*(4 + 3 + 2) + PROBE_RECEIPTS + 2
+    assert documented <= caps['writes']
 
 
 def test_context_width_and_prefix_bounds_match_the_envelope():

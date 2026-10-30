@@ -8,12 +8,12 @@ consumed v11 two-site attempt.
 
 Current preparation (after repair cycles 1–3, the X0/X2/X3/X9 repairs, the
 lifecycle X14/X0/X3 follow-ups and the final X3/X5-adjacent repairs):
-**89 focused tests passed** in `tests/test_intrinsic_budget_v12.py`,
+**90 focused tests passed** in `tests/test_intrinsic_budget_v12.py`,
 `tests/test_intrinsic_coverage_v12.py` and `tests/test_intrinsic_native_v12.py`,
 run by me against these bytes. Envelope: stage wall **6925 s** inside 7200 s
 (twenty-two declared stages, including the per-window capacity stages and the
 two terminal-receipt stages), 4029 prompt-tokenizer passes,
-**44,627,834,537** declared file-read bytes, **2057** declared writes, restart
+**44,627,834,537** declared file-read bytes, **3128** declared writes, restart
 150 s / 67 passes.
 
 **Final X3 — per-window capacity and terminal receipts.** Each supervision
@@ -111,10 +111,10 @@ failure. Size is pinned at 67 files / 450,061,586 bytes and re-derived from the
 bound receipt.
 
 Current packet SHA-256 is
-`908a50a41a7ae7f3cfa570913683af2a2ed31118e51f72e677d9cca451fe20b2`; protocol
-SHA-256 `8057ce596b3643a7e10ccaaa68857a4cb4aa8290cb305ba034fd051d5a0142f0`;
+`24beaa07aa0544b4544c4cfb07b794e97a8411c153421663f89412140fe11ac1`; protocol
+SHA-256 `65f84ff5f43ec51fc42458189a722e87c7cef090bad525f685f5546693908619`;
 implementation receipt SHA-256
-`1ea886b52e493c068d6117cda7a04c01bc819243b6ce20956f6538c171134fd0`;
+`19b6696abeb5f49788e0ff6f27f775c60635bf9d6ad07a5d7a719aa859bdd6ae`;
 environment closure SHA-256
 `d521db9340e3638c481ede19a7ed670949ed9440167739b426b815276d6fbc68` (unchanged —
 it binds the environment, not this packet);
@@ -153,8 +153,8 @@ stages, terminal-receipt paths, release-read charging and failure-path masking
 fixes, `preparation_draft09/` the packet before the release-corpus
 direct-read accounting provider was wired and budgeted, and
 `preparation_draft10/` the same packet made while producer cycle 6 and the
-consumer edits were working-tree changes (every artifact except
-`preparation.json` is byte-identical to the current canonical ones). No attempt or historical evidence was moved or deleted.
+consumer edits were working-tree changes, and `preparation_draft11/` the packet
+before the structural stage write caps and the bounded read-resume reservation. No attempt or historical evidence was moved or deleted.
 
 Provenance: the v12 producer was committed at `6dede67e`, repaired at
 `6ba07e1b`, `826aac6b` and `7cf57766`, and closed at **`fb8c1425`**
@@ -178,7 +178,7 @@ authorization.
 
 The earlier packets remain as history: `48963bdc…` (pre-lifecycle plan, 6845 s,
 2049 writes) and `48910b59…` (lifecycle plan, 20 stages, 6905 s, 2055 writes).
-The current packet `908a50a4…` changes the plan again (22 stages, 6925 s, 2057
+The current packet `24beaa07…` changes the plan again (22 stages, 6925 s, 3128
 writes) and adds release-read charging, so it carries no coordinator gate result
 yet. Independent review and the seal remain outstanding, and no authorization
 receipt exists.
@@ -298,7 +298,8 @@ gate stay matched to v11. The hypothesis is about source representation only.
 | `reports/intrinsic_memory_native_v12/preparation_draft07/` | Preserved lifecycle packet made while producer cycle 5 and the consumer repairs were uncommitted; all artifacts except `preparation.json` were byte-identical to its successor; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft08/` | Preserved packet before the per-window capacity stages, terminal-receipt paths, release-read charging and X5-adjacent masking fixes; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/preparation_draft09/` | Preserved packet before the release-corpus direct-read accounting provider was wired and budgeted; non-canonical, never launched |
-| `reports/intrinsic_memory_native_v12/preparation_draft10/` | Preserved packet made while producer cycle 6 and the consumer edits were uncommitted; all artifacts except `preparation.json` are byte-identical to the current ones; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft10/` | Preserved packet made while producer cycle 6 and the consumer edits were uncommitted; all artifacts except `preparation.json` were byte-identical to its successor; non-canonical, never launched |
+| `reports/intrinsic_memory_native_v12/preparation_draft11/` | Preserved packet before the structural stage write caps and the bounded read-resume reservation; non-canonical, never launched |
 | `reports/intrinsic_memory_native_v12/environment_closure_v12.json` | Executable dependency closure: resolved interpreter, module origins, native extensions, all `torch/lib` files, all wheel RECORDs and critical files, by actual hash |
 | `reports/intrinsic_memory_native_v12/development_exposure_v12.json` | Current exposure receipt: fresh split unopened, retired v11 split, reading incident recorded; historical receipt unedited |
 
@@ -383,7 +384,7 @@ including `capacity_main`, `capacity_restart`, `finalize_worker` and
 `finalize_parent`; 9778 forwards; 949 source
 feature forwards; 1078 canonical-source tokenizer passes; 4029 prompt tokenizer
 passes; 513 backwards; 513 updates (512 fitting + 1 fresh-process
-continuation); 7256 generated tokens; 179 retrievals; 2057 declared writes;
+continuation); 7256 generated tokens; 179 retrievals; 3128 declared writes;
 **44,627,834,537** declared file-read bytes (one bounded staged-read
 reservation per durable read plus the corpus' direct authority/source/payload
 reservations); 194 MiB artifacts (96 MiB envelope
@@ -400,11 +401,19 @@ and 2x in restart); 450,061,586 bytes of environment-closure hashing in
 admission, load and restart; plus the checkpoint and teacher cache at restart.
 Physical page-cache reuse is not measured and is not subtracted.
 
+Stage write caps are now structural: a durable read reserves
+`READ_WRITE_BOUND = 3 + 2*4 = 11` descriptor writes (base, plus the four caller
+resumes the code permits), each resume event carries timing only, and every
+stage's cap is the product of its receipts, its rebuilds and that per-read bound.
+The final probe stage alone reserves 484 writes
+(= 32 x (4 rebuild + 11 read) + probe + fit-curve + fitting-closed + source-cost);
+the documented single-resume workload is 292, well inside it.
+
 Write accounting: a successful wait-based read persists three pending
 descriptors (initial pending, dispatch reservation, terminal), a waiting read
 that times out persists two, and a read whose own dispatch fails persists
-three, so three is the exact unconditional bound and every stage reserves 3 per
-read. Each explicit bounded caller resume persists at most two (one when it
+three, so three is the exact unconditional base bound; with the four permitted
+caller resumes the read reserves 11 and each stage's cap is sized from that. Each explicit bounded caller resume persists at most two (one when it
 attaches to an in-flight ticket, none when refused before dispatch), so 2 of
 resume headroom is reserved per read; the read's own internal resume is inside
 that 3 and is not charged again. There is no automatic retry. The total is

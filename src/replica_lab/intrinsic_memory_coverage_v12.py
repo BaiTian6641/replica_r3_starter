@@ -394,6 +394,19 @@ RELEASE_READ_BYTES_BOUND = 4 * 1024**2 + 64 * 1024
 # published world; the corpus reserves each of them before reading.
 RELEASE_DIRECT_READ_BOUND = 9 * 1024**2
 
+# A durable read persists three descriptors (pending, dispatch reservation,
+# terminal). Up to four explicit caller resumes may follow, each persisting at
+# most two more. The retrieval reservation therefore bounds the whole read at
+# 3 + 2*4 = 11 descriptor writes, and the resume events carry timing only so a
+# read is never charged twice for the same descriptor.
+MAX_CALLER_RESUMES = 4
+READ_BASE_DESCRIPTOR_WRITES = 3
+RESUME_DESCRIPTOR_WRITES = 2
+READ_WRITE_BOUND = READ_BASE_DESCRIPTOR_WRITES + RESUME_DESCRIPTOR_WRITES*MAX_CALLER_RESUMES
+# Per-world probe receipts: release rebuild, one durable read with resume
+# headroom, and (on the final prefix only) the fitting-closed receipt.
+PROBE_RECEIPTS = 2
+
 
 def identity_digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True,
@@ -495,7 +508,7 @@ def plan(arm):
         # and one bounded resume (two more) is budgeted as headroom.
         'prepare': stage(60, **span(32, 32), retrievals=32,
                          artifact_read_bytes=32*RELEASE_READ_BYTES_BOUND,
-                         writes=32*(1+3+2)),
+                         writes=32*(1 + READ_WRITE_BOUND)),
         # 32 complete frozen teacher answers (8 tokens each) + 32 target forwards.
         'teacher': stage(90, **span(0, 0, prompt_passes=128, backbone_forwards=288,
                                     backbone_tokens=256),
@@ -509,7 +522,8 @@ def plan(arm):
         'development': stage(540, **span(16, 16, prompt_passes=14*16, backbone_forwards=768,
                                         backbone_tokens=256),
                              artifact_read_bytes=16*RELEASE_READ_BYTES_BOUND,
-                             generated_tokens=768, retrievals=16, writes=16*(1+3+2)+1),
+                             generated_tokens=768, retrievals=16,
+                             writes=16*(1 + READ_WRITE_BOUND) + 1),
         # Two tokenizer passes: the corrected span, then its re-read after the
         # correction evicts that record's cached tokens. One source forward.
         # Writes: correction record, re-read (3 + 2 headroom), revocation record,
@@ -517,7 +531,8 @@ def plan(arm):
         'correction': stage(60, **span(2, 1, prompt_passes=6, backbone_forwards=24,
                                        backbone_tokens=256),
                             artifact_read_bytes=2*RELEASE_READ_BYTES_BOUND,
-                            generated_tokens=24, retrievals=2, writes=1+3+2+1+3+2+1),
+                            generated_tokens=24, retrievals=2,
+                            writes=1 + READ_WRITE_BOUND + 1 + READ_WRITE_BOUND + 1),
         # A fresh process reloads (one hashing pass + one weight load), restores
         # the extension and the teacher cache, recomputes every source span and
         # writes its own result. Prompt tokenization is derived from the real
@@ -530,7 +545,8 @@ def plan(arm):
                                               + checkpoint + TEACHER_CACHE_BYTES
                                               + RELEASE_READ_BYTES_BOUND
                                               + RELEASE_DIRECT_READ_BOUND),
-                         restart_restores=2, retrievals=1, writes=3+2+1+1),
+                         restart_restores=2, retrievals=1,
+                         writes=READ_WRITE_BOUND + 1),
     }
     for end in PREFIXES:
         updates = 128
@@ -552,11 +568,12 @@ def plan(arm):
             artifact_read_bytes=worlds*(RELEASE_READ_BYTES_BOUND
                                         + RELEASE_DIRECT_READ_BOUND),
             generated_tokens=worlds*controls*tokens, retrievals=worlds,
-            writes=worlds*(4+3+2)+2)
+            writes=worlds*(4 + READ_WRITE_BOUND) + PROBE_RECEIPTS
+                   + (1 if end == PREFIXES[-1] else 0))
     # The supervised parent writes the admission, capacity-guard and result
     # receipts, and every stage closed through close_stage() also writes one
     # observed source-cost receipt. Those writes are declared, not hidden.
-    result['admission']['writes'] = 5
+    result['admission']['writes'] = 2
     for name in result:
         if name.startswith(('fit_', 'fit_probes_')) or name in (
                 'baseline', 'numerical', 'prepare', 'teacher', 'checkpoint',
