@@ -365,6 +365,26 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
         self.cost["durable_write_bytes"] += size
         self.cost["durable_write_ns"] += time.monotonic_ns() - start
 
+
+    def _persist_charged_fallback(self, store, token, doc):
+        """Persist a terminal receipt with quota, without repeating a failed reservation."""
+        path = self._ticket_path(store, token)
+        costs = doc["costs"]
+        previous = costs.get("ticket_write_bytes_reserved", 0)
+        costs["ticket_write_calls"] = costs.get("ticket_write_calls", 0) + 1
+        size = len(json.dumps(doc, sort_keys=True, indent=2).encode()) + 1
+        costs["ticket_write_bytes_reserved"] = previous + size
+        component = "contextual_ticket:" + token + ":write"
+        store._charge("cold", "artifacts", size, component, "pending descriptor")
+        start = time.monotonic_ns()
+        try:
+            atomic_json(path, doc)
+        finally:
+            store._release(component)
+        store._set_component_locked(component, "cold", "artifacts", size,
+                                    "pending descriptor")
+        self.cost["durable_write_bytes"] += size
+        self.cost["durable_write_ns"] += time.monotonic_ns() - start
     @staticmethod
     def _pending(doc):
         return PendingContextualRead(doc["id"], doc["store_root"], doc["scope"], digest(doc),
@@ -528,10 +548,10 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
                 self._persist(store, pending.ticket_id, doc)
             except Exception:
                 # Preserve the terminal receipt even if charged persistence fails.
-                try:
-                    atomic_json(self._ticket_path(store, pending.ticket_id), doc)
-                except Exception:
-                    pass
+                    try:
+                        self._persist_charged_fallback(store, pending.ticket_id, doc)
+                    except Exception:
+                        pass
             raise ContextualReadFailure(str(error), doc["costs"]) from error
         doc["status"] = "complete"
         self._persist(store, pending.ticket_id, doc)
