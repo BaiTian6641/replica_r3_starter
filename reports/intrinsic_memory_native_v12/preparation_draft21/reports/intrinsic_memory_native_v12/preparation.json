@@ -1,0 +1,290 @@
+{
+  "attempt_marker": "runs/intrinsic_memory_native_v12/attempts.jsonl",
+  "authorization_path_reserved_not_created": "reports/intrinsic_memory_native_v12/authorization_two_v12.json",
+  "budget_derivation": {
+    "I/O_costs": "logical/serialized bytes, synchronized wall and dispatch wall are recorded separately; physical I/O is unmeasured",
+    "artifact_accounting": "194 MiB reserved = 96 MiB audit/store/receipt/log envelope + 2 MiB teacher cache + 96 MiB two-site extension/optimizer checkpoint. Checkpoint arithmetic: 4.22M trainable float32 parameters (2.90M reader + 1.32M compressor) plus two AdamW moment buffers; this is a bound, not a fit measurement",
+    "artifact_read_accounting": "55439767209 declared file-read bytes: 8238996247 of source hashing per process admission/worker and the same again for each weight load (2x in load and 2x in restart), 450061586 of environment-closure hashing in admission, load and restart, and the checkpoint plus teacher cache at restart. Physical page-cache reuse is not measured and is not subtracted",
+    "artifact_read_bytes_value": 55439767209,
+    "audit_io": "append-only journal: logical appended bytes equal appended bytes; physical SSD amplification and flush cost are not measured and are not claimed to be lower than v11. Lower audit cost is not better learning",
+    "backbone_token_unit": "each decode/parity forward reserves forwards=1 and input_tokens=256 (fixed right-padded context width)",
+    "baseline_forwards": "8 worlds * 8 reserved tokens = 64; no source features",
+    "basis": "every stage is re-derived from the v12 mechanism, not projected from the v11 totals; all counts are worst-case reservations and none is refunded",
+    "correction_forwards": "24 generated + 1 source forward; 2 tokenizer passes because the correction evicts the corrected record before the re-read",
+    "deadline": "monotonic and wall-clock outer deadline both persisted; the stricter remaining time wins, so a monotonic-clock restart cannot extend the budget",
+    "development_forwards": "16 worlds * 6 controls * 8 reserved tokens = 768 + 16 admissions",
+    "environment_closure_bytes": 450061586,
+    "environment_closure_files": 67,
+    "failed_or_interrupted_work": "reserved_before_dispatch_no_refunds",
+    "fit_probe_forwards": "per prefix, 32 worlds * (2 parity + 6 control + 6*8 generated) = 1792 backbone forwards, plus 96 source forwards; per world 4 tokenizer passes (release rebuild, provenance re-check after publication cleared C, live, wrong-world), 4 release writes, 3 descriptor writes and 2 of resume headroom; plus 2 stage receipts",
+    "fitting_updates": "32 worlds * 16 passes = 512; each update reserves 1 backbone forward, 1 canonical span, 1 backward, 1 update and 1 receipt write",
+    "numerical_forwards": "2 disabled/enabled forwards + 1 canonical span = 3",
+    "prepare_forwards": "32 admissions * 1 canonical span = 32; 32 retrievals; per world one declared admission write, three descriptor writes for the read, and two of resume headroom",
+    "read_descriptor_writes": "a successful wait-based read persists three pending descriptors (initial pending, dispatch reservation, terminal); a waiting read that times out persists two; a read whose own dispatch fails persists three. Three is therefore the exact unconditional bound and every stage reserves 3 per read. Each explicit bounded caller resume persists at most two (one when it attaches to an in-flight ticket, none when refused before dispatch), so 2 of resume headroom is reserved per read. The read's own internal resume is inside that 3 and is not charged again. There is no automatic retry: at most four caller waits, then a typed refusal",
+    "restart_forwards": "2 canary/update backbone forwards + 2 source spans recomputed from a cleared feature cache; 1 backward, 1 update, 1 model load, 2 restores (checkpoint and teacher cache) and their read bytes",
+    "restart_prompt_tokenization": "restart reserves 67 prompt-tokenizer passes = 64 (2 encodings for each of 32 restored teacher targets: student and exact text) + 1 (canary encoding) + 2 (continuation student encoding and the exact-text encoding that the alignment binding re-derives). Nothing else in the restart path tokenizes a prompt",
+    "source_file_bytes": 8238996247,
+    "source_span_unit": "one cache-missing canonical span reserves tokenizer_calls=1, source_encodes=1, source_token_bytes=256 and input_tokens=256 for the tokenizer, then forwards=1, source_feature_forwards=1, cache_misses/evictions/recomputations=1 and input_tokens=256 for the frozen source forward",
+    "stage_wall": "sum of all 23 two-site stage caps: admission=30 + preflight=30 + load=180 + capacity_main=15 + capacity_restart=15 + finalize_parent=20 + finalize_worker=30 + baseline=45 + numerical=30 + prepare=60 + teacher=90 + checkpoint=60 + development=540 + correction=60 + restart=150 + fit_128=500 + fit_probes_128=900 + fit_256=500 + fit_probes_256=900 + fit_384=500 + fit_probes_384=900 + fit_512=500 + fit_probes_512=900 = 6955 seconds inside the 7200-second whole-process-group envelope; the remaining 245 seconds are outer headroom, never a stage allowance",
+    "stage_wall_value": 6955,
+    "teacher_forwards": "32 answers * 8 reserved tokens + 32 target forwards = 288; no source features",
+    "total_backwards": "512 fitting + 1 restart = 513",
+    "total_forwards": "64 + 3 + 32 + 288 + 4*256 + 4*1888 + 2 + 784 + 25 + 4 = 9778; a source forward appears twice on purpose: once as a frozen backbone forward (forwards) and once as source_feature_forwards, because v12 dispatches both",
+    "total_generated_tokens": "64 + 256 + 4*1536 + 768 + 24 = 7256",
+    "total_input_tokens": "16384 + 1024 + 16384 + 73728 + 393216 + 2064384 + 768 + 204800 + 6912 + 1536 = 2779136",
+    "total_prompt_tokenizer_passes": "all-stage canonical chat-template passes = 4029",
+    "total_prompt_tokenizer_passes_value": 4029,
+    "total_retrievals": "32 + 4*32 + 16 + 2 + 1 = 179",
+    "total_source_forwards": "0 + 1 + 32 + 0 + 512 + 384 + 1 + 16 + 1 + 2 = 949",
+    "total_tokenizer_passes": "0 + 1 + 32 + 0 + 512 + 512 + 1 + 16 + 2 + 2 = 1078",
+    "total_updates": "512 fitting + 1 fresh-process continuation = 513",
+    "total_writes": "sum of all 23 two-site stage caps: admission=2 + preflight=1 + load=1 + capacity_main=1 + capacity_restart=1 + finalize_parent=3 + finalize_worker=3 + baseline=9 + numerical=2 + prepare=449 + teacher=34 + checkpoint=7 + development=226 + correction=30 + restart=16 + fit_128=129 + fit_probes_128=579 + fit_256=129 + fit_probes_256=579 + fit_384=129 + fit_probes_384=579 + fit_512=129 + fit_probes_512=580 = 3618 declared writes, including descriptor persists, one observed source-cost receipt per closed stage, and the receipts written outside a stage",
+    "total_writes_value": 3618
+  },
+  "commits_made": false,
+  "data_manifest": {
+    "path": "data/intrinsic_memory_coverage_v12_20261029/split_manifest.json",
+    "sha256": "3e9da93b772fdddcebf71a0f840517d1ddd443306378cca55784a46f08c3acbb"
+  },
+  "development_exposure_receipt": {
+    "path": "reports/intrinsic_memory_native_v12/development_exposure_v12.json",
+    "sha256": "a92124b853c3f985ed5f98596d569bca7b48c7e275df3e7f2040cd259d5df91f"
+  },
+  "development_labels_generated_from_oracle": true,
+  "development_labels_parsed_by_preparation": false,
+  "differences_from_v11": [
+    "value_producer: frozen canonical-source decoder hidden states followed by a live trainable compressor instead of a trainable encoder over template-framed text",
+    "source_input: canonical span text only, no chat template and no special tokens, explicit zero-based positions, extensions disabled and audited",
+    "feature_cache: bounded 32 MiB / 64 entry in-process C that is never serialized",
+    "slots: four ordered 256-wide slots per admitted span, learned order added exactly once by the v12 snapshot path",
+    "work_ledger: append-only replica.intrinsic_memory.reservations.v12 journal with source-feature, canonical-source tokenizer, prompt tokenizer, cache and restart vocabulary, and dual monotonic/wall deadlines",
+    "stage_budget: re-derived per-stage allocation (500 s per fit segment, 900 s per probe, plus two declared terminal-receipt stages and two capacity-guard stages) instead of the inherited 7080 s; the authoritative total is stage_wall_value, computed from the caps",
+    "checkpoint: v12 complete extension plus optimizer with bound feature, adapter, tokenizer and layout contracts, the complete representation release, an explicit release alias and the compressor-only release; no v11 checkpoint is migrated",
+    "teacher_cache: v12 format bound to the source-feature contract, adapter contract and tokenizer contract",
+    "slot_policy_declaration: slot_policy_v12 added next to the inherited fixed_eight_masked_padding_v5 field required by the sealed validators",
+    "release_corpus: replica.contextual_producer_release.v12 namespace, now publishing the complete representation release (producer, order, reader and feature contract), so any contextual-path update invalidates previously durable values",
+    "restart: source features are recomputed from a cleared cache; the recomputed feature contract and adapter content binding are compared with the checkpoint before mutation",
+    "adapter_contract: content-bound through the already-verified full original parameter digest, so an adapter with identical geometry but different content is refused",
+    "data_manifest: new v12 manifest with an explicit exposure contract over the same rows"
+  ],
+  "environment_closure": {
+    "path": "reports/intrinsic_memory_native_v12/environment_closure_v12.json",
+    "sha256": "d521db9340e3638c481ede19a7ed670949ed9440167739b426b815276d6fbc68"
+  },
+  "environment_closure_receipt": {
+    "bytes_verified": 450061586,
+    "closure_sha256": "1848a9a1ce3a6da3437c121e68b7a05284f7c9eaec496e18bf218294f07c2209",
+    "coverage": "interpreter, native extensions, torch/lib shared libraries, wheel RECORD files and the sealed receipt critical files",
+    "files_verified": 67,
+    "interpreter": "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/bin/python3.12",
+    "prefix": "/Users/flare/replica_r3_starter/.venv-spark-bf16"
+  },
+  "format": "replica.intrinsic_memory.native_preparation.v12",
+  "fresh_development": {
+    "path": "data/intrinsic_memory_coverage_v12_20261029/development.json",
+    "sha256": "36632dc3003ee40589f2f378eab244c99128e9ec52cc34b4f84bce3865e65aef"
+  },
+  "historical_v11_exposure_untouched": {
+    "path": "reports/intrinsic_memory_coverage_v11/development_exposure.json",
+    "sha256": "b073a790021e18e3420046230b67e40f10a132822a0cb5edd91d4ebd531d78a7"
+  },
+  "history_written": false,
+  "implementation": {
+    "path": "reports/intrinsic_memory_native_v12/implementation_v12.json",
+    "sha256": "3779b497117c90e0fcfa26e4d77888b04d8ecc8d79a723653e00c06f9eac39e7"
+  },
+  "native_authorization_created": false,
+  "native_run": false,
+  "next_step": "independent review of these bytes, then a truthful external authorization receipt, then exactly one guarded launch bound to the durable attempt marker",
+  "packet": {
+    "path": "reports/intrinsic_memory_native_v12/native_packet_two_v12.json",
+    "sha256": "824d1171d58b31e9fc530f3cd663c1c12e1de2877e7b2ca6864a39120df94ecd"
+  },
+  "preparation_checks": {
+    "attempt_marker": "runs/intrinsic_memory_native_v12/attempts.jsonl",
+    "code_before_model_loading": true,
+    "comparison": {
+      "shared_contracts_identical": true,
+      "v11_comparison": {
+        "path": "reports/intrinsic_memory_coverage_v11/native_bf16_two_v11_attempt01/result.json",
+        "sha256": "6f56eb9fc20ddd92b96f7872158174ca3c481a01a276786da57fe42959f8f6a4"
+      },
+      "v11_development_opened": false
+    },
+    "environment": {
+      "basis": "existing_qualified_BF16_derivative_environment_not_a_new_precision_or_model",
+      "critical_files": {
+        "lib/python3.12/site-packages/huggingface_hub/__init__.py": "e20420fa0196c87bbff5b2e5c4883c8c3610cc1cf807822880d77649ceb8aedc",
+        "lib/python3.12/site-packages/numpy/__init__.py": "09295a80660f17925ae23765ce8cbd7ff7ceae968d5f2f89349f1cb74c0b9e11",
+        "lib/python3.12/site-packages/psutil/__init__.py": "d138a5786b163b56ba86ea0b2d5589dfca37e1bcdf8de1057fe1e933d6ab808a",
+        "lib/python3.12/site-packages/safetensors/__init__.py": "92c988289b8c225a92f25e487ad5d7a1eb7e326eec0fedfc6b75e6f04d85e32f",
+        "lib/python3.12/site-packages/tokenizers/__init__.py": "644e596a052fa1b05272b1c141d1286e1c78c2a3346ecabd17d68b62404d8d84",
+        "lib/python3.12/site-packages/torch/__init__.py": "bd4a10ff16357ed78f45aaf4b46ce5b771fdc0e8549402206e324d0eb792c672",
+        "lib/python3.12/site-packages/torch/optim/adamw.py": "39c5eaa04f83632285b114fd093eeb0006866e4adf59ad50cc28de12e63a8459",
+        "lib/python3.12/site-packages/transformers/__init__.py": "4ef5187b5f66c564aa575ddab9ce94342630d40fe874d0464d790c6f6b748647",
+        "lib/python3.12/site-packages/transformers/dynamic_module_utils.py": "4cd52ca9c7e1fa224d7d70115b9d22ea2a3ffd8f43cc4ea9028dbc876a07260d",
+        "lib/python3.12/site-packages/transformers/modeling_utils.py": "bf1c6b2a43cf7c36fb79f37c981424dd6ae78eb863fcaa5d2a37e76c9828611d",
+        "lib/python3.12/site-packages/transformers/models/auto/auto_factory.py": "04c0b61097c533459ecf74ee8b9d730abd4febbbfa4a9f73841fb7ff49c8eee2",
+        "lib/python3.12/site-packages/transformers/models/auto/tokenization_auto.py": "bd040dfb212fb20f1bef1f8fedfc3b4c100fe3b57e603c738552aebf2521c51d"
+      },
+      "environment_directory": ".venv-spark-bf16",
+      "format": "replica.spark_intrinsic.execution_environment.v1",
+      "historical_qualification": "runs/spark_qualification_20261026/derivative_02/qualification_report.json",
+      "lock": {
+        "path": "requirements-spark-bf16.lock.txt",
+        "sha256": "b0ecd1d020b992d38497b1c24ff92c96e911762efebfa1a539c84a206ecd200e"
+      },
+      "module_origins": {
+        "huggingface_hub": "lib/python3.12/site-packages/huggingface_hub/__init__.py",
+        "numpy": "lib/python3.12/site-packages/numpy/__init__.py",
+        "psutil": "lib/python3.12/site-packages/psutil/__init__.py",
+        "safetensors": "lib/python3.12/site-packages/safetensors/__init__.py",
+        "tokenizers": "lib/python3.12/site-packages/tokenizers/__init__.py",
+        "torch": "lib/python3.12/site-packages/torch/__init__.py",
+        "transformers": "lib/python3.12/site-packages/transformers/__init__.py"
+      },
+      "native_claim": false,
+      "packages": {
+        "annotated-types": "0.8.0",
+        "certifi": "2026.10.23",
+        "charset-normalizer": "3.5.2",
+        "compressed-tensors": "0.16.0",
+        "filelock": "4.2.4",
+        "fsspec": "2026.9.0",
+        "hf-xet": "1.7.0",
+        "huggingface-hub": "0.35.3",
+        "idna": "3.20",
+        "jinja2": "3.1.6",
+        "loguru": "0.7.3",
+        "markupsafe": "3.0.4",
+        "mpmath": "1.3.0",
+        "networkx": "3.7",
+        "numpy": "2.5.4",
+        "packaging": "26.3",
+        "psutil": "7.2.2",
+        "pydantic": "2.14.1",
+        "pydantic-core": "2.50.1",
+        "pyyaml": "6.0.3",
+        "regex": "2026.9.29",
+        "requests": "2.34.2",
+        "safetensors": "0.8.0",
+        "setuptools": "84.2.1",
+        "sympy": "1.14.0",
+        "tokenizers": "0.22.1",
+        "torch": "2.14.1",
+        "tqdm": "4.70.1",
+        "transformers": "4.57.1",
+        "typing-extensions": "4.16.0",
+        "typing-inspection": "0.4.4",
+        "urllib3": "2.8.0"
+      },
+      "python": "3.12.14",
+      "scope": "exact_installed_package_versions_module_origins_and_selected_executable_files_not_full_wheel_integrity"
+    },
+    "environment_closure": {
+      "bytes_verified": 450061586,
+      "closure_sha256": "1848a9a1ce3a6da3437c121e68b7a05284f7c9eaec496e18bf218294f07c2209",
+      "coverage": "interpreter, native extensions, torch/lib shared libraries, wheel RECORD files and the sealed receipt critical files",
+      "files_verified": 67,
+      "interpreter": "/Users/flare/replica_r3_starter/.venv/bin/python",
+      "prefix": "/Users/flare/replica_r3_starter/.venv-spark-bf16"
+    },
+    "feature_binding": {
+      "original_parameters_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+      "source_files_sha256": "c309e44c93edf04187447c27990ecd0979990d7bab9e8dbf5a715afd2f82a50a",
+      "tokenizer_sha256": "f74b126e248feb33df37f78fcd28f3839f5b9184378aa4419e727736270e7b8f"
+    },
+    "implementation_files": 62,
+    "native_competence": false,
+    "packet_sha256": "824d1171d58b31e9fc530f3cd663c1c12e1de2877e7b2ca6864a39120df94ecd",
+    "reused_data": {
+      "development_labels_parsed_at_admission": false,
+      "development_opened": false,
+      "fresh_development": {
+        "path": "data/intrinsic_memory_coverage_v12_20261029/development.json",
+        "sha256": "36632dc3003ee40589f2f378eab244c99128e9ec52cc34b4f84bce3865e65aef"
+      },
+      "matched_calibration_and_fit": true,
+      "new_manifest": {
+        "path": "data/intrinsic_memory_coverage_v12_20261029/split_manifest.json",
+        "sha256": "3e9da93b772fdddcebf71a0f840517d1ddd443306378cca55784a46f08c3acbb"
+      },
+      "v11_development_retired": true
+    },
+    "source_bytes_hashed": 0,
+    "source_execution_files": 2,
+    "source_hash_wall_seconds": 0.0004962082020938396,
+    "source_qualified_for_loading": false,
+    "useful_memory": false
+  },
+  "protocol": {
+    "path": "configs/spark_intrinsic_coverage_v12.json",
+    "sha256": "2564fb5b795101c494845cff37f79b03c7cc833cd32915759484eb299dde03e4"
+  },
+  "retired_v11_development": {
+    "path": "data/intrinsic_memory_coverage_v11_20261029/development.json",
+    "sha256": "5ad4db718cadd32498de7629d6697b90529a95fb262b113c3b2d126d0d8e9a8f"
+  },
+  "two_site_stage_walls": {
+    "admission": 30,
+    "baseline": 45,
+    "capacity_main": 15,
+    "capacity_restart": 15,
+    "checkpoint": 60,
+    "correction": 60,
+    "development": 540,
+    "finalize_parent": 20,
+    "finalize_worker": 30,
+    "fit_128": 500,
+    "fit_256": 500,
+    "fit_384": 500,
+    "fit_512": 500,
+    "fit_probes_128": 900,
+    "fit_probes_256": 900,
+    "fit_probes_384": 900,
+    "fit_probes_512": 900,
+    "load": 180,
+    "numerical": 30,
+    "preflight": 30,
+    "prepare": 60,
+    "restart": 150,
+    "teacher": 90
+  },
+  "two_site_total_reservations": {
+    "artifact_bytes": 205537280,
+    "artifact_read_bytes": 55439767209,
+    "backwards": 513,
+    "cache_evictions": 949,
+    "cache_misses": 949,
+    "cache_recomputations": 949,
+    "forwards": 9778,
+    "generated_tokens": 7256,
+    "input_tokens": 2779136,
+    "model_loads": 2,
+    "prompt_tokenizer_calls": 4029,
+    "restart_restores": 2,
+    "retrievals": 179,
+    "source_encodes": 1078,
+    "source_feature_forwards": 949,
+    "source_token_bytes": 275968,
+    "tokenizer_calls": 1078,
+    "updates": 513,
+    "wall_seconds": 6955,
+    "writes": 3618
+  },
+  "unchanged_from_v11": [
+    "official_BF16_source_and_revision",
+    "reader_sites_3_and_7_block_input_query_post_block_residual",
+    "eight_masked_ordered_slots_two_span_budget",
+    "teacher_objective_top64_kl_temperature1_no_ce_mix",
+    "NativeFusedAdamW_learning_rate_0.0001_seed_17",
+    "512_fitting_updates_plus_one_restart_update_fixed_round_robin",
+    "four_fixed_probe_prefixes_no_best_prefix_selection",
+    "per_group_fitting_and_utility_criteria_eight_world_gates",
+    "calibration_8_fitting_32_development_16_same_rows",
+    "generation_template_scorer_context_and_token_limits",
+    "persistent_P_updates_zero_and_no_promotion",
+    "physical_resource_limits_and_7200_second_outer_ceiling"
+  ],
+  "weights_loaded": false
+}
