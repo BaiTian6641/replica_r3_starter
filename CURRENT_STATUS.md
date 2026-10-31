@@ -11,9 +11,11 @@
 - Parent: V16 content-key attempt01 extension plus optimizer, manifest SHA-256 `a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c`; content-only attention keys and ordered values at sites 3/7.
 - Consumed: 120 forwards, 16 backwards, 8 isolated updates, zero generated tokens, zero development access. Peak sampled driver 11,290,918,912 bytes; swap growth 0; observed artifacts 3,392,930 bytes; wall 80.54 seconds.
 
-V16 content-key native training also completed. At update 512 its final fitting probes were contextual 15/32, exact-text 32/32, shuffled 15/32, wrong 6/32, zero 9/32 and absent 8/32; known–known counterfactual pairs both correct were 2/8. The all-group fitting gate did not pass, so development was not opened. V17 is a diagnostic on its fitting rows, not a new trained candidate or mechanism selection.
+V16 content-key native training also completed. At update 512 its final fitting probes were contextual 15/32, exact-text 32/32, shuffled 15/32, wrong 6/32, zero 9/32 and absent 8/32. Counterfactual pairs both correct were 2/16 overall and **0/8 known–known**. Every final group failed and known–known did not exceed the sealed 1/8 reference, so development was not opened. V17 is a diagnostic on its fitting rows, not a new trained candidate or mechanism selection.
 
 No best-prefix selection or retry of a consumed attempt occurred. Any broader interference study requires a separately predeclared arm; this four-pair fixture does not establish a general interference law.
+
+The sole selected successor is [V18 paired-joint versus sequential updates](docs/experiments/20261031_Spark_Paired_Update_V18.md): equal per-world exposure on the same four fitting pairs, a fresh internal sequential reference, and frozen pair-minimum-margin/guard falsification criteria. It is **not implemented, authorized or launched**. No second comparison is selected.
 
 ## Completed v15 diagnostic
 

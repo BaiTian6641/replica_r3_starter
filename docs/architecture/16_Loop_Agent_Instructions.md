@@ -41,6 +41,16 @@ before acting; do not repeat already completed repairs.
 - Report measured behavior separately from engineering tests and design
   arithmetic. Check primary research sources before changing a mechanism claim.
 
+## Current v17 outcome and sole v18 successor — 31 October 2026
+
+Read [current status](../../CURRENT_STATUS.md), the [v17 interference result](../experiments/20261031_Spark_Interference_V17.md) and the [v18 comparison predeclaration](../experiments/20261031_Spark_Paired_Update_V18.md) before new work. The v16 content-key terminal run is falsified: every final fitting group failed, counterfactual pairs both correct were 2/16 overall and 0/8 known–known, and development stayed closed. Do not retry it or select a better prefix.
+
+V17 attempt05 completed four known–known fitting pairs with eight isolated updates. Target total-sequence margin improved in 7/8 arms and partner margin worsened in 7/8. Gradient cosine was negative for two pairs and positive for two, so do not equate positive gradient cosine with absence of sequence-margin interference. Raw results, tensors, failed attempts and independent review are preserved. Native restoration flags are not independent tensor-equality proof; retain that limitation.
+
+The only selected successor is V18 paired-joint versus sequential single-world updates on the same parent and four fitting pairs. It uses equal per-world supervised exposure, a fresh internal sequential reference with counterbalanced order, final pair-minimum margin as the primary endpoint and a no-worse-than-baseline guard count. Optimizer-step counts differ by design and must be reported. V18 is predeclared but not implemented, authorized or launched; the next action is its CPU implementation and independent protocol review only. Do not add another mechanism, comparison or development evaluation.
+
+Correction/chronology and complete-response scoring repairs are committed at `cc770999`; v17 accounting/gradient/migration repairs are at `a8a163f7`. Development remains closed to native experiments. Formation, persistent P, density, capacity expansion, promotion and RSI remain gated. Preserve unrelated dirty work and never read, import, edit or stage `src/replica_lab/runtime_pilot.py`.
+
 ## Historical implementation — broader-teaching outcome and evidence gates
 Read the [v11 experiment](../../docs/experiments/20261029_Spark_Memory_Coverage_V11.md),
 [current evidence summary](../../reports/intrinsic_memory_coverage_v11/verification_summary.json) and
