@@ -1,6 +1,6 @@
 # Spark fitting-only reader/query and interference diagnostic v15
 
-Status: **predeclared and review-qualified; native attempt01 not launched.** This diagnostic measures the missing reader/query evidence before one primary mechanism is selected. It does not change model parameters or open development labels.
+Status: **attempt01 failed on an under-reserved shared-counter budget; corrected attempt02 is predeclared and not launched.** No development labels were read and no parameters were updated. This diagnostic measures reader/query evidence before one primary mechanism is selected.
 
 ## Fixed scope
 
@@ -34,3 +34,21 @@ A less-compressed source representation or compression-training arm is a **separ
 - Attempts: one, zero retries; authorization is a separate exact receipt.
 
 CPU mechanics pass 22 tests, including production-logit parity, weighted-read identities, wrong-bank query behavior, shuffle/zero interference, complete pair artifacts and fitting-only protocol refusal. Native packet review and environment-only validation pass without importing the model. These checks qualify engineering only.
+
+## Attempt01 failure and separate attempt02
+
+Attempt01 terminated with `BudgetError: stage work budget exceeded before dispatch`
+after 59.274 seconds. Twelve complete pair JSON/tensor artifacts are preserved.
+The shared `forwards` counter also charges source-feature execution, so 128 was
+under-reserved for 128 prompt prefills plus 32 source-feature forwards. No
+capability evaluation or development exposure occurred; attempt01 is not rerun.
+
+Attempt02 preserves the original protocol derivation as `budget_revision=1` and
+uses explicit `budget_revision=2`: **160 forwards** and **40,960 input tokens**.
+All data, controls, checkpoint, implementation behavior, wall/resource limits and
+zero-update/development boundaries are unchanged. New bindings:
+
+- Protocol: `configs/spark_reader_query_diagnostic_v15_attempt02.json`, SHA-256 `67345b20c9e9261607cff0278fbd8ebdaa42d983f70f95c7664dac4a4367df29`.
+- Packet: `reports/intrinsic_memory_reader_query_v15/native_packet_attempt02.json`, SHA-256 `1a4fdbd4fc868aea6d3f4ac570bced6dab39772b7e23fbf2edb842c5bc4a7101`.
+- Implementation closure: SHA-256 `fb66b12059842c1787003692dd3c25031ef11dc6f5c11dc81e77ea685e845d79`.
+- Output: `reports/intrinsic_memory_reader_query_v15/native_bf16_reader_query_attempt02`; one new attempt, zero retries, separate exact authorization required.

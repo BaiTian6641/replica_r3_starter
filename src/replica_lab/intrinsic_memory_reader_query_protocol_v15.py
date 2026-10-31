@@ -25,7 +25,10 @@ def _stage(wall, **counts):
     return {**{key: 0 for key in COUNTERS}, "wall_seconds": wall, **counts}
 
 
-def diagnostic_plan():
+def diagnostic_plan(*, revision=1):
+    if revision not in (1, 2):
+        raise ValueError("unknown reader/query budget revision")
+    forwards, input_tokens = {1: (128, 32768), 2: (160, 40960)}[revision]
     admission_reads = (SOURCE_FILE_BYTES + ENVIRONMENT_CLOSURE_BYTES
                        + CHECKPOINT_READ_BOUND + METADATA_READ_BOUND)
     load_reads = SOURCE_FILE_BYTES + CHECKPOINT_READ_BOUND + METADATA_READ_BOUND
@@ -35,7 +38,7 @@ def diagnostic_plan():
         "load": _stage(180, model_loads=1, restart_restores=1, writes=2,
                        artifact_read_bytes=load_reads),
         "diagnose": _stage(
-            600, forwards=128, input_tokens=32768, generated_tokens=0,
+            600, forwards=forwards, input_tokens=input_tokens, generated_tokens=0,
             source_encodes=32, source_feature_forwards=32, tokenizer_calls=32,
             prompt_tokenizer_calls=32, source_token_bytes=8192,
             cache_misses=32, cache_evictions=32, cache_recomputations=32,
@@ -54,18 +57,20 @@ def validate_protocol(protocol):
             or protocol.get("parameter_updates") != 0):
         raise ValueError("invalid fitting-only reader/query protocol")
     diagnostic = protocol.get("diagnostic", {})
+    revision = diagnostic.get("budget_revision", 1)
     if (diagnostic.get("controls") != list(CONTROLS) or diagnostic.get("pairs") != 16
             or diagnostic.get("rows") != 32 or diagnostic.get("updates") != 0
             or diagnostic.get("development") is not False
             or diagnostic.get("forwards_per_row") != len(CONTROLS)
-            or diagnostic.get("generated_tokens") != 0):
+            or diagnostic.get("generated_tokens") != 0
+            or revision not in (1, 2)):
         raise ValueError("reader/query diagnostic scope differs")
     if set(protocol.get("data", {})) != {"fit"}:
         raise ValueError("only fitting data may be bound")
     arm = protocol["arms"]["two"]
     plan = arm["budget"]
     validate_plan(plan)
-    if plan != diagnostic_plan() or arm["total_reservations"] != totals(plan):
+    if plan != diagnostic_plan(revision=revision) or arm["total_reservations"] != totals(plan):
         raise ValueError("reader/query budget differs from derivation")
     if (arm["wall_seconds"] != OUTER_WALL_SECONDS
             or totals(plan)["wall_seconds"] > OUTER_WALL_SECONDS - 11):

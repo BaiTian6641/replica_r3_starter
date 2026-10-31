@@ -115,6 +115,13 @@ def test_reader_query_protocol_is_bounded_and_fitting_only():
         }},
     }
     validate_protocol(protocol)
+    revised = diagnostic_plan(revision=2)
+    assert revised["diagnose"]["forwards"] == 32 * len(CONTROLS) + 32
+    assert revised["diagnose"]["input_tokens"] == 40960
+    protocol["diagnostic"]["budget_revision"] = 2
+    protocol["arms"]["two"]["budget"] = revised
+    protocol["arms"]["two"]["total_reservations"] = totals(revised)
+    validate_protocol(protocol)
     protocol["data"]["development"] = {"path": "closed.json", "sha256": "0" * 64}
     with pytest.raises(ValueError, match="only fitting"):
         validate_protocol(protocol)

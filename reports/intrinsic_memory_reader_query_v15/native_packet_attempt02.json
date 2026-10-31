@@ -1,0 +1,34 @@
+{
+  "arm": "two",
+  "attempt_marker": "runs/intrinsic_memory_reader_query_v15/attempts.jsonl",
+  "attempts": 1,
+  "authorization_required": "reports/intrinsic_memory_reader_query_v15/authorization_attempt02.json",
+  "authorization_status": "external_receipt_required_not_created",
+  "commands": {
+    "launch": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_reader_query_v15.py",
+      "--packet",
+      "reports/intrinsic_memory_reader_query_v15/native_packet_attempt02.json",
+      "--authorization",
+      "reports/intrinsic_memory_reader_query_v15/authorization_attempt02.json",
+      "--launch"
+    ],
+    "review": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_reader_query_v15.py",
+      "--packet",
+      "reports/intrinsic_memory_reader_query_v15/native_packet_attempt02.json",
+      "--review"
+    ]
+  },
+  "experiment_version": 15,
+  "format": "replica.intrinsic_memory.reader_query_launch_packet.v15",
+  "native_engine_version": 15,
+  "output_root": "reports/intrinsic_memory_reader_query_v15/native_bf16_reader_query_attempt02",
+  "protocol": {
+    "path": "configs/spark_reader_query_diagnostic_v15_attempt02.json",
+    "sha256": "67345b20c9e9261607cff0278fbd8ebdaa42d983f70f95c7664dac4a4367df29"
+  },
+  "retries": 0
+}
