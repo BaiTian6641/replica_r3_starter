@@ -1,6 +1,6 @@
 # Spark fitting-only reader/query and interference diagnostic v15
 
-Status: **attempt01 failed on an under-reserved shared-counter budget; corrected attempt02 is predeclared and not launched.** No development labels were read and no parameters were updated. This diagnostic measures reader/query evidence before one primary mechanism is selected.
+Status: **attempt02 completed all 16 fitting pairs; content-only attention keys with ordered values retained is selected for v16.** No development labels were read and no parameters were updated. Useful recall and generalization remain unestablished.
 
 ## Fixed scope
 
@@ -52,3 +52,28 @@ zero-update/development boundaries are unchanged. New bindings:
 - Packet: `reports/intrinsic_memory_reader_query_v15/native_packet_attempt02.json`, SHA-256 `1a4fdbd4fc868aea6d3f4ac570bced6dab39772b7e23fbf2edb842c5bc4a7101`.
 - Implementation closure: SHA-256 `fb66b12059842c1787003692dd3c25031ef11dc6f5c11dc81e77ea685e845d79`.
 - Output: `reports/intrinsic_memory_reader_query_v15/native_bf16_reader_query_attempt02`; one new attempt, zero retries, separate exact authorization required.
+
+## Terminal outcome and selection
+
+Attempt02 completed with first-token correct counts 24 contextual, 24 shuffled,
+6 wrong and 1 zero. All 128 row/control first-token distributions exactly match
+the sealed v13 reference. Wrong-bank weights exactly match partner-contextual
+weights at both sites. Original weights were unchanged; development labels and
+parameter updates remained zero. Supervision used 160 forwards and 37,258 input
+tokens, with zero generated tokens or updates. Peak sampled driver was
+9,352,904,704 bytes, swap growth zero, minimum host free 74%, and observed output
+38,820,215 bytes.
+
+Attention is peaked but positionally collapsed. Site-3/site-7 mean maximum weights
+are 0.9739/0.9972. Site 3 selects the same top slot in 16/16 pairs; site 7 selects
+slot 0 in 32/32 rows. Pair-held-out answer decodability is 0/24 for site-3 weights,
+5/24 for site-7 weights and 21/24 for each read and averaged slots. Known-known
+first-token correctness is 16/24; known-known pairs both correct remain 1/8.
+
+The selected single mechanism is **content-only attention keys with ordered
+values retained**, targeting learned-order dominance in keys rather than diffuse
+attention or missing read information. The falsification rule and native v16
+packet are predeclared in `docs/experiments/20261030_Spark_Content_Key_V16.md`.
+The reproducible analysis is `scripts/analyze_spark_reader_query_v15.py`; raw
+metrics and shuffled-label controls are in `attempt02_analysis.json`. Less-
+compressed/compression-training and exact-evidence paths remain separate.

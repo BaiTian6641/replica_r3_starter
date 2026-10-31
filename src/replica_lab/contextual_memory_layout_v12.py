@@ -52,7 +52,9 @@ class ContextualMemoryLayoutV12(FeatureIdentityPath):
     """
 
     def __init__(self, adapter, layout, *, source_identity, feature_provider,
-                 lr=1e-3, initialization_seed=17):
+                 lr=1e-3, initialization_seed=17, key_mode="ordered"):
+        if key_mode not in ("ordered", "content"):
+            raise ContextualMemoryError("reader key mode must be ordered or content")
         if not isinstance(source_identity, str) or not source_identity:
             raise ContextualMemoryError("source execution identity is required")
         if not math.isfinite(lr) or lr <= 0:
@@ -65,6 +67,7 @@ class ContextualMemoryLayoutV12(FeatureIdentityPath):
             raise ContextualMemoryError("feature provider is bound to a different adapter")
         if feature_provider.spec.hidden_size != layout.hidden_size:
             raise ContextualMemoryError("feature-provider width differs from the reader layout")
+        self.key_mode = key_mode
         self.initialization_seed = initialization_seed
         self.adapter, self.spec, self.source_identity = adapter, layout, source_identity
         self.feature_provider = feature_provider
@@ -263,10 +266,22 @@ class ContextualMemoryLayoutV12(FeatureIdentityPath):
         values = torch.cat((slots, pad))[None, None].expand(ids.shape[0], ids.shape[1], -1, -1)
         available = (torch.arange(self.spec.slots, device=ids.device) < count)
         available = available[None, None].expand(values.shape[:3])
-        context = self.reader.snapshot(values, available,
-            validate=lambda: self.validate(batch, scope), active_sites=active_sites)
+        key_values = None
+        if self.key_mode == "content":
+            content = torch.cat((batch.slots, pad))[None, None].expand(
+                ids.shape[0], ids.shape[1], -1, -1)
+            key_values = content
+        if key_values is None:
+            context = self.reader.snapshot(values, available,
+                validate=lambda: self.validate(batch, scope), active_sites=active_sites)
+        else:
+            context = self.reader.snapshot(values, available,
+                validate=lambda: self.validate(batch, scope), active_sites=active_sites,
+                key_values=key_values)
         self.cost["snapshot_copies"] += 1
         self.cost["snapshot_bytes"] += context.values.numel() * context.values.element_size()
+        if key_values is not None:
+            self.cost["snapshot_bytes"] += key_values.numel() * key_values.element_size()
         self.cost["value_slots_read"] += count
         return context
 

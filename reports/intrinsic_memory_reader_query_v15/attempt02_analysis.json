@@ -1,0 +1,1953 @@
+{
+  "artifact_sha256": {
+    "pairs/pair_00.safetensors": "598d41d461fb31b082af9fa2620e75d529d20086a832926f7b2964c6f7b6ed58",
+    "pairs/pair_01.safetensors": "55b6ad126ecf774dd1fa6b32ca727cdb04a8475d88d9a605318b32e9c4b83d4b",
+    "pairs/pair_02.safetensors": "3223962f1ea9e038aa6eb658796722327d8e7b9cd94383d778fd5a63fb8c79a9",
+    "pairs/pair_03.safetensors": "d4e41cc5f5e73e029b6bcb3c0f7b8c241ef2f99a16511fd11d2e4fda04224147",
+    "pairs/pair_04.safetensors": "cfd95df797ad79fa56259055f84e5cfa10d0f0bd760211c32b65a03a561ee744",
+    "pairs/pair_05.safetensors": "6b8fe3be962f09fb4d2cf8f93b2be4c5f2bd2e321fd15b147c3c3753050fb8ef",
+    "pairs/pair_06.safetensors": "7c4f64a5b22143b9dcd546119f39fb3c9dd987effcd84e935f7a509919f0f62e",
+    "pairs/pair_07.safetensors": "1bf7b7bd69b4ae3acb8e73cd46d82c7ddbefe521d21570f54522c562acd5de4d",
+    "pairs/pair_08.safetensors": "e46b2b12782be19ca5f5a9b10e9483bfcdba8437cc36916c550765fc74ee5357",
+    "pairs/pair_09.safetensors": "9b1f172e07424b68dfd1d5e527e212ba82a7d5f1df85ce6d8b0bce99d5bfe981",
+    "pairs/pair_10.safetensors": "bcd33fae97b43ba393cf5b4052ea99120825738fab0bb0b7c7789c4890d4a1c8",
+    "pairs/pair_11.safetensors": "1a0888a4857f62e6390fd70ff4a80be4ecccf6d85541611167797432d86b881f",
+    "pairs/pair_12.safetensors": "378a524157c8189f84e54d38690bbbe5bd019291644886e5e2fcf758c849aae9",
+    "pairs/pair_13.safetensors": "420ce011524da13d33a3d08d4266bf380fa81d1ea4afe25de03306b26b8b2fb5",
+    "pairs/pair_14.safetensors": "46c9e658510560c467e728c797f055609438c1cf5b2532953f6650a3ea8fa554",
+    "pairs/pair_15.safetensors": "9e596448f3faa895fa1450e28affec5106333dafd5d020f28d5a70160beae2e9"
+  },
+  "attention_concentration": {
+    "3": {
+      "contextual": {
+        "entropy_max": 0.5280979871749878,
+        "entropy_mean": 0.12085808166921197,
+        "entropy_min": 0.0007498041377402842,
+        "max_weight_mean": 0.9738926757127047
+      },
+      "shuffled": {
+        "entropy_max": 0.5242629051208496,
+        "entropy_mean": 0.1204016186093213,
+        "entropy_min": 0.0007643452845513821,
+        "max_weight_mean": 0.9740454908460379
+      },
+      "wrong": {
+        "entropy_max": 0.5280979871749878,
+        "entropy_mean": 0.12085808166921197,
+        "entropy_min": 0.0007498041377402842,
+        "max_weight_mean": 0.9738926757127047
+      },
+      "zero": {
+        "entropy_max": 1.3862943649291992,
+        "entropy_mean": 1.3862943649291992,
+        "entropy_min": 1.3862943649291992,
+        "max_weight_mean": 0.25
+      }
+    },
+    "7": {
+      "contextual": {
+        "entropy_max": 0.08634528517723083,
+        "entropy_mean": 0.01917163954476564,
+        "entropy_min": 0.00032630146597512066,
+        "max_weight_mean": 0.9972191620618105
+      },
+      "shuffled": {
+        "entropy_max": 0.08815447986125946,
+        "entropy_mean": 0.019358766401637695,
+        "entropy_min": 0.00033124175388365984,
+        "max_weight_mean": 0.9971847515553236
+      },
+      "wrong": {
+        "entropy_max": 0.08634528517723083,
+        "entropy_mean": 0.01917163954476564,
+        "entropy_min": 0.00032630146597512066,
+        "max_weight_mean": 0.9972191620618105
+      },
+      "zero": {
+        "entropy_max": 1.3862943649291992,
+        "entropy_mean": 1.3862943649291992,
+        "entropy_min": 1.3862943649291992,
+        "max_weight_mean": 0.25
+      }
+    }
+  },
+  "counterfactual_pairs_with_same_top_slot": {
+    "3": 16,
+    "7": 16
+  },
+  "counterfactual_read_mean_absolute": {
+    "3": {
+      "max": 0.7031704783439636,
+      "mean": 0.3544174153357744,
+      "min": 0.09160299599170685
+    },
+    "7": {
+      "max": 0.3440113961696625,
+      "mean": 0.13756217213813215,
+      "min": 0.028118176385760307
+    }
+  },
+  "counterfactual_weight_l1": {
+    "3": {
+      "max": 0.2695971131324768,
+      "mean": 0.06256639597449976,
+      "min": 0.00033021849230863154
+    },
+    "7": {
+      "max": 0.015723584219813347,
+      "mean": 0.003691211942168593,
+      "min": 4.659870683099143e-05
+    }
+  },
+  "decodability": {
+    "query_3": {
+      "baseline_correct": 7,
+      "baseline_predictions": [
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 0
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 1
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 2
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 3
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "red",
+          "world_index": 4
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "red",
+          "world_index": 5
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "red",
+          "world_index": 6
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "red",
+          "world_index": 7
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 8
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 9
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 10
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 11
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 12
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 13
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 14
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 15
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 16
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "red",
+          "world_index": 17
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 18
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 19
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 20
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 21
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 22
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 23
+        }
+      ],
+      "shuffled_label_controls": {
+        "correct_max": 10,
+        "correct_mean": 6.34,
+        "correct_min": 3,
+        "count": 100,
+        "scores": [
+          4,
+          9,
+          10,
+          10,
+          8,
+          4,
+          5,
+          3,
+          4,
+          6,
+          6,
+          7,
+          9,
+          6,
+          6,
+          6,
+          8,
+          8,
+          5,
+          7,
+          7,
+          4,
+          8,
+          5,
+          5,
+          7,
+          5,
+          5,
+          8,
+          5,
+          7,
+          5,
+          6,
+          4,
+          5,
+          7,
+          6,
+          6,
+          7,
+          5,
+          6,
+          5,
+          7,
+          8,
+          7,
+          6,
+          6,
+          7,
+          4,
+          4,
+          9,
+          7,
+          6,
+          8,
+          6,
+          9,
+          7,
+          5,
+          7,
+          3,
+          5,
+          5,
+          6,
+          5,
+          4,
+          7,
+          5,
+          6,
+          7,
+          8,
+          6,
+          10,
+          8,
+          9,
+          9,
+          8,
+          4,
+          7,
+          5,
+          7,
+          3,
+          4,
+          5,
+          6,
+          5,
+          5,
+          8,
+          8,
+          8,
+          5,
+          8,
+          9,
+          9,
+          7,
+          6,
+          5,
+          9,
+          5,
+          5,
+          8
+        ]
+      },
+      "total": 24
+    },
+    "query_7": {
+      "baseline_correct": 18,
+      "baseline_predictions": [
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 0
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 1
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 2
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 3
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 4
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 5
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 6
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 7
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "red",
+          "world_index": 8
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 9
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 10
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 11
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 12
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "red",
+          "world_index": 13
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 14
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 15
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 16
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 17
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 18
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 19
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 20
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 21
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 22
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 23
+        }
+      ],
+      "shuffled_label_controls": {
+        "correct_max": 19,
+        "correct_mean": 6.31,
+        "correct_min": 0,
+        "count": 100,
+        "scores": [
+          10,
+          11,
+          6,
+          8,
+          9,
+          10,
+          1,
+          5,
+          9,
+          2,
+          3,
+          0,
+          8,
+          7,
+          11,
+          5,
+          5,
+          5,
+          7,
+          4,
+          4,
+          3,
+          6,
+          1,
+          5,
+          11,
+          9,
+          0,
+          13,
+          9,
+          4,
+          10,
+          6,
+          1,
+          4,
+          6,
+          3,
+          4,
+          5,
+          5,
+          4,
+          5,
+          5,
+          9,
+          2,
+          4,
+          7,
+          2,
+          7,
+          9,
+          7,
+          7,
+          6,
+          6,
+          5,
+          7,
+          9,
+          5,
+          4,
+          7,
+          9,
+          0,
+          8,
+          5,
+          13,
+          5,
+          5,
+          5,
+          4,
+          5,
+          12,
+          19,
+          8,
+          10,
+          7,
+          11,
+          5,
+          2,
+          2,
+          6,
+          9,
+          5,
+          8,
+          4,
+          6,
+          3,
+          12,
+          4,
+          6,
+          5,
+          5,
+          10,
+          9,
+          6,
+          6,
+          9,
+          7,
+          11,
+          3,
+          10
+        ]
+      },
+      "total": 24
+    },
+    "read_3": {
+      "baseline_correct": 21,
+      "baseline_predictions": [
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 0
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 1
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 2
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 3
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 4
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 5
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 6
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 7
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 8
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 9
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 10
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 11
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 12
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 13
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 14
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 15
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 16
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 17
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 18
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 19
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 20
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 21
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 22
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 23
+        }
+      ],
+      "shuffled_label_controls": {
+        "correct_max": 17,
+        "correct_mean": 6.39,
+        "correct_min": 0,
+        "count": 100,
+        "scores": [
+          8,
+          10,
+          9,
+          9,
+          9,
+          9,
+          1,
+          5,
+          10,
+          2,
+          4,
+          1,
+          8,
+          7,
+          11,
+          8,
+          3,
+          2,
+          6,
+          3,
+          4,
+          2,
+          7,
+          3,
+          5,
+          11,
+          8,
+          1,
+          12,
+          7,
+          6,
+          8,
+          8,
+          1,
+          4,
+          9,
+          3,
+          4,
+          6,
+          6,
+          6,
+          6,
+          6,
+          7,
+          2,
+          4,
+          7,
+          0,
+          5,
+          9,
+          9,
+          8,
+          7,
+          7,
+          6,
+          7,
+          9,
+          5,
+          5,
+          5,
+          11,
+          0,
+          8,
+          7,
+          14,
+          4,
+          4,
+          6,
+          5,
+          5,
+          12,
+          17,
+          9,
+          11,
+          7,
+          11,
+          5,
+          3,
+          4,
+          4,
+          8,
+          5,
+          7,
+          5,
+          5,
+          3,
+          12,
+          3,
+          5,
+          4,
+          7,
+          12,
+          10,
+          4,
+          6,
+          9,
+          6,
+          10,
+          1,
+          10
+        ]
+      },
+      "total": 24
+    },
+    "read_7": {
+      "baseline_correct": 21,
+      "baseline_predictions": [
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 0
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 1
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 2
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 3
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 4
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 5
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 6
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 7
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 8
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 9
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 10
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 11
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 12
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 13
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 14
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 15
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 16
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 17
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 18
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 19
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 20
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 21
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 22
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 23
+        }
+      ],
+      "shuffled_label_controls": {
+        "correct_max": 12,
+        "correct_mean": 6.34,
+        "correct_min": 2,
+        "count": 100,
+        "scores": [
+          6,
+          10,
+          8,
+          8,
+          6,
+          5,
+          2,
+          7,
+          8,
+          4,
+          5,
+          3,
+          8,
+          8,
+          7,
+          8,
+          6,
+          7,
+          6,
+          4,
+          4,
+          5,
+          5,
+          2,
+          4,
+          9,
+          10,
+          4,
+          10,
+          6,
+          6,
+          9,
+          8,
+          4,
+          4,
+          8,
+          2,
+          4,
+          6,
+          9,
+          9,
+          5,
+          6,
+          4,
+          2,
+          4,
+          6,
+          3,
+          5,
+          8,
+          9,
+          9,
+          4,
+          7,
+          6,
+          8,
+          9,
+          6,
+          4,
+          7,
+          9,
+          5,
+          8,
+          6,
+          12,
+          4,
+          6,
+          5,
+          5,
+          5,
+          12,
+          12,
+          7,
+          9,
+          7,
+          8,
+          5,
+          3,
+          6,
+          2,
+          7,
+          5,
+          7,
+          6,
+          4,
+          4,
+          11,
+          6,
+          9,
+          5,
+          5,
+          9,
+          8,
+          5,
+          6,
+          9,
+          5,
+          8,
+          5,
+          8
+        ]
+      },
+      "total": 24
+    },
+    "slots_mean": {
+      "baseline_correct": 21,
+      "baseline_predictions": [
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 0
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 1
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 2
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 3
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 4
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 5
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 6
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 7
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 8
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 9
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 10
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 11
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 12
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 13
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 14
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 15
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 16
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 17
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 18
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 19
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 20
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 21
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 22
+        },
+        {
+          "actual": "red",
+          "correct": true,
+          "predicted": "red",
+          "world_index": 23
+        }
+      ],
+      "shuffled_label_controls": {
+        "correct_max": 14,
+        "correct_mean": 6.24,
+        "correct_min": 0,
+        "count": 100,
+        "scores": [
+          6,
+          10,
+          6,
+          9,
+          8,
+          9,
+          2,
+          4,
+          10,
+          2,
+          5,
+          1,
+          8,
+          8,
+          7,
+          7,
+          3,
+          3,
+          5,
+          3,
+          4,
+          3,
+          6,
+          3,
+          5,
+          10,
+          8,
+          3,
+          13,
+          8,
+          8,
+          8,
+          8,
+          1,
+          3,
+          8,
+          2,
+          5,
+          5,
+          8,
+          7,
+          6,
+          6,
+          7,
+          0,
+          5,
+          6,
+          0,
+          4,
+          10,
+          8,
+          9,
+          7,
+          7,
+          7,
+          7,
+          9,
+          5,
+          4,
+          4,
+          13,
+          0,
+          8,
+          7,
+          14,
+          5,
+          4,
+          5,
+          6,
+          6,
+          11,
+          14,
+          8,
+          8,
+          7,
+          11,
+          3,
+          2,
+          5,
+          3,
+          7,
+          6,
+          5,
+          6,
+          4,
+          5,
+          11,
+          6,
+          5,
+          4,
+          7,
+          11,
+          8,
+          4,
+          5,
+          10,
+          5,
+          9,
+          3,
+          10
+        ]
+      },
+      "total": 24
+    },
+    "weights_3": {
+      "baseline_correct": 0,
+      "baseline_predictions": [
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 0
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 1
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 2
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 3
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 4
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "red",
+          "world_index": 5
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 6
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 7
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 8
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 9
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 10
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 11
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 12
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 13
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 14
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "red",
+          "world_index": 15
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 16
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 17
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 18
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 19
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 20
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 21
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 22
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 23
+        }
+      ],
+      "shuffled_label_controls": {
+        "correct_max": 11,
+        "correct_mean": 6.33,
+        "correct_min": 2,
+        "count": 100,
+        "scores": [
+          3,
+          5,
+          8,
+          7,
+          7,
+          8,
+          7,
+          6,
+          5,
+          10,
+          8,
+          8,
+          8,
+          9,
+          6,
+          6,
+          7,
+          6,
+          6,
+          7,
+          6,
+          6,
+          7,
+          7,
+          10,
+          5,
+          8,
+          6,
+          4,
+          6,
+          6,
+          4,
+          5,
+          8,
+          7,
+          9,
+          3,
+          9,
+          8,
+          4,
+          3,
+          3,
+          7,
+          8,
+          11,
+          3,
+          7,
+          6,
+          6,
+          6,
+          8,
+          7,
+          6,
+          8,
+          7,
+          6,
+          5,
+          8,
+          8,
+          5,
+          7,
+          6,
+          6,
+          7,
+          4,
+          9,
+          8,
+          6,
+          7,
+          5,
+          3,
+          3,
+          8,
+          3,
+          7,
+          4,
+          7,
+          7,
+          6,
+          8,
+          3,
+          5,
+          11,
+          7,
+          4,
+          8,
+          6,
+          8,
+          5,
+          5,
+          5,
+          4,
+          6,
+          9,
+          5,
+          7,
+          8,
+          6,
+          2,
+          5
+        ]
+      },
+      "total": 24
+    },
+    "weights_7": {
+      "baseline_correct": 5,
+      "baseline_predictions": [
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 0
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 1
+        },
+        {
+          "actual": "green",
+          "correct": true,
+          "predicted": "green",
+          "world_index": 2
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 3
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 4
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 5
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 6
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 7
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 8
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 9
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 10
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 11
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "blue",
+          "world_index": 12
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 13
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 14
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 15
+        },
+        {
+          "actual": "blue",
+          "correct": true,
+          "predicted": "blue",
+          "world_index": 16
+        },
+        {
+          "actual": "gold",
+          "correct": false,
+          "predicted": "green",
+          "world_index": 17
+        },
+        {
+          "actual": "blue",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 18
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 19
+        },
+        {
+          "actual": "gold",
+          "correct": true,
+          "predicted": "gold",
+          "world_index": 20
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 21
+        },
+        {
+          "actual": "green",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 22
+        },
+        {
+          "actual": "red",
+          "correct": false,
+          "predicted": "gold",
+          "world_index": 23
+        }
+      ],
+      "shuffled_label_controls": {
+        "correct_max": 10,
+        "correct_mean": 5.75,
+        "correct_min": 2,
+        "count": 100,
+        "scores": [
+          6,
+          4,
+          7,
+          7,
+          5,
+          5,
+          5,
+          5,
+          6,
+          6,
+          10,
+          7,
+          5,
+          7,
+          8,
+          8,
+          9,
+          7,
+          4,
+          6,
+          5,
+          6,
+          4,
+          4,
+          3,
+          5,
+          10,
+          8,
+          8,
+          10,
+          5,
+          4,
+          7,
+          8,
+          3,
+          6,
+          6,
+          9,
+          6,
+          3,
+          4,
+          3,
+          8,
+          4,
+          7,
+          2,
+          6,
+          5,
+          5,
+          6,
+          5,
+          6,
+          4,
+          7,
+          8,
+          5,
+          4,
+          8,
+          6,
+          7,
+          5,
+          5,
+          4,
+          10,
+          4,
+          4,
+          6,
+          5,
+          7,
+          9,
+          4,
+          5,
+          5,
+          5,
+          7,
+          4,
+          3,
+          7,
+          4,
+          5,
+          4,
+          5,
+          6,
+          4,
+          6,
+          7,
+          7,
+          4,
+          6,
+          8,
+          7,
+          4,
+          6,
+          6,
+          6,
+          5,
+          7,
+          3,
+          5,
+          4
+        ]
+      },
+      "total": 24
+    }
+  },
+  "exact_reference_first_token_logits": true,
+  "format": "replica.intrinsic_memory.reader_query_analysis.v15",
+  "known_answer_first_token_correct": 16,
+  "known_answer_rows": 24,
+  "max_reference_logit_absolute_delta": 0.0,
+  "pairs": 16,
+  "reference_root": "/Users/flare/replica_r3_starter/reports/intrinsic_memory_counterfactual_v13/native_bf16_pair_diagnostic_attempt03",
+  "rows": 32,
+  "run_root": "/Users/flare/replica_r3_starter/reports/intrinsic_memory_reader_query_v15/native_bf16_reader_query_attempt02",
+  "scope": {
+    "calibrated_confidence": false,
+    "development_labels_used": false,
+    "fitting_only": true,
+    "held_out_generalization": false,
+    "native_model_executed_by_analysis": false,
+    "parameter_updates": 0
+  },
+  "selection": {
+    "exact_evidence_is_charged_reference_not_learning": true,
+    "falsification": "reject if any final eight-world fitting group fails or known-known pairs both correct do not exceed 1/8 after exactly 512 updates",
+    "hypothesis": "learned-order-dominated keys cause positional addressing collapse despite information-preserving reads",
+    "less_compressed_or_compression_training_combined": false,
+    "objective_changed": false,
+    "optimizer_changed": false,
+    "ordered_values_changed": false,
+    "placement_changed": false,
+    "primary_mechanism": "content_only_attention_keys_with_ordered_values_retained",
+    "slot_count_changed": false,
+    "source_features_changed": false
+  },
+  "top_slot_counts": {
+    "3": {
+      "1": 16,
+      "2": 16
+    },
+    "7": {
+      "0": 32
+    }
+  },
+  "wrong_partner_weight_max_absolute_delta": {
+    "3": 0.0,
+    "7": 0.0
+  }
+}

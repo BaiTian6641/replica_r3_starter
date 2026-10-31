@@ -185,7 +185,7 @@ def build_v12_stack(*, seed=17, layers=36, sites=(3, 7), slots=8, vocab_size=DEF
                     source_identity="cpu_v12_tiny_bf16_fixture",
                     execution_identity="CPU_v12_fixture",
                     placement="block_input_query_to_post_block_residual",
-                    objective_identity=None):
+                    objective_identity=None, key_mode="ordered"):
     """Build the real v12 producer/store path over a tiny random BF16 backbone."""
     sites = tuple(int(site) for site in sites)
     adapter, _, config, _ = build_contextual_adapter(
@@ -215,7 +215,7 @@ def build_v12_stack(*, seed=17, layers=36, sites=(3, 7), slots=8, vocab_size=DEF
                                    width=256, slots=slots, placement=placement)
     path = ContextualMemoryV12(
         adapter, layout, source_identity=source_identity, feature_provider=provider,
-        lr=lr, initialization_seed=initialization_seed,
+        lr=lr, initialization_seed=initialization_seed, key_mode=key_mode,
         objective_identity=objective_identity or {"scope": "CPU_v12_correctness_only"},
         execution_identity=execution_identity)
     return adapter, layout, provider, path

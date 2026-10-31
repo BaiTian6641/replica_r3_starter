@@ -118,9 +118,9 @@ class ConfigurableIntrinsicMemoryReader(nn.Module):
         }])
         return self._optimizer_owner
 
-    def snapshot(self, values, availability, *, validate, active_sites=None):
+    def snapshot(self, values, availability, *, validate, active_sites=None, key_values=None):
         return LayerMemorySnapshot(self, values, availability, validate=validate,
-                                   active_sites=active_sites)
+                                   active_sites=active_sites, key_values=key_values)
 
     def save_checkpoint(self, path, *, source_identity, producer_identity,
                         representation_identity, codec_identity):
@@ -200,7 +200,8 @@ class ConfigurableIntrinsicMemoryReader(nn.Module):
 
 class LayerMemorySnapshot:
     """Shared values, independent per-layer access; validation never writes."""
-    def __init__(self, reader, values, availability, *, validate, active_sites=None):
+    def __init__(self, reader, values, availability, *, validate, active_sites=None,
+                 key_values=None):
         sites = reader.spec.sites if active_sites is None else tuple(active_sites)
         if (not callable(validate) or not sites or any(type(site) is not int for site in sites)
                 or tuple(sorted(set(sites))) != sites
@@ -212,13 +213,19 @@ class LayerMemorySnapshot:
                 or availability.shape != values.shape[:3] or availability.dtype != torch.bool
                 or not torch.isfinite(values).all()):
             raise ValueError("invalid shared memory snapshot")
+        if key_values is not None and (key_values.shape != values.shape
+                or key_values.dtype != values.dtype or key_values.device != values.device
+                or not torch.isfinite(key_values).all()):
+            raise ValueError("invalid content-key snapshot")
         self.reader, self.spec = reader, replace(reader.spec, sites=sites)
         self.values, self.availability = values.clone(), availability.clone()
+        self.key_values = None if key_values is None else key_values.clone()
         self.validate = validate
 
     def delta(self, site, hidden, *, return_attention=False):
         if site not in self.spec.sites:
             raise ValueError("disabled intrinsic site")
         self.validate()
-        return self.reader.ports[str(site)](hidden, self.values, self.availability,
-                                            return_attention=return_attention)
+        return self.reader.ports[str(site)](
+            hidden, self.values, self.availability,
+            return_attention=return_attention, key_slots=self.key_values)

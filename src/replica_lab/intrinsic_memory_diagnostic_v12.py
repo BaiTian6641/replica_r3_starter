@@ -319,24 +319,37 @@ class DiagnosticEngineV12:
             slots = wrong.slots
         elif control == 'shuffled':
             slots = slots.flip(0)
-        # Exactly one order addition on this path: path.snapshot is bypassed
-        # because it would add order a second time.
+        content_slots = slots
+        # Exactly one order addition on the value path. Content-key mode uses
+        # the same authenticated intervention without the learned order vector.
         order = self.path.order(torch.arange(len(slots), device=ids.device))
         slots = slots + order
-        if control == 'zero': slots = torch.zeros_like(slots)
+        if control == 'zero':
+            slots = torch.zeros_like(slots)
+            content_slots = torch.zeros_like(content_slots)
         padding = torch.zeros((self.path.spec.slots-len(slots), WIDTH),
                               device=slots.device, dtype=slots.dtype)
         values = torch.cat((slots, padding))[None, None].expand(ids.shape[0], ids.shape[1], -1, -1)
         mask_slots = (torch.arange(self.path.spec.slots, device=ids.device) < len(slots))
         mask_slots = mask_slots[None, None].expand(values.shape[:3])
+        key_values = None
+        if getattr(self.path, 'key_mode', 'ordered') == 'content':
+            key_values = torch.cat((content_slots, padding))[None, None].expand(
+                ids.shape[0], ids.shape[1], -1, -1)
 
         def validate():
             self.path.validate(batch, scope)
             if control == 'wrong': self.path.validate(wrong, wrong_scope)
 
-        context = self.path.reader.snapshot(values, mask_slots, validate=validate)
+        if key_values is None:
+            context = self.path.reader.snapshot(values, mask_slots, validate=validate)
+        else:
+            context = self.path.reader.snapshot(values, mask_slots, validate=validate,
+                                                key_values=key_values)
         self.path.cost['snapshot_copies'] += 1
         self.path.cost['snapshot_bytes'] += context.values.numel()*context.values.element_size()
+        if key_values is not None:
+            self.path.cost['snapshot_bytes'] += key_values.numel()*key_values.element_size()
         return self.path.adapter.forward_text(ids, mask, use_projector=False, use_ports=False,
                                               use_spine=False, intrinsic_memory=context,
                                               intrinsic_placement=getattr(

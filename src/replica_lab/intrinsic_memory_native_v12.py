@@ -257,13 +257,14 @@ def load_native(root, protocol, arm, ledger, stage):
                                         'block_input_query_to_post_block_residual')),
             source_identity=sha_json(source['files']),
             feature_provider=provider, lr=protocol['training']['lr'], initialization_seed=17,
+            key_mode=protocol.get('intrinsic_reader_key_mode', 'ordered'),
             objective_identity=spec.identity(),
             execution_identity=sha_json({'protocol': protocol, 'arm': arm}))
         path.objective_identity = TeacherObjective().identity(spec)
         adapter.extension.spine = None
         event.update(placement=placement, precision=adapter.base_snapshot(),
                      frozen_parameter_sha256=initial_hash, original_dtype='bfloat16',
-                     extension_dtype='float32',
+                     extension_dtype='float32', reader_key_mode=path.key_mode,
                      feature_contract=provider.spec.identity(),
                      adapter_contract=provider.adapter_contract,
                      adapter_content_sha256=adapter_content_identity(adapter),
@@ -355,7 +356,7 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
     result = {'format': 'replica.intrinsic_memory.native_result.v12',
               'source_kind': 'official_bf16', 'arm': arm,
               'mechanism': 'frozen_canonical_source_features_live_contextual_compression_v12',
-              'competence_passed': False, 'teacher_competence_passed': False,
+              'reader_key_mode': path.key_mode,
               'fit_memory_dependence_passed': False, 'useful_recall_passed': False,
               'persistent_P_updates': 0, 'promotion': False, 'restart_requested': False,
               'fit_cases': FIT_CASES, 'development_cases': DEVELOPMENT_CASES,

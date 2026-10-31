@@ -582,7 +582,7 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
                     "adapter_contract": self.feature_provider.adapter_contract,
                     "tokenizer_contract": self.feature_provider.tokenizer_contract,
                     "layout": self.spec.identity(), "producer": PRODUCER,
-                    "representation": REPRESENTATION, "codec": CODEC,
+                    "reader_key_mode": self.key_mode,
                     "producer_release": inner["producer_release"],
                     "representation_release": inner["representation_release"],
                     "producer_state_release": inner["producer_state_release"],
@@ -611,12 +611,13 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
                     "adapter_contract": self.feature_provider.adapter_contract,
                     "tokenizer_contract": self.feature_provider.tokenizer_contract,
                     "layout": self.spec.identity(), "producer": PRODUCER,
-                    "representation": REPRESENTATION, "codec": CODEC,
+                    "reader_key_mode": self.key_mode,
                     "contains_base_weights": False,
                     "original_weights_serialized": False,
                     "projection_cache": "none",
                     "feature_cache_serialized": False, "task_state_serialized": False}
-        if (any(manifest.get(k) != v for k, v in expected.items())
+        if (any(manifest.get(k, "ordered" if k == "reader_key_mode" else None) != v
+                for k, v in expected.items())
                 or manifest.get("components_manifest_sha256") != components_identity):
             raise ContextualMemoryError("v12 objective/slots/checkpoint identity differs")
         if (type(manifest.get("fitting_frozen")) is not bool
