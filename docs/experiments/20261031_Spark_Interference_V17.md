@@ -1,6 +1,6 @@
 # Spark fitting-only sequence-margin and gradient-interference diagnostic v17
 
-Status: **attempt05 is predeclared and not launched after independent review repairs.** Attempts01–03 failed before a valid diagnostic; attempt04 was only prepared. Development labels remain closed.
+Status: **attempt05 completed the bounded fitting-only diagnostic.** Attempts01–03 failed before a valid diagnostic; attempt04 was only prepared. Development labels remain closed; no candidate was selected and no generalization claim is made.
 
 ## Fixed scope and parent
 
@@ -82,3 +82,33 @@ malformed manifest/record containers without blocking healthy recovery.
 
 Attempt03's closure failure is preserved. Attempt04 was prepared but not launched.
 No historical packet or failed receipt is rewritten.
+
+## Attempt05 native result
+
+Raw evidence: `reports/intrinsic_memory_interference_v17/native_bf16_interference_attempt05/` (`result.json`, `diagnostic.json`, `analysis.json`, `independent_review.json`, `work_ledger.jsonl`, `capacity.json`, `events.jsonl`, and four pair receipts). The run used official BF16 Spark on MPS with CPU fallback disabled, one model load, eight isolated updates and no generated tokens or development access. Original parameters remained unchanged.
+
+For each arm, margin is expected total log-likelihood minus the counterfactual alternative's total log-likelihood. Deltas below are after minus before on the updated target and its untouched partner:
+
+| Pair | Gradient cosine | Update | Target Δ | Partner Δ |
+|---|---:|---|---:|---:|
+| 00 | -0.990205 | v11_fit_00 | +0.281227 | -0.341398 |
+| 00 | -0.990205 | v11_fit_01 | -0.110707 | +0.093312 |
+| 01 | +0.571444 | v11_fit_02 | +0.051759 | -0.131110 |
+| 01 | +0.571444 | v11_fit_03 | +1.817600 | -1.900872 |
+| 04 | -0.296332 | v11_fit_08 | +0.031254 | -0.078123 |
+| 04 | -0.296332 | v11_fit_09 | +0.578131 | -0.585941 |
+| 05 | +0.170618 | v11_fit_10 | +2.457035 | -2.351621 |
+| 05 | +0.170618 | v11_fit_11 | +0.585987 | -0.640635 |
+
+Target margin improved in **7/8** arms and partner margin worsened in **7/8** arms. Pair00 updating `v11_fit_01` is the explicit exception: its target margin decreased while its partner improved. Two pairs have negative gradient cosine and two positive; the positive-cosine pairs still show substantial partner-margin degradation. Gradient cosine alone therefore does not predict the observed sequence-margin interference in this fixture.
+
+The result is a falsification diagnostic for independent fitting on these four known–known pairs, not proof of a general catastrophic-interference law. It does not rank mechanisms, establish useful recall, or authorize development evaluation. Native restoration booleans are constants, not independent tensor-equality measurements; the restoration implementation, exact CPU restoration tests and identical native baselines support the procedure but do not remove that evidence limit.
+
+### Resource and accounting closure
+
+- Consumed: 120 forwards, 16 backwards (8 gradient + 8 update), 8 updates, 29,456 input tokens, 8 source encodes/feature forwards, 8 prompt tokenizations. The result snapshot records 11 writes; the final ledger records 12/30 writes after writing its own receipt.
+- Observed artifact bytes: 3,392,930; logical journal appends: 122,520 bytes across 564 fsynced appends; torn/failed records: 0.
+- Peak sampled driver: 11,290,918,912 bytes (10.516 GiB); minimum host free: 73%; sustained swap growth: 0 bytes. One exclusive model load; no capacity stop.
+- Watchdog wall time: 77.489 seconds; outer command wall: 80.54 seconds. All reservations remained within the predeclared envelope. The independent reviewer recomputed every margin delta and all gradient cosines and found no invalidating numerical or accounting defect.
+
+The earlier failures and prepared-but-unlaunched attempt04 remain preserved. No consumed attempt was retried.

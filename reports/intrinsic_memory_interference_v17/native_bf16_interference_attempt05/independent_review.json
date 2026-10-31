@@ -1,0 +1,42 @@
+{
+  "format": "replica.intrinsic_memory.interference_independent_review.v17",
+  "reviewer": "InterferenceResultReview",
+  "subject": "reports/intrinsic_memory_interference_v17/native_bf16_interference_attempt05",
+  "verdict": "internally_consistent_fitting_only_diagnostic",
+  "recomputed": {
+    "pairs": [0, 1, 4, 5],
+    "update_arms": 8,
+    "target_margin_improved": 7,
+    "partner_margin_worsened": 7,
+    "gradient_cosine_recomposition_max_abs_error": 0.0,
+    "margin_component_composition_max_abs_error": 3.5762786865234375e-7,
+    "interventions": 24,
+    "supervised_tokens_per_arm": 2
+  },
+  "accounting": {
+    "forwards": [120, 128],
+    "backwards": [16, 24],
+    "updates": [8, 8],
+    "input_tokens": [29456, 40960],
+    "generated_tokens": 0,
+    "final_ledger_writes": [12, 30],
+    "result_snapshot_writes": 11,
+    "watchdog_seconds": 77.48942087497562,
+    "watchdog_exit_code": 0,
+    "peak_driver_bytes": 11290918912,
+    "peak_swap_growth_bytes": 0,
+    "minimum_host_free_percent": 73.0
+  },
+  "tensor_artifacts": {
+    "count": 4,
+    "total_bytes": 3164768,
+    "sha256_receipts_matched": true
+  },
+  "development_access": false,
+  "candidate_selected": false,
+  "limitations": [
+    "Four selected fitting pairs and eight one-update arms do not establish development generalization, native capability, a universal update law, or a generally identified reader mechanism.",
+    "Native restoration booleans are constants rather than independent before/after equality measurements; restoration code, exact CPU restoration tests, and identical native baseline records support the procedure but are not equivalent to native tensor-by-tensor restoration proof.",
+    "Post-run analysis and this review are derived evidence, not additional native model execution."
+  ]
+}

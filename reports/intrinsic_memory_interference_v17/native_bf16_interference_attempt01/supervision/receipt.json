@@ -1,0 +1,53 @@
+{
+  "authorization_identity": "370757543addacf74b800f2312590c9d0c81620b9189e97d23c52a941154abdd",
+  "authorization_validated_by_this_supervisor": false,
+  "child_exit_code": 1,
+  "child_pid": 77823,
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv-spark-bf16/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/run_spark_interference_v17.py",
+    "--packet",
+    "/Users/flare/replica_r3_starter/reports/intrinsic_memory_interference_v17/native_packet.json",
+    "--authorization",
+    "/Users/flare/replica_r3_starter/reports/intrinsic_memory_interference_v17/authorization.json",
+    "--worker"
+  ],
+  "command_sha256": "f2432607b85ccdfeae4c2a5843b658ebb99eac0ea45b1d856fc989562a8941cf",
+  "containment_limit": "descendants_that_change_session_or_process_group_are_unsupported",
+  "cwd": "/Users/flare/replica_r3_starter",
+  "deadline_overrun_seconds": 0.0,
+  "direct_child_reaped": true,
+  "elapsed_seconds": 23.22467766609043,
+  "error": null,
+  "exit_code": 125,
+  "format": "replica.command_tree.wall_deadline.v1",
+  "group_probe_errors": [],
+  "hard_realtime_guarantee": false,
+  "interruptions": [],
+  "owned_process_group": 77823,
+  "policy": {
+    "poll_seconds": 0.05,
+    "reap_reserve_seconds": 1.0,
+    "shutdown_grace_seconds": 10.0,
+    "wall_seconds": 1200
+  },
+  "process_group_exit_confirmed": true,
+  "scope": "entire_inherited_process_group_including_preflight_parent_restart",
+  "signal_errors": [],
+  "signals_sent": [
+    {
+      "elapsed_seconds": 23.164506291039288,
+      "name": "SIGINT",
+      "process_group": 77823,
+      "signal": 2
+    }
+  ],
+  "started_at_utc": "2026-10-31T06:36:54.345168+00:00",
+  "status": "descendants_after_child_exit",
+  "stderr": "child.stderr",
+  "stderr_bytes": 1204,
+  "stdout": "child.stdout",
+  "stdout_bytes": 0,
+  "termination_trigger": "descendants_after_child_exit",
+  "useful_execution_seconds_max": 1189.0
+}

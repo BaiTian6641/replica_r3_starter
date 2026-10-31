@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_interference_v17.py", line 235, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_interference_v17.py", line 230, in main
+    worker(args)
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_interference_v17.py", line 66, in worker
+    _, protocol, receipt = validate_bindings(ROOT, args.packet, check_source=True)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_interference_protocol_v17.py", line 101, in validate_bindings
+    raise ValueError("executable implementation closure differs")
+ValueError: executable implementation closure differs

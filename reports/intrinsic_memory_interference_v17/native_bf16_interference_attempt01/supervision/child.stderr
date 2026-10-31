@@ -1,0 +1,17 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 129.77it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_interference_v17.py", line 235, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_interference_v17.py", line 230, in main
+    worker(args)
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_interference_v17.py", line 91, in worker
+    migration = restore_parent_checkpoint(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_counterfactual_v13.py", line 83, in restore_parent_checkpoint
+    result = path.load(checkpoint_root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/contextual_memory_v12.py", line 622, in load
+    raise ContextualMemoryError("v12 objective/slots/checkpoint identity differs")
+replica_lab.contextual_memory.ContextualMemoryError: v12 objective/slots/checkpoint identity differs

@@ -1,19 +1,19 @@
 # Current Spark intrinsic-memory status
 
-**31 October 2026 UTC — v15 reader/query diagnosis is complete; the single v16 content-key native comparison is running.** Development labels remain closed. Useful recall and generalization are not yet established by the running arm.
+**31 October 2026 UTC — the v17 fitting-only interference diagnostic is complete.** Development labels remain closed. Useful recall and generalization are not established.
 
-## Active experiment and exact identities
+## Current evidence and exact identities
 
-- Selected mechanism: **content-only attention keys with ordered values retained**, at sites 3/7 with post-block placement. Source features, four slots, value order, objective, optimizer, initialization seed 17, fitting rows and terminal gates are unchanged.
-- Protocol: `configs/spark_content_key_v16.json`, SHA-256 `f1cea011ca335515a9b966e4117147711d8b3bbd9f1179a0a1160224f3bc26a4`.
-- Packet: `reports/intrinsic_memory_content_key_v16/native_packet_two.json`, SHA-256 `043b745591a64c2515922231b94388a6156df77b39260998b2b3bf3a3a6bdc7b`.
-- Implementation closure: 62 files, SHA-256 `3a311f683cefb8f5e610445566f7fa856a079a16ea1c87578484f01e1a1bbf4e`.
-- Authorization: `reports/intrinsic_memory_content_key_v16/authorization_two.json`; one attempt, zero retries.
-- Output: `reports/intrinsic_memory_content_key_v16/native_bf16_two_attempt01`.
-- Budget: 23 stages; 7,155 reserved stage seconds inside 7,200 outer seconds; 9,778 forwards; 949 source-feature forwards; 513 updates/backwards; 7,256 generated tokens; 4,669 prompt tokenizations; 3,618 writes; 55,490,098,857 reserved read bytes; 205,537,280 artifact bytes.
-- Resources: one exclusive worker, 50 GiB sampled driver, 512 MiB sustained swap growth, at least 15% host free, CPU fallback disabled.
+- V17 completed four known–known fitting pairs (IDs 0, 1, 4, 5) with two isolated one-update arms per pair. Target sequence margin improved in 7/8 arms; partner margin worsened in 7/8. Gradient cosine was negative for two pairs and positive for two, so cosine alone did not predict the measured margin interference.
+- Result and analysis: `reports/intrinsic_memory_interference_v17/native_bf16_interference_attempt05/{result.json,analysis.json}`; interpretation and raw-receipt index: `docs/experiments/20261031_Spark_Interference_V17.md`.
+- Protocol: `configs/spark_interference_diagnostic_v17_attempt05.json`, SHA-256 `970155e0684f66d5e32439a21e1ef584db3659e4dba2060a0ad5b0e49ed1012d`.
+- Packet: `reports/intrinsic_memory_interference_v17/native_packet_attempt05.json`, SHA-256 `db2c5342100e97d94f6ce0360fd16af4e3269c23ca657a8f6dab044308f33d57`.
+- Parent: V16 content-key attempt01 extension plus optimizer, manifest SHA-256 `a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c`; content-only attention keys and ordered values at sites 3/7.
+- Consumed: 120 forwards, 16 backwards, 8 isolated updates, zero generated tokens, zero development access. Peak sampled driver 11,290,918,912 bytes; swap growth 0; observed artifacts 3,392,930 bytes; wall 80.54 seconds.
 
-The mechanism is falsified if any final eight-world fitting group fails or known-known counterfactual pairs both correct do not exceed the sealed 1/8 reference. No best-prefix selection is allowed. Only a fully passing final fitting gate may open development.
+V16 content-key native training also completed. At update 512 its final fitting probes were contextual 15/32, exact-text 32/32, shuffled 15/32, wrong 6/32, zero 9/32 and absent 8/32; known–known counterfactual pairs both correct were 2/8. The all-group fitting gate did not pass, so development was not opened. V17 is a diagnostic on its fitting rows, not a new trained candidate or mechanism selection.
+
+No best-prefix selection or retry of a consumed attempt occurred. Any broader interference study requires a separately predeclared arm; this four-pair fixture does not establish a general interference law.
 
 ## Completed v15 diagnostic
 
@@ -41,9 +41,9 @@ Initial means earliest retained, not an original pre-training baseline. Large-sc
 
 ## Evidence-gated blockers
 
-- V16 terminal fitting, restart and resource outcomes are pending reconciliation; development remains unopened.
+- V16 terminal fitting gates failed and development remains unopened. V17 diagnoses fitting interference only; it does not repair or reselect the memory mechanism.
 - Formation, persistent learning, native density, personal fidelity, nested adaptation and RSI remain gated. No P updates, capacity expansion or promotion occurred.
 - Less-compressed representations and compression training remain separate fallbacks only for later evidence of compression loss. Exact-evidence retrieval is a charged reference, not learned recall. No fallback is combined with content keys.
-- Full committed regression passes 1,000 tests and broad content-key/native/contextual contracts pass 158 tests. Portable migration verification currently passes 1,500/1,502 and final-product verification 547/552; remaining failures are documentation/hash lineage items pending final reconciliation, not passing receipts.
+- Full committed regression passes 1,000 tests and broad content-key/native/contextual contracts pass 158 tests. The v17 interference/migration repair scope passes 16 focused tests. Earlier portable and final-product verification failures remain documentation/hash lineage items, not passing receipts.
 
 Historical v12 attempt10 and v14 pre-MLP remain preserved negative results, not current navigation. Protected and unrelated dirty work remains untouched; `src/replica_lab/runtime_pilot.py` must never be read, imported, edited, or staged.
