@@ -1,9 +1,11 @@
 """CPU mechanics for sequence-margin/interference diagnostic v17."""
+import math
 import time
 
 import torch
 from safetensors.torch import load_file
 
+from replica_lab.intrinsic_memory_interference_v17 import CONTROLS, _norm_cosine, run_pair
 from replica_lab.contextual_completion_objective_v1 import CompletionObjectiveSpec, stop_policy_identity
 from replica_lab.contextual_teacher_objective_v1 import TeacherObjective
 from replica_lab.contextual_v12_fixture import build_v12_stack, optimizer_digest
@@ -98,3 +100,11 @@ def test_interference_protocol_fixed_known_known_budget_and_closed_development()
         assert "only fitting" in str(error)
     else:
         raise AssertionError("development data was admitted")
+
+
+def test_gradient_dot_and_cosine_use_elementwise_products():
+    left = {"a": torch.tensor([1.0, 2.0])}
+    right = {"a": torch.tensor([3.0, 4.0])}
+    result = _norm_cosine(left, right)
+    assert result["dot"] == 11
+    assert math.isclose(result["cosine"], 11 / (math.sqrt(5) * 5), abs_tol=1e-6)

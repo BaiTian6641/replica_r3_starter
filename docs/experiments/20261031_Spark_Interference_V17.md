@@ -1,6 +1,6 @@
 # Spark fitting-only sequence-margin and gradient-interference diagnostic v17
 
-Status: **attempts01 and 02 failed before a valid diagnostic; corrected attempt03 is predeclared and not launched.** Development labels remain closed. This is one bounded diagnostic, not a capability claim.
+Status: **attempt05 is predeclared and not launched after independent review repairs.** Attempts01–03 failed before a valid diagnostic; attempt04 was only prepared. Development labels remain closed.
 
 ## Fixed scope and parent
 
@@ -66,3 +66,19 @@ references):
 
 The parent, measurements, isolated restoration, budgets and development boundary
 are unchanged. No consumed attempt is rerun.
+
+## Independent review and attempt05
+
+The independent reviewer identified stale default pair IDs, nested forward
+double-charging, an incorrect gradient dot product and update-token undercounting.
+Attempt05 uses the declared pair constant, one forward reservation per model call,
+element-wise gradient products and the full encoded token count. It also handles
+malformed manifest/record containers without blocking healthy recovery.
+
+- Protocol: `configs/spark_interference_diagnostic_v17_attempt05.json`, SHA-256 `970155e0684f66d5e32439a21e1ef584db3659e4dba2060a0ad5b0e49ed1012d`.
+- Packet: `reports/intrinsic_memory_interference_v17/native_packet_attempt05.json`, SHA-256 `db2c5342100e97d94f6ce0360fd16af4e3269c23ca657a8f6dab044308f33d57`.
+- Implementation closure: SHA-256 `c19293a718bb793c5730e642e765382201d6710adceae115ccfbff0d8a397818`.
+- Output: `reports/intrinsic_memory_interference_v17/native_bf16_interference_attempt05`; one new attempt, zero retries, separate exact authorization required.
+
+Attempt03's closure failure is preserved. Attempt04 was prepared but not launched.
+No historical packet or failed receipt is rewritten.

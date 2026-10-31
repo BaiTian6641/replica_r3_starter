@@ -269,7 +269,7 @@ def test_malformed_unpublished_generation_does_not_block_healthy_current(tmp_pat
     make_release(root / "00000001", 1, b"healthy")
     damaged = root / "00000002"
     damaged.mkdir()
-    (damaged / "manifest.json").write_text("{not-json")
+    (damaged / "manifest.json").write_text(json.dumps({"records": []}))
     result = inventory_archive(run)
     assert result["current_pointer_valid_generations"] == 1
     assert result["rows"][0]["final"]["generation"] == 1

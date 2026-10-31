@@ -202,7 +202,12 @@ def _logical_generation(source):
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             manifest = {}
         names = []
-        for record in manifest.get("records", {}).values():
+        records = manifest.get("records", {}) if isinstance(manifest, dict) else {}
+        if not isinstance(records, dict):
+            records = {}
+        for record in records.values():
+            if not isinstance(record, dict):
+                continue
             try:
                 names.append(_payload_name(record.get("value_file")))
             except ValueError:

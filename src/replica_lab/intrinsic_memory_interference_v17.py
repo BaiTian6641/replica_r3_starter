@@ -23,6 +23,7 @@ from .intrinsic_memory_budget_v12 import atomic
 from .intrinsic_memory_counterfactual_v13 import _capture, _source
 from .intrinsic_memory_diagnostic_v12 import right_padded_prefix
 from .intrinsic_memory_reader_query_v15 import attentive_forward
+from .intrinsic_memory_interference_protocol_v17 import PAIR_INDICES
 
 CONTROLS = ("wrong_value", "wrong_read_3", "wrong_read_7")
 PAIR_ARTIFACT_BYTES = 8 * 1024**2
@@ -82,9 +83,7 @@ def _candidate(engine, row, batch, scope, answer, *, prompt, control="contextual
                     control=control, wrong=wrong, wrong_scope=wrong_scope,
                     position=position)
         else:
-            with torch.no_grad(), engine.measured(
-                    "interference_forward", forwards=1,
-                    input_tokens=encoding.input_ids.numel()):
+            with torch.no_grad(), engine.measured("interference_forward"):
                 logits = engine.forward(
                     encoding.input_ids, encoding.attention_mask, batch, scope,
                     control=control, wrong=wrong, wrong_scope=wrong_scope)
@@ -137,8 +136,7 @@ def _restore_parameter_state(path, state):
 def _gradient(engine, row, batch, scope, *, prompt):
     encoding = encode_complete_response(prompt, engine.backend.answer_ids(row["answer"]),
                                         spec=engine.spec, device=engine.device)
-    with engine.measured("interference_gradient_forward", forwards=1,
-                         input_tokens=encoding.input_ids.numel()):
+    with engine.measured("interference_gradient_forward"):
         live_batch = engine.path.training_values(batch.spans, scope=scope)
         logits = engine.forward(encoding.input_ids, encoding.attention_mask, live_batch, scope)
     parts = sequence_likelihood_parts(logits, encoding, spec=engine.spec)
@@ -152,7 +150,7 @@ def _gradient(engine, row, batch, scope, *, prompt):
 def _norm_cosine(left, right):
     left_norm = math.sqrt(sum(float(value.square().sum()) for value in left.values()))
     right_norm = math.sqrt(sum(float(value.square().sum()) for value in right.values()))
-    dot = sum(float((left[name] - right[name]).sum()) for name in left.keys() & right.keys())
+    dot = sum(float((left[name] * right[name]).sum()) for name in left.keys() & right.keys())
     denominator = left_norm * right_norm
     return {"left_norm": left_norm, "right_norm": right_norm,
             "cosine": dot / denominator if denominator > 1e-12 else 0.0,
@@ -208,11 +206,11 @@ def run_pair(engine, left, right, pair_index, output, *, observe=None):
         _restore_parameter_state(engine.path, initial)
         engine.path.optimizer.zero_grad(set_to_none=True)
         row = rows[update_side]
+        encoding = encode_complete_response(
+            prompts[update_side], engine.backend.answer_ids(row["answer"]),
+            spec=engine.spec, device=engine.device)
         with engine.measured("interference_update_forward", forwards=1,
-                             input_tokens=len(prompts[update_side])):
-            encoding = encode_complete_response(
-                prompts[update_side], engine.backend.answer_ids(row["answer"]),
-                spec=engine.spec, device=engine.device)
+                             input_tokens=encoding.input_ids.numel()):
             live_batch = engine.path.training_values(
                 batches[update_side].spans, scope=scopes[update_side])
             logits = engine.path.forward(encoding.input_ids, encoding.attention_mask,
@@ -230,7 +228,7 @@ def run_pair(engine, left, right, pair_index, output, *, observe=None):
             after.append({"expected": baseline["expected"], "alternative": baseline["alternative"],
                           "margin": baseline["margin"]})
         arms.append({"update_side": update_side, "update_world_id": row["world_id"],
-                     "loss": float(loss), "supervised_tokens": parts["supervised_tokens"],
+                     "loss": float(loss.detach()), "supervised_tokens": parts["supervised_tokens"],
                      "before": [{"expected": baseline["expected"],
                                  "alternative": baseline["alternative"],
                                  "margin": baseline["margin"]} for baseline in baselines],
@@ -310,7 +308,7 @@ def run_pair(engine, left, right, pair_index, output, *, observe=None):
     return document
 
 
-def run_diagnostic(engine, rows, output, *, pair_indices=(0, 2, 4, 6), observe=None):
+def run_diagnostic(engine, rows, output, *, pair_indices=PAIR_INDICES, observe=None):
     if len(rows) != 32:
         raise ValueError("fixed fitting corpus required")
     documents = [run_pair(engine, rows[index], rows[index + 1], pair_index, output,

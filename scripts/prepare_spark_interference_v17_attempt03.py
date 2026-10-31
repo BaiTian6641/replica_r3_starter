@@ -23,6 +23,7 @@ OUTPUT = f"{REPORT}/native_bf16_interference_attempt03"
 IMPLEMENTATION = f"{REPORT}/implementation_attempt03.json"
 PACKET_PATH = f"{REPORT}/native_packet_attempt03.json"
 AUTHORIZATION = f"{REPORT}/authorization_attempt03.json"
+PREPARATION = f"{REPORT}/preparation_attempt03.json"
 CHECKPOINT = "reports/intrinsic_memory_content_key_v16/native_bf16_two_attempt01/checkpoint"
 
 
@@ -113,7 +114,7 @@ def prepare():
         "budget": protocol["arms"]["two"]["total_reservations"], "review": review,
         "failed_attempts_preserved": [1, 2],
     }
-    save_new(f"{REPORT}/preparation_attempt03.json", result)
+    save_new(PREPARATION, result)
     return result
 
 
