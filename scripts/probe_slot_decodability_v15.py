@@ -16,12 +16,15 @@ LABELS = ("red", "blue", "green", "gold")
 INDEX = {label: index for index, label in enumerate(LABELS)}
 
 
-def probe(features, answers, *, shuffled=None):
+def probe(features, answers, *, shuffled=None, identities=None):
+    if identities is not None and len(identities) != len(answers):
+        raise ValueError("probe identities must align with rows")
     one_hot = torch.zeros(len(answers), len(LABELS))
     for index, answer in enumerate(answers):
         one_hot[index, INDEX[answer]] = 1.0
     if shuffled is not None:
         one_hot = one_hot[shuffled]
+    targets = [LABELS[int(row.argmax())] for row in one_hot]
     predictions = []
     for holdout in range(len(features) // 2):
         train = torch.tensor([index for index in range(len(features))
@@ -37,8 +40,11 @@ def probe(features, answers, *, shuffled=None):
             normalized = normalized / normalized.norm().clamp_min(1e-12)
             scores = normalized @ weights + prior
             predicted = LABELS[int(scores.argmax())]
-            predictions.append({"world_index": index, "actual": answers[index],
-                                "predicted": predicted, "correct": predicted == answers[index]})
+            identity = (identities[index] if identities is not None
+                        else {"world_index": index})
+            predictions.append({**identity, "actual": targets[index],
+                                "expected_answer": answers[index],
+                                "predicted": predicted, "correct": predicted == targets[index]})
     return predictions
 def main():
     parser = argparse.ArgumentParser()
@@ -48,7 +54,7 @@ def main():
     args = parser.parse_args()
     if args.output.exists():
         raise ValueError("decodability receipt must be fresh")
-    features, answers = [], []
+    features, answers, identities = [], [], []
     artifact_hashes = {}
     for index in range(16):
         path = args.run / "pairs" / f"pair_{index:02d}.safetensors"
@@ -59,18 +65,20 @@ def main():
             answer = document["expected_answers"][side]
             if answer == "unknown":
                 continue
+            identities.append({"pair_index": index, "side": side,
+                               "world_id": document["world_ids"][side]})
             slots = tensors[f"slots_{side}"].float()
             averaged = slots.mean(dim=0)
             averaged = averaged / averaged.norm().clamp_min(1e-12)
             features.append(averaged)
             answers.append(answer)
     features = torch.stack(features)
-    baseline = probe(features, answers)
+    baseline = probe(features, answers, identities=identities)
     controls = []
     for seed in range(args.controls):
         permutation = list(range(len(answers)))
         random.Random(20261030 + seed).shuffle(permutation)
-        controls.append(probe(features, answers, shuffled=permutation))
+        controls.append(probe(features, answers, shuffled=permutation, identities=identities))
     result = {
         "format": "replica.intrinsic_memory.slot_decodability_probe.v15",
         "run_root": str(args.run),

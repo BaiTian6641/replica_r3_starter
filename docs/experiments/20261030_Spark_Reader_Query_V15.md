@@ -64,16 +64,22 @@ tokens, with zero generated tokens or updates. Peak sampled driver was
 9,352,904,704 bytes, swap growth zero, minimum host free 74%, and observed output
 38,820,215 bytes.
 
-Attention is peaked but positionally collapsed. Site-3/site-7 mean maximum weights
+Attention is peaked and positionally stable. Site-3/site-7 mean maximum weights
 are 0.9739/0.9972. Site 3 selects the same top slot in 16/16 pairs; site 7 selects
-slot 0 in 32/32 rows. Pair-held-out answer decodability is 0/24 for site-3 weights,
-5/24 for site-7 weights and 21/24 for each read and averaged slots. Known-known
-first-token correctness is 16/24; known-known pairs both correct remain 1/8.
+slot 0 in 32/32 rows. These facts alone do **not** prove failed addressing:
+different correctly selected values may occupy the same slot. Pair-held-out answer
+decodability is 0/24 for site-3 weights, 5/24 for site-7 weights and 21/24 for
+each read and averaged slots, but weak weight-only color prediction is likewise
+not an addressing verdict. Known-known first-token correctness is 16/24; known-
+known pairs both correct remain 1/8.
 
-The selected single mechanism is **content-only attention keys with ordered
-values retained**, targeting learned-order dominance in keys rather than diffuse
-attention or missing read information. The falsification rule and native v16
-packet are predeclared in `docs/experiments/20261030_Spark_Content_Key_V16.md`.
-The reproducible analysis is `scripts/analyze_spark_reader_query_v15.py`; raw
-metrics and shuffled-label controls are in `attempt02_analysis.json`. Less-
-compressed/compression-training and exact-evidence paths remain separate.
+The selected single mechanism was **content-only attention keys with ordered
+values retained**, targeting a learned-order/key-alignment hypothesis rather than
+proven positional failure. V16 subsequently falsified that mechanism behaviorally;
+the stable positions did not independently establish the cause. The falsification
+rule and terminal outcome are in `docs/experiments/20261030_Spark_Content_Key_V16.md`.
+The reproducible analysis is `scripts/analyze_spark_reader_query_v15.py`; corrected
+raw metrics, original pair identities and matched shuffled targets are in
+`attempt02_analysis_run02.json`. Earlier control scores remain preserved with
+their original-target scoring defect. Less-compressed/compression-training and
+exact-evidence paths remain separate.

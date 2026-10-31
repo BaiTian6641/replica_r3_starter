@@ -11,7 +11,7 @@ V15 attempt02 completed all 16 pairs with zero generation/updates and no develop
 - Pair-held-out answer decodability is 0/24 for site-3 weights and 5/24 for site-7 weights, versus 21/24 for each site's read and 21/24 for averaged slots. Shuffled-label means are approximately 6/24.
 - Actual known-known first-token correctness is 16/24, while known-known pairs both correct remain 1/8. Known-unknown and exact-evidence behavior are separate controls.
 
-The selected failure hypothesis is **learned-order dominance in attention keys causing positional addressing collapse**, not insufficient information in the compressed values. Content-only keys test that hypothesis while ordered values retain the established slot semantics. Source features, four slots per span, value order, sites 3/7, post-block placement, optimizer, objective, data order, initialization seed 17 and terminal gates are unchanged. The extension starts from the same initialization, not trained v12/v14 weights.
+The tested failure hypothesis was **learned-order dominance in attention keys causing positional addressing collapse**, not insufficient information in compressed values. Fixed positions and weak weight-only probes did not prove that hypothesis; they only motivated the test. Content-only keys were evaluated while ordered values retained the established slot semantics. Source features, four slots per span, value order, sites 3/7, post-block placement, optimizer, objective, data order, initialization seed 17 and terminal gates were unchanged. The extension started from the same initialization, not trained v12/v14 weights.
 
 ## Falsification and fixed gates
 

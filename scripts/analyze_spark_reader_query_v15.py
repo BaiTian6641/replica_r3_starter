@@ -22,13 +22,16 @@ INDEX = {label: index for index, label in enumerate(LABELS)}
 REFERENCE_CONTROLS = (0, 3, 2, 4)
 
 
-def probe(features, answers, *, shuffled=None):
-    """Dual ridge form of the declared pair-held-out probe; N is smaller than D."""
+def probe(features, answers, *, shuffled=None, identities=None):
+    """Dual ridge with fold-local preprocessing and matched held-out targets."""
+    if identities is not None and len(identities) != len(answers):
+        raise ValueError("probe identities must align with rows")
     one_hot = torch.zeros(len(answers), len(LABELS))
     for index, answer in enumerate(answers):
         one_hot[index, INDEX[answer]] = 1.0
     if shuffled is not None:
         one_hot = one_hot[shuffled]
+    targets = [LABELS[int(row.argmax())] for row in one_hot]
     predictions = []
     for holdout in range(len(features) // 2):
         train = torch.tensor([index for index in range(len(features))
@@ -44,18 +47,22 @@ def probe(features, answers, *, shuffled=None):
             normalized = normalized / normalized.norm().clamp_min(1e-12)
             scores = normalized @ x.T @ dual + prior
             predicted = LABELS[int(scores.argmax())]
-            predictions.append({"world_index": index, "actual": answers[index],
-                                "predicted": predicted, "correct": predicted == answers[index]})
+            identity = (identities[index] if identities is not None
+                        else {"world_index": index})
+            predictions.append({**identity, "actual": targets[index],
+                                "expected_answer": answers[index],
+                                "predicted": predicted, "correct": predicted == targets[index]})
     return predictions
 
 
-def probe_summary(features, answers):
-    baseline = probe(features, answers)
+def probe_summary(features, answers, identities):
+    baseline = probe(features, answers, identities=identities)
     controls = []
     for seed in range(100):
         permutation = list(range(len(answers)))
         random.Random(20261030 + seed).shuffle(permutation)
-        controls.append(sum(row["correct"] for row in probe(features, answers, shuffled=permutation)))
+        controls.append(sum(row["correct"] for row in probe(
+            features, answers, shuffled=permutation, identities=identities)))
     return {
         "baseline_correct": sum(row["correct"] for row in baseline), "total": len(baseline),
         "baseline_predictions": baseline,
@@ -72,7 +79,7 @@ def sha256(path):
 
 def analyze(run, reference):
     run, reference = Path(run), Path(reference)
-    answers, actual_first = [], []
+    answers, actual_first, identities = [], [], []
     features = {name: [] for name in (
         "slots_mean", "weights_3", "weights_7", "read_3", "read_7", "query_3", "query_7")}
     concentration = {site: {control: [] for control in CONTROLS} for site in (3, 7)}
@@ -120,6 +127,8 @@ def analyze(run, reference):
             if answer == "unknown":
                 continue
             answers.append(answer)
+            identities.append({"pair_index": index, "side": side,
+                               "world_id": document["world_ids"][side]})
             actual_first.append(document["control_outputs"][side][0]["first_token_correct"])
             slots = tensors[f"slots_{side}"].float()
             averaged = slots.mean(dim=0)
@@ -158,7 +167,7 @@ def analyze(run, reference):
                         "min": min(pair_read_mean_abs[site]), "max": max(pair_read_mean_abs[site])}
             for site in (3, 7)},
         "known_answer_first_token_correct": sum(actual_first),
-        "decodability": {name: probe_summary(torch.stack(rows), answers)
+        "decodability": {name: probe_summary(torch.stack(rows), answers, identities)
                          for name, rows in features.items()},
         "selection": {
             "primary_mechanism": "content_only_attention_keys_with_ordered_values_retained",
