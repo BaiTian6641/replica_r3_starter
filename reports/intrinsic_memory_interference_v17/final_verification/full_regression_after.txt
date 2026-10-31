@@ -1,0 +1,2061 @@
+........................................................................ [  1%]
+........................................................................ [  3%]
+........................................................................ [  4%]
+........................................................................ [  6%]
+........................................................................ [  8%]
+........................................................................ [  9%]
+........................................................................ [ 11%]
+........................................................................ [ 13%]
+........................................................................ [ 14%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 19%]
+........................................................................ [ 21%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 26%]
+........................................................................ [ 27%]
+.................................s...................................... [ 29%]
+........................................................................ [ 31%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 36%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 40%]
+........................................................................ [ 42%]
+........................................................................ [ 44%]
+........................................................................ [ 45%]
+........................................................................ [ 47%]
+........................................................................ [ 49%]
+........................................................................ [ 50%]
+........................................................................ [ 52%]
+................................................... [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 56%]
+........................................................................ [ 58%]
+........................................................................ [ 60%]
+........................................................................ [ 61%]
+........................................................................ [ 63%]
+....................................sssssss............................. [ 65%]
+........................................................................ [ 66%]
+........................................................................ [ 68%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 73%]
+........................................................................ [ 74%]
+........................................................................ [ 76%]
+........................................................F...........F... [ 78%]
+........................................................................ [ 79%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 84%]
+...........................................................F............ [ 86%]
+........................................................................ [ 88%]
+.F...................................................................... [ 89%]
+.................................................................s...... [ 91%]
+.......................F................................................ [ 92%]
+...........................................F.F.......................... [ 94%]
+........................................................................ [ 96%]
+........................................................................ [ 97%]
+........................................................................ [ 99%]
+.......................                                                  [100%]
+=================================== FAILURES ===================================
+________________ test_clean_fixture_passes_and_is_deterministic ________________
+
+repository = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2330/test_clean_fixture_passes_and_0/repo')
+
+    def test_clean_fixture_passes_and_is_deterministic(repository: Path) -> None:
+        first = _run(repository)
+>       assert not first["failed"], first["failed"]
+E       AssertionError: [{'name': 'deliverable:docs/architecture/16_Loop_Agent_Instructions.md', 'passed': False}, {'name': 'deliverable:CURRE...sed': False}, {'name': 'added_identity_present:src/replica_lab/intrinsic_memory_teacher_v11.py', 'passed': False}, ...]
+E       assert not [{'name': 'deliverable:docs/architecture/16_Loop_Agent_Instructions.md', 'passed': False}, {'name': 'deliverable:CURRE...sed': False}, {'name': 'added_identity_present:src/replica_lab/intrinsic_memory_teacher_v11.py', 'passed': False}, ...]
+
+tests/test_sparkx_v5_1_review.py:101: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{
+  "scope": "documentation, reference, arithmetic and migration checks only; no model, training, native execution or measured fit",
+  "checks": 1396,
+  "passed": 1388,
+  "failed": 8,
+  "migration_identity": "sparkx-2.6-v5.1-review-migration-20261027",
+  "native_gates_unresolved": 10
+}
+__________ test_local_artifact_absence_is_allowed_only_when_declared ___________
+
+repository = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2330/test_local_artifact_absence_is0/repo')
+
+    def test_local_artifact_absence_is_allowed_only_when_declared(repository: Path) -> None:
+        # The fixture never copies `runs/`; the declared references are absent and pass.
+        result = _run(repository)
+>       assert not result["failed"]
+E       AssertionError: assert not [{'name': 'deliverable:docs/architecture/16_Loop_Agent_Instructions.md', 'passed': False}, {'name': 'deliverable:CURRE...sed': False}, {'name': 'added_identity_present:src/replica_lab/intrinsic_memory_teacher_v11.py', 'passed': False}, ...]
+
+tests/test_sparkx_v5_1_review.py:229: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{
+  "scope": "documentation, reference, arithmetic and migration checks only; no model, training, native execution or measured fit",
+  "checks": 1396,
+  "passed": 1388,
+  "failed": 8,
+  "migration_identity": "sparkx-2.6-v5.1-review-migration-20261027",
+  "native_gates_unresolved": 10
+}
+________ test_prepared_v2_roles_load_separately_with_bound_assignments _________
+
+config = {'format': 'replica.vision_collapse_diagnostic_config.v1', 'version': 'replica.vision_collapse_diagnostic.v1', 'name': 'vision_collapse_diagnostic_v1', 'declared_at_utc': '2026-10-26T00:00:00+00:00', ...}
+root = PosixPath('/Users/flare/replica_r3_starter'), source_root = None
+mode = 'current'
+current_receipt = PosixPath('/Users/flare/replica_r3_starter/configs/vision_current_source_receipt_v1.json')
+
+    def verify_pins(config, root=ROOT, *, source_root=None, mode=None,
+                    current_receipt=None):
+        """Verify prepared, source, lock and extension bytes without loading a model.
+    
+        ``historical`` replay authenticates the implementation pins against the
+        immutable source snapshot.  ``current`` qualification requires a reviewed
+        current-source receipt and verifies the live tree against it.  Omitting
+        ``mode`` preserves the pre-existing declared-pin live check for additive
+        consumers that have not yet selected a mode; the v1 CLI always selects
+        ``current``.
+        """
+        root = Path(root)
+        if mode is None:
+            if source_root is not None and current_receipt is not None:
+                raise DiagnosticError(
+                    "Specify the implementation source mode explicitly when both "
+                    "source_root and current_receipt are supplied")
+            if source_root is not None:
+                mode = "historical"
+            elif current_receipt is not None:
+                mode = "current"
+        prepared = root / config["prepared"]["root"]
+        require(prepared.is_dir(), "The prepared data root is missing")
+        protocol_path = root / config["prepared"]["protocol"]
+        manifest_path = root / config["prepared"]["manifest"]
+        training_path = root / config["prepared"]["training"]
+        for path, label in ((protocol_path, "prepared protocol"),
+                            (manifest_path, "prepared manifest"),
+                            (training_path, "training alignment")):
+            require(path.is_file(), f"The {label} is missing: {path}")
+        protocol_sha = _sha(protocol_path)
+        require(protocol_sha == config["prepared"]["protocol_sha256"],
+                "Prepared protocol bytes differ from the diagnostic pin")
+        manifest_sha = _sha(manifest_path)
+        require(manifest_sha == config["prepared"]["manifest_sha256"],
+                "Prepared manifest bytes differ from the diagnostic pin")
+        training_sha = _sha(training_path)
+        require(training_sha == config["prepared"]["training_sha256"],
+                "Training alignment bytes differ from the diagnostic pin")
+        protocol = _read_json(protocol_path)
+        manifest = _read_json(manifest_path)
+        require(protocol["data"]["root"] == config["prepared"]["root"],
+                "Prepared protocol data root differs")
+        require(protocol["data"]["manifest"]["sha256"] == manifest_sha,
+                "Prepared protocol manifest pin differs")
+        require(protocol["data"]["seals"]["train_alignment_payload"] == training_sha,
+                "Prepared alignment seal differs")
+        counts = protocol["data"]["counts"]
+        require(counts["train_examples"] == config["prepared"]["training_examples"]
+                and counts["train_answers"] == config["prepared"]["answer_examples"]
+                and counts["train_captions"] == config["prepared"]["caption_examples"],
+                "Prepared training counts differ")
+        require(manifest["counts"] == counts, "Prepared manifest counts differ")
+        fit = protocol["fit_contract"]
+        prompt_contract = config["prompt_contract"]
+        require(fit["question_template"] == prompt_contract["question_template"]
+                == protocol["evaluation"]["question_template"],
+                "The question template pins differ")
+        require(fit["caption_template"] == prompt_contract["caption_template"],
+                "The caption template pins differ")
+        require(fit["loss"] == prompt_contract["loss"]
+                and fit["response_only_labels"] is True,
+                "The prepared fit loss/label contract differs")
+        require(int(protocol["train"]["init_seed"])
+                == int(config["stages"][0]["init_seed"]),
+                "The fresh init seed differs from the prepared protocol")
+        limits = config["limits"]
+        for name in ("max_prompt_tokens", "max_sequence_tokens",
+                     "max_new_tokens", "caption_max_new_tokens"):
+            require(int(protocol["limits"][name]) == int(limits[name]),
+                    f"The declared {name} differs from the prepared protocol")
+        resource = protocol["resource_policy"]
+        require(resource["device"] == config["policy"]["device"] == "mps",
+                "The declared device differs")
+        require(resource["cpu_fallback"] is False
+                and resource["downloads"] == 0
+                and resource["workers"] == 1,
+                "The prepared resource policy allows fallback, downloads or workers")
+        require(resource["exclusive_mps_worker"] is True,
+                "The prepared resource policy lacks the exclusive MPS worker")
+    
+        lock_path = root / config["source"]["model_lock"]
+        require(lock_path.is_file(), "The model lock is missing")
+        lock_sha = _sha(lock_path)
+        require(lock_sha == config["source"]["model_lock_sha256"],
+                "Model lock bytes differ from the diagnostic pin")
+        lock = _read_json(lock_path)
+        require(lock["revision"] == config["source"]["model_revision"],
+                "Model lock revision differs")
+        require(protocol["model"]["revision"] == config["source"]["model_revision"],
+                "Prepared protocol model revision differs")
+        require(protocol["model"]["lock_sha256"] == lock_sha,
+                "Prepared protocol model lock pin differs")
+        model_path = root / config["source"]["model_path"]
+        require(model_path.is_dir(), "The sealed model path is missing")
+        require(_sha(model_path / "config.json") == lock["config_sha256"],
+                "Local model config differs from the lock")
+        require(bool(list(model_path.glob("*.safetensors"))),
+                "The sealed model snapshot has no safetensors weights")
+        vision_manifest = root / config["source"]["vision_source_manifest"]
+        require(vision_manifest.is_file(), "The vision source manifest is missing")
+        vision_manifest_sha = _sha(vision_manifest)
+        require(vision_manifest_sha == config["source"]["vision_source_manifest_sha256"],
+                "Vision source manifest bytes differ from the diagnostic pin")
+        require(protocol["vision_source"]["manifest"]["sha256"] == vision_manifest_sha,
+                "Prepared protocol vision manifest pin differs")
+    
+        extension_path = root / config["extension"]["path"]
+        weights_path = extension_path / "extensions.safetensors"
+        receipt_path = extension_path / "manifest.json"
+        require(weights_path.is_file() and receipt_path.is_file(),
+                "The pinned train04 extension is incomplete")
+        receipt_sha = _sha(receipt_path)
+        require(receipt_sha == config["extension"]["manifest_sha256"],
+                "Extension receipt bytes differ from the diagnostic pin")
+        weights_sha = _sha(weights_path)
+        require(weights_sha == config["extension"]["weights_sha256"],
+                "Extension weights differ from the diagnostic pin")
+        require(weights_path.stat().st_size == config["extension"]["weights_bytes"],
+                "Extension weight bytes differ from the diagnostic pin")
+        receipt = _read_json(receipt_path)
+        require(receipt["format"] == config["extension"]["format"],
+                "Extension format differs")
+        require(receipt["regime"] == config["extension"]["regime"],
+                "Extension regime differs")
+        require(receipt["base_saved"] is False,
+                "The pinned extension saved base weights")
+        require(receipt["weights_sha256"] == weights_sha,
+                "Extension receipt weight hash differs")
+        require(receipt["manifest_digest"] == config["extension"]["manifest_digest"],
+                "Extension manifest digest differs")
+        require(receipt["manifest"]["vision"] == protocol["vision"],
+                "Extension vision pins differ from the prepared protocol")
+        require(receipt["manifest"]["source_revision"]
+                == config["source"]["model_revision"],
+                "Extension source revision differs")
+    
+        migration_config = config["implementation_pins"]
+        migrations = dict(migration_config["migrations"])
+        prepared_pins = dict(protocol.get("implementation_sha256") or {})
+        require(migration_config["prepared_protocol_pins_checked"] is True
+                and migration_config["mode"] == "explicit_read_only_migration",
+                "The diagnostic must declare explicit read-only implementation migrations")
+        require(prepared_pins, "The prepared protocol lacks implementation pins")
+        require(mode is None or mode in provenance.MODES,
+                f"Unknown implementation source mode: {mode}")
+        require(set(migrations) <= set(prepared_pins),
+                "Implementation migration names an unpinned file")
+        for relative, migration in migrations.items():
+            require(isinstance(migration, dict)
+                    and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                    f"Implementation migration is malformed: {relative}")
+            expected = prepared_pins[relative]
+            require(migration["parent_sha256"] == expected,
+                    f"Implementation migration parent differs: {relative}")
+            current = migration["current_sha256"]
+            require(provenance.is_sha256(current) and current != expected,
+                    f"Implementation migration current pin is invalid: {relative}")
+            require(isinstance(migration["reason"], str)
+                    and bool(migration["reason"].strip()),
+                    f"Implementation migration lacks a reason: {relative}")
+        config_body_sha256 = provenance.canonical_digest(config)
+        try:
+            if mode is None:
+                source = provenance.verify_declared_live(
+                    root, prepared_pins=prepared_pins, migrations=migrations,
+                    new_files={})
+                actual = source["actual"]
+                resolved_migrations = migrations
+                new_files = {}
+            elif mode == "historical":
+                snapshot = source_root or _default_snapshot(root)
+                source = provenance.verify_historical_source(
+                    snapshot, prepared_pins=prepared_pins,
+                    migrations=migrations, new_files={})
+                actual = source["actual"]
+                resolved_migrations = migrations
+                new_files = {}
+            else:
+                require(current_receipt is not None,
+                        "Current implementation verification requires a reviewed "
+                        "current-source receipt")
+                current_receipt_path = (current_receipt
+                                        or _default_receipt(root))
+>               source = provenance.verify_current_source(
+                    current_receipt_path, root=root, prepared_pins=prepared_pins,
+                    protocol_sha256=protocol_sha, manifest_sha256=manifest_sha,
+                    config_name=config["name"], config_body_sha256=config_body_sha256,
+                    config_new_files={})
+
+scripts/run_vision_collapse_diagnostic.py:345: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/source_provenance.py:279: in verify_current_source
+    require(set(migrations) == drift,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False
+message = "Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']"
+
+    def require(condition: bool, message: str) -> None:
+        if not condition:
+>           raise SourceProvenanceError(message)
+E           replica_lab.source_provenance.SourceProvenanceError: Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']
+
+src/replica_lab/source_provenance.py:46: SourceProvenanceError
+
+The above exception was the direct cause of the following exception:
+
+    @require_local_artifacts(
+        "checkpoints/minicpm5_source",
+        "checkpoints/siglip2_base_patch16_224_source",
+        "data/vision_balanced_alignment_v2_20261026/prepared04",
+        "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+    )
+    def test_prepared_v2_roles_load_separately_with_bound_assignments():
+        import importlib.util
+        protocol_path = (ROOT / "data/vision_balanced_alignment_v2_20261026/prepared04/"
+                         "protocol.json")
+        with pytest.raises(ValueError, match="Implementation bytes changed"):
+            vba.load_prepared(protocol_path, ROOT)
+        diagnostic_spec = importlib.util.spec_from_file_location(
+            "vision_collapse_runner_for_roles",
+            ROOT / "scripts/run_vision_collapse_diagnostic.py")
+        diagnostic_module = importlib.util.module_from_spec(diagnostic_spec)
+        diagnostic_spec.loader.exec_module(diagnostic_module)
+        diagnostic_config = diagnostic_module.load_config(
+            ROOT / "configs/vision_collapse_diagnostic_v1.json")
+        verified = diagnostic_module.verify_pins(
+            diagnostic_config, source_root=HISTORICAL_SNAPSHOT,
+            mode="historical")
+        assert verified["pins"]["implementation"]["source_mode"] == (
+            "historical_snapshot")
+>       current = diagnostic_module.verify_pins(
+            diagnostic_config, mode="current", current_receipt=CURRENT_RECEIPT)
+
+tests/test_vision_caption_v2.py:561: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'format': 'replica.vision_collapse_diagnostic_config.v1', 'version': 'replica.vision_collapse_diagnostic.v1', 'name': 'vision_collapse_diagnostic_v1', 'declared_at_utc': '2026-10-26T00:00:00+00:00', ...}
+root = PosixPath('/Users/flare/replica_r3_starter'), source_root = None
+mode = 'current'
+current_receipt = PosixPath('/Users/flare/replica_r3_starter/configs/vision_current_source_receipt_v1.json')
+
+    def verify_pins(config, root=ROOT, *, source_root=None, mode=None,
+                    current_receipt=None):
+        """Verify prepared, source, lock and extension bytes without loading a model.
+    
+        ``historical`` replay authenticates the implementation pins against the
+        immutable source snapshot.  ``current`` qualification requires a reviewed
+        current-source receipt and verifies the live tree against it.  Omitting
+        ``mode`` preserves the pre-existing declared-pin live check for additive
+        consumers that have not yet selected a mode; the v1 CLI always selects
+        ``current``.
+        """
+        root = Path(root)
+        if mode is None:
+            if source_root is not None and current_receipt is not None:
+                raise DiagnosticError(
+                    "Specify the implementation source mode explicitly when both "
+                    "source_root and current_receipt are supplied")
+            if source_root is not None:
+                mode = "historical"
+            elif current_receipt is not None:
+                mode = "current"
+        prepared = root / config["prepared"]["root"]
+        require(prepared.is_dir(), "The prepared data root is missing")
+        protocol_path = root / config["prepared"]["protocol"]
+        manifest_path = root / config["prepared"]["manifest"]
+        training_path = root / config["prepared"]["training"]
+        for path, label in ((protocol_path, "prepared protocol"),
+                            (manifest_path, "prepared manifest"),
+                            (training_path, "training alignment")):
+            require(path.is_file(), f"The {label} is missing: {path}")
+        protocol_sha = _sha(protocol_path)
+        require(protocol_sha == config["prepared"]["protocol_sha256"],
+                "Prepared protocol bytes differ from the diagnostic pin")
+        manifest_sha = _sha(manifest_path)
+        require(manifest_sha == config["prepared"]["manifest_sha256"],
+                "Prepared manifest bytes differ from the diagnostic pin")
+        training_sha = _sha(training_path)
+        require(training_sha == config["prepared"]["training_sha256"],
+                "Training alignment bytes differ from the diagnostic pin")
+        protocol = _read_json(protocol_path)
+        manifest = _read_json(manifest_path)
+        require(protocol["data"]["root"] == config["prepared"]["root"],
+                "Prepared protocol data root differs")
+        require(protocol["data"]["manifest"]["sha256"] == manifest_sha,
+                "Prepared protocol manifest pin differs")
+        require(protocol["data"]["seals"]["train_alignment_payload"] == training_sha,
+                "Prepared alignment seal differs")
+        counts = protocol["data"]["counts"]
+        require(counts["train_examples"] == config["prepared"]["training_examples"]
+                and counts["train_answers"] == config["prepared"]["answer_examples"]
+                and counts["train_captions"] == config["prepared"]["caption_examples"],
+                "Prepared training counts differ")
+        require(manifest["counts"] == counts, "Prepared manifest counts differ")
+        fit = protocol["fit_contract"]
+        prompt_contract = config["prompt_contract"]
+        require(fit["question_template"] == prompt_contract["question_template"]
+                == protocol["evaluation"]["question_template"],
+                "The question template pins differ")
+        require(fit["caption_template"] == prompt_contract["caption_template"],
+                "The caption template pins differ")
+        require(fit["loss"] == prompt_contract["loss"]
+                and fit["response_only_labels"] is True,
+                "The prepared fit loss/label contract differs")
+        require(int(protocol["train"]["init_seed"])
+                == int(config["stages"][0]["init_seed"]),
+                "The fresh init seed differs from the prepared protocol")
+        limits = config["limits"]
+        for name in ("max_prompt_tokens", "max_sequence_tokens",
+                     "max_new_tokens", "caption_max_new_tokens"):
+            require(int(protocol["limits"][name]) == int(limits[name]),
+                    f"The declared {name} differs from the prepared protocol")
+        resource = protocol["resource_policy"]
+        require(resource["device"] == config["policy"]["device"] == "mps",
+                "The declared device differs")
+        require(resource["cpu_fallback"] is False
+                and resource["downloads"] == 0
+                and resource["workers"] == 1,
+                "The prepared resource policy allows fallback, downloads or workers")
+        require(resource["exclusive_mps_worker"] is True,
+                "The prepared resource policy lacks the exclusive MPS worker")
+    
+        lock_path = root / config["source"]["model_lock"]
+        require(lock_path.is_file(), "The model lock is missing")
+        lock_sha = _sha(lock_path)
+        require(lock_sha == config["source"]["model_lock_sha256"],
+                "Model lock bytes differ from the diagnostic pin")
+        lock = _read_json(lock_path)
+        require(lock["revision"] == config["source"]["model_revision"],
+                "Model lock revision differs")
+        require(protocol["model"]["revision"] == config["source"]["model_revision"],
+                "Prepared protocol model revision differs")
+        require(protocol["model"]["lock_sha256"] == lock_sha,
+                "Prepared protocol model lock pin differs")
+        model_path = root / config["source"]["model_path"]
+        require(model_path.is_dir(), "The sealed model path is missing")
+        require(_sha(model_path / "config.json") == lock["config_sha256"],
+                "Local model config differs from the lock")
+        require(bool(list(model_path.glob("*.safetensors"))),
+                "The sealed model snapshot has no safetensors weights")
+        vision_manifest = root / config["source"]["vision_source_manifest"]
+        require(vision_manifest.is_file(), "The vision source manifest is missing")
+        vision_manifest_sha = _sha(vision_manifest)
+        require(vision_manifest_sha == config["source"]["vision_source_manifest_sha256"],
+                "Vision source manifest bytes differ from the diagnostic pin")
+        require(protocol["vision_source"]["manifest"]["sha256"] == vision_manifest_sha,
+                "Prepared protocol vision manifest pin differs")
+    
+        extension_path = root / config["extension"]["path"]
+        weights_path = extension_path / "extensions.safetensors"
+        receipt_path = extension_path / "manifest.json"
+        require(weights_path.is_file() and receipt_path.is_file(),
+                "The pinned train04 extension is incomplete")
+        receipt_sha = _sha(receipt_path)
+        require(receipt_sha == config["extension"]["manifest_sha256"],
+                "Extension receipt bytes differ from the diagnostic pin")
+        weights_sha = _sha(weights_path)
+        require(weights_sha == config["extension"]["weights_sha256"],
+                "Extension weights differ from the diagnostic pin")
+        require(weights_path.stat().st_size == config["extension"]["weights_bytes"],
+                "Extension weight bytes differ from the diagnostic pin")
+        receipt = _read_json(receipt_path)
+        require(receipt["format"] == config["extension"]["format"],
+                "Extension format differs")
+        require(receipt["regime"] == config["extension"]["regime"],
+                "Extension regime differs")
+        require(receipt["base_saved"] is False,
+                "The pinned extension saved base weights")
+        require(receipt["weights_sha256"] == weights_sha,
+                "Extension receipt weight hash differs")
+        require(receipt["manifest_digest"] == config["extension"]["manifest_digest"],
+                "Extension manifest digest differs")
+        require(receipt["manifest"]["vision"] == protocol["vision"],
+                "Extension vision pins differ from the prepared protocol")
+        require(receipt["manifest"]["source_revision"]
+                == config["source"]["model_revision"],
+                "Extension source revision differs")
+    
+        migration_config = config["implementation_pins"]
+        migrations = dict(migration_config["migrations"])
+        prepared_pins = dict(protocol.get("implementation_sha256") or {})
+        require(migration_config["prepared_protocol_pins_checked"] is True
+                and migration_config["mode"] == "explicit_read_only_migration",
+                "The diagnostic must declare explicit read-only implementation migrations")
+        require(prepared_pins, "The prepared protocol lacks implementation pins")
+        require(mode is None or mode in provenance.MODES,
+                f"Unknown implementation source mode: {mode}")
+        require(set(migrations) <= set(prepared_pins),
+                "Implementation migration names an unpinned file")
+        for relative, migration in migrations.items():
+            require(isinstance(migration, dict)
+                    and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                    f"Implementation migration is malformed: {relative}")
+            expected = prepared_pins[relative]
+            require(migration["parent_sha256"] == expected,
+                    f"Implementation migration parent differs: {relative}")
+            current = migration["current_sha256"]
+            require(provenance.is_sha256(current) and current != expected,
+                    f"Implementation migration current pin is invalid: {relative}")
+            require(isinstance(migration["reason"], str)
+                    and bool(migration["reason"].strip()),
+                    f"Implementation migration lacks a reason: {relative}")
+        config_body_sha256 = provenance.canonical_digest(config)
+        try:
+            if mode is None:
+                source = provenance.verify_declared_live(
+                    root, prepared_pins=prepared_pins, migrations=migrations,
+                    new_files={})
+                actual = source["actual"]
+                resolved_migrations = migrations
+                new_files = {}
+            elif mode == "historical":
+                snapshot = source_root or _default_snapshot(root)
+                source = provenance.verify_historical_source(
+                    snapshot, prepared_pins=prepared_pins,
+                    migrations=migrations, new_files={})
+                actual = source["actual"]
+                resolved_migrations = migrations
+                new_files = {}
+            else:
+                require(current_receipt is not None,
+                        "Current implementation verification requires a reviewed "
+                        "current-source receipt")
+                current_receipt_path = (current_receipt
+                                        or _default_receipt(root))
+                source = provenance.verify_current_source(
+                    current_receipt_path, root=root, prepared_pins=prepared_pins,
+                    protocol_sha256=protocol_sha, manifest_sha256=manifest_sha,
+                    config_name=config["name"], config_body_sha256=config_body_sha256,
+                    config_new_files={})
+                actual = source["live"]
+                resolved_migrations = source["migrations"]
+                new_files = {}
+        except provenance.SourceProvenanceError as error:
+>           raise DiagnosticError(str(error)) from error
+E           replica_lab.vision_collapse_diagnostic.DiagnosticError: Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']
+
+scripts/run_vision_collapse_diagnostic.py:354: DiagnosticError
+__________ test_current_receipt_verifies_live_bytes_and_fails_closed ___________
+
+config = {'format': 'replica.vision_collapse_diagnostic_config.v1', 'version': 'replica.vision_collapse_diagnostic.v1', 'name': 'vision_collapse_diagnostic_v1', 'declared_at_utc': '2026-10-26T00:00:00+00:00', ...}
+root = PosixPath('/Users/flare/replica_r3_starter'), source_root = None
+mode = 'current'
+current_receipt = PosixPath('/Users/flare/replica_r3_starter/configs/vision_current_source_receipt_v1.json')
+
+    def verify_pins(config, root=ROOT, *, source_root=None, mode=None,
+                    current_receipt=None):
+        """Verify prepared, source, lock and extension bytes without loading a model.
+    
+        ``historical`` replay authenticates the implementation pins against the
+        immutable source snapshot.  ``current`` qualification requires a reviewed
+        current-source receipt and verifies the live tree against it.  Omitting
+        ``mode`` preserves the pre-existing declared-pin live check for additive
+        consumers that have not yet selected a mode; the v1 CLI always selects
+        ``current``.
+        """
+        root = Path(root)
+        if mode is None:
+            if source_root is not None and current_receipt is not None:
+                raise DiagnosticError(
+                    "Specify the implementation source mode explicitly when both "
+                    "source_root and current_receipt are supplied")
+            if source_root is not None:
+                mode = "historical"
+            elif current_receipt is not None:
+                mode = "current"
+        prepared = root / config["prepared"]["root"]
+        require(prepared.is_dir(), "The prepared data root is missing")
+        protocol_path = root / config["prepared"]["protocol"]
+        manifest_path = root / config["prepared"]["manifest"]
+        training_path = root / config["prepared"]["training"]
+        for path, label in ((protocol_path, "prepared protocol"),
+                            (manifest_path, "prepared manifest"),
+                            (training_path, "training alignment")):
+            require(path.is_file(), f"The {label} is missing: {path}")
+        protocol_sha = _sha(protocol_path)
+        require(protocol_sha == config["prepared"]["protocol_sha256"],
+                "Prepared protocol bytes differ from the diagnostic pin")
+        manifest_sha = _sha(manifest_path)
+        require(manifest_sha == config["prepared"]["manifest_sha256"],
+                "Prepared manifest bytes differ from the diagnostic pin")
+        training_sha = _sha(training_path)
+        require(training_sha == config["prepared"]["training_sha256"],
+                "Training alignment bytes differ from the diagnostic pin")
+        protocol = _read_json(protocol_path)
+        manifest = _read_json(manifest_path)
+        require(protocol["data"]["root"] == config["prepared"]["root"],
+                "Prepared protocol data root differs")
+        require(protocol["data"]["manifest"]["sha256"] == manifest_sha,
+                "Prepared protocol manifest pin differs")
+        require(protocol["data"]["seals"]["train_alignment_payload"] == training_sha,
+                "Prepared alignment seal differs")
+        counts = protocol["data"]["counts"]
+        require(counts["train_examples"] == config["prepared"]["training_examples"]
+                and counts["train_answers"] == config["prepared"]["answer_examples"]
+                and counts["train_captions"] == config["prepared"]["caption_examples"],
+                "Prepared training counts differ")
+        require(manifest["counts"] == counts, "Prepared manifest counts differ")
+        fit = protocol["fit_contract"]
+        prompt_contract = config["prompt_contract"]
+        require(fit["question_template"] == prompt_contract["question_template"]
+                == protocol["evaluation"]["question_template"],
+                "The question template pins differ")
+        require(fit["caption_template"] == prompt_contract["caption_template"],
+                "The caption template pins differ")
+        require(fit["loss"] == prompt_contract["loss"]
+                and fit["response_only_labels"] is True,
+                "The prepared fit loss/label contract differs")
+        require(int(protocol["train"]["init_seed"])
+                == int(config["stages"][0]["init_seed"]),
+                "The fresh init seed differs from the prepared protocol")
+        limits = config["limits"]
+        for name in ("max_prompt_tokens", "max_sequence_tokens",
+                     "max_new_tokens", "caption_max_new_tokens"):
+            require(int(protocol["limits"][name]) == int(limits[name]),
+                    f"The declared {name} differs from the prepared protocol")
+        resource = protocol["resource_policy"]
+        require(resource["device"] == config["policy"]["device"] == "mps",
+                "The declared device differs")
+        require(resource["cpu_fallback"] is False
+                and resource["downloads"] == 0
+                and resource["workers"] == 1,
+                "The prepared resource policy allows fallback, downloads or workers")
+        require(resource["exclusive_mps_worker"] is True,
+                "The prepared resource policy lacks the exclusive MPS worker")
+    
+        lock_path = root / config["source"]["model_lock"]
+        require(lock_path.is_file(), "The model lock is missing")
+        lock_sha = _sha(lock_path)
+        require(lock_sha == config["source"]["model_lock_sha256"],
+                "Model lock bytes differ from the diagnostic pin")
+        lock = _read_json(lock_path)
+        require(lock["revision"] == config["source"]["model_revision"],
+                "Model lock revision differs")
+        require(protocol["model"]["revision"] == config["source"]["model_revision"],
+                "Prepared protocol model revision differs")
+        require(protocol["model"]["lock_sha256"] == lock_sha,
+                "Prepared protocol model lock pin differs")
+        model_path = root / config["source"]["model_path"]
+        require(model_path.is_dir(), "The sealed model path is missing")
+        require(_sha(model_path / "config.json") == lock["config_sha256"],
+                "Local model config differs from the lock")
+        require(bool(list(model_path.glob("*.safetensors"))),
+                "The sealed model snapshot has no safetensors weights")
+        vision_manifest = root / config["source"]["vision_source_manifest"]
+        require(vision_manifest.is_file(), "The vision source manifest is missing")
+        vision_manifest_sha = _sha(vision_manifest)
+        require(vision_manifest_sha == config["source"]["vision_source_manifest_sha256"],
+                "Vision source manifest bytes differ from the diagnostic pin")
+        require(protocol["vision_source"]["manifest"]["sha256"] == vision_manifest_sha,
+                "Prepared protocol vision manifest pin differs")
+    
+        extension_path = root / config["extension"]["path"]
+        weights_path = extension_path / "extensions.safetensors"
+        receipt_path = extension_path / "manifest.json"
+        require(weights_path.is_file() and receipt_path.is_file(),
+                "The pinned train04 extension is incomplete")
+        receipt_sha = _sha(receipt_path)
+        require(receipt_sha == config["extension"]["manifest_sha256"],
+                "Extension receipt bytes differ from the diagnostic pin")
+        weights_sha = _sha(weights_path)
+        require(weights_sha == config["extension"]["weights_sha256"],
+                "Extension weights differ from the diagnostic pin")
+        require(weights_path.stat().st_size == config["extension"]["weights_bytes"],
+                "Extension weight bytes differ from the diagnostic pin")
+        receipt = _read_json(receipt_path)
+        require(receipt["format"] == config["extension"]["format"],
+                "Extension format differs")
+        require(receipt["regime"] == config["extension"]["regime"],
+                "Extension regime differs")
+        require(receipt["base_saved"] is False,
+                "The pinned extension saved base weights")
+        require(receipt["weights_sha256"] == weights_sha,
+                "Extension receipt weight hash differs")
+        require(receipt["manifest_digest"] == config["extension"]["manifest_digest"],
+                "Extension manifest digest differs")
+        require(receipt["manifest"]["vision"] == protocol["vision"],
+                "Extension vision pins differ from the prepared protocol")
+        require(receipt["manifest"]["source_revision"]
+                == config["source"]["model_revision"],
+                "Extension source revision differs")
+    
+        migration_config = config["implementation_pins"]
+        migrations = dict(migration_config["migrations"])
+        prepared_pins = dict(protocol.get("implementation_sha256") or {})
+        require(migration_config["prepared_protocol_pins_checked"] is True
+                and migration_config["mode"] == "explicit_read_only_migration",
+                "The diagnostic must declare explicit read-only implementation migrations")
+        require(prepared_pins, "The prepared protocol lacks implementation pins")
+        require(mode is None or mode in provenance.MODES,
+                f"Unknown implementation source mode: {mode}")
+        require(set(migrations) <= set(prepared_pins),
+                "Implementation migration names an unpinned file")
+        for relative, migration in migrations.items():
+            require(isinstance(migration, dict)
+                    and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                    f"Implementation migration is malformed: {relative}")
+            expected = prepared_pins[relative]
+            require(migration["parent_sha256"] == expected,
+                    f"Implementation migration parent differs: {relative}")
+            current = migration["current_sha256"]
+            require(provenance.is_sha256(current) and current != expected,
+                    f"Implementation migration current pin is invalid: {relative}")
+            require(isinstance(migration["reason"], str)
+                    and bool(migration["reason"].strip()),
+                    f"Implementation migration lacks a reason: {relative}")
+        config_body_sha256 = provenance.canonical_digest(config)
+        try:
+            if mode is None:
+                source = provenance.verify_declared_live(
+                    root, prepared_pins=prepared_pins, migrations=migrations,
+                    new_files={})
+                actual = source["actual"]
+                resolved_migrations = migrations
+                new_files = {}
+            elif mode == "historical":
+                snapshot = source_root or _default_snapshot(root)
+                source = provenance.verify_historical_source(
+                    snapshot, prepared_pins=prepared_pins,
+                    migrations=migrations, new_files={})
+                actual = source["actual"]
+                resolved_migrations = migrations
+                new_files = {}
+            else:
+                require(current_receipt is not None,
+                        "Current implementation verification requires a reviewed "
+                        "current-source receipt")
+                current_receipt_path = (current_receipt
+                                        or _default_receipt(root))
+>               source = provenance.verify_current_source(
+                    current_receipt_path, root=root, prepared_pins=prepared_pins,
+                    protocol_sha256=protocol_sha, manifest_sha256=manifest_sha,
+                    config_name=config["name"], config_body_sha256=config_body_sha256,
+                    config_new_files={})
+
+scripts/run_vision_collapse_diagnostic.py:345: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/source_provenance.py:279: in verify_current_source
+    require(set(migrations) == drift,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False
+message = "Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']"
+
+    def require(condition: bool, message: str) -> None:
+        if not condition:
+>           raise SourceProvenanceError(message)
+E           replica_lab.source_provenance.SourceProvenanceError: Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']
+
+src/replica_lab/source_provenance.py:46: SourceProvenanceError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2330/test_current_receipt_verifies_0')
+
+    @require_local_artifacts(
+        "checkpoints/minicpm5_source",
+        "checkpoints/siglip2_base_patch16_224_source",
+        "data/vision_balanced_alignment_v2_20261026/prepared04",
+        "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+    )
+    def test_current_receipt_verifies_live_bytes_and_fails_closed(tmp_path):
+        module = _runner_module()
+        config = module.load_config(CONFIG)
+>       pins = module.verify_pins(config, mode="current",
+                                  current_receipt=CURRENT_RECEIPT)
+
+tests/test_vision_collapse_diagnostic.py:688: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'format': 'replica.vision_collapse_diagnostic_config.v1', 'version': 'replica.vision_collapse_diagnostic.v1', 'name': 'vision_collapse_diagnostic_v1', 'declared_at_utc': '2026-10-26T00:00:00+00:00', ...}
+root = PosixPath('/Users/flare/replica_r3_starter'), source_root = None
+mode = 'current'
+current_receipt = PosixPath('/Users/flare/replica_r3_starter/configs/vision_current_source_receipt_v1.json')
+
+    def verify_pins(config, root=ROOT, *, source_root=None, mode=None,
+                    current_receipt=None):
+        """Verify prepared, source, lock and extension bytes without loading a model.
+    
+        ``historical`` replay authenticates the implementation pins against the
+        immutable source snapshot.  ``current`` qualification requires a reviewed
+        current-source receipt and verifies the live tree against it.  Omitting
+        ``mode`` preserves the pre-existing declared-pin live check for additive
+        consumers that have not yet selected a mode; the v1 CLI always selects
+        ``current``.
+        """
+        root = Path(root)
+        if mode is None:
+            if source_root is not None and current_receipt is not None:
+                raise DiagnosticError(
+                    "Specify the implementation source mode explicitly when both "
+                    "source_root and current_receipt are supplied")
+            if source_root is not None:
+                mode = "historical"
+            elif current_receipt is not None:
+                mode = "current"
+        prepared = root / config["prepared"]["root"]
+        require(prepared.is_dir(), "The prepared data root is missing")
+        protocol_path = root / config["prepared"]["protocol"]
+        manifest_path = root / config["prepared"]["manifest"]
+        training_path = root / config["prepared"]["training"]
+        for path, label in ((protocol_path, "prepared protocol"),
+                            (manifest_path, "prepared manifest"),
+                            (training_path, "training alignment")):
+            require(path.is_file(), f"The {label} is missing: {path}")
+        protocol_sha = _sha(protocol_path)
+        require(protocol_sha == config["prepared"]["protocol_sha256"],
+                "Prepared protocol bytes differ from the diagnostic pin")
+        manifest_sha = _sha(manifest_path)
+        require(manifest_sha == config["prepared"]["manifest_sha256"],
+                "Prepared manifest bytes differ from the diagnostic pin")
+        training_sha = _sha(training_path)
+        require(training_sha == config["prepared"]["training_sha256"],
+                "Training alignment bytes differ from the diagnostic pin")
+        protocol = _read_json(protocol_path)
+        manifest = _read_json(manifest_path)
+        require(protocol["data"]["root"] == config["prepared"]["root"],
+                "Prepared protocol data root differs")
+        require(protocol["data"]["manifest"]["sha256"] == manifest_sha,
+                "Prepared protocol manifest pin differs")
+        require(protocol["data"]["seals"]["train_alignment_payload"] == training_sha,
+                "Prepared alignment seal differs")
+        counts = protocol["data"]["counts"]
+        require(counts["train_examples"] == config["prepared"]["training_examples"]
+                and counts["train_answers"] == config["prepared"]["answer_examples"]
+                and counts["train_captions"] == config["prepared"]["caption_examples"],
+                "Prepared training counts differ")
+        require(manifest["counts"] == counts, "Prepared manifest counts differ")
+        fit = protocol["fit_contract"]
+        prompt_contract = config["prompt_contract"]
+        require(fit["question_template"] == prompt_contract["question_template"]
+                == protocol["evaluation"]["question_template"],
+                "The question template pins differ")
+        require(fit["caption_template"] == prompt_contract["caption_template"],
+                "The caption template pins differ")
+        require(fit["loss"] == prompt_contract["loss"]
+                and fit["response_only_labels"] is True,
+                "The prepared fit loss/label contract differs")
+        require(int(protocol["train"]["init_seed"])
+                == int(config["stages"][0]["init_seed"]),
+                "The fresh init seed differs from the prepared protocol")
+        limits = config["limits"]
+        for name in ("max_prompt_tokens", "max_sequence_tokens",
+                     "max_new_tokens", "caption_max_new_tokens"):
+            require(int(protocol["limits"][name]) == int(limits[name]),
+                    f"The declared {name} differs from the prepared protocol")
+        resource = protocol["resource_policy"]
+        require(resource["device"] == config["policy"]["device"] == "mps",
+                "The declared device differs")
+        require(resource["cpu_fallback"] is False
+                and resource["downloads"] == 0
+                and resource["workers"] == 1,
+                "The prepared resource policy allows fallback, downloads or workers")
+        require(resource["exclusive_mps_worker"] is True,
+                "The prepared resource policy lacks the exclusive MPS worker")
+    
+        lock_path = root / config["source"]["model_lock"]
+        require(lock_path.is_file(), "The model lock is missing")
+        lock_sha = _sha(lock_path)
+        require(lock_sha == config["source"]["model_lock_sha256"],
+                "Model lock bytes differ from the diagnostic pin")
+        lock = _read_json(lock_path)
+        require(lock["revision"] == config["source"]["model_revision"],
+                "Model lock revision differs")
+        require(protocol["model"]["revision"] == config["source"]["model_revision"],
+                "Prepared protocol model revision differs")
+        require(protocol["model"]["lock_sha256"] == lock_sha,
+                "Prepared protocol model lock pin differs")
+        model_path = root / config["source"]["model_path"]
+        require(model_path.is_dir(), "The sealed model path is missing")
+        require(_sha(model_path / "config.json") == lock["config_sha256"],
+                "Local model config differs from the lock")
+        require(bool(list(model_path.glob("*.safetensors"))),
+                "The sealed model snapshot has no safetensors weights")
+        vision_manifest = root / config["source"]["vision_source_manifest"]
+        require(vision_manifest.is_file(), "The vision source manifest is missing")
+        vision_manifest_sha = _sha(vision_manifest)
+        require(vision_manifest_sha == config["source"]["vision_source_manifest_sha256"],
+                "Vision source manifest bytes differ from the diagnostic pin")
+        require(protocol["vision_source"]["manifest"]["sha256"] == vision_manifest_sha,
+                "Prepared protocol vision manifest pin differs")
+    
+        extension_path = root / config["extension"]["path"]
+        weights_path = extension_path / "extensions.safetensors"
+        receipt_path = extension_path / "manifest.json"
+        require(weights_path.is_file() and receipt_path.is_file(),
+                "The pinned train04 extension is incomplete")
+        receipt_sha = _sha(receipt_path)
+        require(receipt_sha == config["extension"]["manifest_sha256"],
+                "Extension receipt bytes differ from the diagnostic pin")
+        weights_sha = _sha(weights_path)
+        require(weights_sha == config["extension"]["weights_sha256"],
+                "Extension weights differ from the diagnostic pin")
+        require(weights_path.stat().st_size == config["extension"]["weights_bytes"],
+                "Extension weight bytes differ from the diagnostic pin")
+        receipt = _read_json(receipt_path)
+        require(receipt["format"] == config["extension"]["format"],
+                "Extension format differs")
+        require(receipt["regime"] == config["extension"]["regime"],
+                "Extension regime differs")
+        require(receipt["base_saved"] is False,
+                "The pinned extension saved base weights")
+        require(receipt["weights_sha256"] == weights_sha,
+                "Extension receipt weight hash differs")
+        require(receipt["manifest_digest"] == config["extension"]["manifest_digest"],
+                "Extension manifest digest differs")
+        require(receipt["manifest"]["vision"] == protocol["vision"],
+                "Extension vision pins differ from the prepared protocol")
+        require(receipt["manifest"]["source_revision"]
+                == config["source"]["model_revision"],
+                "Extension source revision differs")
+    
+        migration_config = config["implementation_pins"]
+        migrations = dict(migration_config["migrations"])
+        prepared_pins = dict(protocol.get("implementation_sha256") or {})
+        require(migration_config["prepared_protocol_pins_checked"] is True
+                and migration_config["mode"] == "explicit_read_only_migration",
+                "The diagnostic must declare explicit read-only implementation migrations")
+        require(prepared_pins, "The prepared protocol lacks implementation pins")
+        require(mode is None or mode in provenance.MODES,
+                f"Unknown implementation source mode: {mode}")
+        require(set(migrations) <= set(prepared_pins),
+                "Implementation migration names an unpinned file")
+        for relative, migration in migrations.items():
+            require(isinstance(migration, dict)
+                    and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                    f"Implementation migration is malformed: {relative}")
+            expected = prepared_pins[relative]
+            require(migration["parent_sha256"] == expected,
+                    f"Implementation migration parent differs: {relative}")
+            current = migration["current_sha256"]
+            require(provenance.is_sha256(current) and current != expected,
+                    f"Implementation migration current pin is invalid: {relative}")
+            require(isinstance(migration["reason"], str)
+                    and bool(migration["reason"].strip()),
+                    f"Implementation migration lacks a reason: {relative}")
+        config_body_sha256 = provenance.canonical_digest(config)
+        try:
+            if mode is None:
+                source = provenance.verify_declared_live(
+                    root, prepared_pins=prepared_pins, migrations=migrations,
+                    new_files={})
+                actual = source["actual"]
+                resolved_migrations = migrations
+                new_files = {}
+            elif mode == "historical":
+                snapshot = source_root or _default_snapshot(root)
+                source = provenance.verify_historical_source(
+                    snapshot, prepared_pins=prepared_pins,
+                    migrations=migrations, new_files={})
+                actual = source["actual"]
+                resolved_migrations = migrations
+                new_files = {}
+            else:
+                require(current_receipt is not None,
+                        "Current implementation verification requires a reviewed "
+                        "current-source receipt")
+                current_receipt_path = (current_receipt
+                                        or _default_receipt(root))
+                source = provenance.verify_current_source(
+                    current_receipt_path, root=root, prepared_pins=prepared_pins,
+                    protocol_sha256=protocol_sha, manifest_sha256=manifest_sha,
+                    config_name=config["name"], config_body_sha256=config_body_sha256,
+                    config_new_files={})
+                actual = source["live"]
+                resolved_migrations = source["migrations"]
+                new_files = {}
+        except provenance.SourceProvenanceError as error:
+>           raise DiagnosticError(str(error)) from error
+E           replica_lab.vision_collapse_diagnostic.DiagnosticError: Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']
+
+scripts/run_vision_collapse_diagnostic.py:354: DiagnosticError
+________ test_curve_pins_verify_historical_snapshot_and_current_receipt ________
+
+config = {'format': 'replica.vision_learnability_diagnostic_config.v1', 'version': 'replica.vision_learnability_diagnostic.v1', 'mode': 'gradient', 'name': 'vision_gradient_learnability_v1', ...}
+root = PosixPath('/Users/flare/replica_r3_starter'), source_root = None
+mode = 'current'
+current_receipt = PosixPath('/Users/flare/replica_r3_starter/configs/vision_current_source_receipt_v1.json')
+
+    def verify_pins(config, root=ROOT, *, source_root=None, mode=None,
+                    current_receipt=None):
+        """Verify prepared/source/extension/baseline bytes before any model load.
+    
+        Historical replay authenticates every implementation pin against the
+        immutable source snapshot.  Current qualification requires a reviewed
+        current-source receipt and verifies the live tree against it.  Omitting
+        ``mode`` preserves the pre-existing declared-pin live check for additive
+        consumers; the v1 CLI always selects ``current``.
+        """
+        root = Path(root)
+        if mode is None:
+            if source_root is not None and current_receipt is not None:
+                raise learn.LearnabilityDiagnosticError(
+                    "Specify the implementation source mode explicitly when both "
+                    "source_root and current_receipt are supplied")
+            if source_root is not None:
+                mode = "historical"
+            elif current_receipt is not None:
+                mode = "current"
+        config_mode = config["mode"]
+        prepared = config["prepared"]
+        prepared_root = root / prepared["root"]
+        require = learn.require
+        require(prepared_root.is_dir(), "The prepared data root is missing")
+        protocol_path = root / prepared["protocol"]
+        manifest_path = root / prepared["manifest"]
+        training_path = root / prepared["training"]
+        for path, label in ((protocol_path, "prepared protocol"),
+                            (manifest_path, "prepared manifest"),
+                            (training_path, "training alignment")):
+            require(path.is_file(), f"The {label} is missing: {path}")
+        protocol_sha = _sha(protocol_path)
+        require(protocol_sha == prepared["protocol_sha256"],
+                "Prepared protocol bytes differ from the pin")
+        manifest_sha = _sha(manifest_path)
+        require(manifest_sha == prepared["manifest_sha256"],
+                "Prepared manifest bytes differ from the pin")
+        training_sha = _sha(training_path)
+        require(training_sha == prepared["training_sha256"],
+                "Training alignment bytes differ from the pin")
+        protocol = _read_json(protocol_path)
+        manifest = _read_json(manifest_path)
+        require(protocol["data"]["root"] == prepared["root"],
+                "Prepared protocol data root differs")
+        require(protocol["data"]["manifest"]["sha256"] == manifest_sha,
+                "Prepared protocol manifest pin differs")
+        require(protocol["data"]["seals"]["train_alignment_payload"] == training_sha,
+                "Prepared alignment seal differs")
+        counts = protocol["data"]["counts"]
+        require(counts["train_examples"] == prepared["training_examples"]
+                and counts["train_answers"] == prepared["answer_examples"]
+                and counts["train_captions"] == prepared["caption_examples"],
+                "Prepared training counts differ")
+        require(manifest["counts"] == counts, "Prepared manifest counts differ")
+        fit = protocol["fit_contract"]
+        contract = config["prompt_contract"]
+        require(fit["question_template"] == contract["question_template"]
+                == protocol["evaluation"]["question_template"],
+                "The question template pins differ")
+        require(fit["caption_template"] == contract["caption_template"],
+                "The caption template pins differ")
+        require(fit["loss"] == contract["loss"]
+                and fit["response_only_labels"] is True,
+                "The prepared fit loss/label contract differs")
+        limits = config["limits"]
+        for name in ("max_prompt_tokens", "max_sequence_tokens",
+                     "max_new_tokens", "caption_max_new_tokens"):
+            require(int(protocol["limits"][name]) == int(limits[name]),
+                    f"The declared {name} differs from the prepared protocol")
+        resource = protocol["resource_policy"]
+        require(resource["device"] == config["policy"]["device"] == "mps",
+                "The declared device differs")
+        require(resource["cpu_fallback"] is False
+                and resource["downloads"] == 0
+                and resource["workers"] == 1
+                and resource["exclusive_mps_worker"] is True,
+                "The prepared resource policy differs")
+        lock_path = root / config["source"]["model_lock"]
+        require(lock_path.is_file(), "The model lock is missing")
+        lock_sha = _sha(lock_path)
+        require(lock_sha == config["source"]["model_lock_sha256"],
+                "Model lock bytes differ from the pin")
+        lock = _read_json(lock_path)
+        require(lock["revision"] == config["source"]["model_revision"],
+                "Model lock revision differs")
+        require(protocol["model"]["revision"] == config["source"]["model_revision"],
+                "Prepared protocol model revision differs")
+        require(protocol["model"]["lock_sha256"] == lock_sha,
+                "Prepared protocol model lock pin differs")
+        model_path = root / config["source"]["model_path"]
+        require(model_path.is_dir(), "The sealed model path is missing")
+        require(_sha(model_path / "config.json") == lock["config_sha256"],
+                "Local model config differs from the lock")
+        require(bool(list(model_path.glob("*.safetensors"))),
+                "The sealed model snapshot has no safetensors weights")
+        vision_manifest = root / config["source"]["vision_source_manifest"]
+        require(vision_manifest.is_file(), "The vision source manifest is missing")
+        vision_manifest_sha = _sha(vision_manifest)
+        require(vision_manifest_sha
+                == config["source"]["vision_source_manifest_sha256"],
+                "Vision source manifest bytes differ from the pin")
+        require(protocol["vision_source"]["manifest"]["sha256"]
+                == vision_manifest_sha,
+                "Prepared protocol vision manifest pin differs")
+    
+        extension_path = None
+        if config_mode == "ablation":
+            extension_path = root / config["extension"]["path"]
+            weights_path = extension_path / "extensions.safetensors"
+            receipt_path = extension_path / "manifest.json"
+            require(weights_path.is_file() and receipt_path.is_file(),
+                    "The pinned train04 extension is incomplete")
+            receipt_sha = _sha(receipt_path)
+            require(receipt_sha == config["extension"]["manifest_sha256"],
+                    "Extension receipt bytes differ from the pin")
+            weights_sha = _sha(weights_path)
+            require(weights_sha == config["extension"]["weights_sha256"],
+                    "Extension weights differ from the pin")
+            require(weights_path.stat().st_size
+                    == config["extension"]["weights_bytes"],
+                    "Extension weight bytes differ from the pin")
+            receipt = _read_json(receipt_path)
+            require(receipt["format"] == config["extension"]["format"]
+                    and receipt["regime"] == config["extension"]["regime"]
+                    and receipt["base_saved"] is False,
+                    "Extension format/regime/base policy differs")
+            require(receipt["weights_sha256"] == weights_sha
+                    and receipt["manifest_digest"]
+                    == config["extension"]["manifest_digest"],
+                    "Extension receipt hashes differ")
+            require(receipt["manifest"]["vision"] == protocol["vision"],
+                    "Extension vision pins differ from the prepared protocol")
+            require(receipt["manifest"]["source_revision"]
+                    == config["source"]["model_revision"],
+                    "Extension source revision differs")
+            parent = config["parent_attempt"]
+            for field, path in (("report_sha256", parent["report"]),
+                                ("rows_sha256", parent["rows"]),
+                                ("cells_sha256", parent["cells"]),
+                                ("features_sha256", parent["features"])):
+                require(_sha(root / path) == parent[field],
+                        f"Baseline {field} differs from the pin")
+            baseline_report = _read_json(root / parent["report"])
+            require(baseline_report["format"] == collapse.REPORT_FORMAT,
+                    "Baseline report format differs")
+            stage = baseline_report["stages"][parent["baseline_stage"]]
+            require(stage["teacher_forced_cells"] == parent["teacher_forced_cells"]
+                    and stage["comparison_cells"] == parent["comparison_cells"]
+                    and stage["evidence_records"] == parent["records"],
+                    "Baseline report stage counts differ")
+        else:
+            schedule = config["schedule"]
+            batches_path = root / prepared["root"] / schedule["source"]
+            labels_path = root / prepared["root"] / schedule["caption_labels"]
+            require(batches_path.is_file() and labels_path.is_file(),
+                    "The pinned training batches/caption labels are missing")
+            require(_sha(batches_path) == schedule["source_sha256"],
+                    "Training batch bytes differ from the pin")
+            require(_sha(labels_path) == schedule["caption_labels_sha256"],
+                    "Train caption label bytes differ from the pin")
+            require(protocol["schedule"]["batches"]["sha256"]
+                    == schedule["source_sha256"]
+                    and protocol["schedule"]["total_updates"] == 24,
+                    "Prepared schedule pins differ")
+            require(protocol["train"]["init_seed"]
+                    == config["initialization"]["init_seed"],
+                    "The fresh init seed differs from the prepared protocol")
+            require(config["precondition"]["config_sha256"]
+                    == _sha(root / config["precondition"]["config"]),
+                    "The precondition ablation config bytes differ from the pin")
+    
+        migration_config = config["implementation_pins"]
+        migrations = dict(migration_config["migrations"])
+        new_file_pins = dict(migration_config.get("new_files") or {})
+        prepared_pins = dict(protocol.get("implementation_sha256") or {})
+        require(prepared_pins, "The prepared protocol lacks implementation pins")
+        require(mode is None or mode in provenance.MODES,
+                f"Unknown implementation source mode: {mode}")
+        require(set(migrations) <= set(prepared_pins),
+                "An implementation migration names an unpinned file")
+        for relative, migration in migrations.items():
+            require(isinstance(migration, dict)
+                    and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                    f"Implementation migration is malformed: {relative}")
+            expected = prepared_pins[relative]
+            require(migration["parent_sha256"] == expected,
+                    f"Implementation migration parent differs: {relative}")
+            require(provenance.is_sha256(migration["current_sha256"])
+                    and migration["current_sha256"] != expected,
+                    f"Implementation migration current pin is invalid: {relative}")
+            require(isinstance(migration["reason"], str)
+                    and bool(migration["reason"].strip()),
+                    f"Implementation migration lacks a reason: {relative}")
+        config_body_sha256 = provenance.canonical_digest(config)
+        try:
+            if mode is None:
+                source = provenance.verify_declared_live(
+                    root, prepared_pins=prepared_pins, migrations=migrations,
+                    new_files=new_file_pins)
+                actual = source["actual"]
+                resolved_migrations = migrations
+            elif mode == "historical":
+                source = provenance.verify_historical_source(
+                    source_root or collapse._default_snapshot(root),
+                    prepared_pins=prepared_pins, migrations=migrations,
+                    new_files=new_file_pins)
+                actual = source["actual"]
+                resolved_migrations = migrations
+            else:
+                require(current_receipt is not None,
+                        "Current implementation verification requires a reviewed "
+                        "current-source receipt")
+>               source = provenance.verify_current_source(
+                    current_receipt, root=root, prepared_pins=prepared_pins,
+                    protocol_sha256=protocol_sha, manifest_sha256=manifest_sha,
+                    config_name=config["name"],
+                    config_body_sha256=config_body_sha256,
+                    config_new_files=new_file_pins)
+
+scripts/run_vision_learnability_diagnostic.py:283: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/source_provenance.py:279: in verify_current_source
+    require(set(migrations) == drift,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False
+message = "Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']"
+
+    def require(condition: bool, message: str) -> None:
+        if not condition:
+>           raise SourceProvenanceError(message)
+E           replica_lab.source_provenance.SourceProvenanceError: Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']
+
+src/replica_lab/source_provenance.py:46: SourceProvenanceError
+
+The above exception was the direct cause of the following exception:
+
+    @require_local_artifacts(
+        "checkpoints/minicpm5_source",
+        "checkpoints/siglip2_base_patch16_224_source",
+        "data/vision_balanced_alignment_v2_20261026/prepared04",
+        "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+        "runs/vision_collapse_diagnostic_v1_20261026_attempt02",
+        "runs/vision_mean_only_ablation_v1_20261026_attempt09",
+    )
+    def test_curve_pins_verify_historical_snapshot_and_current_receipt():
+        curve_runner = _runner_module()
+        gradient_runner = _gradient_runner_module()
+        config = curve.load_config(CURVE_CONFIG)
+        gradient = learn.load_config(GRADIENT_CONFIG)
+        pinned_runner = config["implementation_pins"]["new_files"][
+            "scripts/run_vision_learnability_curve.py"]
+        assert pinned_runner != _sha("scripts/run_vision_learnability_curve.py")
+        pins = curve_runner.verify_pins(config, source_root=HISTORICAL_SNAPSHOT,
+                                        mode="historical")
+        assert pins["pins"]["mode"] == "curve"
+        assert pins["pins"]["implementation"]["source_mode"] == (
+            "historical_snapshot")
+        assert pins["pins"]["implementation"]["new_files"][
+            "scripts/run_vision_learnability_curve.py"]["actual_sha256"] == (
+                pinned_runner)
+        assert set(pins["pins"]["implementation"]["new_files"]) == set(
+            curve.NEW_FILE_PINS)
+        gradient_pins = gradient_runner.verify_pins(
+            gradient, source_root=HISTORICAL_SNAPSHOT, mode="historical")
+        assert gradient_pins["pins"]["implementation"]["source_mode"] == (
+            "historical_snapshot")
+        for relative in (
+                "src/replica_lab/vision_learnability_diagnostic.py",
+                "scripts/run_vision_learnability_diagnostic.py"):
+            pinned = gradient["implementation_pins"]["new_files"][relative]
+            assert pinned in _snapshot_pins(relative)
+            assert gradient_pins["pins"]["implementation"]["new_files"][
+                relative]["actual_sha256"] == pinned
+        with pytest.raises(learn.LearnabilityDiagnosticError,
+                           match="reviewed current-source receipt"):
+            gradient_runner.verify_pins(gradient, mode="current")
+>       current = gradient_runner.verify_pins(
+            gradient, mode="current", current_receipt=CURRENT_RECEIPT)
+
+tests/test_vision_learnability_curve.py:223: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'format': 'replica.vision_learnability_diagnostic_config.v1', 'version': 'replica.vision_learnability_diagnostic.v1', 'mode': 'gradient', 'name': 'vision_gradient_learnability_v1', ...}
+root = PosixPath('/Users/flare/replica_r3_starter'), source_root = None
+mode = 'current'
+current_receipt = PosixPath('/Users/flare/replica_r3_starter/configs/vision_current_source_receipt_v1.json')
+
+    def verify_pins(config, root=ROOT, *, source_root=None, mode=None,
+                    current_receipt=None):
+        """Verify prepared/source/extension/baseline bytes before any model load.
+    
+        Historical replay authenticates every implementation pin against the
+        immutable source snapshot.  Current qualification requires a reviewed
+        current-source receipt and verifies the live tree against it.  Omitting
+        ``mode`` preserves the pre-existing declared-pin live check for additive
+        consumers; the v1 CLI always selects ``current``.
+        """
+        root = Path(root)
+        if mode is None:
+            if source_root is not None and current_receipt is not None:
+                raise learn.LearnabilityDiagnosticError(
+                    "Specify the implementation source mode explicitly when both "
+                    "source_root and current_receipt are supplied")
+            if source_root is not None:
+                mode = "historical"
+            elif current_receipt is not None:
+                mode = "current"
+        config_mode = config["mode"]
+        prepared = config["prepared"]
+        prepared_root = root / prepared["root"]
+        require = learn.require
+        require(prepared_root.is_dir(), "The prepared data root is missing")
+        protocol_path = root / prepared["protocol"]
+        manifest_path = root / prepared["manifest"]
+        training_path = root / prepared["training"]
+        for path, label in ((protocol_path, "prepared protocol"),
+                            (manifest_path, "prepared manifest"),
+                            (training_path, "training alignment")):
+            require(path.is_file(), f"The {label} is missing: {path}")
+        protocol_sha = _sha(protocol_path)
+        require(protocol_sha == prepared["protocol_sha256"],
+                "Prepared protocol bytes differ from the pin")
+        manifest_sha = _sha(manifest_path)
+        require(manifest_sha == prepared["manifest_sha256"],
+                "Prepared manifest bytes differ from the pin")
+        training_sha = _sha(training_path)
+        require(training_sha == prepared["training_sha256"],
+                "Training alignment bytes differ from the pin")
+        protocol = _read_json(protocol_path)
+        manifest = _read_json(manifest_path)
+        require(protocol["data"]["root"] == prepared["root"],
+                "Prepared protocol data root differs")
+        require(protocol["data"]["manifest"]["sha256"] == manifest_sha,
+                "Prepared protocol manifest pin differs")
+        require(protocol["data"]["seals"]["train_alignment_payload"] == training_sha,
+                "Prepared alignment seal differs")
+        counts = protocol["data"]["counts"]
+        require(counts["train_examples"] == prepared["training_examples"]
+                and counts["train_answers"] == prepared["answer_examples"]
+                and counts["train_captions"] == prepared["caption_examples"],
+                "Prepared training counts differ")
+        require(manifest["counts"] == counts, "Prepared manifest counts differ")
+        fit = protocol["fit_contract"]
+        contract = config["prompt_contract"]
+        require(fit["question_template"] == contract["question_template"]
+                == protocol["evaluation"]["question_template"],
+                "The question template pins differ")
+        require(fit["caption_template"] == contract["caption_template"],
+                "The caption template pins differ")
+        require(fit["loss"] == contract["loss"]
+                and fit["response_only_labels"] is True,
+                "The prepared fit loss/label contract differs")
+        limits = config["limits"]
+        for name in ("max_prompt_tokens", "max_sequence_tokens",
+                     "max_new_tokens", "caption_max_new_tokens"):
+            require(int(protocol["limits"][name]) == int(limits[name]),
+                    f"The declared {name} differs from the prepared protocol")
+        resource = protocol["resource_policy"]
+        require(resource["device"] == config["policy"]["device"] == "mps",
+                "The declared device differs")
+        require(resource["cpu_fallback"] is False
+                and resource["downloads"] == 0
+                and resource["workers"] == 1
+                and resource["exclusive_mps_worker"] is True,
+                "The prepared resource policy differs")
+        lock_path = root / config["source"]["model_lock"]
+        require(lock_path.is_file(), "The model lock is missing")
+        lock_sha = _sha(lock_path)
+        require(lock_sha == config["source"]["model_lock_sha256"],
+                "Model lock bytes differ from the pin")
+        lock = _read_json(lock_path)
+        require(lock["revision"] == config["source"]["model_revision"],
+                "Model lock revision differs")
+        require(protocol["model"]["revision"] == config["source"]["model_revision"],
+                "Prepared protocol model revision differs")
+        require(protocol["model"]["lock_sha256"] == lock_sha,
+                "Prepared protocol model lock pin differs")
+        model_path = root / config["source"]["model_path"]
+        require(model_path.is_dir(), "The sealed model path is missing")
+        require(_sha(model_path / "config.json") == lock["config_sha256"],
+                "Local model config differs from the lock")
+        require(bool(list(model_path.glob("*.safetensors"))),
+                "The sealed model snapshot has no safetensors weights")
+        vision_manifest = root / config["source"]["vision_source_manifest"]
+        require(vision_manifest.is_file(), "The vision source manifest is missing")
+        vision_manifest_sha = _sha(vision_manifest)
+        require(vision_manifest_sha
+                == config["source"]["vision_source_manifest_sha256"],
+                "Vision source manifest bytes differ from the pin")
+        require(protocol["vision_source"]["manifest"]["sha256"]
+                == vision_manifest_sha,
+                "Prepared protocol vision manifest pin differs")
+    
+        extension_path = None
+        if config_mode == "ablation":
+            extension_path = root / config["extension"]["path"]
+            weights_path = extension_path / "extensions.safetensors"
+            receipt_path = extension_path / "manifest.json"
+            require(weights_path.is_file() and receipt_path.is_file(),
+                    "The pinned train04 extension is incomplete")
+            receipt_sha = _sha(receipt_path)
+            require(receipt_sha == config["extension"]["manifest_sha256"],
+                    "Extension receipt bytes differ from the pin")
+            weights_sha = _sha(weights_path)
+            require(weights_sha == config["extension"]["weights_sha256"],
+                    "Extension weights differ from the pin")
+            require(weights_path.stat().st_size
+                    == config["extension"]["weights_bytes"],
+                    "Extension weight bytes differ from the pin")
+            receipt = _read_json(receipt_path)
+            require(receipt["format"] == config["extension"]["format"]
+                    and receipt["regime"] == config["extension"]["regime"]
+                    and receipt["base_saved"] is False,
+                    "Extension format/regime/base policy differs")
+            require(receipt["weights_sha256"] == weights_sha
+                    and receipt["manifest_digest"]
+                    == config["extension"]["manifest_digest"],
+                    "Extension receipt hashes differ")
+            require(receipt["manifest"]["vision"] == protocol["vision"],
+                    "Extension vision pins differ from the prepared protocol")
+            require(receipt["manifest"]["source_revision"]
+                    == config["source"]["model_revision"],
+                    "Extension source revision differs")
+            parent = config["parent_attempt"]
+            for field, path in (("report_sha256", parent["report"]),
+                                ("rows_sha256", parent["rows"]),
+                                ("cells_sha256", parent["cells"]),
+                                ("features_sha256", parent["features"])):
+                require(_sha(root / path) == parent[field],
+                        f"Baseline {field} differs from the pin")
+            baseline_report = _read_json(root / parent["report"])
+            require(baseline_report["format"] == collapse.REPORT_FORMAT,
+                    "Baseline report format differs")
+            stage = baseline_report["stages"][parent["baseline_stage"]]
+            require(stage["teacher_forced_cells"] == parent["teacher_forced_cells"]
+                    and stage["comparison_cells"] == parent["comparison_cells"]
+                    and stage["evidence_records"] == parent["records"],
+                    "Baseline report stage counts differ")
+        else:
+            schedule = config["schedule"]
+            batches_path = root / prepared["root"] / schedule["source"]
+            labels_path = root / prepared["root"] / schedule["caption_labels"]
+            require(batches_path.is_file() and labels_path.is_file(),
+                    "The pinned training batches/caption labels are missing")
+            require(_sha(batches_path) == schedule["source_sha256"],
+                    "Training batch bytes differ from the pin")
+            require(_sha(labels_path) == schedule["caption_labels_sha256"],
+                    "Train caption label bytes differ from the pin")
+            require(protocol["schedule"]["batches"]["sha256"]
+                    == schedule["source_sha256"]
+                    and protocol["schedule"]["total_updates"] == 24,
+                    "Prepared schedule pins differ")
+            require(protocol["train"]["init_seed"]
+                    == config["initialization"]["init_seed"],
+                    "The fresh init seed differs from the prepared protocol")
+            require(config["precondition"]["config_sha256"]
+                    == _sha(root / config["precondition"]["config"]),
+                    "The precondition ablation config bytes differ from the pin")
+    
+        migration_config = config["implementation_pins"]
+        migrations = dict(migration_config["migrations"])
+        new_file_pins = dict(migration_config.get("new_files") or {})
+        prepared_pins = dict(protocol.get("implementation_sha256") or {})
+        require(prepared_pins, "The prepared protocol lacks implementation pins")
+        require(mode is None or mode in provenance.MODES,
+                f"Unknown implementation source mode: {mode}")
+        require(set(migrations) <= set(prepared_pins),
+                "An implementation migration names an unpinned file")
+        for relative, migration in migrations.items():
+            require(isinstance(migration, dict)
+                    and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                    f"Implementation migration is malformed: {relative}")
+            expected = prepared_pins[relative]
+            require(migration["parent_sha256"] == expected,
+                    f"Implementation migration parent differs: {relative}")
+            require(provenance.is_sha256(migration["current_sha256"])
+                    and migration["current_sha256"] != expected,
+                    f"Implementation migration current pin is invalid: {relative}")
+            require(isinstance(migration["reason"], str)
+                    and bool(migration["reason"].strip()),
+                    f"Implementation migration lacks a reason: {relative}")
+        config_body_sha256 = provenance.canonical_digest(config)
+        try:
+            if mode is None:
+                source = provenance.verify_declared_live(
+                    root, prepared_pins=prepared_pins, migrations=migrations,
+                    new_files=new_file_pins)
+                actual = source["actual"]
+                resolved_migrations = migrations
+            elif mode == "historical":
+                source = provenance.verify_historical_source(
+                    source_root or collapse._default_snapshot(root),
+                    prepared_pins=prepared_pins, migrations=migrations,
+                    new_files=new_file_pins)
+                actual = source["actual"]
+                resolved_migrations = migrations
+            else:
+                require(current_receipt is not None,
+                        "Current implementation verification requires a reviewed "
+                        "current-source receipt")
+                source = provenance.verify_current_source(
+                    current_receipt, root=root, prepared_pins=prepared_pins,
+                    protocol_sha256=protocol_sha, manifest_sha256=manifest_sha,
+                    config_name=config["name"],
+                    config_body_sha256=config_body_sha256,
+                    config_new_files=new_file_pins)
+                actual = source["live"]
+                resolved_migrations = source["migrations"]
+        except provenance.SourceProvenanceError as error:
+>           raise learn.LearnabilityDiagnosticError(str(error)) from error
+E           replica_lab.vision_learnability_diagnostic.LearnabilityDiagnosticError: Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']
+
+scripts/run_vision_learnability_diagnostic.py:292: LearnabilityDiagnosticError
+_______ test_static_pins_verify_historical_snapshot_and_current_receipt ________
+
+config = {'format': 'replica.vision_learnability_diagnostic_config.v1', 'version': 'replica.vision_learnability_diagnostic.v1', 'mode': 'ablation', 'name': 'vision_mean_only_ablation_v1', ...}
+root = PosixPath('/Users/flare/replica_r3_starter'), source_root = None
+mode = 'current'
+current_receipt = PosixPath('/Users/flare/replica_r3_starter/configs/vision_current_source_receipt_v1.json')
+
+    def verify_pins(config, root=ROOT, *, source_root=None, mode=None,
+                    current_receipt=None):
+        """Verify prepared/source/extension/baseline bytes before any model load.
+    
+        Historical replay authenticates every implementation pin against the
+        immutable source snapshot.  Current qualification requires a reviewed
+        current-source receipt and verifies the live tree against it.  Omitting
+        ``mode`` preserves the pre-existing declared-pin live check for additive
+        consumers; the v1 CLI always selects ``current``.
+        """
+        root = Path(root)
+        if mode is None:
+            if source_root is not None and current_receipt is not None:
+                raise learn.LearnabilityDiagnosticError(
+                    "Specify the implementation source mode explicitly when both "
+                    "source_root and current_receipt are supplied")
+            if source_root is not None:
+                mode = "historical"
+            elif current_receipt is not None:
+                mode = "current"
+        config_mode = config["mode"]
+        prepared = config["prepared"]
+        prepared_root = root / prepared["root"]
+        require = learn.require
+        require(prepared_root.is_dir(), "The prepared data root is missing")
+        protocol_path = root / prepared["protocol"]
+        manifest_path = root / prepared["manifest"]
+        training_path = root / prepared["training"]
+        for path, label in ((protocol_path, "prepared protocol"),
+                            (manifest_path, "prepared manifest"),
+                            (training_path, "training alignment")):
+            require(path.is_file(), f"The {label} is missing: {path}")
+        protocol_sha = _sha(protocol_path)
+        require(protocol_sha == prepared["protocol_sha256"],
+                "Prepared protocol bytes differ from the pin")
+        manifest_sha = _sha(manifest_path)
+        require(manifest_sha == prepared["manifest_sha256"],
+                "Prepared manifest bytes differ from the pin")
+        training_sha = _sha(training_path)
+        require(training_sha == prepared["training_sha256"],
+                "Training alignment bytes differ from the pin")
+        protocol = _read_json(protocol_path)
+        manifest = _read_json(manifest_path)
+        require(protocol["data"]["root"] == prepared["root"],
+                "Prepared protocol data root differs")
+        require(protocol["data"]["manifest"]["sha256"] == manifest_sha,
+                "Prepared protocol manifest pin differs")
+        require(protocol["data"]["seals"]["train_alignment_payload"] == training_sha,
+                "Prepared alignment seal differs")
+        counts = protocol["data"]["counts"]
+        require(counts["train_examples"] == prepared["training_examples"]
+                and counts["train_answers"] == prepared["answer_examples"]
+                and counts["train_captions"] == prepared["caption_examples"],
+                "Prepared training counts differ")
+        require(manifest["counts"] == counts, "Prepared manifest counts differ")
+        fit = protocol["fit_contract"]
+        contract = config["prompt_contract"]
+        require(fit["question_template"] == contract["question_template"]
+                == protocol["evaluation"]["question_template"],
+                "The question template pins differ")
+        require(fit["caption_template"] == contract["caption_template"],
+                "The caption template pins differ")
+        require(fit["loss"] == contract["loss"]
+                and fit["response_only_labels"] is True,
+                "The prepared fit loss/label contract differs")
+        limits = config["limits"]
+        for name in ("max_prompt_tokens", "max_sequence_tokens",
+                     "max_new_tokens", "caption_max_new_tokens"):
+            require(int(protocol["limits"][name]) == int(limits[name]),
+                    f"The declared {name} differs from the prepared protocol")
+        resource = protocol["resource_policy"]
+        require(resource["device"] == config["policy"]["device"] == "mps",
+                "The declared device differs")
+        require(resource["cpu_fallback"] is False
+                and resource["downloads"] == 0
+                and resource["workers"] == 1
+                and resource["exclusive_mps_worker"] is True,
+                "The prepared resource policy differs")
+        lock_path = root / config["source"]["model_lock"]
+        require(lock_path.is_file(), "The model lock is missing")
+        lock_sha = _sha(lock_path)
+        require(lock_sha == config["source"]["model_lock_sha256"],
+                "Model lock bytes differ from the pin")
+        lock = _read_json(lock_path)
+        require(lock["revision"] == config["source"]["model_revision"],
+                "Model lock revision differs")
+        require(protocol["model"]["revision"] == config["source"]["model_revision"],
+                "Prepared protocol model revision differs")
+        require(protocol["model"]["lock_sha256"] == lock_sha,
+                "Prepared protocol model lock pin differs")
+        model_path = root / config["source"]["model_path"]
+        require(model_path.is_dir(), "The sealed model path is missing")
+        require(_sha(model_path / "config.json") == lock["config_sha256"],
+                "Local model config differs from the lock")
+        require(bool(list(model_path.glob("*.safetensors"))),
+                "The sealed model snapshot has no safetensors weights")
+        vision_manifest = root / config["source"]["vision_source_manifest"]
+        require(vision_manifest.is_file(), "The vision source manifest is missing")
+        vision_manifest_sha = _sha(vision_manifest)
+        require(vision_manifest_sha
+                == config["source"]["vision_source_manifest_sha256"],
+                "Vision source manifest bytes differ from the pin")
+        require(protocol["vision_source"]["manifest"]["sha256"]
+                == vision_manifest_sha,
+                "Prepared protocol vision manifest pin differs")
+    
+        extension_path = None
+        if config_mode == "ablation":
+            extension_path = root / config["extension"]["path"]
+            weights_path = extension_path / "extensions.safetensors"
+            receipt_path = extension_path / "manifest.json"
+            require(weights_path.is_file() and receipt_path.is_file(),
+                    "The pinned train04 extension is incomplete")
+            receipt_sha = _sha(receipt_path)
+            require(receipt_sha == config["extension"]["manifest_sha256"],
+                    "Extension receipt bytes differ from the pin")
+            weights_sha = _sha(weights_path)
+            require(weights_sha == config["extension"]["weights_sha256"],
+                    "Extension weights differ from the pin")
+            require(weights_path.stat().st_size
+                    == config["extension"]["weights_bytes"],
+                    "Extension weight bytes differ from the pin")
+            receipt = _read_json(receipt_path)
+            require(receipt["format"] == config["extension"]["format"]
+                    and receipt["regime"] == config["extension"]["regime"]
+                    and receipt["base_saved"] is False,
+                    "Extension format/regime/base policy differs")
+            require(receipt["weights_sha256"] == weights_sha
+                    and receipt["manifest_digest"]
+                    == config["extension"]["manifest_digest"],
+                    "Extension receipt hashes differ")
+            require(receipt["manifest"]["vision"] == protocol["vision"],
+                    "Extension vision pins differ from the prepared protocol")
+            require(receipt["manifest"]["source_revision"]
+                    == config["source"]["model_revision"],
+                    "Extension source revision differs")
+            parent = config["parent_attempt"]
+            for field, path in (("report_sha256", parent["report"]),
+                                ("rows_sha256", parent["rows"]),
+                                ("cells_sha256", parent["cells"]),
+                                ("features_sha256", parent["features"])):
+                require(_sha(root / path) == parent[field],
+                        f"Baseline {field} differs from the pin")
+            baseline_report = _read_json(root / parent["report"])
+            require(baseline_report["format"] == collapse.REPORT_FORMAT,
+                    "Baseline report format differs")
+            stage = baseline_report["stages"][parent["baseline_stage"]]
+            require(stage["teacher_forced_cells"] == parent["teacher_forced_cells"]
+                    and stage["comparison_cells"] == parent["comparison_cells"]
+                    and stage["evidence_records"] == parent["records"],
+                    "Baseline report stage counts differ")
+        else:
+            schedule = config["schedule"]
+            batches_path = root / prepared["root"] / schedule["source"]
+            labels_path = root / prepared["root"] / schedule["caption_labels"]
+            require(batches_path.is_file() and labels_path.is_file(),
+                    "The pinned training batches/caption labels are missing")
+            require(_sha(batches_path) == schedule["source_sha256"],
+                    "Training batch bytes differ from the pin")
+            require(_sha(labels_path) == schedule["caption_labels_sha256"],
+                    "Train caption label bytes differ from the pin")
+            require(protocol["schedule"]["batches"]["sha256"]
+                    == schedule["source_sha256"]
+                    and protocol["schedule"]["total_updates"] == 24,
+                    "Prepared schedule pins differ")
+            require(protocol["train"]["init_seed"]
+                    == config["initialization"]["init_seed"],
+                    "The fresh init seed differs from the prepared protocol")
+            require(config["precondition"]["config_sha256"]
+                    == _sha(root / config["precondition"]["config"]),
+                    "The precondition ablation config bytes differ from the pin")
+    
+        migration_config = config["implementation_pins"]
+        migrations = dict(migration_config["migrations"])
+        new_file_pins = dict(migration_config.get("new_files") or {})
+        prepared_pins = dict(protocol.get("implementation_sha256") or {})
+        require(prepared_pins, "The prepared protocol lacks implementation pins")
+        require(mode is None or mode in provenance.MODES,
+                f"Unknown implementation source mode: {mode}")
+        require(set(migrations) <= set(prepared_pins),
+                "An implementation migration names an unpinned file")
+        for relative, migration in migrations.items():
+            require(isinstance(migration, dict)
+                    and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                    f"Implementation migration is malformed: {relative}")
+            expected = prepared_pins[relative]
+            require(migration["parent_sha256"] == expected,
+                    f"Implementation migration parent differs: {relative}")
+            require(provenance.is_sha256(migration["current_sha256"])
+                    and migration["current_sha256"] != expected,
+                    f"Implementation migration current pin is invalid: {relative}")
+            require(isinstance(migration["reason"], str)
+                    and bool(migration["reason"].strip()),
+                    f"Implementation migration lacks a reason: {relative}")
+        config_body_sha256 = provenance.canonical_digest(config)
+        try:
+            if mode is None:
+                source = provenance.verify_declared_live(
+                    root, prepared_pins=prepared_pins, migrations=migrations,
+                    new_files=new_file_pins)
+                actual = source["actual"]
+                resolved_migrations = migrations
+            elif mode == "historical":
+                source = provenance.verify_historical_source(
+                    source_root or collapse._default_snapshot(root),
+                    prepared_pins=prepared_pins, migrations=migrations,
+                    new_files=new_file_pins)
+                actual = source["actual"]
+                resolved_migrations = migrations
+            else:
+                require(current_receipt is not None,
+                        "Current implementation verification requires a reviewed "
+                        "current-source receipt")
+>               source = provenance.verify_current_source(
+                    current_receipt, root=root, prepared_pins=prepared_pins,
+                    protocol_sha256=protocol_sha, manifest_sha256=manifest_sha,
+                    config_name=config["name"],
+                    config_body_sha256=config_body_sha256,
+                    config_new_files=new_file_pins)
+
+scripts/run_vision_learnability_diagnostic.py:283: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/source_provenance.py:279: in verify_current_source
+    require(set(migrations) == drift,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False
+message = "Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']"
+
+    def require(condition: bool, message: str) -> None:
+        if not condition:
+>           raise SourceProvenanceError(message)
+E           replica_lab.source_provenance.SourceProvenanceError: Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']
+
+src/replica_lab/source_provenance.py:46: SourceProvenanceError
+
+The above exception was the direct cause of the following exception:
+
+    @require_local_artifacts(
+        "checkpoints/minicpm5_source",
+        "checkpoints/siglip2_base_patch16_224_source",
+        "data/vision_balanced_alignment_v2_20261026/prepared04",
+        "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+        "runs/vision_collapse_diagnostic_v1_20261026_attempt02",
+        "runs/vision_mean_only_ablation_v1_20261026_attempt09",
+    )
+    def test_static_pins_verify_historical_snapshot_and_current_receipt():
+        module = _runner_module()
+        ablation = learn.load_config(ABLATION_CONFIG)
+        gradient = learn.load_config(GRADIENT_CONFIG)
+        receipt = json.loads(ABLATION_RECEIPT.read_text())
+        runner = "scripts/run_vision_learnability_diagnostic.py"
+        historical_pin = receipt["pins"]["implementation"]["new_files"][runner]
+        assert ablation["implementation_pins"]["new_files"][runner] == (
+            historical_pin["pinned_sha256"])
+        assert module._sha(ABLATION_CONFIG) == receipt["config_sha256"]
+        assert gradient["precondition"]["config_sha256"] == receipt["config_sha256"]
+        ablation_pins = module.verify_pins(
+            ablation, source_root=HISTORICAL_SNAPSHOT, mode="historical")
+        implementation = ablation_pins["pins"]["implementation"]
+        assert implementation["source_mode"] == "historical_snapshot"
+        assert implementation["new_files"][runner]["actual_sha256"] == (
+            historical_pin["pinned_sha256"])
+        with pytest.raises(learn.LearnabilityDiagnosticError,
+                           match="reviewed current-source receipt"):
+            module.verify_pins(ablation, mode="current")
+>       current = module.verify_pins(ablation, mode="current",
+                                     current_receipt=CURRENT_RECEIPT)
+
+tests/test_vision_learnability_diagnostic.py:957: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'format': 'replica.vision_learnability_diagnostic_config.v1', 'version': 'replica.vision_learnability_diagnostic.v1', 'mode': 'ablation', 'name': 'vision_mean_only_ablation_v1', ...}
+root = PosixPath('/Users/flare/replica_r3_starter'), source_root = None
+mode = 'current'
+current_receipt = PosixPath('/Users/flare/replica_r3_starter/configs/vision_current_source_receipt_v1.json')
+
+    def verify_pins(config, root=ROOT, *, source_root=None, mode=None,
+                    current_receipt=None):
+        """Verify prepared/source/extension/baseline bytes before any model load.
+    
+        Historical replay authenticates every implementation pin against the
+        immutable source snapshot.  Current qualification requires a reviewed
+        current-source receipt and verifies the live tree against it.  Omitting
+        ``mode`` preserves the pre-existing declared-pin live check for additive
+        consumers; the v1 CLI always selects ``current``.
+        """
+        root = Path(root)
+        if mode is None:
+            if source_root is not None and current_receipt is not None:
+                raise learn.LearnabilityDiagnosticError(
+                    "Specify the implementation source mode explicitly when both "
+                    "source_root and current_receipt are supplied")
+            if source_root is not None:
+                mode = "historical"
+            elif current_receipt is not None:
+                mode = "current"
+        config_mode = config["mode"]
+        prepared = config["prepared"]
+        prepared_root = root / prepared["root"]
+        require = learn.require
+        require(prepared_root.is_dir(), "The prepared data root is missing")
+        protocol_path = root / prepared["protocol"]
+        manifest_path = root / prepared["manifest"]
+        training_path = root / prepared["training"]
+        for path, label in ((protocol_path, "prepared protocol"),
+                            (manifest_path, "prepared manifest"),
+                            (training_path, "training alignment")):
+            require(path.is_file(), f"The {label} is missing: {path}")
+        protocol_sha = _sha(protocol_path)
+        require(protocol_sha == prepared["protocol_sha256"],
+                "Prepared protocol bytes differ from the pin")
+        manifest_sha = _sha(manifest_path)
+        require(manifest_sha == prepared["manifest_sha256"],
+                "Prepared manifest bytes differ from the pin")
+        training_sha = _sha(training_path)
+        require(training_sha == prepared["training_sha256"],
+                "Training alignment bytes differ from the pin")
+        protocol = _read_json(protocol_path)
+        manifest = _read_json(manifest_path)
+        require(protocol["data"]["root"] == prepared["root"],
+                "Prepared protocol data root differs")
+        require(protocol["data"]["manifest"]["sha256"] == manifest_sha,
+                "Prepared protocol manifest pin differs")
+        require(protocol["data"]["seals"]["train_alignment_payload"] == training_sha,
+                "Prepared alignment seal differs")
+        counts = protocol["data"]["counts"]
+        require(counts["train_examples"] == prepared["training_examples"]
+                and counts["train_answers"] == prepared["answer_examples"]
+                and counts["train_captions"] == prepared["caption_examples"],
+                "Prepared training counts differ")
+        require(manifest["counts"] == counts, "Prepared manifest counts differ")
+        fit = protocol["fit_contract"]
+        contract = config["prompt_contract"]
+        require(fit["question_template"] == contract["question_template"]
+                == protocol["evaluation"]["question_template"],
+                "The question template pins differ")
+        require(fit["caption_template"] == contract["caption_template"],
+                "The caption template pins differ")
+        require(fit["loss"] == contract["loss"]
+                and fit["response_only_labels"] is True,
+                "The prepared fit loss/label contract differs")
+        limits = config["limits"]
+        for name in ("max_prompt_tokens", "max_sequence_tokens",
+                     "max_new_tokens", "caption_max_new_tokens"):
+            require(int(protocol["limits"][name]) == int(limits[name]),
+                    f"The declared {name} differs from the prepared protocol")
+        resource = protocol["resource_policy"]
+        require(resource["device"] == config["policy"]["device"] == "mps",
+                "The declared device differs")
+        require(resource["cpu_fallback"] is False
+                and resource["downloads"] == 0
+                and resource["workers"] == 1
+                and resource["exclusive_mps_worker"] is True,
+                "The prepared resource policy differs")
+        lock_path = root / config["source"]["model_lock"]
+        require(lock_path.is_file(), "The model lock is missing")
+        lock_sha = _sha(lock_path)
+        require(lock_sha == config["source"]["model_lock_sha256"],
+                "Model lock bytes differ from the pin")
+        lock = _read_json(lock_path)
+        require(lock["revision"] == config["source"]["model_revision"],
+                "Model lock revision differs")
+        require(protocol["model"]["revision"] == config["source"]["model_revision"],
+                "Prepared protocol model revision differs")
+        require(protocol["model"]["lock_sha256"] == lock_sha,
+                "Prepared protocol model lock pin differs")
+        model_path = root / config["source"]["model_path"]
+        require(model_path.is_dir(), "The sealed model path is missing")
+        require(_sha(model_path / "config.json") == lock["config_sha256"],
+                "Local model config differs from the lock")
+        require(bool(list(model_path.glob("*.safetensors"))),
+                "The sealed model snapshot has no safetensors weights")
+        vision_manifest = root / config["source"]["vision_source_manifest"]
+        require(vision_manifest.is_file(), "The vision source manifest is missing")
+        vision_manifest_sha = _sha(vision_manifest)
+        require(vision_manifest_sha
+                == config["source"]["vision_source_manifest_sha256"],
+                "Vision source manifest bytes differ from the pin")
+        require(protocol["vision_source"]["manifest"]["sha256"]
+                == vision_manifest_sha,
+                "Prepared protocol vision manifest pin differs")
+    
+        extension_path = None
+        if config_mode == "ablation":
+            extension_path = root / config["extension"]["path"]
+            weights_path = extension_path / "extensions.safetensors"
+            receipt_path = extension_path / "manifest.json"
+            require(weights_path.is_file() and receipt_path.is_file(),
+                    "The pinned train04 extension is incomplete")
+            receipt_sha = _sha(receipt_path)
+            require(receipt_sha == config["extension"]["manifest_sha256"],
+                    "Extension receipt bytes differ from the pin")
+            weights_sha = _sha(weights_path)
+            require(weights_sha == config["extension"]["weights_sha256"],
+                    "Extension weights differ from the pin")
+            require(weights_path.stat().st_size
+                    == config["extension"]["weights_bytes"],
+                    "Extension weight bytes differ from the pin")
+            receipt = _read_json(receipt_path)
+            require(receipt["format"] == config["extension"]["format"]
+                    and receipt["regime"] == config["extension"]["regime"]
+                    and receipt["base_saved"] is False,
+                    "Extension format/regime/base policy differs")
+            require(receipt["weights_sha256"] == weights_sha
+                    and receipt["manifest_digest"]
+                    == config["extension"]["manifest_digest"],
+                    "Extension receipt hashes differ")
+            require(receipt["manifest"]["vision"] == protocol["vision"],
+                    "Extension vision pins differ from the prepared protocol")
+            require(receipt["manifest"]["source_revision"]
+                    == config["source"]["model_revision"],
+                    "Extension source revision differs")
+            parent = config["parent_attempt"]
+            for field, path in (("report_sha256", parent["report"]),
+                                ("rows_sha256", parent["rows"]),
+                                ("cells_sha256", parent["cells"]),
+                                ("features_sha256", parent["features"])):
+                require(_sha(root / path) == parent[field],
+                        f"Baseline {field} differs from the pin")
+            baseline_report = _read_json(root / parent["report"])
+            require(baseline_report["format"] == collapse.REPORT_FORMAT,
+                    "Baseline report format differs")
+            stage = baseline_report["stages"][parent["baseline_stage"]]
+            require(stage["teacher_forced_cells"] == parent["teacher_forced_cells"]
+                    and stage["comparison_cells"] == parent["comparison_cells"]
+                    and stage["evidence_records"] == parent["records"],
+                    "Baseline report stage counts differ")
+        else:
+            schedule = config["schedule"]
+            batches_path = root / prepared["root"] / schedule["source"]
+            labels_path = root / prepared["root"] / schedule["caption_labels"]
+            require(batches_path.is_file() and labels_path.is_file(),
+                    "The pinned training batches/caption labels are missing")
+            require(_sha(batches_path) == schedule["source_sha256"],
+                    "Training batch bytes differ from the pin")
+            require(_sha(labels_path) == schedule["caption_labels_sha256"],
+                    "Train caption label bytes differ from the pin")
+            require(protocol["schedule"]["batches"]["sha256"]
+                    == schedule["source_sha256"]
+                    and protocol["schedule"]["total_updates"] == 24,
+                    "Prepared schedule pins differ")
+            require(protocol["train"]["init_seed"]
+                    == config["initialization"]["init_seed"],
+                    "The fresh init seed differs from the prepared protocol")
+            require(config["precondition"]["config_sha256"]
+                    == _sha(root / config["precondition"]["config"]),
+                    "The precondition ablation config bytes differ from the pin")
+    
+        migration_config = config["implementation_pins"]
+        migrations = dict(migration_config["migrations"])
+        new_file_pins = dict(migration_config.get("new_files") or {})
+        prepared_pins = dict(protocol.get("implementation_sha256") or {})
+        require(prepared_pins, "The prepared protocol lacks implementation pins")
+        require(mode is None or mode in provenance.MODES,
+                f"Unknown implementation source mode: {mode}")
+        require(set(migrations) <= set(prepared_pins),
+                "An implementation migration names an unpinned file")
+        for relative, migration in migrations.items():
+            require(isinstance(migration, dict)
+                    and set(migration) == {"parent_sha256", "current_sha256", "reason"},
+                    f"Implementation migration is malformed: {relative}")
+            expected = prepared_pins[relative]
+            require(migration["parent_sha256"] == expected,
+                    f"Implementation migration parent differs: {relative}")
+            require(provenance.is_sha256(migration["current_sha256"])
+                    and migration["current_sha256"] != expected,
+                    f"Implementation migration current pin is invalid: {relative}")
+            require(isinstance(migration["reason"], str)
+                    and bool(migration["reason"].strip()),
+                    f"Implementation migration lacks a reason: {relative}")
+        config_body_sha256 = provenance.canonical_digest(config)
+        try:
+            if mode is None:
+                source = provenance.verify_declared_live(
+                    root, prepared_pins=prepared_pins, migrations=migrations,
+                    new_files=new_file_pins)
+                actual = source["actual"]
+                resolved_migrations = migrations
+            elif mode == "historical":
+                source = provenance.verify_historical_source(
+                    source_root or collapse._default_snapshot(root),
+                    prepared_pins=prepared_pins, migrations=migrations,
+                    new_files=new_file_pins)
+                actual = source["actual"]
+                resolved_migrations = migrations
+            else:
+                require(current_receipt is not None,
+                        "Current implementation verification requires a reviewed "
+                        "current-source receipt")
+                source = provenance.verify_current_source(
+                    current_receipt, root=root, prepared_pins=prepared_pins,
+                    protocol_sha256=protocol_sha, manifest_sha256=manifest_sha,
+                    config_name=config["name"],
+                    config_body_sha256=config_body_sha256,
+                    config_new_files=new_file_pins)
+                actual = source["live"]
+                resolved_migrations = source["migrations"]
+        except provenance.SourceProvenanceError as error:
+>           raise learn.LearnabilityDiagnosticError(str(error)) from error
+E           replica_lab.vision_learnability_diagnostic.LearnabilityDiagnosticError: Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']
+
+scripts/run_vision_learnability_diagnostic.py:292: LearnabilityDiagnosticError
+_______________ test_current_receipt_new_file_tamper_is_rejected _______________
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2330/test_current_receipt_new_file_0')
+
+    @require_local_artifacts(
+        "checkpoints/minicpm5_source",
+        "checkpoints/siglip2_base_patch16_224_source",
+        "data/vision_balanced_alignment_v2_20261026/prepared04",
+        "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+        "runs/vision_collapse_diagnostic_v1_20261026_attempt02",
+    )
+    def test_current_receipt_new_file_tamper_is_rejected(tmp_path):
+        module = _runner_module()
+        config = learn.load_config(GRADIENT_CONFIG)
+        receipt = json.loads(CURRENT_RECEIPT.read_text())
+        relative = sorted(receipt["new_files"])[0]
+        receipt["new_files"][relative]["pinned_sha256"] = "0" * 64
+        receipt["receipt_digest"] = module.provenance.receipt_digest(receipt)
+        tampered = tmp_path / "tampered_receipt.json"
+        tampered.write_text(json.dumps(receipt))
+>       with pytest.raises(learn.LearnabilityDiagnosticError,
+                           match="Current implementation bytes differ"):
+E                          AssertionError: Regex pattern did not match.
+E                            Expected regex: 'Current implementation bytes differ'
+E                            Actual message: "Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']"
+
+tests/test_vision_learnability_diagnostic.py:1002: AssertionError
+=============================== warnings summary ===============================
+tests/test_m4_pattern.py::test_sparse_adamw_step_densifies_and_muon_rejects_sparse_gradient
+  /Users/flare/replica_r3_starter/tests/test_m4_pattern.py:156: UserWarning: Sparse invariant checks are implicitly disabled. Memory errors (e.g. SEGFAULT) will occur when operating on a sparse tensor which violates the invariants, but checks incur performance overhead. To silence this warning, explicitly opt in or out. See `torch.sparse.check_sparse_tensor_invariants.__doc__` for guidance.  (Triggered internally at /Users/runner/work/pytorch/pytorch/aten/src/ATen/Context.cpp:855.)
+    parameter.grad = torch.sparse_coo_tensor(torch.tensor([[0], [0]]), torch.tensor([1.0]), parameter.shape)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_sparkx_v5_1_review.py::test_clean_fixture_passes_and_is_deterministic - AssertionError: [{'name': 'deliverable:docs/architecture/16_Loop_Agent_Instructions.md', 'passed': False}, {'name': 'deliverable:CURRE...sed': False}, {'name': 'added_identity_present:src/replica_lab/intrinsic_memory_teacher_v11.py', 'passed': False}, ...]
+assert not [{'name': 'deliverable:docs/architecture/16_Loop_Agent_Instructions.md', 'passed': False}, {'name': 'deliverable:CURRE...sed': False}, {'name': 'added_identity_present:src/replica_lab/intrinsic_memory_teacher_v11.py', 'passed': False}, ...]
+FAILED tests/test_sparkx_v5_1_review.py::test_local_artifact_absence_is_allowed_only_when_declared - AssertionError: assert not [{'name': 'deliverable:docs/architecture/16_Loop_Agent_Instructions.md', 'passed': False}, {'name': 'deliverable:CURRE...sed': False}, {'name': 'added_identity_present:src/replica_lab/intrinsic_memory_teacher_v11.py', 'passed': False}, ...]
+FAILED tests/test_vision_caption_v2.py::test_prepared_v2_roles_load_separately_with_bound_assignments - replica_lab.vision_collapse_diagnostic.DiagnosticError: Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']
+FAILED tests/test_vision_collapse_diagnostic.py::test_current_receipt_verifies_live_bytes_and_fails_closed - replica_lab.vision_collapse_diagnostic.DiagnosticError: Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']
+FAILED tests/test_vision_learnability_curve.py::test_curve_pins_verify_historical_snapshot_and_current_receipt - replica_lab.vision_learnability_diagnostic.LearnabilityDiagnosticError: Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']
+FAILED tests/test_vision_learnability_diagnostic.py::test_static_pins_verify_historical_snapshot_and_current_receipt - replica_lab.vision_learnability_diagnostic.LearnabilityDiagnosticError: Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']
+FAILED tests/test_vision_learnability_diagnostic.py::test_current_receipt_new_file_tamper_is_rejected - AssertionError: Regex pattern did not match.
+  Expected regex: 'Current implementation bytes differ'
+  Actual message: "Current implementation receipt does not cover exactly the live implementation drift: ['src/replica_lab/architecture/ports.py', 'src/replica_lab/profiling.py']"
+7 failed, 4378 passed, 9 skipped, 1 warning, 21 subtests passed in 1436.01s (0:23:56)

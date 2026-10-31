@@ -1,0 +1,49 @@
+{
+  "format": "replica.intrinsic_memory.final_independent_review.v17",
+  "reviewer": "FinalEvidenceReview",
+  "verdict": "PASS",
+  "remaining_correctness_or_evidence_lineage_blocker": false,
+  "full_regression": {
+    "passed": 4385,
+    "skipped": 9,
+    "subtests_passed": 21,
+    "warnings": 1,
+    "seconds": 1441.69,
+    "junit_total_tests": 4415,
+    "junit_failures": 0,
+    "junit_errors": 0
+  },
+  "final_product": {
+    "checks_passed": 553,
+    "checks_total": 553,
+    "unexplained_input_drift": [],
+    "unavailable_source_cache_entries": 29
+  },
+  "bundle": {
+    "inputs": 293,
+    "bytes": 7663862,
+    "manifest_sha256": "45a463bc8c872e21e23361bc8239d2025f4cab88b267734c1d7ca17ae6ae4d75"
+  },
+  "final_addendum": {
+    "verdict": "PASS",
+    "remaining_blocker": false,
+    "supersedes_bundle_digest": "273d35108bc4b32336a40630eef65000555fea64951c77a479e8f9eb2e6eaf98",
+    "v5_1_review": {"passed": 19, "failed": 0, "errors": 0, "skipped": 0},
+    "portable_checks_passed": 553,
+    "unexplained_input_drift": []
+  },
+  "lineage_closure_commits": ["cc6441cd", "912f154a"],
+  "claims": {
+    "v17": "four-pair fitting-only diagnostic; target margin improved 7/8 and partner margin worsened 7/8",
+    "v16": "falsified; 2/16 overall and 0/8 known-known counterfactual pairs both correct; development closed",
+    "v18": "sole selected comparison; not implemented, authorized or launched",
+    "next": "CPU implementation and independent protocol review only; native execution requires separate exact authorization"
+  },
+  "required_disclosures": [
+    "Nine optional Pillow/vision-overlay tests skipped.",
+    "One sparse-tensor warning remains.",
+    "Twenty-nine optional source-cache entries were unavailable to the portable verifier.",
+    "Engineering and evidence-integrity closure do not establish useful recall, generalization, persistent learning or native capability.",
+    "V17 native restoration flags are not independent tensor-by-tensor equality measurements."
+  ]
+}

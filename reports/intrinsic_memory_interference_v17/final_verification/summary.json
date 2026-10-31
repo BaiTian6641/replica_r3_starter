@@ -1,0 +1,63 @@
+{
+  "format": "replica.intrinsic_memory.final_verification.v17",
+  "tested_head": "912f154a",
+  "scope": "CPU engineering regression, portable evidence integrity and independent read-only review; no new native execution",
+  "commands": {
+    "full_regression": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests:scripts PYTORCH_ENABLE_MPS_FALLBACK=0 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_DATASETS_OFFLINE=1 .venv/bin/python -m pytest -q --junitxml=reports/intrinsic_memory_interference_v17/final_verification/full_regression_final.xml",
+    "bundle": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/prepare_sparkx_research_bundle.py --profile final-product --check",
+    "final_product": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python reports/sparkx_final_product_20261026/verify.py --root . --out reports/sparkx_final_product_20261026 --no-write"
+  },
+  "full_regression": {
+    "receipt": "full_regression_final.txt",
+    "junit": "full_regression_final.xml",
+    "passed": 4385,
+    "skipped": 9,
+    "failed": 0,
+    "subtests_passed": 21,
+    "warnings": 1,
+    "pytest_seconds": 1441.69,
+    "outer_wall_seconds": 1442.59,
+    "junit_total_tests": 4415,
+    "junit_time_seconds": 1426.960,
+    "skip_scope": "One external-caption QA test, seven real-image tranche tests and one vision-feature processor test require the optional Pillow/vision overlay; no overlay or download was installed.",
+    "warning_scope": "Existing sparse-AdamW test emits a sparse-tensor invariant-check warning."
+  },
+  "focused_repairs": {
+    "interference_and_migration": {"passed": 16, "failed": 0},
+    "prepared02_replay": {"passed": 35, "failed": 0},
+    "v5_1_review": {"passed": 19, "failed": 0},
+    "seven_originally_failing_tests": "Five vision provenance tests passed after current-source migration closure; the two v5.1 fixtures pass within the subsequent 19-test module pass."
+  },
+  "portable": {
+    "bundle_receipt": "final_product_bundle_check_final.txt",
+    "final_product_receipt": "final_product_verify_final.txt",
+    "inputs": 293,
+    "input_bytes": 7663862,
+    "manifest_sha256": "45a463bc8c872e21e23361bc8239d2025f4cab88b267734c1d7ca17ae6ae4d75",
+    "checks_passed": 553,
+    "checks_total": 553,
+    "unavailable_source_cache_entries": 29,
+    "network_used": false
+  },
+  "independent_review": {
+    "receipt": "independent_review.json",
+    "verdict": "PASS",
+    "remaining_correctness_or_evidence_lineage_blocker": false
+  },
+  "preserved_negative_evidence": [
+    "The first unrestricted run hit its 1200-second command limit at 74% and had no terminal JUnit receipt.",
+    "full_regression_after.txt and full_regression_after.xml preserve the completed 4378-pass/7-failure run before lineage repair.",
+    "final_product_bundle_check.txt and final_product_verify.txt preserve the initial portable failures.",
+    "incomplete_failure_focus.xml and seven_failures_after.xml preserve focused failure diagnoses; passing successors use _after/final names."
+  ],
+  "workspace_disposition": {
+    "native_worker_active": false,
+    "v18_implemented_authorized_or_launched": false,
+    "protected_draft": "src/replica_lab/runtime_pilot.py was not read, imported, edited or staged.",
+    "unrelated_tracked_change": "reports/vision_overfit_20261025/helper_tests.xml remains modified and unstaged.",
+    "local_artifacts": "Pre-existing untracked data/run outputs, generated hf_modules, lockfiles and Git-ignored tensor payloads remain on disk and were not deleted or staged.",
+    "source_overlays": false
+  },
+  "claim_boundary": "Engineering and evidence-integrity closure only. Useful recall, development generalization, persistent learning and V18 outcomes remain unestablished.",
+  "next": "Implement only the predeclared V18 paired-joint versus sequential comparison with CPU regressions, exact budgets and independent protocol review; create separate native authorization before any launch."
+}

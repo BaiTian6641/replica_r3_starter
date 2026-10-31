@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="35" time="19.607" timestamp="2026-10-31T03:00:22.485333-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_memory_matched" name="test_episodes_are_deterministic_split_separated_and_label_free" time="0.014" /><testcase classname="tests.test_memory_matched" name="test_episode_corruptions_are_rejected" time="0.006" /><testcase classname="tests.test_memory_matched" name="test_verifier_labels_flip_correction_and_keep_unaffected" time="0.005" /><testcase classname="tests.test_memory_matched" name="test_tiny_run_preserves_episode_identity_and_mechanics" time="10.484" /><testcase classname="tests.test_memory_matched" name="test_rank_margin_unknown_and_correction_scoring" time="0.001" /><testcase classname="tests.test_memory_matched" name="test_scoring_rejects_duplicate_missing_and_foreign_rows" time="0.001" /><testcase classname="tests.test_memory_matched" name="test_answer_scoring_uses_verifier_labels_and_context_removal" time="0.000" /><testcase classname="tests.test_memory_matched" name="test_first_failing_stage_selection" time="0.000" /><testcase classname="tests.test_memory_matched" name="test_inventory_and_workload_are_model_free_and_exact" time="0.005" /><testcase classname="tests.test_memory_matched" name="test_prepare_verify_and_admit_pins_are_regenerative" time="2.920" /><testcase classname="tests.test_memory_matched" name="test_implementation_migrations_accept_exactly_the_drifted_files" time="0.000" /><testcase classname="tests.test_memory_matched" name="test_implementation_migrations_reject_wrong_parent_pins" time="0.000" /><testcase classname="tests.test_memory_matched" name="test_implementation_migrations_reject_stale_or_fabricated_hashes" time="0.000" /><testcase classname="tests.test_memory_matched" name="test_implementation_migrations_reject_missing_or_extra_entries" time="0.000" /><testcase classname="tests.test_memory_matched" name="test_implementation_migrations_reject_malformed_schema" time="0.000" /><testcase classname="tests.test_memory_matched" name="test_missing_migration_sidecar_fails_closed_only_under_drift" time="0.001" /><testcase classname="tests.test_memory_matched" name="test_default_frozen_answerer_enables_fast_port_for_memory_only" time="0.144" /><testcase classname="tests.test_memory_matched" name="test_outside_fact_excludes_counterfactual_and_local_matches" time="0.004" /><testcase classname="tests.test_memory_matched" name="test_interference_requires_both_near_miss_types" time="0.005" /><testcase classname="tests.test_memory_matched" name="test_control_rates_aggregate_every_row_and_are_order_independent" time="0.003" /><testcase classname="tests.test_memory_matched" name="test_unknown_answer_rate_uses_the_same_normalized_answer" time="0.000" /><testcase classname="tests.test_memory_matched" name="test_declared_deadline_is_enforced" time="0.000" /><testcase classname="tests.test_memory_matched" name="test_prepared02_audits_interference_and_declared_budget" time="0.015"><failure message="ValueError: Implementation migrations do not cover exactly the changed files">@require_local_artifacts('checkpoints/minicpm5_source',
+                             'configs/minicpm5_sealed_lock.local.json',
+                             'runs/memory_reliability_v5_attempt01/candidate_extension')
+    def test_prepared02_audits_interference_and_declared_budget():
+        prepared = ROOT / 'data/memory_matched_20261025/prepared02'
+        if not (prepared / 'episodes.json').is_file():
+            pytest.skip('prepared02 is not provisioned; run scripts/prepare_memory_matched.py --admit')
+        data = json.loads((prepared / 'episodes.json').read_text())
+        protocol = json.loads((prepared / 'protocol.json').read_text())
+        manifest = json.loads((prepared / 'manifest.json').read_text())
+        audit = validate_matched_episodes(
+            data['episodes'], families_per_split=data['families_per_split'],
+            complexities=tuple(data['complexities']), variants=data['variants'])
+        assert audit == data['audit'] == manifest['audit']
+        assert protocol['budget']['max_wall_seconds'] == 900
+        assert protocol['budget'] == manifest['budget']
+        assert 'declared monotonic wall-clock deadline' in protocol['stop_conditions']
+        prompt_audit = json.loads((prepared / 'prompt_audit.json').read_text())
+        assert prompt_audit['previous_bound_would_fail'] is True
+        assert prompt_audit['observed_max_tokens'] &gt; prompt_audit['configured_bound']
+        assert protocol['generation']['max_prompt_tokens'] == prompt_audit['bound']
+        assert protocol['limits']['max_prompt_tokens'] == prompt_audit['bound']
+        assert protocol['prompt_audit']['sha256'] == hashlib.sha256(
+            (prepared / 'prompt_audit.json').read_bytes()).hexdigest()
+        assert all(row['tokens'] &lt;= prompt_audit['bound']
+                   for row in prompt_audit['rows'])
+        generation_audit = json.loads((prepared / 'generation_audit.json').read_text())
+        assert generation_audit['previous_bound_would_fail'] is True
+        assert generation_audit['previous_bound_answer_only_would_fail'] is True
+        assert generation_audit['per_kind']['fact'][
+            'over_previous_bound_answer_only'] == 96
+        assert generation_audit['per_role']['correction_target'][
+            'over_previous_bound_answer_only'] == 12
+        assert protocol['generation']['max_new_tokens'] == generation_audit['bound']
+        assert protocol['limits']['max_new_tokens'] == generation_audit['bound']
+        assert manifest['generation_audit_sha256'] == hashlib.sha256(
+            (prepared / 'generation_audit.json').read_bytes()).hexdigest()
+        assert generation_audit['answer_truncation'] is False
+        assert generation_audit['eos_suppression'] is False
+        assert all(row['required_with_eos'] &lt;= generation_audit['bound']
+                   for row in generation_audit['rows'])
+&gt;       receipt = verify_matched_prepared(prepared)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_memory_matched.py:1032: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/memory_matched.py:3392: in verify_matched_prepared
+    implementation_migrations = _verify_implementation_migrations(
+src/replica_lab/memory_matched.py:516: in _verify_implementation_migrations
+    report = validate_implementation_migrations(
+src/replica_lab/memory_matched.py:479: in validate_implementation_migrations
+    _require(set(migrations) == drifted,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False
+message = 'Implementation migrations do not cover exactly the changed files'
+
+    def _require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Implementation migrations do not cover exactly the changed files
+
+src/replica_lab/memory_matched.py:248: ValueError</failure></testcase><testcase classname="tests.test_memory_matched" name="test_post_profiler_and_post_report_deadline_crossings_fail_closed" time="0.000" /><testcase classname="tests.test_memory_matched" name="test_prompt_bound_audit_detects_previous_256_failure_before_native" time="0.594" /><testcase classname="tests.test_memory_matched" name="test_generation_budget_audit_detects_6_token_confound_before_native" time="0.333" /><testcase classname="tests.test_memory_diagnosis" name="test_world_generation_is_seeded_disjoint_and_label_free" time="0.001" /><testcase classname="tests.test_memory_diagnosis" name="test_prepare_and_admit_bind_exact_source_data_and_protocol_pins" time="0.007" /><testcase classname="tests.test_memory_diagnosis" name="test_native_reader_unavailable_is_reported_not_fabricated" time="0.000" /><testcase classname="tests.test_memory_diagnosis" name="test_planned_workload_counts_reloads_and_enforces_limit" time="0.000" /><testcase classname="tests.test_memory_diagnosis" name="test_scoring_rejects_poor_storage_before_any_reader_comparator" time="0.002" /><testcase classname="tests.test_memory_diagnosis" name="test_scoring_recomputes_passes_from_raw_readouts_and_keeps_v5_rejected" time="0.002" /><testcase classname="tests.test_memory_diagnosis" name="test_scoring_detects_readout_selecting_superseded_value" time="0.001" /><testcase classname="tests.test_memory_diagnosis" name="test_scoring_reports_missing_native_reader_without_promoting_memory" time="0.001" /><testcase classname="tests.test_memory_diagnosis" name="test_tiny_fixture_runs_frozen_diagnostic_with_controls_and_restart" time="2.953" /></testsuite></testsuites>

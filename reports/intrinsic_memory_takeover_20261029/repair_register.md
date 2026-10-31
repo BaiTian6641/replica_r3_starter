@@ -171,3 +171,25 @@ cleanup without error masking; metric/navigation/crash-durability; Replica cycle
 - Replica: 113 checks and workflow with content-addressed evidence; cycle 10/20.
 
 Independent final gate review is pending. No native attempt or authorization exists.
+
+## Dual rebuild charge and publication durability
+
+The `8b813277` gate review passed 1008 tests, then confirmed outer+inner rebuild
+double charging (21 writes/world, cap exhausted at world 28). Static findings
+include compound fact inconsistency, publication recovery, index authentication,
+cross-writer cleanup and crash durability. The user authorized all remaining
+cycles, including Replica cycle 11/20.
+
+Required closure: one owner for each actual write, consistent structured facts,
+fail-closed publication recovery, authenticated indexes and durable cleanup.
+
+## V17 correction, interference and final verification closure
+
+- `cc770999` repairs authority-specific correction/revocation, chronological history, development completion and complete-response sequence scoring with focused regressions.
+- `a8a163f7` fixes interference-pair selection/accounting, element-wise gradient products, supervised-token counting and malformed migration-history recovery. The completed native attempt05 evidence is committed at `8c8944cb`.
+- V17 used only fitting pairs 0, 1, 4 and 5. Target total-sequence margin improved in 7/8 isolated updates and partner margin worsened in 7/8. Development labels were not accessed by the native diagnostic. No candidate or general capability was selected.
+- `bbdb4414` restores exact prepared02 replay migration coverage; `cc6441cd` and `912f154a` close vision/v5.1/final-product lineage. `e939175c` preserves the preceding final-product pin refresh. Validators remain fail-closed.
+- Final regression at `912f154a`: **4,385 passed, 9 skipped, 21 subtests passed**, zero failures in 1,441.69 seconds. Nine skips require the optional Pillow/vision overlay; one sparse-tensor warning remains. Portable final-product verification passes 553/553; final bundle digest is `45a463bc8c872e21e23361bc8239d2025f4cab88b267734c1d7ca17ae6ae4d75`.
+- Independent final verdict is PASS with no remaining correctness or evidence-lineage blocker. Full commands, incomplete/failed predecessors and skip/source-cache limits are in `reports/intrinsic_memory_interference_v17/final_verification/summary.json` and `independent_review.json`.
+
+The sole next comparison is `docs/experiments/20261031_Spark_Paired_Update_V18.md`: paired-joint versus fresh internal sequential updates at equal per-world exposure with frozen falsification criteria. It is selected but not implemented, authorized or launched. No second comparison or development evaluation is open. The unrelated `reports/vision_overfit_20261025/helper_tests.xml` modification and local artifacts remain unstaged; the protected runtime draft was not touched.
