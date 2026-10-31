@@ -1,0 +1,34 @@
+{
+  "arm": "two",
+  "attempt_marker": "runs/intrinsic_memory_reader_query_v15/attempts.jsonl",
+  "attempts": 1,
+  "authorization_required": "reports/intrinsic_memory_reader_query_v15/authorization.json",
+  "authorization_status": "external_receipt_required_not_created",
+  "commands": {
+    "launch": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_reader_query_v15.py",
+      "--packet",
+      "reports/intrinsic_memory_reader_query_v15/native_packet.json",
+      "--authorization",
+      "reports/intrinsic_memory_reader_query_v15/authorization.json",
+      "--launch"
+    ],
+    "review": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_reader_query_v15.py",
+      "--packet",
+      "reports/intrinsic_memory_reader_query_v15/native_packet.json",
+      "--review"
+    ]
+  },
+  "experiment_version": 15,
+  "format": "replica.intrinsic_memory.reader_query_launch_packet.v15",
+  "native_engine_version": 15,
+  "output_root": "reports/intrinsic_memory_reader_query_v15/native_bf16_reader_query_attempt01",
+  "protocol": {
+    "path": "configs/spark_reader_query_diagnostic_v15.json",
+    "sha256": "fbb998a2a2574945082926faf44192a97b612132c8d81a07d104d0b8d2e36cbb"
+  },
+  "retries": 0
+}
