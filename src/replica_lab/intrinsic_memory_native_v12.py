@@ -357,6 +357,7 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
               'source_kind': 'official_bf16', 'arm': arm,
               'mechanism': 'frozen_canonical_source_features_live_contextual_compression_v12',
               'reader_key_mode': path.key_mode,
+              'competence_passed': False, 'teacher_competence_passed': False,
               'fit_memory_dependence_passed': False, 'useful_recall_passed': False,
               'persistent_P_updates': 0, 'promotion': False, 'restart_requested': False,
               'fit_cases': FIT_CASES, 'development_cases': DEVELOPMENT_CASES,

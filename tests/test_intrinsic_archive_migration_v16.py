@@ -170,6 +170,54 @@ def test_inventory_supports_rollback_and_rejects_missing_authority(tmp_path):
         inventory_archive(run)
 
 
+
+
+def test_malformed_scope_is_rejected_by_migration_and_inventory(tmp_path):
+    source = tmp_path / "source/00000001"
+    make_release(source, 1, b"payload")
+    manifest_path = source / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["scope"] = {}
+    manifest_path.write_text(json.dumps(manifest))
+    pointer = json.loads((source.parent / "current.json").read_text())
+    pointer["scope"] = {}
+    (source.parent / "current.json").write_text(json.dumps(pointer))
+    with pytest.raises((TypeError, ValueError)):
+        migrate_generation(source, tmp_path / "destination")
+    run = tmp_path / "run"
+    root = run / "stores/world/artifacts/contextual_v12/releases/scope"
+    make_release(root / "00000001", 1, b"payload")
+    pointer = json.loads((root / "current.json").read_text())
+    pointer["scope"] = {}
+    (root / "current.json").write_text(json.dumps(pointer))
+    with pytest.raises((TypeError, ValueError)):
+        inventory_archive(run)
+
+
+def test_boolean_zero_and_noncanonical_generations_are_rejected(tmp_path):
+    source = tmp_path / "source/00000001"
+    make_release(source, 1, b"payload")
+    pointer = json.loads((source.parent / "current.json").read_text())
+    pointer["generation"] = True
+    (source.parent / "current.json").write_text(json.dumps(pointer))
+    with pytest.raises(ValueError, match="scope/format/authority"):
+        migrate_generation(source, tmp_path / "destination")
+    zero = tmp_path / "zero/00000000"
+    make_release(zero, 0, b"payload")
+    with pytest.raises(ValueError, match="generation invalid"):
+        migrate_generation(zero, tmp_path / "zero-destination")
+    noncanonical = tmp_path / "noncanonical/1"
+    make_release(noncanonical, 1, b"payload")
+    with pytest.raises(ValueError, match="generation invalid"):
+        migrate_generation(noncanonical, tmp_path / "noncanonical-destination")
+    run = tmp_path / "run"
+    root = run / "stores/world/artifacts/contextual_v12/releases/scope"
+    make_release(root / "00000001", 1, b"payload")
+    pointer = json.loads((root / "current.json").read_text())
+    pointer["generation"] = True
+    (root / "current.json").write_text(json.dumps(pointer))
+    with pytest.raises(ValueError, match="current release authority"):
+        inventory_archive(run)
 def test_inventory_marks_overwritten_historical_payload_unrestorable(tmp_path):
     run = tmp_path / "run"
     root = run / "stores/world/artifacts/contextual_v12/releases/scope"

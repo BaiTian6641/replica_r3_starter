@@ -1,6 +1,6 @@
 # Spark content-only attention keys v16
 
-Status: **selected from the completed fitting-only reader/query diagnostic and predeclared; native attempt01 not launched.** The single mechanism is content-only attention keys with ordered values retained. Useful recall and development generalization remain unestablished.
+Status: **attempt01 is terminal and the content-key mechanism is falsified. Development stayed closed; fresh-process restart passed.** No useful-recall, P-learning, density, promotion or RSI claim follows. No native worker is active.
 
 ## Fitting-only evidence and selection
 
@@ -34,3 +34,26 @@ A less-compressed representation or compression-training arm remains a separate 
 - Attempts: one, zero retries; separate exact authorization required.
 
 CPU verification passes 158 broad content-key, reader, checkpoint, native and contextual contracts. These tests establish key/value separation, gradients, exact default behavior, intervention parity and old/new checkpoint identity—not native learning.
+
+## Terminal outcome
+
+Baseline passed 8/8 and teacher 32/32 with zero false recall/truncation. After
+exactly 512 updates, contextual/exact/shuffled/wrong/zero/absent scored
+15/32/15/6/9/8 out of 32. Groups scored 4, 3, 3 and 5 of 8, with both sides
+correct for 2/16 counterfactual pairs and **0/8 known-known pairs**. Every final
+group failed and known-known did not exceed 1/8, so both predeclared criteria
+falsified the mechanism. Development had zero read events; no better 384-update
+checkpoint was selected.
+
+Fresh-process restart restored exact logits and completed one actual continuation
+update with original parameter hashes unchanged. Uninterrupted-update equivalence
+was not measured. Supervision wall was 1,550.378 seconds; peak sampled driver was
+11,261,542,400 bytes, swap growth zero, minimum host free 71%, and the raw tree
+was 70,570,279 bytes. Extension-only checkpoint manifest SHA-256 is
+`a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c`.
+
+Independent reconciliation and criterion analysis are preserved in
+`attempt01_terminal_reconciliation.json` and `attempt01_outcome_analysis.json`.
+The failed result is retained; no retry or criterion change is authorized. The
+next step is a fitting-only sequence-margin/interference diagnostic, not another
+full training arm or a combined mechanism.

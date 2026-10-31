@@ -1,0 +1,1501 @@
+{
+  "analysis_written_outside_raw_run": true,
+  "baseline": {
+    "all_content_and_responses_complete": true,
+    "complete": true,
+    "correct": 8,
+    "false_recall": 0,
+    "rows": 8,
+    "terminated": 8,
+    "truncated": 0
+  },
+  "checkpoint": {
+    "contains_base_weights": false,
+    "manifest_sha256": "a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c",
+    "original_weights_serialized": false,
+    "producer_release": "v12-36b7f635faab8a54e23980b118fd588c1fb9deafbb17666d9433c2a05d4038df"
+  },
+  "development": {
+    "opened": false,
+    "required_to_remain_closed": true,
+    "split_read_events": 0
+  },
+  "diagnostic_limits": {
+    "available_per_pair_evidence": "answers, correctness, reader RMS/gates and logit max deltas",
+    "compressed_slots_preserved": false,
+    "full_first_token_logit_vectors_preserved": false,
+    "next_required_measurement": "native fitting-only source-feature/slot/reader/residual/full-logit diagnostic",
+    "raw_source_features_preserved": false
+  },
+  "fitting": {
+    "control_completion": {
+      "absent": {
+        "first_token_correct": 4,
+        "prefix_logits_exact": 32,
+        "terminated": 32,
+        "truncated": 0
+      },
+      "contextual": {
+        "first_token_correct": 15,
+        "prefix_logits_exact": 32,
+        "terminated": 32,
+        "truncated": 0
+      },
+      "exact_text": {
+        "first_token_correct": 32,
+        "prefix_logits_exact": 32,
+        "terminated": 32,
+        "truncated": 0
+      },
+      "shuffled": {
+        "first_token_correct": 15,
+        "prefix_logits_exact": 32,
+        "terminated": 32,
+        "truncated": 0
+      },
+      "wrong": {
+        "first_token_correct": 6,
+        "prefix_logits_exact": 32,
+        "terminated": 32,
+        "truncated": 0
+      },
+      "zero": {
+        "first_token_correct": 9,
+        "prefix_logits_exact": 32,
+        "terminated": 32,
+        "truncated": 0
+      }
+    },
+    "correct": {
+      "absent": 8,
+      "contextual": 15,
+      "exact_text": 32,
+      "shuffled": 15,
+      "wrong": 6,
+      "zero": 9
+    },
+    "counterfactual_pairs": [
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_00",
+          "v11_fit_01"
+        ],
+        "sides": [
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08262985944747925,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.06728661060333252
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14502693712711334,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09621402621269226
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_00"
+          },
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": false,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": true,
+              "zero": false
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08266853541135788,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.06703434139490128
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.1448497176170349,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09583422541618347
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_01"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_02",
+          "v11_fit_03"
+        ],
+        "sides": [
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08271518349647522,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.059378739446401596
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.1448346972465515,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09528736025094986
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_02"
+          },
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": true
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08273786306381226,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.05867568776011467
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.1450721174478531,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09535819292068481
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_03"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": true,
+        "pair": [
+          "v11_fit_04",
+          "v11_fit_05"
+        ],
+        "sides": [
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": false,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08269073814153671,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.06568162143230438
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14383912086486816,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09703544527292252
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_04"
+          },
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": true,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": false,
+              "zero": true
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "unknown",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08266206085681915,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.05595485866069794
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14352762699127197,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09137194603681564
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_05"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_06",
+          "v11_fit_07"
+        ],
+        "sides": [
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "red",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08273164182901382,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.05702788382768631
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14582203328609467,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09490622580051422
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_06"
+          },
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": true,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": false,
+              "zero": true
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "unknown",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.082696832716465,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.055552948266267776
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14332079887390137,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09085742384195328
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_07"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_08",
+          "v11_fit_09"
+        ],
+        "sides": [
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": false,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": true,
+              "zero": false
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08257623016834259,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.06363530457019806
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14349417388439178,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09344571083784103
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_08"
+          },
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08255895227193832,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.06297025084495544
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.1434182971715927,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09311553090810776
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_09"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_10",
+          "v11_fit_11"
+        ],
+        "sides": [
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08258867263793945,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.06180752068758011
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14573314785957336,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09660474210977554
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_10"
+          },
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08255162835121155,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.06345019489526749
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14569860696792603,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09701476246118546
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_11"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_12",
+          "v11_fit_13"
+        ],
+        "sides": [
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08260279148817062,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.05716302618384361
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14357085525989532,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09300783276557922
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_12"
+          },
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": true,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": false,
+              "zero": true
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "unknown",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08259142935276031,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.053246382623910904
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14185521006584167,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09279225021600723
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_13"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_14",
+          "v11_fit_15"
+        ],
+        "sides": [
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08270642906427383,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.06372430175542831
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14463360607624054,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09727360308170319
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_14"
+          },
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": true,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": false,
+              "zero": true
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "unknown",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.0827135518193245,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.05222165212035179
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14251530170440674,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09240048378705978
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_15"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_16",
+          "v11_fit_17"
+        ],
+        "sides": [
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08275836706161499,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.061486661434173584
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14527934789657593,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09422221779823303
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_16"
+          },
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": false,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": true,
+              "zero": false
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08279556035995483,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.06139756366610527
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.1451810598373413,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09423112869262695
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_17"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_18",
+          "v11_fit_19"
+        ],
+        "sides": [
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": false,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": true,
+              "zero": false
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "green",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08285670727491379,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.053060706704854965
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.1460607796907425,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.0940990075469017
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_18"
+          },
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "green",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08287860453128815,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.053429193794727325
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.1464346945285797,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09413260966539383
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_19"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_20",
+          "v11_fit_21"
+        ],
+        "sides": [
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": false,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.0826772153377533,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.05631536617875099
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14485105872154236,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09567925333976746
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_20"
+          },
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": true,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": true
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "green",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08264424651861191,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.04825634881854057
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14405988156795502,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09559741616249084
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_21"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_22",
+          "v11_fit_23"
+        ],
+        "sides": [
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "red",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08287331461906433,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.054716721177101135
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.1467287391424179,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.0950545147061348
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_22"
+          },
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": true,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": true
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "red",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08284252136945724,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.0471082404255867
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.1438293606042862,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09552405029535294
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_23"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_24",
+          "v11_fit_25"
+        ],
+        "sides": [
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": false,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": true,
+              "zero": false
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.0828026533126831,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.05443864315748215
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14442355930805206,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09572039544582367
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_24"
+          },
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08278843015432358,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.05381020903587341
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14420337975025177,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09571899473667145
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_25"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_26",
+          "v11_fit_27"
+        ],
+        "sides": [
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "red",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08286683261394501,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.058812547475099564
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14642556011676788,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.0941309854388237
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_26"
+          },
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": false,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": true,
+              "zero": false
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "red",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08282935619354248,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.05929521098732948
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14625461399555206,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09413030743598938
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_27"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": false,
+        "pair": [
+          "v11_fit_28",
+          "v11_fit_29"
+        ],
+        "sides": [
+          {
+            "content_correct": false,
+            "control_correct": {
+              "absent": false,
+              "contextual": false,
+              "exact_text": true,
+              "shuffled": false,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": false,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "blue",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.0826808512210846,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.050234951078891754
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14423243701457977,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09581025689840317
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_28"
+          },
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": true,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": false,
+              "zero": true
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "unknown",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08267032355070114,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.046610958874225616
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14308293163776398,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09479328989982605
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_29"
+          }
+        ]
+      },
+      {
+        "both_contextual_correct": true,
+        "pair": [
+          "v11_fit_30",
+          "v11_fit_31"
+        ],
+        "sides": [
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": false,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": false,
+              "zero": false
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "red",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.0827188566327095,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.058811549097299576
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14557486772537231,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09549806267023087
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_30"
+          },
+          {
+            "content_correct": true,
+            "control_correct": {
+              "absent": true,
+              "contextual": true,
+              "exact_text": true,
+              "shuffled": true,
+              "wrong": false,
+              "zero": true
+            },
+            "first_token_correct": true,
+            "logit_max_delta_from_correct": 0.0,
+            "prefix_logits_exact": true,
+            "raw_answer": "unknown",
+            "reader_layers": {
+              "3": {
+                "gate": 0.49849286675453186,
+                "hidden_rms": 0.08272629231214523,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.046521514654159546
+              },
+              "7": {
+                "gate": 0.49824321269989014,
+                "hidden_rms": 0.14339834451675415,
+                "projection_cache": "none",
+                "projection_calls": 1,
+                "residual_rms": 0.09481090307235718
+              }
+            },
+            "round_trip_exact": true,
+            "terminated": true,
+            "truncated": false,
+            "world_id": "v11_fit_31"
+          }
+        ]
+      }
+    ],
+    "counterfactual_pairs_both_correct": 2,
+    "fit_memory_dependence_passed": false,
+    "groups": [
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 4,
+          "exact_text": 8,
+          "shuffled": 4,
+          "wrong": 1,
+          "zero": 3
+        },
+        "counterfactual_pairs_both_correct": 1,
+        "fit_memory_dependence_passed": false,
+        "index": 0
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 3,
+          "exact_text": 8,
+          "shuffled": 3,
+          "wrong": 1,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "fit_memory_dependence_passed": false,
+        "index": 1
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 3,
+          "exact_text": 8,
+          "shuffled": 3,
+          "wrong": 2,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 0,
+        "fit_memory_dependence_passed": false,
+        "index": 2
+      },
+      {
+        "correct": {
+          "absent": 2,
+          "contextual": 5,
+          "exact_text": 8,
+          "shuffled": 5,
+          "wrong": 2,
+          "zero": 2
+        },
+        "counterfactual_pairs_both_correct": 1,
+        "fit_memory_dependence_passed": false,
+        "index": 3
+      }
+    ],
+    "round_trip_exact": 32,
+    "selection": "fixed_final_512_all_groups_only_no_best_prefix",
+    "updates": 512
+  },
+  "format": "replica.intrinsic_memory.terminal_reconciliation.v12",
+  "ledger": {
+    "active_stages": [],
+    "events": 15892,
+    "journal": {
+      "append_calls": 31827,
+      "appended_bytes": 7417443,
+      "path": "/Users/flare/replica_r3_starter/reports/intrinsic_memory_content_key_v16/native_bf16_two_attempt01/work_ledger.jsonl",
+      "torn_tail": false
+    },
+    "reserved": {
+      "artifact_bytes": 204409856,
+      "artifact_read_bytes": 43419685885,
+      "backwards": 513,
+      "cache_evictions": 359,
+      "cache_misses": 359,
+      "cache_recomputations": 359,
+      "forwards": 3548,
+      "generated_tokens": 1616,
+      "input_tokens": 878500,
+      "model_loads": 2,
+      "prompt_tokenizer_calls": 4397,
+      "restart_restores": 2,
+      "retrievals": 161,
+      "source_encodes": 471,
+      "source_feature_forwards": 359,
+      "source_token_bytes": 52775,
+      "tokenizer_calls": 471,
+      "updates": 513,
+      "writes": 3357
+    }
+  },
+  "original_weights_unchanged": true,
+  "outcome": {
+    "RSI": false,
+    "development_generalization_measured": false,
+    "final_fitting_passed": false,
+    "fresh_process_continuation_passed": true,
+    "native_competence": true,
+    "persistent_learning": false,
+    "promotion": false,
+    "status": "final_fit_failed_development_closed_restart_passed",
+    "useful_recall": false
+  },
+  "packet_path": "/Users/flare/replica_r3_starter/reports/intrinsic_memory_content_key_v16/native_packet_two.json",
+  "packet_sha256": "043b745591a64c2515922231b94388a6156df77b39260998b2b3bf3a3a6bdc7b",
+  "preflight_packet_sha256": "043b745591a64c2515922231b94388a6156df77b39260998b2b3bf3a3a6bdc7b",
+  "protocol_path": "/Users/flare/replica_r3_starter/configs/spark_content_key_v16.json",
+  "protocol_sha256": "f1cea011ca335515a9b966e4117147711d8b3bbd9f1179a0a1160224f3bc26a4",
+  "raw_sha256": {
+    "baseline.json": "12647226120b4f136d4d24b09098de31691d8198bebe52145cf02c3a87eac565",
+    "capacity_guard_main.json": "f329e49cb1f924cfc5831bb89c91c9c48987aa7718924da0c575030aaa1a249e",
+    "capacity_guard_restart.json": "1a1a67d00bb5db827461ca62070f050b5b793b4f851f4ce67b8c21d9ed36fd43",
+    "checkpoint/manifest.json": "a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c",
+    "fit_probes_512.json": "0d148394b12a7e047eafea06719335472954801fc51ce11a1b75c0d948e996fa",
+    "main_result.json": "48ecc989f291c8b0ab09ee9139d862cdb7a3c30b1e119a6f6143f740ed33c55b",
+    "restart_result.json": "a0efbc4fa4443b4cfbe994fa5906fc6c91c2b909bc5e7635fcf91664b0951760",
+    "supervision/receipt.json": "22781cf773addc22d8c7218392d18964ef2a2156fe7e5da494ea8dbf7e38c953",
+    "teacher_qualification.json": "44ab27070da362e336a2e5941a459cf98f1f6b9c190363fced8e3033cf00cdd5",
+    "work_ledger.jsonl": "fa428e404b6752d4cee3409aee1e8f390bba2ff5432d85807db612d62b1afa0e"
+  },
+  "resources": {
+    "artifact_bytes_current_raw_tree": 70570279,
+    "artifact_bytes_observed_by_guard": 70534622,
+    "driver_and_rss_overlap": true,
+    "minimum_observed_free_percent": 71.0,
+    "peak_driver_bytes": 11261542400,
+    "peak_swap_growth_bytes": 0,
+    "samples_are_not_hard_realtime_maxima": true
+  },
+  "restart": {
+    "actual_continuation_updates": 1,
+    "extension_restore_completed": true,
+    "failure_message": null,
+    "failure_type": null,
+    "fresh_process_continuation_measured": true,
+    "fresh_process_logits_exact": true,
+    "requested": true
+  },
+  "run_root": "/Users/flare/replica_r3_starter/reports/intrinsic_memory_content_key_v16/native_bf16_two_attempt01",
+  "teacher": {
+    "all_content_and_responses_complete": true,
+    "complete": true,
+    "correct": 32,
+    "false_recall": 0,
+    "frozen_original_extensions_disabled": true,
+    "passed_flag": true,
+    "rows": 32,
+    "terminated": 32,
+    "truncated": 0
+  },
+  "termination": {
+    "deadline_overrun_seconds": 0.0,
+    "elapsed_seconds": 1550.3780374173075,
+    "exit_code": 0,
+    "process_group_exit_confirmed": true,
+    "supervisor_status": "completed"
+  }
+}

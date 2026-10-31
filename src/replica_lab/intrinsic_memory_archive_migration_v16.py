@@ -16,6 +16,7 @@ import uuid
 from .contextual_feature_identity_v12 import CODEC, REPRESENTATION
 from .contextual_memory_v12 import digest
 from .contextual_release_v12 import FORMAT as RELEASE_FORMAT
+from .tiered_memory import MemoryScope
 from .intrinsic_memory_budget_v12 import atomic
 
 FORMAT = "replica.intrinsic_memory.archive_migration.v16"
@@ -49,9 +50,11 @@ def _release_files(source, *, require_pointer):
     manifest_bytes = _regular_bytes(source / "manifest.json")
     manifest_hash = hashlib.sha256(manifest_bytes).hexdigest()
     manifest = json.loads(manifest_bytes)
-    generation = int(source.name) if source.name.isdigit() else None
+    generation = manifest.get("generation")
+    if type(generation) is not int or generation < 1 or source.name != f"{generation:08d}":
+        raise ValueError("release generation invalid")
+    scope = MemoryScope(**manifest.get("scope", {}))
     if (manifest.get("format") != RELEASE_FORMAT
-            or manifest.get("generation") != generation
             or not isinstance(manifest.get("scope"), dict)
             or manifest.get("representation") != REPRESENTATION
             or manifest.get("codec") != CODEC
@@ -80,8 +83,9 @@ def _release_files(source, *, require_pointer):
         pointer_hash = hashlib.sha256(pointer_bytes).hexdigest()
         pointer = json.loads(pointer_bytes)
         if (pointer.get("format") != RELEASE_FORMAT + ".pointer"
-                or pointer.get("generation") != generation
-                or pointer.get("scope") != manifest["scope"]
+                or type(pointer.get("generation")) is not int
+                or pointer["generation"] != generation
+                or MemoryScope(**pointer.get("scope", {})).scope_key != scope.scope_key
                 or type(pointer.get("e_epoch")) is not int or pointer["e_epoch"] < 0
                 or pointer.get("manifest_sha256") != manifest_hash):
             raise ValueError("release pointer scope/format/authority differs")
@@ -227,11 +231,20 @@ def inventory_archive(run):
         measured = [_logical_generation(path) for path in generations]
         pointer_path = root / "current.json"
         pointer = json.loads(_regular_bytes(pointer_path)) if pointer_path.exists() else None
-        pointer_generation = pointer.get("generation") if pointer else None
+        pointer_generation = (pointer.get("generation")
+                              if pointer and type(pointer.get("generation")) is int else None)
         final = next((row for row in measured if row["generation"] == pointer_generation),
                      measured[-1])
+        try:
+            pointer_scope_key = (MemoryScope(**pointer.get("scope", {})).scope_key
+                                 if pointer else None)
+            final_scope_key = MemoryScope(**final["scope"]).scope_key
+        except (TypeError, ValueError):
+            pointer_scope_key = final_scope_key = None
         pointer_valid = bool(pointer and pointer.get("format") == RELEASE_FORMAT + ".pointer"
-                             and pointer.get("scope") == final["scope"]
+                             and type(pointer.get("generation")) is int
+                             and pointer_scope_key is not None
+                             and pointer_scope_key == final_scope_key
                              and type(pointer.get("e_epoch")) is int and pointer["e_epoch"] >= 0
                              and pointer.get("manifest_sha256") == final["manifest_sha256"]
                              and final["restorable"])
