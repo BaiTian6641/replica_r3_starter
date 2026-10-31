@@ -6,12 +6,14 @@ from dataclasses import dataclass
 from .contextual_memory import AuthorityRejection
 from .contextual_memory_v5 import AuthorityReadFailure
 from copy import deepcopy
+import re
 
 import torch
 
 from .intrinsic_memory_acceptance_v13 import (
     InvalidationContractError, assess_response,
     chronological_correction as direct_chronological_correction)
+from .contextual_completion_objective_v1 import validate_complete_response
 from .intrinsic_memory_coverage_v12 import (
     COMPOUND_FAMILIES, _compound_answer, _render_compound)
 
@@ -64,6 +66,31 @@ def sequence_log_likelihood(logits_sequence, token_ids, allowed_stop_token_ids):
     return total
 
 
+def sequence_likelihood_parts(logits, encoding, *, spec):
+    """Differentiable answer/EOS log-likelihood under one teacher-forced prefix."""
+    counts = validate_complete_response(encoding, spec=spec)
+    log_probabilities = torch.log_softmax(logits.float(), dim=-1)
+    labels = encoding.labels[0]
+    terminal = encoding.metadata["terminal_prediction_position"]
+    begin = encoding.metadata["prompt_tokens"] - 1
+    answer_positions = torch.arange(begin, terminal, device=labels.device)
+    answer = log_probabilities[0, answer_positions, labels[answer_positions]].sum()
+    eos = log_probabilities[0, terminal, labels[terminal]]
+    return {
+        "answer_log_likelihood": answer,
+        "eos_log_likelihood": eos,
+        "total_log_likelihood": answer + eos,
+        "answer_tokens": counts["word_tokens"],
+        "supervised_tokens": counts["supervised_tokens"],
+    }
+
+
+def sequence_margin(expected, alternative):
+    """Margin between two independently encoded candidate responses."""
+    return {key: expected[key] - alternative[key]
+            for key in ("answer_log_likelihood", "eos_log_likelihood", "total_log_likelihood")}
+
+
 def complete_response_assessment(row, response, *, control, sequence_logits=None,
                                  counterfactual_logits=None):
     """Combine content/completion with per-sequence likelihood when available."""
@@ -86,37 +113,119 @@ def complete_response_assessment(row, response, *, control, sequence_logits=None
     return result
 
 
+def _compound_history(row):
+    facts = row.get("facts")
+    history = row.get("revision_history")
+    if history is None:
+        history = ([] if row["answer"] == "unknown" else [{
+            "revision": 1, "answer": facts["answer"],
+            "anchor_colour": facts["anchor_colour"],
+        }])
+    if (not isinstance(history, list)
+            or any(type(item) is not dict or type(item.get("revision")) is not int
+                   or not isinstance(item.get("answer"), str)
+                   or not isinstance(item.get("anchor_colour"), str)
+                   for item in history)):
+        raise ValueError("invalid compound revision history")
+    revisions = [item["revision"] for item in history]
+    if revisions != sorted(set(revisions)) or revisions != list(range(1, len(revisions) + 1)):
+        raise ValueError("compound revisions must be consecutive and increasing")
+    return deepcopy(history)
+
+
+def _render_compound_history(facts, history, family):
+    segments = [_render_compound(facts, family)]
+    revisions = history[1:] if history and history[0]["revision"] == 1 else history
+    for item in revisions:
+        changed = dict(facts, answer=item["answer"],
+                       anchor_colour=item["anchor_colour"], unrecorded_target=False)
+        segments.append(f"Revision {item['revision']}: " + _render_compound(changed, family))
+    return " ".join(segments)
+
+
+
+def _compound_revision_values(body, facts, family):
+    matches = re.findall(
+        r"The recorded color of " + re.escape(facts["target"]) + r" is ([A-Za-z]+)\.", body)
+    if len(matches) != 1:
+        raise ValueError("rendered revision does not identify one target answer")
+    answer = matches[0]
+    return {"answer": answer,
+            "anchor_colour": answer if family == COMPOUND_FAMILIES[1] else facts["anchor_colour"]}
+
+def parse_compound_chronology(text, facts, family):
+    """Independently replay every rendered revision against original facts."""
+    segments = text.split(" Revision ")
+    if not segments or segments[0] != _render_compound(facts, family):
+        raise ValueError("original compound source was not preserved")
+    history = []
+    for segment in segments[1:]:
+        prefix, separator, body = segment.partition(": ")
+        if not separator or not prefix.isdigit() or not body:
+            raise ValueError("malformed compound revision")
+        history.append({"revision": int(prefix), "body": body})
+    previous = 1
+    for item in history:
+        if item["revision"] != previous + 1:
+            raise ValueError("compound revisions are not monotonic")
+        previous = item["revision"]
+    if history and not facts["unrecorded_target"]:
+        initial = {"revision": 1, "answer": facts["answer"],
+                   "anchor_colour": facts["anchor_colour"]}
+        history = [initial, *history]
+    elif not history and facts["unrecorded_target"]:
+        history = []
+    elif not history:
+        history = [{"revision": 1, "answer": facts["answer"],
+                    "anchor_colour": facts["anchor_colour"]}]
+    for item in history[1:] if history and history[0]["revision"] == 1 else history:
+        values = _compound_revision_values(item["body"], facts, family)
+        changed = dict(facts, answer=values["answer"],
+                       anchor_colour=values["anchor_colour"], unrecorded_target=False)
+        if _render_compound(changed, family) != item["body"]:
+            raise ValueError("rendered compound revision differs from its facts")
+        item.update(values)
+    return [{key: value for key, value in item.items() if key != "body"}
+            for item in history]
+
+
 def chronological_correction(row, new_color):
     """Apply the declared direct or compound-family correction oracle."""
     if not isinstance(new_color, str) or not new_color.isalpha():
         raise ValueError("invalid correction color")
     family = row.get("rule_family")
-    if family not in COMPOUND_FAMILIES:
+    if family not in COMPOUND_FAMILIES or not isinstance(row.get("facts"), dict):
         return direct_chronological_correction(row, new_color)
     original = deepcopy(row)
     facts = deepcopy(row.get("facts"))
     query = row.get("query_entity")
     if not isinstance(facts, dict) or not isinstance(query, str):
         raise ValueError("compound structured facts required")
-    if _compound_answer(facts, family, query) != row.get("answer"):
+    history = _compound_history(row)
+    original_answer = history[0]["answer"] if history else row["answer"]
+    if _compound_answer(facts, family, query) != original_answer:
         raise ValueError("original compound answer does not follow from its oracle")
     if new_color == row["answer"]:
         raise ValueError("correction must change the intended answer")
-    changed = deepcopy(facts)
-    changed["answer"] = new_color
-    changed["unrecorded_target"] = False
+    revision = 1 + max([item["revision"] for item in history] or [1])
+    changed = dict(facts, answer=new_color, unrecorded_target=False)
     if family == COMPOUND_FAMILIES[1]:
-        # Equality: the anchor shares the target's color by declaration.
         changed["anchor_colour"] = new_color
     allowed = {"answer", "anchor_colour", "unrecorded_target"}
     if any(changed.get(key) != facts.get(key) for key in set(facts) - allowed):
         raise ValueError("correction changed an unrelated compound fact")
-    text = _render_compound(changed, family)
     if _compound_answer(changed, family, query) != new_color:
         raise ValueError("corrected answer does not follow from the compound oracle")
-    return {**original, "facts": changed, "text": text, "answer": new_color,
-            "chronology": 2,
+    history.append({"revision": revision, "answer": new_color,
+                    "anchor_colour": changed["anchor_colour"]})
+    text = _render_compound_history(facts, history, family)
+    replayed = parse_compound_chronology(text, facts, family)
+    if replayed != history or replayed[-1]["answer"] != new_color:
+        raise ValueError("rendered compound chronology does not reproduce its oracle")
+    return {**original, "facts": facts, "revision_history": history,
+            "text": text, "answer": new_color, "chronology": revision,
             "correction": {"intended_entity": query, "rule_family": family,
-                           "supersedes_revision": 1, "earlier_facts_preserved": True,
+                           "supersedes_revision": revision - 1,
+                           "earlier_facts_preserved": True,
                            "unrelated_facts_unchanged": True,
-                           "verification": "declared_compound_oracle_and_renderer_replay"}}
+                           "verification": "structured_and_rendered_compound_revision_oracle"}}

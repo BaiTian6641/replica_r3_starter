@@ -147,6 +147,10 @@ class CoverageTeacherEngine(TeacherEngine):
         return {'rows': [row for group in groups for row in group['rows']],
                 'correct': {control: sum(g['correct'][control] for g in groups) for control in CONTROLS},
                 'false_recall': {control: sum(g['false_recall'][control] for g in groups) for control in CONTROLS},
+                'complete': {control: sum(g['complete'][control] for g in groups) for control in CONTROLS},
+                'complete_correct': {control: sum(g['complete_correct'][control] for g in groups)
+                                     for control in CONTROLS},
+                'completion_passed': all(g['completion_passed'] for g in groups),
                 'groups': [{k: v for k, v in group.items() if k != 'rows'} for group in groups],
                 'useful_recall_passed': all(g['useful_recall_passed'] for g in groups),
                 'selection': 'both_predeclared_groups_required_no_pooling_escape',

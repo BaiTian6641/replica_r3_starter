@@ -54,6 +54,7 @@ from .intrinsic_memory_execution_v5 import bound_json, hash_file
 from .intrinsic_memory_native_v5 import (
     base_hash, store_at, world_scope, verified_source_classes)
 from .intrinsic_memory_teacher_v12 import TeacherEngineV12
+from .intrinsic_memory_acceptance_v15 import chronological_correction, expect_invalidation
 from .spark_device_placement_v2 import place_frozen_spark_base
 
 
@@ -499,39 +500,39 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
                         'passed' if result['useful_recall_passed'] else 'failed_utility')
             begin_stage(engine, 'correction')
             row = development[0]; store = dstores[0]; scope = dscopes[0]; old = batches[0]
-            replacement = development[1]['answer']
-            newtext = row['text'].replace(row['answer'], replacement)
-            span = canonical_spans(newtext, record_id=row['world_id']+'.corrected',
-                                   source_id=row['world_id'], source_epoch=2, available_at=2)[0]
+            alternative = development[1]
+            replacement = (alternative['facts']['answer']
+                           if isinstance(alternative.get('facts'), dict)
+                           else alternative['answer'])
+            corrected_row = chronological_correction(row, replacement)
+            span = canonical_spans(
+                corrected_row['text'], record_id=row['world_id']+'.corrected',
+                source_id=row['world_id'], source_epoch=corrected_row['chronology'],
+                available_at=corrected_row['chronology'])[0]
             span = replace(span, supersedes=old.spans[0].record_id)
             with engine.measured('chronological_correction', writes=1):
                 path.correct(store, old.spans[0].record_id, span, scope=scope)
-            try:
-                path.validate(old, scope)
-            except Exception:
-                stale_rejected = True
-            else:
-                raise ValueError('correction retained stale snapshot')
+            stale = expect_invalidation(
+                'stale_snapshot', lambda: path.validate(old, scope))
             new = engine.read(store, scope, row['question'])
-            changed = {**row, 'text': newtext, 'answer': replacement}
-            corrected = engine.generate(changed, new, scope); corrected.pop('first_logits')
-            exact = engine.generate(changed, None, scope, control='exact_text')
+            corrected = engine.generate(corrected_row, new, scope); corrected.pop('first_logits')
+            exact = engine.generate(corrected_row, None, scope, control='exact_text')
             exact.pop('first_logits')
             with engine.measured('revocation', writes=1):
                 store.revoke_record(span.record_id, reason='predeclared_probe', scope=scope)
-            try:
-                engine.read(store, scope, row['question'])
-            except Exception:
-                revoked_read_rejected = True
-            else:
-                raise ValueError('revoked source remained readable')
+            revoked_read = expect_invalidation(
+                'stale_snapshot', lambda: path.validate(new, scope))
             revoked = engine.generate({**row, 'text': '', 'answer': 'unknown'}, None, scope,
                                       control='absent')
             revoked.pop('first_logits')
             engine.write_receipt('correction', {
-                'stale_snapshot_rejected': stale_rejected,
-                'revoked_retrieval_rejected': revoked_read_rejected,
+                'stale_snapshot_rejected': True,
+                'stale_snapshot_evidence': vars(stale),
+                'revoked_retrieval_rejected': True,
+                'revoked_read_evidence': vars(revoked_read),
                 'corrected_contextual': corrected, 'corrected_exact': exact,
+                'correction_oracle': corrected_row['correction'],
+                'revision_history': corrected_row.get('revision_history'),
                 'after_revocation': revoked, 'learned_unlearning_claim': False})
             close_stage(engine, 'correction', 'completed')
         result['status'] = 'completed_frozen_fit_diagnostic'

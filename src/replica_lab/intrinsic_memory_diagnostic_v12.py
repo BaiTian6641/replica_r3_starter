@@ -25,6 +25,7 @@ import time
 import torch
 
 from .baseline_competence import score
+from .intrinsic_memory_acceptance_v13 import assess_response
 from .contextual_completion_objective_v1 import encode_complete_response, complete_response_loss
 from .contextual_memory import ContextualMemoryError, WIDTH, tensor_digest
 from .contextual_memory_v5 import PendingContextualRead
@@ -554,14 +555,28 @@ class DiagnosticEngineV12:
             for control in CONTROLS:
                 result = self.generate(row, batch, scope, control=control,
                                        wrong=batches[i ^ 1], wrong_scope=scopes[i ^ 1])
-                result.pop('first_logits'); one['controls'][control] = result
+                result.pop('first_logits')
+                assessment = assess_response(
+                    row['answer'], result['raw_answer'], control=control,
+                    terminated=result['terminated'], truncated=result['truncated'])
+                result.update(assessment.as_dict())
+                one['controls'][control] = result
             decisions.append(one)
         counts = {c: sum(r['controls'][c]['correct'] for r in decisions) for c in CONTROLS}
         false = {c: sum(r['controls'][c]['false_recall'] for r in decisions) for c in CONTROLS}
-        passed = (len(rows) == 8 and counts['contextual'] >= 6 and false['contextual'] == 0
+        complete = {c: sum(r['controls'][c]['complete'] for r in decisions) for c in CONTROLS}
+        complete_correct = {c: sum(r['controls'][c]['complete_correct'] for r in decisions)
+                            for c in CONTROLS}
+        completion_passed = all(
+            row['controls'][control]['complete']
+            for row in decisions for control in CONTROLS)
+        passed = (completion_passed and len(rows) == 8 and counts['contextual'] >= 6
+                  and false['contextual'] == 0
                   and counts['contextual'] >= counts['exact_text']-1
                   and all(counts['contextual'] > counts[c]
                           for c in ('wrong', 'shuffled', 'zero', 'absent')))
         return {'rows': decisions, 'correct': counts, 'false_recall': false,
+                'complete': complete, 'complete_correct': complete_correct,
+                'completion_passed': completion_passed,
                 'useful_recall_passed': passed,
                 'generalization_scope': 'one_fixed_synthetic_family_and_seed_feasibility_only'}

@@ -14,7 +14,7 @@ from .baseline_competence import score
 from .contextual_memory import ContextualMemoryError
 from .intrinsic_memory_worlds_v11 import oracle as revision_oracle
 
-CONTROLS = frozenset(("contextual", "exact_text"))
+CONTROLS = frozenset(("contextual", "exact_text", "wrong", "shuffled", "zero", "absent"))
 
 
 @dataclass(frozen=True)

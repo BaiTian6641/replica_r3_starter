@@ -19,6 +19,7 @@ from .contextual_memory import canonical_spans, tensor_digest
 from .contextual_memory_v5 import PendingContextualRead, ContextualMemoryError
 from .contextual_release_v5 import ProducerReleaseCorpus
 from .intrinsic_memory_budget_v5 import atomic
+from .intrinsic_memory_acceptance_v13 import assess_response
 
 FORMAT = 'replica.intrinsic_memory.diagnostic.v5'
 CONTROLS = ('contextual', 'exact_text', 'wrong', 'shuffled', 'zero', 'absent')
@@ -296,12 +297,28 @@ class DiagnosticEngine:
             one={'world_id':row['world_id'],'controls':{}}
             for control in CONTROLS:
                 result=self.generate(row,batch,scope,control=control,wrong=batches[i^1],wrong_scope=scopes[i^1])
-                result.pop('first_logits'); one['controls'][control]=result
+                result.pop('first_logits')
+                assessment = assess_response(
+                    row['answer'], result['raw_answer'], control=control,
+                    terminated=result['terminated'], truncated=result['truncated'])
+                result.update(assessment.as_dict())
+                one['controls'][control] = result
             decisions.append(one)
-        counts={c:sum(r['controls'][c]['correct'] for r in decisions) for c in CONTROLS}
-        false={c:sum(r['controls'][c]['false_recall'] for r in decisions) for c in CONTROLS}
-        passed=(len(rows)==8 and counts['contextual']>=6 and false['contextual']==0
-                and counts['contextual']>=counts['exact_text']-1
-                and all(counts['contextual']>counts[c] for c in ('wrong','shuffled','zero','absent')))
-        return {'rows':decisions,'correct':counts,'false_recall':false,'useful_recall_passed':passed,
-                'generalization_scope':'one_fixed_synthetic_family_and_seed_feasibility_only'}
+        counts = {c: sum(r['controls'][c]['correct'] for r in decisions) for c in CONTROLS}
+        false = {c: sum(r['controls'][c]['false_recall'] for r in decisions) for c in CONTROLS}
+        complete = {c: sum(r['controls'][c]['complete'] for r in decisions) for c in CONTROLS}
+        complete_correct = {c: sum(r['controls'][c]['complete_correct'] for r in decisions)
+                            for c in CONTROLS}
+        completion_passed = all(
+            row['controls'][control]['complete']
+            for row in decisions for control in CONTROLS)
+        passed = (completion_passed and len(rows) == 8 and counts['contextual'] >= 6
+                  and false['contextual'] == 0
+                  and counts['contextual'] >= counts['exact_text']-1
+                  and all(counts['contextual'] > counts[c]
+                          for c in ('wrong', 'shuffled', 'zero', 'absent')))
+        return {'rows': decisions, 'correct': counts, 'false_recall': false,
+                'complete': complete, 'complete_correct': complete_correct,
+                'completion_passed': completion_passed,
+                'useful_recall_passed': passed,
+                'generalization_scope': 'one_fixed_synthetic_family_and_seed_feasibility_only'}

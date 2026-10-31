@@ -165,7 +165,7 @@ def test_every_predeclared_fitting_group_is_required(tmp_path,monkeypatch,failed
     finally:e.path.close()
 
 
-@pytest.mark.parametrize('damage',['none','second_group_five','shuffled_tie','false_recall','regroup','teacher_not_evicted'])
+@pytest.mark.parametrize('damage',['none','second_group_five','shuffled_tie','false_recall','regroup','teacher_not_evicted','truncated'])
 def test_development_uses_real_unchanged_group_scorer_without_pooling_escape(tmp_path,monkeypatch,damage):
     e=make(tmp_path);rs=worlds('development')['rows'];e.freeze()
     if damage=='regroup':rs[-1]['criterion_group']=0
@@ -175,7 +175,12 @@ def test_development_uses_real_unchanged_group_scorer_without_pooling_escape(tmp
         correct=control in ('contextual','exact_text')
         if damage=='second_group_five' and group==1 and control=='contextual':correct=index%8<5
         if damage=='shuffled_tie' and control=='shuffled':correct=True
-        return {'correct':correct,'false_recall':damage=='false_recall' and index==15 and control=='contextual','first_logits':None}
+        truncated=damage=='truncated'
+        raw_answer = ('red' if damage=='false_recall' and index==15 and control=='contextual'
+                      else row['answer'])
+        return {'correct':correct,'raw_answer':raw_answer,
+                'false_recall':damage=='false_recall' and index==15 and control=='contextual',
+                'terminated':not truncated,'truncated':truncated,'first_logits':None}
     monkeypatch.setattr(e,'generate',generate)
     try:
         if damage in ('regroup','teacher_not_evicted'):
@@ -183,6 +188,9 @@ def test_development_uses_real_unchanged_group_scorer_without_pooling_escape(tmp
         else:
             result=e.evaluate(rs,[None]*16,[None]*16)
             assert result['useful_recall_passed']==(damage=='none')
+            if damage=='truncated':
+                assert result['correct']['contextual']==16
+                assert not result['completion_passed']
             if damage=='second_group_five':
                 assert result['correct']['contextual']==13
                 assert [g['useful_recall_passed'] for g in result['groups']]==[True,False]

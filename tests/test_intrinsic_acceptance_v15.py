@@ -8,9 +8,9 @@ from replica_lab.contextual_memory_v5 import AuthorityReadFailure, ContextualRea
 from replica_lab.intrinsic_memory_acceptance_v13 import InvalidationContractError
 from replica_lab.intrinsic_memory_acceptance_v15 import (
     chronological_correction, complete_response_assessment, expect_invalidation,
-    sequence_log_likelihood)
-from replica_lab.intrinsic_memory_coverage_v12 import COMPOUND_FAMILIES
+    parse_compound_chronology, sequence_log_likelihood)
 import torch
+from replica_lab.intrinsic_memory_coverage_v12 import COMPOUND_FAMILIES
 from replica_lab.intrinsic_memory_budget_v12 import BudgetError
 import profile_intrinsic_memory_density_v12 as profile
 
@@ -102,21 +102,39 @@ def test_partner_correction_preserves_unrelated_anchor_color():
     corrected = chronological_correction(compound_row(COMPOUND_FAMILIES[0]), "green")
     assert corrected["answer"] == "green"
     assert corrected["facts"]["anchor_colour"] == "blue"
+    assert corrected["revision_history"][-1] == {
+        "revision": 2, "answer": "green", "anchor_colour": "blue"}
     assert "The recorded color of B is green" in corrected["text"]
     assert corrected["correction"]["rule_family"] == COMPOUND_FAMILIES[0]
 
 
-def test_same_colour_correction_updates_both_equality_linked_colors():
+def test_same_colour_correction_updates_equality_only_in_new_revision():
     corrected = chronological_correction(compound_row(COMPOUND_FAMILIES[1]), "green")
-    assert corrected["facts"]["anchor_colour"] == "green"
-    assert corrected["facts"]["answer"] == "green"
+    assert corrected["facts"]["anchor_colour"] == "red"
+    assert corrected["revision_history"][-1] == {
+        "revision": 2, "answer": "green", "anchor_colour": "green"}
     assert "The recorded color of B is green" in corrected["text"]
 
 
-def test_compound_correction_can_record_previously_unknown_target():
+def test_compound_correction_preserves_unknown_origin_and_new_revision():
     corrected = chronological_correction(compound_row(COMPOUND_FAMILIES[0], unknown=True), "green")
-    assert corrected["answer"] == "green" and not corrected["facts"]["unrecorded_target"]
-    assert "No color is recorded for B" not in corrected["text"]
+    assert corrected["answer"] == "green"
+    assert corrected["facts"]["unrecorded_target"] is True
+    assert corrected["revision_history"] == [{
+        "revision": 2, "answer": "green", "anchor_colour": "blue"}]
+    assert "No color is recorded for B" in corrected["text"]
+    assert "Revision 2: " in corrected["text"]
+
+
+def test_repeated_compound_corrections_retain_original_facts_and_monotonic_history():
+    first = chronological_correction(compound_row(COMPOUND_FAMILIES[0]), "green")
+    second = chronological_correction(first, "gold")
+    assert second["facts"]["answer"] == "red"
+    assert second["facts"]["anchor_colour"] == "blue"
+    assert [item["revision"] for item in second["revision_history"]] == [1, 2, 3]
+    assert [item["answer"] for item in second["revision_history"]] == ["red", "green", "gold"]
+    assert parse_compound_chronology(
+        second["text"], second["facts"], COMPOUND_FAMILIES[0]) == second["revision_history"]
 
 
 def test_complete_response_assessment_uses_answer_sequence_likelihood():

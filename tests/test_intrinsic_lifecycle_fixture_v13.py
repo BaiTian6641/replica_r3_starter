@@ -39,12 +39,15 @@ def rows(role: str, count: int) -> list[dict]:
     result = []
     for index in range(count):
         answer = "red" if index % 2 == 0 else "blue"
+        query = f"Entity{index // 2}"
         result.append({
             "world_id": f"fixture_{role}_{index:02d}",
             "criterion_group": index // 8,
             "rule_family": "partner_colour" if index < 8 else "same_colour",
-            "question": f"Badge {index // 2}?",
-            "text": f"Badge {index} is {answer}.",
+            "question": f"What is the recorded color of {query}?",
+            "query_entity": query,
+            "facts": [{"entity": query, "color": answer, "revision": 1}],
+            "text": f"The recorded color of {query} is {answer}.",
             "answer": answer,
         })
     return result
