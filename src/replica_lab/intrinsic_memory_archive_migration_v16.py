@@ -197,7 +197,10 @@ def _logical_generation(source):
         names = list(release["payloads"])
     except (ValueError, TypeError, KeyError, json.JSONDecodeError):
         restorable = False
-        manifest = json.loads(manifest_path.read_text())
+        try:
+            manifest = json.loads(manifest_path.read_text())
+        except (OSError, ValueError, TypeError, json.JSONDecodeError):
+            manifest = {}
         names = []
         for record in manifest.get("records", {}).values():
             try:
@@ -243,6 +246,7 @@ def inventory_archive(run):
             pointer_scope_key = final_scope_key = None
         pointer_valid = bool(pointer and pointer.get("format") == RELEASE_FORMAT + ".pointer"
                              and type(pointer.get("generation")) is int
+                             and pointer_generation == final["generation"]
                              and pointer_scope_key is not None
                              and pointer_scope_key == final_scope_key
                              and type(pointer.get("e_epoch")) is int and pointer["e_epoch"] >= 0
@@ -253,8 +257,13 @@ def inventory_archive(run):
             "initial": measured[0], "final": final,
             "generations": measured, "current_pointer_valid": pointer_valid,
         })
-    if not rows or any(not row["current_pointer_valid"] for row in rows):
-        raise ValueError("current release authority or payload is not independently restorable")
+    if not rows or not any(row["current_pointer_valid"] for row in rows):
+        raise ValueError("no independently restorable committed release generation")
+    quarantined = [
+        {"world": row["world"], "generation": row["final"]["generation"],
+         "reason": "invalid_current_authority_or_payload"}
+        for row in rows if not row["current_pointer_valid"]
+    ]
     historical_invalid = [
         {"world": row["world"], "generation": generation["generation"]}
         for row in rows for generation in row["generations"]
@@ -274,6 +283,7 @@ def inventory_archive(run):
             "restorable_generations": sum(row["final"]["restorable"] for row in rows),
         },
         "historical_generations_not_independently_restorable": historical_invalid,
+        "quarantined_generations": quarantined,
         "current_pointer_valid_generations": sum(row["current_pointer_valid"] for row in rows),
         "scope": {
             "initial_is_earliest_retained_not_historical_archive_baseline": True,

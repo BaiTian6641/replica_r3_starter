@@ -1,6 +1,11 @@
 """Interruption, consumer and security contracts for archive migration v16."""
+from dataclasses import asdict, replace
 import json
+import os
 from pathlib import Path
+import subprocess
+import sys
+import textwrap
 
 import pytest
 
@@ -166,7 +171,7 @@ def test_inventory_supports_rollback_and_rejects_missing_authority(tmp_path):
     pointer = json.loads((root / "current.json").read_text())
     del pointer["e_epoch"]
     (root / "current.json").write_text(json.dumps(pointer))
-    with pytest.raises(ValueError, match="current release authority"):
+    with pytest.raises(ValueError, match="no independently restorable"):
         inventory_archive(run)
 
 
@@ -216,7 +221,7 @@ def test_boolean_zero_and_noncanonical_generations_are_rejected(tmp_path):
     pointer = json.loads((root / "current.json").read_text())
     pointer["generation"] = True
     (root / "current.json").write_text(json.dumps(pointer))
-    with pytest.raises(ValueError, match="current release authority"):
+    with pytest.raises(ValueError, match="no independently restorable"):
         inventory_archive(run)
 def test_inventory_marks_overwritten_historical_payload_unrestorable(tmp_path):
     run = tmp_path / "run"
@@ -232,3 +237,120 @@ def test_inventory_marks_overwritten_historical_payload_unrestorable(tmp_path):
     assert result["historical_generations_not_independently_restorable"] == [
         {"world": "world", "generation": 1}]
     assert result["final_logical"]["bytes"] == len((second / "manifest.json").read_bytes()) + 3
+
+
+def test_nonexistent_pointer_target_never_falls_back_and_healthy_world_recovers(tmp_path):
+    run = tmp_path / "run"
+    bad = run / "stores/bad/artifacts/contextual_v12/releases/scope"
+    good = run / "stores/good/artifacts/contextual_v12/releases/scope"
+    make_release(bad / "00000001", 1, b"bad")
+    make_release(good / "00000001", 1, b"good")
+    pointer = json.loads((bad / "current.json").read_text())
+    pointer["generation"] = 99
+    (bad / "current.json").write_text(json.dumps(pointer))
+    result = inventory_archive(run)
+    assert result["current_pointer_valid_generations"] == 1
+    assert result["quarantined_generations"] == [
+        {"world": "bad", "generation": 1, "reason": "invalid_current_authority_or_payload"}]
+    assert next(row for row in result["rows"] if row["world"] == "bad")["final"]["generation"] == 1
+    single = tmp_path / "single"
+    single_bad = single / "stores/bad/artifacts/contextual_v12/releases/scope"
+    make_release(single_bad / "00000001", 1, b"bad")
+    pointer = json.loads((single_bad / "current.json").read_text())
+    pointer["generation"] = 99
+    (single_bad / "current.json").write_text(json.dumps(pointer))
+    with pytest.raises(ValueError, match="no independently restorable"):
+        inventory_archive(single)
+
+
+def test_malformed_unpublished_generation_does_not_block_healthy_current(tmp_path):
+    run = tmp_path / "run"
+    root = run / "stores/world/artifacts/contextual_v12/releases/scope"
+    make_release(root / "00000001", 1, b"healthy")
+    damaged = root / "00000002"
+    damaged.mkdir()
+    (damaged / "manifest.json").write_text("{not-json")
+    result = inventory_archive(run)
+    assert result["current_pointer_valid_generations"] == 1
+    assert result["rows"][0]["final"]["generation"] == 1
+    assert result["historical_generations_not_independently_restorable"] == [
+        {"world": "world", "generation": 2}]
+
+
+def test_fresh_process_reads_migrated_cold_payload_with_original_unavailable(tmp_path):
+    from replica_lab.contextual_memory import ContextualMemoryError
+    from replica_lab.contextual_release_v12 import ProducerReleaseCorpus
+    from replica_lab.contextual_v12_fixture import (
+        build_v12_stack, canonical_span, open_v12_store, scope)
+
+    _, _, _, path = build_v12_stack(seed=17, layers=8, sites=(3, 7), slots=8,
+                                    vocab_size=64, objective_identity={"scope": "migration_io"})
+    store = open_v12_store(tmp_path)
+    sc = scope("world")
+    destination = tmp_path / "migrated"
+    try:
+        span = canonical_span("the badge is red", record_id="record0")[0]
+        path.admit(store, span, scope=sc)
+        corpus = ProducerReleaseCorpus(store, sc)
+        corpus.rebuild(path)
+        batch = path.read(store, "badge", scope=sc, wait_seconds=1)
+        source_pin = dict(batch.pins[0])
+        source_pin.pop("slots_sha256", None)
+        migrate_generation(corpus.root / "00000001", destination)
+        (corpus.root / "00000001").rename(corpus.root / "00000001.unavailable")
+        request = {
+            "store_root": str(tmp_path), "scope": asdict(sc), "span": asdict(batch.spans[0]),
+            "pin": source_pin, "version": batch.producer_version,
+            "source_identity": path.source_identity, "destination": str(destination),
+        }
+        request_path = tmp_path / "request.json"
+        request_path.write_text(json.dumps(request))
+        program = textwrap.dedent("""
+            import hashlib, json
+            from pathlib import Path
+            from replica_lab.contextual_feature_identity_v12 import CanonicalSpan
+            from replica_lab.contextual_release_v12 import ProducerReleaseCorpus
+            from replica_lab.contextual_v12_fixture import open_v12_store
+            from replica_lab.tiered_memory import MemoryScope
+            request = json.loads(Path(__import__('sys').argv[1]).read_text())
+            store = open_v12_store(Path(request['store_root']))
+            try:
+                scope = MemoryScope(**request['scope'])
+                corpus = ProducerReleaseCorpus(store, scope)
+                corpus.root = Path(request['destination'])
+                values, _ = corpus.values(request['pin'], CanonicalSpan(**request['span']),
+                    version=request['version'], scope=scope,
+                    source_identity=request['source_identity'])
+                print(json.dumps({'shape': list(values.shape),
+                    'sha256': hashlib.sha256(values.numpy().tobytes()).hexdigest()}))
+            finally:
+                store.close()
+        """)
+        env = dict(os.environ, PYTHONPATH="src:tests:scripts",
+                   PYTHONDONTWRITEBYTECODE="1", PYTORCH_ENABLE_MPS_FALLBACK="0")
+        completed = subprocess.run([sys.executable, "-c", program, str(request_path)],
+                                   check=True, capture_output=True, text=True, env=env)
+        observed = json.loads(completed.stdout)
+        assert observed["shape"] == [4, 256]
+        import hashlib
+        assert observed["sha256"] == hashlib.sha256(batch.slots.numpy().tobytes()).hexdigest()
+        # Index rebuild and repeat recovery retain the migrated authority.
+        store.recover()
+        consumer = ProducerReleaseCorpus(store, sc)
+        consumer.root = destination
+        values, _ = consumer.values(source_pin, batch.spans[0],
+            version=batch.producer_version, scope=sc, source_identity=path.source_identity)
+        assert (values.numpy() == batch.slots.numpy()).all()
+        corrected = replace(canonical_span("the badge is blue", record_id="correction")[0],
+                            source_epoch=2, supersedes=batch.spans[0].record_id)
+        assert path.correct(store, batch.spans[0].record_id, corrected, scope=sc).outcome.ok
+        with pytest.raises(ContextualMemoryError):
+            consumer.values(source_pin, batch.spans[0], version=batch.producer_version,
+                            scope=sc, source_identity=path.source_identity)
+        store.revoke_record(corrected.record_id, reason="recovery_test", scope=sc)
+        with pytest.raises(ContextualMemoryError):
+            consumer.values(source_pin, batch.spans[0], version=batch.producer_version,
+                            scope=sc, source_identity=path.source_identity)
+    finally:
+        path.close()
+        store.close()
