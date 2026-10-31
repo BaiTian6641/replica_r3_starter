@@ -148,7 +148,7 @@ def _gradient(engine, row, batch, scope, *, prompt):
     gradients = {name: parameter.grad.detach().clone()
                  for name, parameter in _named_parameters(engine.path)
                  if parameter.grad is not None}
-    return gradients, float(loss)
+    return gradients, float(loss.detach())
 def _norm_cosine(left, right):
     left_norm = math.sqrt(sum(float(value.square().sum()) for value in left.values()))
     right_norm = math.sqrt(sum(float(value.square().sum()) for value in right.values()))

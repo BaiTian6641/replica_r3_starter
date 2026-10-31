@@ -18,7 +18,7 @@ AUTHORIZATION = "replica.intrinsic_memory.interference_authorization.v17"
 OUTER_WALL_SECONDS = 1200
 CHECKPOINT_READ_BOUND = 96 * 1024**2
 METADATA_READ_BOUND = 64 * 1024**2
-PAIR_INDICES = (0, 2, 4, 6)
+PAIR_INDICES = (0, 1, 4, 5)
 
 
 def _stage(wall, **counts):

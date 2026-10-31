@@ -72,9 +72,10 @@ def test_interference_protocol_fixed_known_known_budget_and_closed_development()
     assert totals(plan)["wall_seconds"] <= OUTER_WALL_SECONDS - 11
     protocol = {
         "format": PROTOCOL, "development_labels_used": False, "parameter_updates": 8,
+        "intrinsic_reader_key_mode": "content",
         "data": {"fit": {"path": "fit.json", "sha256": "0" * 64}},
         "diagnostic": {
-            "pair_indices": [0, 2, 4, 6], "pairs": 4, "rows": 8,
+            "pair_indices": [0, 1, 4, 5], "pairs": 4, "rows": 8,
             "update_arms_per_pair": 2, "updates": 8, "development": False,
             "generated_tokens": 0, "intrinsic_reader_key_mode": "content",
             "output_root": "reports/interference/test",

@@ -1,12 +1,12 @@
 # Spark fitting-only sequence-margin and gradient-interference diagnostic v17
 
-Status: **attempt01 failed on a parent key-mode binding; corrected attempt02 is predeclared and not launched.** Development labels remain closed. This is one bounded diagnostic, not a capability claim.
+Status: **attempts01 and 02 failed before a valid diagnostic; corrected attempt03 is predeclared and not launched.** Development labels remain closed. This is one bounded diagnostic, not a capability claim.
 
 ## Fixed scope and parent
 
 - Source: sealed official BF16 Spark and its established tokenizer/original parameter identity. Official FP8 and FP8-derived BF16 remain different identities.
 - Parent: V16 content-key attempt01 extension plus optimizer, manifest SHA-256 `a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c`, loaded through explicit validated migration. Content-key mode is required.
-- Known–known pairs: original fitting pair IDs **0, 2, 4, 6** (`v11_fit_00/01`, `04/05`, `08/09`, `12/13`). IDs are preserved after filtering; no unknown answers or development rows are used.
+- Known–known pairs: original fitting pair IDs **0, 1, 4, 5** (`v11_fit_00/01`, `02/03`, `08/09`, `10/11`). IDs are preserved after filtering; no unknown answers or development rows are used.
 - Two isolated one-update arms per pair: update left and update right. Each arm restores identical parameters, optimizer moments and CPU/MPS RNG before the next arm and after the intervention sequence.
 - Updates use NativeFusedAdamW and mean negative total log-likelihood divided by the actual supervised-token count (answer tokens plus one EOS).
 
@@ -51,3 +51,18 @@ Attempt02 binds `intrinsic_reader_key_mode=content` at both protocol levels:
 
 All pairs, measurements, parent checkpoint, budgets, isolated restoration and
 development boundaries are unchanged.
+
+## Attempt02 label failure and attempt03
+
+Attempt02 loaded the parent correctly, then failed because pairs 2 and 6 contain
+`unknown`. Its completed pair00 artifact and the failure receipt are preserved.
+Attempt03 uses the actual known-known IDs 0, 1, 4, 5 (two failing and two passing
+references):
+
+- Protocol: `configs/spark_interference_diagnostic_v17_attempt03.json`, SHA-256 `bfd66a6d7adb302b1dc95600fe8d2d6a849dba20d3b2f823ed391fd95ed5ff9d`.
+- Packet: `reports/intrinsic_memory_interference_v17/native_packet_attempt03.json`, SHA-256 `f591e8b359e177f113d45cc2f6c10342cb54792e84271ffd8743ce10e5b97f65`.
+- Implementation closure: SHA-256 `3647ce51c81595128e93f5ed07be2b19d155c7972a6a583c14d9928b3ffdad64`.
+- Output: `reports/intrinsic_memory_interference_v17/native_bf16_interference_attempt03`; one new attempt, zero retries, separate exact authorization required.
+
+The parent, measurements, isolated restoration, budgets and development boundary
+are unchanged. No consumed attempt is rerun.
