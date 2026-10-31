@@ -82,8 +82,11 @@ def main():
             "formation_persistent_learning_density_and_RSI_unchanged_and_gated": True,
         },
     }
-    if not dry_run["pointer_manifest_matches_source"] or not dry_run["second_completion_idempotent"]:
-        raise ValueError("migration dry run did not complete exactly once")
+    if (not interrupted or pointer_before_recovery or recovery["status"] != "completed"
+            or recovery["bytes_copied"] != 0 or recovery["files_copied"] != 0
+            or not dry_run["pointer_manifest_matches_source"]
+            or not dry_run["second_completion_idempotent"]):
+        raise ValueError("migration dry run did not prove interrupted zero-recopy recovery")
     atomic(args.output.resolve(), result)
     print(json.dumps({
         "initial_logical": inventory["initial_logical"],

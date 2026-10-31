@@ -1,7 +1,7 @@
 """Read-only release inventory and interruption-safe migration preparation v16.
 
 Migration writes only a fresh destination. Payloads and manifests are verified
-before an atomic pointer commit; source archives are never mutated or deleted.
+before an atomic v12 authority pointer is committed; sources are never mutated.
 """
 from __future__ import annotations
 
@@ -9,12 +9,18 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import time
 import uuid
 
+from .contextual_feature_identity_v12 import CODEC, REPRESENTATION
+from .contextual_memory_v12 import digest
+from .contextual_release_v12 import FORMAT as RELEASE_FORMAT
 from .intrinsic_memory_budget_v12 import atomic
 
 FORMAT = "replica.intrinsic_memory.archive_migration.v16"
+PAYLOAD_NAME = re.compile(r"[0-9a-f]{64}\.slots\Z")
+HEX_256 = re.compile(r"[0-9a-f]{64}\Z")
 
 
 class MigrationInterrupted(RuntimeError):
@@ -25,21 +31,86 @@ def sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def _atomic_copy(source, destination):
+def _regular_bytes(path):
+    path = Path(path)
+    if path.is_symlink() or not path.is_file():
+        raise ValueError("missing or substituted release file")
+    return path.read_bytes()
+
+
+def _payload_name(value):
+    if not isinstance(value, str) or not PAYLOAD_NAME.fullmatch(value):
+        raise ValueError("release payload identity differs")
+    return value
+
+
+def _release_files(source, *, require_pointer):
+    source = Path(source)
+    manifest_bytes = _regular_bytes(source / "manifest.json")
+    manifest_hash = hashlib.sha256(manifest_bytes).hexdigest()
+    manifest = json.loads(manifest_bytes)
+    generation = int(source.name) if source.name.isdigit() else None
+    if (manifest.get("format") != RELEASE_FORMAT
+            or manifest.get("generation") != generation
+            or not isinstance(manifest.get("scope"), dict)
+            or manifest.get("representation") != REPRESENTATION
+            or manifest.get("codec") != CODEC
+            or not isinstance(manifest.get("producer_release"), str)
+            or not manifest["producer_release"]
+            or manifest.get("record_digest") != digest(manifest.get("records"))):
+        raise ValueError("release manifest identity differs")
+    records = manifest["records"]
+    if not records:
+        raise ValueError("release records missing")
+    payloads = {}
+    for record in records.values():
+        if record.get("producer_release") != manifest["producer_release"]:
+            raise ValueError("mixed producer releases refused")
+        name = _payload_name(record.get("value_file"))
+        expected_hash = record.get("value_sha256")
+        if not isinstance(expected_hash, str) or not HEX_256.fullmatch(expected_hash):
+            raise ValueError("release payload digest identity differs")
+        payload = _regular_bytes(source / name)
+        if len(payload) != record.get("value_bytes") or hashlib.sha256(payload).hexdigest() != expected_hash:
+            raise ValueError("release payload identity differs")
+        payloads[name] = expected_hash
+    pointer = pointer_hash = None
+    if require_pointer:
+        pointer_bytes = _regular_bytes(source.parent / "current.json")
+        pointer_hash = hashlib.sha256(pointer_bytes).hexdigest()
+        pointer = json.loads(pointer_bytes)
+        if (pointer.get("format") != RELEASE_FORMAT + ".pointer"
+                or pointer.get("generation") != generation
+                or pointer.get("scope") != manifest["scope"]
+                or type(pointer.get("e_epoch")) is not int or pointer["e_epoch"] < 0
+                or pointer.get("manifest_sha256") != manifest_hash):
+            raise ValueError("release pointer scope/format/authority differs")
+    return {
+        "manifest": manifest, "manifest_hash": manifest_hash,
+        "manifest_path": source / "manifest.json", "payloads": payloads,
+        "pointer": pointer, "pointer_hash": pointer_hash,
+    }
+
+
+def _atomic_copy(source, destination, expected_hash):
     source, destination = Path(source), Path(destination)
-    expected = sha256(source)
     if destination.exists():
-        if not destination.is_file() or destination.is_symlink() or sha256(destination) != expected:
+        if not destination.is_file() or destination.is_symlink() or sha256(destination) != expected_hash:
             raise ValueError("migration destination differs from source")
         return False
+    _regular_bytes(source)
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_name(destination.name + "." + uuid.uuid4().hex + ".tmp")
+    digest_builder = hashlib.sha256()
     try:
         with source.open("rb") as reader, temporary.open("xb") as writer:
             while chunk := reader.read(1024 * 1024):
+                digest_builder.update(chunk)
                 writer.write(chunk)
             writer.flush()
             os.fsync(writer.fileno())
+        if digest_builder.hexdigest() != expected_hash:
+            raise ValueError("source content changed during migration copy")
         os.replace(temporary, destination)
         directory = os.open(destination.parent, os.O_RDONLY)
         try:
@@ -49,105 +120,99 @@ def _atomic_copy(source, destination):
     finally:
         if temporary.exists():
             temporary.unlink()
+    if not destination.is_file() or destination.is_symlink() or sha256(destination) != expected_hash:
+        raise ValueError("destination verification failed after copy")
     return True
 
 
-def _release_files(source):
-    manifest_path = Path(source) / "manifest.json"
-    manifest = json.loads(manifest_path.read_text())
-    if manifest.get("format") != "replica.contextual_producer_release.v12":
-        raise ValueError("unsupported release format")
-    records = manifest.get("records", {})
-    if not records:
-        raise ValueError("release records missing")
-    payloads = sorted({record["value_file"] for record in records.values()})
-    for record in records.values():
-        path = source / record["value_file"]
-        if not path.is_file() or path.is_symlink():
-            raise ValueError("release payload missing or substituted")
-        if path.stat().st_size != record["value_bytes"] or sha256(path) != record["value_sha256"]:
-            raise ValueError("release payload identity differs")
-    return manifest, manifest_path, payloads
+def _same_release(left, right):
+    return (left["manifest_hash"] == right["manifest_hash"]
+            and left["pointer_hash"] == right["pointer_hash"]
+            and left["payloads"] == right["payloads"])
 
 
 def migrate_generation(source, destination, *, interrupt_after=None):
-    """Copy one verified generation and commit its pointer last; safe to resume."""
+    """Copy one verified generation and commit its v12 pointer last; safe to resume."""
     source, destination = Path(source), Path(destination)
     started = time.monotonic()
-    manifest, manifest_path, payloads = _release_files(source)
-    manifest_hash = sha256(manifest_path)
+    original = _release_files(source, require_pointer=True)
     pointer_path = destination / "current.json"
     if pointer_path.exists():
-        pointer = json.loads(pointer_path.read_text())
-        if pointer.get("manifest_sha256") != manifest_hash:
-            raise ValueError("destination already points to a different release")
-        for name in ["manifest.json", *payloads]:
-            if sha256(destination / source.name / name) != sha256(source / name):
-                raise ValueError("committed destination payload differs")
+        committed = _release_files(destination / source.name, require_pointer=True)
+        if not _same_release(original, committed):
+            raise ValueError("committed destination release differs")
         return {"status": "already_complete", "bytes_copied": 0, "files_copied": 0,
-                "manifest_sha256": manifest_hash}
+                "manifest_sha256": original["manifest_hash"]}
     destination.mkdir(parents=True, exist_ok=True)
     journal_path = destination / "migration.json"
-    identity = {"source": str(source), "manifest_sha256": manifest_hash}
+    identity = {"source": str(source), "manifest_sha256": original["manifest_hash"],
+                "pointer_sha256": original["pointer_hash"]}
     if journal_path.exists():
         journal = json.loads(journal_path.read_text())
-        if journal.get("source") != identity["source"] or journal.get("manifest_sha256") != manifest_hash:
+        if any(journal.get(key) != value for key, value in identity.items()):
             raise ValueError("migration journal identity differs")
     else:
         atomic(journal_path, {"format": FORMAT + ".journal", "state": "prepared", **identity})
     copied_bytes = copied_files = 0
     generation = destination / source.name
-    for name in payloads:
+    for name, expected_hash in original["payloads"].items():
         source_file = source / name
-        if _atomic_copy(source_file, generation / name):
+        if _atomic_copy(source_file, generation / name, expected_hash):
             copied_files += 1
             copied_bytes += source_file.stat().st_size
     atomic(journal_path, {"format": FORMAT + ".journal", "state": "payloads_copied", **identity})
     if interrupt_after == "payloads":
         raise MigrationInterrupted("after payloads before manifest")
-    if _atomic_copy(manifest_path, generation / "manifest.json"):
+    if _atomic_copy(original["manifest_path"], generation / "manifest.json",
+                    original["manifest_hash"]):
         copied_files += 1
-        copied_bytes += manifest_path.stat().st_size
+        copied_bytes += original["manifest_path"].stat().st_size
     atomic(journal_path, {"format": FORMAT + ".journal", "state": "manifest_copied", **identity})
     if interrupt_after == "manifest":
         raise MigrationInterrupted("after manifest before pointer")
-    for name in ["manifest.json", *payloads]:
-        if sha256(generation / name) != sha256(source / name):
-            raise ValueError("destination verification failed before pointer")
-    pointer = {
-        "format": FORMAT + ".pointer", "generation": manifest["generation"],
-        "manifest_sha256": manifest_hash,
-        "source_format": manifest["format"],
-    }
-    atomic(pointer_path, pointer)
+    # Revalidate immutable identities before authority. A source mutation or a
+    # destination substitution fails closed and cannot create a valid pointer.
+    if not _same_release(original, _release_files(source, require_pointer=True)):
+        raise ValueError("source release changed during migration")
+    _release_files(generation, require_pointer=False)
+    _atomic_copy(source.parent / "current.json", pointer_path, original["pointer_hash"])
+    _release_files(generation, require_pointer=True)
     atomic(journal_path, {"format": FORMAT + ".journal", "state": "completed", **identity})
     return {"status": "completed", "bytes_copied": copied_bytes, "files_copied": copied_files,
-            "manifest_sha256": manifest_hash, "wall_seconds": time.monotonic() - started}
+            "manifest_sha256": original["manifest_hash"], "wall_seconds": time.monotonic() - started}
 
 
 def _logical_generation(source):
     manifest_path = source / "manifest.json"
-    manifest = json.loads(manifest_path.read_text())
-    records = manifest.get("records", {})
-    names = sorted({record.get("value_file") for record in records.values()})
-    files = [manifest_path] + [source / name for name in names if name]
-    valid = True
-    for record in records.values():
-        path = source / record["value_file"]
-        valid = valid and path.is_file() and not path.is_symlink() \
-            and path.stat().st_size == record["value_bytes"] \
-            and sha256(path) == record["value_sha256"]
+    manifest_hash = sha256(manifest_path) if manifest_path.is_file() and not manifest_path.is_symlink() else None
+    generation = int(source.name) if source.name.isdigit() else None
+    try:
+        release = _release_files(source, require_pointer=False)
+        restorable = True
+        manifest = release["manifest"]
+        names = list(release["payloads"])
+    except (ValueError, TypeError, KeyError, json.JSONDecodeError):
+        restorable = False
+        manifest = json.loads(manifest_path.read_text())
+        names = []
+        for record in manifest.get("records", {}).values():
+            try:
+                names.append(_payload_name(record.get("value_file")))
+            except ValueError:
+                continue
+    files = [manifest_path] + [source / name for name in dict.fromkeys(names)]
     return {
-        "generation": manifest.get("generation"),
-        "manifest_sha256": sha256(manifest_path),
-        "bytes": sum(path.stat().st_size for path in files if path.is_file()),
-        "files": sum(path.is_file() for path in files),
-        "restorable": valid,
+        "generation": generation, "scope": manifest.get("scope"),
+        "manifest_sha256": manifest_hash,
+        "bytes": sum(path.stat().st_size for path in files
+                     if path.is_file() and not path.is_symlink()),
+        "files": sum(path.is_file() and not path.is_symlink() for path in files),
+        "restorable": restorable,
     }
 
 
 def inventory_archive(run):
-    """Measure initial/final logical generations without modifying the archive."""
+    """Measure initial/current logical generations without modifying the archive."""
     run = Path(run)
     roots = sorted(run.glob("stores/*/artifacts/contextual_v12/releases/*"))
     if not roots:
@@ -161,9 +226,13 @@ def inventory_archive(run):
             continue
         measured = [_logical_generation(path) for path in generations]
         pointer_path = root / "current.json"
-        pointer = json.loads(pointer_path.read_text()) if pointer_path.is_file() else None
-        final = measured[-1]
-        pointer_valid = bool(pointer and pointer.get("generation") == final["generation"]
+        pointer = json.loads(_regular_bytes(pointer_path)) if pointer_path.exists() else None
+        pointer_generation = pointer.get("generation") if pointer else None
+        final = next((row for row in measured if row["generation"] == pointer_generation),
+                     measured[-1])
+        pointer_valid = bool(pointer and pointer.get("format") == RELEASE_FORMAT + ".pointer"
+                             and pointer.get("scope") == final["scope"]
+                             and type(pointer.get("e_epoch")) is int and pointer["e_epoch"] >= 0
                              and pointer.get("manifest_sha256") == final["manifest_sha256"]
                              and final["restorable"])
         rows.append({
@@ -175,7 +244,8 @@ def inventory_archive(run):
         raise ValueError("current release authority or payload is not independently restorable")
     historical_invalid = [
         {"world": row["world"], "generation": generation["generation"]}
-        for row in rows for generation in row["generations"][:-1] if not generation["restorable"]
+        for row in rows for generation in row["generations"]
+        if generation is not row["final"] and not generation["restorable"]
     ]
     return {
         "format": FORMAT + ".inventory", "run_root": str(run),
@@ -194,8 +264,9 @@ def inventory_archive(run):
         "current_pointer_valid_generations": sum(row["current_pointer_valid"] for row in rows),
         "scope": {
             "initial_is_earliest_retained_not_historical_archive_baseline": True,
-            "final_is_current_pointer_release": True,
+            "final_is_current_pointer_release_including_rollback": True,
             "physical_disk_blocks_or_write_amplification_measured": False,
+            "source_archive_modified": False,
         },
         "rows": rows,
     }

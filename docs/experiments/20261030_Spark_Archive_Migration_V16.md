@@ -18,9 +18,9 @@ Source: preserved v12 attempt10 `stores/` and its 128 rebuild events. Existing p
 
 ## Interruption-safe migration preparation
 
-`src/replica_lab/intrinsic_memory_archive_migration_v16.py` copies one generation through payloads → manifest → independent destination verification → atomic pointer. Each file is hash-verified and durable before the next stage. Existing exact files survive interruption without recopying; mismatches are refused. The source is read-only and the pointer is never committed before complete verification.
+`src/replica_lab/intrinsic_memory_archive_migration_v16.py` copies one generation through payloads → manifest → independent destination verification → atomic **v12 authority pointer**. Pointer format, scope and authority epoch are preserved exactly. Every source copy is hashed while read, destinations are checked against recorded manifest hashes, and source/destination identities are revalidated before authority. Existing exact files survive interruption without recopying; mismatches, traversal and symlinks are refused.
 
-The dry run selected `v11_fit_00` generation 4, injected an interruption after the manifest, confirmed no pointer existed, resumed to completion with zero bytes recopied, and confirmed an idempotent second completion. The temporary destination was removed. Three focused tests cover crash recovery, tamper refusal and earliest/current inventory distinctions.
+The dry run selected `v11_fit_00` generation 4, injected an interruption after the manifest, confirmed no pointer existed, resumed to completion with zero bytes/files recopied, and confirmed an idempotent second completion. Eight focused tests cover crash recovery, the real `ProducerReleaseCorpus` consumer, rollback, traversal, source mutation, symlink substitution, tamper refusal and inventory distinctions. Dry-run success now requires the interruption, absent pre-recovery pointer, completed recovery and zero recopied bytes/files.
 
 ## Retention policy
 
@@ -30,4 +30,20 @@ The dry run selected `v11_fit_00` generation 4, injected an interruption after t
 - Historical evidence with any future payload mismatch would be evidence-only, never rollback authority.
 - Migration does not authorize deletion. Any deletion candidate requires separate explicit approval after independent verification; none is proposed or performed here.
 
-Full receipt: `reports/intrinsic_memory_migration_v16/preparation.json`. Large-scale or incremental production migration remains unmeasured; this preparation establishes bounded correctness and cost evidence only.
+Full receipt: `reports/intrinsic_memory_migration_v16/preparation_attempt02.json`. Large-scale or incremental production migration remains unmeasured; this preparation establishes bounded correctness and cost evidence only.
+
+## Independent review and attempt02 repair
+
+The independent reviewer rejected attempt01's migration correctness: its pointer was
+not consumable by the real release reader, payload names permitted traversal,
+copy/final verification had a source-mutation race, resume accepted symlinks,
+inventory validation was incomplete and assumed the numerical latest generation,
+and dry-run success did not require an actual interruption. Attempt01 is preserved
+as `preparation_attempt01.json`; it is not used as passing evidence.
+
+Attempt02 implements all migration corrections and adds real-consumer and
+adversarial tests. Rollback pointers select the authority-named generation rather
+than the newest directory. No production migration or deletion occurred. A
+separate reviewer finding about native result-schema fields is tracked outside
+this migration evidence and does not affect the content-key mechanism or archive
+contracts.
