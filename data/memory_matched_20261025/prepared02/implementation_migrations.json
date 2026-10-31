@@ -1,7 +1,7 @@
 {
   "format": "replica.memory_matched.implementation_migrations.v1",
   "mode": "explicit_read_only_migration",
-  "reason": "prepared02 protocol.json, manifest.json, episodes.json, labels.json and both audits stay byte-identical. Five implementation files moved from their prepared pins to declared current bytes for this read-only diagnostic; every other implementation pin is enforced unchanged and verification stays fail-closed without this sidecar.",
+  "reason": "prepared02 protocol.json, manifest.json, episodes.json, labels.json and both audits stay byte-identical. Seven implementation files moved from their prepared pins to declared current bytes for this read-only diagnostic; every other implementation pin is enforced unchanged and verification stays fail-closed without this sidecar.",
   "prepared": {
     "protocol_sha256": "da4a2274644eb9c6deaf32678526c945c091c0e86a15ca338beb670eb1f4abc8",
     "manifest_sha256": "9f421504632988f802c0e21d68d1e41fa766a3f934356f900f5fbeec6dca6abc"
@@ -22,6 +22,11 @@
       "current_sha256": "5348613a6c79d33c719cf20f6677b9266c4e725cefaff84af29c360a0a7ef019",
       "reason": "Adds the host-declared completion predicate for sentence-boundary generation; existing forward, loss and eager generation contracts remain and current bytes are enforced."
     },
+    "src/replica_lab/architecture/ports.py": {
+      "parent_sha256": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+      "current_sha256": "4d88f37b71673bd83df85e271f1715c69bb1bc51035cd40582f1bba421af1862",
+      "reason": "Adds optional bounded attention-audit outputs for later diagnostics; the default memory-port delta path is unchanged and current bytes are enforced."
+    },
     "src/replica_lab/memory_matched.py": {
       "parent_sha256": "b8df1e83d39094b7e3bd9efb45791368103630100c8d1dad7b164dc9833e5674",
       "current_sha256": "7ba3a923d36171a7511dfff70cb77e15883dc64bb1bcd9eaebb6b7cba6a581c7",
@@ -31,6 +36,11 @@
       "parent_sha256": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
       "current_sha256": "915b7f196529b1b185cb4192c95f440c5d591869273c070336c7de43e85f2b98",
       "reason": "Enforces training-only DifferentiablePlasticRead inputs while preserving detached P-only requests; current bytes are enforced."
+    },
+    "src/replica_lab/profiling.py": {
+      "parent_sha256": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+      "current_sha256": "626efb0718ecfb87613937929292e49105e20c998372a37e2b4c85ccd69d92a3",
+      "reason": "Adds optional append-mode profile sampling for continuation; default truncation behavior and prepared episode, generation and admission semantics are unchanged."
     }
   }
 }
