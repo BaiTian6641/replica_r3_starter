@@ -1,48 +1,49 @@
 # Current Spark intrinsic-memory status
 
-**30 October 2026 — pre-MLP attempt01 failed final fitting and no native worker is active.** Contextual was 25/32 with 9/16 pairs; development stayed closed. Fresh-process restart passed with exact logits and one continuation update. Useful recall and generalization remain unestablished.
+**31 October 2026 UTC — v15 reader/query diagnosis is complete; the single v16 content-key native comparison is running.** Development labels remain closed. Useful recall and generalization are not yet established by the running arm.
 
-## Authoritative current evidence
+## Active experiment and exact identities
 
-- Native protocol and exact packet: `configs/spark_intrinsic_coverage_v12.json` and `reports/intrinsic_memory_native_v12/native_packet_two_v12.json` (packet SHA-256 `5eebe66c45b15c186ffd697b746ff9373a4061a1ea369a4df670b0cea9ecd609`).
-- Machine-derived current budget: `reports/intrinsic_memory_native_v12/current_packet_budget.json`. It verifies the packet's protocol hash and recomputes totals from the 23 stage budgets: 7,155 reserved stage seconds inside 7,200 outer seconds, 9,778 forwards, 949 source-feature forwards, 513 updates/backwards, 7,256 generated tokens, 4,669 prompt tokenizations, 3,618 writes, 55,490,098,857 reserved read bytes, and 205,537,280 artifact bytes.
-- Native resource limits: 50 GiB sampled driver, 512 MiB sustained swap growth, at least 15% host free, one worker.
-- Experiment history and gates: `docs/experiments/20261030_Spark_Memory_Contextual_V12.md`. Attempts01–10 are preserved. Attempt10 completed 512 updates: contextual 24/32, shuffled 24/32, exact text 32/32, wrong 6/32, zero 5/32, absent 8/32; groups were 6/8, 5/8, 6/8, 7/8 and 8/16 counterfactual pairs had both sides correct.
-- Independent terminal reconciliation: `reports/intrinsic_memory_native_v12/attempt10_terminal_reconciliation.json`. Baseline was 8/8 and teacher 32/32 with zero false recall/truncation; all final controls terminated, live/durable parity was 32/32, original weights were unchanged, and development had zero read events. Restart restored the extension but failed on missing `bound_json` before continuation.
-- Independent CPU launch-gate review: `reports/intrinsic_memory_review_v12/final_launch_gate/verification_summary.json` — 1,024 tests passed with zero skips; this qualified engineering and packet review, not native learning.
-- Exact external reproduction bytes, hashes, JUnit and command lineage: `reports/intrinsic_memory_review_v12/final_launch_gate/external_test_manifest.json`. External cases remain under review directories, separate from committed production tests in `tests/`.
-- Density/cost CPU evidence: `reports/intrinsic_memory_density_v12/coordinator13/`; native 2/9/36 utility remains unmeasured.
-- Formation/chunk/tier/Replica CPU evidence: `reports/replica_successors_v12/final_verification.json`; these contracts do not establish learned retention, personal fidelity, or RSI.
-- Research boundaries: `docs/research/spark_memory_20261029/Contextual_Compression_V12_Crosscheck.md` and `Research_Crosscheck.md`.
-- Successor engineering: full-lifecycle fixture and restart repair `ca5144cc`; incremental WorkLedger evidence `reports/intrinsic_memory_successors_v13/`; response/correction contracts `src/replica_lab/intrinsic_memory_acceptance_v13.py`.
-- Counterfactual diagnosis and next mechanism: `docs/experiments/20261030_Spark_Counterfactual_Diagnosis_V13.md` plus `reports/intrinsic_memory_counterfactual_v13/attempt03_mechanism_decision.json`. Native attempt03 completed with all intermediate tensors preserved.
-- Pre-MLP terminal protocol and evidence: `docs/experiments/20261030_Spark_Pre_MLP_Fusion_V14.md` and `reports/intrinsic_memory_pre_mlp_v14/`.
-- Bounded release/archive costs: `reports/intrinsic_memory_successors_v13/release_costs_attempt10.json` — 128 rebuilds, 281.676 seconds and 8,557,737 current archive bytes; incremental migration is unmeasured.
-- Final committed-tree verification: `reports/final_verification_20261030/` — 1,024 full and 117 changed-component tests, integrated/density/Replica workflows, 1,492 migration checks, 552 final-product checks, 293 bundle inputs and 21,025 artifact checks pass on `bbcee1f3`.
+- Selected mechanism: **content-only attention keys with ordered values retained**, at sites 3/7 with post-block placement. Source features, four slots, value order, objective, optimizer, initialization seed 17, fitting rows and terminal gates are unchanged.
+- Protocol: `configs/spark_content_key_v16.json`, SHA-256 `f1cea011ca335515a9b966e4117147711d8b3bbd9f1179a0a1160224f3bc26a4`.
+- Packet: `reports/intrinsic_memory_content_key_v16/native_packet_two.json`, SHA-256 `043b745591a64c2515922231b94388a6156df77b39260998b2b3bf3a3a6bdc7b`.
+- Implementation closure: 62 files, SHA-256 `3a311f683cefb8f5e610445566f7fa856a079a16ea1c87578484f01e1a1bbf4e`.
+- Authorization: `reports/intrinsic_memory_content_key_v16/authorization_two.json`; one attempt, zero retries.
+- Output: `reports/intrinsic_memory_content_key_v16/native_bf16_two_attempt01`.
+- Budget: 23 stages; 7,155 reserved stage seconds inside 7,200 outer seconds; 9,778 forwards; 949 source-feature forwards; 513 updates/backwards; 7,256 generated tokens; 4,669 prompt tokenizations; 3,618 writes; 55,490,098,857 reserved read bytes; 205,537,280 artifact bytes.
+- Resources: one exclusive worker, 50 GiB sampled driver, 512 MiB sustained swap growth, at least 15% host free, CPU fallback disabled.
 
+The mechanism is falsified if any final eight-world fitting group fails or known-known counterfactual pairs both correct do not exceed the sealed 1/8 reference. No best-prefix selection is allowed. Only a fully passing final fitting gate may open development.
 
-### Evidence-gated blockers
+## Completed v15 diagnostic
 
-- Native 2/9/36 density and matched-cost utility remain unmeasured because useful two-site recall failed.
-- Spark formation/Replica connection is blocked by the same prerequisite; existing CPU formation, chunk, tier and adapter contracts passed 146 focused tests.
-- Persistent learning, nested adaptation, personal fidelity and RSI remain closed. No P updates or capacity expansion occurred.
-- Reader/query alignment is a documented fallback only, not an authorized running arm. No additional mechanism is silently selected here.
-- Large-scale and incremental migration remain unmeasured; bounded release cost and current archive size are recorded instead.
+`docs/experiments/20261030_Spark_Reader_Query_V15.md` and `reports/intrinsic_memory_reader_query_v15/attempt02_analysis.json` preserve all 16 fitting pairs, raw tensors, controls and 100 shuffled-label controls. V15 attempt01 failed on an under-reserved shared counter and was not rerun; corrected attempt02 completed with exact v13 first-token logit parity.
 
-## Learning and capability state
+- Site 3 repeats its top slot in 16/16 pairs; site 7 selects slot 0 in 32/32 rows.
+- Mean maximum attention weights are 0.9739 and 0.9972: attention is peaked, not diffuse.
+- Weight-only pair-held-out decodability is 0/24 and 5/24, versus 21/24 for each read and averaged slots.
+- Known-known first-token correctness is 16/24; known-known pairs both correct remain 1/8.
+- V15 used zero generation/updates and no development labels. Original weights stayed unchanged.
 
-Useful intrinsic recall is **not established**. Attempt10 failed its fixed final fitting gate; no best prefix was selected and development was not measured. Fresh-process continuation did not complete. Formation, persistent learning, density promotion, personal fidelity, nested adaptation, and RSI remain evidence-gated.
+The evidence supports testing learned-order dominance in keys. It does not prove that content keys will improve native recall.
 
-The external spine remains the typed interface for specialist models, sensors, and actors. Intrinsic memory owns Spark recall and learning. E/S/P/φ/C/I/K, source authority, task state, tier placement, and learning clocks remain distinct. P1 and NativeFusedAdamW remain fixed; P updates, capacity expansion, and native multimodal work are not approved by this status.
+## Archive and migration preparation
 
-## Reproduce current packet accounting
+`docs/experiments/20261030_Spark_Archive_Migration_V16.md` and `reports/intrinsic_memory_migration_v16/preparation.json` record:
 
-```sh
-PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/inspect_spark_intrinsic_packet_v12.py \
-  --packet reports/intrinsic_memory_native_v12/native_packet_two_v12.json \
-  --output reports/intrinsic_memory_native_v12/current_packet_budget.json
-```
+- Earliest retained releases: 232,024 bytes, 64 files, 32/32 restorable.
+- Current-pointer releases: 231,928 bytes, 64 files, 32/32 restorable.
+- Complete current archive: 8,557,737 bytes, 736 files.
+- Existing 128 rebuilds: 281.676 seconds, 986,112 written bytes and 813,032 read bytes.
+- Atomic payload→manifest→verification→pointer migration recovered after an injected interruption with zero recopied bytes and an idempotent second completion. No production migration or deletion ran.
 
-The completed experiment was **pre-MLP fusion placement at the existing 3/7 sites**, with frozen source features, four slots, objective, optimizer and fitting rows fixed. It changed contextual by only +1/32 and did not pass any final group, so placement alone is insufficient. The declared fallback is **reader/query alignment with source representation fixed**, not more slots or another encoder/objective change. Density, formation and persistent learning remain gated; no held-out labels opened.
+Initial means earliest retained, not an original pre-training baseline. Large-scale production migration remains unmeasured.
 
-Historical v11 and attempt01–10 material remains evidence, not current navigation. Protected and unrelated dirty work remains untouched; `src/replica_lab/runtime_pilot.py` must never be read, imported, edited, or staged.
+## Evidence-gated blockers
+
+- V16 terminal fitting, restart and resource outcomes are pending reconciliation; development remains unopened.
+- Formation, persistent learning, native density, personal fidelity, nested adaptation and RSI remain gated. No P updates, capacity expansion or promotion occurred.
+- Less-compressed representations and compression training remain separate fallbacks only for later evidence of compression loss. Exact-evidence retrieval is a charged reference, not learned recall. No fallback is combined with content keys.
+- Full committed regression passes 1,000 tests and broad content-key/native/contextual contracts pass 158 tests. Portable migration verification currently passes 1,500/1,502 and final-product verification 547/552; remaining failures are documentation/hash lineage items pending final reconciliation, not passing receipts.
+
+Historical v12 attempt10 and v14 pre-MLP remain preserved negative results, not current navigation. Protected and unrelated dirty work remains untouched; `src/replica_lab/runtime_pilot.py` must never be read, imported, edited, or staged.
