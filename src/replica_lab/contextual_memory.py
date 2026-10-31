@@ -37,6 +37,13 @@ WIDTH = 256
 class ContextualMemoryError(ValueError):
     pass
 
+class AuthorityRejection(ContextualMemoryError):
+    """Expected authority invalidation, never an operational read/write failure."""
+
+    def __init__(self, authority_reason, message):
+        super().__init__(message)
+        self.authority_reason = authority_reason
+
 
 def text_digest(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()

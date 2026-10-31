@@ -33,7 +33,8 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'src'))
-from replica_lab.intrinsic_memory_budget_v12 import WorkLedger, atomic, audit_io
+from replica_lab.intrinsic_memory_budget_v12 import atomic, audit_io
+from replica_lab.intrinsic_memory_budget_v13 import IncrementalWorkLedger as WorkLedger
 from replica_lab.intrinsic_memory_coverage_v12 import (
     CONTROL_READ_BYTES_BOUND, ENVIRONMENT_CLOSURE_BYTES, SOURCE_FILE_BYTES)
 from replica_lab.intrinsic_memory_execution_v12 import (

@@ -1,0 +1,3822 @@
+{
+  "development_labels_used": false,
+  "format": "replica.intrinsic_memory.pair_category_reconciliation.v15",
+  "interpretation": "Known-known and known-unknown categories are computed from expected answers, not from the review snapshot or generated answers.",
+  "margin_evidence": {
+    "multi_token_answers": "Use complete per-step sequence likelihood, not a first-token or max-vocabulary delta. Current color answers are single-token.",
+    "v13": "Signed expected-versus-counterfactual answer-token logit margins for every control.",
+    "v14": "Raw answers and first-token correctness preserved; full answer-token margins were not preserved and are not inferred."
+  },
+  "pairs": [
+    {
+      "both_correct_v13": false,
+      "both_correct_v14": false,
+      "category": "known_known",
+      "expected_answers": [
+        "red",
+        "blue"
+      ],
+      "identical_answers_v14": true,
+      "pair_index": 0,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": 0.34375,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "expected_minus_other_logit": -0.3037109375,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 12.350341796875,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": false,
+              "expected_minus_other_logit": -0.298828125,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "expected_minus_other_logit": -0.2978515625,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -1.982421875,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -0.0625,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "red",
+          "world_id": "v11_fit_00"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -0.34375,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 1.982421875,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 13.041015625,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 1.95703125,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 1.958984375,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "expected_minus_other_logit": 0.3037109375,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": 0.0625,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "blue",
+          "world_id": "v11_fit_01"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "red",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_00"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "blue",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_01"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": false,
+      "both_correct_v14": false,
+      "category": "known_known",
+      "expected_answers": [
+        "green",
+        "gold"
+      ],
+      "identical_answers_v14": true,
+      "pair_index": 1,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": 3.8125,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 1.74609375,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 14.001953125,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 1.734375,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 1.73828125,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "expected_minus_other_logit": 0.365234375,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": true,
+              "expected_minus_other_logit": 1.25,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "green",
+          "world_id": "v11_fit_02"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -3.8125,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "expected_minus_other_logit": -0.365234375,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 10.76513671875,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": false,
+              "expected_minus_other_logit": -0.376953125,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "expected_minus_other_logit": -0.341796875,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -1.74609375,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -1.25,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "gold",
+          "world_id": "v11_fit_03"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "green",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_02"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "gold",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_03"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": true,
+      "both_correct_v14": true,
+      "category": "known_unknown",
+      "expected_answers": [
+        "blue",
+        "unknown"
+      ],
+      "identical_answers_v14": false,
+      "pair_index": 2,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -6.490234375,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 5.421875,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 13.662109375,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 5.484375,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 5.4453125,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -9.65625,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": 7.3125,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "blue",
+          "world_id": "v11_fit_04"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "expected_minus_other_logit": 6.490234375,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 9.65625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 15.166015625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 9.59375,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 9.671875,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -5.421875,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -7.3125,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "world_id": "v11_fit_05"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "blue",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_04"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_05"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": true,
+      "both_correct_v14": true,
+      "category": "known_unknown",
+      "expected_answers": [
+        "gold",
+        "unknown"
+      ],
+      "identical_answers_v14": false,
+      "pair_index": 3,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -10.21875,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 6.9892578125,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 13.8349609375,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 6.9736328125,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 7.080078125,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -9.0,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": 6.3125,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "gold",
+          "world_id": "v11_fit_06"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "expected_minus_other_logit": 10.21875,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 9.0,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 17.72265625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 9.078125,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 9.171875,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -6.9892578125,
+              "first_token_correct": false,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -6.3125,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "world_id": "v11_fit_07"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "gold",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_06"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_07"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": false,
+      "both_correct_v14": false,
+      "category": "known_known",
+      "expected_answers": [
+        "blue",
+        "green"
+      ],
+      "identical_answers_v14": true,
+      "pair_index": 4,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -0.3125,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 3.810546875,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 13.134765625,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 3.79296875,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 3.84765625,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "expected_minus_other_logit": 2.298828125,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -0.18359375,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "blue",
+          "world_id": "v11_fit_08"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": 0.3125,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "expected_minus_other_logit": -2.298828125,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 12.552734375,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": false,
+              "expected_minus_other_logit": -2.21484375,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "expected_minus_other_logit": -2.25390625,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -3.810546875,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": true,
+              "expected_minus_other_logit": 0.18359375,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "green",
+          "world_id": "v11_fit_09"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "blue",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_08"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "green",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_09"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": false,
+      "both_correct_v14": true,
+      "category": "known_known",
+      "expected_answers": [
+        "gold",
+        "red"
+      ],
+      "identical_answers_v14": false,
+      "pair_index": 5,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -4.5625,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "expected_minus_other_logit": -2.625,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 14.03564453125,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": false,
+              "expected_minus_other_logit": -2.6875,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "expected_minus_other_logit": -2.69921875,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -4.19140625,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -0.4375,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "gold",
+          "world_id": "v11_fit_10"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": 4.5625,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 4.19140625,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 16.790771484375,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 4.22265625,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 4.20703125,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "expected_minus_other_logit": 2.625,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": 0.4375,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "red",
+          "world_id": "v11_fit_11"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "gold",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_10"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "red",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_11"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": false,
+      "both_correct_v14": true,
+      "category": "known_unknown",
+      "expected_answers": [
+        "green",
+        "unknown"
+      ],
+      "identical_answers_v14": false,
+      "pair_index": 6,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -7.19140625,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "expected_minus_other_logit": 8.1865234375,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 13.65234375,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": false,
+              "expected_minus_other_logit": 8.125,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "expected_minus_other_logit": 8.13458251953125,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -10.23046875,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": true,
+              "expected_minus_other_logit": 7.0,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "green",
+          "world_id": "v11_fit_12"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "expected_minus_other_logit": 7.19140625,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 10.23046875,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 15.80078125,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 10.25390625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 10.28515625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -8.1865234375,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -7.0,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "world_id": "v11_fit_13"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "green",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_12"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_13"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": true,
+      "both_correct_v14": true,
+      "category": "known_unknown",
+      "expected_answers": [
+        "red",
+        "unknown"
+      ],
+      "identical_answers_v14": false,
+      "pair_index": 7,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -6.7578125,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 8.4375,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 15.18408203125,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 8.421875,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 8.484375,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -5.140625,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": 6.6015625,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "red",
+          "world_id": "v11_fit_14"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "expected_minus_other_logit": 6.7578125,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 5.140625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 15.0537109375,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 5.1875,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 5.1171875,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -8.4375,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -6.6015625,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "world_id": "v11_fit_15"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "red",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_14"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "first_token_correct": false,
+              "raw_answer": "Unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_15"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": false,
+      "both_correct_v14": false,
+      "category": "known_known",
+      "expected_answers": [
+        "red",
+        "blue"
+      ],
+      "identical_answers_v14": true,
+      "pair_index": 8,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": 1.625,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "expected_minus_other_logit": -0.70703125,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 12.234375,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": false,
+              "expected_minus_other_logit": -0.69140625,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "expected_minus_other_logit": -0.66015625,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -1.513671875,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": 0.171875,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "red",
+          "world_id": "v11_fit_16"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -1.625,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 1.513671875,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 13.68359375,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 1.478515625,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 1.4267578125,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "expected_minus_other_logit": 0.70703125,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -0.171875,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "blue",
+          "world_id": "v11_fit_17"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "red",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_16"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "blue",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_17"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": false,
+      "both_correct_v14": false,
+      "category": "known_known",
+      "expected_answers": [
+        "green",
+        "gold"
+      ],
+      "identical_answers_v14": true,
+      "pair_index": 9,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": 1.125,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 1.1533203125,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 12.583984375,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 1.10595703125,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 1.135498046875,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": 0.109375,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": 2.609375,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "green",
+          "world_id": "v11_fit_18"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -1.125,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "expected_minus_other_logit": -0.109375,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 11.06494140625,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": false,
+              "expected_minus_other_logit": -0.0625,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "expected_minus_other_logit": -0.109375,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -1.1533203125,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -2.609375,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "gold",
+          "world_id": "v11_fit_19"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "green",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_18"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "gold",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_19"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": true,
+      "both_correct_v14": true,
+      "category": "known_unknown",
+      "expected_answers": [
+        "blue",
+        "unknown"
+      ],
+      "identical_answers_v14": false,
+      "pair_index": 10,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -13.2890625,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 2.01953125,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 11.28515625,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 2.115234375,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 2.04296875,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -11.76953125,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": 8.75,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "blue",
+          "world_id": "v11_fit_20"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "expected_minus_other_logit": 13.2890625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 11.76953125,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 17.36151123046875,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 11.90625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 11.81640625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -2.01953125,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -8.75,
+              "first_token_correct": false,
+              "raw_answer": "Green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "world_id": "v11_fit_21"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "blue",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_20"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_21"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": true,
+      "both_correct_v14": true,
+      "category": "known_unknown",
+      "expected_answers": [
+        "gold",
+        "unknown"
+      ],
+      "identical_answers_v14": false,
+      "pair_index": 11,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -13.20703125,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 1.71875,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 11.66064453125,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 1.796875,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 1.6875,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -11.1015625,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": 8.53125,
+              "first_token_correct": false,
+              "raw_answer": "Blue",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "gold",
+          "world_id": "v11_fit_22"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "expected_minus_other_logit": 13.20703125,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 11.1015625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 17.84765625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 11.1875,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 11.265625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -1.71875,
+              "first_token_correct": false,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -8.53125,
+              "first_token_correct": false,
+              "raw_answer": "Blue",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "world_id": "v11_fit_23"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "gold",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_22"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_23"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": true,
+      "both_correct_v14": false,
+      "category": "known_known",
+      "expected_answers": [
+        "blue",
+        "green"
+      ],
+      "identical_answers_v14": true,
+      "pair_index": 12,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": 0.4375,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 0.4609375,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 13.84765625,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 0.4453125,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 0.4609375,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -0.96875,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": true,
+              "expected_minus_other_logit": 0.625,
+              "first_token_correct": false,
+              "raw_answer": "Blue",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "blue",
+          "world_id": "v11_fit_24"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -0.4375,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 0.96875,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 13.041015625,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 0.9765625,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 1.0,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -0.4609375,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -0.625,
+              "first_token_correct": false,
+              "raw_answer": "Blue",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "green",
+          "world_id": "v11_fit_25"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "blue",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_24"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "blue",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "green",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_25"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": false,
+      "both_correct_v14": false,
+      "category": "known_known",
+      "expected_answers": [
+        "gold",
+        "red"
+      ],
+      "identical_answers_v14": true,
+      "pair_index": 13,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -1.6875,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "expected_minus_other_logit": -1.494140625,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 12.103515625,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": false,
+              "expected_minus_other_logit": -1.482421875,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "expected_minus_other_logit": -1.525390625,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -3.1640625,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -1.5703125,
+              "first_token_correct": false,
+              "raw_answer": "Red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "gold",
+          "world_id": "v11_fit_26"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": 1.6875,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 3.1640625,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 17.32470703125,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 3.09375,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 3.109375,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "expected_minus_other_logit": 1.494140625,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": true,
+              "expected_minus_other_logit": 1.5703125,
+              "first_token_correct": false,
+              "raw_answer": "Red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "red",
+          "world_id": "v11_fit_27"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "gold",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_26"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "gold",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "red",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_27"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": true,
+      "both_correct_v14": true,
+      "category": "known_unknown",
+      "expected_answers": [
+        "green",
+        "unknown"
+      ],
+      "identical_answers_v14": false,
+      "pair_index": 14,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -10.9296875,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 3.88671875,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 10.1484375,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 3.890625,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 3.8359375,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -12.57421875,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": 6.5546875,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "green",
+          "world_id": "v11_fit_28"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "expected_minus_other_logit": 10.9296875,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 12.57421875,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 16.53662109375,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 12.58984375,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 12.58203125,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -3.88671875,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -6.5546875,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "world_id": "v11_fit_29"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "green",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_28"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_29"
+        }
+      ]
+    },
+    {
+      "both_correct_v13": true,
+      "both_correct_v14": true,
+      "category": "known_unknown",
+      "expected_answers": [
+        "red",
+        "unknown"
+      ],
+      "identical_answers_v14": false,
+      "pair_index": 15,
+      "v13_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "expected_minus_other_logit": -9.37890625,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 3.71875,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 12.9912109375,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 3.7109375,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 3.5625,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -8.8046875,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": 6.5703125,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "red",
+          "world_id": "v11_fit_30"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "expected_minus_other_logit": 9.37890625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "expected_minus_other_logit": 8.8046875,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "expected_minus_other_logit": 15.43701171875,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "row_permutation": {
+              "correct": true,
+              "expected_minus_other_logit": 8.625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "expected_minus_other_logit": 8.7890625,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "expected_minus_other_logit": -3.71875,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "expected_minus_other_logit": -6.5703125,
+              "first_token_correct": false,
+              "raw_answer": "green",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "world_id": "v11_fit_31"
+        }
+      ],
+      "v14_sides": [
+        {
+          "controls": {
+            "absent": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "red",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_30"
+        },
+        {
+          "controls": {
+            "absent": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "contextual": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "exact_text": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "shuffled": {
+              "correct": true,
+              "first_token_correct": true,
+              "raw_answer": "unknown",
+              "terminated": true,
+              "truncated": false
+            },
+            "wrong": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            },
+            "zero": {
+              "correct": false,
+              "first_token_correct": false,
+              "raw_answer": "red",
+              "terminated": true,
+              "truncated": false
+            }
+          },
+          "expected_answer": "unknown",
+          "round_trip_exact": true,
+          "world_id": "v11_fit_31"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "known_known": {
+      "both_correct_v13": 1,
+      "both_correct_v14": 1,
+      "identical_answer_failures_v14": 7,
+      "pairs": 8
+    },
+    "known_unknown": {
+      "both_correct_v13": 7,
+      "both_correct_v14": 8,
+      "identical_answer_failures_v14": 0,
+      "pairs": 8
+    }
+  },
+  "v13_packet_sha256": "1f8fa0100c4243ff3bcf11ce05ed5e9cc95c9d9f4be74dfd2cb05a1a85a78b07",
+  "v13_run": "reports/intrinsic_memory_counterfactual_v13/native_bf16_pair_diagnostic_attempt03",
+  "v14_packet_sha256": "074bee9bdc0b8f77f892ac491b3465e4fcb56c022bf7a5cca17af381751af7ff",
+  "v14_run": "reports/intrinsic_memory_pre_mlp_v14/native_bf16_two_attempt01"
+}

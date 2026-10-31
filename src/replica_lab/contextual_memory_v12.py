@@ -17,11 +17,11 @@ import uuid
 import torch
 
 from .contextual_feature_identity_v12 import (
-    CanonicalSpan, ContextualMemoryError, ValueBatch, PRODUCER, REPRESENTATION, CODEC,
+    AuthorityRejection, CanonicalSpan, ContextualMemoryError, ValueBatch, PRODUCER, REPRESENTATION, CODEC,
     SLOTS, WIDTH, tensor_digest, lineage_json)
 from .contextual_memory_layout_v12 import ContextualMemoryLayoutV12
 from .contextual_memory_v5 import (
-    PendingContextualRead, ContextualReadFailure, atomic_json, digest, file_hash,
+    PendingContextualRead, AuthorityReadFailure, ContextualReadFailure, atomic_json, digest, file_hash,
     effective_scope, _release_payloads, _descriptor)
 from .tiered_memory import (
     MemoryScope, RecallTicket, RecallResult, RecalledRecord, Outcome,
@@ -47,7 +47,7 @@ def _cold_payloads(root, tickets):
     """
     accounting = {"file_reads": 0, "io_bytes": 0}
     staged = {}
-    invalid = set()
+    invalid = {}
     for ticket in tickets:
         for pin in ticket["pinned"]:
             try:
@@ -58,12 +58,12 @@ def _cold_payloads(root, tickets):
                     _payload_read_verified(value["path"], root, value["sha256"],
                                            value["bytes"], accounting=accounting)
                     for value in pin["values"])
-            except Exception:
-                invalid.add(pin["record_id"])
+            except Exception as error:
+                invalid[pin["record_id"]] = error
                 continue
             staged[pin["record_id"]] = (text, values)
     if invalid:
-        return staged, accounting, "invalid cold payload: " + ",".join(sorted(invalid)), invalid
+        return staged, accounting, invalid, invalid
     return staged, accounting, None, set()
 
 
@@ -494,11 +494,13 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
             self.cost[key] += value
         try:
             if error:
+                if isinstance(error, dict):
+                    raise next(iter(error.values()))
                 raise ContextualMemoryError(error)
             if "release_payloads" in doc:
                 if (self.release_corpus is None
                         or self.release_corpus._current()[0] != doc["release_pointer"]):
-                    raise ContextualMemoryError("producer publication invalidated pending read")
+                    raise AuthorityRejection("stale_snapshot", "producer publication invalidated pending read")
                 descriptors = [{**r, "release_payload": staged[r["record_id"]]}
                                for r in doc["records"]]
                 batch = self._batch(descriptors, store, scope)
@@ -512,7 +514,9 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
                                           "outcome": Outcome(**t["outcome"])})
                 status, reason, checks = store._validate_after_io(ticket, staged)
                 if status != "ready":
-                    raise ContextualMemoryError(reason)
+                    raise AuthorityRejection(
+                        "revoked_source" if "revoked" in reason or "superseded" in reason
+                        else "stale_snapshot", reason)
                 records = tuple(RecalledRecord(record_id=rid, text=staged[rid][0].decode(),
                     text_sha256=hashlib.sha256(staged[rid][0]).hexdigest(),
                     values=unpack_values(staged[rid][1]), value_slots=SLOTS,
@@ -531,7 +535,7 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
                                          cache_bytes=0))
                 if (not result.ok or result.new_decision_boundary
                         or any(r.status != "ok" for r in result.records)):
-                    raise ContextualMemoryError("post-I/O read invalidated")
+                    raise AuthorityRejection("stale_snapshot", "post-I/O read invalidated")
                 updates.update({r.record_id: _descriptor(r) for r in result.records})
             descriptors = [updates.get(r["record_id"], r) for r in doc["records"]]
             batch = self._batch(descriptors, store, scope)
@@ -552,6 +556,8 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
                         self._persist_charged_fallback(store, pending.ticket_id, doc)
                     except Exception:
                         pass
+            if isinstance(error, AuthorityRejection):
+                raise AuthorityReadFailure(error.authority_reason, str(error), doc["costs"]) from error
             raise ContextualReadFailure(str(error), doc["costs"]) from error
         doc["status"] = "complete"
         self._persist(store, pending.ticket_id, doc)

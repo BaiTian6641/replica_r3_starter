@@ -11,8 +11,8 @@ import json
 import torch
 
 from .contextual_memory import (
-    CanonicalSpan, ContextualMemoryError, ContextualMemoryPath, SLOTS, WIDTH,
-    tensor_digest, text_digest)
+    AuthorityRejection, CanonicalSpan, ContextualMemoryError, SLOTS, WIDTH,
+    ContextualMemoryPath, tensor_digest, text_digest)
 from .contextual_source_features_v12 import (
     CODEC, PRODUCER, REPRESENTATION, SourceFeatureValueEncoder)
 from .contextual_memory import ValueBatch as PreviousValueBatch
@@ -91,13 +91,13 @@ class FeatureIdentityPath(ContextualMemoryPath):
             raise ContextualMemoryError("complete durable authority pins required")
         self.encoder.provider.validate_original()
         if not batch.training and batch.producer_version != self.encoder.release():
-            raise ContextualMemoryError("stale producer release")
+            raise AuthorityRejection("stale_producer_release", "stale producer release")
         for index, span in enumerate(batch.spans):
             span.validate()
             if (span.available_at > scope.cutoff
                     or (span.valid_until is not None and scope.cutoff >= span.valid_until)):
                 self.encoder.provider.evict_record(span.record_id)
-                raise ContextualMemoryError("future or expired memory")
+                raise AuthorityRejection("future_or_expired", "future or expired memory")
             if batch.store is None:
                 continue
             pin = batch.pins[index]
@@ -116,7 +116,7 @@ class FeatureIdentityPath(ContextualMemoryPath):
                         and tensor_digest(batch.slots[index*SLOTS:(index+1)*SLOTS])
                             != pin["slots_sha256"])):
                 self.encoder.provider.evict_record(span.record_id)
-                raise ContextualMemoryError("correction/revocation/generation invalidated memory")
+                raise AuthorityRejection("stale_snapshot", "correction/revocation/generation invalidated memory")
         return True
 
     def correct(self, store, old_record_id, span, *, scope):

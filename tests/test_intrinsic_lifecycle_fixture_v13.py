@@ -18,7 +18,8 @@ from replica_lab.contextual_completion_objective_v1 import (
     CompletionObjectiveSpec, stop_policy_identity)
 from replica_lab.contextual_teacher_objective_v1 import TeacherObjective
 from replica_lab.contextual_v12_fixture import build_v12_stack
-from replica_lab.intrinsic_memory_budget_v12 import WorkLedger, atomic, audit_io
+from replica_lab.intrinsic_memory_budget_v12 import atomic, audit_io
+from replica_lab.intrinsic_memory_budget_v13 import IncrementalWorkLedger as WorkLedger
 from replica_lab.intrinsic_memory_coverage_v12 import plan
 from replica_lab.intrinsic_memory_diagnostic_v12 import CONTROLS, StageRef
 from replica_lab.intrinsic_memory_execution_v5 import hash_file

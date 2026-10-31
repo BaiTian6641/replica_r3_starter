@@ -78,6 +78,13 @@ class ContextualReadFailure(ContextualMemoryError):
         super().__init__(reason)
         self.costs = dict(costs)
 
+class AuthorityReadFailure(ContextualReadFailure):
+    """A cold read that failed specifically because authority was invalidated."""
+
+    def __init__(self, authority_reason, message, costs):
+        super().__init__(message, costs)
+        self.authority_reason = authority_reason
+
 
 def _cold_payloads(root, tickets):
     # Worker performs bounded file I/O only, never touches SQLite/model/state.
