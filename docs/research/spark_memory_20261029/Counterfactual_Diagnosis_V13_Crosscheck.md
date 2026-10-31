@@ -17,3 +17,21 @@ The v13 diagnostic preserves per-pair canonical-source features, compressed slot
 - **Distinction reaches logits but complete answers fail:** keep the representation and reader fixed; inspect response termination/scoring rather than enlarging memory.
 
 The sealed v12 shuffle gate and terminal 24/32 result are unchanged. No development labels, density promotion, persistent-learning claim, or second simultaneous mechanism change is allowed. Exact-evidence retrieval remains a charged reference, not evidence of parametric learning.
+
+## Measured v15 successor and v16 decision boundary
+
+V15 attempt02 adds actual query/key/value, normalized weights and read evidence
+for the same fitting rows, with exact first-token logit parity to v13. Attention
+is peaked but positionally collapsed: site 3 repeats its top slot in 16/16 pairs,
+site 7 selects slot 0 in 32/32 rows, and weight-only probes score 0/24 and 5/24
+while read probes retain 21/24. This does not support a diffuse-attention or
+missing-read-information explanation. It supports testing **content-only keys
+with ordered values retained** as the single reader/query mechanism.
+
+V16 therefore changes only the key input, not source features, slot count, value
+order, post-block placement, objective, optimizer or gates. It is falsified if
+any final fitting group fails or known-known paired success does not exceed 1/8.
+Less-compressed source features and compression training remain separate
+fallbacks only for later evidence of compression loss; exact evidence remains a
+charged reference. No second mechanism, density, formation, persistent learning
+or RSI is enabled by this interpretation.
