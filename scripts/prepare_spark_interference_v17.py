@@ -41,6 +41,7 @@ def prepare():
     plan = diagnostic_plan()
     protocol = {
         "format": PROTOCOL,
+        "intrinsic_reader_key_mode": "content",
         "source_repo": base["source_repo"], "source_revision": base["source_revision"],
         "source": base["source"], "source_execution": base["source_execution"],
         "source_feature_binding": base["source_feature_binding"],

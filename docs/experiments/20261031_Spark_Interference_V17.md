@@ -1,6 +1,6 @@
 # Spark fitting-only sequence-margin and gradient-interference diagnostic v17
 
-Status: **predeclared and review-qualified; native attempt01 not launched.** This is one bounded diagnostic, not a training comparison or capability claim. Development labels remain closed.
+Status: **attempt01 failed on a parent key-mode binding; corrected attempt02 is predeclared and not launched.** Development labels remain closed. This is one bounded diagnostic, not a capability claim.
 
 ## Fixed scope and parent
 
@@ -34,3 +34,20 @@ The analysis must not treat fixed attention positions or weak weight-only color 
 - Attempts: one, zero retries; separate exact authorization required.
 
 Two CPU tests prove complete pair evidence and exact optimizer restoration. Native packet review and environment-only validation pass without model import or development-label access. No candidate training arm is selected until these measurements are reconciled.
+
+## Attempt01 failure and separate attempt02
+
+Attempt01 stopped before any pair work with `v12 objective/slots/checkpoint identity differs`.
+The parent requires `reader_key_mode=content`, but the packet declared it only under
+`diagnostic`; `load_native` reads the top-level field and defaulted to `ordered`.
+The raw failure is preserved and not retried.
+
+Attempt02 binds `intrinsic_reader_key_mode=content` at both protocol levels:
+
+- Protocol: `configs/spark_interference_diagnostic_v17_attempt02.json`, SHA-256 `4c282b699405b5e5e41ad93d9a8f8e5cb5815c561f2c80dbb5a2608475df4643`.
+- Packet: `reports/intrinsic_memory_interference_v17/native_packet_attempt02.json`, SHA-256 `76fdd6afbc77d55fe4534b29e2ffee82a43417fd3c429cce7aff093d75b37423`.
+- Implementation closure: SHA-256 `8bf649555f1bf15cc724f3df0af1abbdf704ab36ee22f5240cbab2f0f9ca8cab`.
+- Output: `reports/intrinsic_memory_interference_v17/native_bf16_interference_attempt02`; one new attempt, zero retries, separate exact authorization required.
+
+All pairs, measurements, parent checkpoint, budgets, isolated restoration and
+development boundaries are unchanged.

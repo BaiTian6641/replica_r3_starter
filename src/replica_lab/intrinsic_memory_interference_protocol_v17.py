@@ -50,6 +50,7 @@ def totals(plan):
 
 def validate_protocol(protocol):
     if (protocol.get("format") != PROTOCOL or set(protocol.get("arms", {})) != {"two"}
+            or protocol.get("intrinsic_reader_key_mode") != "content"
             or protocol.get("development_labels_used") is not False
             or protocol.get("parameter_updates") != 8):
         raise ValueError("invalid fitting-only interference protocol")
