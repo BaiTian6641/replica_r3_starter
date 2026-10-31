@@ -67,14 +67,19 @@
       "path": "src/replica_lab/architecture/spark_adapter.py",
       "kind": "reviewed_spine_and_derivative_integration",
       "prior_sha256": "919b58b75e58d5c01ff933eb44a6f75e977b139885280ed2597f9023ebb77430",
-      "current_sha256": "4d3094c82c75f2147958dd2abab8bc8ac62cb01246a6b08bb6562833c08f170a",
-      "reason": "Independent intrinsic-memory decoder argument with external spine optional; parity, migration and gradient tests preserve prior behavior.",
-      "reviewed_in": "reports/intrinsic_memory_v3/README.md",
+      "current_sha256": "ad48772664d90e2c84cb3576e21a364434506d88678a1d1b66076196b9be5615",
+      "reason": "Bounded intrinsic attention audits with exact default-path parity, legacy snapshot compatibility and gradient/null regressions.",
+      "reviewed_in": "docs/experiments/20261030_Spark_Pre_MLP_Fusion_V14.md",
       "review_chain": [
         {
           "prior_current_sha256": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
           "reviewed_in": "reports/intrinsic_memory_v3/README.md",
           "reason": "User-directed separation of intrinsic memory decoder hooks from external spine endpoints; original computation and legacy loading retained."
+        },
+        {
+          "prior_current_sha256": "4d3094c82c75f2147958dd2abab8bc8ac62cb01246a6b08bb6562833c08f170a",
+          "reviewed_in": "docs/experiments/20261030_Spark_Pre_MLP_Fusion_V14.md",
+          "reason": "Optional attention capture, position-bounded tensors and conditional legacy delta dispatch; 1,000 committed regression tests pass."
         }
       ]
     },
@@ -266,14 +271,19 @@
     {
       "path": "src/replica_lab/architecture/spark_adapter.py",
       "prior_sha256": "919b58b75e58d5c01ff933eb44a6f75e977b139885280ed2597f9023ebb77430",
-      "current_sha256": "4d3094c82c75f2147958dd2abab8bc8ac62cb01246a6b08bb6562833c08f170a",
-      "reason": "Independent intrinsic-memory decoder argument with external spine optional; parity, migration and gradient tests preserve prior behavior.",
-      "reviewed_in": "reports/intrinsic_memory_v3/README.md",
+      "current_sha256": "ad48772664d90e2c84cb3576e21a364434506d88678a1d1b66076196b9be5615",
+      "reason": "Bounded intrinsic attention audits with exact default-path parity, legacy snapshot compatibility and gradient/null regressions.",
+      "reviewed_in": "docs/experiments/20261030_Spark_Pre_MLP_Fusion_V14.md",
       "review_chain": [
         {
           "prior_current_sha256": "831335484ff548a47eb7d3306b60cdc63148c9e628fcd82f58644be1617c79b7",
           "reviewed_in": "reports/intrinsic_memory_v3/README.md",
           "reason": "User-directed separation of intrinsic memory decoder hooks from external spine endpoints; original computation and legacy loading retained."
+        },
+        {
+          "prior_current_sha256": "4d3094c82c75f2147958dd2abab8bc8ac62cb01246a6b08bb6562833c08f170a",
+          "reviewed_in": "docs/experiments/20261030_Spark_Pre_MLP_Fusion_V14.md",
+          "reason": "Optional attention capture and conditional legacy snapshot dispatch; behavior is unchanged unless audit is explicitly enabled."
         }
       ]
     },
