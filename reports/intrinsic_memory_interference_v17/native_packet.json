@@ -1,0 +1,34 @@
+{
+  "arm": "two",
+  "attempt_marker": "runs/intrinsic_memory_interference_v17/attempts.jsonl",
+  "attempts": 1,
+  "authorization_required": "reports/intrinsic_memory_interference_v17/authorization.json",
+  "authorization_status": "external_receipt_required_not_created",
+  "commands": {
+    "launch": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_interference_v17.py",
+      "--packet",
+      "reports/intrinsic_memory_interference_v17/native_packet.json",
+      "--authorization",
+      "reports/intrinsic_memory_interference_v17/authorization.json",
+      "--launch"
+    ],
+    "review": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_interference_v17.py",
+      "--packet",
+      "reports/intrinsic_memory_interference_v17/native_packet.json",
+      "--review"
+    ]
+  },
+  "experiment_version": 17,
+  "format": "replica.intrinsic_memory.interference_launch_packet.v17",
+  "native_engine_version": 17,
+  "output_root": "reports/intrinsic_memory_interference_v17/native_bf16_interference_attempt01",
+  "protocol": {
+    "path": "configs/spark_interference_diagnostic_v17.json",
+    "sha256": "b2f671a49d80670b035312d4ad843602384d620dfba10ffc97ea13244edda02e"
+  },
+  "retries": 0
+}

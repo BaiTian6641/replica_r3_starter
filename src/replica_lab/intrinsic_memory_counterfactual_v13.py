@@ -156,7 +156,8 @@ def _capture(path, position):
         def residual(module, args, output, site=site):
             if calls[site]:
                 return
-            captured[site]["residual"] = output[0, position].detach().float().cpu()
+            value = output[0] if isinstance(output, tuple) else output
+            captured[site]["residual"] = value[0, position].detach().float().cpu()
             captured[site]["gate"] = float(module.gate_logit.detach().sigmoid())
             calls[site] = 1
         hooks.append(port.output_projection.register_forward_hook(projection))
