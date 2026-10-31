@@ -85,3 +85,46 @@ def test_pre_mlp_checkpoint_placement_identity_is_explicit(tmp_path):
         assert restored.spec.placement == PRE_MLP_PLACEMENT
     finally:
         restored.close()
+
+
+
+def test_attention_audit_matches_logits_and_exposes_slot_contributions():
+    torch.set_num_threads(1)
+    path = path_for("block_input_query_to_post_block_residual", "attention")
+    sc = scope("attention")
+    spans = canonical_span("the badge is red", record_id="badge")
+    inputs = ids()
+    mask = torch.ones_like(inputs)
+    try:
+        batch = path.training_values(spans, scope=sc)
+        context = path.snapshot(inputs, batch, scope=sc)
+        baseline = path.adapter.forward_text(
+            inputs, mask, use_projector=False, use_ports=False, use_spine=False,
+            intrinsic_memory=context)
+        logits, audit = path.adapter.forward_text(
+            inputs, mask, use_projector=False, use_ports=False, use_spine=False,
+            intrinsic_memory=context, return_audit=True,
+            capture_attention=True, attention_position=3)
+        assert torch.equal(baseline, logits)
+        assert set(audit.memory_attention) == {3, 7}
+        for site in (3, 7):
+            attention = audit.memory_attention[site]
+            weights = attention["weights"]
+            assert weights.shape[:3] == (1, weights.shape[1], 1)
+            assert attention["key"].shape[1] == 8
+            assert attention["value"].shape[1] == 8
+            assert attention["query"].shape == attention["read"].shape
+            assert torch.allclose(weights.sum(dim=-1)[..., :4],
+                                  torch.ones_like(weights.sum(dim=-1)[..., :4]), atol=1e-6)
+            assert torch.allclose(weights @ attention["value"], attention["read"], atol=1e-6)
+        context.availability.zero_()
+        _, empty_audit = path.adapter.forward_text(
+            inputs, mask, use_projector=False, use_ports=False, use_spine=False,
+            intrinsic_memory=context, return_audit=True,
+            capture_attention=True, attention_position=3)
+        for attention in empty_audit.memory_attention.values():
+            assert not attention["weights"].any()
+            assert not attention["read"].any()
+    finally:
+        path.close()
+

@@ -70,6 +70,19 @@ class MemoryAccessContracts(unittest.TestCase):
             self.assertTrue(torch.isfinite(delta).all())
             self.assertTrue(torch.equal(delta, torch.zeros_like(self.hidden)))
         self.assertEqual(port(self.hidden[:, :0], self.memory, self.valid).shape, (2, 0, 16))
+    def test_attention_audit_uses_head_layout_and_masks_empty_rows(self):
+        port = MemoryAccessPort(16, 8, 2)
+        torch.nn.init.normal_(port.output_projection.weight)
+        valid = self.valid.clone()
+        valid[1] = False
+        delta, attention = port(self.hidden, self.memory, valid,
+                                return_attention=True)
+        self.assertEqual(attention["query"].shape, attention["read"].shape)
+        self.assertTrue(torch.allclose(attention["weights"] @ attention["value"],
+                                       attention["read"], atol=1e-6, rtol=1e-6))
+        self.assertTrue(torch.equal(attention["weights"][1],
+                                    torch.zeros_like(attention["weights"][1])))
+        self.assertTrue(torch.equal(delta[1], torch.zeros_like(delta[1])))
 
     def test_padding_nan_is_inert_and_queries_and_batch_rows_are_independent(self):
         port = MemoryAccessPort(16, 8, 2)

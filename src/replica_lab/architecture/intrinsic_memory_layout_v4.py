@@ -216,8 +216,9 @@ class LayerMemorySnapshot:
         self.values, self.availability = values.clone(), availability.clone()
         self.validate = validate
 
-    def delta(self, site, hidden):
+    def delta(self, site, hidden, *, return_attention=False):
         if site not in self.spec.sites:
             raise ValueError("disabled intrinsic site")
         self.validate()
-        return self.reader.ports[str(site)](hidden, self.values, self.availability)
+        return self.reader.ports[str(site)](hidden, self.values, self.availability,
+                                            return_attention=return_attention)

@@ -66,7 +66,7 @@ class MemoryAccessPort(nn.Module):
         self.gate_logit = nn.Parameter(torch.zeros(()))
 
     def forward(self, hidden: Tensor, memory: Tensor, valid: Tensor,
-                enabled: bool = True) -> Tensor:
+                enabled: bool = True, return_attention: bool = False):
         _hidden(hidden, self.hidden_size, "hidden")
         _hidden(memory, self.memory_size, "memory")
         if hidden.shape[0] != memory.shape[0]:
@@ -91,12 +91,19 @@ class MemoryAccessPort(nn.Module):
         query = query.reshape(batch, length, self.heads, self.head_size).transpose(1, 2)
         key = key.reshape(batch, count, self.heads, self.head_size).transpose(1, 2)
         value = value.reshape(batch, count, self.heads, self.head_size).transpose(1, 2)
-        read = F.scaled_dot_product_attention(
+        read_heads = F.scaled_dot_product_attention(
             query, key, value, attn_mask=safe[:, None, None, :], dropout_p=0.0,
         )
-        read = read.transpose(1, 2).reshape(batch, length, self.memory_size)
+        read = read_heads.transpose(1, 2).reshape(batch, length, self.memory_size)
         delta = self.gate_logit.sigmoid() * self.output_projection(read)
-        return delta.masked_fill(~available[:, None, None], 0).to(hidden.dtype)
+        delta = delta.masked_fill(~available[:, None, None], 0).to(hidden.dtype)
+        if return_attention:
+            scores = query @ key.transpose(-2, -1) / self.head_size**0.5
+            weights = torch.softmax(scores.masked_fill(~safe[:, None, None, :], float('-inf')), dim=-1)
+            weights = weights.masked_fill(~available[:, None, None, None], 0)
+            return delta, {'query': query, 'key': key, 'value': value,
+                           'weights': weights, 'read': read_heads}
+        return delta
 
 
 class WorkspaceAccessPort(MemoryAccessPort):

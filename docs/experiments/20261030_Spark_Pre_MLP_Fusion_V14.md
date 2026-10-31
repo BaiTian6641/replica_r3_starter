@@ -57,3 +57,25 @@ fixed, not more slots or another encoder/objective change.
 
 Independent implementation review before launch returned no findings:
 `reports/intrinsic_memory_pre_mlp_v14/independent_review.json`.
+
+## Attention-audit engineering increment
+
+`capture_attention=True` now exposes per-site intrinsic query/key/value, normalized
+slot weights and read vectors through `InjectionAudit.memory_attention`;
+`attention_position` bounds the retained query/read/weight tensors to one token.
+Fully unavailable banks produce explicit zero weights/read vectors. The default
+path retains the original `delta(site, hidden)` call, so legacy and profiled
+snapshot owners require no audit keyword and incur no audit computation.
+
+CPU verification passes 105 focused port/adapter/contextual tests, 118 established
+v12–v14 changed-component tests and 1,000 committed Spark/memory regression tests,
+with zero skips. The first broad run failed 40 tests: 37 legacy/profiled snapshot
+calls rejected the unconditional audit keyword and three active protocol hash
+bindings were stale. Conditional dispatch and explicit lineage updates preceded
+the passing rerun. The seven external launch-reproduction files from the earlier
+1,024-test receipt were unavailable because their temporary directory no longer
+exists; they are not claimed as rerun.
+
+This is diagnostic engineering evidence only. No native model job ran, and the
+terminal pre-MLP fitting failure, closed development split and lack of useful
+recall/generalization evidence are unchanged.

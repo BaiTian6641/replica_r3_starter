@@ -365,7 +365,7 @@ class SpinePort(nn.Module):
         nn.init.zeros_(self.output_projection.weight)
 
     def forward(self, hidden: torch.Tensor, slots: torch.Tensor,
-                availability: torch.Tensor) -> torch.Tensor:
+                availability: torch.Tensor, return_attention: bool = False) -> torch.Tensor:
         if hidden.ndim != 3 or hidden.shape[-1] != self.spec.hidden_size:
             raise SpineError("port hidden state has the wrong shape")
         if slots.ndim != 4 or slots.shape[-1] != self.spec.workspace_width:
@@ -375,7 +375,17 @@ class SpinePort(nn.Module):
                 or availability.shape[2] != slots.shape[2]:
             raise SpineError("port availability shape differs from hidden/slots")
         if not bool(availability.any()):
-            return hidden.new_zeros(hidden.shape)
+            delta = hidden.new_zeros(hidden.shape)
+            if not return_attention:
+                return delta
+            query = self.query_projection(self.query_norm(hidden)).unsqueeze(1)
+            empty = slots.new_zeros(slots.shape)
+            weights = hidden.new_zeros(
+                (hidden.shape[0], 1, hidden.shape[1], slots.shape[2]))
+            read = hidden.new_zeros(
+                (hidden.shape[0], 1, hidden.shape[1], self.spec.workspace_width))
+            return delta, {'query': query, 'key': empty, 'value': empty,
+                           'weights': weights, 'read': read}
         source = slots.masked_fill(~availability.unsqueeze(-1), 0)
         source = self.slot_norm(source)
         key = self.key_projection(source)
@@ -387,6 +397,9 @@ class SpinePort(nn.Module):
         delta = self.output_projection(self.output_norm(read))
         delta = delta * self.gate_logit.sigmoid()
         delta = delta * availability.any(dim=-1).to(delta.dtype).unsqueeze(-1)
+        if return_attention:
+            return delta, {'query': query.unsqueeze(1), 'key': key, 'value': value,
+                           'weights': weights.unsqueeze(1), 'read': read.unsqueeze(1)}
         return delta.to(dtype=hidden.dtype)
 
 

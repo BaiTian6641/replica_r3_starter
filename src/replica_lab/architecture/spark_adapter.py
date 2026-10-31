@@ -75,8 +75,10 @@ class InjectionAudit:
     port_layers: tuple[int, ...]
     injected_layers: tuple[int, ...]
     delta_max_abs: float
+    projector_input_requires_grad: bool
     projector_input_connected: bool
     projector_input_requires_grad: bool
+    memory_attention: dict | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -89,6 +91,7 @@ class InjectionAudit:
             "delta_max_abs": self.delta_max_abs,
             "projector_input_connected": self.projector_input_connected,
             "projector_input_requires_grad": self.projector_input_requires_grad,
+            "memory_attention": self.memory_attention,
         }
 
 
@@ -110,6 +113,9 @@ class _ForwardContext:
 
     pre_mlp_deltas: dict[int, torch.Tensor] | None = None
     pre_mlp_injected: set[int] | None = None
+    capture_attention: bool = False
+    attention_position: int | None = None
+    intrinsic_audit: dict[int, dict] | None = None
 
     def __post_init__(self) -> None:
         self.traced = []
@@ -117,6 +123,7 @@ class _ForwardContext:
         self.deltas = []
         self.pre_mlp_deltas = {}
         self.pre_mlp_injected = set()
+        self.intrinsic_audit = {}
 
 
 def _config_fingerprint(base: nn.Module, config: Spark2_5Config) -> str:
@@ -463,6 +470,32 @@ class Spark2_5Adapter(nn.Module):
             raise SparkAdapterError("every row needs at least one known token")
         return attention_mask
 
+    def _intrinsic_delta(self, index, hidden, context):
+        device = next(self.extension.vision_projector.parameters()).device
+        hidden = hidden.to(device=device, dtype=torch.float32)
+        if context.capture_attention:
+            result = context.intrinsic_memory.delta(
+                index, hidden, return_attention=True)
+        else:
+            return context.intrinsic_memory.delta(index, hidden)
+        delta, audit = result
+        position = context.attention_position
+        if position is not None:
+            selected = {}
+            for key, value in audit.items():
+                if key in ("query", "weights", "read"):
+                    selected[key] = (value[:, :, position:position + 1]
+                                     if value.ndim >= 4
+                                     else value[:, position:position + 1])
+                elif key in ("key", "value") and value.ndim == 4 \
+                        and value.shape[1] == hidden.shape[1]:
+                    selected[key] = value[:, position]
+                else:
+                    selected[key] = value
+            audit = selected
+        context.intrinsic_audit[index] = audit
+        return delta
+
     def _make_hook(self, index: int, layer_type: str, context: _ForwardContext):
         def hook(module: nn.Module, args: tuple, output):
             if not args or not torch.is_tensor(args[0]):
@@ -504,8 +537,7 @@ class Spark2_5Adapter(nn.Module):
             if (context.intrinsic_memory is not None
                     and context.intrinsic_placement == "block_input_query_to_post_block_residual"
                     and index in context.intrinsic_memory.spec.sites):
-                memory_delta = context.intrinsic_memory.delta(
-                    index, hidden.to(device=device, dtype=torch.float32))
+                memory_delta = self._intrinsic_delta(index, hidden, context)
                 delta = memory_delta if delta is None else delta + memory_delta
             if delta is None:
                 return None
@@ -525,8 +557,7 @@ class Spark2_5Adapter(nn.Module):
                 raise SparkAdapterError("decoder layer did not receive a hidden-state tensor")
             if context.intrinsic_memory is not None and index in context.intrinsic_memory.spec.sites:
                 device = next(self.extension.vision_projector.parameters()).device
-                context.pre_mlp_deltas[index] = context.intrinsic_memory.delta(
-                    index, args[0].to(device=device, dtype=torch.float32))
+                context.pre_mlp_deltas[index] = self._intrinsic_delta(index, args[0], context)
             return None
         return hook
 
@@ -553,7 +584,8 @@ class Spark2_5Adapter(nn.Module):
              spine: SpineForwardContext | None = None, use_spine: bool = False,
             intrinsic_memory=None,
             intrinsic_placement="block_input_query_to_post_block_residual",
-             enabled_spine_branches: tuple[str, ...] = BRANCHES):
+            capture_attention=False, attention_position=None,
+            enabled_spine_branches: tuple[str, ...] = BRANCHES):
         input_ids = input_ids
         mask = self._validate_inputs(input_ids, attention_mask)
         if not use_projector and projector_input is not None:
@@ -571,6 +603,7 @@ class Spark2_5Adapter(nn.Module):
             memory_mask=memory_mask,
             spine_context=spine if use_spine else None,
             intrinsic_memory=intrinsic_memory, intrinsic_placement=intrinsic_placement,
+            capture_attention=capture_attention, attention_position=attention_position,
             enabled_spine_branches=(tuple(enabled_spine_branches)
                                     if use_spine else ()))
         handles = []
@@ -623,7 +656,8 @@ class Spark2_5Adapter(nn.Module):
             projector_input_connected=context.projector_source is not None,
             projector_input_requires_grad=bool(
                 context.projector_source is not None
-                and context.projector_source.requires_grad))
+                and context.projector_source.requires_grad),
+            memory_attention=context.intrinsic_audit or None)
         return result, audit, context
 
     def forward_text(self, input_ids: torch.Tensor,
@@ -637,14 +671,16 @@ class Spark2_5Adapter(nn.Module):
                      use_spine: bool = False,
                      intrinsic_memory=None,
                      intrinsic_placement="block_input_query_to_post_block_residual",
+                     capture_attention=False, attention_position=None,
                      enabled_spine_branches: tuple[str, ...] = BRANCHES,
                      return_audit: bool = False):
         logits, audit, _ = self._run(
             hidden_only=False, input_ids=input_ids, attention_mask=attention_mask,
             position_ids=position_ids, projector_input=projector_input, memory=memory,
             memory_mask=memory_mask, use_projector=use_projector, use_ports=use_ports,
-            spine=spine, use_spine=use_spine,
-            intrinsic_memory=intrinsic_memory, intrinsic_placement=intrinsic_placement,
+            spine=spine, use_spine=use_spine, intrinsic_memory=intrinsic_memory,
+            intrinsic_placement=intrinsic_placement,
+            capture_attention=capture_attention, attention_position=attention_position,
             enabled_spine_branches=enabled_spine_branches)
         return (logits, audit) if return_audit else logits
 
@@ -659,14 +695,16 @@ class Spark2_5Adapter(nn.Module):
                      use_spine: bool = False,
                      intrinsic_memory=None,
                      intrinsic_placement="block_input_query_to_post_block_residual",
+                     capture_attention=False, attention_position=None,
                      enabled_spine_branches: tuple[str, ...] = BRANCHES,
                      return_audit: bool = False):
         hidden, audit, _ = self._run(
             hidden_only=True, input_ids=input_ids, attention_mask=attention_mask,
             position_ids=position_ids, projector_input=projector_input, memory=memory,
             memory_mask=memory_mask, use_projector=use_projector, use_ports=use_ports,
-            spine=spine, use_spine=use_spine,
-            intrinsic_memory=intrinsic_memory, intrinsic_placement=intrinsic_placement,
+            spine=spine, use_spine=use_spine, intrinsic_memory=intrinsic_memory,
+            intrinsic_placement=intrinsic_placement,
+            capture_attention=capture_attention, attention_position=attention_position,
             enabled_spine_branches=enabled_spine_branches)
         return (hidden, audit) if return_audit else hidden
 
