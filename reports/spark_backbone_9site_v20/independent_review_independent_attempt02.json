@@ -1,0 +1,66 @@
+{
+  "decision": "pass",
+  "findings": [],
+  "reviewer_conversation_id": "50eb5a23-4778-49aa-bf46-eef38423a095",
+  "scope": {
+    "arm": "full_attention_nine",
+    "checkpoint_manifest_path": "reports/intrinsic_memory_content_key_v16/native_bf16_two_attempt01/checkpoint/manifest.json",
+    "checkpoint_manifest_sha256": "a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c",
+    "diagnostic_fit_data_path": "data/intrinsic_memory_alignment_v19/diagnostic_fit.json",
+    "diagnostic_fit_data_sha256": "e8532eb11f4fd16521d19e2f030339e0f0e9fc111d8fb8fda8c5d3283d73f76a",
+    "fit_data_path": "data/intrinsic_memory_alignment_v19/fit.json",
+    "fit_data_sha256": "55d9dde9284aedb146f32a43183aaed476c787df61f0ba9bdb42e35c7b309a5a",
+    "intrinsic_placement": "block_input_query_to_post_block_residual",
+    "packet_path": "reports/spark_backbone_9site_v20/native_packet_independent_attempt02.json",
+    "packet_sha256": "f86a77cd3a1ac8fb041730da144f8eb947a8f1b172b094acf756a5103260136d",
+    "predecessor_v18_result_path": "reports/spark_repairs_v18/preparation_attempt04/native_bf16_comparison_attempt01/result.json",
+    "predecessor_v18_result_sha256": "9d484be053277c39cc66623ebdb9c9a4a33bd4027f87ff0d42ae3c9f15200052",
+    "protocol_path": "configs/spark_backbone_9site_independent_v20_attempt02.json",
+    "protocol_sha256": "dc4c46457f2eebb5e82edd81e08dbc1920f891eee2b3c970189d6385f77780b6",
+    "reader_regime": "independent",
+    "reviewed_files": {
+      "scripts/run_spark_alignment_v19.py": "e0e97e1553cf600da4da1612b1da364dbca5c9600b8ec67747b560b84cc9ad2d",
+      "src/replica_lab/intrinsic_memory_alignment_v19.py": "a25f2e594e1f175d7452d4297d177ffa825befc58943c407be95d1be061285ee"
+    },
+    "sites": [
+      3,
+      7,
+      11,
+      15,
+      19,
+      23,
+      27,
+      31,
+      35
+    ],
+    "stage": "2B",
+    "stage1_v19_packet_sha256": "ac61fe072579fd82f62c3a3203d235b73736da0002b3089197b68a95c14bd1e3",
+    "stage1_v19_result_path": "reports/spark_alignment_v19/native_bf16_alignment_attempt01/result.json",
+    "stage1_v19_result_sha256": "572fc0c67f6a6ce50882be6407e559d4d419242c7c66545180ee2e97370ab9be",
+    "stage2a_matched_packet_sha256": "3cce48ee7aefecaa7cec9afb61da89ae2e7c694ced7b3f035a8dcd048850afba",
+    "stage2a_matched_result_path": "reports/spark_backbone_9site_v20/native_bf16_9site_attempt01/result.json",
+    "stage2a_matched_result_sha256": "8f891b04408fcec55c2ef2e95d1959f54530e48877297e738a8f1192a38c78bb"
+  },
+  "verifications": {
+    "attempt_marker_unused": true,
+    "cloned_ports_11_15_19_23_27_31_35_zero_output_projection_at_step0": true,
+    "donor_requires_grad_uniform_during_assert_optimizer_ownership": true,
+    "exact_text_competence_gate_enforced": true,
+    "inherited_v16_weights_and_moments_preserved_for_producer_order_port3_port7": true,
+    "ledger_validate_plan_passed": true,
+    "nine_component_state_restoration_across_all_9_ports_verified": true,
+    "output_root_unused": true,
+    "resource_limits_verified": {
+      "driver_bytes": 53687091200,
+      "minimum_host_free_percent": 15,
+      "sustained_host_samples": 3,
+      "swap_growth_bytes": 536870912,
+      "telemetry_timeout_seconds": 30
+    },
+    "sha256_bindings_exact": true,
+    "stage1_v19_predecessor_outcome_bound_exact": true,
+    "stage2a_matched_predecessor_outcome_bound_exact": true,
+    "upgrade_to_independent_reader_zero_shock_9site_verified": true,
+    "zero_development_or_sealed_label_exposure": true
+  }
+}
