@@ -1,0 +1,25 @@
+{
+  "arm": "full_attention_nine",
+  "attempt_marker": "runs/spark_end_to_end_cognition_v23/attempts_02.jsonl",
+  "attempts": 1,
+  "cpu_fallback": false,
+  "experiment_version": 23,
+  "format": "replica.intrinsic_memory.end_to_end_cognition_launch_packet.v23",
+  "launch_authorized": false,
+  "native_workers": 1,
+  "output_root": "reports/spark_end_to_end_cognition_v23/native_bf16_end_to_end_cognition_attempt02",
+  "prior_attempt_provenance": {
+    "attempt01_failure_path": "reports/spark_end_to_end_cognition_v23/native_bf16_end_to_end_cognition_attempt01/failure.json",
+    "attempt01_marker": "runs/spark_end_to_end_cognition_v23/attempts.jsonl",
+    "attempt01_output_root": "reports/spark_end_to_end_cognition_v23/native_bf16_end_to_end_cognition_attempt01",
+    "reason": "attempt01 completed all V21 and V23-A/B/C/D neural stages on MPS (1035.4s, 1612 forwards, 596 backwards, 467 updates, 8 retrievals, 24 generated_tokens) and raised BudgetError at the final step v23_unified_checkpoint_export because fixed 16 MiB reservation was smaller than the 2560-D serialized state (~38.4 MiB). Fixed by computing exact serialized bytes via io.BytesIO() before reserving v23_unified_checkpoint_export and using object.__setattr__(self, 'p_module', p_module) in UntaggedSalienceAnchorPoolerV23."
+  },
+  "protocol": {
+    "path": "configs/spark_end_to_end_cognition_v23.json",
+    "sha256": "1daec3cbde005d4f6c1a58ce706e20a90b8c861d21a590e665bb8fd1618814b8"
+  },
+  "reader_regime": "independent",
+  "retries": 0,
+  "stage": 8,
+  "status": "prepared_phase3_v23_end_to_end_cognition_attempt02"
+}

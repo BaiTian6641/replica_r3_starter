@@ -1,0 +1,30 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 117.85it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_end_to_end_cognition_v23.py", line 673, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_end_to_end_cognition_v23.py", line 669, in main
+    return worker(args)
+           ^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_end_to_end_cognition_v23.py", line 440, in worker
+    pipeline_report = run_spark_end_to_end_cognition_v23_pipeline(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/spark_end_to_end_cognition_v23.py", line 5099, in run_spark_end_to_end_cognition_v23_pipeline
+    checkpoint_roundtrip = _export_and_verify_unified_checkpoint_v23(
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/spark_end_to_end_cognition_v23.py", line 4607, in _export_and_verify_unified_checkpoint_v23
+    with _measured(
+         ^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 144, in __exit__
+    next(self.gen)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_diagnostic_v12.py", line 164, in measured
+    with self.ledger.work(self.stage, operation, **amounts) as event:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 144, in __exit__
+    next(self.gen)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_budget_v12.py", line 485, in work
+    self.finish(token, actual=observation.pop('actual', None), detail=observation)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_budget_v12.py", line 466, in finish
+    raise BudgetError('actual work exceeds reservation')
+replica_lab.intrinsic_memory_budget_v12.BudgetError: actual work exceeds reservation

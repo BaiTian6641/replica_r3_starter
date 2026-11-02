@@ -1,0 +1,31 @@
+{
+  "decision": "approve",
+  "findings": [],
+  "packet_path": "reports/spark_end_to_end_cognition_v23/native_packet_attempt02.json",
+  "packet_sha256": "22ba5f47a893cfbda6aa335c75c56b16f943074dceb228c3803abefb0a7465e6",
+  "protocol_sha256": "1daec3cbde005d4f6c1a58ce706e20a90b8c861d21a590e665bb8fd1618814b8",
+  "reviewed_files": {
+    "configs/spark_end_to_end_cognition_v23.json": "1daec3cbde005d4f6c1a58ce706e20a90b8c861d21a590e665bb8fd1618814b8",
+    "reports/spark_end_to_end_cognition_v23/native_bf16_end_to_end_cognition_attempt01/failure.json": "verified",
+    "reports/spark_end_to_end_cognition_v23/native_packet_attempt02.json": "22ba5f47a893cfbda6aa335c75c56b16f943074dceb228c3803abefb0a7465e6",
+    "scripts/run_spark_end_to_end_cognition_v23.py": "788a67f2683ebc436e0c5d380f5f77ebdf7c5287ac3c99940f572426b7a3003a",
+    "src/replica_lab/spark_end_to_end_cognition_v23.py": "971d9ec12ff7fed4f7f67d8c02f570c199cfd76be51f335e7cb7e691a4a29d8b",
+    "tests/test_spark_end_to_end_cognition_v23.py": "9637d7572e273b5bcc623f8bcdaea8036cb9fd762d11d0df559d020ec58b2cd8"
+  },
+  "reviewer_conversation_id": "50eb5a23-4778-49aa-bf46-eef38423a095",
+  "verification_summary": {
+    "attempt01_failure_root_cause_verified": "Confirmed in attempt01/work_ledger.jsonl (event id 3608) and attempt01/failure.json that all V21 and V23-A/B/C/D neural stages completed cleanly on MPS (1612 forwards, 596 backwards, 467 updates, 8 retrievals, 24 generated_tokens) and failed only at v23_unified_checkpoint_export because the hardcoded 16 MiB (16,777,216 B) reservation was smaller than the 2560-D serialized state (~38.4 MiB).",
+    "fix_verification": "Confirmed in src/replica_lab/spark_end_to_end_cognition_v23.py (line 804 and lines 4608-4628) that UntaggedSalienceAnchorPoolerV23 now uses object.__setattr__(self, 'p_module', p_module) (avoiding duplicate p_module state_dict serialization) and _export_and_verify_unified_checkpoint_v23 serializes payload to io.BytesIO() first to reserve the exact expected_bytes (~31 MiB on 2560-D Spark, well within the 128 MiB / 134,217,728 B diagnose stage budget, where prior diagnose operations use only ~199 KB of artifact_bytes and ~205 KB of artifact_read_bytes).",
+    "packet_and_preflight_checks": {
+      "attempt_marker": "runs/spark_end_to_end_cognition_v23/attempts_02.jsonl",
+      "attempt_marker_unused": true,
+      "launch_authorized": false,
+      "output_root": "reports/spark_end_to_end_cognition_v23/native_bf16_end_to_end_cognition_attempt02",
+      "output_root_preflight_unused": true,
+      "output_root_unused": true,
+      "pytest_passed": true,
+      "review_mode_passed": true,
+      "source_bytes_hashed_in_review": 0
+    }
+  }
+}
