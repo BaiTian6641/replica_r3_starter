@@ -1,0 +1,34 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:00<00:00, 104.73it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_wake_sleep_v21.py", line 301, in worker
+    path, backend, spec, initial_hash, stage_ref = load_native(
+                                                   ^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_native_v12.py", line 262, in load_native
+    feature_provider=provider, lr=protocol['training']['lr'], initialization_seed=17,
+                                  ~~~~~~~~~~~~~~~~~~~~^^^^^^
+KeyError: 'lr'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_wake_sleep_v21.py", line 638, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_wake_sleep_v21.py", line 634, in main
+    return worker(args)
+           ^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_wake_sleep_v21.py", line 491, in worker
+    charged_write(
+  File "/Users/flare/replica_r3_starter/scripts/run_spark_alignment_v19.py", line 81, in charged_write
+    with ledger.work(stage, name + "_receipt", writes=1, artifact_bytes=len(raw)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_budget_v12.py", line 474, in work
+    token = self.reserve(stage, operation, **amounts)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/intrinsic_memory_budget_v12.py", line 451, in reserve
+    raise BudgetError('stage work budget exceeded before dispatch')
+replica_lab.intrinsic_memory_budget_v12.BudgetError: stage work budget exceeded before dispatch
