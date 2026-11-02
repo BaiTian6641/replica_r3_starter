@@ -1,0 +1,43 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_spark_repairs_v18.py",
+    "tests/test_intrinsic_acceptance_v13.py",
+    "tests/test_intrinsic_interference_v17.py",
+    "tests/test_intrinsic_acceptance_v15.py",
+    "tests/test_native_correction_v17.py",
+    "tests/test_intrinsic_archive_migration_v16.py",
+    "tests/test_sequence_evidence_v17.py",
+    "tests/test_decodability_probe_v16.py",
+    "tests/test_contextual_source_features_v12.py",
+    "tests/test_contextual_memory_v12.py",
+    "tests/test_contextual_memory_layout_v12.py",
+    "tests/test_contextual_v12_integration.py",
+    "tests/test_intrinsic_native_v12.py",
+    "tests/test_intrinsic_reader_query_v15.py",
+    "tests/test_intrinsic_content_key_v16.py",
+    "tests/test_intrinsic_lifecycle_fixture_v13.py",
+    "tests/test_independent_review_v12_findings.py",
+    "--junitxml=reports/spark_repairs_v18/affected_tests_final.xml"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "1",
+    "PYTHONPATH": "src:tests:scripts"
+  },
+  "exit_code": 0,
+  "wall_seconds": 53.721776250284165,
+  "base_commit": "cfe7082c2556c042d25a6388cc1f89ce754ba7f7",
+  "scope": "selected CPU regression suites; synthetic data; no native launch; no sealed labels",
+  "protocol": {
+    "path": "configs/spark_paired_update_v18_2.json",
+    "sha256": "7191e955382a94a558663f746051e292450b5a8d623b8e33a2c5bd1c9a6efb5a"
+  },
+  "source_snapshot": {
+    "path": "reports/spark_repairs_v18/source_snapshot.json",
+    "sha256": "1eaf1506597def8d1816b777efdc5bdffeee483350c1ec5dbe212b005f8a27fd"
+  }
+}

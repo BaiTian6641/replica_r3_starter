@@ -305,3 +305,13 @@ reader count, ordinary fine-tuning and repeated self-generated explanations do
 not establish it. Candidate policies cannot alter their verifier, promotion
 criteria, resource guards or approved identity. Retain authenticated parents and
 exercise rollback before promoting any later candidate.
+
+## 8. Current repair qualification and learning order — 31 October 2026
+
+The [repair report](20261031_Spark_Repairs_V18_Review.md) and [research cross-check](20261031_Spark_Research_Crosscheck_and_Alignment.md) update the evidence boundary without advancing any stage. Historical V17 post-update margins used pre-update slots. CPU repairs and V18.2 preparation02 now exist, but corrected native behavior remains unmeasured. Existing verification is scoped engineering evidence, not a proof that all correctness blockers have disappeared.
+
+The actual v12 development split was exposed through an engineering test even though the relevant native diagnostics never opened it. It is retired for fresh generalization claims. A fresh disjoint sealed split is prepared outside tests and fitting diagnostics; it is not competence-qualified. Native access history remains unchanged. No source-free, retention, correction or nested-learning result may be inferred from this preparation.
+
+The required progression is **qualified recall → completed-interaction formation → source-free persistent learning → correction/retention/rollback → all-layer and nested-learning evaluation → RSI**. Exactly-once causal chunk formation remains a separately controlled part of formation. All-layer CPU support may be developed as engineering, but cannot bypass useful recall or matched behavioral/cost gates. Excluding a revoked record from fresh retrieval is distinct from removing information already learned in P.
+
+If corrected native V18 fails, the research note proposes one controlled producer–reader alignment comparison. It keeps the representation, capacity and routing fixed while testing decoder usefulness, with separate compression diagnostics. It is not authorized or added to V18. Logical hot/warm/cold quotas do not establish physical residency; measure actual host/MPS allocations and latency. Preserve the intrinsic-memory/Spine ownership boundary and all existing resource, multimodal, P, density, capacity and RSI gates.

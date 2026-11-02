@@ -1,0 +1,188 @@
+{
+  "artifact_bytes_observed": 592642,
+  "audit_io": {
+    "append_calls": 1308,
+    "failed_or_interrupted_events": 0,
+    "fsync_calls": 1308,
+    "logical_appended_bytes": 272887,
+    "physical_io_note": "append-only journal: requested bytes equal appended bytes; SSD write amplification, page cache and flush cost are not measured",
+    "physical_write_bytes_measured": false,
+    "reservations_charged": {
+      "artifact_bytes": 1324860,
+      "artifact_read_bytes": 17171424092,
+      "backwards": 16,
+      "cache_evictions": 8,
+      "cache_misses": 8,
+      "cache_recomputations": 8,
+      "forwards": 248,
+      "generated_tokens": 0,
+      "input_tokens": 62224,
+      "model_loads": 1,
+      "prompt_tokenizer_calls": 16,
+      "restart_restores": 1,
+      "retrievals": 0,
+      "source_encodes": 8,
+      "source_feature_forwards": 8,
+      "source_token_bytes": 636,
+      "tokenizer_calls": 8,
+      "updates": 12,
+      "writes": 164
+    },
+    "torn_tail_records": 0
+  },
+  "capacity": {
+    "baseline": {
+      "memory_free_percent": 82.0,
+      "swap_used_bytes": 3295548538
+    },
+    "driver_samples": 113,
+    "host_samples": 30,
+    "minimum_observed_free_percent": 63.0,
+    "peak_driver_bytes": 11148312576,
+    "peak_swap_growth_bytes": 0,
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3,
+      "swap_growth_limit_bytes": 536870912
+    },
+    "stop_reason": null
+  },
+  "checkpoint_manifest_sha256": "a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c",
+  "deadline_state": {
+    "clock_reanchored": false,
+    "clock_skew_seconds": -0.0006797718815505505,
+    "outer_remaining_seconds": 1670.8599531245418,
+    "stage_remaining_seconds": {
+      "finalize": 55.30890379101038
+    }
+  },
+  "development_labels_used": false,
+  "format": "replica.intrinsic_memory.paired_update_result.v18.2",
+  "native_capability_or_generalization_claim": false,
+  "original_weights_unchanged": true,
+  "packet_sha256": "05cf86c28a0838e539256da54b3c87b7c43e67fc27b67a52a6cebbc4e4efed72",
+  "parameter_updates": 12,
+  "pre_attempt_admission": "/Users/flare/replica_r3_starter/reports/spark_repairs_v18/preparation_attempt04/native_bf16_comparison_attempt01_preflight",
+  "protocol_sha256": "383891eed3fff80158780f0d932fabadaf35d990edc75f8166b71b0fd53b2ad9",
+  "reservations": {
+    "artifact_bytes": 1324860,
+    "artifact_read_bytes": 17171424092,
+    "backwards": 16,
+    "cache_evictions": 8,
+    "cache_misses": 8,
+    "cache_recomputations": 8,
+    "forwards": 248,
+    "generated_tokens": 0,
+    "input_tokens": 62224,
+    "model_loads": 1,
+    "prompt_tokenizer_calls": 16,
+    "restart_restores": 1,
+    "retrievals": 0,
+    "source_encodes": 8,
+    "source_feature_forwards": 8,
+    "source_token_bytes": 636,
+    "tokenizer_calls": 8,
+    "updates": 12,
+    "writes": 164
+  },
+  "summary": {
+    "development_labels_used": false,
+    "endpoints": {
+      "paired_joint": {
+        "absolute_final_margins": [
+          -0.10547780990600586,
+          0.4023531675338745,
+          1.8519059121608734,
+          -0.9341600835323334,
+          0.3359411954879761,
+          0.11327409744262695,
+          -1.1036562025547028,
+          2.703217998147011
+        ],
+        "full_vocabulary_first_token_correct": 5,
+        "guard_count": 4,
+        "mean_final_pair_minimum_margin": -0.5075049996376038,
+        "pair_minimum_margins": [
+          -0.10547780990600586,
+          -0.9341600835323334,
+          0.11327409744262695,
+          -1.1036562025547028
+        ],
+        "positive_pair_margin_worlds": 5,
+        "teacher_forced_complete_correct": 5
+      },
+      "sequential": {
+        "absolute_final_margins": [
+          2.3476773500442505,
+          -1.750997006893158,
+          -0.9955330193042755,
+          1.6767926216125488,
+          -4.140637308359146,
+          4.699224680662155,
+          1.3886784315109253,
+          -0.5069997906684875
+        ],
+        "full_vocabulary_first_token_correct": 4,
+        "guard_count": 4,
+        "mean_final_pair_minimum_margin": -1.8485417813062668,
+        "pair_minimum_margins": [
+          -1.750997006893158,
+          -0.9955330193042755,
+          -4.140637308359146,
+          -0.5069997906684875
+        ],
+        "positive_pair_margin_worlds": 4,
+        "teacher_forced_complete_correct": 4
+      }
+    },
+    "final_restoration": {
+      "equal": {
+        "buffers": true,
+        "cpu_rng": true,
+        "module_modes": true,
+        "mps_rng": true,
+        "optimizer": true,
+        "optimizer_moments": true,
+        "optimizer_steps": true,
+        "parameters": true,
+        "python_rng": true
+      },
+      "expected": {
+        "buffers": "6ab47d70854a8c690a0c2035be903f3d812cbab06f9e442e9b10ad70b1acd446",
+        "cpu_rng": "4e443d2b455f0d0d7f1ef8959a3bf7d9f5189f723adecdbe4c81fbd06c8ea3d4",
+        "module_modes": "b7fd9db4a60725d7890a070586d5660b9f40b5c2e6f39d7f05361287ec18dcb5",
+        "mps_rng": "f8670f218fede61a32550ac7a41a2cbcf901907a70aa81afefd07cc96bc8b836",
+        "optimizer": "ddd473d0fe016b5eab579429c09aacb8bd897003e0654d38fe2bf376e740e137",
+        "optimizer_moments": "47c1235384fa550be8a7932488cfd527e8ee9b0dd39141a5eb0cfa2e69393a0d",
+        "optimizer_steps": "f0f22fe564c9f54b20aac56b1c9ecaa689824b0b429d43d46afdc2d16da57fdc",
+        "parameters": "d6a758db02050c9b7e34dec05cad7f79770418da21cb7ed16267bdb8664ab8b3",
+        "python_rng": "953736d2eba0fcdc8c184125e9902987e0bc506c0d3cf145e3c522f0dca991d6"
+      },
+      "mps_rng_applicable": true,
+      "observed": {
+        "buffers": "6ab47d70854a8c690a0c2035be903f3d812cbab06f9e442e9b10ad70b1acd446",
+        "cpu_rng": "4e443d2b455f0d0d7f1ef8959a3bf7d9f5189f723adecdbe4c81fbd06c8ea3d4",
+        "module_modes": "b7fd9db4a60725d7890a070586d5660b9f40b5c2e6f39d7f05361287ec18dcb5",
+        "mps_rng": "f8670f218fede61a32550ac7a41a2cbcf901907a70aa81afefd07cc96bc8b836",
+        "optimizer": "ddd473d0fe016b5eab579429c09aacb8bd897003e0654d38fe2bf376e740e137",
+        "optimizer_moments": "47c1235384fa550be8a7932488cfd527e8ee9b0dd39141a5eb0cfa2e69393a0d",
+        "optimizer_steps": "f0f22fe564c9f54b20aac56b1c9ecaa689824b0b429d43d46afdc2d16da57fdc",
+        "parameters": "d6a758db02050c9b7e34dec05cad7f79770418da21cb7ed16267bdb8664ab8b3",
+        "python_rng": "953736d2eba0fcdc8c184125e9902987e0bc506c0d3cf145e3c522f0dca991d6"
+      }
+    },
+    "format": "replica.intrinsic_memory.paired_update.v18.2",
+    "generated_tokens": 0,
+    "interpretation": "relative improvement may leave both worlds incorrect; no generalization or promotion",
+    "joint_minus_sequential": 1.341036781668663,
+    "objective": "answer_plus_EOS_mean_CE_with_inherited_V16_teacher_KL_moments",
+    "optimizer_steps": {
+      "paired_joint": 4,
+      "sequential": 8
+    },
+    "parameter_updates": 12,
+    "per_world_exposures_per_arm": 1,
+    "relative_conditions_passed": true
+  }
+}

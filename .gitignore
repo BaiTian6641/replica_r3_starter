@@ -102,3 +102,37 @@ Thumbs.db
 
 # E3 fixture host scratch (created by FixtureWorkspace).
 .host_tmp/
+
+# Fresh sealed evaluation labels: public commitments live in reports.
+/data/sealed_spark_eval_v19_20261031/
+/data/dc_p1_native_response_v2_20261027_pre_final_fit/
+
+# Machine-local runtime locks, HF module caches, scratch stores, unpacked snapshots,
+# raw mode-0600 incremental transaction ledgers, and high-frequency telemetry streams
+# (final digests, totals, and capacity summaries are sealed in tracked result/receipt JSONs).
+*.lock
+*.f32
+*.bin
+*.key
+/reports/**/hf_modules/
+/reports/**/modules/
+/reports/**/store/
+/reports/**/stores/
+/reports/**/store0/
+/reports/**/store1/
+/reports/**/source_snapshot/
+/reports/**/work_ledger.jsonl
+/reports/**/ledger.jsonl
+/reports/**/driver_samples.jsonl
+/reports/**/host_samples.jsonl
+/reports/intrinsic_memory_content_key_v16/native_bf16_two_attempt01/
+/reports/intrinsic_memory_density_v12/coordinator14/
+/reports/intrinsic_memory_density_v12/coordinator14_incomplete/
+/reports/intrinsic_memory_reader_query_v15/native_bf16_reader_query_attempt01/
+/reports/intrinsic_memory_reader_query_v15/native_bf16_reader_query_attempt02/
+/reports/intrinsic_memory_review_v12/
+/reports/memory_repair_20261025/full_suite_final_diagnostics.xml
+/reports/vision_learnability_curve_v1_20261026/guard.child.log
+/reports/vision_learnability_curve_v1_20261026_attempt02/
+/reports/vision_learnability_curve_v1_20261026_attempt03/
+/reports/vision_learnability_curve_v1_20261026_attempt04/guard.child.log

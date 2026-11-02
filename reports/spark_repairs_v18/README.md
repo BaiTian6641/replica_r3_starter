@@ -1,0 +1,18 @@
+# Spark repairs and unlaunched V18.2 packet
+
+Current review target: [preparation_attempt04/native_packet.json](preparation_attempt04/native_packet.json) (`05cf86c28a0838e539256da54b3c87b7c43e67fc27b67a52a6cebbc4e4efed72`, snapshot `982a7f9921324b7031e43c24750fb93c98ebf1b7d5ab48ccc213fe1142883130`), which repairs the single-step MPS-to-CPU `float64` reduction defect exposed when [preparation_attempt03/native_packet.json](preparation_attempt03/native_packet.json) (`a798464ab5826b0ff547755bfade6e90fa068b3b5bdb1185d161d4377237a9f9`) executed once in [preparation_attempt03/native_bf16_comparison_attempt01](preparation_attempt03/native_bf16_comparison_attempt01/failure.json). See the [V18.2 paired-update report](../../docs/experiments/20261031_Spark_Paired_Update_V18.md), [correction-generation follow-up](../../docs/experiments/20261031_Spark_Correction_Generation_V18_Review.md), [MPS reduction & V19 CPU verification directory](../spark_mps_reduction_v18/), and [correction-generation evidence directory](../spark_correction_generation_v18/README.md): 334 affected/tiered/V19/persistent-learner tests and 7 admission regressions pass; both CPU validators and qualified-environment review run directly from the 86-file `preparation_attempt04` snapshot. Independent review and native authorization for `preparation_attempt04` remain pending.
+
+Preparation02's completion claim missed the controller passing historical text to real generation. Its lifecycle fixture mocked generation, so canonical-span validation was bypassed in that test. The following preparation02 evidence is retained unchanged as historical scope; it does not validate the repaired controller.
+
+- [Complete repair mapping, commands, budgets, limitations and independent-review checklist](../../docs/experiments/20261031_Spark_Repairs_V18_Review.md).
+- [Research cross-check and one conditional alignment proposal](../../docs/experiments/20261031_Spark_Research_Crosscheck_and_Alignment.md).
+- [Tested source identity](tested_source_snapshot02.json): uncommitted work on `cfe7082c2556c042d25a6388cc1f89ce754ba7f7`; 84 source files, exact snapshot digest bound.
+- [254 affected tests](affected_tests_snapshot02.log) and [7 source-admission tests](closure_regressions.xml) pass; [CPU reproduction and trajectories](cpu_validation_snapshot02/) run directly from the frozen snapshot.
+- [Frozen-runner mechanical review](preparation_attempt02/snapshot_review_command.json) passes. It is not independent review or native training.
+- [V17 qualification](v17_qualification2.json), [V15 reanalysis](v15_analysis_qualification2.json), [engineering exposure](engineering_exposure.json), and [fresh sealed evaluation commitment](sealed_evaluation_public.json).
+
+No native output, attempt marker or authorization was created. Independent review remains pending. Templates under both preparations are deliberately non-passing.
+
+The root-level `native_packet.json`, `source_snapshot/` and their review receipts belong to **invalid preparation01**, retained with [preparation01_failure.json](preparation01_failure.json). Its mechanically matching closure omitted a transitive import. Do not launch or relabel that packet. Earlier CPU test/validation receipts remain preserved; use the preparation03 follow-up for the current repaired state.
+
+The first broad suite exposed a legacy synthetic schema and under-reserved correction-history write; its failed logs remain. A later directory-creation error occurred before preparation02 wrote its snapshot and was repaired. No preparation failure consumed a native attempt. Historical project protocols, results, failures and runtime logs outside this new report tree remain unchanged.

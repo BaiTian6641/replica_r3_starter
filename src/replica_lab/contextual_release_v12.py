@@ -313,6 +313,8 @@ class ProducerReleaseCorpus:
             raise ContextualMemoryError("producer pointer missing")
         _, payload = self._authority(pointer)
         pin = json.loads(payload)
+        if not isinstance(pin, dict) or not isinstance(pin.get("scope"), dict):
+            raise ContextualMemoryError("release pointer and scope must be objects")
         if (pin.get("format") != FORMAT + ".pointer"
                 or MemoryScope(**pin["scope"]).scope_key != self.scope.scope_key):
             raise ContextualMemoryError("release pointer scope/format differs")
@@ -329,13 +331,17 @@ class ProducerReleaseCorpus:
             raise ContextualMemoryError("committed producer authority missing/corrupt")
         if self._manifest_cache is None or self._manifest_cache[0] != identity:
             m = json.loads(payload)
+            if (not isinstance(m, dict) or not isinstance(m.get("scope"), dict)
+                    or not isinstance(m.get("records"), dict)
+                    or any(not isinstance(r, dict) for r in m["records"].values())):
+                raise ContextualMemoryError("release manifest containers invalid")
             if (m.get("format") != FORMAT or m.get("generation") != generation
                     or MemoryScope(**m["scope"]).scope_key != self.scope.scope_key
                     or m.get("representation") != REPRESENTATION
                     or m.get("codec") != CODEC
                     or m.get("record_digest") != digest(m.get("records"))):
                 raise ContextualMemoryError("release manifest identity differs")
-            if any(r["producer_release"] != m["producer_release"] for r in m["records"].values()):
+            if any(r.get("producer_release") != m.get("producer_release") for r in m["records"].values()):
                 raise ContextualMemoryError("mixed producer releases refused")
             self._manifest_cache = (identity, m)
         return pin, self._manifest_cache[1]
@@ -378,6 +384,9 @@ class ProducerReleaseCorpus:
         return span, pin, source
 
     def _validate_source_pin(self, pin):
+        from .contextual_memory import AuthorityRejection
+        if not isinstance(pin, dict):
+            raise ContextualMemoryError("source pin must be an object")
         row = self.store.connection.execute(
             "SELECT r.*,c.current_generation FROM records r JOIN clusters c "
             "ON r.cluster_id=c.cluster_id WHERE r.record_id=?", (pin["record_id"],)).fetchone()
@@ -387,7 +396,7 @@ class ProducerReleaseCorpus:
                 or row["current_generation"] != pin["generation"] or row["observed_at"] > cutoff
                 or (row["valid_from"] is not None and row["valid_from"] > cutoff)
                 or (row["valid_to"] is not None and row["valid_to"] <= cutoff)):
-            raise ContextualMemoryError("corrected/revoked/time/generation source invalidated release")
+            raise AuthorityRejection("stale_snapshot", "corrected/revoked/time/generation source invalidated release")
         return True
 
     def _payload_path(self, manifest, record):
@@ -748,7 +757,9 @@ class ProducerReleaseCorpus:
         for pin in batch.pins:
             if (pin.get("producer_generation") != m["generation"]
                     or pin.get("producer_manifest") != pointer["manifest_sha256"]):
-                raise ContextualMemoryError("producer generation invalidated batch")
+                from .contextual_memory import AuthorityRejection
+                raise AuthorityRejection(
+                    "stale_snapshot", "producer generation invalidated batch")
             self._validate_source_pin(pin)
         return True
 

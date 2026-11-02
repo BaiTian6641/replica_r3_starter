@@ -33,12 +33,13 @@ def test_unknown_false_recall_is_separate_from_completion():
 
 def test_expected_invalidation_is_typed_and_operational_errors_escape():
     def stale():
-        raise ContextualMemoryError("stale source epoch")
+        from replica_lab.contextual_memory import AuthorityRejection
+        raise AuthorityRejection("stale_snapshot", "stale source epoch")
     outcome = expect_invalidation("stale_snapshot", stale)
-    assert outcome.kind == "stale_snapshot" and outcome.error_type == "ContextualMemoryError"
+    assert outcome.kind == "stale_snapshot" and outcome.error_type == "AuthorityRejection"
     with pytest.raises(InvalidationContractError):
         expect_invalidation("stale_snapshot", lambda: None)
-    for error in (BudgetError("cap"), OSError("disk"), RuntimeError("implementation")):
+    for error in (ContextualMemoryError("corrupt payload"), BudgetError("cap"), OSError("disk"), RuntimeError("implementation")):
         def fail(error=error):
             raise error
         with pytest.raises(type(error)):

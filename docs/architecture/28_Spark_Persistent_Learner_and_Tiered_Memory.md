@@ -2,6 +2,14 @@
 
 **Current navigation: [CURRENT_STATUS.md](../../CURRENT_STATUS.md).** The broader-teaching v11 section below is historical; current native status and budgets come from the exact packet.
 
+## Current qualification — 1 November 2026
+
+The [repair report](../experiments/20261031_Spark_Repairs_V18_Review.md) supersedes broad claims that prior verification removed all correctness blockers. V17 used stale producer-dependent slots after updates; its unchanged 7/8 target/partner counts are frozen-slot conditional evidence. V18.2 now has live-slot trajectories, measured complete restoration, absolute correctness and separately charged preflight work. Preparation03 was independently reviewed (scoped engineering), authorized, and executed once in [native_bf16_comparison_attempt01](../../reports/spark_repairs_v18/preparation_attempt03/native_bf16_comparison_attempt01/failure.json), which completed admission, load, initial and final complete-state restoration on MPS, step-0 8-world baseline measurement, and the first backward pass before aborting at `gradient_measurement` (`ValueError: nonfinite gradients`) due to a single-step `.to(device="cpu", dtype=torch.float64)` MPS-to-CPU float64 copy bug in `src/replica_lab/intrinsic_memory_measurement_v18.py`. That defect is now repaired via two-step `.to(device="cpu").to(dtype=torch.float64)` in `src/replica_lab/intrinsic_memory_measurement_v18.py` and `src/replica_lab/intrinsic_memory_probe_v18.py`, verified on MPS and CPU, and sealed in [preparation_attempt04/native_packet.json](../../reports/spark_repairs_v18/preparation_attempt04/native_packet.json) (`05cf86c28a0838e539256da54b3c87b7c43e67fc27b67a52a6cebbc4e4efed72`, snapshot `982a7f9921324b7031e43c24750fb93c98ebf1b7d5ab48ccc213fe1142883130`, `launch_authorized: false`). Preparation02 remains preserved. Its earlier correction-completion claim missed the historical-text/current-span mismatch because lifecycle generation was mocked. The [follow-up](../experiments/20261031_Spark_Correction_Generation_V18_Review.md) binds one current evaluation view to both controls, retains immutable history separately, and exercises real generation/source validation on tiny synthetic fixtures (334 affected/tiered/V19/persistent-learner tests plus 7 admission regressions). This is integration evidence, not native recall capability.
+
+Native development access and engineering exposure differ. The old correction regression parsed the actual development split; its replacement is synthetic, and the old split is retired for fresh generalization claims without rewriting native receipts. The replacement holdout is sealed, disjoint by construction, and not competence-qualified. V15 first-token counts are 16/24 all-known and 9/16 known–known, with 1/8 known–known pairs both correct. Archive preparation is recorded in [preparation_attempt04.json](../../reports/intrinsic_memory_migration_v16/preparation_attempt04.json).
+
+The [primary-source inspection and conditional alignment note](../experiments/20261031_Spark_Research_Crosscheck_and_Alignment.md) distinguishes compression evidence from decoder alignment. It preserves qualified recall → completed-interaction formation → source-free persistent learning → correction/retention/rollback → all-layer/nested-learning evaluation → RSI. Existing CPU mechanisms are not native stage completion; P, multimodal, capacity, density and RSI remain gated.
+
 ## Historical implementation — broader-teaching outcome and evidence gates
 Read the [v11 experiment](../../docs/experiments/20261029_Spark_Memory_Coverage_V11.md),
 [current evidence summary](../../reports/intrinsic_memory_coverage_v11/verification_summary.json) and
@@ -402,7 +410,7 @@ temporary publication overlap and all retained generations; base-model files
 are separate, and still count against volume free space. Allocate lazily and
 retain at least 25 GiB volume free space under this proposed policy.
 
-These ceilings do not authorize 60 GiB of resident memory. Preserve the global
+These are logical admission quotas, not observed placement or permission to allocate extra resident tensors. No current measurement establishes hot/warm/cold physical residency at these sizes. Preserve the global
 50 GiB sampled driver guard, 512 MiB sustained swap-growth limit and 15% minimum
 host-free rule. Measure host capacity before selecting a native profile.
 Shared backing is counted once; separate tensors, staging copies, mmap/page
@@ -531,10 +539,12 @@ examples are not that result. See [Nested Learning / HOPE](https://arxiv.org/abs
 | [uTTT](https://arxiv.org/html/2610.05484v1) | Shared fast state and task gradients through writes; compare equal active work | Shared state automatically gives persistent identity or cross-session retention |
 | [HOPE](https://arxiv.org/abs/2512.24695) | Explicit nested objectives and different update timescales | Multiple storage tiers or timers alone reproduce the method |
 | [MemT](https://arxiv.org/html/2610.26825v2) | Experience encoding and its ingestion cost must be evaluated | Its larger-model results demonstrate autonomous continual learning in this 4B retrofit |
+| [LongMem](https://arxiv.org/html/2306.07174v1) | Cache frozen representations while learning their reader | A trainable compressor can reuse slots unchanged after its update |
+| [ICAE](https://arxiv.org/html/2307.06945v4) | Separate compression pretraining from decoder/instruction alignment | Recoverable information automatically becomes useful decoder behavior |
 | [Engram](https://arxiv.org/abs/2601.07372) | Conditional lookup and predictable prefetch can complement computation | Static trained n-gram tables are already a dynamic episodic memory system |
 | [ReasoningBank](https://arxiv.org/html/2509.25140v1) | Evaluate reusable experience and failure lessons on later tasks | Storing an explanation establishes neural learning or correctness |
 
-This table describes adaptation hypotheses, not reproduced mechanisms.
+This table describes adaptation hypotheses, not reproduced mechanisms. Inspected sections, source-specific limitations and the conditional alignment experiment are recorded in the [31 October cross-check](../experiments/20261031_Spark_Research_Crosscheck_and_Alignment.md).
 MemT's current repository carries a
 [PolyForm Noncommercial license](https://raw.githubusercontent.com/MemTensor/MemT-1.0/main/LICENSE);
 review reuse terms independently before adopting its code or assets. Paper
@@ -626,3 +636,43 @@ derived-BF16 pilot additionally requires its own external authorization before
 the guarded experiment-scope checks. Current generated-answer quality is
 inconclusive; no calibration, promotion or multi-clock/RSI transition follows
 from the CPU result.
+
+## 12. Confirmed 5-Category / 6-Stage Master Architecture & Sleep-Time Consolidation Plan (Post-V18.2 / V19)
+
+Following the completed native BF16 V18.2 `preparation_attempt04` diagnostic (`joint_minus_sequential = +1.341037`, `5/8` complete teacher-forced worlds correct, `1/4` known–known pairs both correct under 4 steps / 1 exposure per world, with absolute `mean_final_pair_minimum_margin = -0.507505`) and the scientific cross-check across `MemT-1.0`, `Titans`, `uTTT`, `HOPE`, `Sleep-time Compute`, and `SEAL`, the Spark X2.6 4B modification program is organized into five orthogonal architectural categories and six gated execution stages:
+
+### 12.1 Five Architectural Categories
+
+1. **Category A — Intrinsic Memory-Layer Backbone (`E2` & `Mkv`)**:
+   - **Immediate Calibration (`V19` at sites `[3, 7]`)**: 128-step paired-joint (`batch_size=2`) `direct CE` versus `top-64 conditioned-teacher KL` alignment on the `4 x 256` ordered contextual slot bottleneck (`ContextualValueProducerV1` + bias-free `SlotMemoryReaderV1` with zero-init output and learned scalar gate) to separate multi-exposure convergence from frozen-decoder interface alignment (`ICAE` / `MemT-1.0`).
+   - **Backbone Site Expansion (`2 -> 9 -> 36`)**: Once 2-site recall alignment passes, expand first from `[3, 7]` to the **9 native full-attention blocks** `[3, 7, 11, 15, 19, 23, 27, 31, 35]`, comparing `independent` versus depth-grouped `matched` canonical readers and `post-block` (`2560 -> 256 -> 2560`) versus `pre-MLP` (`post-attention, pre-pre_feedforward_layernorm`) injection before evaluating all 36 blocks or `MemT-1.0`-style `pre-output` (`4096 -> 2560`) attention-head branch injection.
+2. **Category B — Online Memory Formation & Two-Phase Wake-Sleep Consolidation (`S2a`, `S2b`, Sleep-Time Compute)**:
+   - **Wake Phase (Online Low-Latency Capture)**:
+     - `S2a` (`FormationStore`): Pin immutable `AuthorityPin` (`owner_id`, `scope`, `as_of`, `identity_version`) at decision start; commit verified observations/outcomes to `E`/`E2` at interaction completion while isolating self-generated candidate reasoning in `ProvisionalNote` (`C`) so unverified text never contaminates `E`, `S`, or `I`.
+     - `S2b` (`ChunkSession` Fast Associative `F`): Causal chunk-start/chunk-barrier updates (`chunk_size = 64`) with strict `prefix_token_equality`, upgraded toward `Titans`-style surprise/prediction-error gating, momentum accumulation, and adaptive weight decay/forgetting.
+   - **Sleep Phase (Offline Consolidation Engine)**:
+     - Triggered during idle/sleep windows or scheduled maintenance boundaries (`CA1` eligibility gate + `SleepConsolidator`).
+     - Selects verified episodic additions from `E`/`E2` paired with an age-balanced retention replay buffer (`warm` tier `256 MiB` sub-cap).
+     - Audits conditioned-teacher competence (`exact_text_competence`) and distills verified episodic knowledge into persistent plastic `P` (`Pf -> Ps`) using verified-outcome `CE` and conditioned-teacher forward KL (`KL(q(Y | X, M_ref) || p(Y | X, P))`), while recording explicit `teaching_lineage` and pre-sleep checkpoints for `S4` revocation/rollback.
+3. **Category C — Multi-Timescale Self-Learning & Correction (`S3`, `S4`, `S5`)**:
+   - **Source-Free Plastic `P1` (`S3`)**: Hidden-state-conditioned queries pooled strictly up to causal `anchor_layer` (default block `7`) so `P` runs with `E` absent at inference.
+   - **Chronological Correction, Quarantine & Rollback (`S4`)**: Superseding facts/tombstones invalidate hot/warm/cold caches across `TieredBlobStore`, quarantine dependent `P` experts via `teaching_lineage`, and restore pre-contamination snapshots followed by clean replay.
+   - **Continuum Memory System (`S5`, `HOPE` / `Nested Learning`)**: Multi-frequency `Pf` (fast episode/wake-boundary expert) + `Ps` (slow sleep-consolidated expert) evaluated against a matched single-clock `P` baseline at equal active compute and parameter budget.
+4. **Category D — Semi-Cognition & Metacognitive Control (`CognitiveCore` `C`, `TaskGraph`, `CapabilityModel` `K`)**:
+   - **Phased Co-Integration after Stage 2**: Introduce the lightweight `CognitiveCore` (`8 x 256` working slots, 2 recurrent steps integrating sense, memory, task, and read-only identity), `ExactTaskState` (`TaskGraph` dependency/verification tracking), bounded 2-step counterfactual action simulation, and calibrated `CapabilityModel` heads (`p_success`, `p_correct`).
+   - Governs when the model answers directly, retrieves from warm/cold tiers, abstains on unknown/unverified queries, or schedules a Sleep-Time consolidation pass.
+5. **Category E — Self-Improvement & Bounded RSI (`LearningDirector`, `SEAL` Self-Edits, Gates `C0–C5`)**:
+   - Strictly gated behind Stage 5 native qualification.
+   - `LearningDirector` diagnoses repeated capability deficits from `K` and `C` and proposes bounded self-edits (`record`, `procedure`, or `neural P candidate`) trained in isolated candidate branches and admitted only when independent unseen-task transfer, old-task retention, identity invariance, and resource/compile gates (`C0–C5`) pass.
+
+### 12.2 Six Gated Execution Stages
+
+| Stage | Scope | Primary Mechanism | Native Gate to Advance |
+|---|---|---|---|
+| **Stage 1** | **2-Site Recall & Alignment (`V19`)** | 128-step paired-joint `direct CE` vs `top-64 Teacher-KL` at sites `[3, 7]` | Competent exact-text baseline + `>= 6/8` worlds and `>= 2/4` known–known pairs both correct with positive pair-minimum margins |
+| **Stage 2** | **9-Site Backbone Expansion & Wake-Phase Formation (`S2a` / `S2b` + `TieredBlobStore`)** | Expand readers `[3, 7] -> [3..35]` (`independent` vs `matched`, `post-block` vs `pre-MLP`) + causal `S2a`/`S2b` (`F` + `E2`) | Non-degraded pretrained parity + positive multi-site margin gain + zero `ProvisionalNote` authority leakage + causal chunk-barrier parity |
+| **Stage 3** | **Phased Semi-Cognition Integration (`C` + `K` + `TaskGraph`)** | `CognitiveCore` (`8 x 256`), `CapabilityModel` (`p_success`, `p_correct`), retrieval/abstention/sleep routing | Calibrated abstention on unverified/unknown queries + reduced unnecessary cold-tier fetches at matched accuracy |
+| **Stage 4** | **Two-Phase Wake-Sleep Consolidation & Source-Free `P1` (`S3`)** | Offline `CA1`/Sleep consolidation (`KL(q \|\| p)` / verified `CE` + replay) into `P1` with causal `anchor_layer` query | Source-free `P`-only beats `no_memory` and `untouched_p` on held-out paraphrases while retaining `>= 98%` old-task performance |
+| **Stage 5** | **Correction/Rollback (`S4`) & Multi-Clock `HOPE` (`S5`)** | Lineage quarantine + pre-contamination rollback/replay + two-clock `Pf`/`Ps` vs single-clock control | Old myth emission `<= 5%`, updated fact recall `>= 85%`, and `Pf + Ps` beats matched single-clock `P` on chronological streams |
+| **Stage 6** | **Self-Improvement & Bounded RSI (`LearningDirector` + `SEAL` + `C0–C5`)** | Isolated candidate self-edits + verifier-gated promotion | Candidate policy beats fixed policy on unseen future tasks at matched total cost without identity or retention regression |
+

@@ -65,14 +65,22 @@ def local_closure(root, entries):
             if isinstance(node,ast.Import):
                 candidates.extend('src/'+n.name.replace('.','/') for n in node.names if n.name.startswith('replica_lab'))
             elif isinstance(node,ast.ImportFrom):
+                base_candidate = None
                 if node.level:
                     base=Path(relative).parent
                     for _ in range(node.level-1):base=base.parent
-                    candidates.append(str(base/(node.module or '').replace('.','/')))
+                    base_candidate = str(base/(node.module or '').replace('.','/'))
                 elif node.module and node.module.startswith('replica_lab'):
-                    candidates.append('src/'+node.module.replace('.','/'))
+                    base_candidate = 'src/'+node.module.replace('.','/')
                 elif node.module and (root/'scripts'/(node.module+'.py')).is_file():
-                    candidates.append('scripts/'+node.module)
+                    base_candidate = 'scripts/'+node.module
+                if base_candidate is not None:
+                    candidates.append(base_candidate)
+                    # ``from .. import module`` and ``from package import
+                    # module`` must bind the imported submodule as well as
+                    # __init__.py. Attribute imports simply have no such file.
+                    candidates.extend(base_candidate+'/'+alias.name.replace('.','/')
+                                      for alias in node.names if alias.name != '*')
         for value in candidates:
             for candidate in (value+'.py',value+'/__init__.py'):
                 if candidate==PROTECTED:raise ValueError('protected module dependency refused')

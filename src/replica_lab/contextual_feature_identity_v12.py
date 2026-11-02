@@ -89,6 +89,15 @@ class FeatureIdentityPath(ContextualMemoryPath):
             raise ContextualMemoryError("durable/inference values must be detached")
         if batch.store is not None and len(batch.pins) != len(batch.spans):
             raise ContextualMemoryError("complete durable authority pins required")
+        # Validate supplied bytes before accepting any authority-change reason.
+        # Corruption plus a changed producer must not become a successful
+        # revocation/correction assertion.
+        if batch.store is not None and not batch.training:
+            for index, pin in enumerate(batch.pins):
+                if not isinstance(pin, dict) or "slots_sha256" not in pin:
+                    raise ContextualMemoryError("stored slot payload pin malformed")
+                if tensor_digest(batch.slots[index*SLOTS:(index+1)*SLOTS]) != pin["slots_sha256"]:
+                    raise ContextualMemoryError("stored slot payload digest differs")
         self.encoder.provider.validate_original()
         if not batch.training and batch.producer_version != self.encoder.release():
             raise AuthorityRejection("stale_producer_release", "stale producer release")
@@ -111,10 +120,7 @@ class FeatureIdentityPath(ContextualMemoryPath):
             if (row is None or row["status"] != "current" or row["scope_key"] != scope.scope_key
                     or row["current_generation"] != pin["generation"]
                     or row["revision"] != pin["revision"]
-                    or row["text_sha256"] != pin["text_sha256"]
-                    or (not batch.training
-                        and tensor_digest(batch.slots[index*SLOTS:(index+1)*SLOTS])
-                            != pin["slots_sha256"])):
+                    or row["text_sha256"] != pin["text_sha256"]):
                 self.encoder.provider.evict_record(span.record_id)
                 raise AuthorityRejection("stale_snapshot", "correction/revocation/generation invalidated memory")
         return True

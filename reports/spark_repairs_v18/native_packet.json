@@ -1,0 +1,36 @@
+{
+  "arm": "two",
+  "attempt_marker": "runs/spark_paired_update_v18/attempts.jsonl",
+  "attempts": 1,
+  "authorization_required": "reports/spark_repairs_v18/authorization.json",
+  "authorization_status": "not_created_native_launch_not_authorized",
+  "commands": {
+    "launch_after_separate_review_and_authorization": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_paired_update_v18.py",
+      "--packet",
+      "reports/spark_repairs_v18/native_packet.json",
+      "--authorization",
+      "reports/spark_repairs_v18/authorization.json",
+      "--launch"
+    ],
+    "review": [
+      ".venv-spark-bf16/bin/python",
+      "scripts/run_spark_paired_update_v18.py",
+      "--packet",
+      "reports/spark_repairs_v18/native_packet.json",
+      "--review"
+    ]
+  },
+  "cpu_fallback": false,
+  "experiment_version": 18,
+  "format": "replica.intrinsic_memory.paired_update_launch_packet.v18.2",
+  "native_engine_version": 18,
+  "native_workers": 1,
+  "output_root": "reports/spark_repairs_v18/native_bf16_comparison_attempt01",
+  "protocol": {
+    "path": "configs/spark_paired_update_v18_2.json",
+    "sha256": "7191e955382a94a558663f746051e292450b5a8d623b8e33a2c5bd1c9a6efb5a"
+  },
+  "retries": 0
+}

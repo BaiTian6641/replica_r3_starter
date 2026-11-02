@@ -1,0 +1,4673 @@
+{
+  "optimizer_steps": 8,
+  "restoration": {
+    "equal": {
+      "buffers": true,
+      "cpu_rng": true,
+      "module_modes": true,
+      "mps_rng": true,
+      "optimizer": true,
+      "optimizer_moments": true,
+      "optimizer_steps": true,
+      "parameters": true,
+      "python_rng": true
+    },
+    "expected": {
+      "buffers": "6ab47d70854a8c690a0c2035be903f3d812cbab06f9e442e9b10ad70b1acd446",
+      "cpu_rng": "4e443d2b455f0d0d7f1ef8959a3bf7d9f5189f723adecdbe4c81fbd06c8ea3d4",
+      "module_modes": "b7fd9db4a60725d7890a070586d5660b9f40b5c2e6f39d7f05361287ec18dcb5",
+      "mps_rng": "f8670f218fede61a32550ac7a41a2cbcf901907a70aa81afefd07cc96bc8b836",
+      "optimizer": "ddd473d0fe016b5eab579429c09aacb8bd897003e0654d38fe2bf376e740e137",
+      "optimizer_moments": "47c1235384fa550be8a7932488cfd527e8ee9b0dd39141a5eb0cfa2e69393a0d",
+      "optimizer_steps": "f0f22fe564c9f54b20aac56b1c9ecaa689824b0b429d43d46afdc2d16da57fdc",
+      "parameters": "d6a758db02050c9b7e34dec05cad7f79770418da21cb7ed16267bdb8664ab8b3",
+      "python_rng": "953736d2eba0fcdc8c184125e9902987e0bc506c0d3cf145e3c522f0dca991d6"
+    },
+    "mps_rng_applicable": true,
+    "observed": {
+      "buffers": "6ab47d70854a8c690a0c2035be903f3d812cbab06f9e442e9b10ad70b1acd446",
+      "cpu_rng": "4e443d2b455f0d0d7f1ef8959a3bf7d9f5189f723adecdbe4c81fbd06c8ea3d4",
+      "module_modes": "b7fd9db4a60725d7890a070586d5660b9f40b5c2e6f39d7f05361287ec18dcb5",
+      "mps_rng": "f8670f218fede61a32550ac7a41a2cbcf901907a70aa81afefd07cc96bc8b836",
+      "optimizer": "ddd473d0fe016b5eab579429c09aacb8bd897003e0654d38fe2bf376e740e137",
+      "optimizer_moments": "47c1235384fa550be8a7932488cfd527e8ee9b0dd39141a5eb0cfa2e69393a0d",
+      "optimizer_steps": "f0f22fe564c9f54b20aac56b1c9ecaa689824b0b429d43d46afdc2d16da57fdc",
+      "parameters": "d6a758db02050c9b7e34dec05cad7f79770418da21cb7ed16267bdb8664ab8b3",
+      "python_rng": "953736d2eba0fcdc8c184125e9902987e0bc506c0d3cf145e3c522f0dca991d6"
+    }
+  },
+  "trajectory": [
+    {
+      "step": 0,
+      "worlds": [
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.3592205047607422,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00010823617776622996,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.3593287467956543
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.2478923797607422,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0013706822646781802,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.249263048171997
+          },
+          "margin": {
+            "answer_log_likelihood": -0.888671875,
+            "eos_log_likelihood": -0.0012624460869119503,
+            "total_log_likelihood": -0.8899343013763428
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "6a732e752a7c09b3901d7d436b49a0abbff748814687734ccbe8cc891caec191",
+          "world_id": "v11_fit_00"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.386781930923462,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.001879355520941317,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.38866126537323
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.3086569309234619,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00011383838864276186,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.3087707757949829
+          },
+          "margin": {
+            "answer_log_likelihood": 1.078125,
+            "eos_log_likelihood": 0.0017655171322985552,
+            "total_log_likelihood": 1.079890489578247
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "2ed27bd6f1ee7332f613553e566006a0c316262bc9d74bc76690bd8336403e32",
+          "world_id": "v11_fit_01"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -7.344380855560303,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -9.929640509653836e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -7.344480037689209
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.5338338613510132,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -3.766942609217949e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.5338715314865112
+          },
+          "margin": {
+            "answer_log_likelihood": 5.8105469942092896,
+            "eos_log_likelihood": 6.162697900435887e-05,
+            "total_log_likelihood": 5.810608506202698
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "f43796cb9f77506fc0a30621c05ee02bb6a93a0a4ce11c3becf40390becf94f3",
+          "world_id": "v11_fit_02"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.2444636821746826,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -3.814624506048858e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.2445018291473389
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -5.866061210632324,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00010311071673640981,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -5.866164207458496
+          },
+          "margin": {
+            "answer_log_likelihood": -4.621597528457642,
+            "eos_log_likelihood": -6.496447167592123e-05,
+            "total_log_likelihood": -4.621662378311157
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "69f3c5c9af147bc101a94e3d36bd9afb32c3a611b19fa2c7a8da3c5e5aeced19",
+          "world_id": "v11_fit_03"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -3.445582151412964,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -9.107174992095679e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -3.4456732273101807
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.14870716631412506,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -6.0437283536884934e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.1487676054239273
+          },
+          "margin": {
+            "answer_log_likelihood": 3.296874985098839,
+            "eos_log_likelihood": 3.063446638407186e-05,
+            "total_log_likelihood": 3.2969056218862534
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "a5d484884956dd37efdaac2d468eb297559b1f1648edd1d08311cddf6f9e2a7e",
+          "world_id": "v11_fit_08"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.14982986450195312,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.4834770708112046e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.14988470077514648
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -3.134204864501953,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -7.807903602952138e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -3.1342828273773193
+          },
+          "margin": {
+            "answer_log_likelihood": -2.984375,
+            "eos_log_likelihood": -2.324426532140933e-05,
+            "total_log_likelihood": -2.984398126602173
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "3a94b07335b2ea131c26f950ad68fa82f4a2075f454133bfe4af2589f550aa6a",
+          "world_id": "v11_fit_09"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.9709869623184204,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.446407547220588e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.9710314273834229
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -7.525674343109131,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00012110930401831865,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -7.5257954597473145
+          },
+          "margin": {
+            "answer_log_likelihood": -6.5546873807907104,
+            "eos_log_likelihood": -7.664522854611278e-05,
+            "total_log_likelihood": -6.554764032363892
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "f784cbfab86c654b67c7d50ad163b3f5b0b04300a3c6dcbfd52ca35892e1e436",
+          "world_id": "v11_fit_10"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -9.25305461883545,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0002286172821186483,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -9.253283500671387
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.8897734880447388,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.5549986427649856e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.8898290395736694
+          },
+          "margin": {
+            "answer_log_likelihood": 8.36328113079071,
+            "eos_log_likelihood": 0.00017306729569099844,
+            "total_log_likelihood": 8.363454461097717
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "c8a9d5f6afc80c35a65b3f69d7b8e8be9edb687265486e86c0d0060624b5f093",
+          "world_id": "v11_fit_11"
+        }
+      ]
+    },
+    {
+      "step": 1,
+      "worlds": [
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.45582491159439087,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00013374387344811112,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.45595866441726685
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.045668601989746,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00195609824731946,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.0476247072219849
+          },
+          "margin": {
+            "answer_log_likelihood": -0.5898436903953552,
+            "eos_log_likelihood": -0.0018223543738713488,
+            "total_log_likelihood": -0.591666042804718
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "ba4c00d8029d6c1b1687ed7ad685dcccdfe512a586d3d43ead985af8b4082c32",
+          "world_id": "v11_fit_00"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.139061450958252,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0024040627758949995,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.1414655447006226
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.4085926413536072,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00015078838623594493,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.4087434411048889
+          },
+          "margin": {
+            "answer_log_likelihood": 0.7304688096046448,
+            "eos_log_likelihood": 0.0022532743896590546,
+            "total_log_likelihood": 0.7327221035957336
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "04b45a83d5b3a9c43175e6fed30eed6b8c0bb08d1929e3caf4ff4e908cde6e0f",
+          "world_id": "v11_fit_01"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -7.76095724105835,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0001012035645544529,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -7.761058330535889
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.6642775535583496,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -3.6477376852417365e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.6643140316009521
+          },
+          "margin": {
+            "answer_log_likelihood": 6.0966796875,
+            "eos_log_likelihood": 6.472618770203553e-05,
+            "total_log_likelihood": 6.0967442989349365
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "788c3d40b0f59215bfb60bca2ee19adfc7c63f3510e1f74da1588f14bf06be5d",
+          "world_id": "v11_fit_02"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.410577654838562,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -3.659658250398934e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.410614252090454
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -6.234308242797852,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00010072677832795307,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -6.234408855438232
+          },
+          "margin": {
+            "answer_log_likelihood": -4.8237305879592896,
+            "eos_log_likelihood": -6.413019582396373e-05,
+            "total_log_likelihood": -4.823794603347778
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "4b79eaa1e8bb71056748d58764b6103e4fdaa537e7c6ab19d0aaebe376c759d1",
+          "world_id": "v11_fit_03"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -3.5914065837860107,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0001081169830285944,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -3.5915145874023438
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.18515653908252716,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -7.295342220459133e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.18522949516773224
+          },
+          "margin": {
+            "answer_log_likelihood": 3.4062500447034836,
+            "eos_log_likelihood": 3.516356082400307e-05,
+            "total_log_likelihood": 3.4062850922346115
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "0f076c79c872391efd8a6ff87b962b0a9f4fc06c32053ea2469be37eab0288ea",
+          "world_id": "v11_fit_08"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.1828167885541916,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -6.19869097135961e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.182878777384758
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -3.268754243850708,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -8.356221951544285e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -3.2688376903533936
+          },
+          "margin": {
+            "answer_log_likelihood": -3.0859374552965164,
+            "eos_log_likelihood": -2.1575309801846743e-05,
+            "total_log_likelihood": -3.0859589129686356
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "db69e14022bedb6424d4a15a5d50fe4084ef4fe709e18d0aca0498a6b3084f85",
+          "world_id": "v11_fit_09"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.7474311590194702,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.470248313737102e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.7474758625030518
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -8.188837051391602,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00013839241000823677,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -8.18897533416748
+          },
+          "margin": {
+            "answer_log_likelihood": -7.441405892372131,
+            "eos_log_likelihood": -9.368992687086575e-05,
+            "total_log_likelihood": -7.441499471664429
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "f589fd1e56b17cb5ea65b3f5a14a3b37f0f17772104a2c05eb9cd62bbf073f0b",
+          "world_id": "v11_fit_10"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -9.90027141571045,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00030298411729745567,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -9.900574684143066
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.6737090945243835,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.8410845667822286e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.6737675070762634
+          },
+          "margin": {
+            "answer_log_likelihood": 9.226562321186066,
+            "eos_log_likelihood": 0.0002445732716296334,
+            "total_log_likelihood": 9.226807177066803
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "4acfac0f2f4ca9eeeb4d923ecb27c4ac40947ea9f648ba9c944e78e43d62823e",
+          "world_id": "v11_fit_11"
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "worlds": [
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.5413215160369873,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0001805857609724626,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.5415021181106567
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.9085090160369873,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.003249604720622301,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.9117586016654968
+          },
+          "margin": {
+            "answer_log_likelihood": -0.3671875,
+            "eos_log_likelihood": -0.0030690189596498385,
+            "total_log_likelihood": -0.3702564835548401
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "4928d94e239d1221b793fed6e1db898f01a8bc3533523a66be679a446ef06b32",
+          "world_id": "v11_fit_00"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.0544371604919434,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.004375764634460211,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.0588129758834839
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.45287472009658813,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00022027450904715806,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.4530949890613556
+          },
+          "margin": {
+            "answer_log_likelihood": 0.6015624403953552,
+            "eos_log_likelihood": 0.004155490125413053,
+            "total_log_likelihood": 0.6057179868221283
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "741ba195f641d6c3fe3eabdd1fa917eb70578a3abb3e3e94b7c6845932de3e86",
+          "world_id": "v11_fit_01"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -8.188880920410156,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00010215714428341016,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -8.188982963562012
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.866614818572998,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -3.683499380713329e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.8666516542434692
+          },
+          "margin": {
+            "answer_log_likelihood": 6.322266101837158,
+            "eos_log_likelihood": 6.532215047627687e-05,
+            "total_log_likelihood": 6.3223313093185425
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "c2e3347d54608cc2d8ed06bdb2b15c3bc7ca6649fa886c551cbc54e8dd9cb086",
+          "world_id": "v11_fit_02"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.588781714439392,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -3.58813522325363e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.5888175964355469
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -6.743078708648682,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -9.893881360767409e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -6.74317741394043
+          },
+          "margin": {
+            "answer_log_likelihood": -5.1542969942092896,
+            "eos_log_likelihood": -6.305746137513779e-05,
+            "total_log_likelihood": -5.154359817504883
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "4125ab09964feff171b5362c9609a4ee57a31ff8bf43e90c22b6a253e837acd4",
+          "world_id": "v11_fit_03"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -3.686187744140625,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00013028726971242577,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -3.6863179206848145
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.2174377739429474,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -7.92710343375802e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.21751704812049866
+          },
+          "margin": {
+            "answer_log_likelihood": 3.4687499701976776,
+            "eos_log_likelihood": 5.1016235374845564e-05,
+            "total_log_likelihood": 3.468800872564316
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "c629948216dc2e705de9c602038a430adfd10c5c28241d39dc3f56cd6e77ebbf",
+          "world_id": "v11_fit_08"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.20956695079803467,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -6.329813186312094e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.20963025093078613
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -3.397067070007324,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -9.500529267825186e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -3.3971619606018066
+          },
+          "margin": {
+            "answer_log_likelihood": -3.1875001192092896,
+            "eos_log_likelihood": -3.170716081513092e-05,
+            "total_log_likelihood": -3.1875317096710205
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "b087e46f7c124e5ba4fda8c871ef0944f9d9fe9aac3d69c0c061036de85c036a",
+          "world_id": "v11_fit_09"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.5987865328788757,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.625213477993384e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.5988327860832214
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -8.848786354064941,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0001699779968475923,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -8.848956108093262
+          },
+          "margin": {
+            "answer_log_likelihood": -8.249999821186066,
+            "eos_log_likelihood": -0.00012372586206765845,
+            "total_log_likelihood": -8.25012332201004
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "4884e3730d5e518286b0b9fc6d20fa3dd2b8eaa45d1be66944b72b6a1307e28c",
+          "world_id": "v11_fit_10"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -10.438053131103516,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0004627825692296028,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -10.438515663146973
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.5552405118942261,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -7.021180499577895e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.5553107261657715
+          },
+          "margin": {
+            "answer_log_likelihood": 9.88281261920929,
+            "eos_log_likelihood": 0.00039257076423382387,
+            "total_log_likelihood": 9.883204936981201
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "4c37c6f341e6965b20a581fdc4b2fe877ddb22d7e065918ccb923fdf294af474",
+          "world_id": "v11_fit_11"
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "worlds": [
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.6760336756706238,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -6.663577369181439e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.6761003136634827
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.7502524256706238,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0002882065309677273,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.7505406141281128
+          },
+          "margin": {
+            "answer_log_likelihood": -0.07421875,
+            "eos_log_likelihood": -0.0002215707572759129,
+            "total_log_likelihood": -0.07444030046463013
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "c3b8c1610429703af939ac0c2a7cb2c00128dbb16bf0b48817eaa6262a25a182",
+          "world_id": "v11_fit_00"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.8598946332931519,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00037079135654494166,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.8602654337882996
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.5864571332931519,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -6.913899414939806e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.5865262746810913
+          },
+          "margin": {
+            "answer_log_likelihood": 0.2734375,
+            "eos_log_likelihood": 0.0003016523623955436,
+            "total_log_likelihood": 0.27373915910720825
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "3858485eb3c6d4e6811157484307428c85e95b3f82bc3448d8d7af137886230a",
+          "world_id": "v11_fit_01"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -4.4272308349609375,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00011562632425921038,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -4.427346229553223
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.9067230224609375,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.23184028477408e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.906765341758728
+          },
+          "margin": {
+            "answer_log_likelihood": 3.5205078125,
+            "eos_log_likelihood": 7.330792141146958e-05,
+            "total_log_likelihood": 3.5205808877944946
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "bad6620b9778da2d55be7872867d76a6844ec51c0bfb01779376cd737f0dfa22",
+          "world_id": "v11_fit_02"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.7846893668174744,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.2199197196168825e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.7847315669059753
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -3.123556613922119,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00014208737411536276,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -3.1236987113952637
+          },
+          "margin": {
+            "answer_log_likelihood": -2.3388672471046448,
+            "eos_log_likelihood": -9.988817691919394e-05,
+            "total_log_likelihood": -2.3389671444892883
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "72cd0dcd815b28999c5dc2b38ec9938aff953af3674650ec88c88355c8be6dd2",
+          "world_id": "v11_fit_03"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -3.1224591732025146,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.4596363042946905e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -3.122513771057129
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.26308417320251465,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.1020273531321436e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.2631351947784424
+          },
+          "margin": {
+            "answer_log_likelihood": 2.859375,
+            "eos_log_likelihood": 3.5760895116254687e-06,
+            "total_log_likelihood": 2.8593785762786865
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "1c23932051ea67e3bf5d7e0d7c8dcb38f51250bdbb6b4731abed5e79b948a541",
+          "world_id": "v11_fit_08"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.27449092268943787,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.994744449504651e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.27454087138175964
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -2.7041783332824707,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.3165931603871286e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -2.7042315006256104
+          },
+          "margin": {
+            "answer_log_likelihood": -2.429687410593033,
+            "eos_log_likelihood": -3.2184871088247746e-06,
+            "total_log_likelihood": -2.4296906292438507
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "773213ac1def1a8cd070c717a8186f34880c3f18e1232b0973e89090c5700b76",
+          "world_id": "v11_fit_09"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.336050808429718,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.088794958079234e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.33609169721603394
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -5.539175987243652,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00012694983161054552,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -5.539302825927734
+          },
+          "margin": {
+            "answer_log_likelihood": -5.203125178813934,
+            "eos_log_likelihood": -8.606188202975318e-05,
+            "total_log_likelihood": -5.2032111287117
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "d192f63d04e5040d3797314f784b543e027836bae56b6eb775e92d1d30012b8f",
+          "world_id": "v11_fit_10"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -7.542827129364014,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00017093151109293103,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -7.54299783706665
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.32407721877098083,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.470248313737102e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.3241219222545624
+          },
+          "margin": {
+            "answer_log_likelihood": 7.218749910593033,
+            "eos_log_likelihood": 0.00012622902795556001,
+            "total_log_likelihood": 7.218875914812088
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "d1407b6a2a366caba1f45814e2e5a19555cf61ffa804149dd41c74c72a519cbd",
+          "world_id": "v11_fit_11"
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "worlds": [
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.841442883014679,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.495397272170521e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.8414978384971619
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.614880383014679,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -7.021180499577895e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.6149505972862244
+          },
+          "margin": {
+            "answer_log_likelihood": 0.2265625,
+            "eos_log_likelihood": -1.5257832274073735e-05,
+            "total_log_likelihood": 0.2265472412109375
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "141415cb59385f2dc4f652686ec4781eeaf990a8fde63efe915b1c84e522249f",
+          "world_id": "v11_fit_00"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.7455728650093079,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -7.283422019099817e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.7456457018852234
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.7026041150093079,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.245071224635467e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.7026565670967102
+          },
+          "margin": {
+            "answer_log_likelihood": 0.04296875,
+            "eos_log_likelihood": 2.0383507944643497e-05,
+            "total_log_likelihood": 0.042989134788513184
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "01d9a7867129d5e50807fe6092bbeae0fd045b26709724b3c1e3f313479db1cf",
+          "world_id": "v11_fit_01"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.9416122436523438,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0002806984703056514,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.9418929815292358
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.40254977345466614,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -6.365573790390044e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.40261343121528625
+          },
+          "margin": {
+            "answer_log_likelihood": 1.5390624701976776,
+            "eos_log_likelihood": 0.00021704273240175098,
+            "total_log_likelihood": 1.5392795503139496
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "14a262e8952ef3c6de0ab95db078b7ceb200e8bcdb9f6d44d690223008fdfc8b",
+          "world_id": "v11_fit_02"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.6219297051429749,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -7.152301259338856e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.6220012307167053
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.24107027053833,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00045170116936787963,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.241521954536438
+          },
+          "margin": {
+            "answer_log_likelihood": -0.6191405653953552,
+            "eos_log_likelihood": -0.00038017815677449107,
+            "total_log_likelihood": -0.6195207238197327
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "f97bcbe15a3753ffc1c0ffc14874270a6def305fca424fc090fcd1b49f71cd01",
+          "world_id": "v11_fit_03"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.8969993591308594,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.494089080253616e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.89704430103302
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.4028586745262146,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.339123915997334e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.4029020667076111
+          },
+          "margin": {
+            "answer_log_likelihood": 1.4941406846046448,
+            "eos_log_likelihood": 1.5496516425628215e-06,
+            "total_log_likelihood": 1.494142234325409
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "fc09038c4348cb199f839c7a89b0838864727501f5d2951b95a7e8ec839e8622",
+          "world_id": "v11_fit_08"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.4639280438423157,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.327203714638017e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.4639713168144226
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.512756109237671,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.4225667807040736e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.5128003358840942
+          },
+          "margin": {
+            "answer_log_likelihood": -1.0488280653953552,
+            "eos_log_likelihood": -9.536306606605649e-07,
+            "total_log_likelihood": -1.0488290190696716
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "c5a1d8e13b37533a6c1267cad5f8359f2b4410e5f98c06b45716d0557142a82d",
+          "world_id": "v11_fit_09"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.25295695662498474,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.649054244509898e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.25300344824790955
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -2.4951443672180176,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00015364897262770683,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -2.495297908782959
+          },
+          "margin": {
+            "answer_log_likelihood": -2.242187410593033,
+            "eos_log_likelihood": -0.00010715843018260784,
+            "total_log_likelihood": -2.2422944605350494
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "645a91fe142579846f6685c0853411d2d8c72b13ab69d8dae58fe7132e40dc5c",
+          "world_id": "v11_fit_10"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -4.245358467102051,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00014053787162993103,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -4.245499134063721
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.17504608631134033,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.446407547220588e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.17509055137634277
+          },
+          "margin": {
+            "answer_log_likelihood": 4.0703123807907104,
+            "eos_log_likelihood": 9.607379615772516e-05,
+            "total_log_likelihood": 4.070408582687378
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "e461881313b0b40b720b3f02adee7fd9abeabab35bdddf25c2600d0a9df6ab58",
+          "world_id": "v11_fit_11"
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "worlds": [
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.0258996486663818,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.304672595229931e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.025952696800232
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.5180871486663818,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.4238757002167404e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.5181413888931274
+          },
+          "margin": {
+            "answer_log_likelihood": 0.5078125,
+            "eos_log_likelihood": -1.192031049868092e-06,
+            "total_log_likelihood": 0.5078113079071045
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "87eed0c9db1d5c723cca29be5070e6e6c6d3daeae919a9a9a221abb3a0aa7668",
+          "world_id": "v11_fit_00"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.6697494387626648,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.435795901576057e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.6698037981987
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.8181869387626648,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.07818695041351e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.8182377219200134
+          },
+          "margin": {
+            "answer_log_likelihood": -0.1484375,
+            "eos_log_likelihood": 3.5760895116254687e-06,
+            "total_log_likelihood": -0.14843392372131348
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "a711a23a00bd3e2ddbf6050f8227447335988e5644878c51aead33d2e0e50e72",
+          "world_id": "v11_fit_01"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.0151041746139526,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0008195855189114809,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.0159237384796143
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.6532877683639526,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00010692501382436603,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.6533946990966797
+          },
+          "margin": {
+            "answer_log_likelihood": 0.36181640625,
+            "eos_log_likelihood": 0.0007126605050871149,
+            "total_log_likelihood": 0.36252903938293457
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "726f441024461df39730de671b4e4335e011af3c63362ef00c376e781ce713c1",
+          "world_id": "v11_fit_02"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.0685240030288696,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00013553177996072918,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.0686595439910889
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.6382261514663696,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0012981806648895144,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.6395243406295776
+          },
+          "margin": {
+            "answer_log_likelihood": 0.4302978515625,
+            "eos_log_likelihood": -0.0011626488849287853,
+            "total_log_likelihood": 0.42913520336151123
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "46210a51b193906216b881de2b986af49dea3a2279dba231ebc976b65cc06628",
+          "world_id": "v11_fit_03"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.0326759815216064,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.7205765440594405e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.0327231884002686
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.7250587940216064,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.756337511935271e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.7251063585281372
+          },
+          "margin": {
+            "answer_log_likelihood": 0.3076171875,
+            "eos_log_likelihood": -3.576096787583083e-07,
+            "total_log_likelihood": 0.30761682987213135
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              29397,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "8f92cd131c25b534000c48b8b1ec3ede200920fd08c258bcc0722e92b57680cc",
+          "world_id": "v11_fit_08"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.9554750323295593,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.756337511935271e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.9555225968360901
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.7142640948295593,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -4.935142715112306e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.7143134474754333
+          },
+          "margin": {
+            "answer_log_likelihood": 0.2412109375,
+            "eos_log_likelihood": -1.7880520317703485e-06,
+            "total_log_likelihood": 0.24120914936065674
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "f99962e3d313c2410f2f21d48110d91dace24787c7ceb94a85f3cfb0ae5c534a",
+          "world_id": "v11_fit_09"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.5404965877532959,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -7.056941103655845e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.54056715965271
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.175262212753296,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0002849888114724308,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.1755472421646118
+          },
+          "margin": {
+            "answer_log_likelihood": -0.634765625,
+            "eos_log_likelihood": -0.00021441940043587238,
+            "total_log_likelihood": -0.6349800825119019
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "e33afbed6fb4151e711c93713b66c76b4fae76400a5f2b447fcff43674f44c03",
+          "world_id": "v11_fit_10"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -2.291597604751587,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00018320789968129247,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -2.291780710220337
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.2173788845539093,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.94836674281396e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.21743836998939514
+          },
+          "margin": {
+            "answer_log_likelihood": 2.0742187201976776,
+            "eos_log_likelihood": 0.00012372423225315288,
+            "total_log_likelihood": 2.0743423402309418
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "8b3bba61ec3d0c4f070ed3c19ff4a7c9bce45b0e2756d1afe7cd9412e44b695f",
+          "world_id": "v11_fit_11"
+        }
+      ]
+    },
+    {
+      "step": 6,
+      "worlds": [
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.3820337057113647,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -6.496695277746767e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.38209867477417
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.42597898840904236,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.8053239627042785e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.4260370433330536
+          },
+          "margin": {
+            "answer_log_likelihood": 0.9560547173023224,
+            "eos_log_likelihood": 6.913713150424883e-06,
+            "total_log_likelihood": 0.9560616314411163
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "135f27af8779b54c4264a64ee242182d9de51714877cb61e64b9083a35ae1c06",
+          "world_id": "v11_fit_00"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.5875290036201477,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.411955135059543e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.5875831246376038
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.095341444015503,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.8887653722194955e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.095400333404541
+          },
+          "margin": {
+            "answer_log_likelihood": -0.5078124403953552,
+            "eos_log_likelihood": -4.768102371599525e-06,
+            "total_log_likelihood": -0.5078172087669373
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "b7ba941a0902565f8fe5b5e9ba7873c4e6bc91be390e0f90b28cc754f2dc8028",
+          "world_id": "v11_fit_01"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.6913225650787354,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0023725475184619427,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.6936951279640198
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.9852678775787354,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00022420754248742014,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.9854921102523804
+          },
+          "margin": {
+            "answer_log_likelihood": -0.2939453125,
+            "eos_log_likelihood": 0.0021483399759745225,
+            "total_log_likelihood": -0.2917969822883606
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "1f13525541fd694c6cf7c7d6b2bb1242ee2f6f338d9cac867f6a74ba607cc024",
+          "world_id": "v11_fit_02"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.5133113861083984,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0003067976504098624,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.5136182308197021
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.45776933431625366,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.003299627685919404,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.4610689580440521
+          },
+          "margin": {
+            "answer_log_likelihood": 1.0555420517921448,
+            "eos_log_likelihood": -0.0029928300355095416,
+            "total_log_likelihood": 1.05254927277565
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "33dd9c621420389cebe22a28a6024fe48420584a44dd88d75d5e70e892d900fe",
+          "world_id": "v11_fit_03"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.3247755467891693,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.8410845667822286e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.3248339593410492
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.7661818265914917,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -5.8887653722194955e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.7662407159805298
+          },
+          "margin": {
+            "answer_log_likelihood": -1.4414062798023224,
+            "eos_log_likelihood": -4.7680805437266827e-07,
+            "total_log_likelihood": -1.4414067566394806
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "ab9929f9ea5bcdddf5a9591349da543f84569db156dd786527a022e360cc45f5",
+          "world_id": "v11_fit_08"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -2.2078983783721924,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -6.425174069590867e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -2.2079625129699707
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.21180468797683716,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -6.246371776796877e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.21186715364456177
+          },
+          "margin": {
+            "answer_log_likelihood": 1.9960936903953552,
+            "eos_log_likelihood": 1.7880229279398918e-06,
+            "total_log_likelihood": 1.996095359325409
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "49b87841935fd8f3810bbae52bc7654a0bc38f64cde5e09d86e3c6c00d015bfd",
+          "world_id": "v11_fit_09"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.1153619289398193,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0001408954558428377,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.1155028343200684
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.5762994885444641,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0007487116381525993,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.5770481824874878
+          },
+          "margin": {
+            "answer_log_likelihood": 0.5390624403953552,
+            "eos_log_likelihood": -0.0006078161823097616,
+            "total_log_likelihood": 0.5384546518325806
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "12750e1e1f49dd202d27eec1b7dbf443336c48f492caf40819fafd03c7d26531",
+          "world_id": "v11_fit_10"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.1206841468811035,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.000341476290486753,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.1210256814956665
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.5484185218811035,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -9.107174992095679e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.5485095977783203
+          },
+          "margin": {
+            "answer_log_likelihood": 0.572265625,
+            "eos_log_likelihood": 0.0002504045405657962,
+            "total_log_likelihood": 0.5725160837173462
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "8cb07f1e4467553dfe514970cfeb9284e6c54b3cccf2b58fa9f153de60665e23",
+          "world_id": "v11_fit_11"
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "worlds": [
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.9816453456878662,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -7.986703712958843e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.9817252159118652
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.3800828158855438,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -6.472854875028133e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.3801475465297699
+          },
+          "margin": {
+            "answer_log_likelihood": 1.6015625298023224,
+            "eos_log_likelihood": 1.5138488379307091e-05,
+            "total_log_likelihood": 1.6015776693820953
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "4e486e9712ad95f86414efc05848ff0b12eb20a424ffd63fc2c7631bb3884319",
+          "world_id": "v11_fit_00"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.5128629207611084,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -6.222531374078244e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.5129251480102539
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.6144254207611084,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -7.414542778860778e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.614499568939209
+          },
+          "margin": {
+            "answer_log_likelihood": -1.1015625,
+            "eos_log_likelihood": -1.1920114047825336e-05,
+            "total_log_likelihood": -1.101574420928955
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "c5a4b5f6e527eea8e2c0e6e2ca4a2ddb988dc39517845b98a6ec60fa6e3b63e8",
+          "world_id": "v11_fit_01"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.5534725785255432,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.004587245639413595,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.558059811592102
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.2702693939208984,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0004408579843584448,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.2707102298736572
+          },
+          "margin": {
+            "answer_log_likelihood": -0.7167968153953552,
+            "eos_log_likelihood": 0.00414638765505515,
+            "total_log_likelihood": -0.7126504182815552
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "d89c5eeff2f37c3bd1bff0bfa4569b17767b5137898e06039994601541234885",
+          "world_id": "v11_fit_02"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.7720637321472168,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0005800233921036124,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.772643804550171
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.3931574523448944,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.007316343020647764,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.40047380328178406
+          },
+          "margin": {
+            "answer_log_likelihood": 1.3789062798023224,
+            "eos_log_likelihood": -0.006736319628544152,
+            "total_log_likelihood": 1.3721700012683868
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "caf69790ff52db50f04d3b5ef1b2112608178913eeeec21df05b81e6814b3def",
+          "world_id": "v11_fit_03"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.15940427780151367,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -8.260862523457035e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.15948688983917236
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -2.9914355278015137,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -8.582700684200972e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -2.9915213584899902
+          },
+          "margin": {
+            "answer_log_likelihood": -2.83203125,
+            "eos_log_likelihood": -3.218381607439369e-06,
+            "total_log_likelihood": -2.832034468650818
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "be32e6366f77ccacf65d9060e909220f0ee570166f89f23cd136ad6e287dad1d",
+          "world_id": "v11_fit_08"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -3.505930185317993,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -9.274052717955783e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -3.5060229301452637
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.12702400982379913,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -9.142934868577868e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.12711544334888458
+          },
+          "margin": {
+            "answer_log_likelihood": 3.378906175494194,
+            "eos_log_likelihood": 1.3111784937791526e-06,
+            "total_log_likelihood": 3.378907486796379
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "16f799f7a93a46dd0de85e0e6665481b91d2db9115f23766158d488a1158e190",
+          "world_id": "v11_fit_09"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.3722280263900757,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0002728328399825841,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.3725008964538574
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.4405873715877533,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00135318236425519,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.4419405460357666
+          },
+          "margin": {
+            "answer_log_likelihood": 0.9316406548023224,
+            "eos_log_likelihood": -0.0010803495242726058,
+            "total_log_likelihood": 0.9305603504180908
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "7d7defc3cd351551d068b964eb9af7d859c37672602425315c8cd826a563895c",
+          "world_id": "v11_fit_10"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.7971387505531311,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0006392342620529234,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.7977780103683472
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.7893262505531311,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00015925093612167984,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.789485514163971
+          },
+          "margin": {
+            "answer_log_likelihood": 0.0078125,
+            "eos_log_likelihood": 0.0004799833259312436,
+            "total_log_likelihood": 0.00829249620437622
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "e459bdd054ea5413a1d4f30a7b192079b605b75c0412a7d53fc5e9f66fbac7de",
+          "world_id": "v11_fit_11"
+        }
+      ]
+    },
+    {
+      "step": 8,
+      "worlds": [
+        {
+          "alternative": {
+            "answer_log_likelihood": -2.8562979698181152,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00010871296399272978,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -2.8564066886901855
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.5086416006088257,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -8.77341881277971e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.5087293386459351
+          },
+          "margin": {
+            "answer_log_likelihood": 2.3476563692092896,
+            "eos_log_likelihood": 2.0978775864932686e-05,
+            "total_log_likelihood": 2.3476773500442505
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "61a2c51bbdf73e7d425d7a1d96af9b4927df19f1da3e88e90972fe16092a1909",
+          "world_id": "v11_fit_00"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.6430945992469788,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -7.843663479434326e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.6431730389595032
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -2.394071102142334,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -9.893881360767409e-05,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -2.394170045852661
+          },
+          "margin": {
+            "answer_log_likelihood": -1.7509765028953552,
+            "eos_log_likelihood": -2.050217881333083e-05,
+            "total_log_likelihood": -1.750997006893158
+          },
+          "pair_index": 0,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              1468,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "2b3a431ce8d5bb63a8e3a4f65898a514a80f0e2256c57c339a8d8fdd8d15d223",
+          "world_id": "v11_fit_01"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.46632644534111023,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.009274376556277275,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.47560080885887146
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.4702327251434326,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0009010545909404755,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.471133828163147
+          },
+          "margin": {
+            "answer_log_likelihood": -1.0039062798023224,
+            "eos_log_likelihood": 0.0083733219653368,
+            "total_log_likelihood": -0.9955330193042755
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "b987ff22d530ab13b18b09bc90e214e73176d0891811b38fadb1fbf6bc3db646",
+          "world_id": "v11_fit_02"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -2.0200412273406982,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.001259010867215693,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -2.0213003158569336
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.33058804273605347,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.013919656164944172,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.34450769424438477
+          },
+          "margin": {
+            "answer_log_likelihood": 1.6894531846046448,
+            "eos_log_likelihood": -0.012660645297728479,
+            "total_log_likelihood": 1.6767926216125488
+          },
+          "pair_index": 1,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "3e3ea275556e7319cef68d2eb6ca47e85489268708366e3d951b030588ca390c",
+          "world_id": "v11_fit_03"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.14437100291252136,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00011550712952157483,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.14448651671409607
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -4.284996032714844,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00012766500003635883,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -4.285123825073242
+          },
+          "margin": {
+            "answer_log_likelihood": -4.140625029802322,
+            "eos_log_likelihood": -1.2157870514784008e-05,
+            "total_log_likelihood": -4.140637308359146
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "ad7880dfb5ba3c3c704e238fecf96019f585877cc17200bc31c1007b600ba9c4",
+          "world_id": "v11_fit_08"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -4.838113784790039,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00014232576359063387,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -4.838255882263184
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              29397,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.13889484107494354,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.00013636612857226282,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.13903120160102844
+          },
+          "margin": {
+            "answer_log_likelihood": 4.6992189437150955,
+            "eos_log_likelihood": 5.959635018371046e-06,
+            "total_log_likelihood": 4.699224680662155
+          },
+          "pair_index": 4,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              39219,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              39219,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "1a1c7b130235655778c9f5e709b582a1528e018c64245b33b527ae0543cef462",
+          "world_id": "v11_fit_09"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -1.7077956199645996,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0005146132898516953,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.7083102464675903
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -0.31717056035995483,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0024612629786133766,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.31963181495666504
+          },
+          "margin": {
+            "answer_log_likelihood": 1.3906250596046448,
+            "eos_log_likelihood": -0.0019466496887616813,
+            "total_log_likelihood": 1.3886784315109253
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "6b8065b95df6e67bbcdea6ddfe0884830270d4f4e633c0cff1ec02aa8bf53316",
+          "world_id": "v11_fit_10"
+        },
+        {
+          "alternative": {
+            "answer_log_likelihood": -0.5592454075813293,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0011087467428296804,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -0.5603541731834412
+          },
+          "alternative_prediction": {
+            "answer_tokens_all_correct": true,
+            "complete_teacher_forced_correct": true,
+            "eos_correct": true,
+            "expected_token_ids": [
+              117243,
+              1
+            ],
+            "first_token_correct": true,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "expected": {
+            "answer_log_likelihood": -1.0670578479766846,
+            "answer_tokens": 1,
+            "eos_log_likelihood": -0.0002960720448754728,
+            "supervised_tokens": 2,
+            "total_log_likelihood": -1.0673539638519287
+          },
+          "margin": {
+            "answer_log_likelihood": -0.5078124403953552,
+            "eos_log_likelihood": 0.0008126746979542077,
+            "total_log_likelihood": -0.5069997906684875
+          },
+          "pair_index": 5,
+          "prediction": {
+            "answer_tokens_all_correct": false,
+            "complete_teacher_forced_correct": false,
+            "eos_correct": true,
+            "expected_token_ids": [
+              1468,
+              1
+            ],
+            "first_token_correct": false,
+            "free_generation_measured": false,
+            "predicted_token_ids": [
+              117243,
+              1
+            ],
+            "scope": "full_vocabulary_argmax_under_candidate_teacher_forcing"
+          },
+          "slot_digest": "600a31939255fa8c7c84525b594f3089973e548cc003c40634695544cedda04b",
+          "world_id": "v11_fit_11"
+        }
+      ]
+    }
+  ],
+  "updates": [
+    {
+      "actual_adamw_displacement": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.00048463105089947963,
+          "max_abs": 6.626173853874207e-05,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 0.017829057801986396,
+          "max_abs": 0.0001617632806301117,
+          "nonzero": 1263712,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 0.011519333854061628,
+          "max_abs": 9.067356586456299e-05,
+          "nonzero": 2895461,
+          "tensor_count": 22
+        }
+      },
+      "loss_coefficients": [
+        1.0
+      ],
+      "optimized_loss": 0.6336557865142822,
+      "pair_index": 0,
+      "per_module_gradients": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.10078775369488244,
+          "max_abs": 0.013632098212838173,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 4.596151002917875,
+          "max_abs": 0.33456653356552124,
+          "nonzero": 1259505,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 23.33731365457903,
+          "max_abs": 0.3652481436729431,
+          "nonzero": 2895874,
+          "tensor_count": 22
+        }
+      },
+      "per_world_mean_CE": [
+        0.6336557865142822
+      ],
+      "step": 1,
+      "supervised_tokens": [
+        2
+      ],
+      "world_ids": [
+        "v11_fit_00"
+      ]
+    },
+    {
+      "actual_adamw_displacement": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.0004303516905995053,
+          "max_abs": 5.970895290374756e-05,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 0.015799335767468822,
+          "max_abs": 0.00014416128396987915,
+          "nonzero": 1263704,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 0.009782570277912763,
+          "max_abs": 8.054450154304504e-05,
+          "nonzero": 2895386,
+          "tensor_count": 22
+        }
+      },
+      "loss_coefficients": [
+        1.0
+      ],
+      "optimized_loss": 0.20070911943912506,
+      "pair_index": 0,
+      "per_module_gradients": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.0421301338832,
+          "max_abs": 0.0058547514490783215,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 1.8642538411090055,
+          "max_abs": 0.13178254663944244,
+          "nonzero": 1259504,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 10.13778132426562,
+          "max_abs": 0.1531214714050293,
+          "nonzero": 2895874,
+          "tensor_count": 22
+        }
+      },
+      "per_world_mean_CE": [
+        0.20070911943912506
+      ],
+      "step": 2,
+      "supervised_tokens": [
+        2
+      ],
+      "world_ids": [
+        "v11_fit_01"
+      ]
+    },
+    {
+      "actual_adamw_displacement": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.0011766797081490697,
+          "max_abs": 0.00014511309564113617,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 0.027282008563598893,
+          "max_abs": 0.00020297663286328316,
+          "nonzero": 1263769,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 0.02090981015454029,
+          "max_abs": 0.0001429915428161621,
+          "nonzero": 2895365,
+          "tensor_count": 22
+        }
+      },
+      "loss_coefficients": [
+        1.0
+      ],
+      "optimized_loss": 3.36134934425354,
+      "pair_index": 1,
+      "per_module_gradients": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 1.097504290912442,
+          "max_abs": 0.21214459836483002,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 42.91077604334794,
+          "max_abs": 2.5824499130249023,
+          "nonzero": 1259251,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 116.968197832998,
+          "max_abs": 1.9688080549240112,
+          "nonzero": 2895874,
+          "tensor_count": 22
+        }
+      },
+      "per_world_mean_CE": [
+        3.36134934425354
+      ],
+      "step": 3,
+      "supervised_tokens": [
+        2
+      ],
+      "world_ids": [
+        "v11_fit_03"
+      ]
+    },
+    {
+      "actual_adamw_displacement": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.0013040817177079314,
+          "max_abs": 0.0001553259789943695,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 0.030565794576630587,
+          "max_abs": 0.00022861221805214882,
+          "nonzero": 1263771,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 0.02335363428095555,
+          "max_abs": 0.0001856200397014618,
+          "nonzero": 2895225,
+          "tensor_count": 22
+        }
+      },
+      "loss_coefficients": [
+        1.0
+      ],
+      "optimized_loss": 0.4502639174461365,
+      "pair_index": 1,
+      "per_module_gradients": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.3312060214788798,
+          "max_abs": 0.052651021629571915,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 15.142751705344715,
+          "max_abs": 0.9241495132446289,
+          "nonzero": 1259247,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 37.2787106231487,
+          "max_abs": 0.6847636699676514,
+          "nonzero": 2895874,
+          "tensor_count": 22
+        }
+      },
+      "per_world_mean_CE": [
+        0.4502639174461365
+      ],
+      "step": 4,
+      "supervised_tokens": [
+        2
+      ],
+      "world_ids": [
+        "v11_fit_02"
+      ]
+    },
+    {
+      "actual_adamw_displacement": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.0011194794222852186,
+          "max_abs": 0.00013275258243083954,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 0.026841733148289523,
+          "max_abs": 0.0002049715258181095,
+          "nonzero": 1263752,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 0.020230695994213045,
+          "max_abs": 0.000167209655046463,
+          "nonzero": 2895161,
+          "tensor_count": 22
+        }
+      },
+      "loss_coefficients": [
+        1.0
+      ],
+      "optimized_loss": 0.1966978907585144,
+      "pair_index": 4,
+      "per_module_gradients": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.05980630260828859,
+          "max_abs": 0.009037423878908157,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 2.524317181295972,
+          "max_abs": 0.17502129077911377,
+          "nonzero": 1259504,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 10.778963243849594,
+          "max_abs": 0.1507524847984314,
+          "nonzero": 2895874,
+          "tensor_count": 22
+        }
+      },
+      "per_world_mean_CE": [
+        0.1966978907585144
+      ],
+      "step": 5,
+      "supervised_tokens": [
+        2
+      ],
+      "world_ids": [
+        "v11_fit_08"
+      ]
+    },
+    {
+      "actual_adamw_displacement": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.0012178667470575228,
+          "max_abs": 0.00014455989003181458,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 0.02802019279806304,
+          "max_abs": 0.0002129103522747755,
+          "nonzero": 1263761,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 0.021587785548144334,
+          "max_abs": 0.00017159432172775269,
+          "nonzero": 2895045,
+          "tensor_count": 22
+        }
+      },
+      "loss_coefficients": [
+        1.0
+      ],
+      "optimized_loss": 0.35304656624794006,
+      "pair_index": 4,
+      "per_module_gradients": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.24521186926244654,
+          "max_abs": 0.035941340029239655,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 11.862934021381555,
+          "max_abs": 0.7990046143531799,
+          "nonzero": 1259473,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 27.434466538835817,
+          "max_abs": 0.7075012922286987,
+          "nonzero": 2895874,
+          "tensor_count": 22
+        }
+      },
+      "per_world_mean_CE": [
+        0.35304656624794006
+      ],
+      "step": 6,
+      "supervised_tokens": [
+        2
+      ],
+      "world_ids": [
+        "v11_fit_09"
+      ]
+    },
+    {
+      "actual_adamw_displacement": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.0009447851002466677,
+          "max_abs": 0.00011324509978294373,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 0.022624126113535443,
+          "max_abs": 0.0001800225581973791,
+          "nonzero": 1263750,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 0.01809072646218851,
+          "max_abs": 0.00014358386397361755,
+          "nonzero": 2895577,
+          "tensor_count": 22
+        }
+      },
+      "loss_coefficients": [
+        1.0
+      ],
+      "optimized_loss": 0.28077030181884766,
+      "pair_index": 5,
+      "per_module_gradients": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.17505393599964145,
+          "max_abs": 0.02762492746114731,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 8.948877810374684,
+          "max_abs": 0.6553224325180054,
+          "nonzero": 1259240,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 23.075383619181313,
+          "max_abs": 0.6059037446975708,
+          "nonzero": 2895874,
+          "tensor_count": 22
+        }
+      },
+      "per_world_mean_CE": [
+        0.28077030181884766
+      ],
+      "step": 7,
+      "supervised_tokens": [
+        2
+      ],
+      "world_ids": [
+        "v11_fit_11"
+      ]
+    },
+    {
+      "actual_adamw_displacement": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.000920303049955617,
+          "max_abs": 0.00010699592530727386,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 0.021741080554134973,
+          "max_abs": 0.00016849837265908718,
+          "nonzero": 1263727,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 0.016869179029826247,
+          "max_abs": 0.0001339837908744812,
+          "nonzero": 2895445,
+          "tensor_count": 22
+        }
+      },
+      "loss_coefficients": [
+        1.0
+      ],
+      "optimized_loss": 0.22048623859882355,
+      "pair_index": 5,
+      "per_module_gradients": {
+        "order": {
+          "elements": 2048,
+          "finite": true,
+          "l2": 0.09855155494778982,
+          "max_abs": 0.01663956791162491,
+          "nonzero": 1024,
+          "tensor_count": 1
+        },
+        "producer": {
+          "elements": 1320192,
+          "finite": true,
+          "l2": 4.987326584726582,
+          "max_abs": 0.3287997543811798,
+          "nonzero": 1259241,
+          "tensor_count": 20
+        },
+        "reader": {
+          "elements": 2895874,
+          "finite": true,
+          "l2": 15.434006392725298,
+          "max_abs": 0.48185253143310547,
+          "nonzero": 2895874,
+          "tensor_count": 22
+        }
+      },
+      "per_world_mean_CE": [
+        0.22048623859882355
+      ],
+      "step": 8,
+      "supervised_tokens": [
+        2
+      ],
+      "world_ids": [
+        "v11_fit_10"
+      ]
+    }
+  ],
+  "world_exposures": 8
+}

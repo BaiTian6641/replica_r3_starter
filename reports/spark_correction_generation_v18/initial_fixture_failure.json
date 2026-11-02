@@ -1,0 +1,6 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 PYTHONPATH=src:tests:scripts .venv/bin/python -m pytest -q tests/test_correction_generation_v18.py -x",
+  "result": "1 failed in 2.53s",
+  "failure": "controller_case incorrectly counted the newly published canonical-source forward as a generation forward. Real generation completed. Corrected the fixture assertion to measure source and generation deltas separately.",
+  "native_execution": false
+}

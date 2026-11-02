@@ -1,0 +1,232 @@
+.F..F..FF.FF...........                                                  [100%]
+=================================== FAILURES ===================================
+____ test_controller_correction_uses_real_generation[False-partner_colour] _____
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2352/test_controller_correction_use1')
+family = 'partner_colour', unknown = False
+
+    @pytest.mark.parametrize("family", FAMILIES)
+    @pytest.mark.parametrize("unknown", [False, True])
+    def test_controller_correction_uses_real_generation(tmp_path, family, unknown):
+>       controller_case(tmp_path, family, unknown)
+
+tests/test_correction_generation_v18.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/intrinsic_memory_correction_fixture_v18.py:82: in controller_case
+    receipt = run_correction_probe(engine, row, "green", store, sc, old)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/intrinsic_memory_native_v12.py:360: in run_correction_probe
+    span, publication = publish_correction(engine, store, old, corrected_row, scope)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/intrinsic_memory_correction_v18.py:92: in publish_correction
+    result = engine.path.correct(store, old.spans[0].record_id, span, scope=scope)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_memory_layout_v12.py:170: in correct
+    return super().correct(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_feature_identity_v12.py:143: in correct
+    source_provenance=json.loads(lineage_json(self.provenance(span, version))))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+provenance = {'record_id': 'synthetic_partner_colour_0.revision2.span0', 'source': 'synthetic_partner_colour_0', 'source_epoch': 2, 'source_order': 0, ...}
+
+    def lineage_json(provenance):
+        """Serialize the current provenance under the store's bounded lineage rule."""
+        payload = json.dumps(provenance, sort_keys=True)
+        if len(payload) > MAX_LINEAGE_BYTES:
+>           raise ContextualMemoryError("value provenance exceeds the durable lineage bound")
+E           replica_lab.contextual_memory.ContextualMemoryError: value provenance exceeds the durable lineage bound
+
+src/replica_lab/contextual_feature_identity_v12.py:28: ContextualMemoryError
+_____ test_controller_correction_uses_real_generation[True-partner_colour] _____
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2352/test_controller_correction_use4')
+family = 'partner_colour', unknown = True
+
+    @pytest.mark.parametrize("family", FAMILIES)
+    @pytest.mark.parametrize("unknown", [False, True])
+    def test_controller_correction_uses_real_generation(tmp_path, family, unknown):
+>       controller_case(tmp_path, family, unknown)
+
+tests/test_correction_generation_v18.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/intrinsic_memory_correction_fixture_v18.py:82: in controller_case
+    receipt = run_correction_probe(engine, row, "green", store, sc, old)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/intrinsic_memory_native_v12.py:360: in run_correction_probe
+    span, publication = publish_correction(engine, store, old, corrected_row, scope)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/intrinsic_memory_correction_v18.py:92: in publish_correction
+    result = engine.path.correct(store, old.spans[0].record_id, span, scope=scope)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_memory_layout_v12.py:170: in correct
+    return super().correct(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_feature_identity_v12.py:143: in correct
+    source_provenance=json.loads(lineage_json(self.provenance(span, version))))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+provenance = {'record_id': 'synthetic_partner_colour_1.revision2.span0', 'source': 'synthetic_partner_colour_1', 'source_epoch': 2, 'source_order': 0, ...}
+
+    def lineage_json(provenance):
+        """Serialize the current provenance under the store's bounded lineage rule."""
+        payload = json.dumps(provenance, sort_keys=True)
+        if len(payload) > MAX_LINEAGE_BYTES:
+>           raise ContextualMemoryError("value provenance exceeds the durable lineage bound")
+E           replica_lab.contextual_memory.ContextualMemoryError: value provenance exceeds the durable lineage bound
+
+src/replica_lab/contextual_feature_identity_v12.py:28: ContextualMemoryError
+_ test_repeated_real_generation_retains_history_and_rejects_stale_sources[False-partner_colour] _
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2352/test_repeated_real_generation_1')
+family = 'partner_colour', unknown = False
+
+    @pytest.mark.parametrize("family", FAMILIES)
+    @pytest.mark.parametrize("unknown", [False, True])
+    def test_repeated_real_generation_retains_history_and_rejects_stale_sources(tmp_path, family, unknown):
+>       repeated_case(tmp_path, family, unknown)
+
+tests/test_correction_generation_v18.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/intrinsic_memory_correction_fixture_v18.py:122: in repeated_case
+    span, publication = publish_correction(engine, store, old, corrected, sc)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/intrinsic_memory_correction_v18.py:92: in publish_correction
+    result = engine.path.correct(store, old.spans[0].record_id, span, scope=scope)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_memory_layout_v12.py:170: in correct
+    return super().correct(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_feature_identity_v12.py:143: in correct
+    source_provenance=json.loads(lineage_json(self.provenance(span, version))))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+provenance = {'record_id': 'synthetic_partner_colour_0.revision2.span0', 'source': 'synthetic_partner_colour_0', 'source_epoch': 2, 'source_order': 0, ...}
+
+    def lineage_json(provenance):
+        """Serialize the current provenance under the store's bounded lineage rule."""
+        payload = json.dumps(provenance, sort_keys=True)
+        if len(payload) > MAX_LINEAGE_BYTES:
+>           raise ContextualMemoryError("value provenance exceeds the durable lineage bound")
+E           replica_lab.contextual_memory.ContextualMemoryError: value provenance exceeds the durable lineage bound
+
+src/replica_lab/contextual_feature_identity_v12.py:28: ContextualMemoryError
+_ test_repeated_real_generation_retains_history_and_rejects_stale_sources[False-same_colour] _
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2352/test_repeated_real_generation_2')
+family = 'same_colour', unknown = False
+
+    @pytest.mark.parametrize("family", FAMILIES)
+    @pytest.mark.parametrize("unknown", [False, True])
+    def test_repeated_real_generation_retains_history_and_rejects_stale_sources(tmp_path, family, unknown):
+>       repeated_case(tmp_path, family, unknown)
+
+tests/test_correction_generation_v18.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/intrinsic_memory_correction_fixture_v18.py:122: in repeated_case
+    span, publication = publish_correction(engine, store, old, corrected, sc)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/intrinsic_memory_correction_v18.py:92: in publish_correction
+    result = engine.path.correct(store, old.spans[0].record_id, span, scope=scope)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_memory_layout_v12.py:170: in correct
+    return super().correct(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_feature_identity_v12.py:143: in correct
+    source_provenance=json.loads(lineage_json(self.provenance(span, version))))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+provenance = {'record_id': 'synthetic_same_colour_0.revision3.span0', 'source': 'synthetic_same_colour_0', 'source_epoch': 3, 'source_order': 0, ...}
+
+    def lineage_json(provenance):
+        """Serialize the current provenance under the store's bounded lineage rule."""
+        payload = json.dumps(provenance, sort_keys=True)
+        if len(payload) > MAX_LINEAGE_BYTES:
+>           raise ContextualMemoryError("value provenance exceeds the durable lineage bound")
+E           replica_lab.contextual_memory.ContextualMemoryError: value provenance exceeds the durable lineage bound
+
+src/replica_lab/contextual_feature_identity_v12.py:28: ContextualMemoryError
+_ test_repeated_real_generation_retains_history_and_rejects_stale_sources[True-partner_colour] _
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2352/test_repeated_real_generation_4')
+family = 'partner_colour', unknown = True
+
+    @pytest.mark.parametrize("family", FAMILIES)
+    @pytest.mark.parametrize("unknown", [False, True])
+    def test_repeated_real_generation_retains_history_and_rejects_stale_sources(tmp_path, family, unknown):
+>       repeated_case(tmp_path, family, unknown)
+
+tests/test_correction_generation_v18.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/intrinsic_memory_correction_fixture_v18.py:122: in repeated_case
+    span, publication = publish_correction(engine, store, old, corrected, sc)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/intrinsic_memory_correction_v18.py:92: in publish_correction
+    result = engine.path.correct(store, old.spans[0].record_id, span, scope=scope)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_memory_layout_v12.py:170: in correct
+    return super().correct(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_feature_identity_v12.py:143: in correct
+    source_provenance=json.loads(lineage_json(self.provenance(span, version))))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+provenance = {'record_id': 'synthetic_partner_colour_1.revision2.span0', 'source': 'synthetic_partner_colour_1', 'source_epoch': 2, 'source_order': 0, ...}
+
+    def lineage_json(provenance):
+        """Serialize the current provenance under the store's bounded lineage rule."""
+        payload = json.dumps(provenance, sort_keys=True)
+        if len(payload) > MAX_LINEAGE_BYTES:
+>           raise ContextualMemoryError("value provenance exceeds the durable lineage bound")
+E           replica_lab.contextual_memory.ContextualMemoryError: value provenance exceeds the durable lineage bound
+
+src/replica_lab/contextual_feature_identity_v12.py:28: ContextualMemoryError
+_ test_repeated_real_generation_retains_history_and_rejects_stale_sources[True-same_colour] _
+
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-2352/test_repeated_real_generation_5')
+family = 'same_colour', unknown = True
+
+    @pytest.mark.parametrize("family", FAMILIES)
+    @pytest.mark.parametrize("unknown", [False, True])
+    def test_repeated_real_generation_retains_history_and_rejects_stale_sources(tmp_path, family, unknown):
+>       repeated_case(tmp_path, family, unknown)
+
+tests/test_correction_generation_v18.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/intrinsic_memory_correction_fixture_v18.py:122: in repeated_case
+    span, publication = publish_correction(engine, store, old, corrected, sc)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/intrinsic_memory_correction_v18.py:92: in publish_correction
+    result = engine.path.correct(store, old.spans[0].record_id, span, scope=scope)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_memory_layout_v12.py:170: in correct
+    return super().correct(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/replica_lab/contextual_feature_identity_v12.py:143: in correct
+    source_provenance=json.loads(lineage_json(self.provenance(span, version))))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+provenance = {'record_id': 'synthetic_same_colour_1.revision3.span0', 'source': 'synthetic_same_colour_1', 'source_epoch': 3, 'source_order': 0, ...}
+
+    def lineage_json(provenance):
+        """Serialize the current provenance under the store's bounded lineage rule."""
+        payload = json.dumps(provenance, sort_keys=True)
+        if len(payload) > MAX_LINEAGE_BYTES:
+>           raise ContextualMemoryError("value provenance exceeds the durable lineage bound")
+E           replica_lab.contextual_memory.ContextualMemoryError: value provenance exceeds the durable lineage bound
+
+src/replica_lab/contextual_feature_identity_v12.py:28: ContextualMemoryError
+=========================== short test summary info ============================
+FAILED tests/test_correction_generation_v18.py::test_controller_correction_uses_real_generation[False-partner_colour]
+FAILED tests/test_correction_generation_v18.py::test_controller_correction_uses_real_generation[True-partner_colour]
+FAILED tests/test_correction_generation_v18.py::test_repeated_real_generation_retains_history_and_rejects_stale_sources[False-partner_colour]
+FAILED tests/test_correction_generation_v18.py::test_repeated_real_generation_retains_history_and_rejects_stale_sources[False-same_colour]
+FAILED tests/test_correction_generation_v18.py::test_repeated_real_generation_retains_history_and_rejects_stale_sources[True-partner_colour]
+FAILED tests/test_correction_generation_v18.py::test_repeated_real_generation_retains_history_and_rejects_stale_sources[True-same_colour]
+6 failed, 17 passed in 5.14s

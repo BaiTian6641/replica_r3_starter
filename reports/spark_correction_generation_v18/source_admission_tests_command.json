@@ -1,0 +1,20 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_intrinsic_execution_v5.py",
+    "-k",
+    "actual_model_and_config_code or added_local_source_dependency",
+    "--junitxml=reports/spark_correction_generation_v18/source_admission_tests.xml"
+  ],
+  "cwd": "/Users/flare/replica_r3_starter",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "1",
+    "PYTHONPATH": "src:tests:scripts"
+  },
+  "exit_code": 0,
+  "wall_seconds": 3.2104159579612315
+}

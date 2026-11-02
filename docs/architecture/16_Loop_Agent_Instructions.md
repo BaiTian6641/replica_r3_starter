@@ -2,7 +2,7 @@
 
 **Current navigation: [CURRENT_STATUS.md](../../CURRENT_STATUS.md).** The broader-teaching v11 section below is historical; use it for preserved evidence and gates, not current run status.
 
-**Revised 29 October 2026 after the recorded official BF16 broader-teaching diagnostic.** This is the active worker
+**Revised 31 October 2026 after the correction-generation repair and V18.2 preparation03.** This is the active worker
 prompt. Earlier MiniCPM-first and native multimodal orders are historical.
 Reading or editing this file does not launch a job, download data, create a chat
 or authorize a new execution format.
@@ -26,7 +26,7 @@ before acting; do not repeat already completed repairs.
 
 ## Working boundaries
 
-- Never read, import, edit or stage src/replica_lab/runtime_pilot.py.
+- Never read, import, hash, edit or stage src/replica_lab/runtime_pilot.py.
 - Preserve unrelated work, sealed protocols, old negative results, reports and
   runtime logs. The new design is not permission to rewrite v1 results.
 - Keep one exclusive native worker, the 50 GiB sampled driver limit, 512 MiB
@@ -41,15 +41,23 @@ before acting; do not repeat already completed repairs.
 - Report measured behavior separately from engineering tests and design
   arithmetic. Check primary research sources before changing a mechanism claim.
 
-## Current v17 outcome and sole v18 successor — 31 October 2026
+## Current V17 qualification and V18.2 review boundary — 1 November 2026
 
-Read [current status](../../CURRENT_STATUS.md), the [v17 interference result](../experiments/20261031_Spark_Interference_V17.md) and the [v18 comparison predeclaration](../experiments/20261031_Spark_Paired_Update_V18.md) before new work. The v16 content-key terminal run is falsified: every final fitting group failed, counterfactual pairs both correct were 2/16 overall and 0/8 known–known, and development stayed closed. Do not retry it or select a better prefix.
+Read [current status](../../CURRENT_STATUS.md), the [current correction-generation evidence/checklist](../experiments/20261031_Spark_Correction_Generation_V18_Review.md), [qualified prior repair report](../experiments/20261031_Spark_Repairs_V18_Review.md), [V17 qualification](../experiments/20261031_Spark_Interference_V17.md), [V18.2 protocol and attempt01 outcome](../experiments/20261031_Spark_Paired_Update_V18.md), and [primary-source cross-check](../experiments/20261031_Spark_Research_Crosscheck_and_Alignment.md).
 
-V17 attempt05 completed four known–known fitting pairs with eight isolated updates. Target total-sequence margin improved in 7/8 arms and partner margin worsened in 7/8. Gradient cosine was negative for two pairs and positive for two, so do not equate positive gradient cosine with absence of sequence-margin interference. Raw results, tensors, failed attempts and independent review are preserved. Native restoration flags are not independent tensor-equality proof; retain that limitation.
+V16 failed its terminal fitting gates: 2/16 pairs both correct overall and 0/8 known–known. Native development stayed closed. V17's preserved 7/8 target improvements and 7/8 partner decreases were measured with pre-update slots. Treat them as frozen-slot conditional evidence, not updated end-to-end interference. Historical restoration flags and independent PASS receipts do not eliminate this limitation or all correctness blockers.
 
-The only selected successor is V18 paired-joint versus sequential single-world updates on the same parent and four fitting pairs. It uses equal per-world supervised exposure, a fresh internal sequential reference with counterbalanced order, final pair-minimum margin as the primary endpoint and a no-worse-than-baseline guard count. Optimizer-step counts differ by design and must be reported. V18 is predeclared but not implemented, authorized or launched; the next action is its CPU implementation and independent protocol review only. Do not add another mechanism, comparison or development evaluation.
+The repaired CPU code recomputes slots after every update, checks complete state by digest, labels all-position read overrides accurately, separates likelihood/EOS/margin/full-vocabulary predictions, and reports per-module gradients and actual parameter displacement. V16 teacher-KL moments are inherited by V17/V18 CE updates. Do not reset moments, change optimizer, or reinterpret gradient cosine as the actual AdamW step.
 
-Correction/chronology and complete-response scoring repairs are committed at `cc770999`; v17 accounting/gradient/migration repairs are at `a8a163f7`. Development remains closed to native experiments. Formation, persistent P, density, capacity expansion, promotion and RSI remain gated. Preserve unrelated dirty work and never read, import, edit or stage `src/replica_lab/runtime_pilot.py`.
+The sole selected comparison is V18.2 paired joint versus sequential on the same four fitting pairs. Its endpoint and guard are unchanged; per-world exposure and token normalization match, while steps intentionally differ 8 versus 4. Baseline plus every post-step global trajectory is mandatory. Absolute incorrectness remains reportable even when the relative endpoint improves. No second mechanism or development evaluation is included.
+
+Consumed packet: `reports/spark_repairs_v18/preparation_attempt03/native_packet.json` (`a798464ab5826b0ff547755bfade6e90fa068b3b5bdb1185d161d4377237a9f9`); snapshot SHA-256 `3870a838a6104c9fe2740c3880c7c91776905002341fc3dcbccfcab5a9e3b16c`. Preparation02 remains unchanged and historical; preparation01 remains invalid. Preparation03 bound the scoped engineering review (`independent_review.json`, `c484e121eb05ac29f9764539774c3eddf63498a76c740d5c4e4190ac136f7004`) and human authorization (`authorization.json`, `02647bf2d208c38ef9de9c4af38ee062940c71a1c53f81782f7f2968e7bf872e`), and executed once (`native_bf16_comparison_attempt01`). It completed `admission`, `load`, initial and final complete-state restoration on MPS, step-0 8-world measurement, and the first `v11_fit_00` forward and backward pass, then failed at `gradient_measurement` with `ValueError: nonfinite gradients` because `tensor_statistics` and `module_statistics` in `src/replica_lab/intrinsic_memory_measurement_v18.py` called `tensor.detach().to(device="cpu", dtype=torch.float64)` in a single step on MPS `float32` tensors (which leaves the CPU `float64` destination buffer uninitialized on macOS arm64 MPS). Two-step `_cpu_float64(tensor)` (`tensor.detach().to(device="cpu").to(dtype=torch.float64)`) is now implemented in `src/replica_lab/intrinsic_memory_measurement_v18.py` and `src/replica_lab/intrinsic_memory_probe_v18.py`, verified on MPS and CPU (`test_cpu_and_mps_float64_reduction_and_probe_parity`), and sealed in `reports/spark_repairs_v18/preparation_attempt04/native_packet.json` (`05cf86c28a0838e539256da54b3c87b7c43e67fc27b67a52a6cebbc4e4efed72`, protocol `configs/spark_paired_update_v18_2_preparation04.json` `383891eed3fff80158780f0d932fabadaf35d990edc75f8166b71b0fd53b2ad9`, implementation `c2dff9142db0ec64fb9ed9dd658fdf88840d54fb25cf4b951c76ec97d03c279d`, snapshot `982a7f9921324b7031e43c24750fb93c98ebf1b7d5ab48ccc213fe1142883130`, `launch_authorized: false`). Do not edit a frozen snapshot or reuse a consumed packet; validate data/pairs, checkpoint/content keys, full closure and budgets before consuming an attempt or loading weights.
+
+The actual v12 development split was exposed through an engineering regression. Native access receipts stay unchanged; their zero-access claim is run-specific. That split is retired for fresh generalization claims. Use only synthetic fixtures in ordinary tests. A new 32-row disjoint sealed split has a public commitment at `reports/spark_repairs_v18/sealed_evaluation_public.json`; its labels must stay outside tests/fitting and require later competence qualification and separate evaluation admission. Do not read, hash or regenerate that payload during ordinary repairs.
+
+Authority changes require explicit typed reasons. Payload corruption, malformed containers, I/O and budget failures are operational and cannot prove correction/revocation. Corrections publish a complete ≤256-byte current view plus immutable full history; reject unsupported multi-span views before publication. Use the same explicitly bound current evaluation view and authenticated source for contextual and exact-text generation; keep the canonical-span equality check. Retain full chronology separately. The older lifecycle fixture mocked generation and did not test this boundary; real-generation integration tests are required. Check cached invalidation and fresh exclusion after revocation. Use original group IDs for probes, including filtered/singleton rows; never substitute unpointed archive generations as current authority. Future native correction packets must budget the additional history write and fresh retrieval; old sealed budgets are not reusable.
+
+Preserve qualified recall → completed-interaction formation → source-free persistent learning → correction/retention/rollback → all-layer/nested-learning evaluation → RSI. The research note proposes exactly one conditional producer–reader alignment comparison if corrected native V18 fails; it authorizes no extra capacity or routing change. MemT reports better validation NLL with CE but better agent success with KD; training loss alone cannot determine promotion. Keep multimodal, persistent P, capacity, native density, promotion and RSI gated. Logical hot/warm/cold quotas do not prove device residency. Preserve the external Spine boundary and the protected-file prohibition.
 
 ## Historical implementation — broader-teaching outcome and evidence gates
 Read the [v11 experiment](../../docs/experiments/20261029_Spark_Memory_Coverage_V11.md),
@@ -122,7 +130,7 @@ After useful recall follow attributable completed-interaction formation,
 separate exactly-once chunk commits, source-free future-query P learning,
 correction, retention and rollback before nested adaptation or RSI. Native
 multimodal work remains deferred. Preserve unrelated dirty work.
-Never read, import, edit or stage src/replica_lab/runtime_pilot.py.
+Never read, import, hash, edit or stage src/replica_lab/runtime_pilot.py.
 
 ## Preserved attempt03 receipt and successor gates — 29 October 2026
 

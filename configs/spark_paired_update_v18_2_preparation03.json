@@ -1,0 +1,365 @@
+{
+  "arms": {
+    "two": {
+      "budget": {
+        "admission": {
+          "artifact_bytes": 4194304,
+          "artifact_read_bytes": 8856829993,
+          "backwards": 0,
+          "cache_evictions": 0,
+          "cache_misses": 0,
+          "cache_recomputations": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "prompt_tokenizer_calls": 0,
+          "restart_restores": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "source_feature_forwards": 0,
+          "source_token_bytes": 0,
+          "tokenizer_calls": 0,
+          "updates": 0,
+          "wall_seconds": 180,
+          "writes": 8
+        },
+        "diagnose": {
+          "artifact_bytes": 67108864,
+          "artifact_read_bytes": 16777216,
+          "backwards": 16,
+          "cache_evictions": 8,
+          "cache_misses": 8,
+          "cache_recomputations": 8,
+          "forwards": 248,
+          "generated_tokens": 0,
+          "input_tokens": 65536,
+          "model_loads": 0,
+          "prompt_tokenizer_calls": 16,
+          "restart_restores": 0,
+          "retrievals": 0,
+          "source_encodes": 8,
+          "source_feature_forwards": 8,
+          "source_token_bytes": 2048,
+          "tokenizer_calls": 8,
+          "updates": 12,
+          "wall_seconds": 1200,
+          "writes": 5408
+        },
+        "finalize": {
+          "artifact_bytes": 2097152,
+          "artifact_read_bytes": 0,
+          "backwards": 0,
+          "cache_evictions": 0,
+          "cache_misses": 0,
+          "cache_recomputations": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 0,
+          "prompt_tokenizer_calls": 0,
+          "restart_restores": 0,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "source_feature_forwards": 0,
+          "source_token_bytes": 0,
+          "tokenizer_calls": 0,
+          "updates": 0,
+          "wall_seconds": 60,
+          "writes": 4
+        },
+        "load": {
+          "artifact_bytes": 1048576,
+          "artifact_read_bytes": 8406768407,
+          "backwards": 0,
+          "cache_evictions": 0,
+          "cache_misses": 0,
+          "cache_recomputations": 0,
+          "forwards": 0,
+          "generated_tokens": 0,
+          "input_tokens": 0,
+          "model_loads": 1,
+          "prompt_tokenizer_calls": 0,
+          "restart_restores": 1,
+          "retrievals": 0,
+          "source_encodes": 0,
+          "source_feature_forwards": 0,
+          "source_token_bytes": 0,
+          "tokenizer_calls": 0,
+          "updates": 0,
+          "wall_seconds": 240,
+          "writes": 18
+        }
+      },
+      "output_root": "reports/spark_repairs_v18/preparation_attempt03/native_bf16_comparison_attempt01",
+      "resource_limits": {
+        "driver_bytes": 53687091200,
+        "minimum_host_free_percent": 15,
+        "sustained_host_samples": 3,
+        "swap_growth_bytes": 536870912,
+        "telemetry_timeout_seconds": 30
+      },
+      "sites": [
+        3,
+        7
+      ],
+      "total_reservations": {
+        "artifact_bytes": 74448896,
+        "artifact_read_bytes": 17280375616,
+        "backwards": 16,
+        "cache_evictions": 8,
+        "cache_misses": 8,
+        "cache_recomputations": 8,
+        "forwards": 248,
+        "generated_tokens": 0,
+        "input_tokens": 65536,
+        "model_loads": 1,
+        "prompt_tokenizer_calls": 16,
+        "restart_restores": 1,
+        "retrievals": 0,
+        "source_encodes": 8,
+        "source_feature_forwards": 8,
+        "source_token_bytes": 2048,
+        "tokenizer_calls": 8,
+        "updates": 12,
+        "wall_seconds": 1680,
+        "writes": 5438
+      },
+      "wall_seconds": 1800
+    }
+  },
+  "budget_derivation": {
+    "all_world_measurements": 14,
+    "backwards": 16,
+    "candidate_forwards": 224,
+    "diagnose_artifact_bytes": {
+      "ledger_and_temporary_overlap": 54525952,
+      "telemetry": 8388608,
+      "trajectory_receipts": 4194304
+    },
+    "elapsed_wall_ceiling_seconds": 1980,
+    "frozen_source_forwards": 8,
+    "pre_attempt_validation": "separate parent ledger; admission and supervisor artifacts included in total_with_preflight",
+    "producer_computations": 128,
+    "reserved_stage_seconds_overlap_parent_supervision": true,
+    "snapshot": "source files only; exact size and digest in snapshot manifest; no model copies",
+    "telemetry_append_cap": 5400,
+    "token_ceiling": "240 response forwards * 256 + 8 source spans * (256 tokenize + 256 forward)",
+    "training_forwards": 16,
+    "updates": {
+      "paired_joint": 4,
+      "sequential": 8
+    }
+  },
+  "comparison": {
+    "arms": [
+      "sequential",
+      "paired_joint"
+    ],
+    "guard": "worlds_below_own_baseline",
+    "guard_no_greater": true,
+    "joint_coefficients": [
+      0.5,
+      0.5
+    ],
+    "loss": "per_world_mean_answer_plus_EOS_CE",
+    "primary": "mean_final_pair_minimum_total_margin",
+    "primary_strictly_greater": true,
+    "steps": [
+      8,
+      4
+    ]
+  },
+  "data": {
+    "fit": {
+      "path": "data/intrinsic_memory_coverage_v11_20261029/fit.json",
+      "sha256": "106784510b4c26371c8a1f81736eea92443207d6028f63f1b491df0430dff92c"
+    }
+  },
+  "development_labels_used": false,
+  "diagnostic": {
+    "checkpoint": {
+      "execution_identity": "a24c2bccfa2c8233961c9050b68de96961a8173454ad63fec89a400d976aee41",
+      "manifest_sha256": "a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c",
+      "optimizer_sha256": "2ed73fa65963ada7182e5749937c6f73767f224a51de4cdb4ce9d0835ab2178b",
+      "path": "reports/intrinsic_memory_content_key_v16/native_bf16_two_attempt01/checkpoint",
+      "weights_sha256": "66f9cec6ea2068a2432b055578039c716071a6bd6b0a3ba3ec97203e5cf40956"
+    },
+    "checkpoint_components": {
+      "path": "reports/intrinsic_memory_content_key_v16/native_bf16_two_attempt01/checkpoint/components/manifest.json",
+      "sha256": "c01fe2796fa801911f05918995d82107bb421e3422bf23c8eba73ac730321cc9"
+    },
+    "development": false,
+    "generated_tokens": 0,
+    "intrinsic_reader_key_mode": "content",
+    "output_root": "reports/spark_repairs_v18/preparation_attempt03/native_bf16_comparison_attempt01",
+    "pair_indices": [
+      0,
+      1,
+      4,
+      5
+    ],
+    "pairs": 4,
+    "parent_reconciliation": {
+      "path": "reports/intrinsic_memory_content_key_v16/attempt01_terminal_reconciliation.json",
+      "sha256": "ef038ed88e0b89811af4af40fee1b4167ed54bdf23a0f8ab324ded2ba8fa8768"
+    },
+    "rows": 8,
+    "updates": 12
+  },
+  "diagnostic_predecessor": {
+    "path": "reports/intrinsic_memory_content_key_v16/attempt01_terminal_reconciliation.json",
+    "sha256": "ef038ed88e0b89811af4af40fee1b4167ed54bdf23a0f8ab324ded2ba8fa8768"
+  },
+  "environment": {
+    "path": "configs/spark_intrinsic_execution_environment_v1.json",
+    "sha256": "7bac9e5e963d3b9fa1cb8cc3be846dc72938a7206ddcc7fd978ba07257c67095"
+  },
+  "environment_closure": {
+    "path": "reports/intrinsic_memory_native_v12/environment_closure_v12.json",
+    "sha256": "d521db9340e3638c481ede19a7ed670949ed9440167739b426b815276d6fbc68"
+  },
+  "execution_preparation": {
+    "previous_packet": {
+      "path": "reports/spark_repairs_v18/preparation_attempt02/native_packet.json",
+      "sha256": "67951428c1a239293ce5ad2d009e8ed16f9fd0776e27ee1d21346eba59485c11"
+    },
+    "reason": "Bind correction generation to the published current view; scientific contract unchanged",
+    "revision": 3
+  },
+  "format": "replica.intrinsic_memory.paired_update_protocol.v18.2",
+  "generation": {
+    "context_tokens": 256,
+    "decode": "greedy_uncached_no_sampling",
+    "eos_token_id": 1,
+    "label_alignment": "logit_i_predicts_token_i_plus_1_no_additional_shift",
+    "max_new_tokens": 8,
+    "pad_token_id": 2,
+    "padding": "right",
+    "stop_token_ids": [
+      1
+    ],
+    "thinking": "none"
+  },
+  "implementation": {
+    "path": "reports/spark_repairs_v18/preparation_attempt03/implementation.json",
+    "sha256": "cd08bd3997d80469730edf1ce749bc59e949372917102c8b970d2ee8dcf1cdd6"
+  },
+  "inherited_protocol": {
+    "path": "configs/spark_interference_diagnostic_v17_attempt05.json",
+    "sha256": "970155e0684f66d5e32439a21e1ef584db3659e4dba2060a0ad5b0e49ed1012d"
+  },
+  "intrinsic_placement": "block_input_query_to_post_block_residual",
+  "intrinsic_reader_key_mode": "content",
+  "parameter_updates": 12,
+  "parent_training": {
+    "batch_size": 1,
+    "lr": 0.0001,
+    "restart_updates": 1,
+    "schedule": "fixed_round_robin_32_worlds_16_passes",
+    "seed": 17,
+    "teacher_updates": 0,
+    "updates": 512
+  },
+  "protocol_revision": 2,
+  "slot_policy_v12": "fixed_eight_masked_padding_v12",
+  "source": {
+    "path": "reports/intrinsic_memory_successor_v5/official_bf16_source.json",
+    "sha256": "bcef67c34e35fa3445e1301e4b926d37ca221f88eb05b5ed92d2eb4a8b3b882c"
+  },
+  "source_execution": {
+    "path": "reports/intrinsic_memory_successor_v5/source_execution_v5.json",
+    "sha256": "3ee1cd03edb5531b18108c8067c5839decdadf25b22e46d5317d46f32c4f8579"
+  },
+  "source_feature_binding": {
+    "original_parameters_sha256": "39ea150a4d2ed39184f2a83fbd474b67644e4d38f4039177c72cedd069ef4747",
+    "source_files_sha256": "c309e44c93edf04187447c27990ecd0979990d7bab9e8dbf5a715afd2f82a50a",
+    "tokenizer_identity": {
+      "add_special_tokens_for_source": false,
+      "eos_token_id": 1,
+      "files": {
+        "chat_template.jinja": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929",
+        "merges.txt": "b06fc88940ae6a20f71142f06304c12547f58ab52c175e56af12a38c3dc62f36",
+        "special_tokens_map.json": "48a257e3f5f20a004e7c30482a70ae19ae7d9cf713144f2a1394ba20af8c3cb5",
+        "tokenizer.json": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+        "tokenizer_config.json": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd",
+        "vocab.json": "9f42cb7e7af5afe27cae2337d272d60b5659e10143ef4bb952f642b847916fe1"
+      },
+      "is_fast": true,
+      "local_files_only": true,
+      "pad_token_id": 2,
+      "truncation_for_source": false,
+      "vocab_size": 131072
+    },
+    "tokenizer_sha256": "f74b126e248feb33df37f78fcd28f3839f5b9184378aa4419e727736270e7b8f"
+  },
+  "source_features": {
+    "accounting": "reserve_before_tokenizer_and_before_frozen_forward",
+    "adapter_contract_policy": "runtime digest over the verified source snapshot, geometry, attention implementation, regime and the exact base content digest; the content digest is supplied as the already-verified full original parameter digest so the backbone is not rehashed, and the resulting contract is bound in the v12 checkpoint and teacher cache and recomputed on restart",
+    "cache_bytes": 33554432,
+    "cache_class": "C_in_process_not_serialized",
+    "cache_clear_boundaries": [
+      "correction",
+      "revocation",
+      "source_free_transition",
+      "release_publication",
+      "checkpoint_restore"
+    ],
+    "cache_entries": 64,
+    "codec": "contextual_source_features_fp32_slots_v12",
+    "detach_boundary": "frozen_original_hidden_before_trainable_compressor",
+    "extensions_during_source_pass": "disabled_by_arguments_and_audited",
+    "feature_contract_format": "replica.canonical_source_features.v12",
+    "feature_dtype": "float32",
+    "input_policy": "canonical_span_only_no_template_no_special_tokens",
+    "max_tokens": 256,
+    "original_updates": 0,
+    "output_policy": "last_decoder_hidden_after_final_norm",
+    "producer": "frozen_spark_features_contextual_compressor_v12",
+    "representation": "four_ordered_frozen_source_contextual_256_v12",
+    "slot_policy_v12": "fixed_eight_masked_padding_v12",
+    "source_backbone": "frozen_eval_bfloat16_no_grad",
+    "source_positions": "explicit_zero_to_token_count_minus_one"
+  },
+  "source_repo": "XHToken/Spark-X2.6-4B",
+  "source_revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+  "source_snapshot": {
+    "path": "reports/spark_repairs_v18/preparation_attempt03/source_snapshot.json",
+    "sha256": "3870a838a6104c9fe2740c3880c7c91776905002341fc3dcbccfcab5a9e3b16c"
+  },
+  "total_with_preflight": {
+    "artifact_bytes": 82837504,
+    "artifact_read_bytes": 26153982825,
+    "backwards": 16,
+    "cache_evictions": 8,
+    "cache_misses": 8,
+    "cache_recomputations": 8,
+    "forwards": 248,
+    "generated_tokens": 0,
+    "input_tokens": 65536,
+    "model_loads": 1,
+    "prompt_tokenizer_calls": 16,
+    "restart_restores": 1,
+    "retrievals": 0,
+    "source_encodes": 8,
+    "source_feature_forwards": 8,
+    "source_token_bytes": 2048,
+    "tokenizer_calls": 8,
+    "updates": 12,
+    "wall_seconds": 3660,
+    "writes": 5478
+  },
+  "training": {
+    "batch_size_by_arm": {
+      "paired_joint": 2,
+      "sequential": 1
+    },
+    "lr": 0.0001,
+    "optimizer": "NativeFusedAdamW",
+    "restart_updates": 0,
+    "schedule": "fixed_pairs_0_1_4_5_one_exposure_per_world_per_arm",
+    "seed": 17,
+    "teacher_updates": 0,
+    "updates": 12
+  }
+}

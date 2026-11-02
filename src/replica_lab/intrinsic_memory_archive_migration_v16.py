@@ -50,6 +50,10 @@ def _release_files(source, *, require_pointer):
     manifest_bytes = _regular_bytes(source / "manifest.json")
     manifest_hash = hashlib.sha256(manifest_bytes).hexdigest()
     manifest = json.loads(manifest_bytes)
+    if not isinstance(manifest, dict):
+        raise ValueError("release manifest must be an object")
+    if not isinstance(manifest.get("scope"), dict):
+        raise ValueError("release scope must be an object")
     generation = manifest.get("generation")
     if type(generation) is not int or generation < 1 or source.name != f"{generation:08d}":
         raise ValueError("release generation invalid")
@@ -63,10 +67,12 @@ def _release_files(source, *, require_pointer):
             or manifest.get("record_digest") != digest(manifest.get("records"))):
         raise ValueError("release manifest identity differs")
     records = manifest["records"]
-    if not records:
+    if not isinstance(records, dict) or not records:
         raise ValueError("release records missing")
     payloads = {}
     for record in records.values():
+        if not isinstance(record, dict):
+            raise ValueError("release record must be an object")
         if record.get("producer_release") != manifest["producer_release"]:
             raise ValueError("mixed producer releases refused")
         name = _payload_name(record.get("value_file"))
@@ -82,6 +88,8 @@ def _release_files(source, *, require_pointer):
         pointer_bytes = _regular_bytes(source.parent / "current.json")
         pointer_hash = hashlib.sha256(pointer_bytes).hexdigest()
         pointer = json.loads(pointer_bytes)
+        if not isinstance(pointer, dict) or not isinstance(pointer.get("scope"), dict):
+            raise ValueError("release pointer and scope must be objects")
         if (pointer.get("format") != RELEASE_FORMAT + ".pointer"
                 or type(pointer.get("generation")) is not int
                 or pointer["generation"] != generation
@@ -153,6 +161,8 @@ def migrate_generation(source, destination, *, interrupt_after=None):
                 "pointer_sha256": original["pointer_hash"]}
     if journal_path.exists():
         journal = json.loads(journal_path.read_text())
+        if not isinstance(journal, dict):
+            raise ValueError("migration journal must be an object")
         if any(journal.get(key) != value for key, value in identity.items()):
             raise ValueError("migration journal identity differs")
     else:
@@ -188,18 +198,23 @@ def migrate_generation(source, destination, *, interrupt_after=None):
 
 def _logical_generation(source):
     manifest_path = source / "manifest.json"
-    manifest_hash = sha256(manifest_path) if manifest_path.is_file() and not manifest_path.is_symlink() else None
+    try:
+        manifest_hash = sha256(manifest_path) if manifest_path.is_file() and not manifest_path.is_symlink() else None
+    except OSError:
+        manifest_hash = None
     generation = int(source.name) if source.name.isdigit() else None
     try:
         release = _release_files(source, require_pointer=False)
         restorable = True
         manifest = release["manifest"]
         names = list(release["payloads"])
-    except (ValueError, TypeError, KeyError, json.JSONDecodeError):
+    except (OSError, ValueError, TypeError, KeyError):
         restorable = False
         try:
             manifest = json.loads(manifest_path.read_text())
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
+            manifest = {}
+        if not isinstance(manifest, dict):
             manifest = {}
         names = []
         records = manifest.get("records", {}) if isinstance(manifest, dict) else {}
@@ -238,11 +253,17 @@ def inventory_archive(run):
             continue
         measured = [_logical_generation(path) for path in generations]
         pointer_path = root / "current.json"
-        pointer = json.loads(_regular_bytes(pointer_path)) if pointer_path.exists() else None
+        try:
+            pointer = json.loads(_regular_bytes(pointer_path)) if pointer_path.exists() else None
+        except (OSError, ValueError, TypeError):
+            pointer = None
+        if not isinstance(pointer, dict):
+            pointer = None
         pointer_generation = (pointer.get("generation")
                               if pointer and type(pointer.get("generation")) is int else None)
         final = next((row for row in measured if row["generation"] == pointer_generation),
-                     measured[-1])
+                     {"generation": pointer_generation, "scope": None,
+                      "manifest_sha256": None, "bytes": 0, "files": 0, "restorable": False})
         try:
             pointer_scope_key = (MemoryScope(**pointer.get("scope", {})).scope_key
                                  if pointer else None)

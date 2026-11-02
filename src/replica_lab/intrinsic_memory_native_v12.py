@@ -55,6 +55,8 @@ from .intrinsic_memory_native_v5 import (
     base_hash, store_at, world_scope, verified_source_classes)
 from .intrinsic_memory_teacher_v12 import TeacherEngineV12
 from .intrinsic_memory_acceptance_v15 import chronological_correction, expect_invalidation
+from .intrinsic_memory_correction_v18 import (
+    correction_evaluation_view, publish_correction, fresh_revocation_check)
 from .spark_device_placement_v2 import place_frozen_spark_base
 
 
@@ -348,6 +350,50 @@ def finalize_receipt(engine, name, payload):
     return False
 
 
+def run_correction_probe(engine, row, replacement, store, scope, old):
+    """Run the controller correction stage with real generation and source checks.
+
+    The chronological row is retained in immutable history; both controls use
+    one explicitly bound current view. Revocation is checked cached and fresh.
+    """
+    corrected_row = chronological_correction(row, replacement)
+    span, publication = publish_correction(engine, store, old, corrected_row, scope)
+    stale = expect_invalidation(
+        'stale_snapshot', lambda: engine.path.validate(old, scope))
+    new = engine.read(store, scope, row['question'])
+    evaluation_view = correction_evaluation_view(corrected_row, span, publication)
+    if [item.record_id for item in new.spans] != [span.record_id]:
+        raise ValueError('correction evaluation selected a different published record')
+    corrected = engine.generate(evaluation_view, new, scope); corrected.pop('first_logits')
+    # The exact-text path disables memory in _forward, but validates the same
+    # authenticated batch and canonical text as the contextual control.
+    exact = engine.generate(evaluation_view, new, scope, control='exact_text')
+    exact.pop('first_logits')
+    with engine.measured('revocation', writes=1):
+        store.revoke_record(span.record_id, reason='predeclared_probe', scope=scope)
+    revoked_read = expect_invalidation(
+        'stale_snapshot', lambda: engine.path.validate(new, scope))
+    with engine.measured('fresh_revocation_retrieval', retrievals=1,
+                         artifact_read_bytes=1024 * 1024) as event:
+        fresh_revoked = fresh_revocation_check(store, row['question'], scope, [span.record_id])
+        event['actual'] = {'artifact_read_bytes': fresh_revoked['io_bytes']}
+    revoked = engine.generate({**row, 'text': '', 'answer': 'unknown'}, None, scope,
+                              control='absent')
+    revoked.pop('first_logits')
+    return {
+        'stale_snapshot_rejected': True,
+        'stale_snapshot_evidence': vars(stale),
+        'revoked_retrieval_rejected': fresh_revoked['revoked_ids_excluded'],
+        'fresh_revocation_retrieval': fresh_revoked,
+        'correction_publication': publication,
+        'evaluation_view': evaluation_view,
+        'revoked_read_evidence': vars(revoked_read),
+        'corrected_contextual': corrected, 'corrected_exact': exact,
+        'correction_oracle': corrected_row['correction'],
+        'revision_history': corrected_row.get('revision_history'),
+        'after_revocation': revoked, 'learned_unlearning_claim': False}
+
+
 def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_hash, stage_ref):
     engine = TeacherEngineV12(path, backend, spec, ledger,
                               max_new_tokens=protocol['generation']['max_new_tokens'],
@@ -504,36 +550,8 @@ def run_main(root, protocol, arm, ledger, output, path, backend, spec, initial_h
             replacement = (alternative['facts']['answer']
                            if isinstance(alternative.get('facts'), dict)
                            else alternative['answer'])
-            corrected_row = chronological_correction(row, replacement)
-            span = canonical_spans(
-                corrected_row['text'], record_id=row['world_id']+'.corrected',
-                source_id=row['world_id'], source_epoch=corrected_row['chronology'],
-                available_at=corrected_row['chronology'])[0]
-            span = replace(span, supersedes=old.spans[0].record_id)
-            with engine.measured('chronological_correction', writes=1):
-                path.correct(store, old.spans[0].record_id, span, scope=scope)
-            stale = expect_invalidation(
-                'stale_snapshot', lambda: path.validate(old, scope))
-            new = engine.read(store, scope, row['question'])
-            corrected = engine.generate(corrected_row, new, scope); corrected.pop('first_logits')
-            exact = engine.generate(corrected_row, None, scope, control='exact_text')
-            exact.pop('first_logits')
-            with engine.measured('revocation', writes=1):
-                store.revoke_record(span.record_id, reason='predeclared_probe', scope=scope)
-            revoked_read = expect_invalidation(
-                'stale_snapshot', lambda: path.validate(new, scope))
-            revoked = engine.generate({**row, 'text': '', 'answer': 'unknown'}, None, scope,
-                                      control='absent')
-            revoked.pop('first_logits')
-            engine.write_receipt('correction', {
-                'stale_snapshot_rejected': True,
-                'stale_snapshot_evidence': vars(stale),
-                'revoked_retrieval_rejected': True,
-                'revoked_read_evidence': vars(revoked_read),
-                'corrected_contextual': corrected, 'corrected_exact': exact,
-                'correction_oracle': corrected_row['correction'],
-                'revision_history': corrected_row.get('revision_history'),
-                'after_revocation': revoked, 'learned_unlearning_claim': False})
+            engine.write_receipt('correction', run_correction_probe(
+                engine, row, replacement, store, scope, old))
             close_stage(engine, 'correction', 'completed')
         result['status'] = 'completed_frozen_fit_diagnostic'
         return result

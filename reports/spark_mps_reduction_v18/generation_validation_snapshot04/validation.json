@@ -1,0 +1,872 @@
+{
+  "cases": {
+    "controller": [
+      {
+        "family": "direct",
+        "generation_forwards": 6,
+        "native_capability_claim": false,
+        "receipt": {
+          "after_revocation": {
+            "correct": false,
+            "false_recall": true,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token46 token46",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              46,
+              46
+            ],
+            "total_latency_ns": 3296459,
+            "truncated": true
+          },
+          "corrected_contextual": {
+            "correct": false,
+            "false_recall": false,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token49 token49",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              49,
+              49
+            ],
+            "total_latency_ns": 9865292,
+            "truncated": true
+          },
+          "corrected_exact": {
+            "correct": false,
+            "false_recall": false,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token35 token35",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              35,
+              35
+            ],
+            "total_latency_ns": 3953792,
+            "truncated": true
+          },
+          "correction_oracle": {
+            "earlier_facts_preserved": true,
+            "intended_entity": "A",
+            "supersedes_revision": 1,
+            "unrelated_facts_unchanged": true,
+            "verification": "structured_and_rendered_source_revision_oracle"
+          },
+          "correction_publication": {
+            "current_record": "cg00.revision2.span0",
+            "current_slots": 4,
+            "current_span_count": 1,
+            "current_text": "The recorded color of A is green. No color is recorded for any other entity.",
+            "current_text_sha256": "9fd6ae8717f39832a402a77e20b52b6d9963375019fa24a96ac8bcd5641a6723",
+            "history_path": "correction_history/f14dec03df2b711b6fbba9d4bf5966baf946274be2c8ddd040e40921c50cd9e4.json",
+            "history_sha256": "f14dec03df2b711b6fbba9d4bf5966baf946274be2c8ddd040e40921c50cd9e4"
+          },
+          "evaluation_view": {
+            "answer": "green",
+            "chronology": 2,
+            "format": "replica.correction_evaluation_view.v18",
+            "provenance": {
+              "current_record": "cg00.revision2.span0",
+              "current_text_sha256": "9fd6ae8717f39832a402a77e20b52b6d9963375019fa24a96ac8bcd5641a6723",
+              "history_path": "correction_history/f14dec03df2b711b6fbba9d4bf5966baf946274be2c8ddd040e40921c50cd9e4.json",
+              "history_sha256": "f14dec03df2b711b6fbba9d4bf5966baf946274be2c8ddd040e40921c50cd9e4",
+              "predecessor": "cg00.span0"
+            },
+            "question": "What is the recorded color of A?",
+            "text": "The recorded color of A is green. No color is recorded for any other entity.",
+            "world_id": "cg00"
+          },
+          "fresh_revocation_retrieval": {
+            "file_reads": 0,
+            "io_bytes": 0,
+            "outcome": "Outcome(status='incomplete', reason='no_semantic_candidate', detail={'candidate_count': 0, 'semantic_candidate_count': 0, 'truncated': False, 'cold_record_ids': (), 'cold_fallback_pending': (), 'text_budget_exhausted': True, 'span_budget_exhausted': False, 'representation_stale': False, 'budget': {'evidence_records': 8, 'evidence_value_slots': 32, 'allow_expanded_context': False, 'p_query_slots': 32, 'identity_bytes': 8388608, 'workspace_bytes': 268435456, 'exact_text_bytes': 0, 'exact_span_bytes': 2048, 'cold_io_bytes': 2097152, 'cross_class_borrowing': False, 'record_values_hold_identity_workspace_or_p': False, 'selection_mode': 'semantic'}}, retryable=False)",
+            "revoked_ids_excluded": true,
+            "revoked_record_ids": [
+              "cg00.revision2.span0"
+            ],
+            "selected_record_ids": []
+          },
+          "learned_unlearning_claim": false,
+          "revision_history": null,
+          "revoked_read_evidence": {
+            "authority_reason": "stale_snapshot",
+            "cause_type": null,
+            "error_type": "AuthorityRejection",
+            "kind": "stale_snapshot",
+            "message": "correction/revocation/generation invalidated memory"
+          },
+          "revoked_retrieval_rejected": true,
+          "stale_snapshot_evidence": {
+            "authority_reason": "stale_snapshot",
+            "cause_type": null,
+            "error_type": "AuthorityRejection",
+            "kind": "stale_snapshot",
+            "message": "correction/revocation/generation invalidated memory"
+          },
+          "stale_snapshot_rejected": true
+        },
+        "source_forwards": 1,
+        "unknown_origin": false
+      },
+      {
+        "family": "direct",
+        "generation_forwards": 6,
+        "native_capability_claim": false,
+        "receipt": {
+          "after_revocation": {
+            "correct": false,
+            "false_recall": true,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token46 token46",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              46,
+              46
+            ],
+            "total_latency_ns": 3145292,
+            "truncated": true
+          },
+          "corrected_contextual": {
+            "correct": false,
+            "false_recall": false,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token32 token32",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              32,
+              32
+            ],
+            "total_latency_ns": 10113583,
+            "truncated": true
+          },
+          "corrected_exact": {
+            "correct": false,
+            "false_recall": false,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token49 token49",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              49,
+              49
+            ],
+            "total_latency_ns": 4134917,
+            "truncated": true
+          },
+          "correction_oracle": {
+            "earlier_facts_preserved": true,
+            "intended_entity": "A",
+            "supersedes_revision": 1,
+            "unrelated_facts_unchanged": true,
+            "verification": "structured_and_rendered_source_revision_oracle"
+          },
+          "correction_publication": {
+            "current_record": "cg01.revision2.span0",
+            "current_slots": 4,
+            "current_span_count": 1,
+            "current_text": "The recorded color of A is green. The recorded color of B is red. No color is recorded for any other entity.",
+            "current_text_sha256": "59352666a7ff0801b525ca780685f483b921ec28ee8a767492e6cb5dd4d36a11",
+            "history_path": "correction_history/545efbad84bf1041f1124b25863f2626ddc2e5ca071b6662543160cac13e96b5.json",
+            "history_sha256": "545efbad84bf1041f1124b25863f2626ddc2e5ca071b6662543160cac13e96b5"
+          },
+          "evaluation_view": {
+            "answer": "green",
+            "chronology": 2,
+            "format": "replica.correction_evaluation_view.v18",
+            "provenance": {
+              "current_record": "cg01.revision2.span0",
+              "current_text_sha256": "59352666a7ff0801b525ca780685f483b921ec28ee8a767492e6cb5dd4d36a11",
+              "history_path": "correction_history/545efbad84bf1041f1124b25863f2626ddc2e5ca071b6662543160cac13e96b5.json",
+              "history_sha256": "545efbad84bf1041f1124b25863f2626ddc2e5ca071b6662543160cac13e96b5",
+              "predecessor": "cg01.span0"
+            },
+            "question": "What is the recorded color of A?",
+            "text": "The recorded color of A is green. The recorded color of B is red. No color is recorded for any other entity.",
+            "world_id": "cg01"
+          },
+          "fresh_revocation_retrieval": {
+            "file_reads": 0,
+            "io_bytes": 0,
+            "outcome": "Outcome(status='incomplete', reason='no_semantic_candidate', detail={'candidate_count': 0, 'semantic_candidate_count': 0, 'truncated': False, 'cold_record_ids': (), 'cold_fallback_pending': (), 'text_budget_exhausted': True, 'span_budget_exhausted': False, 'representation_stale': False, 'budget': {'evidence_records': 8, 'evidence_value_slots': 32, 'allow_expanded_context': False, 'p_query_slots': 32, 'identity_bytes': 8388608, 'workspace_bytes': 268435456, 'exact_text_bytes': 0, 'exact_span_bytes': 2048, 'cold_io_bytes': 2097152, 'cross_class_borrowing': False, 'record_values_hold_identity_workspace_or_p': False, 'selection_mode': 'semantic'}}, retryable=False)",
+            "revoked_ids_excluded": true,
+            "revoked_record_ids": [
+              "cg01.revision2.span0"
+            ],
+            "selected_record_ids": []
+          },
+          "learned_unlearning_claim": false,
+          "revision_history": null,
+          "revoked_read_evidence": {
+            "authority_reason": "stale_snapshot",
+            "cause_type": null,
+            "error_type": "AuthorityRejection",
+            "kind": "stale_snapshot",
+            "message": "correction/revocation/generation invalidated memory"
+          },
+          "revoked_retrieval_rejected": true,
+          "stale_snapshot_evidence": {
+            "authority_reason": "stale_snapshot",
+            "cause_type": null,
+            "error_type": "AuthorityRejection",
+            "kind": "stale_snapshot",
+            "message": "correction/revocation/generation invalidated memory"
+          },
+          "stale_snapshot_rejected": true
+        },
+        "source_forwards": 1,
+        "unknown_origin": true
+      },
+      {
+        "family": "partner_colour",
+        "generation_forwards": 6,
+        "native_capability_claim": false,
+        "receipt": {
+          "after_revocation": {
+            "correct": false,
+            "false_recall": true,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token26 token26",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              26,
+              26
+            ],
+            "total_latency_ns": 3249667,
+            "truncated": true
+          },
+          "corrected_contextual": {
+            "correct": false,
+            "false_recall": false,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token7 token7",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              7,
+              7
+            ],
+            "total_latency_ns": 8939541,
+            "truncated": true
+          },
+          "corrected_exact": {
+            "correct": false,
+            "false_recall": false,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token38 token38",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              38,
+              38
+            ],
+            "total_latency_ns": 4530167,
+            "truncated": true
+          },
+          "correction_oracle": {
+            "earlier_facts_preserved": true,
+            "intended_entity": "A",
+            "rule_family": "partner_colour",
+            "supersedes_revision": 1,
+            "unrelated_facts_unchanged": true,
+            "verification": "structured_and_rendered_compound_revision_oracle"
+          },
+          "correction_publication": {
+            "current_record": "cg10.revision2.span0",
+            "current_slots": 4,
+            "current_span_count": 1,
+            "current_text": "The recorded color of A is blue. A is paired with B. The recorded color of B is green. No color is recorded for any other entity.",
+            "current_text_sha256": "e82677989eb1befce8d8f98f0b78cb9aea470d0b76d60b50300093962a832481",
+            "history_path": "correction_history/c441ddea4f5eef8bd2c8d80178ad7550bd80c407808260b59fa2ba31bc424872.json",
+            "history_sha256": "c441ddea4f5eef8bd2c8d80178ad7550bd80c407808260b59fa2ba31bc424872"
+          },
+          "evaluation_view": {
+            "answer": "green",
+            "chronology": 2,
+            "format": "replica.correction_evaluation_view.v18",
+            "provenance": {
+              "current_record": "cg10.revision2.span0",
+              "current_text_sha256": "e82677989eb1befce8d8f98f0b78cb9aea470d0b76d60b50300093962a832481",
+              "history_path": "correction_history/c441ddea4f5eef8bd2c8d80178ad7550bd80c407808260b59fa2ba31bc424872.json",
+              "history_sha256": "c441ddea4f5eef8bd2c8d80178ad7550bd80c407808260b59fa2ba31bc424872",
+              "predecessor": "cg10.span0"
+            },
+            "question": "What is the recorded color of the partner of A?",
+            "text": "The recorded color of A is blue. A is paired with B. The recorded color of B is green. No color is recorded for any other entity.",
+            "world_id": "cg10"
+          },
+          "fresh_revocation_retrieval": {
+            "file_reads": 0,
+            "io_bytes": 0,
+            "outcome": "Outcome(status='incomplete', reason='no_semantic_candidate', detail={'candidate_count': 0, 'semantic_candidate_count': 0, 'truncated': False, 'cold_record_ids': (), 'cold_fallback_pending': (), 'text_budget_exhausted': True, 'span_budget_exhausted': False, 'representation_stale': False, 'budget': {'evidence_records': 8, 'evidence_value_slots': 32, 'allow_expanded_context': False, 'p_query_slots': 32, 'identity_bytes': 8388608, 'workspace_bytes': 268435456, 'exact_text_bytes': 0, 'exact_span_bytes': 2048, 'cold_io_bytes': 2097152, 'cross_class_borrowing': False, 'record_values_hold_identity_workspace_or_p': False, 'selection_mode': 'semantic'}}, retryable=False)",
+            "revoked_ids_excluded": true,
+            "revoked_record_ids": [
+              "cg10.revision2.span0"
+            ],
+            "selected_record_ids": []
+          },
+          "learned_unlearning_claim": false,
+          "revision_history": [
+            {
+              "anchor_colour": "blue",
+              "answer": "red",
+              "revision": 1
+            },
+            {
+              "anchor_colour": "blue",
+              "answer": "green",
+              "revision": 2
+            }
+          ],
+          "revoked_read_evidence": {
+            "authority_reason": "stale_snapshot",
+            "cause_type": null,
+            "error_type": "AuthorityRejection",
+            "kind": "stale_snapshot",
+            "message": "correction/revocation/generation invalidated memory"
+          },
+          "revoked_retrieval_rejected": true,
+          "stale_snapshot_evidence": {
+            "authority_reason": "stale_snapshot",
+            "cause_type": null,
+            "error_type": "AuthorityRejection",
+            "kind": "stale_snapshot",
+            "message": "correction/revocation/generation invalidated memory"
+          },
+          "stale_snapshot_rejected": true
+        },
+        "source_forwards": 1,
+        "unknown_origin": false
+      },
+      {
+        "family": "partner_colour",
+        "generation_forwards": 6,
+        "native_capability_claim": false,
+        "receipt": {
+          "after_revocation": {
+            "correct": false,
+            "false_recall": true,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token26 token26",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              26,
+              26
+            ],
+            "total_latency_ns": 3510125,
+            "truncated": true
+          },
+          "corrected_contextual": {
+            "correct": false,
+            "false_recall": false,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token7 token7",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              7,
+              7
+            ],
+            "total_latency_ns": 10108833,
+            "truncated": true
+          },
+          "corrected_exact": {
+            "correct": false,
+            "false_recall": false,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token38 token38",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              38,
+              38
+            ],
+            "total_latency_ns": 3932834,
+            "truncated": true
+          },
+          "correction_oracle": {
+            "earlier_facts_preserved": true,
+            "intended_entity": "A",
+            "rule_family": "partner_colour",
+            "supersedes_revision": 1,
+            "unrelated_facts_unchanged": true,
+            "verification": "structured_and_rendered_compound_revision_oracle"
+          },
+          "correction_publication": {
+            "current_record": "cg11.revision2.span0",
+            "current_slots": 4,
+            "current_span_count": 1,
+            "current_text": "The recorded color of A is blue. A is paired with B. The recorded color of B is green. No color is recorded for any other entity.",
+            "current_text_sha256": "e82677989eb1befce8d8f98f0b78cb9aea470d0b76d60b50300093962a832481",
+            "history_path": "correction_history/7bb7ee4396ffb155104f4ebb4af11d8f9865f567c4d974902106141d9246c078.json",
+            "history_sha256": "7bb7ee4396ffb155104f4ebb4af11d8f9865f567c4d974902106141d9246c078"
+          },
+          "evaluation_view": {
+            "answer": "green",
+            "chronology": 2,
+            "format": "replica.correction_evaluation_view.v18",
+            "provenance": {
+              "current_record": "cg11.revision2.span0",
+              "current_text_sha256": "e82677989eb1befce8d8f98f0b78cb9aea470d0b76d60b50300093962a832481",
+              "history_path": "correction_history/7bb7ee4396ffb155104f4ebb4af11d8f9865f567c4d974902106141d9246c078.json",
+              "history_sha256": "7bb7ee4396ffb155104f4ebb4af11d8f9865f567c4d974902106141d9246c078",
+              "predecessor": "cg11.span0"
+            },
+            "question": "What is the recorded color of the partner of A?",
+            "text": "The recorded color of A is blue. A is paired with B. The recorded color of B is green. No color is recorded for any other entity.",
+            "world_id": "cg11"
+          },
+          "fresh_revocation_retrieval": {
+            "file_reads": 0,
+            "io_bytes": 0,
+            "outcome": "Outcome(status='incomplete', reason='no_semantic_candidate', detail={'candidate_count': 0, 'semantic_candidate_count': 0, 'truncated': False, 'cold_record_ids': (), 'cold_fallback_pending': (), 'text_budget_exhausted': True, 'span_budget_exhausted': False, 'representation_stale': False, 'budget': {'evidence_records': 8, 'evidence_value_slots': 32, 'allow_expanded_context': False, 'p_query_slots': 32, 'identity_bytes': 8388608, 'workspace_bytes': 268435456, 'exact_text_bytes': 0, 'exact_span_bytes': 2048, 'cold_io_bytes': 2097152, 'cross_class_borrowing': False, 'record_values_hold_identity_workspace_or_p': False, 'selection_mode': 'semantic'}}, retryable=False)",
+            "revoked_ids_excluded": true,
+            "revoked_record_ids": [
+              "cg11.revision2.span0"
+            ],
+            "selected_record_ids": []
+          },
+          "learned_unlearning_claim": false,
+          "revision_history": [
+            {
+              "anchor_colour": "blue",
+              "answer": "green",
+              "revision": 2
+            }
+          ],
+          "revoked_read_evidence": {
+            "authority_reason": "stale_snapshot",
+            "cause_type": null,
+            "error_type": "AuthorityRejection",
+            "kind": "stale_snapshot",
+            "message": "correction/revocation/generation invalidated memory"
+          },
+          "revoked_retrieval_rejected": true,
+          "stale_snapshot_evidence": {
+            "authority_reason": "stale_snapshot",
+            "cause_type": null,
+            "error_type": "AuthorityRejection",
+            "kind": "stale_snapshot",
+            "message": "correction/revocation/generation invalidated memory"
+          },
+          "stale_snapshot_rejected": true
+        },
+        "source_forwards": 1,
+        "unknown_origin": true
+      },
+      {
+        "family": "same_colour",
+        "generation_forwards": 6,
+        "native_capability_claim": false,
+        "receipt": {
+          "after_revocation": {
+            "correct": false,
+            "false_recall": true,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token46 token46",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              46,
+              46
+            ],
+            "total_latency_ns": 3983708,
+            "truncated": true
+          },
+          "corrected_contextual": {
+            "correct": false,
+            "false_recall": false,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token49 token49",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              49,
+              49
+            ],
+            "total_latency_ns": 10442500,
+            "truncated": true
+          },
+          "corrected_exact": {
+            "correct": false,
+            "false_recall": false,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token7 token7",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              7,
+              7
+            ],
+            "total_latency_ns": 4390625,
+            "truncated": true
+          },
+          "correction_oracle": {
+            "earlier_facts_preserved": true,
+            "intended_entity": "A",
+            "rule_family": "same_colour",
+            "supersedes_revision": 1,
+            "unrelated_facts_unchanged": true,
+            "verification": "structured_and_rendered_compound_revision_oracle"
+          },
+          "correction_publication": {
+            "current_record": "cg20.revision2.span0",
+            "current_slots": 4,
+            "current_span_count": 1,
+            "current_text": "A has the same recorded color as B. The recorded color of B is green. No color is recorded for any other entity.",
+            "current_text_sha256": "2f476992c0747f1f1f15239026f4e46d62aba01e9d080d086db0e3284fe5c614",
+            "history_path": "correction_history/80414163c77edc83b46678e72b34eee66baa5eb9e0cab3a58da1f7cb28c5dad3.json",
+            "history_sha256": "80414163c77edc83b46678e72b34eee66baa5eb9e0cab3a58da1f7cb28c5dad3"
+          },
+          "evaluation_view": {
+            "answer": "green",
+            "chronology": 2,
+            "format": "replica.correction_evaluation_view.v18",
+            "provenance": {
+              "current_record": "cg20.revision2.span0",
+              "current_text_sha256": "2f476992c0747f1f1f15239026f4e46d62aba01e9d080d086db0e3284fe5c614",
+              "history_path": "correction_history/80414163c77edc83b46678e72b34eee66baa5eb9e0cab3a58da1f7cb28c5dad3.json",
+              "history_sha256": "80414163c77edc83b46678e72b34eee66baa5eb9e0cab3a58da1f7cb28c5dad3",
+              "predecessor": "cg20.span0"
+            },
+            "question": "What is the recorded color of A?",
+            "text": "A has the same recorded color as B. The recorded color of B is green. No color is recorded for any other entity.",
+            "world_id": "cg20"
+          },
+          "fresh_revocation_retrieval": {
+            "file_reads": 0,
+            "io_bytes": 0,
+            "outcome": "Outcome(status='incomplete', reason='no_semantic_candidate', detail={'candidate_count': 0, 'semantic_candidate_count': 0, 'truncated': False, 'cold_record_ids': (), 'cold_fallback_pending': (), 'text_budget_exhausted': True, 'span_budget_exhausted': False, 'representation_stale': False, 'budget': {'evidence_records': 8, 'evidence_value_slots': 32, 'allow_expanded_context': False, 'p_query_slots': 32, 'identity_bytes': 8388608, 'workspace_bytes': 268435456, 'exact_text_bytes': 0, 'exact_span_bytes': 2048, 'cold_io_bytes': 2097152, 'cross_class_borrowing': False, 'record_values_hold_identity_workspace_or_p': False, 'selection_mode': 'semantic'}}, retryable=False)",
+            "revoked_ids_excluded": true,
+            "revoked_record_ids": [
+              "cg20.revision2.span0"
+            ],
+            "selected_record_ids": []
+          },
+          "learned_unlearning_claim": false,
+          "revision_history": [
+            {
+              "anchor_colour": "red",
+              "answer": "red",
+              "revision": 1
+            },
+            {
+              "anchor_colour": "green",
+              "answer": "green",
+              "revision": 2
+            }
+          ],
+          "revoked_read_evidence": {
+            "authority_reason": "stale_snapshot",
+            "cause_type": null,
+            "error_type": "AuthorityRejection",
+            "kind": "stale_snapshot",
+            "message": "correction/revocation/generation invalidated memory"
+          },
+          "revoked_retrieval_rejected": true,
+          "stale_snapshot_evidence": {
+            "authority_reason": "stale_snapshot",
+            "cause_type": null,
+            "error_type": "AuthorityRejection",
+            "kind": "stale_snapshot",
+            "message": "correction/revocation/generation invalidated memory"
+          },
+          "stale_snapshot_rejected": true
+        },
+        "source_forwards": 1,
+        "unknown_origin": false
+      },
+      {
+        "family": "same_colour",
+        "generation_forwards": 6,
+        "native_capability_claim": false,
+        "receipt": {
+          "after_revocation": {
+            "correct": false,
+            "false_recall": true,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token46 token46",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              46,
+              46
+            ],
+            "total_latency_ns": 3154000,
+            "truncated": true
+          },
+          "corrected_contextual": {
+            "correct": false,
+            "false_recall": false,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token49 token49",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              49,
+              49
+            ],
+            "total_latency_ns": 9522334,
+            "truncated": true
+          },
+          "corrected_exact": {
+            "correct": false,
+            "false_recall": false,
+            "generated_tokens": 2,
+            "prompt_tokens": 16,
+            "raw_answer": "token7 token7",
+            "stop_token": null,
+            "terminated": false,
+            "token_ids": [
+              7,
+              7
+            ],
+            "total_latency_ns": 4736458,
+            "truncated": true
+          },
+          "correction_oracle": {
+            "earlier_facts_preserved": true,
+            "intended_entity": "A",
+            "rule_family": "same_colour",
+            "supersedes_revision": 1,
+            "unrelated_facts_unchanged": true,
+            "verification": "structured_and_rendered_compound_revision_oracle"
+          },
+          "correction_publication": {
+            "current_record": "cg21.revision2.span0",
+            "current_slots": 4,
+            "current_span_count": 1,
+            "current_text": "A has the same recorded color as B. The recorded color of B is green. No color is recorded for any other entity.",
+            "current_text_sha256": "2f476992c0747f1f1f15239026f4e46d62aba01e9d080d086db0e3284fe5c614",
+            "history_path": "correction_history/5c887d944152aef844683e73c30bb54711524a0e6c45ad2eec9bd4e161008ab9.json",
+            "history_sha256": "5c887d944152aef844683e73c30bb54711524a0e6c45ad2eec9bd4e161008ab9"
+          },
+          "evaluation_view": {
+            "answer": "green",
+            "chronology": 2,
+            "format": "replica.correction_evaluation_view.v18",
+            "provenance": {
+              "current_record": "cg21.revision2.span0",
+              "current_text_sha256": "2f476992c0747f1f1f15239026f4e46d62aba01e9d080d086db0e3284fe5c614",
+              "history_path": "correction_history/5c887d944152aef844683e73c30bb54711524a0e6c45ad2eec9bd4e161008ab9.json",
+              "history_sha256": "5c887d944152aef844683e73c30bb54711524a0e6c45ad2eec9bd4e161008ab9",
+              "predecessor": "cg21.span0"
+            },
+            "question": "What is the recorded color of A?",
+            "text": "A has the same recorded color as B. The recorded color of B is green. No color is recorded for any other entity.",
+            "world_id": "cg21"
+          },
+          "fresh_revocation_retrieval": {
+            "file_reads": 0,
+            "io_bytes": 0,
+            "outcome": "Outcome(status='incomplete', reason='no_semantic_candidate', detail={'candidate_count': 0, 'semantic_candidate_count': 0, 'truncated': False, 'cold_record_ids': (), 'cold_fallback_pending': (), 'text_budget_exhausted': True, 'span_budget_exhausted': False, 'representation_stale': False, 'budget': {'evidence_records': 8, 'evidence_value_slots': 32, 'allow_expanded_context': False, 'p_query_slots': 32, 'identity_bytes': 8388608, 'workspace_bytes': 268435456, 'exact_text_bytes': 0, 'exact_span_bytes': 2048, 'cold_io_bytes': 2097152, 'cross_class_borrowing': False, 'record_values_hold_identity_workspace_or_p': False, 'selection_mode': 'semantic'}}, retryable=False)",
+            "revoked_ids_excluded": true,
+            "revoked_record_ids": [
+              "cg21.revision2.span0"
+            ],
+            "selected_record_ids": []
+          },
+          "learned_unlearning_claim": false,
+          "revision_history": [
+            {
+              "anchor_colour": "green",
+              "answer": "green",
+              "revision": 2
+            }
+          ],
+          "revoked_read_evidence": {
+            "authority_reason": "stale_snapshot",
+            "cause_type": null,
+            "error_type": "AuthorityRejection",
+            "kind": "stale_snapshot",
+            "message": "correction/revocation/generation invalidated memory"
+          },
+          "revoked_retrieval_rejected": true,
+          "stale_snapshot_evidence": {
+            "authority_reason": "stale_snapshot",
+            "cause_type": null,
+            "error_type": "AuthorityRejection",
+            "kind": "stale_snapshot",
+            "message": "correction/revocation/generation invalidated memory"
+          },
+          "stale_snapshot_rejected": true
+        },
+        "source_forwards": 1,
+        "unknown_origin": true
+      }
+    ],
+    "repeated": [
+      {
+        "family": "direct",
+        "history_sha256": [
+          "f14dec03df2b711b6fbba9d4bf5966baf946274be2c8ddd040e40921c50cd9e4",
+          "482d0501afce5439135156eea9380ac88f4e7ff1656aee8b2bd8ce7c9cb8faf2",
+          "25841b1f1939a807f2a22c293ca188c65a0a4785295db3657b880519605e637f"
+        ],
+        "native_capability_claim": false,
+        "revisions": 3,
+        "unknown_origin": false
+      },
+      {
+        "family": "direct",
+        "history_sha256": [
+          "545efbad84bf1041f1124b25863f2626ddc2e5ca071b6662543160cac13e96b5",
+          "97b0b9e73bbc48e289f0adb1f3766913e9ba7132a25839af6fb326d28f41401e",
+          "7ee3b91ca3dc3f51cf267d747fe72b162311713035426113221093927aa5934f"
+        ],
+        "native_capability_claim": false,
+        "revisions": 3,
+        "unknown_origin": true
+      },
+      {
+        "family": "partner_colour",
+        "history_sha256": [
+          "c441ddea4f5eef8bd2c8d80178ad7550bd80c407808260b59fa2ba31bc424872",
+          "0c21d203225879ca0729eb7bd9937b174a566c7f19a6ac2c17982bf9ce8face1",
+          "cbdc37f4ee5d4e1ffd418e6d876af698c97146b199157fa30b9b1a4c9131fc7a"
+        ],
+        "native_capability_claim": false,
+        "revisions": 3,
+        "unknown_origin": false
+      },
+      {
+        "family": "partner_colour",
+        "history_sha256": [
+          "7bb7ee4396ffb155104f4ebb4af11d8f9865f567c4d974902106141d9246c078",
+          "b4eb13c99421b07727689fa74b7d4bb57fbbd7e66e5f0de39d371254d17a01eb",
+          "4c466132d578235d084c6420c2a179fb9fbcbacb649408035a1fb4d9f8a6576f"
+        ],
+        "native_capability_claim": false,
+        "revisions": 3,
+        "unknown_origin": true
+      },
+      {
+        "family": "same_colour",
+        "history_sha256": [
+          "80414163c77edc83b46678e72b34eee66baa5eb9e0cab3a58da1f7cb28c5dad3",
+          "2a23f7c8ecaf936f80394904908881216d1984a365db46a3f021500827b62ee4",
+          "e5537bc0d70fe446f8b5b870989702baa5908cfa25b0a895626b672465bd4b59"
+        ],
+        "native_capability_claim": false,
+        "revisions": 3,
+        "unknown_origin": false
+      },
+      {
+        "family": "same_colour",
+        "history_sha256": [
+          "5c887d944152aef844683e73c30bb54711524a0e6c45ad2eec9bd4e161008ab9",
+          "7fb645ccc25ca25fb50ffa46da071c80926f05971dedc538beaa8ccac334aaf8",
+          "6218fec1616b98a6ba2825c314949598bd919e7f4452e3f00d8b946b333ef865"
+        ],
+        "native_capability_claim": false,
+        "revisions": 3,
+        "unknown_origin": true
+      }
+    ]
+  },
+  "evaluation_payload_access": false,
+  "model_competence_claim": false,
+  "native_model_loads": 0,
+  "project_imports": {
+    "replica_lab": "src/replica_lab/__init__.py",
+    "replica_lab.architecture": "src/replica_lab/architecture/__init__.py",
+    "replica_lab.architecture.contracts": "src/replica_lab/architecture/contracts.py",
+    "replica_lab.architecture.core": "src/replica_lab/architecture/core.py",
+    "replica_lab.architecture.heads": "src/replica_lab/architecture/heads.py",
+    "replica_lab.architecture.intrinsic_memory": "src/replica_lab/architecture/intrinsic_memory.py",
+    "replica_lab.architecture.intrinsic_memory_layout_v4": "src/replica_lab/architecture/intrinsic_memory_layout_v4.py",
+    "replica_lab.architecture.minicpm5": "src/replica_lab/architecture/minicpm5.py",
+    "replica_lab.architecture.plastic": "src/replica_lab/architecture/plastic.py",
+    "replica_lab.architecture.ports": "src/replica_lab/architecture/ports.py",
+    "replica_lab.architecture.spark2_5": "src/replica_lab/architecture/spark2_5.py",
+    "replica_lab.architecture.spark_adapter": "src/replica_lab/architecture/spark_adapter.py",
+    "replica_lab.architecture.spine": "src/replica_lab/architecture/spine.py",
+    "replica_lab.architecture.spine_checkpoint": "src/replica_lab/architecture/spine_checkpoint.py",
+    "replica_lab.architecture.spine_memory": "src/replica_lab/architecture/spine_memory.py",
+    "replica_lab.architecture.spine_text": "src/replica_lab/architecture/spine_text.py",
+    "replica_lab.artifact_publication": "src/replica_lab/artifact_publication.py",
+    "replica_lab.baseline_competence": "src/replica_lab/baseline_competence.py",
+    "replica_lab.contextual_completion_objective_v1": "src/replica_lab/contextual_completion_objective_v1.py",
+    "replica_lab.contextual_feature_identity_v12": "src/replica_lab/contextual_feature_identity_v12.py",
+    "replica_lab.contextual_memory": "src/replica_lab/contextual_memory.py",
+    "replica_lab.contextual_memory_layout_v12": "src/replica_lab/contextual_memory_layout_v12.py",
+    "replica_lab.contextual_memory_layout_v4": "src/replica_lab/contextual_memory_layout_v4.py",
+    "replica_lab.contextual_memory_v12": "src/replica_lab/contextual_memory_v12.py",
+    "replica_lab.contextual_memory_v5": "src/replica_lab/contextual_memory_v5.py",
+    "replica_lab.contextual_release_v12": "src/replica_lab/contextual_release_v12.py",
+    "replica_lab.contextual_release_v5": "src/replica_lab/contextual_release_v5.py",
+    "replica_lab.contextual_source_features_v12": "src/replica_lab/contextual_source_features_v12.py",
+    "replica_lab.contextual_spark_fixture": "src/replica_lab/contextual_spark_fixture.py",
+    "replica_lab.contextual_teacher_objective_v1": "src/replica_lab/contextual_teacher_objective_v1.py",
+    "replica_lab.contextual_v12_fixture": "src/replica_lab/contextual_v12_fixture.py",
+    "replica_lab.execution_manifest": "src/replica_lab/execution_manifest.py",
+    "replica_lab.intrinsic_memory_acceptance_v13": "src/replica_lab/intrinsic_memory_acceptance_v13.py",
+    "replica_lab.intrinsic_memory_acceptance_v15": "src/replica_lab/intrinsic_memory_acceptance_v15.py",
+    "replica_lab.intrinsic_memory_alignment_v10": "src/replica_lab/intrinsic_memory_alignment_v10.py",
+    "replica_lab.intrinsic_memory_budget_v12": "src/replica_lab/intrinsic_memory_budget_v12.py",
+    "replica_lab.intrinsic_memory_budget_v13": "src/replica_lab/intrinsic_memory_budget_v13.py",
+    "replica_lab.intrinsic_memory_budget_v5": "src/replica_lab/intrinsic_memory_budget_v5.py",
+    "replica_lab.intrinsic_memory_correction_fixture_v18": "src/replica_lab/intrinsic_memory_correction_fixture_v18.py",
+    "replica_lab.intrinsic_memory_correction_v18": "src/replica_lab/intrinsic_memory_correction_v18.py",
+    "replica_lab.intrinsic_memory_counterfactual_v13": "src/replica_lab/intrinsic_memory_counterfactual_v13.py",
+    "replica_lab.intrinsic_memory_coverage_v11": "src/replica_lab/intrinsic_memory_coverage_v11.py",
+    "replica_lab.intrinsic_memory_coverage_v12": "src/replica_lab/intrinsic_memory_coverage_v12.py",
+    "replica_lab.intrinsic_memory_cpu_fixture_v18": "src/replica_lab/intrinsic_memory_cpu_fixture_v18.py",
+    "replica_lab.intrinsic_memory_diagnostic_v12": "src/replica_lab/intrinsic_memory_diagnostic_v12.py",
+    "replica_lab.intrinsic_memory_diagnostic_v5": "src/replica_lab/intrinsic_memory_diagnostic_v5.py",
+    "replica_lab.intrinsic_memory_execution_v12": "src/replica_lab/intrinsic_memory_execution_v12.py",
+    "replica_lab.intrinsic_memory_execution_v5": "src/replica_lab/intrinsic_memory_execution_v5.py",
+    "replica_lab.intrinsic_memory_exposure_v7": "src/replica_lab/intrinsic_memory_exposure_v7.py",
+    "replica_lab.intrinsic_memory_interference_protocol_v17": "src/replica_lab/intrinsic_memory_interference_protocol_v17.py",
+    "replica_lab.intrinsic_memory_interference_v17": "src/replica_lab/intrinsic_memory_interference_v17.py",
+    "replica_lab.intrinsic_memory_measurement_v18": "src/replica_lab/intrinsic_memory_measurement_v18.py",
+    "replica_lab.intrinsic_memory_native_v12": "src/replica_lab/intrinsic_memory_native_v12.py",
+    "replica_lab.intrinsic_memory_native_v5": "src/replica_lab/intrinsic_memory_native_v5.py",
+    "replica_lab.intrinsic_memory_reader_query_v15": "src/replica_lab/intrinsic_memory_reader_query_v15.py",
+    "replica_lab.intrinsic_memory_smaller_step_v9": "src/replica_lab/intrinsic_memory_smaller_step_v9.py",
+    "replica_lab.intrinsic_memory_teacher_v12": "src/replica_lab/intrinsic_memory_teacher_v12.py",
+    "replica_lab.intrinsic_memory_worlds_v11": "src/replica_lab/intrinsic_memory_worlds_v11.py",
+    "replica_lab.memory_system": "src/replica_lab/memory_system/__init__.py",
+    "replica_lab.memory_system.answer": "src/replica_lab/memory_system/answer.py",
+    "replica_lab.memory_system.index": "src/replica_lab/memory_system/index.py",
+    "replica_lab.memory_system.ledger": "src/replica_lab/memory_system/ledger.py",
+    "replica_lab.memory_system.session": "src/replica_lab/memory_system/session.py",
+    "replica_lab.memory_system.writer": "src/replica_lab/memory_system/writer.py",
+    "replica_lab.model_identity": "src/replica_lab/model_identity.py",
+    "replica_lab.nested_learning": "src/replica_lab/nested_learning.py",
+    "replica_lab.neural": "src/replica_lab/neural.py",
+    "replica_lab.optimizers": "src/replica_lab/optimizers.py",
+    "replica_lab.replica": "src/replica_lab/replica/__init__.py",
+    "replica_lab.replica.identity": "src/replica_lab/replica/identity.py",
+    "replica_lab.replica.reader": "src/replica_lab/replica/reader.py",
+    "replica_lab.spark_device_placement_v2": "src/replica_lab/spark_device_placement_v2.py",
+    "replica_lab.tiered_memory": "src/replica_lab/tiered_memory.py",
+    "replica_lab.tiered_readout": "src/replica_lab/tiered_readout.py",
+    "replica_lab.training_state": "src/replica_lab/training_state.py"
+  },
+  "scope": "synthetic_CPU_real_generation_and_source_validation",
+  "source_root": "/Users/flare/replica_r3_starter/reports/spark_repairs_v18/preparation_attempt04/source_snapshot"
+}

@@ -17,35 +17,11 @@ INDEX = {label: index for index, label in enumerate(LABELS)}
 
 
 def probe(features, answers, *, shuffled=None, identities=None):
-    if identities is not None and len(identities) != len(answers):
-        raise ValueError("probe identities must align with rows")
-    one_hot = torch.zeros(len(answers), len(LABELS))
-    for index, answer in enumerate(answers):
-        one_hot[index, INDEX[answer]] = 1.0
-    if shuffled is not None:
-        one_hot = one_hot[shuffled]
-    targets = [LABELS[int(row.argmax())] for row in one_hot]
-    predictions = []
-    for holdout in range(len(features) // 2):
-        train = torch.tensor([index for index in range(len(features))
-                              if index // 2 != holdout])
-        center = features[train].mean(dim=0)
-        prior = one_hot[train].mean(dim=0)
-        x = features[train] - center
-        x = x / x.norm(dim=1, keepdim=True).clamp_min(1e-12)
-        y = one_hot[train] - prior
-        weights = torch.linalg.solve(x.T @ x + torch.eye(x.shape[1]), x.T @ y)
-        for index in (holdout * 2, holdout * 2 + 1):
-            normalized = features[index] - center
-            normalized = normalized / normalized.norm().clamp_min(1e-12)
-            scores = normalized @ weights + prior
-            predicted = LABELS[int(scores.argmax())]
-            identity = (identities[index] if identities is not None
-                        else {"world_index": index})
-            predictions.append({**identity, "actual": targets[index],
-                                "expected_answer": answers[index],
-                                "predicted": predicted, "correct": predicted == targets[index]})
-    return predictions
+    from replica_lab.intrinsic_memory_probe_v18 import probe as grouped_probe
+    return grouped_probe(features, answers, shuffled=shuffled, identities=identities,
+                         solver="primal")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--run", required=True, type=Path)
@@ -82,7 +58,7 @@ def main():
     result = {
         "format": "replica.intrinsic_memory.slot_decodability_probe.v15",
         "run_root": str(args.run),
-        "rows": len(answers), "pairs": len(answers) // 2,
+        "rows": len(answers), "groups": len({row["pair_index"] for row in identities}),
         "feature": "mean of four V13 slots, per-row L2 normalization, training-fold centering",
         "model": "ridge regression alpha=1 with unpenalized training-label-prior intercept",
         "evaluation": "whole-pair holdouts on known-answer colors only",

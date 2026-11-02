@@ -1,0 +1,99 @@
+{
+  "development_labels_used": false,
+  "endpoints": {
+    "paired_joint": {
+      "absolute_final_margins": [
+        3.9802064895629883,
+        -3.9802064895629883,
+        4.006928443908691,
+        -4.006928443908691,
+        3.9840688705444336,
+        -3.9840688705444336,
+        3.9041595458984375,
+        -3.9041595458984375
+      ],
+      "full_vocabulary_first_token_correct": 4,
+      "guard_count": 4,
+      "mean_final_pair_minimum_margin": -3.9688408374786377,
+      "pair_minimum_margins": [
+        -3.9802064895629883,
+        -4.006928443908691,
+        -3.9840688705444336,
+        -3.9041595458984375
+      ],
+      "positive_pair_margin_worlds": 4,
+      "teacher_forced_complete_correct": 0
+    },
+    "sequential": {
+      "absolute_final_margins": [
+        3.7066736221313477,
+        -3.7066736221313477,
+        3.7005748748779297,
+        -3.7005748748779297,
+        3.7210865020751953,
+        -3.7210865020751953,
+        3.6363167762756348,
+        -3.6363167762756348
+      ],
+      "full_vocabulary_first_token_correct": 4,
+      "guard_count": 4,
+      "mean_final_pair_minimum_margin": -3.691162943840027,
+      "pair_minimum_margins": [
+        -3.7066736221313477,
+        -3.7005748748779297,
+        -3.7210865020751953,
+        -3.6363167762756348
+      ],
+      "positive_pair_margin_worlds": 4,
+      "teacher_forced_complete_correct": 0
+    }
+  },
+  "final_restoration": {
+    "equal": {
+      "buffers": true,
+      "cpu_rng": true,
+      "module_modes": true,
+      "mps_rng": true,
+      "optimizer": true,
+      "optimizer_moments": true,
+      "optimizer_steps": true,
+      "parameters": true,
+      "python_rng": true
+    },
+    "expected": {
+      "buffers": "6ab47d70854a8c690a0c2035be903f3d812cbab06f9e442e9b10ad70b1acd446",
+      "cpu_rng": "59d1cd45e0999dabe5f74421764e3e0014982dbd3ec9f853771114055b041883",
+      "module_modes": "b7fd9db4a60725d7890a070586d5660b9f40b5c2e6f39d7f05361287ec18dcb5",
+      "mps_rng": "69ad89230110a65e9eb84af9730376180a889675a4d312714be802a187512658",
+      "optimizer": "67bcab6ce333cf22d4f4ad05fcb2fdf4ad82378aae6bbca08ee9f03d41eb5a1d",
+      "optimizer_moments": "16a3a62529199a2e19532da8beaad417ba906680bbf6b81e3e1535e5ace0ff3f",
+      "optimizer_steps": "e7be65a81016781041a7bb8351f463de42930d551a87b09054024a795fec9873",
+      "parameters": "f5dc403ab950122dd7f1489c3eea5d18080636785f4bc5cfaae0dba4df1bfac1",
+      "python_rng": "fe61fe0d6bf3c5a882bf4ff4a551925f5eb3e96ee68928e9629e8e08da42359e"
+    },
+    "mps_rng_applicable": false,
+    "observed": {
+      "buffers": "6ab47d70854a8c690a0c2035be903f3d812cbab06f9e442e9b10ad70b1acd446",
+      "cpu_rng": "59d1cd45e0999dabe5f74421764e3e0014982dbd3ec9f853771114055b041883",
+      "module_modes": "b7fd9db4a60725d7890a070586d5660b9f40b5c2e6f39d7f05361287ec18dcb5",
+      "mps_rng": "69ad89230110a65e9eb84af9730376180a889675a4d312714be802a187512658",
+      "optimizer": "67bcab6ce333cf22d4f4ad05fcb2fdf4ad82378aae6bbca08ee9f03d41eb5a1d",
+      "optimizer_moments": "16a3a62529199a2e19532da8beaad417ba906680bbf6b81e3e1535e5ace0ff3f",
+      "optimizer_steps": "e7be65a81016781041a7bb8351f463de42930d551a87b09054024a795fec9873",
+      "parameters": "f5dc403ab950122dd7f1489c3eea5d18080636785f4bc5cfaae0dba4df1bfac1",
+      "python_rng": "fe61fe0d6bf3c5a882bf4ff4a551925f5eb3e96ee68928e9629e8e08da42359e"
+    }
+  },
+  "format": "replica.intrinsic_memory.paired_update.v18.2",
+  "generated_tokens": 0,
+  "interpretation": "relative improvement may leave both worlds incorrect; no generalization or promotion",
+  "joint_minus_sequential": -0.27767789363861084,
+  "objective": "answer_plus_EOS_mean_CE_with_inherited_V16_teacher_KL_moments",
+  "optimizer_steps": {
+    "paired_joint": 4,
+    "sequential": 8
+  },
+  "parameter_updates": 12,
+  "per_world_exposures_per_arm": 1,
+  "relative_conditions_passed": false
+}

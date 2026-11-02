@@ -1,0 +1,35 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_correction_generation_v18.py",
+    "tests/test_spark_repairs_v18.py",
+    "tests/test_intrinsic_acceptance_v13.py",
+    "tests/test_intrinsic_interference_v17.py",
+    "tests/test_intrinsic_acceptance_v15.py",
+    "tests/test_native_correction_v17.py",
+    "tests/test_intrinsic_archive_migration_v16.py",
+    "tests/test_sequence_evidence_v17.py",
+    "tests/test_decodability_probe_v16.py",
+    "tests/test_contextual_source_features_v12.py",
+    "tests/test_contextual_memory_v12.py",
+    "tests/test_contextual_memory_layout_v12.py",
+    "tests/test_contextual_v12_integration.py",
+    "tests/test_intrinsic_native_v12.py",
+    "tests/test_intrinsic_reader_query_v15.py",
+    "tests/test_intrinsic_content_key_v16.py",
+    "tests/test_intrinsic_lifecycle_fixture_v13.py",
+    "tests/test_independent_review_v12_findings.py",
+    "--junitxml=reports/spark_correction_generation_v18/affected_tests.xml"
+  ],
+  "cwd": "/Users/flare/replica_r3_starter",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "1",
+    "PYTHONPATH": "src:tests:scripts"
+  },
+  "exit_code": 0,
+  "wall_seconds": 57.29504033410922
+}

@@ -1,0 +1,19 @@
+{
+  "format": "replica.spark.preparation_failure.v18.2",
+  "preparation": 1,
+  "packet": "reports/spark_repairs_v18/native_packet.json",
+  "packet_sha256": "ccf31bd96bb1d4577cffbdc3efb759ab7399cb7d9a312ea0b2fc5f98945aba40",
+  "command": [
+    ".venv/bin/python",
+    "reports/spark_repairs_v18/source_snapshot/scripts/validate_spark_repairs_v18.py",
+    "--output",
+    "reports/spark_repairs_v18/cpu_validation_snapshot"
+  ],
+  "exit_code": 1,
+  "error": "ImportError: cannot import name artifact_publication from replica_lab; static closure omitted from .. import module dependencies",
+  "mechanical_review_limitation": "the old resolver compared two identically incomplete closures; digest equality alone did not prove executable completeness",
+  "native_model_loaded": false,
+  "native_attempt_consumed": false,
+  "authorization_created": false,
+  "disposition": "invalid; preserved; replaced by separately bound preparation_attempt02"
+}

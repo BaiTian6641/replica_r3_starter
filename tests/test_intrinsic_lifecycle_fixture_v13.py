@@ -3,6 +3,9 @@
 Synthetic answers and a tiny random CPU backbone only. This checks orchestration,
 metadata reads, reservations, receipts, development exposure, checkpoint/restart
 and final accounting; it is not model-quality or native-capability evidence.
+Generation is mocked here, so this suite does not exercise canonical-span
+validation or decoder generation. test_correction_generation_v18.py exercises
+the actual controller correction stage and inherited generate method on CPU.
 """
 from __future__ import annotations
 
@@ -62,6 +65,12 @@ def write_split(root: Path, role: str, count: int) -> dict:
 
 def protocol(root: Path) -> dict:
     budget = plan("two")
+    # This synthetic successor exercises the repaired correction path. Sealed
+    # v12 plans remain historical and cannot pay for new history/retrieval work.
+    budget["correction"]["artifact_bytes"] += 64 * 1024
+    budget["correction"]["artifact_read_bytes"] += 1024 * 1024
+    budget["correction"]["writes"] += 1
+    budget["correction"]["retrievals"] += 1
     return {
         "fit_probe_prefixes": [128, 256, 384, 512],
         "generation": {"max_new_tokens": 8},
@@ -157,7 +166,7 @@ def install_synthetic_model(monkeypatch, final_fit_passed: bool, calls: dict):
 
 
 @pytest.mark.parametrize("final_fit_passed", [False, True])
-def test_real_controller_full_lifecycle_and_final_accounting(
+def test_controller_orchestration_full_lifecycle_and_final_accounting(
         tmp_path, monkeypatch, final_fit_passed):
     torch.set_num_threads(1)
     root = tmp_path / "root"

@@ -23,36 +23,9 @@ REFERENCE_CONTROLS = (0, 3, 2, 4)
 
 
 def probe(features, answers, *, shuffled=None, identities=None):
-    """Dual ridge with fold-local preprocessing and matched held-out targets."""
-    if identities is not None and len(identities) != len(answers):
-        raise ValueError("probe identities must align with rows")
-    one_hot = torch.zeros(len(answers), len(LABELS))
-    for index, answer in enumerate(answers):
-        one_hot[index, INDEX[answer]] = 1.0
-    if shuffled is not None:
-        one_hot = one_hot[shuffled]
-    targets = [LABELS[int(row.argmax())] for row in one_hot]
-    predictions = []
-    for holdout in range(len(features) // 2):
-        train = torch.tensor([index for index in range(len(features))
-                              if index // 2 != holdout])
-        center = features[train].mean(dim=0)
-        prior = one_hot[train].mean(dim=0)
-        x = features[train] - center
-        x = x / x.norm(dim=1, keepdim=True).clamp_min(1e-12)
-        y = one_hot[train] - prior
-        dual = torch.linalg.solve(x @ x.T + torch.eye(x.shape[0]), y)
-        for index in (holdout * 2, holdout * 2 + 1):
-            normalized = features[index] - center
-            normalized = normalized / normalized.norm().clamp_min(1e-12)
-            scores = normalized @ x.T @ dual + prior
-            predicted = LABELS[int(scores.argmax())]
-            identity = (identities[index] if identities is not None
-                        else {"world_index": index})
-            predictions.append({**identity, "actual": targets[index],
-                                "expected_answer": answers[index],
-                                "predicted": predicted, "correct": predicted == targets[index]})
-    return predictions
+    from replica_lab.intrinsic_memory_probe_v18 import probe as grouped_probe
+    return grouped_probe(features, answers, shuffled=shuffled, identities=identities,
+                         solver="dual")
 
 
 def probe_summary(features, answers, identities):
@@ -80,6 +53,7 @@ def sha256(path):
 def analyze(run, reference):
     run, reference = Path(run), Path(reference)
     answers, actual_first, identities = [], [], []
+    known_known_first, known_known_pairs_correct = [], 0
     features = {name: [] for name in (
         "slots_mean", "weights_3", "weights_7", "read_3", "read_7", "query_3", "query_7")}
     concentration = {site: {control: [] for control in CONTROLS} for site in (3, 7)}
@@ -122,6 +96,10 @@ def analyze(run, reference):
                     })
                 top = int(weights[side, 0].argmax())
                 top_slots[site][top] += 1
+        if all(answer != "unknown" for answer in document["expected_answers"]):
+            flags = [document["control_outputs"][side][0]["first_token_correct"] for side in (0, 1)]
+            known_known_first.extend(flags)
+            known_known_pairs_correct += int(all(flags))
         for side in (0, 1):
             answer = document["expected_answers"][side]
             if answer == "unknown":
@@ -149,7 +127,7 @@ def analyze(run, reference):
                 "max_weight_mean": statistics.mean(row["max_weight"] for row in rows),
             }
     return {
-        "format": "replica.intrinsic_memory.reader_query_analysis.v15",
+        "format": "replica.intrinsic_memory.reader_query_analysis.v15.qualification2",
         "run_root": str(run), "reference_root": str(reference),
         "rows": 32, "pairs": 16, "known_answer_rows": len(answers),
         "exact_reference_first_token_logits": exact_logits,
@@ -167,10 +145,13 @@ def analyze(run, reference):
                         "min": min(pair_read_mean_abs[site]), "max": max(pair_read_mean_abs[site])}
             for site in (3, 7)},
         "known_answer_first_token_correct": sum(actual_first),
+        "known_known_first_token_correct": sum(known_known_first),
+        "known_known_rows": len(known_known_first),
+        "known_known_pairs_both_correct": known_known_pairs_correct,
         "decodability": {name: probe_summary(torch.stack(rows), answers, identities)
                          for name, rows in features.items()},
         "selection": {
-            "primary_mechanism": "content_only_attention_keys_with_ordered_values_retained",
+            "primary_mechanism": "historical_v16_selection_preserved_no_new_selection",
             "hypothesis": "learned-order-dominated keys cause positional addressing collapse despite information-preserving reads",
             "falsification": "reject if any final eight-world fitting group fails or known-known pairs both correct do not exceed 1/8 after exactly 512 updates",
             "source_features_changed": False, "slot_count_changed": False,

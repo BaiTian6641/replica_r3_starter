@@ -1,8 +1,8 @@
 # Spark fitting-only sequence-margin and gradient-interference diagnostic v17
 
-Status: **attempt05 completed the bounded fitting-only diagnostic.** Attempts01–03 failed before a valid diagnostic; attempt04 was only prepared. Development labels remain closed; no candidate was selected and no generalization claim is made.
+Status: **attempt05 completed; interpretation qualified by V17.2 below.** The historical post-update scores reused pre-update slots. They are frozen-slot conditional evidence, not measurements of the updated end-to-end producer–reader system. Attempts01–03 failed before a valid diagnostic; attempt04 was only prepared. Native development access remained zero. Engineering exposure is separately recorded in the [repair report](20261031_Spark_Repairs_V18_Review.md); no generalization claim is made.
 
-## Fixed scope and parent
+## Historical specification and fixed parent
 
 - Source: sealed official BF16 Spark and its established tokenizer/original parameter identity. Official FP8 and FP8-derived BF16 remain different identities.
 - Parent: V16 content-key attempt01 extension plus optimizer, manifest SHA-256 `a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c`, loaded through explicit validated migration. Content-key mode is required.
@@ -16,7 +16,7 @@ For each world and each arm, preserve:
 
 - Expected-versus-alternative sequence log-likelihood using each candidate's own tokens under the same memory context; answer-token and EOS contributions separately.
 - Frozen source features, compressed slots, actual attention queries/keys/values/weights/reads and per-site residuals.
-- `wrong_value`, `wrong_read_3`, and `wrong_read_7` interventions. Read overrides use the partner's pre-projection read vector at only the named site; alternative answers use the same intervention, not an additional wrong-value change.
+- `wrong_value`, `wrong_read_3`, and `wrong_read_7` interventions. Read overrides broadcast the partner's prompt-end pre-projection read vector to every sequence position at the named site; alternative answers use the same intervention, not an additional wrong-value change.
 - Per-example gradient norms, dot product and cosine similarity for paired worlds, before any update.
 - Margins before and after one update on the world itself or its counterfactual partner.
 - Parameter/optimizer/RNG restoration checks, model loads, forwards, backwards, input tokens, source reads, writes and retained tensors.
@@ -33,7 +33,7 @@ The analysis must not treat fixed attention positions or weak weight-only color 
 - Resources: one exclusive worker, 50 GiB sampled driver, 512 MiB sustained swap growth, at least 15% host free and CPU fallback disabled.
 - Attempts: one, zero retries; separate exact authorization required.
 
-Two CPU tests prove complete pair evidence and exact optimizer restoration. Native packet review and environment-only validation pass without model import or development-label access. No candidate training arm is selected until these measurements are reconciled.
+Historical preparation recorded two passing CPU tests and passing packet/environment checks. Those checks did not cover the nonzero-producer stale-slot defect; the versioned qualification below limits their interpretation. They do not authorize reuse of a consumed packet.
 
 ## Attempt01 failure and separate attempt02
 
@@ -112,3 +112,15 @@ The result is a falsification diagnostic for independent fitting on these four k
 - Watchdog wall time: 77.489 seconds; outer command wall: 80.54 seconds. All reservations remained within the predeclared envelope. The independent reviewer recomputed every margin delta and all gradient cosines and found no invalidating numerical or accounting defect.
 
 The earlier failures and prepared-but-unlaunched attempt04 remain preserved. No consumed attempt was retried.
+
+## Qualification V17.2 — 31 October 2026
+
+This append-only qualification supersedes the end-to-end interpretation of the preserved table and the earlier independent-review conclusion. No historical result, analysis, protocol, failed attempt or native access receipt is changed. [Qualification receipt and historical hashes](../../reports/spark_repairs_v18/v17_qualification2.json).
+
+`run_pair` built its baseline batches before the optimizer update and reused those producer-dependent slots afterward. The training-batch path permitted their use despite the producer changing. Therefore the 7/8 target improvement and 7/8 partner decrease describe updated reader/parameter behavior with pre-update slots held fixed. They do not establish the same interference in the updated end-to-end system. Both worlds must be recompressed before that conclusion can be tested.
+
+The independent CPU fixture uses nonzero producer and reader influence and initialized optimizer moments. Its two updates give live-minus-frozen margins approximately −0.550170/+0.550170 and −1.247336/+1.247336. The repair reports fresh-slot scores and a separately named `frozen_slot_intervention`; it does not replace the native table with CPU numbers. Only the frozen backbone-feature cache may be reused after its content/tokenizer identity is checked.
+
+The current restoration code compares parameter, buffer, mode, optimizer-moment, step-counter and CPU/applicable MPS/Python RNG digests. Historical native booleans remain constants and cannot be retroactively upgraded. Read interventions were always all-position broadcasts at the selected site, not one-position edits. Answer likelihood, competing-answer likelihood, EOS, margin and full-vocabulary teacher-forced predictions are now separate fields. Per-module gradients and actual AdamW displacement are measured; V16's KL-trained moments are inherited by V17/V18 CE updates, so gradient cosine is not the optimizer direction.
+
+Old packet budgets do not cover these additional measurements and their closures no longer match repaired source. Do not rerun a consumed V17 attempt or silently reuse an old packet. The [V18.2 comparison](20261031_Spark_Paired_Update_V18.md) has its own derived budgets and stable source snapshot and remains natively unlaunched. Passing engineering regressions and a past independent PASS are not evidence that all correctness blockers are gone.

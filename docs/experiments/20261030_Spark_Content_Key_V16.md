@@ -9,7 +9,9 @@ V15 attempt02 completed all 16 pairs with zero generation/updates and no develop
 - Site 3 attention has mean maximum weight 0.9739; site 7 has 0.9972. This is peaked, not diffuse, attention.
 - Site 3 selects the same top slot in 16/16 counterfactual pairs; site 7 selects slot 0 in 32/32 rows.
 - Pair-held-out answer decodability is 0/24 for site-3 weights and 5/24 for site-7 weights, versus 21/24 for each site's read and 21/24 for averaged slots. Shuffled-label means are approximately 6/24.
-- Actual known-known first-token correctness is 16/24, while known-known pairs both correct remain 1/8. Known-unknown and exact-evidence behavior are separate controls.
+- Correct first tokens are 16/24 across all known-answer rows and 9/16 within known–known pairs; known–known pairs both correct remain 1/8. Known–unknown and exact-evidence behavior are separate controls.
+
+The historical site-7 probe value above is qualified by the [original-group reanalysis](../../reports/spark_repairs_v18/v15_analysis_qualification2.json): 7/24 after correcting filtered folds, with original artifacts unchanged. Native development access remains distinct from the [engineering exposure](../../reports/spark_repairs_v18/engineering_exposure.json) of the old split. This correction does not reopen V16 selection or its terminal gates.
 
 The tested failure hypothesis was **learned-order dominance in attention keys causing positional addressing collapse**, not insufficient information in compressed values. Fixed positions and weak weight-only probes did not prove that hypothesis; they only motivated the test. Content-only keys were evaluated while ordered values retained the established slot semantics. Source features, four slots per span, value order, sites 3/7, post-block placement, optimizer, objective, data order, initialization seed 17 and terminal gates were unchanged. The extension started from the same initialization, not trained v12/v14 weights.
 

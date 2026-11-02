@@ -70,8 +70,7 @@ slot 0 in 32/32 rows. These facts alone do **not** prove failed addressing:
 different correctly selected values may occupy the same slot. Pair-held-out answer
 decodability is 0/24 for site-3 weights, 5/24 for site-7 weights and 21/24 for
 each read and averaged slots, but weak weight-only color prediction is likewise
-not an addressing verdict. Known-known first-token correctness is 16/24; known-
-known pairs both correct remain 1/8.
+not an addressing verdict. First-token correctness is **16/24 across all known-answer rows**, including known sides of known–unknown pairs. Within known–known pairs it is **9/16**; known–known pairs both correct remain **1/8**.
 
 The selected single mechanism was **content-only attention keys with ordered
 values retained**, targeting a learned-order/key-alignment hypothesis rather than
@@ -83,3 +82,9 @@ raw metrics, original pair identities and matched shuffled targets are in
 `attempt02_analysis_run02.json`. Earlier control scores remain preserved with
 their original-target scoring defect. Less-compressed/compression-training and
 exact-evidence paths remain separate.
+
+## Qualification 2 — original group folds and engineering exposure
+
+The [31 October analysis](../../reports/spark_repairs_v18/v15_analysis_qualification2.json) keeps original pair identities after unknown-row filtering. It scores every eligible row once, including singleton groups; the earlier adjacency-based folds were invalid after filtering. Corrected weight-only probe scores are site 3 **0/24** and site 7 **7/24**, with reads/averaged slots **21/24**. The historical 5/24 site-7 score and original artifacts remain preserved. Shuffled labels are scored against the matched shuffled targets under the same group folds; 100 controls are retained. This is a new analysis, not a new mechanism selection.
+
+V15's zero native development access remains a run-specific fact. The old correction regression independently exposed the actual v12 development split during engineering. That split is retired for fresh generalization claims; native exposure receipts are unchanged. See the [separate engineering exposure record](../../reports/spark_repairs_v18/engineering_exposure.json).

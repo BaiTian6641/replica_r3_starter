@@ -1,0 +1,99 @@
+{
+  "base_commit": "cfe7082c2556c042d25a6388cc1f89ce754ba7f7",
+  "changed_source_files": [
+    "scripts/prepare_spark_paired_update_v18.py",
+    "scripts/validate_spark_correction_generation_v18.py",
+    "src/replica_lab/intrinsic_memory_correction_fixture_v18.py",
+    "src/replica_lab/intrinsic_memory_correction_v18.py",
+    "src/replica_lab/intrinsic_memory_native_v12.py"
+  ],
+  "commands": [
+    "reports/spark_correction_generation_v18/affected_tests_command.json",
+    "reports/spark_correction_generation_v18/source_admission_tests_command.json",
+    "reports/spark_correction_generation_v18/preparation03_command.json",
+    "reports/spark_correction_generation_v18/snapshot_cpu_command.json",
+    "reports/spark_correction_generation_v18/snapshot_generation_command.json",
+    "reports/spark_correction_generation_v18/snapshot_review_command.json"
+  ],
+  "identities": {
+    "implementation": {
+      "path": "reports/spark_repairs_v18/preparation_attempt03/implementation.json",
+      "sha256": "cd08bd3997d80469730edf1ce749bc59e949372917102c8b970d2ee8dcf1cdd6"
+    },
+    "packet": {
+      "path": "reports/spark_repairs_v18/preparation_attempt03/native_packet.json",
+      "sha256": "a798464ab5826b0ff547755bfade6e90fa068b3b5bdb1185d161d4377237a9f9"
+    },
+    "protocol": {
+      "path": "configs/spark_paired_update_v18_2_preparation03.json",
+      "sha256": "0487ff2f10c089510cb74eaf3bbbbdb60792ad2e5c0a8d6a31b8e8a01f4bd509"
+    },
+    "source_snapshot": {
+      "path": "reports/spark_repairs_v18/preparation_attempt03/source_snapshot.json",
+      "sha256": "3870a838a6104c9fe2740c3880c7c91776905002341fc3dcbccfcab5a9e3b16c"
+    }
+  },
+  "independent_review": "pending",
+  "native_authorization_created": false,
+  "native_training_executed": false,
+  "preparation02_frozen_closure_still_equal": true,
+  "protected_path_absent": true,
+  "replacement_sealed_payload_read_hashed_or_regenerated": false,
+  "runtime": {
+    "pytest": "9.1.1",
+    "python": "3.12.14",
+    "torch": "2.14.1"
+  },
+  "scientific_contract_equal_to_preparation02": true,
+  "snapshot_cpu_output": "reports/spark_correction_generation_v18/cpu_validation_snapshot03",
+  "snapshot_generation_output": "reports/spark_correction_generation_v18/generation_validation_snapshot03",
+  "snapshot_sources_mode": "0444",
+  "source_bytes": 2011191,
+  "source_files": 86,
+  "test_files_and_local_helpers": {
+    "tests/conftest.py": "53e02b23ae16a262401de8bebcf57708009881c8b470288e812a3759942a4bc3",
+    "tests/test_contextual_memory_layout_v12.py": "a47699c1971b1e081125916f0c3ef3f3c6b09d7762ea0d240f9d17bcf7fb0138",
+    "tests/test_contextual_memory_v12.py": "74594d43d7de0dfa54d62211cc6b88ed28938c5473e83a5707d76ebc3f90fb74",
+    "tests/test_contextual_memory_v5.py": "0db040fa87f1386be5db329bbb481bdff478e332f1d410c9dd6ba75feb874227",
+    "tests/test_contextual_source_features_v12.py": "318a678fb51fbe0919bbb7558d084b9f9c42ae3e449d308665adec59904e5c81",
+    "tests/test_contextual_v12_integration.py": "b893db65ca8fd292968d3d282ab13aad02d75b257f1634879d7b32496cb48b3c",
+    "tests/test_correction_generation_v18.py": "6ee92c0ce740e62d1c0ee18688ff0610be4473968813b9230a36ff3ec0c03d62",
+    "tests/test_decodability_probe_v16.py": "9ada877bd33c3711e80209b12f613ee0b7dbb6ffb2813d017670fce878f368bc",
+    "tests/test_independent_review_v12_findings.py": "24c4ffe92de7c3007c8e75ebc22fc6f6f40e4b165a5c13ec04cae9cf54689477",
+    "tests/test_intrinsic_acceptance_v13.py": "1ab06117041fdede474262fa92eaa114235d709b8d28f392c1128daa4f5597db",
+    "tests/test_intrinsic_acceptance_v15.py": "5275306c181045217929f29196a07e6f35b9a2eafc6c60e80f3d1fa999a1a66c",
+    "tests/test_intrinsic_archive_migration_v16.py": "b913c17c9a71c538a9fdfd16b84368651f39dd785e238712a6ab3b9b0a9b42e6",
+    "tests/test_intrinsic_content_key_v16.py": "541b834d154eef15e74992102d8f1ae06db1e69050ec8ae660114f677cd1aad8",
+    "tests/test_intrinsic_diagnostic_v5.py": "95a4ed52a96190a2873e1b340fb4d6d55ed559bbb3538f26f94f04cea68c12c8",
+    "tests/test_intrinsic_execution_v5.py": "289fb753a49f7d3306dec54e52e607bef164cce23a76170c2e8c48ad67b99b8d",
+    "tests/test_intrinsic_interference_v17.py": "351b2b73820a9e0e6c55131e56c6c668de0e168208f988377e48aadee841284c",
+    "tests/test_intrinsic_lifecycle_fixture_v13.py": "b443da2c48b730361cacc76af104cdc5bc839ed151ab1a4f74bc5cc53a2d8f4d",
+    "tests/test_intrinsic_memory_density_v12_profiler.py": "a1a136f4fd1c1edaa6a63d3338879336142b12b935cc39127012382fa0afb3f0",
+    "tests/test_intrinsic_native_v12.py": "4e894df3c54438b8cab3a2410fb7e91d2a55e4fe0950052a30b931e6019f4b92",
+    "tests/test_intrinsic_reader_query_v15.py": "2f714dcb43f59a011d979728eef2cc2674cc69df8a26ea4df983a34d37cc6696",
+    "tests/test_native_correction_v17.py": "29f54f354b1314408ff780c807cf87b5c35a61a654a8a38fa42754e86240e2ab",
+    "tests/test_sequence_evidence_v17.py": "c7164cbff8e0a4d6e74caedeabbdbeb0aa04eeb32003fa6c37b574e61a8de006",
+    "tests/test_spark_repairs_v18.py": "e6d55fe184ad5d9e69e737c3706c5a03f7e8029315c76f5506bed7018e30ef25",
+    "tests/test_successor_chunks_v12.py": "dd34c26a3b4c287c6e1b80d8cb7b5c7a707396b857498a26ff0cffa037110a99",
+    "tests/test_successor_formation_v12.py": "506814e676e370aa890f9fec94fb5607eb631bb9027196ea210cec87ffa950fc",
+    "tests/test_tiered_memory.py": "60675050db91152034f689df7a3295c37c4acd18e07adb7885365e4d7d765990",
+    "tests/v12_fixtures.py": "9b63dbbae9acb004249b13309bf21eeb7cb7eb6eb4d96445d09f02fd28189e23"
+  },
+  "test_results": {
+    "affected": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 277
+    },
+    "source_admission": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 7
+    },
+    "source_admission_deselected": 11
+  },
+  "working_snapshot_closure_equal": true,
+  "working_tree_is_uncommitted": true
+}

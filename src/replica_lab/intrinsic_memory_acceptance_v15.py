@@ -117,7 +117,7 @@ def _compound_history(row):
     facts = row.get("facts")
     history = row.get("revision_history")
     if history is None:
-        history = ([] if row["answer"] == "unknown" else [{
+        history = ([] if facts["unrecorded_target"] else [{
             "revision": 1, "answer": facts["answer"],
             "anchor_colour": facts["anchor_colour"],
         }])
@@ -128,7 +128,8 @@ def _compound_history(row):
                    for item in history)):
         raise ValueError("invalid compound revision history")
     revisions = [item["revision"] for item in history]
-    if revisions != sorted(set(revisions)) or revisions != list(range(1, len(revisions) + 1)):
+    start = 2 if facts["unrecorded_target"] else 1
+    if revisions != list(range(start, start + len(revisions))):
         raise ValueError("compound revisions must be consecutive and increasing")
     return deepcopy(history)
 
@@ -202,7 +203,7 @@ def chronological_correction(row, new_color):
     if not isinstance(facts, dict) or not isinstance(query, str):
         raise ValueError("compound structured facts required")
     history = _compound_history(row)
-    original_answer = history[0]["answer"] if history else row["answer"]
+    original_answer = "unknown" if facts["unrecorded_target"] else facts["answer"]
     if _compound_answer(facts, family, query) != original_answer:
         raise ValueError("original compound answer does not follow from its oracle")
     if new_color == row["answer"]:

@@ -251,8 +251,8 @@ def test_nonexistent_pointer_target_never_falls_back_and_healthy_world_recovers(
     result = inventory_archive(run)
     assert result["current_pointer_valid_generations"] == 1
     assert result["quarantined_generations"] == [
-        {"world": "bad", "generation": 1, "reason": "invalid_current_authority_or_payload"}]
-    assert next(row for row in result["rows"] if row["world"] == "bad")["final"]["generation"] == 1
+        {"world": "bad", "generation": 99, "reason": "invalid_current_authority_or_payload"}]
+    assert next(row for row in result["rows"] if row["world"] == "bad")["final"]["generation"] == 99
     single = tmp_path / "single"
     single_bad = single / "stores/bad/artifacts/contextual_v12/releases/scope"
     make_release(single_bad / "00000001", 1, b"bad")

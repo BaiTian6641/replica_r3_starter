@@ -63,16 +63,10 @@ class ExpectedInvalidation:
 
 
 def expect_invalidation(kind: str, operation) -> ExpectedInvalidation:
-    """Return only a typed memory refusal; operational failures propagate.
-
-    BudgetError, OSError, RuntimeError and implementation errors are deliberately
-    not converted into successful stale/revoked-state evidence.
-    """
-    try:
-        operation()
-    except ContextualMemoryError as error:
-        return ExpectedInvalidation(kind, type(error).__name__, str(error))
-    raise InvalidationContractError(f"{kind} did not invalidate the dependent state")
+    """Compatibility entry point; only explicit matching authority is evidence."""
+    from .intrinsic_memory_acceptance_v15 import expect_invalidation as strict_invalidation
+    evidence = strict_invalidation(kind, operation)
+    return ExpectedInvalidation(kind, evidence.error_type, evidence.message)
 
 
 _REVISION = re.compile(r"The revision ([1-9][0-9]*) recorded color of (.+?) is ([A-Za-z]+)\.")

@@ -514,6 +514,17 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
                                           "outcome": Outcome(**t["outcome"])})
                 status, reason, checks = store._validate_after_io(ticket, staged)
                 if status != "ready":
+                    if status not in ("invalidated", "stale", "denied") or reason not in {
+                        "record_missing_after_io", "cross_scope_after_io",
+                        "record_revoked_or_superseded_during_recall",
+                        "record_revision_changed_during_recall",
+                        "cluster_generation_changed_during_recall",
+                        "representation_version_changed_during_recall",
+                        "retrieval_key_stale_during_recall",
+                        "value_representation_changed_during_recall",
+                        "value_representation_stale_during_recall",
+                    }:
+                        raise ContextualMemoryError("operational post-I/O failure: " + reason)
                     raise AuthorityRejection(
                         "revoked_source" if "revoked" in reason or "superseded" in reason
                         else "stale_snapshot", reason)
@@ -535,7 +546,11 @@ class ContextualMemoryV12(ContextualMemoryLayoutV12):
                                          cache_bytes=0))
                 if (not result.ok or result.new_decision_boundary
                         or any(r.status != "ok" for r in result.records)):
-                    raise AuthorityRejection("stale_snapshot", "post-I/O read invalidated")
+                    # A generic readout failure is not proof of authority change.
+                    status, reason, _ = store._validate_after_io(ticket, staged)
+                    if status in ("invalidated", "stale"):
+                        raise AuthorityRejection("stale_snapshot", reason)
+                    raise ContextualMemoryError("operational post-I/O readout failure")
                 updates.update({r.record_id: _descriptor(r) for r in result.records})
             descriptors = [updates.get(r["record_id"], r) for r in doc["records"]]
             batch = self._batch(descriptors, store, scope)
