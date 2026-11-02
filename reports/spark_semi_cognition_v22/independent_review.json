@@ -1,0 +1,51 @@
+{
+  "attempt_marker": "runs/spark_semi_cognition_v22/attempts.jsonl",
+  "attempt_marker_unused": true,
+  "blocking_defects": [],
+  "decision": "approve_for_authorized_launch",
+  "output_root": "reports/spark_semi_cognition_v22/native_bf16_semi_cognition_attempt01",
+  "output_root_unused": true,
+  "packet_path": "reports/spark_semi_cognition_v22/native_packet.json",
+  "packet_sha256": "26dc22441e6a56f6e9ac95d69a7dbc0b608a440ef884186daf6254c3b2368311",
+  "protocol_path": "configs/spark_semi_cognition_v22.json",
+  "protocol_sha256": "11707a16cfbbf56e1f97265b67d671b63840169837563bab65cc59cd0881fd39",
+  "resolved_blockers": [
+    "V22-BLOCKER-01: 'lr': 0.0001 added to protocol['training'], budget['load'] updated to artifact_bytes=2097152 and writes=24, and load_protocol['training']['lr'] defensively populated in scripts/run_spark_semi_cognition_v22.py.",
+    "V22-BLOCKER-02: seed: int = 17 accepted in run_spark_semi_cognition_v22_pipeline() in src/replica_lab/spark_semi_cognition_v22.py.",
+    "V22-BLOCKER-03: Return dictionary keys in run_spark_semi_cognition_v22_pipeline() ('v21_continuum', 'v22a_connected_two_pass_core', 'v22b_calibrated_monitor_heads', 'v22c_live_titans_and_paraphrase_p1', 'v22d_replica_reset_and_rs4', 'state_restoration', 'all_v22_gates_passed') match worker() in scripts/run_spark_semi_cognition_v22.py."
+  ],
+  "reviewer": "independent_engineering_reviewer",
+  "verified_items": {
+    "phase2_v22_gates_and_restoration": {
+      "v22a_connected_two_pass_core": "Verified 6 equal-information conditions, step-0 zero-shock parity (0.0), and FF/Recurrent parameter matching within 5%.",
+      "v22b_calibrated_monitor_heads": "Verified strict input detachment (zero_core_gradient_leakage=True), post-hoc temperature scaling on disjoint calibration split, Brier < base-rate Brier, ECE <= 0.10, and 100% selective action routing.",
+      "v22c_live_titans_and_paraphrase_p1": "Verified 256-D live Titans S2b intra-chunk prefix equality, recompute parity, watermark idempotence, and entity-span paraphrase-invariant S3/S5 recall at E=0.",
+      "v22d_replica_reset_and_rs4": "Verified 6-condition E1/E2/E3 reset dissociation and 2-cycle successive RS4 self-improvement across Family A and Family B with negative control rejection and exact state restoration."
+    },
+    "predecessor_and_checkpoint_bindings": {
+      "stage2c_v20_result_sha256": "c45ee21370e9907d852c34412d0eabbfc0ff1a95493d3923337b043a71b7c54d",
+      "stage6_v21_result_sha256": "d7ed02e0c605e024b121037cf73d46c802bb76141eae4efdc7e8387fdcb628a9",
+      "v16_checkpoint_manifest_sha256": "a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c",
+      "v18_result_sha256": "9d484be053277c39cc66623ebdb9c9a4a33bd4027f87ff0d42ae3c9f15200052",
+      "v19_result_sha256": "572fc0c67f6a6ce50882be6407e559d4d419242c7c66545180ee2e97370ab9be"
+    },
+    "safety_and_closure": {
+      "preparation_attempt04_86_files_unmodified": true,
+      "runtime_pilot_untouched": true,
+      "sealed_evaluation_labels_untouched": true
+    },
+    "work_ledger_and_resource_guards": {
+      "cpu_fallback": false,
+      "diagnose_backwards": "448 / 1024",
+      "diagnose_forwards": "1446 / 2048",
+      "diagnose_input_tokens": "348815 / 524288",
+      "diagnose_prompt_tokenizer_calls": "72 / 128",
+      "diagnose_source_encodes": "16 / 32",
+      "diagnose_updates": "320 / 512",
+      "driver_bytes_limit": 53687091200,
+      "minimum_host_free_percent": 15,
+      "native_workers": 1,
+      "swap_growth_bytes_limit": 536870912
+    }
+  }
+}

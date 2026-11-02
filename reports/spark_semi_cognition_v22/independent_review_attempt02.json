@@ -1,0 +1,48 @@
+{
+  "decision": "approve_for_authorized_launch",
+  "review_target": "Phase 2 (V22) Connected Semi-Cognition Core, Two-Pass Backbone Loop, Calibrated Monitor Heads, Live 256-D Titans Fast State, Paraphrase-Robust Source-Free P1 & Replica Reset/RS4 — Attempt 02",
+  "verifications": {
+    "mps_submodule_registration_fix": {
+      "details": "In src/replica_lab/spark_semi_cognition_v22.py line 333, self.core = self.core_adapter.core is registered as an nn.Module attribute on ConnectedTwoPassSemiCognitionEngineV22 prior to self.to(device) at line 365. Verified on MPS that {str(p.device) for p in semi_mps.parameters()} == {'mps:0'} and {str(p.device) for p in semi_mps.core_adapter.core.parameters()} == {'mps:0'}.",
+      "passed": true
+    },
+    "source_snapshot_and_safety_invariants": {
+      "passed": true,
+      "read_only_review": true,
+      "runtime_pilot_untouched": true,
+      "sealed_labels_untouched": true,
+      "v18_source_snapshot_files_verified": 86,
+      "v18_source_snapshot_mismatches": 0
+    },
+    "unused_output_and_attempt_paths": {
+      "attempt_marker": "runs/spark_semi_cognition_v22/attempts_attempt02.jsonl",
+      "attempt_marker_exists": false,
+      "output_root": "reports/spark_semi_cognition_v22/native_bf16_semi_cognition_attempt02",
+      "output_root_exists": false,
+      "passed": true,
+      "review_cli_passed": true
+    },
+    "v22_attempt01_device_mismatch_provenance": {
+      "details": "configs/spark_semi_cognition_v22_attempt02.json binds v22_attempt01_device_mismatch_provenance to reports/spark_semi_cognition_v22/native_bf16_semi_cognition_attempt01/failure.json (d6b9e221cb229e5992100fb21a2f33efd077a2edf5253cf455c21f311a5f1b1c) and supervision/child.stderr (10295ac397804bdeee72421729a62666a9970f45918335447a8bb3ee46fdeb8a) with exact SHA-256 match.",
+      "passed": true
+    },
+    "work_ledger_coverage_and_budget_headroom": {
+      "details": "v22c_titans_port_forward (lines 1569-1574) wraps engine.path.adapter.forward_text in _measured(engine, 'v22c_titans_port_forward', forwards=1, input_tokens=...), and MultiCycleHOPEContinuumV22.forward_source_free (lines 1855-1861) delegates Cycle-2 bank forwards to self.cycle2_p.forward_source_free which wraps its forward in _measured(self.engine, 'source_free_p_forward', forwards=1, input_tokens=...). Total forwards across V21 + V22-A/B/C/D (wake_steps=128, sleep_steps=32, core_steps=40, head_steps=60) are 1462 (1446 + 8 + 8) <= 2048 budget['diagnose']['forwards'], and input_tokens remain well within 524288.",
+      "passed": true
+    }
+  },
+  "verified_bindings": {
+    "checkpoint_manifest_sha256": "a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c",
+    "diagnostic_fit_data_sha256": "e8532eb11f4fd16521d19e2f030339e0f0e9fc111d8fb8fda8c5d3283d73f76a",
+    "environment_closure_sha256": "1848a9a1ce3a6da3437c121e68b7a05284f7c9eaec496e18bf218294f07c2209",
+    "fit_data_sha256": "55d9dde9284aedb146f32a43183aaed476c787df61f0ba9bdb42e35c7b309a5a",
+    "packet_path": "reports/spark_semi_cognition_v22/native_packet_attempt02.json",
+    "packet_sha256": "d3c73c35f458f0076da7b83a3130f3db9de748642e4f7d19f86b6121ac441fe0",
+    "predecessor_stage2b_result_sha256": "c45ee21370e9907d852c34412d0eabbfc0ff1a95493d3923337b043a71b7c54d",
+    "predecessor_stage6_v21_result_sha256": "d7ed02e0c605e024b121037cf73d46c802bb76141eae4efdc7e8387fdcb628a9",
+    "protocol_path": "configs/spark_semi_cognition_v22_attempt02.json",
+    "protocol_sha256": "e591c4a6351090ede05f8cd4e70a5c168aaaa7d1d854a83b2b11ff481a29bbd9",
+    "v22_attempt01_child_stderr_sha256": "10295ac397804bdeee72421729a62666a9970f45918335447a8bb3ee46fdeb8a",
+    "v22_attempt01_failure_json_sha256": "d6b9e221cb229e5992100fb21a2f33efd077a2edf5253cf455c21f311a5f1b1c"
+  }
+}
