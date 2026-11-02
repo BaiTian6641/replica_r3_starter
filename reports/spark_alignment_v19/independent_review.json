@@ -1,0 +1,53 @@
+{
+  "decision": "pass",
+  "findings": [],
+  "format": "replica.intrinsic_memory.alignment_independent_review.v19",
+  "packet_sha256": "ac61fe072579fd82f62c3a3203d235b73736da0002b3089197b68a95c14bd1e3",
+  "protocol_sha256": "bdbb87eb6b5e63b4c38d1c4c61a81b167559ecfa89edecbc0e323f3a60cba9eb",
+  "reviewer": {
+    "conversation_id": "50eb5a23-4778-49aa-bf46-eef38423a095",
+    "role": "Independent V18.2 Packet Reviewer",
+    "timestamp": "2026-11-01T18:53:32Z"
+  },
+  "scope": {
+    "authorization_template_path": "reports/spark_alignment_v19/authorization.template.json",
+    "authorization_template_sha256": "594521c62f244239d06ce11dabb1dbec4bfc5bbf3b80b0931e3839d8274d6b5a",
+    "checkpoint_manifest_path": "reports/intrinsic_memory_content_key_v16/native_bf16_two_attempt01/checkpoint/manifest.json",
+    "checkpoint_manifest_sha256": "a547053a30c58ad2c431b7a3e8a153f543f718a4328cf54f84c74d7acfec085c",
+    "cpu_validation_path": "reports/spark_alignment_v19/cpu_validation.json",
+    "cpu_validation_sha256": "2bebb8a8503da4cf0c993122531104888189375bbefb4c08444fd7b423010aa2",
+    "diagnostic_fit_data_path": "data/intrinsic_memory_alignment_v19/diagnostic_fit.json",
+    "diagnostic_fit_data_sha256": "e8532eb11f4fd16521d19e2f030339e0f0e9fc111d8fb8fda8c5d3283d73f76a",
+    "fit_data_path": "data/intrinsic_memory_alignment_v19/fit.json",
+    "fit_data_sha256": "55d9dde9284aedb146f32a43183aaed476c787df61f0ba9bdb42e35c7b309a5a",
+    "packet_path": "reports/spark_alignment_v19/native_packet.json",
+    "packet_sha256": "ac61fe072579fd82f62c3a3203d235b73736da0002b3089197b68a95c14bd1e3",
+    "predecessor_v18_result_path": "reports/spark_repairs_v18/preparation_attempt04/native_bf16_comparison_attempt01/result.json",
+    "predecessor_v18_result_sha256": "9d484be053277c39cc66623ebdb9c9a4a33bd4027f87ff0d42ae3c9f15200052",
+    "protocol_path": "configs/spark_producer_reader_alignment_v19.json",
+    "protocol_sha256": "bdbb87eb6b5e63b4c38d1c4c61a81b167559ecfa89edecbc0e323f3a60cba9eb",
+    "reviewed_files": {
+      "scripts/prepare_spark_alignment_v19.py": "745503ca8d3dddc99b5d4765aca3b649f13be0c75a64df4cb58504f03a288461",
+      "scripts/run_spark_alignment_v19.py": "5ecd7bc04e7a4408c174daf2e0a27534e8a031af1981d0e4f4a372a288639a9e",
+      "src/replica_lab/intrinsic_memory_alignment_v19.py": "a25f2e594e1f175d7452d4297d177ffa825befc58943c407be95d1be061285ee"
+    }
+  },
+  "verifications": {
+    "attempt_marker_unused": true,
+    "exact_text_competence_gate_enforced": true,
+    "ledger_validate_plan_passed": true,
+    "nine_component_state_restoration_verified": true,
+    "output_root_unused": true,
+    "resource_limits_verified": {
+      "driver_bytes": 53687091200,
+      "minimum_host_free_percent": 15,
+      "sustained_host_samples": 3,
+      "swap_growth_bytes": 536870912,
+      "telemetry_timeout_seconds": 30
+    },
+    "sha256_bindings_exact": true,
+    "v19_blocker_01_resolved": true,
+    "worker_load_native_compatibility": true,
+    "zero_development_or_sealed_label_exposure": true
+  }
+}
