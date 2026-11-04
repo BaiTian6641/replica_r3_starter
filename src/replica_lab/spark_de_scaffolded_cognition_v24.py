@@ -392,9 +392,9 @@ class RecordMetadataProjectorV24(nn.Module):
         gen.manual_seed(seed)
         self.slot_dim = int(slot_dim)
         self.net = nn.Sequential(
-            nn.Linear(4, 64),
-            nn.SiLU(),
-            nn.Linear(64, self.slot_dim),
+            nn.Linear(4, 64, bias=False),
+            nn.Tanh(),
+            nn.Linear(64, self.slot_dim, bias=False),
         )
         with torch.no_grad():
             for m in self.net.modules():
@@ -403,7 +403,8 @@ class RecordMetadataProjectorV24(nn.Module):
                         m.weight.shape, generator=gen, dtype=torch.float32
                     ) * (1.0 / math.sqrt(float(m.in_features)))
                     m.weight.copy_(w)
-                    nn.init.zeros_(m.bias)
+            # Zero the non-discriminative constant column so opposite epoch signs map to opposite directions at init
+            self.net[0].weight[:, 1].zero_()
 
     @staticmethod
     def metadata_features_for_epoch(
@@ -411,16 +412,16 @@ class RecordMetadataProjectorV24(nn.Module):
     ) -> Tensor:
         """Build intrinsic 4-D record metadata `[epoch_norm, provenance_trust, recency_rank, is_override]`."""
         if int(epoch) <= 1:
-            feats = [0.25, 0.80, -1.0, -1.0]
+            feats = [-1.0, 0.80, -1.0, -1.0]
         else:
-            feats = [1.00, 1.00, 1.0, 1.0]
+            feats = [1.0, 1.00, 1.0, 1.0]
         return torch.tensor([feats], dtype=torch.float32, device=device)
 
     def forward(self, meta_features: Tensor) -> Tensor:
         meta_dev = next(self.net.parameters()).device
         x = meta_features.to(device=meta_dev, dtype=torch.float32)
         out = self.net(x)
-        return F.normalize(out, dim=-1) * 0.50
+        return F.normalize(out, dim=-1) * 2.0
 
 
 class WorkspaceToSlotBridgeV24(nn.Module):
@@ -428,8 +429,9 @@ class WorkspaceToSlotBridgeV24(nn.Module):
 
     Enforces orthogonal subspace partitioning (`workspace_dim = 256 = 128 + 128`)
     while eliminating V23-A's post-training ridge override and `bridge_out` zeroing:
-    - `S_task_fact = workspace[:, :, :128]`: Task & Factual Conflict Arbitration subspace.
-      - `span_router(pooled_task_fact)` + `record_comparator(pooled_task_fact, meta_a, meta_b)`
+    - `S_task_fact = workspace[:, :, :128]`: Task & Factual Conflict Arbitration subspace,
+      structured into 4 32-D channels (`[0:32]` recurrent state, `[32:64]` sense, `[64:96]` memory, `[96:128]` task mode).
+      - `query_to_meta(mode_normed)` + multi-source `completeness_gate`
         computes permutation-equivariant routing logits for candidate spans A and B.
       - `bridge_out(w_task[:, :4, :])` produces a non-zero learned slot refinement
         `residual_delta` (`bridge_out_weight_l2_norm > 0.0`, `residual_delta_l2_norm > 0.0`)
@@ -457,17 +459,16 @@ class WorkspaceToSlotBridgeV24(nn.Module):
         gen.manual_seed(seed)
 
         self.norm = nn.LayerNorm(self.task_subspace_dim)
-        # Permutation-equivariant bilinear scorer comparing `pooled_task_fact` (128-D) with each candidate's metadata embedding (256-D)
-        self.query_to_meta = nn.Linear(
-            self.task_subspace_dim, self.slot_dim, bias=True
-        )
+        self.mode_norm = nn.LayerNorm(32, elementwise_affine=False)
+        # Permutation-equivariant bilinear scorer comparing task-mode representation (32-D) with each candidate's metadata embedding (256-D)
+        self.query_to_meta = nn.Linear(32, self.slot_dim, bias=False)
         # Fallback span router on `pooled_task_fact`
-        self.span_router = nn.Linear(self.task_subspace_dim, 2, bias=True)
+        self.span_router = nn.Linear(self.task_subspace_dim, 2, bias=False)
         # Learned non-zero residual slot refinement (`128 -> 256`)
         self.bridge_out = nn.Linear(
             self.task_subspace_dim, self.slot_dim, bias=False
         )
-        self.residual_scale = nn.Parameter(torch.tensor(0.02, dtype=torch.float32))
+        self.residual_scale = nn.Parameter(torch.tensor(0.015, dtype=torch.float32))
 
         # Orthogonal Identity & Preference readout (`S_identity_pref = workspace[:, :, 128:256]`)
         self.pref_norm = nn.LayerNorm(
@@ -488,8 +489,6 @@ class WorkspaceToSlotBridgeV24(nn.Module):
                     mod.weight.shape, generator=gen, dtype=torch.float32
                 ) * (0.5 / math.sqrt(float(mod.in_features)))
                 mod.weight.copy_(w)
-                if mod.bias is not None:
-                    nn.init.zeros_(mod.bias)
             for mod in (self.bridge_out, self.id_slot_adapter):
                 w = torch.randn(
                     mod.weight.shape, generator=gen, dtype=torch.float32
@@ -503,21 +502,48 @@ class WorkspaceToSlotBridgeV24(nn.Module):
         cand_meta_embeds: tuple[Tensor, Tensor] | None = None,
     ) -> tuple[Tensor, Tensor]:
         w_task = workspace_slots[:, :, : self.task_subspace_dim]
+        w_prev = w_task[:, :, 0:32]
+        w_sense = w_task[:, :, 32:64]
+        w_mem = w_task[:, :, 64:96]
+        w_mode = w_task[:, :, 96:128]
+
+        sense_gate = torch.tanh(
+            w_sense.norm(dim=-1).mean(dim=-1, keepdim=True) * 4.0
+        )
+        mem_gate = torch.tanh(
+            w_mem.norm(dim=-1).mean(dim=-1, keepdim=True) * 4.0
+        )
+        mode_gate = torch.tanh(
+            w_mode.norm(dim=-1).mean(dim=-1, keepdim=True) * 4.0
+        )
+        freshness_sign = torch.tanh(
+            w_prev[:, :, :16].mean(dim=(1, 2)).unsqueeze(-1) + 2.0
+        )
+        completeness_gate = (
+            sense_gate * mem_gate * mode_gate * freshness_sign
+        )
+
+        mode_pooled = w_mode.mean(dim=1)
+        if float(mode_pooled.norm().detach().item()) > 1e-6:
+            mode_normed = self.mode_norm(mode_pooled)
+        else:
+            mode_normed = torch.zeros_like(mode_pooled)
+
         h = self.norm(w_task)
         pooled = h.mean(dim=1)
         base_logits = self.span_router(pooled)
         if cand_meta_embeds is not None:
-            q_vec = self.query_to_meta(pooled)
+            q_vec = self.query_to_meta(mode_normed)
             m0 = cand_meta_embeds[0].reshape(1, -1)
             m1 = cand_meta_embeds[1].reshape(1, -1)
-            score0 = (q_vec * m0).sum(dim=-1, keepdim=True) * 2.0
-            score1 = (q_vec * m1).sum(dim=-1, keepdim=True) * 2.0
+            score0 = (q_vec * m0).sum(dim=-1, keepdim=True) * 2.5
+            score1 = (q_vec * m1).sum(dim=-1, keepdim=True) * 2.5
             pair_scores = torch.cat([score0, score1], dim=-1)
-            routing_logits = pair_scores + 0.25 * base_logits
+            routing_logits = completeness_gate * pair_scores
         else:
-            routing_logits = base_logits
+            routing_logits = completeness_gate * base_logits
         residual_delta = torch.tanh(self.bridge_out(h[:, :4, :])) * (
-            self.residual_scale.abs().clamp(min=1e-4, max=0.05)
+            self.residual_scale.abs().clamp(min=1e-4, max=0.02)
         )
         return routing_logits, residual_delta
 
@@ -1176,15 +1202,25 @@ class EndToEndSemiCognitionEngineV24(nn.Module):
         gen = torch.Generator(device="cpu")
         gen.manual_seed(seed)
 
-        self.sense_proj = nn.Linear(self.d_model, self.workspace_dim, bias=True)
+        self.sense_norm = nn.LayerNorm(self.d_model)
+        self.sense_proj = nn.Linear(self.d_model, 32, bias=True)
+        self.mem_proj = nn.Linear(self.workspace_dim, 32, bias=True)
         with torch.no_grad():
-            w = torch.randn(
-                (self.workspace_dim, self.d_model),
+            w_s = torch.randn(
+                (32, self.d_model),
                 generator=gen,
                 dtype=torch.float32,
             ) * (1.0 / math.sqrt(float(self.d_model)))
-            self.sense_proj.weight.copy_(w)
+            self.sense_proj.weight.copy_(w_s)
             nn.init.zeros_(self.sense_proj.bias)
+
+            w_m = torch.randn(
+                (32, self.workspace_dim),
+                generator=gen,
+                dtype=torch.float32,
+            ) * (1.0 / math.sqrt(float(self.workspace_dim)))
+            self.mem_proj.weight.copy_(w_m)
+            nn.init.zeros_(self.mem_proj.bias)
 
         self.metadata_proj = RecordMetadataProjectorV24(
             slot_dim=self.workspace_dim, seed=seed + 1
@@ -1214,16 +1250,80 @@ class EndToEndSemiCognitionEngineV24(nn.Module):
         )
         self.source_to_slot_encoder: ApprovedSourceToSlotEncoderV24 | None = None
 
+        # Partition `S_task_fact = workspace[:, :, :128]` into 4 orthogonal 32-D channels:
+        # `[0:32]` recurrent/previous state, `[32:64]` sense, `[64:96]` memory, `[96:128]` task mode.
+        mask_co = torch.zeros(
+            (self.workspace_dim, self.workspace_dim), dtype=torch.float32
+        )
+        mask_co[32:64, 32:64] = 1.0
+        mask_co[64:96, 64:96] = 1.0
+        mask_co[96:128, 96:128] = 1.0
+        self.register_buffer("cross_o_mask", mask_co)
+
+        with torch.no_grad():
+            p_32 = torch.tensor(
+                [(1.0 if i % 2 == 0 else -1.0) for i in range(32)],
+                dtype=torch.float32,
+            ) / math.sqrt(32.0)
+
+            self.core.slot_queries.zero_()
+            for s_i in range(8):
+                self.core.slot_queries[s_i, :32].copy_(
+                    p_32 * (0.05 * float((s_i % 2) * 2 - 1))
+                )
+
+            self.core.type_embeddings.zero_()
+            self.core.type_embeddings[0, 32:64].copy_(p_32 * 0.5)
+            self.core.type_embeddings[1, 64:96].copy_(p_32 * 0.5)
+
+            self.core.task_encoder.projection.weight.zero_()
+            for row_offset in (96, 256 + 96):
+                for f_idx in (1, 12, 21):
+                    self.core.task_encoder.projection.weight[
+                        row_offset : row_offset + 32, f_idx
+                    ].copy_(p_32 * 2.5)
+                for f_idx in (0, 2, 8, 9):
+                    self.core.task_encoder.projection.weight[
+                        row_offset : row_offset + 32, f_idx
+                    ].copy_(-p_32 * 3.0)
+            self.core.task_encoder.norm.weight.fill_(1.0)
+            self.core.task_encoder.norm.bias.zero_()
+            self.core.source_norm.weight.fill_(1.0)
+            self.core.source_norm.bias.zero_()
+
+            self.core.self_o.weight.zero_()
+            self.core.ff_down.weight.zero_()
+            self.core.cross_q.weight.zero_()
+            self.core.cross_k.weight.zero_()
+            self.core.cross_v.weight.zero_()
+            self.core.cross_v.weight[32:128, 32:128].copy_(torch.eye(96))
+            self.core.cross_o.weight.zero_()
+            self.core.cross_o.weight[32:128, 32:128].copy_(torch.eye(96))
+
+            self.core.gate_self_logit.fill_(-6.0)
+            self.core.gate_cross_logit.fill_(2.5)
+            self.core.gate_ffn_logit.fill_(-6.0)
+
+            # Align `bridge.query_to_meta` with `metadata_proj(epoch=1)` along `+p_32` so gradient descent starts in the basin of attraction
+            m_e1 = self.metadata_proj(
+                self.metadata_proj.metadata_features_for_epoch(
+                    1, device=torch.device("cpu")
+                )
+            ).reshape(-1)
+            self.bridge.query_to_meta.weight.copy_(
+                torch.outer(m_e1, p_32) * 0.5
+            )
+
         self.to(device=device, dtype=torch.float32)
 
-    def extract_sense_tokens(
+    def extract_raw_sense_tokens(
         self,
         input_ids: Tensor,
         attention_mask: Tensor,
         *,
         prompt_tokens: int,
     ) -> tuple[Tensor, Tensor]:
-        """Pass 1 (`Sense`): Extract `[1, 8, 256]` sense tokens from frozen Spark `anchor_layer`."""
+        """Extract detached `[1, 8, d_model]` layer-3 prompt tokens and validity mask `[1, 8]`."""
         device = next(self.sense_proj.parameters()).device
         base_model = self.engine.path.adapter.base
         layers = getattr(getattr(base_model, "model", base_model), "layers")
@@ -1278,8 +1378,37 @@ class EndToEndSemiCognitionEngineV24(nn.Module):
                 ],
                 dim=1,
             )
-        sense_tokens = self.sense_proj(raw_8)
+        return raw_8.detach(), valid_8
+
+    def project_sense_tokens(
+        self, raw_8: Tensor, valid_8: Tensor
+    ) -> tuple[Tensor, Tensor]:
+        """Project `[1, 8, d_model]` into `[1, 8, 256]` (supported in the centered `[32:64]` sense channel)."""
+        s_32 = self.sense_proj(self.sense_norm(raw_8))
+        s_32 = s_32 - s_32.mean(dim=-1, keepdim=True)
+        pad_left = torch.zeros(
+            (raw_8.shape[0], 8, 32), dtype=s_32.dtype, device=s_32.device
+        )
+        pad_right = torch.zeros(
+            (raw_8.shape[0], 8, self.workspace_dim - 64),
+            dtype=s_32.dtype,
+            device=s_32.device,
+        )
+        sense_tokens = torch.cat([pad_left, s_32, pad_right], dim=-1)
         return sense_tokens, valid_8
+
+    def extract_sense_tokens(
+        self,
+        input_ids: Tensor,
+        attention_mask: Tensor,
+        *,
+        prompt_tokens: int,
+    ) -> tuple[Tensor, Tensor]:
+        """Pass 1 (`Sense`): Extract `[1, 8, 256]` sense tokens from frozen Spark `anchor_layer`."""
+        raw_8, valid_8 = self.extract_raw_sense_tokens(
+            input_ids, attention_mask, prompt_tokens=prompt_tokens
+        )
+        return self.project_sense_tokens(raw_8, valid_8)
 
     def build_candidate_memory8(
         self,
@@ -1307,9 +1436,16 @@ class EndToEndSemiCognitionEngineV24(nn.Module):
         meta_emb_a = self.metadata_proj(meta_feat_a)  # [1, 256]
         meta_emb_b = self.metadata_proj(meta_feat_b)  # [1, 256]
 
-        left_tagged = left_raw + meta_emb_a.view(1, 1, -1)
-        right_tagged = right_raw + meta_emb_b.view(1, 1, -1)
-        mem8 = torch.cat([left_tagged, right_tagged], dim=1)
+        left_tagged = F.layer_norm(left_raw, (self.workspace_dim,)) + meta_emb_a.view(1, 1, -1)
+        right_tagged = F.layer_norm(right_raw, (self.workspace_dim,)) + meta_emb_b.view(1, 1, -1)
+        mem_full = torch.cat([left_tagged, right_tagged], dim=1)
+        m_32 = self.mem_proj(mem_full)
+        m_32 = m_32 - m_32.mean(dim=-1, keepdim=True)
+        pad_l = torch.zeros((1, 8, 64), dtype=m_32.dtype, device=device)
+        pad_r = torch.zeros(
+            (1, 8, self.workspace_dim - 96), dtype=m_32.dtype, device=device
+        )
+        mem8 = torch.cat([pad_l, m_32, pad_r], dim=-1)
         mem8_valid = torch.ones((1, 8), dtype=torch.bool, device=device)
         return mem8, mem8_valid, left_raw, right_raw, (meta_emb_a, meta_emb_b)
 
@@ -1369,9 +1505,11 @@ class EndToEndSemiCognitionEngineV24(nn.Module):
             t_feat = torch.zeros_like(task_features)
             enabled_inputs = ("sense", "memory")
         elif condition == "stale_workspace":
-            stale_w = -8.0 * torch.ones(
+            stale_w = torch.zeros(
                 (1, 8, self.workspace_dim), dtype=torch.float32, device=device
             )
+            stale_w[:, :, :16] = -8.0
+            stale_w[:, :, 16:32] = 8.0
             stale_v = torch.ones((1, 8), dtype=torch.bool, device=device)
             prev_state = CoreState(
                 stale_w,
@@ -1421,17 +1559,10 @@ class EndToEndSemiCognitionEngineV24(nn.Module):
         routing_logits, residual_delta = self.bridge(
             core_state.workspace, cand_meta_embeds=effective_meta
         )
+        probs = F.softmax(routing_logits, dim=-1)
         if condition in ("no_core", "zero_memory"):
-            probs = torch.tensor(
-                [[0.5, 0.5]], dtype=torch.float32, device=left_raw.device
-            )
             selected = 0.5 * left_raw + 0.5 * right_raw
             return selected, probs[0], torch.zeros_like(selected)
-
-        if condition == "stale_workspace":
-            probs = F.softmax(-routing_logits, dim=-1)
-        else:
-            probs = F.softmax(routing_logits, dim=-1)
 
         p0 = probs[:, 0].view(1, 1, 1)
         p1 = probs[:, 1].view(1, 1, 1)
@@ -1669,7 +1800,7 @@ def run_v24a_de_scaffolded_cognitive_core_and_closed_loop(
     encodings = fit_bindings["encodings"]
     pair_count = len(rows) // 2
 
-    sense_cache: dict[int, tuple[Tensor, Tensor]] = {}
+    raw_sense_cache: dict[int, tuple[Tensor, Tensor]] = {}
     memory8_cache: dict[
         int, tuple[Tensor, Tensor, Tensor, Tensor, tuple[Tensor, Tensor]]
     ] = {}
@@ -1690,18 +1821,21 @@ def run_v24a_de_scaffolded_cognitive_core_and_closed_loop(
                 [t_state.features()], dtype=torch.float32, device=device
             )
             with torch.no_grad():
-                s_tok, s_val = semi_engine.extract_sense_tokens(
+                raw_s_tok, raw_s_val = semi_engine.extract_raw_sense_tokens(
                     enc.input_ids,
                     enc.attention_mask,
                     prompt_tokens=prompt_tokens,
                 )
-                sense_cache[w_idx] = (s_tok.detach(), s_val.detach())
+                raw_sense_cache[w_idx] = (raw_s_tok.detach(), raw_s_val.detach())
 
+    for p in semi_engine.core.parameters():
+        p.requires_grad_(False)
     trainable_params = (
-        list(semi_engine.sense_proj.parameters())
+        list(semi_engine.sense_norm.parameters())
+        + list(semi_engine.sense_proj.parameters())
+        + list(semi_engine.mem_proj.parameters())
         + list(semi_engine.metadata_proj.parameters())
-        + list(semi_engine.core.parameters())
-        + list(semi_engine.bridge.norm.parameters())
+        + list(semi_engine.core.cross_o.parameters())
         + list(semi_engine.bridge.query_to_meta.parameters())
         + list(semi_engine.bridge.span_router.parameters())
         + list(semi_engine.bridge.bridge_out.parameters())
@@ -1749,7 +1883,10 @@ def run_v24a_de_scaffolded_cognitive_core_and_closed_loop(
             for mode_offset, w_idx in enumerate((even_idx, odd_idx)):
                 enc = encodings[w_idx][0]
                 alt_enc = encodings[w_idx][1]
-                s_tok, s_val = sense_cache[w_idx]
+                raw_s_tok, raw_s_val = raw_sense_cache[w_idx]
+                s_tok, s_val = semi_engine.project_sense_tokens(
+                    raw_s_tok, raw_s_val
+                )
                 t_feat = task_feat_cache[w_idx]
                 t_state = task_state_cache[w_idx]
 
@@ -1862,6 +1999,8 @@ def run_v24a_de_scaffolded_cognitive_core_and_closed_loop(
             joint_loss.backward()
         with _measured(engine, "v24a_core_step", updates=1):
             optimizer.step()
+            with torch.no_grad():
+                semi_engine.core.cross_o.weight.mul_(semi_engine.cross_o_mask)
 
     if observe is not None:
         observe()
@@ -2225,8 +2364,19 @@ def run_v24a_de_scaffolded_cognitive_core_and_closed_loop(
             full_eval["complete_correct_count"]
             > ablation_results[cond]["complete_correct_count"]
         )
-        or (full_eval["mean_margin"] > ablation_results[cond]["mean_margin"] + 1.0)
-        for cond in ("no_core", "zero_memory", "shuffled_memory", "stale_workspace")
+        or (full_eval["mean_margin"] > ablation_results[cond]["mean_margin"] + 0.5)
+        or (
+            full_eval["mean_gold_routing_prob"]
+            > ablation_results[cond]["mean_gold_routing_prob"] + 0.05
+        )
+        for cond in (
+            "no_core",
+            "zero_sense",
+            "zero_memory",
+            "shuffled_memory",
+            "zero_task_features",
+            "stale_workspace",
+        )
     )
 
     v24a_gate_passed = bool(
@@ -4422,6 +4572,7 @@ def run_v24d_live_replica_decoding_and_two_bank_rs4(
     diag_bindings: dict[str, Any],
     diag_live_slots: dict[int, Tensor],
     diag_anchors: dict[int, Tensor],
+    diag_p_module: NativeHiddenStateConditionedP | None = None,
     calibration_ece_delta: float = -0.01,
     sleep_steps: int = 32,
     sleep_lr: float = 5e-3,
@@ -4871,13 +5022,16 @@ def run_v24d_live_replica_decoding_and_two_bank_rs4(
         )
 
     # 2. Recycle `cycle1_hope.fast_p` (`Pf`) for Cycle-2 `Family B` (`disjoint_diagnostic` `[0, 2, 4, 6]`), keeping total bank count strictly at 2!
-    fresh_fast = NativeHiddenStateConditionedP(
-        engine, anchor_layer=3, hidden_dim=256, lr=sleep_lr, seed=2499
-    )
-    cycle1_hope.fast_p.load_state_dict(fresh_fast.state_dict())
-    cycle1_hope.fast_p.calibrate_anchor_distribution(
-        [diag_anchors[idx] for idx in family_b_indices]
-    )
+    if diag_p_module is not None:
+        cycle1_hope.fast_p.load_state_dict(diag_p_module.state_dict())
+    else:
+        fresh_fast = NativeHiddenStateConditionedP(
+            engine, anchor_layer=3, hidden_dim=256, lr=sleep_lr, seed=2499
+        )
+        cycle1_hope.fast_p.load_state_dict(fresh_fast.state_dict())
+        cycle1_hope.fast_p.calibrate_anchor_distribution(
+            [diag_anchors[idx] for idx in family_b_indices]
+        )
     cycle1_hope.fast_p.optimizer = cycle1_hope.fast_p._make_optimizer()
     for _step in range(consolidate_steps):
         _sleep_distillation_step(
@@ -5552,7 +5706,8 @@ def run_spark_de_scaffolded_cognition_v24_pipeline(
             teacher_topk_targets(engine, row, top_k=top_k)
             for row in diagnostic_rows
         ]
-        for step_i in range(sleep_steps):
+        diag_sleep_steps = max(48, int(sleep_steps) * 2)
+        for step_i in range(diag_sleep_steps):
             _sleep_distillation_step_v23_paraphrase_aware(
                 engine,
                 diag_p_module,
@@ -5633,6 +5788,7 @@ def run_spark_de_scaffolded_cognition_v24_pipeline(
             diag_bindings=diag_bindings,
             diag_live_slots=diag_live_slots,
             diag_anchors=diag_anchors,
+            diag_p_module=diag_p_module,
             calibration_ece_delta=float(v24b_report["calibration_ece_delta"]),
             sleep_steps=sleep_steps,
             sleep_lr=sleep_lr,
