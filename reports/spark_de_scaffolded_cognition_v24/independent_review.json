@@ -1,0 +1,67 @@
+{
+  "decision": "approve",
+  "envelope_and_safety_verification": {
+    "attempt_marker_exists": false,
+    "attempts": 1,
+    "cpu_fallback": false,
+    "development_labels_used": false,
+    "launch_authorized": false,
+    "native_workers": 1,
+    "output_root_exists": false,
+    "output_root_preflight_exists": false,
+    "retries": 0,
+    "review_preflight_passed": true,
+    "sealed_evaluation_labels_opened": false,
+    "unit_tests_passed_venv_and_spark_bf16": true,
+    "v18_2_frozen_snapshot_files_checked": 86,
+    "v18_2_frozen_snapshot_mismatches": 0
+  },
+  "findings": [],
+  "packet_path": "reports/spark_de_scaffolded_cognition_v24/native_packet.json",
+  "packet_sha256": "6bb37538772a27fb62c0d28d4e4631049bb0b8e7d38ff754aad17a81f231541d",
+  "phase": "Phase 4 (V24: De-Scaffolded End-to-End Semi-Cognition, Online Surprise-Driven Titans, Calibrated Post-Generation Verification, and Live Multi-Arm Replica Identity Decoding)",
+  "protocol_sha256": "0eac6e116cde8985fb48d580d98fdd69bd1ecab6167b4f8d1ac9c7400e569d51",
+  "reviewed_files": {
+    "configs/spark_de_scaffolded_cognition_v24.json": "0eac6e116cde8985fb48d580d98fdd69bd1ecab6167b4f8d1ac9c7400e569d51",
+    "data/replica_testing_identity_v24/archivist_v24_fixture.json": "7b77d1afcb098a6c48e1a816986aff1049b85ad1b4a15cef36507742ace033d8",
+    "reports/spark_de_scaffolded_cognition_v24/native_packet.json": "6bb37538772a27fb62c0d28d4e4631049bb0b8e7d38ff754aad17a81f231541d",
+    "scripts/run_spark_de_scaffolded_cognition_v24.py": "2d2a60e51f7275878f5fc60c8cf203896ba9ded674255924cb1178178f41270d",
+    "src/replica_lab/spark_de_scaffolded_cognition_v24.py": "5c2f21f768fbca6a50855233f2e0ffe7695d093a3d02bfc480b3da6f47c3cf06",
+    "tests/test_spark_de_scaffolded_cognition_v24.py": "9a299d7463d9ba34a18223f5558ecde1a1d4ce977684801a7bcced8e4531f7e4"
+  },
+  "reviewer_conversation_id": "50eb5a23-4778-49aa-bf46-eef38423a095",
+  "scaffolds_eliminated_verification": {
+    "1_no_linalg_solve_or_bridge_out_zeroing": {
+      "details": "WorkspaceToSlotBridgeV24 is trained 100% end-to-end via NativeFusedAdamW gradient descent with zero torch.linalg.solve override (ridge_override_used=False) and non-zero learned slot refinement (bridge_out_zeroed=False, bridge_out_weight_l2_norm > 0.0, mean_residual_delta_l2_norm > 0.0).",
+      "verified": true
+    },
+    "2_no_caller_authority_vec_and_closed_loop_decide": {
+      "details": "RecordMetadataProjectorV24 embeds intrinsic 4-D shelf metadata [epoch_norm, provenance_trust, recency_rank, is_override_directive] and pairs with permutation-equivariant bilinear scoring in WorkspaceToSlotBridgeV24 (caller_authority_vec_used=False, candidate_order_permutation_invariant_8_of_8=True). ClosedLoopNeuralProposerV24 runs inside live TaskRuntime.decide(proposer), halting at k=0 on consolidated E=0 queries and emitting retrieve -> answer to escalate contradictory queries from k=0 to k=1.",
+      "verified": true
+    },
+    "3_no_workspace_weight_suppression_and_post_gen_verifier": {
+      "details": "TaskSuccessHead, ActionKindHead, and PooledTaskOutcomeHead train without .mul_(0.01) or .mul_(0.15) suppression on matched-task_features pre- vs. post-arbitration workspace states (workspace_weights_suppressed=False, workspace_weight_l2_norm > 0.50, workspace_causal_reliance_delta >= 0.25). Post-generation AnswerCorrectnessHeadV24 (p_correct), calibrated LearningDirector selector (C13), and live TaskRuntime.decide() tool-repair trajectories for C12 compilation are verified.",
+      "verified": true
+    },
+    "4_no_batch_qr_online_surprise_titans": {
+      "details": "OnlineSurpriseTitansAdapterV24 computes each 256-D chunk key online from that single chunk alone (batch_qr_used=False, online_per_chunk_keys=True) and streams a 6-chunk 2-epoch contradictory sequence ([0, 2, 4, 6] -> [1, 3]) through TitansChunkSessionV20 with active surprise momentum (eta_t > 0) and adaptive forgetting (alpha_t > 0), plus targeted source revocation.",
+      "verified": true
+    },
+    "5_no_disc_token_whitelist_or_second_forward_pass_salience": {
+      "details": "SinglePassSalienceAnchorPoolerV24 extracts contextual hidden states and token embeddings in a single forward pass per prompt (disc_token_whitelist_used=False, second_isolated_forward_pass_used=False, calls_delta == 1) and achieves 0 keep-token mismatches on the native Spark X2.6 4B BPE tokenizer across both fit (Aurelia, Bramwell, Calderon, Dorian) and unseen diagnostic_fit (Evander, Fiora, Gideon, Helena) entities across all 4 paraphrase templates.",
+      "verified": true
+    },
+    "6_no_static_fidelity_outputs_or_hardcoded_1_5_slots": {
+      "details": "Loads persistent testing-usage fixture data/replica_testing_identity_v24/archivist_v24_fixture.json (replica_test_archivist_v24, provenance='fictional', personal_fidelity_claim=False), encodes resolved IdentityContext via ApprovedSourceToSlotEncoderV24 into [1, 4, 256] slots, and executes live Spark decoding across all 4 operating modes and all 4 conditioning arms (zero_static_fidelity_strings=True).",
+      "verified": true
+    },
+    "7_no_identity_reader_zeroing_before_export": {
+      "details": "IdentityReader operates strictly in the orthogonal S_identity_pref = workspace[:, :, 128:256] subspace (output_projection.weight[:128, :] == 0.0), achieving 0.0 factual logit distortion on S_task_fact while remaining non-zero (identity_reader_zeroed_before_export=False, identity_reader_weight_l2_norm > 0.0) in the exported unified checkpoint with bit-exact reload parity (max_abs_diff == 0.0).",
+      "verified": true
+    },
+    "8_true_two_bank_consolidated_hope_with_parametric_router": {
+      "details": "TwoBankConsolidatedHOPEV24 maintains exactly 2 banks (slow_ps + fast_pf, total_hope_banks=2, third_adapter_spawned=False), consolidates Cycle-1 Family A into slow_ps during sleep, recycles fast_pf for Cycle-2 Family B, and routes queries via learned parametric prototypes + bank_router_mlp in state_dict() (raw_anchor_key_lists_used=False).",
+      "verified": true
+    }
+  }
+}
