@@ -1,0 +1,63 @@
+{
+  "verdict": "approve",
+  "phase": "Phase 4 (V24) attempt03 Pre-Launch Audit",
+  "reviewer_conversation_id": "50eb5a23-4778-49aa-bf46-eef38423a095",
+  "reviewed_files_sha256": {
+    "reports/spark_de_scaffolded_cognition_v24/native_packet_attempt03.json": "9e78746f44fecee681c03bd6dc62a7ad6ef40b01fae057a2512c133b2a8a7a53",
+    "configs/spark_de_scaffolded_cognition_v24.json": "0eac6e116cde8985fb48d580d98fdd69bd1ecab6167b4f8d1ac9c7400e569d51",
+    "src/replica_lab/spark_de_scaffolded_cognition_v24.py": "5d8a884c8c9daa203d74aacce7c92a71a345e221c97188acf98cdca475858ec1",
+    "scripts/run_spark_de_scaffolded_cognition_v24.py": "2d2a60e51f7275878f5fc60c8cf203896ba9ded674255924cb1178178f41270d",
+    "data/replica_testing_identity_v24/archivist_v24_fixture.json": "7b77d1afcb098a6c48e1a816986aff1049b85ad1b4a15cef36507742ace033d8",
+    "tests/test_spark_de_scaffolded_cognition_v24.py": "9a299d7463d9ba34a18223f5558ecde1a1d4ce977684801a7bcced8e4531f7e4",
+    "reports/spark_de_scaffolded_cognition_v24/native_bf16_de_scaffolded_cognition_attempt01/result.json": "df8bcece9ea5e8965012e06bcca83c4c12a3f7aa3e1479447669384e8112ae3f",
+    "reports/spark_de_scaffolded_cognition_v24/native_bf16_de_scaffolded_cognition_attempt02/result.json": "da0c5957118ae9bbeb3ae9b4bcaa59a990e12d88603350995d9db6a804874096"
+  },
+  "attempt03_verification": {
+    "1_prior_attempts_preserved_and_non_overlapping": {
+      "verified": true,
+      "attempt01_result_sha256": "df8bcece9ea5e8965012e06bcca83c4c12a3f7aa3e1479447669384e8112ae3f",
+      "attempt02_result_sha256": "da0c5957118ae9bbeb3ae9b4bcaa59a990e12d88603350995d9db6a804874096",
+      "attempt02_passed_stages": [
+        "V24-A",
+        "V24-B",
+        "V24-D"
+      ],
+      "output_root": "reports/spark_de_scaffolded_cognition_v24/native_bf16_de_scaffolded_cognition_attempt03",
+      "output_root_exists": false,
+      "output_root_preflight_exists": false,
+      "attempt_marker": "runs/spark_de_scaffolded_cognition_v24/attempts_03.jsonl",
+      "attempt_marker_exists": false
+    },
+    "2_frozen_v18_2_and_sealed_labels_untouched": {
+      "verified": true,
+      "v18_2_frozen_snapshot_files_checked": 86,
+      "v18_2_frozen_snapshot_mismatches": 0,
+      "runtime_pilot_untouched": true,
+      "sealed_evaluation_labels_opened": false,
+      "development_labels_used": false
+    },
+    "3_all_8_v24_de_scaffolding_invariants_and_rms_scale_matching_verified": {
+      "verified": true,
+      "v24c_rms_scale_matching": "SinglePassSalienceAnchorPoolerV24 normalizes sequence-level RMS of e_tok (e_scale = e_tok / e_tok.pow(2).mean().sqrt().clamp_min(1e-6)) and h_full (h_scale = h_full / h_full.pow(2).mean().sqrt().clamp_min(1e-6)) in both _compute_contextual_pooled_state and calibrate_from_canonical_and_paraphrases before forming h_blend = 0.92 * e_scale + 0.08 * h_scale, eliminating the ~100x RMS magnitude disparity between raw token embeddings and layer-3 hidden states on native 2560-D Spark X2.6 4B while maintaining single-pass execution (calls_delta == 1) and zero disc_token_ids whitelist.",
+      "scaffolds_status": {
+        "ridge_override_used": false,
+        "bridge_out_zeroed": false,
+        "caller_authority_vec_used": false,
+        "workspace_weights_suppressed": false,
+        "batch_qr_used": false,
+        "disc_token_whitelist_used": false,
+        "second_isolated_forward_pass_used": false,
+        "zero_static_fidelity_strings": true,
+        "identity_reader_zeroed_before_export": false,
+        "total_hope_banks": 2,
+        "third_adapter_spawned": false,
+        "raw_anchor_key_lists_used": false
+      }
+    },
+    "4_preflight_and_tests": {
+      "review_preflight_passed": true,
+      "pytest_venv_passed": true,
+      "unittest_venv_spark_bf16_passed": true
+    }
+  }
+}

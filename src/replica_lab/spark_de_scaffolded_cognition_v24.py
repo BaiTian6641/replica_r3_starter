@@ -713,8 +713,10 @@ class SinglePassSalienceAnchorPoolerV24(nn.Module):
             h_full, e_tok = _extract_prefix_hidden_and_embed_v24(
                 self.p_module, sub_ids, sub_mask, prompt_tokens=p_len
             )
-            # Blend token input representation `e_tok` (position-invariant) with layer-3 contextual `h_full` from the SAME single forward pass
-            h_blend = 0.92 * e_tok + 0.08 * h_full
+            e_scale = e_tok / e_tok.pow(2).mean().sqrt().clamp_min(1e-6)
+            h_scale = h_full / h_full.pow(2).mean().sqrt().clamp_min(1e-6)
+            # Blend RMS-matched token input representation `e_scale` (position-invariant) with layer-3 contextual `h_scale` from the SAME single forward pass
+            h_blend = 0.92 * e_scale + 0.08 * h_scale
             h_content = h_blend - self.template_mean_vec.view(1, 1, -1)
             content_energy = h_content.norm(dim=-1, keepdim=True)  # [1, T, 1]
         self.single_forward_pass_calls += 1
@@ -782,7 +784,7 @@ class SinglePassSalienceAnchorPoolerV24(nn.Module):
             shared_template_toks = (ta & tb) - (probe_a_toks & probe_b_toks)
             self.boundary_token_ids.update(int(t) for t in shared_template_toks)
 
-        # Compute template mean vector from canonical prefixes
+        # Compute template mean vector from canonical prefixes using matched RMS scaling
         all_vecs: list[Tensor] = []
         with torch.no_grad():
             for pair_idx in range(pair_count):
@@ -793,7 +795,9 @@ class SinglePassSalienceAnchorPoolerV24(nn.Module):
                 h_full, e_tok = _extract_prefix_hidden_and_embed_v24(
                     self.p_module, p_ids, p_mask, prompt_tokens=len(p_toks)
                 )
-                h_blend = (0.92 * e_tok + 0.08 * h_full)[0]
+                e_scale = e_tok / e_tok.pow(2).mean().sqrt().clamp_min(1e-6)
+                h_scale = h_full / h_full.pow(2).mean().sqrt().clamp_min(1e-6)
+                h_blend = (0.92 * e_scale + 0.08 * h_scale)[0]
                 all_vecs.append(h_blend.mean(dim=0))
             mean_vec = torch.stack(all_vecs, dim=0).mean(dim=0)
             self.template_mean_vec.copy_(mean_vec)
@@ -5706,7 +5710,7 @@ def run_spark_de_scaffolded_cognition_v24_pipeline(
             teacher_topk_targets(engine, row, top_k=top_k)
             for row in diagnostic_rows
         ]
-        diag_sleep_steps = max(48, int(sleep_steps) * 2)
+        diag_sleep_steps = max(32, int(sleep_steps))
         for step_i in range(diag_sleep_steps):
             _sleep_distillation_step_v23_paraphrase_aware(
                 engine,
