@@ -713,10 +713,8 @@ class SinglePassSalienceAnchorPoolerV24(nn.Module):
             h_full, e_tok = _extract_prefix_hidden_and_embed_v24(
                 self.p_module, sub_ids, sub_mask, prompt_tokens=p_len
             )
-            e_scale = e_tok / e_tok.pow(2).mean().sqrt().clamp_min(1e-6)
-            h_scale = h_full / h_full.pow(2).mean().sqrt().clamp_min(1e-6)
-            # Blend RMS-matched token input representation `e_scale` (position-invariant) with layer-3 contextual `h_scale` from the SAME single forward pass
-            h_blend = 0.92 * e_scale + 0.08 * h_scale
+            # Blend token input representation `e_tok` (position-invariant) with layer-3 contextual `h_full` from the SAME single forward pass
+            h_blend = 0.92 * e_tok + 0.08 * h_full
             h_content = h_blend - self.template_mean_vec.view(1, 1, -1)
             content_energy = h_content.norm(dim=-1, keepdim=True)  # [1, T, 1]
         self.single_forward_pass_calls += 1
@@ -784,7 +782,7 @@ class SinglePassSalienceAnchorPoolerV24(nn.Module):
             shared_template_toks = (ta & tb) - (probe_a_toks & probe_b_toks)
             self.boundary_token_ids.update(int(t) for t in shared_template_toks)
 
-        # Compute template mean vector from canonical prefixes using matched RMS scaling
+        # Compute template mean vector from canonical prefixes
         all_vecs: list[Tensor] = []
         with torch.no_grad():
             for pair_idx in range(pair_count):
@@ -795,9 +793,7 @@ class SinglePassSalienceAnchorPoolerV24(nn.Module):
                 h_full, e_tok = _extract_prefix_hidden_and_embed_v24(
                     self.p_module, p_ids, p_mask, prompt_tokens=len(p_toks)
                 )
-                e_scale = e_tok / e_tok.pow(2).mean().sqrt().clamp_min(1e-6)
-                h_scale = h_full / h_full.pow(2).mean().sqrt().clamp_min(1e-6)
-                h_blend = (0.92 * e_scale + 0.08 * h_scale)[0]
+                h_blend = (0.92 * e_tok + 0.08 * h_full)[0]
                 all_vecs.append(h_blend.mean(dim=0))
             mean_vec = torch.stack(all_vecs, dim=0).mean(dim=0)
             self.template_mean_vec.copy_(mean_vec)
@@ -4559,6 +4555,179 @@ def _run_autoregressive_multitoken_generation_v24(
     }
 
 
+def _warmstart_p_slots_v24(
+    p_module: NativeHiddenStateConditionedP,
+    target_slots: dict[int, Tensor],
+    anchor_vecs: dict[int, Tensor],
+    world_indices: list[int],
+    *,
+    steps: int = 80,
+    lr: float = 1.2e-2,
+    post_lr: float = 1.5e-3,
+) -> float:
+    """Warm-start `p_module.slot_net` to reconstruct `target_slots[idx]` from `anchor_vecs[idx]` (`0` 4B forward passes) before 4B sleep distillation."""
+    ws_opt = _make_v24_adamw(
+        p_module.parameters(),
+        lr=lr,
+        weight_decay=1e-4,
+        group_name="v24_warmstart_p_slots",
+    )
+    final_mse = 0.0
+    for step_i in range(steps):
+        ws_opt.zero_grad(set_to_none=True)
+        frac = 1.0 - 0.85 * (float(step_i) / float(max(1, steps - 1)))
+        for pg in ws_opt.param_groups:
+            pg["lr"] = lr * frac
+        losses = []
+        for idx in world_indices:
+            pred_slots = p_module.generate_p_slots(anchor_vecs[idx])
+            tgt = target_slots[idx].detach()
+            losses.append((pred_slots - tgt).pow(2).sum() / 4.0)
+        loss = sum(losses) / float(max(1, len(losses)))
+        loss.backward()
+        ws_opt.step()
+        final_mse = float(loss.detach().cpu().item()) / 256.0
+    p_module.optimizer = _make_v24_adamw(
+        p_module.parameters(),
+        lr=min(float(p_module.lr), float(post_lr)),
+        weight_decay=1e-4,
+        group_name="v24_sleep_p_slots",
+    )
+    return final_mse
+
+
+def _sleep_distillation_step_v24_paraphrase_aware(
+    engine,
+    p_module: NativeHiddenStateConditionedP,
+    bindings: dict[str, Any],
+    para_bindings_list: list[list[tuple[Any, Any]]],
+    teacher_targets: list[dict[str, Any]],
+    wake_live_slots: dict[int, Tensor],
+    anchor_vecs: dict[int, Tensor],
+    world_indices: list[int],
+    *,
+    step_idx: int,
+    total_steps: int = 32,
+    top_k_kl_weight: float = 0.5,
+    slot_mse_weight: float = 0.15,
+) -> dict[str, Any]:
+    """Run one joint sleep distillation step over `world_indices` into `p_module` (`phi` frozen).
+
+    Keeps `world_kl` active across canonical (0) and all 3 paraphrase templates (1, 2, 3),
+    supervises full-vocabulary `<eos>` cross-entropy (`eos_ce`), and anchors `p_slots`
+    to `wake_live_slots[idx]` via per-slot squared error (`slot_sum_mse`) so `p_slots`
+    never drifts off the qualified wake manifold.
+    """
+    p_module.optimizer.zero_grad(set_to_none=True)
+    base_lr = min(float(p_module.lr), 1.5e-3)
+    frac = 1.0 - 0.75 * (float(step_idx) / float(max(1, total_steps - 1)))
+    for pg in p_module.optimizer.param_groups:
+        pg["lr"] = base_lr * max(0.20, frac)
+
+    losses = []
+    active_color_ids: set[int] = set()
+    for r_encs in bindings["encodings"]:
+        for enc in r_encs:
+            f_pos = int(enc.metadata["prompt_tokens"]) - 1
+            active_color_ids.add(int(enc.labels[0, f_pos].item()))
+    color_ids_list = sorted(active_color_ids)
+    eos_id = int(engine.spec.eos_token_id)
+
+    for idx in world_indices:
+        variant_choice = step_idx % (1 + len(para_bindings_list))
+        if variant_choice == 0 or not para_bindings_list:
+            encoding = bindings["encodings"][idx][0]
+            alt_encoding = bindings["encodings"][idx][1]
+        else:
+            encoding, alt_encoding = para_bindings_list[variant_choice - 1][idx]
+
+        logits, p_slots = p_module.forward_source_free(
+            encoding.input_ids,
+            encoding.attention_mask,
+            anchor_vec=anchor_vecs[idx],
+            external_evidence_count=0,
+        )
+        parts = sequence_likelihood_parts(logits, encoding, spec=engine.spec)
+        sup_tokens = int(parts["supervised_tokens"])
+        world_ce = (
+            -(parts["answer_log_likelihood"] + parts["eos_log_likelihood"])
+            / float(sup_tokens)
+        )
+
+        first_pos = int(encoding.metadata["prompt_tokens"]) - 1
+        eos_pos = int(encoding.metadata["terminal_prediction_position"])
+        first_logits = logits[0, first_pos].to(dtype=torch.float32)
+        first_log_probs = F.log_softmax(first_logits, dim=-1)
+        gold_id = int(encoding.labels[0, first_pos].item())
+        alt_id = int(alt_encoding.labels[0, first_pos].item())
+        pair_margin_loss = F.softplus(
+            4.5 - (first_log_probs[gold_id] - first_log_probs[alt_id])
+        )
+        rival_ids = [cid for cid in color_ids_list if cid != gold_id]
+        if rival_ids:
+            color_4way_loss = F.softplus(
+                4.5 - (first_log_probs[gold_id] - first_log_probs[rival_ids])
+            ).mean()
+        else:
+            color_4way_loss = torch.zeros_like(world_ce)
+
+        if eos_pos > first_pos:
+            eos_logits = logits[0, eos_pos].to(dtype=torch.float32)
+            eos_ce = F.cross_entropy(
+                eos_logits.unsqueeze(0),
+                encoding.labels[0, eos_pos : eos_pos + 1],
+            )
+            if color_ids_list:
+                eos_guard_loss = F.softplus(
+                    4.5 - (eos_logits[eos_id] - eos_logits[color_ids_list])
+                ).mean()
+            else:
+                eos_guard_loss = torch.zeros_like(world_ce)
+        else:
+            eos_ce = torch.zeros_like(world_ce)
+            eos_guard_loss = torch.zeros_like(world_ce)
+
+        target_slots = wake_live_slots[idx].detach()
+        slot_sum_mse = (p_slots - target_slots).pow(2).sum() / 4.0
+
+        window = _answer_slice(encoding)
+        target_info = teacher_targets[idx]
+        step_logits = (
+            logits[0, window].to(dtype=torch.float32)
+            / float(target_info["temperature"])
+        )
+        top_indices = target_info["top_indices"].to(device=step_logits.device)
+        teacher_log_probs = target_info["teacher_log_probs"].to(
+            device=step_logits.device
+        )
+        full_student_log_probs = F.log_softmax(step_logits, dim=-1)
+        student_log_probs = torch.gather(
+            full_student_log_probs, dim=-1, index=top_indices
+        )
+        world_kl = (
+            teacher_log_probs.exp() * (teacher_log_probs - student_log_probs)
+        ).sum(dim=-1).mean()
+
+        total_world_loss = (
+            world_ce
+            + float(top_k_kl_weight) * world_kl
+            + 0.40 * eos_ce
+            + 0.30 * color_4way_loss
+            + 0.25 * pair_margin_loss
+            + 0.15 * eos_guard_loss
+            + float(slot_mse_weight) * slot_sum_mse
+        )
+        losses.append(total_world_loss)
+        p_module.lineage.add(bindings["rows"][idx]["world_id"])
+
+    joint_loss = sum(losses) / float(len(losses))
+    with _measured(engine, "v24_sleep_distillation_backward", backwards=1):
+        joint_loss.backward()
+    with _measured(engine, "v24_sleep_distillation_step", updates=1):
+        p_module.optimizer.step()
+    return {"loss": float(joint_loss.detach().cpu().item())}
+
+
 def run_v24d_live_replica_decoding_and_two_bank_rs4(
     engine,
     semi_engine: EndToEndSemiCognitionEngineV24,
@@ -5011,18 +5180,26 @@ def run_v24d_live_replica_decoding_and_two_bank_rs4(
     cycle1_hope.slow_p.calibrate_anchor_distribution(
         [cycle1_active_anchors[idx] for idx in active_t2_indices]
     )
-    cycle1_hope.slow_p.optimizer = cycle1_hope.slow_p._make_optimizer()
+    _warmstart_p_slots_v24(
+        cycle1_hope.slow_p,
+        wake_live_slots,
+        cycle1_active_anchors,
+        active_t2_indices,
+    )
     for _step_i in range(consolidate_steps):
-        _sleep_distillation_step(
+        _sleep_distillation_step_v24_paraphrase_aware(
             engine,
             cycle1_hope.slow_p,
             fit_bindings,
+            [],
             teacher_targets,
             wake_live_slots,
             cycle1_active_anchors,
             active_t2_indices,
+            step_idx=_step_i,
+            total_steps=consolidate_steps,
             top_k_kl_weight=0.5,
-            slot_mse_weight=3.0,
+            slot_mse_weight=0.15,
         )
 
     # 2. Recycle `cycle1_hope.fast_p` (`Pf`) for Cycle-2 `Family B` (`disjoint_diagnostic` `[0, 2, 4, 6]`), keeping total bank count strictly at 2!
@@ -5036,18 +5213,26 @@ def run_v24d_live_replica_decoding_and_two_bank_rs4(
         cycle1_hope.fast_p.calibrate_anchor_distribution(
             [diag_anchors[idx] for idx in family_b_indices]
         )
-    cycle1_hope.fast_p.optimizer = cycle1_hope.fast_p._make_optimizer()
+    _warmstart_p_slots_v24(
+        cycle1_hope.fast_p,
+        diag_live_slots,
+        diag_anchors,
+        family_b_indices,
+    )
     for _step in range(consolidate_steps):
-        _sleep_distillation_step(
+        _sleep_distillation_step_v24_paraphrase_aware(
             engine,
             cycle1_hope.fast_p,
             diag_bindings,
+            [],
             diag_teacher_targets,
             diag_live_slots,
             diag_anchors,
             family_b_indices,
+            step_idx=_step,
+            total_steps=consolidate_steps,
             top_k_kl_weight=0.5,
-            slot_mse_weight=3.0,
+            slot_mse_weight=0.15,
         )
 
     # 3. Update the learned parametric `BankRouterV24` inside `cycle1_hope` (`slow_prototypes` = Family A `[1, 3, 4, 6]`, `fast_prototypes` = Family B `[0, 2, 4, 6]`, `0` 3rd adapter!)
@@ -5634,12 +5819,14 @@ def run_spark_de_scaffolded_cognition_v24_pipeline(
         para_bindings_list = _build_paraphrase_bindings(fit_rows)
         diag_para_bindings_list = _build_paraphrase_bindings(diagnostic_rows)
 
-        from .spark_end_to_end_cognition_v23 import (
-            _sleep_distillation_step_v23_paraphrase_aware,
+        _warmstart_p_slots_v24(
+            p1_v24,
+            wake_live_slots,
+            canonical_anchors,
+            epoch1_indices,
         )
-
         for step_i in range(sleep_steps):
-            _sleep_distillation_step_v23_paraphrase_aware(
+            _sleep_distillation_step_v24_paraphrase_aware(
                 engine,
                 p1_v24,
                 fit_bindings,
@@ -5649,8 +5836,9 @@ def run_spark_de_scaffolded_cognition_v24_pipeline(
                 canonical_anchors,
                 epoch1_indices,
                 step_idx=step_i,
+                total_steps=sleep_steps,
                 top_k_kl_weight=0.5,
-                slot_mse_weight=3.0,
+                slot_mse_weight=0.15,
             )
 
         slow_ps = p1_v24.clone()
@@ -5659,8 +5847,14 @@ def run_spark_de_scaffolded_cognition_v24_pipeline(
         )
         fast_pf.anchor_mean.copy_(p1_v24.anchor_mean)
         fast_pf.anchor_std.copy_(p1_v24.anchor_std)
+        _warmstart_p_slots_v24(
+            fast_pf,
+            wake_live_slots,
+            canonical_anchors,
+            epoch2_indices,
+        )
         for step_i in range(sleep_steps):
-            _sleep_distillation_step_v23_paraphrase_aware(
+            _sleep_distillation_step_v24_paraphrase_aware(
                 engine,
                 fast_pf,
                 fit_bindings,
@@ -5670,8 +5864,9 @@ def run_spark_de_scaffolded_cognition_v24_pipeline(
                 canonical_anchors,
                 epoch2_indices,
                 step_idx=step_i,
+                total_steps=sleep_steps,
                 top_k_kl_weight=0.5,
-                slot_mse_weight=3.0,
+                slot_mse_weight=0.15,
             )
 
         hope_v24 = TwoBankConsolidatedHOPEV24(
@@ -5711,8 +5906,14 @@ def run_spark_de_scaffolded_cognition_v24_pipeline(
             for row in diagnostic_rows
         ]
         diag_sleep_steps = max(32, int(sleep_steps))
+        _warmstart_p_slots_v24(
+            diag_p_module,
+            diag_live_slots,
+            diag_anchors,
+            epoch1_indices,
+        )
         for step_i in range(diag_sleep_steps):
-            _sleep_distillation_step_v23_paraphrase_aware(
+            _sleep_distillation_step_v24_paraphrase_aware(
                 engine,
                 diag_p_module,
                 diag_bindings,
@@ -5722,8 +5923,9 @@ def run_spark_de_scaffolded_cognition_v24_pipeline(
                 diag_anchors,
                 epoch1_indices,
                 step_idx=step_i,
+                total_steps=diag_sleep_steps,
                 top_k_kl_weight=0.5,
-                slot_mse_weight=3.0,
+                slot_mse_weight=0.15,
             )
 
         # 3. Run Stage V24-A: De-Scaffolded `CognitiveCore` + Record-Metadata Projection + Live `TaskRuntime.decide()` Controller
